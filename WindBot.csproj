@@ -1,0 +1,121 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{3E7FAF67-A27D-4A61-B161-93AD4414183E}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WindBot</RootNamespace>
+    <AssemblyName>WindBot</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Mono.Data.Sqlite">
+      <HintPath>.\Mono.Data.Sqlite.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Game\AI\AIFunctions.cs" />
+    <Compile Include="Game\AI\CardContainer.cs" />
+    <Compile Include="Game\AI\CardExecutor.cs" />
+    <Compile Include="Game\AI\CardExtension.cs" />
+    <Compile Include="Game\AI\CardSelector.cs" />
+    <Compile Include="Game\AI\DeckAttribute.cs" />
+    <Compile Include="Game\AI\DecksManager.cs" />
+    <Compile Include="Game\AI\Decks\HorusExecutor.cs" />
+    <Compile Include="Game\AI\Decks\OldSchoolExecutor.cs" />
+    <Compile Include="Game\AI\DefaultExecutor.cs" />
+    <Compile Include="Game\AI\Dialogs.cs" />
+    <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
+    <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
+    <Compile Include="Game\AI\Enums\NegateAttackSpell.cs" />
+    <Compile Include="Game\AI\Enums\NegatesEffects.cs" />
+    <Compile Include="Game\AI\Enums\NegatesSpells.cs" />
+    <Compile Include="Game\AI\Enums\NegatesSummons.cs" />
+    <Compile Include="Game\AI\Enums\NegatesTraps.cs" />
+    <Compile Include="Game\AI\Executor.cs" />
+    <Compile Include="Game\AI\ExecutorType.cs" />
+    <Compile Include="Game\BattlePhase.cs" />
+    <Compile Include="Game\BattlePhaseAction.cs" />
+    <Compile Include="Game\ClientCard.cs" />
+    <Compile Include="Game\ClientField.cs" />
+    <Compile Include="Game\Data\CardData.cs" />
+    <Compile Include="Game\Data\CardsManager.cs" />
+    <Compile Include="Game\Data\Deck.cs" />
+    <Compile Include="Game\Duel.cs" />
+    <Compile Include="Game\Enums\CardAttribute.cs" />
+    <Compile Include="Game\Enums\CardLocation.cs" />
+    <Compile Include="Game\Enums\CardPosition.cs" />
+    <Compile Include="Game\Enums\CardRace.cs" />
+    <Compile Include="Game\Enums\CardType.cs" />
+    <Compile Include="Game\Enums\Phase.cs" />
+    <Compile Include="Game\Enums\Query.cs" />
+    <Compile Include="Game\GameAI.cs" />
+    <Compile Include="Game\GameBehavior.cs" />
+    <Compile Include="Game\GameClient.cs" />
+    <Compile Include="Game\MainPhase.cs" />
+    <Compile Include="Game\MainPhaseAction.cs" />
+    <Compile Include="Game\Network\BinaryExtensions.cs" />
+    <Compile Include="Game\Network\Enums\CtosMessage.cs" />
+    <Compile Include="Game\Network\Enums\GameMessage.cs" />
+    <Compile Include="Game\Network\Enums\PlayerChange.cs" />
+    <Compile Include="Game\Network\Enums\StocMessage.cs" />
+    <Compile Include="Game\Network\GameClientPacket.cs" />
+    <Compile Include="Game\Network\GameConnection.cs" />
+    <Compile Include="Game\Network\GameServerPacket.cs" />
+    <Compile Include="Game\Room.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="Decks\AI_Horus.ydk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Decks\AI_OldSchool.ydk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sqlite3.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
