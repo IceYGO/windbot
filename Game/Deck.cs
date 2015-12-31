@@ -1,25 +1,26 @@
-﻿using System;
+﻿using OCGWrapper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace WindBot.Game.Data
+namespace WindBot.Game
 {
     public class Deck
     {
-        public IList<CardData> Cards { get; private set; }
-        public IList<CardData> ExtraCards { get; private set; }
-        public IList<CardData> SideCards { get; private set; }
+        public IList<NamedCard> Cards { get; private set; }
+        public IList<NamedCard> ExtraCards { get; private set; }
+        public IList<NamedCard> SideCards { get; private set; }
 
         public Deck()
         {
-            Cards = new List<CardData>();
-            ExtraCards = new List<CardData>();
-            SideCards = new List<CardData>();
+            Cards = new List<NamedCard>();
+            ExtraCards = new List<NamedCard>();
+            SideCards = new List<NamedCard>();
         }
 
         private void AddNewCard(int cardId, bool sideDeck)
         {
-            CardData newCard = CardsManager.GetCard(cardId);
+            NamedCard newCard = NamedCard.Get(cardId);
             if (newCard == null)
                 return;
 
@@ -29,7 +30,7 @@ namespace WindBot.Game.Data
                 SideCards.Add(newCard);
         }
 
-        private void AddCard(CardData card)
+        private void AddCard(NamedCard card)
         {
             if (card.IsExtraCard())
                 ExtraCards.Add(card);

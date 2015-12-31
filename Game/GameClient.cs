@@ -1,13 +1,12 @@
-﻿using System.Net;
-using System.Text;
-using WindBot.Game.Network;
-using WindBot.Game.Network.Enums;
+﻿using System.Text;
+using YGOSharp.Network;
+using YGOSharp.Network.Enums;
 
 namespace WindBot.Game
 {
     public class GameClient
     {
-        public GameConnection Connection { get; private set; }
+        public CoreClient Connection { get; private set; }
         public string Username;
         public string Deck;
 
@@ -17,7 +16,7 @@ namespace WindBot.Game
 
         private GameBehavior _behavior;
 
-        public GameClient(string username, string deck, string serverHost, int serverPort, string roomInfos)
+        public GameClient(string username, string deck, string serverHost, int serverPort, string roomInfos = "")
         {
             Username = username;
             Deck = deck;
@@ -28,15 +27,17 @@ namespace WindBot.Game
 
         public void Start()
         {
-            Connection = new GameConnection(IPAddress.Parse(_serverHost), _serverPort);
+            Connection = new CoreClient(_serverHost, _serverPort);
+            Connection.MessageReceived += OnMessageReceived;
+
             _behavior = new GameBehavior(this);
 
-            GameClientPacket packet = new GameClientPacket(CtosMessage.PlayerInfo);
+            GamePacketWriter packet = new GamePacketWriter(CtosMessage.PlayerInfo);
             packet.Write(Username, 20);
             Connection.Send(packet);
 
             byte[] junk = { 0xCC, 0xCC, 0x00, 0x00, 0x00, 0x00 };
-            packet = new GameClientPacket(CtosMessage.JoinGame);
+            packet = new GamePacketWriter(CtosMessage.JoinGame);
             packet.Write(Program.ProVersion);
             packet.Write(junk);
             packet.Write(_roomInfos, 30);
@@ -45,23 +46,21 @@ namespace WindBot.Game
 
         public void Tick()
         {
-            if (!Connection.IsConnected)
-            {
-                return;
-            }
-            while (Connection.HasPacket())
-            {
-                GameServerPacket packet = Connection.Receive();
-                _behavior.OnPacket(packet);
-            }
+            Connection.UpdateNetwork();
+            Connection.Update();
         }
 
         public void Chat(string message)
         {
             byte[] content = Encoding.Unicode.GetBytes(message + "\0");
-            GameClientPacket chat = new GameClientPacket(CtosMessage.Chat);
+            GamePacketWriter chat = new GamePacketWriter(CtosMessage.Chat);
             chat.Write(content);
             Connection.Send(chat);
+        }
+
+        private void OnMessageReceived(object sender, MessageEventArgs e)
+        {
+            _behavior.OnPacket(e.Message);
         }
     }
 }

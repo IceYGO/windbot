@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using WindBot.Game.Enums;
+﻿using OCGWrapper.Enums;
+using System.Collections.Generic;
 
 namespace WindBot.Game
 {
@@ -12,7 +12,7 @@ namespace WindBot.Game
 
         public int Turn { get; set; }
         public int Player { get; set; }
-        public Phase Phase { get; set; }
+        public DuelPhase Phase { get; set; }
         public MainPhase MainPhase { get; set; }
         public BattlePhase BattlePhase { get; set; }
 

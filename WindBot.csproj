@@ -38,9 +38,15 @@
     <Reference Include="Mono.Data.Sqlite">
       <HintPath>.\Mono.Data.Sqlite.dll</HintPath>
     </Reference>
+    <Reference Include="OCGWrapper">
+      <HintPath>.\OCGWrapper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="YGOSharp.Network">
+      <HintPath>.\YGOSharp.Network.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Game\AI\AIFunctions.cs" />
@@ -67,30 +73,13 @@
     <Compile Include="Game\BattlePhaseAction.cs" />
     <Compile Include="Game\ClientCard.cs" />
     <Compile Include="Game\ClientField.cs" />
-    <Compile Include="Game\Data\CardData.cs" />
-    <Compile Include="Game\Data\CardsManager.cs" />
-    <Compile Include="Game\Data\Deck.cs" />
+    <Compile Include="Game\Deck.cs" />
     <Compile Include="Game\Duel.cs" />
-    <Compile Include="Game\Enums\CardAttribute.cs" />
-    <Compile Include="Game\Enums\CardLocation.cs" />
-    <Compile Include="Game\Enums\CardPosition.cs" />
-    <Compile Include="Game\Enums\CardRace.cs" />
-    <Compile Include="Game\Enums\CardType.cs" />
-    <Compile Include="Game\Enums\Phase.cs" />
-    <Compile Include="Game\Enums\Query.cs" />
     <Compile Include="Game\GameAI.cs" />
     <Compile Include="Game\GameBehavior.cs" />
     <Compile Include="Game\GameClient.cs" />
     <Compile Include="Game\MainPhase.cs" />
     <Compile Include="Game\MainPhaseAction.cs" />
-    <Compile Include="Game\Network\BinaryExtensions.cs" />
-    <Compile Include="Game\Network\Enums\CtosMessage.cs" />
-    <Compile Include="Game\Network\Enums\GameMessage.cs" />
-    <Compile Include="Game\Network\Enums\PlayerChange.cs" />
-    <Compile Include="Game\Network\Enums\StocMessage.cs" />
-    <Compile Include="Game\Network\GameClientPacket.cs" />
-    <Compile Include="Game\Network\GameConnection.cs" />
-    <Compile Include="Game\Network\GameServerPacket.cs" />
     <Compile Include="Game\Room.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />

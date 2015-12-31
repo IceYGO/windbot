@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using WindBot.Game.Data;
-using WindBot.Game.Enums;
-using WindBot.Game.Network;
+﻿using OCGWrapper;
+using OCGWrapper.Enums;
+using System.Collections.Generic;
+using YGOSharp.Network;
 
 namespace WindBot.Game
 {
     public class ClientCard
     {
         public int Id { get; private set; }
-        public CardData Data { get; private set; }
+        public NamedCard Data { get; private set; }
         public string Name { get; private set; }
 
         public int Position { get; set; }
@@ -49,12 +49,12 @@ namespace WindBot.Game
         {
             if (Id == id) return;
             Id = id;
-            Data = CardsManager.GetCard(Id);
+            Data = NamedCard.Get(Id);
             if (Data != null)
                 Name = Data.Name;
         }
 
-        public void Update(GameServerPacket packet, Duel duel)
+        public void Update(GamePacketReader packet, Duel duel)
         {
             int flag = packet.ReadInt32();
             if ((flag & (int)Query.Code) != 0)
@@ -170,7 +170,7 @@ namespace WindBot.Game
 
         public bool IsDefense()
         {
-            return HasPosition(CardPosition.Defense);
+            return HasPosition(CardPosition.Defence);
         }
 
         public int GetDefensePower()

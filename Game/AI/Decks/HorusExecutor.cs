@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using WindBot.Game.Enums;
+﻿using OCGWrapper.Enums;
+using System.Collections.Generic;
 
 namespace WindBot.Game.AI.Decks
 {
@@ -86,9 +86,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool BellowOfTheSilverDragon()
         {
-            if (Duel.Player == 0 && (Duel.Phase == Phase.Draw || Duel.Phase == Phase.Standby))
+            if (Duel.Player == 0 && (Duel.Phase == DuelPhase.Draw || Duel.Phase == DuelPhase.Standby))
                 return false;
-            if (Duel.Player == 1 && Duel.Phase == Phase.End)
+            if (Duel.Player == 1 && Duel.Phase == DuelPhase.End)
                 return false;
 
             List<ClientCard> cards = new List<ClientCard>(Duel.Fields[0].Graveyard);

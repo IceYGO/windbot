@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using WindBot.Game.Enums;
+﻿using OCGWrapper.Enums;
+using System.Collections.Generic;
 
 namespace WindBot.Game
 {

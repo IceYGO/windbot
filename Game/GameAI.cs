@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using OCGWrapper.Enums;
+using System.Collections.Generic;
 using WindBot.Game.AI;
-using WindBot.Game.Enums;
-using WindBot.Game.Network;
+using YGOSharp.Network;
 
 namespace WindBot.Game
 {
     public class GameAI
     {
         public GameClient Game { get; private set; }
-        public GameConnection Connection { get; private set; }
+        public CoreClient Connection { get; private set; }
         public Duel Duel { get; private set; }
         public Executor Executor { get; set; }
         public AIFunctions Utils { get; private set; }
@@ -58,7 +58,7 @@ namespace WindBot.Game
             m_nextSelector = null;
             m_option = -1;
             m_position = CardPosition.FaceUpAttack;
-            if (Duel.Player == 0 && Duel.Phase == Phase.Draw)
+            if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
                 _dialogs.SendNewTurn();
         }
 
