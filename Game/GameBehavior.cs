@@ -134,6 +134,7 @@ namespace WindBot.Game
                 Connection.Close();
                 return;
             }
+            _room.Position = pos;
             _room.IsHost = ((type >> 4) & 0xF) != 0;
             _room.IsReady[pos] = true;
             Connection.Send(CtosMessage.HsReady);
@@ -202,7 +203,7 @@ namespace WindBot.Game
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
-            string otherName = _room.Names[0] == Game.Username ? _room.Names[1] : _room.Names[0];
+            string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
             string file = DateTime.Now.ToString("yyyy-MM-dd.HH-mm.") + otherName + ".yrp";
             string fullname = Path.Combine(directory, file);
 
@@ -235,11 +236,7 @@ namespace WindBot.Game
             deck = packet.ReadInt16();
             extra = packet.ReadInt16();
             _duel.Fields[GetLocalPlayer(1)].Init(deck, extra);
-            if (_room.Names[0] != Game.Username && _room.Names[1] != Game.Username)
-            {
-                Connection.Close();
-                return;
-            }
+
             Logger.WriteLine("Duel started: " + _room.Names[0] + " versus " + _room.Names[1]);
             _ai.OnStart();
         }
@@ -248,7 +245,7 @@ namespace WindBot.Game
         {
             int result = GetLocalPlayer(packet.ReadByte());
 
-            string otherName = _room.Names[0] == Game.Username ? _room.Names[1] : _room.Names[0];
+            string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
             string textResult = (result == 2 ? "Draw" : result == 0 ? "Win" : "Lose");
             Logger.WriteLine("Duel finished against " + otherName + ", result: " + textResult);
         }
@@ -442,7 +439,7 @@ namespace WindBot.Game
                 foreach (ClientCard card in cards)
                 {
                     int len = packet.ReadInt32();
-                    if (len < 8) continue;
+                    if (len == 4) continue;
                     long pos = packet.Position;
                     card.Update(packet, _duel);
                     packet.Position = pos + len - 4;
