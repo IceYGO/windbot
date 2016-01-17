@@ -11,9 +11,9 @@ namespace WindBot
     {
         public const short ProVersion = 0x1338;
 
-        public static Random Rand;
-
-        public static void Main()
+        internal static Random Rand;
+        
+        internal static void Main()
         {
 #if !DEBUG
             try
@@ -29,11 +29,16 @@ namespace WindBot
 #endif
         }
 
-        private static void Run()
+        public static void Init(string databasePath)
         {
             Rand = new Random();
             DecksManager.Init();
-            InitCardsManager();
+            InitCardsManager(databasePath);
+        }
+        
+        private static void Run()
+        {
+            Init("cards.cdb");
 
             // Start two clients and connect them to the same server. Which deck is gonna win?
             GameClient clientA = new GameClient("Wind", "Horus", "127.0.0.1", 7911);
@@ -48,10 +53,10 @@ namespace WindBot
             }
         }
 
-        private static void InitCardsManager()
+        private static void InitCardsManager(string databasePath)
         {
             string currentPath = Path.GetFullPath(".");
-            string absolutePath = Path.Combine(currentPath, "cards.cdb");
+            string absolutePath = Path.Combine(currentPath, databasePath);
             NamedCardsManager.Init(absolutePath);
         }
     }
