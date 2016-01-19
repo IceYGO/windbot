@@ -826,37 +826,47 @@ namespace WindBot.Game
             int sumval = packet.ReadInt32();
             int min = packet.ReadByte();
             int max = packet.ReadByte();
-
-            // TODO mandatory cards
-            int count = packet.ReadByte();
-            packet.ReadBytes(count * 11);
-
+            
+            IList<ClientCard> mandatoryCards = new List<ClientCard>();
             IList<ClientCard> cards = new List<ClientCard>();
-            count = packet.ReadByte();
-            for (int i = 0; i < count; ++i)
+
+            for (int j = 0; j < 2; ++j)
             {
-                int cardId = packet.ReadInt32();
-                int player = GetLocalPlayer(packet.ReadByte());
-                CardLocation loc = (CardLocation)packet.ReadByte();
-                int seq = packet.ReadByte();
-                ClientCard card = _duel.GetCard(player, loc, seq);
-                if (card != null)
+                int count = packet.ReadByte();
+                for (int i = 0; i < count; ++i)
                 {
-                    if (cardId != 0 && card.Id != cardId)
-                        card.SetId(cardId);
-                    cards.Add(card);
+                    int cardId = packet.ReadInt32();
+                    int player = GetLocalPlayer(packet.ReadByte());
+                    CardLocation loc = (CardLocation)packet.ReadByte();
+                    int seq = packet.ReadByte();
+                    ClientCard card = _duel.GetCard(player, loc, seq);
+                    if (card != null)
+                    {
+                        if (cardId != 0 && card.Id != cardId)
+                            card.SetId(cardId);
+                    }
+                    if (j == 0)
+                        mandatoryCards.Add(card);
+                    else
+                        cards.Add(card);
+                    packet.ReadInt32();
                 }
-                packet.ReadInt32();
             }
 
             IList<ClientCard> selected = _ai.OnSelectSum(cards, sumval, min, max);
 
-            byte[] result = new byte[selected.Count + 1];
-            result[0] = (byte)selected.Count;
+            byte[] result = new byte[mandatoryCards.Count + selected.Count + 1];
+            int index = 0;
+
+            result[index++] = (byte)(mandatoryCards.Count + selected.Count);
+            while (index < mandatoryCards.Count)
+            {
+                result[index++] = 0;
+            }
             for (int i = 0; i < selected.Count; ++i)
             {
                 int id = 0;
-                for (int j = 0; j < count; ++j)
+                for (int j = 0; j < cards.Count; ++j)
                 {
                     if (cards[j] == null) continue;
                     if (cards[j].Equals(selected[i]))
@@ -865,7 +875,7 @@ namespace WindBot.Game
                         break;
                     }
                 }
-                result[i + 1] = (byte)id;
+                result[index++] = (byte)id;
             }
 
             GamePacketWriter reply = new GamePacketWriter(CtosMessage.Response);
