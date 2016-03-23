@@ -9,7 +9,7 @@ namespace WindBot
 {
     public class Program
     {
-        public const short ProVersion = 0x1338;
+        public static short ProVersion = Int16.Parse(Environment.GetEnvironmentVariable("YGOPRO_VERSION"));
 
         internal static Random Rand;
         
@@ -40,15 +40,11 @@ namespace WindBot
         {
             Init("cards.cdb");
 
-            // Start two clients and connect them to the same server. Which deck is gonna win?
-            GameClient clientA = new GameClient("Wind", "Horus", "127.0.0.1", 7911);
-            GameClient clientB = new GameClient("Fire", "OldSchool", "127.0.0.1", 7911);
-            clientA.Start();
-            clientB.Start();
-            while (clientA.Connection.IsConnected || clientB.Connection.IsConnected)
+            GameClient client = new GameClient(Environment.GetEnvironmentVariable("YGOPRO_NAME"), Environment.GetEnvironmentVariable("YGOPRO_DECK"), Environment.GetEnvironmentVariable("YGOPRO_HOST"), Int32.Parse(Environment.GetEnvironmentVariable("YGOPRO_PORT")));
+            client.Start();
+            while (client.Connection.IsConnected)
             {
-                clientA.Tick();
-                clientB.Tick();
+                client.Tick();
                 Thread.Sleep(1);
             }
         }
