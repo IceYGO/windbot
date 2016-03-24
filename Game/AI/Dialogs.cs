@@ -1,7 +1,32 @@
-﻿using System.Collections.Generic;
+﻿using System.IO;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 
 namespace WindBot.Game.AI
 {
+    [DataContract]
+    public class DialogsData
+    {
+        [DataMember]
+        public string duelstart { get; set; }
+        [DataMember]
+        public string newturn { get; set; }
+        [DataMember]
+        public string endturn { get; set; }
+        [DataMember]
+        public string directattack { get; set; }
+        [DataMember]
+        public string attack { get; set; }
+        [DataMember]
+        public string activate { get; set; }
+        [DataMember]
+        public string summon { get; set; }
+        [DataMember]
+        public string setmonster { get; set; }
+        [DataMember]
+        public string chaining { get; set; }                                                
+    }
     public class Dialogs
     {
         private GameClient _game;
@@ -19,75 +44,20 @@ namespace WindBot.Game.AI
         public Dialogs(GameClient game)
         {
             _game = game;
-            _duelstart = new[]
-                {
-                    "Good luck, have fun."
-                };
-            _newturn = new[]
-                {
-                    "It's my turn, draw.",
-                    "My turn, draw.",
-                    "I draw a card."
-                };
-            _endturn = new[]
-                {
-                    "I end my turn.",
-                    "My turn is over.",
-                    "Your turn."
-                };
-            _directattack = new[]
-                {
-                    "{0}, direct attack!",
-                    "{0}, attack him directly!",
-                    "{0}, he's defenseless, attack!",
-                    "{0}, attack his life points!",
-                    "{0}, attack his life points directly!",
-                    "{0}, attack him through a direct attack!",
-                    "{0}, attack him using a direct attack!",
-                    "{0}, unleash your power through a direct attack!",
-                    "My {0} is going to smash your life points!",
-                    "Show your power to my opponent, {0}!",
-                    "You can't stop me. {0}, attack!"
-                };
-            _attack = new[]
-                {
-                    "{0}, attack this {1}!",
-                    "{0}, destroy this {1}!",
-                    "{0}, charge the {1}!",
-                    "{0}, strike that {1}!",
-                    "{0}, unleash your power on this {1}!"
-                };
-            _activate = new[]
-                {
-                    "I'm activating {0}.",
-                    "I'm using the effect of {0}.",
-                    "I use the power of {0}."
-                };
-            _summon = new[]
-                {
-                    "I'm summoning {0}.",
-                    "Come on, {0}!",
-                    "Appear, {0}!",
-                    "I summon the powerful {0}.",
-                    "I call {0} to the battle!",
-                    "I'm calling {0}.",
-                    "Let's summon {0}."
-                };
-            _setmonster = new[]
-                {
-                    "I'm setting a monster.",
-                    "I set a face-down monster.",
-                    "I place a hidden monster."
-                };
-            _chaining = new[]
-                {
-                    "Look at that! I'm activating {0}.",
-                    "I use the power of {0}.",
-                    "Get ready! I use {0}.",
-                    "I don't think so. {0}, activation!",
-                    "Looks like you forgot my {0}.",
-                    "Did you consider the fact I have {0}?"
-                };
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(DialogsData));
+            using (FileStream fs = File.OpenRead("dialogs/" + Environment.GetEnvironmentVariable("YGOPRO_DIALOG") + ".json")) 
+            {
+                DialogsData data = (DialogsData)serializer.ReadObject();
+                _duelstart = data.duelstart;
+                _newturn = data.newturn;
+                _endturn = data.endturn;
+                _directattack = data.directattack;
+                _attack = data.attack;
+                _activate = data.activate;
+                _summon = data.summon;
+                _setmonster = data.setmonster;
+                _chaining = data.chaining;
+            }
         }
 
         public void SendDuelStart()
