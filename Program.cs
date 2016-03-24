@@ -45,7 +45,7 @@ namespace WindBot
             while (client.Connection.IsConnected)
             {
                 client.Tick();
-                Thread.Sleep(1);
+                Thread.Sleep(30);
             }
         }
 
