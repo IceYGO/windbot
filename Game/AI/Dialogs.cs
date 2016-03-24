@@ -48,7 +48,7 @@ namespace WindBot.Game.AI
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(DialogsData));
             using (FileStream fs = File.OpenRead("Dialogs/" + Environment.GetEnvironmentVariable("YGOPRO_DIALOG") + ".json")) 
             {
-                DialogsData data = (DialogsData)serializer.ReadObject();
+                DialogsData data = (DialogsData)serializer.ReadObject(fs);
                 _duelstart = data.duelstart;
                 _newturn = data.newturn;
                 _endturn = data.endturn;
