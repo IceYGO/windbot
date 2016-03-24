@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
@@ -9,23 +10,23 @@ namespace WindBot.Game.AI
     public class DialogsData
     {
         [DataMember]
-        public string duelstart { get; set; }
+        public string[] duelstart { get; set; }
         [DataMember]
-        public string newturn { get; set; }
+        public string[] newturn { get; set; }
         [DataMember]
-        public string endturn { get; set; }
+        public string[] endturn { get; set; }
         [DataMember]
-        public string directattack { get; set; }
+        public string[] directattack { get; set; }
         [DataMember]
-        public string attack { get; set; }
+        public string[] attack { get; set; }
         [DataMember]
-        public string activate { get; set; }
+        public string[] activate { get; set; }
         [DataMember]
-        public string summon { get; set; }
+        public string[] summon { get; set; }
         [DataMember]
-        public string setmonster { get; set; }
+        public string[] setmonster { get; set; }
         [DataMember]
-        public string chaining { get; set; }                                                
+        public string[] chaining { get; set; }                                          
     }
     public class Dialogs
     {
