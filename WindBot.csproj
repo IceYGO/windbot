@@ -46,6 +46,12 @@
     <Reference Include="YGOSharp.Network">
       <HintPath>.\YGOSharp.Network.dll</HintPath>
     </Reference>
+    <Reference Include="KeraLua">
+      <HintPath>packages\NLua.1.3.2.1\lib\net40\KeraLua.dll</HintPath>
+    </Reference>
+    <Reference Include="NLua">
+      <HintPath>packages\NLua.1.3.2.1\lib\net40\NLua.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Game\AI\AIFunctions.cs" />
@@ -117,6 +123,7 @@
     <None Include="sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Dialogs\default.json">
