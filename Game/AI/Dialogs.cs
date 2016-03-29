@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -20,6 +20,8 @@ namespace WindBot.Game.AI
         [DataMember]
         public string[] attack { get; set; }
         [DataMember]
+        public string facedownmonstername { get; set; }
+        [DataMember]
         public string[] activate { get; set; }
         [DataMember]
         public string[] summon { get; set; }
@@ -37,6 +39,7 @@ namespace WindBot.Game.AI
         private string[] _endturn;
         private string[] _directattack;
         private string[] _attack;
+        private string _facedownmonstername;
         private string[] _activate;
         private string[] _summon;
         private string[] _setmonster;
@@ -54,6 +57,7 @@ namespace WindBot.Game.AI
                 _endturn = data.endturn;
                 _directattack = data.directattack;
                 _attack = data.attack;
+                _facedownmonstername = data.facedownmonstername;
                 _activate = data.activate;
                 _summon = data.summon;
                 _setmonster = data.setmonster;
@@ -83,6 +87,10 @@ namespace WindBot.Game.AI
 
         public void SendAttack(string attacker, string defender)
         {
+            if (defender=="monster")
+            {
+                defender = _facedownmonstername;
+            }
             InternalSendMessage(_attack, attacker, defender);
         }
 
