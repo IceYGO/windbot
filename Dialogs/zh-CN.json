@@ -1,6 +1,8 @@
 {
   "duelstart": [
-    "Good luck，have fun"
+    "Good luck, have fun.",
+    "好戏才正要开始呢！",
+    "用决斗带来笑容吧！"
   ],
   "newturn": [
     "到我的回合了，抽卡",
@@ -32,6 +34,7 @@
     "{0}，冲向那只 {1}！",
     "{0}，把你的力量释放到 {1} 上吧！"
   ],
+  "facedownmonstername": "怪兽",
   "activate": [
     "我发动 {0}",
     "我使用 {0} 的效果",
