@@ -7,19 +7,20 @@ using System.Text.RegularExpressions;
 using WindBot.Game.AI;
 using YGOSharp.Network;
 using YGOSharp.Network.Enums;
+using YGOSharp.Network.Utils;
 
 namespace WindBot.Game
 {
     public class GameBehavior
     {
         public GameClient Game { get; private set; }
-        public CoreClient Connection { get; private set; }
+        public YGOClient Connection { get; private set; }
         public Deck Deck { get; private set; }
 
         private GameAI _ai;
 
-        private IDictionary<StocMessage, Action<GamePacketReader>> _packets;
-        private IDictionary<GameMessage, Action<GamePacketReader>> _messages;
+        private IDictionary<StocMessage, Action<BinaryReader>> _packets;
+        private IDictionary<GameMessage, Action<BinaryReader>> _messages;
 
         private Room _room;
         private Duel _duel;
@@ -29,8 +30,8 @@ namespace WindBot.Game
             Game = game;
             Connection = game.Connection;
 
-            _packets = new Dictionary<StocMessage, Action<GamePacketReader>>();
-            _messages = new Dictionary<GameMessage, Action<GamePacketReader>>();
+            _packets = new Dictionary<StocMessage, Action<BinaryReader>>();
+            _messages = new Dictionary<GameMessage, Action<BinaryReader>>();
             RegisterPackets();
 
             _room = new Room();
@@ -46,12 +47,12 @@ namespace WindBot.Game
             return _duel.IsFirst ? player : 1 - player;
         }
 
-        public void OnPacket(GamePacketReader packet)
+        public void OnPacket(BinaryReader packet)
         {
-            StocMessage id = packet.ReadStoc();
+            StocMessage id = (StocMessage)packet.ReadByte();
             if (id == StocMessage.GameMsg)
             {
-                GameMessage msg = (GameMessage) packet.ReadByte();
+                GameMessage msg = (GameMessage)packet.ReadByte();
                 if (_messages.ContainsKey(msg))
                     _messages[msg](packet);
                 return;
@@ -111,9 +112,9 @@ namespace WindBot.Game
             _messages.Add(GameMessage.AnnounceRace, OnAnnounceRace);
         }
 
-        private void OnJoinGame(GamePacketReader packet)
+        private void OnJoinGame(BinaryReader packet)
         {
-            GamePacketWriter deck = new GamePacketWriter(CtosMessage.UpdateDeck);
+            BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
             deck.Write(Deck.Cards.Count + Deck.ExtraCards.Count);
             deck.Write(Deck.SideCards.Count);
             foreach (NamedCard card in Deck.Cards)
@@ -125,7 +126,7 @@ namespace WindBot.Game
             Connection.Send(deck);
         }
 
-        private void OnTypeChange(GamePacketReader packet)
+        private void OnTypeChange(BinaryReader packet)
         {
             int type = packet.ReadByte();
             int pos = type & 0xF;
@@ -140,15 +141,15 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.HsReady);
         }
 
-        private void OnPlayerEnter(GamePacketReader packet)
+        private void OnPlayerEnter(BinaryReader packet)
         {
-            string name = packet.ReadUnicode(20);
+            string name = packet.ReadUnicode(Program.PlayerNameSize);
             int pos = packet.ReadByte();
             if (pos < 8)
                 _room.Names[pos] = name;
         }
 
-        private void OnPlayerChange(GamePacketReader packet)
+        private void OnPlayerChange(BinaryReader packet)
         {
             int change = packet.ReadByte();
             int pos = (change >> 4) & 0xF;
@@ -177,25 +178,25 @@ namespace WindBot.Game
                 Connection.Send(CtosMessage.HsStart);
         }
 
-        private void OnSelectHand(GamePacketReader packet)
+        private void OnSelectHand(BinaryReader packet)
         {
             Connection.Send(CtosMessage.HandResult, (byte)Program.Rand.Next(1, 4));
         }
 
-        private void OnSelectTp(GamePacketReader packet)
+        private void OnSelectTp(BinaryReader packet)
         {
             bool start = _ai.OnSelectHand();
             Connection.Send(CtosMessage.TpResult, (byte)(start ? 1 : 0));
         }
 
-        private void OnTimeLimit(GamePacketReader packet)
+        private void OnTimeLimit(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
             if (player == 0)
                 Connection.Send(CtosMessage.TimeConfirm);
         }
 
-        private void OnReplay(GamePacketReader packet)
+        private void OnReplay(BinaryReader packet)
         {
             byte[] replay = packet.ReadToEnd();
 
@@ -213,18 +214,18 @@ namespace WindBot.Game
             Connection.Close();
         }
         
-        private void OnDuelEnd(GamePacketReader packet)
+        private void OnDuelEnd(BinaryReader packet)
         {
             Connection.Close();
         }
 
-        private void OnChat(GamePacketReader packet)
+        private void OnChat(BinaryReader packet)
         {
             packet.ReadInt16(); // player
             packet.ReadUnicode(256); // message
         }
 
-        private void OnStart(GamePacketReader packet)
+        private void OnStart(BinaryReader packet)
         {
             int type = packet.ReadByte();
             _duel.IsFirst = (type & 0xF) == 0;
@@ -241,7 +242,7 @@ namespace WindBot.Game
             _ai.OnStart();
         }
 
-        private void OnWin(GamePacketReader packet)
+        private void OnWin(BinaryReader packet)
         {
             int result = GetLocalPlayer(packet.ReadByte());
 
@@ -250,7 +251,7 @@ namespace WindBot.Game
             Logger.WriteLine("Duel finished against " + otherName + ", result: " + textResult);
         }
 
-        private void OnDraw(GamePacketReader packet)
+        private void OnDraw(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
             int count = packet.ReadByte();
@@ -262,14 +263,14 @@ namespace WindBot.Game
             }
         }
 
-        private void OnShuffleDeck(GamePacketReader packet)
+        private void OnShuffleDeck(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
             foreach (ClientCard card in _duel.Fields[player].Deck)
                 card.SetId(0);
         }
 
-        private void OnShuffleHand(GamePacketReader packet)
+        private void OnShuffleHand(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
             packet.ReadByte();
@@ -277,20 +278,20 @@ namespace WindBot.Game
                 card.SetId(packet.ReadInt32());
         }
 
-        private void OnNewTurn(GamePacketReader packet)
+        private void OnNewTurn(BinaryReader packet)
         {
             _duel.Turn++;
             _duel.Player = GetLocalPlayer(packet.ReadByte());
             _ai.OnNewTurn();
         }
 
-        private void OnNewPhase(GamePacketReader packet)
+        private void OnNewPhase(BinaryReader packet)
         {
             _duel.Phase = (DuelPhase)packet.ReadInt16();
             _ai.OnNewPhase();
         }
 
-        private void OnDamage(GamePacketReader packet)
+        private void OnDamage(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
             int final = _duel.LifePoints[player] - packet.ReadInt32();
@@ -298,19 +299,19 @@ namespace WindBot.Game
             _duel.LifePoints[player] = final;
         }
 
-        private void OnRecover(GamePacketReader packet)
+        private void OnRecover(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
             _duel.LifePoints[player] += packet.ReadInt32();
         }
 
-        private void OnLpUpdate(GamePacketReader packet)
+        private void OnLpUpdate(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
             _duel.LifePoints[player] = packet.ReadInt32();
         }
 
-        private void OnMove(GamePacketReader packet)
+        private void OnMove(BinaryReader packet)
         {
             int cardId = packet.ReadInt32();
             int pc = GetLocalPlayer(packet.ReadByte());
@@ -354,7 +355,7 @@ namespace WindBot.Game
             }
         }
 
-        private void OnPosChange(GamePacketReader packet)
+        private void OnPosChange(BinaryReader packet)
         {
             packet.ReadInt32(); // card id
             int pc = GetLocalPlayer(packet.ReadByte());
@@ -367,7 +368,7 @@ namespace WindBot.Game
                 card.Position = cp;
         }
 
-        private void OnChaining(GamePacketReader packet)
+        private void OnChaining(BinaryReader packet)
         {
             packet.ReadInt32(); // card id
             int pcc = GetLocalPlayer(packet.ReadByte());
@@ -379,18 +380,18 @@ namespace WindBot.Game
             _ai.OnChaining(card, cc);
         }
 
-        private void OnChainEnd(GamePacketReader packet)
+        private void OnChainEnd(BinaryReader packet)
         {
             _ai.OnChainEnd();
         }
 
-        private void OnChainSorting(GamePacketReader packet)
+        private void OnChainSorting(BinaryReader packet)
         {
-            GamePacketWriter writer = new GamePacketWriter(CtosMessage.Response);
+            BinaryWriter writer = GamePacketFactory.Create(CtosMessage.Response);
             Connection.Send(CtosMessage.Response, -1);
         }
 
-        private void OnUpdateCard(GamePacketReader packet)
+        private void OnUpdateCard(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
             int loc = packet.ReadByte();
@@ -401,10 +402,10 @@ namespace WindBot.Game
             ClientCard card = _duel.GetCard(player, (CardLocation)loc, seq);
             if (card == null) return;
 
-            card.Update(packet,_duel);
+            card.Update(packet, _duel);
         }
 
-        private void OnUpdateData(GamePacketReader packet)
+        private void OnUpdateData(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
             CardLocation loc = (CardLocation)packet.ReadByte();
@@ -440,14 +441,14 @@ namespace WindBot.Game
                 {
                     int len = packet.ReadInt32();
                     if (len == 4) continue;
-                    long pos = packet.Position;
+                    long pos = packet.BaseStream.Position;
                     card.Update(packet, _duel);
-                    packet.Position = pos + len - 4;
+                    packet.BaseStream.Position = pos + len - 4;
                 }
             }
         }
 
-        private void OnSelectBattleCmd(GamePacketReader packet)
+        private void OnSelectBattleCmd(BinaryReader packet)
         {
             packet.ReadByte(); // player
             _duel.BattlePhase = new BattlePhase();
@@ -494,7 +495,7 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, _ai.OnSelectBattleCmd(battle).ToValue());
         }
 
-        private void InternalOnSelectCard(GamePacketReader packet, Func<IList<ClientCard>, int, int, bool, IList<ClientCard>> func)
+        private void InternalOnSelectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, bool, IList<ClientCard>> func)
         {
             packet.ReadByte(); // player
             bool cancelable = packet.ReadByte() != 0;
@@ -546,17 +547,17 @@ namespace WindBot.Game
                 result[i + 1] = (byte)id;
             }
 
-            GamePacketWriter reply = new GamePacketWriter(CtosMessage.Response);
+            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
             reply.Write(result);
             Connection.Send(reply);
         }
 
-        private void OnSelectCard(GamePacketReader packet)
+        private void OnSelectCard(BinaryReader packet)
         {
             InternalOnSelectCard(packet, _ai.OnSelectCard);
         }
 
-        private void OnSelectChain(GamePacketReader packet)
+        private void OnSelectChain(BinaryReader packet)
         {
             packet.ReadByte(); // player
             int count = packet.ReadByte();
@@ -596,7 +597,7 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, _ai.OnSelectChain(cards, descs, forced));
         }
 
-        private void OnSelectCounter(GamePacketReader packet)
+        private void OnSelectCounter(BinaryReader packet)
         {
             packet.ReadByte(); // player
             int type = packet.ReadInt16();
@@ -620,17 +621,17 @@ namespace WindBot.Game
             byte[] result = new byte[used.Count];
             for (int i = 0; i < quantity; ++i)
                 result[i] = (byte) used[i];
-            GamePacketWriter reply = new GamePacketWriter(CtosMessage.Response);
+            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
             reply.Write(result);
             Connection.Send(reply);
         }
 
-        private void OnSelectDisfield(GamePacketReader packet)
+        private void OnSelectDisfield(BinaryReader packet)
         {
             OnSelectPlace(packet);
         }
 
-        private void OnSelectEffectYn(GamePacketReader packet)
+        private void OnSelectEffectYn(BinaryReader packet)
         {
             packet.ReadByte(); // player
 
@@ -653,7 +654,7 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, reply);
         }
 
-        private void OnSelectIdleCmd(GamePacketReader packet)
+        private void OnSelectIdleCmd(BinaryReader packet)
         {
             packet.ReadByte(); // player
 
@@ -718,7 +719,7 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, _ai.OnSelectIdleCmd(main).ToValue());
         }
 
-        private void OnSelectOption(GamePacketReader packet)
+        private void OnSelectOption(BinaryReader packet)
         {
             IList<int> options = new List<int>();
             packet.ReadByte(); // player
@@ -728,7 +729,7 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, _ai.OnSelectOption(options));
         }
 
-        private void OnSelectPlace(GamePacketReader packet)
+        private void OnSelectPlace(BinaryReader packet)
         {
             packet.ReadByte(); // player
             packet.ReadByte(); // min
@@ -792,12 +793,12 @@ namespace WindBot.Game
                 if ((filter & 0x2) != 0) resp[2] = 7;
             }
 
-            GamePacketWriter reply = new GamePacketWriter(CtosMessage.Response);
+            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
             reply.Write(resp);
             Connection.Send(reply);
         }
 
-        private void OnSelectPosition(GamePacketReader packet)
+        private void OnSelectPosition(BinaryReader packet)
         {
             packet.ReadByte(); // player
             int cardId = packet.ReadInt32();
@@ -819,7 +820,7 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, (int)_ai.OnSelectPosition(cardId, positions));
         }
 
-        private void OnSelectSum(GamePacketReader packet)
+        private void OnSelectSum(BinaryReader packet)
         {
             packet.ReadByte(); // mode
             packet.ReadByte(); // player
@@ -878,24 +879,24 @@ namespace WindBot.Game
                 result[index++] = (byte)id;
             }
 
-            GamePacketWriter reply = new GamePacketWriter(CtosMessage.Response);
+            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
             reply.Write(result);
             Connection.Send(reply);
         }
 
-        private void OnSelectTribute(GamePacketReader packet)
+        private void OnSelectTribute(BinaryReader packet)
         {
             InternalOnSelectCard(packet, _ai.OnSelectTribute);
         }
 
-        private void OnSelectYesNo(GamePacketReader packet)
+        private void OnSelectYesNo(BinaryReader packet)
         {
             packet.ReadByte(); // player
             int reply = _ai.OnSelectYesNo(packet.ReadInt32()) ? (1) : (0);
             Connection.Send(CtosMessage.Response, reply);
         }
 
-        private void OnAnnounceAttrib(GamePacketReader packet)
+        private void OnAnnounceAttrib(BinaryReader packet)
         {
             IList<CardAttribute> attributes = new List<CardAttribute>();
             packet.ReadByte(); // player
@@ -915,12 +916,12 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, reply);
         }
 
-        private void OnAnnounceCard(GamePacketReader packet)
+        private void OnAnnounceCard(BinaryReader packet)
         {
             Connection.Send(CtosMessage.Response, _ai.OnAnnounceCard());
         }
 
-        private void OnAnnounceNumber(GamePacketReader packet)
+        private void OnAnnounceNumber(BinaryReader packet)
         {
             IList<int> numbers = new List<int>();
             packet.ReadByte(); // player
@@ -930,7 +931,7 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, _ai.OnAnnounceNumber(numbers));
         }
 
-        private void OnAnnounceRace(GamePacketReader packet)
+        private void OnAnnounceRace(BinaryReader packet)
         {
             IList<CardRace> races = new List<CardRace>();
             packet.ReadByte(); // player

@@ -1,14 +1,12 @@
 ﻿using OCGWrapper.Enums;
 using System.Collections.Generic;
 using WindBot.Game.AI;
-using YGOSharp.Network;
 
 namespace WindBot.Game
 {
     public class GameAI
     {
         public GameClient Game { get; private set; }
-        public CoreClient Connection { get; private set; }
         public Duel Duel { get; private set; }
         public Executor Executor { get; set; }
         public AIFunctions Utils { get; private set; }
@@ -18,7 +16,6 @@ namespace WindBot.Game
         public GameAI(GameClient game, Duel duel)
         {
             Game = game;
-            Connection = game.Connection;
             Duel = duel;
             Utils = new AIFunctions(duel);
 

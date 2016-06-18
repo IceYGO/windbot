@@ -31,6 +31,9 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Data.Sqlite">
       <HintPath>.\Mono.Data.Sqlite.dll</HintPath>
@@ -80,6 +83,7 @@
     <Compile Include="Game\GameAI.cs" />
     <Compile Include="Game\GameBehavior.cs" />
     <Compile Include="Game\GameClient.cs" />
+    <Compile Include="Game\GamePacketFactory.cs" />
     <Compile Include="Game\MainPhase.cs" />
     <Compile Include="Game\MainPhaseAction.cs" />
     <Compile Include="Game\Room.cs" />
