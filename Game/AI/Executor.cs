@@ -26,6 +26,8 @@ namespace WindBot.Game.AI
             Duel = duel;
             AI = ai;
             Executors = new List<CardExecutor>();
+
+            LastChainPlayer = -1;
             CurrentChain = new List<ClientCard>();
         }
 

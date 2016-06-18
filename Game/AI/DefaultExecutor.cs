@@ -134,7 +134,7 @@ namespace WindBot.Game.AI
 
         protected bool DefaultTrap()
         {
-            return LastChainPlayer == 1;
+            return LastChainPlayer == -1 || LastChainPlayer == 1;
         }
 
         protected bool DefaultUniqueTrap()
