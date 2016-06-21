@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using WindBot.Game.AI;
 using YGOSharp.Network;
 using YGOSharp.Network.Enums;
-using NLua;
 
 namespace WindBot.Game
 {
@@ -27,10 +26,6 @@ namespace WindBot.Game
 
         public GameBehavior(GameClient game)
         {
-            Lua state = new Lua ();
-            var res = (double)state.DoString ("return 10 + 3*(5 + 2)")[0];
-            Console.WriteLine(res);
-
             Game = game;
             Connection = game.Connection;
 
