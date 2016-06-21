@@ -1,12 +1,15 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Net;
+using System.Text;
 using YGOSharp.Network;
 using YGOSharp.Network.Enums;
+using YGOSharp.Network.Utils;
 
 namespace WindBot.Game
 {
     public class GameClient
     {
-        public CoreClient Connection { get; private set; }
+        public YGOClient Connection { get; private set; }
         public string Username;
         public string Deck;
 
@@ -27,40 +30,45 @@ namespace WindBot.Game
 
         public void Start()
         {
-            Connection = new CoreClient(_serverHost, _serverPort);
-            Connection.MessageReceived += OnMessageReceived;
-
+            Connection = new YGOClient();
             _behavior = new GameBehavior(this);
 
-            GamePacketWriter packet = new GamePacketWriter(CtosMessage.PlayerInfo);
-            packet.Write(Username, 20);
+            Connection.Connected += OnConnected;
+            Connection.PacketReceived += OnPacketReceived;
+
+            Connection.Connect(IPAddress.Parse(_serverHost), _serverPort);
+        }
+
+        private void OnConnected()
+        {
+            BinaryWriter packet = GamePacketFactory.Create(CtosMessage.PlayerInfo);
+            packet.WriteUnicode(Username, Program.PlayerNameSize);
             Connection.Send(packet);
 
             byte[] junk = { 0xCC, 0xCC, 0x00, 0x00, 0x00, 0x00 };
-            packet = new GamePacketWriter(CtosMessage.JoinGame);
+            packet = GamePacketFactory.Create(CtosMessage.JoinGame);
             packet.Write(Program.ProVersion);
             packet.Write(junk);
-            packet.Write(_roomInfos, 30);
+            packet.WriteUnicode(_roomInfos, 30);
             Connection.Send(packet);
         }
 
         public void Tick()
         {
-            Connection.UpdateNetwork();
             Connection.Update();
         }
 
         public void Chat(string message)
         {
             byte[] content = Encoding.Unicode.GetBytes(message + "\0");
-            GamePacketWriter chat = new GamePacketWriter(CtosMessage.Chat);
+            BinaryWriter chat = GamePacketFactory.Create(CtosMessage.Chat);
             chat.Write(content);
             Connection.Send(chat);
         }
 
-        private void OnMessageReceived(object sender, MessageEventArgs e)
+        private void OnPacketReceived(BinaryReader reader)
         {
-            _behavior.OnPacket(e.Message);
+            _behavior.OnPacket(reader);
         }
     }
 }

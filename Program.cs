@@ -10,6 +10,7 @@ namespace WindBot
     public class Program
     {
         public static short ProVersion = Int16.Parse(Environment.GetEnvironmentVariable("YGOPRO_VERSION"));
+        public static int PlayerNameSize = 20;
 
         internal static Random Rand;
         

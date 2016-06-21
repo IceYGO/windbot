@@ -1,6 +1,7 @@
 ﻿using OCGWrapper;
 using OCGWrapper.Enums;
 using System.Collections.Generic;
+using System.IO;
 using YGOSharp.Network;
 
 namespace WindBot.Game
@@ -54,7 +55,7 @@ namespace WindBot.Game
                 Name = Data.Name;
         }
 
-        public void Update(GamePacketReader packet, Duel duel)
+        public void Update(BinaryReader packet, Duel duel)
         {
             int flag = packet.ReadInt32();
             if ((flag & (int)Query.Code) != 0)
