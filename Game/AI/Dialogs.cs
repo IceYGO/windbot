@@ -10,6 +10,8 @@ namespace WindBot.Game.AI
     public class DialogsData
     {
         [DataMember]
+        public string[] welcome { get; set; }
+        [DataMember]
         public string[] duelstart { get; set; }
         [DataMember]
         public string[] newturn { get; set; }
@@ -19,6 +21,8 @@ namespace WindBot.Game.AI
         public string[] directattack { get; set; }
         [DataMember]
         public string[] attack { get; set; }
+        [DataMember]
+        public string[] ondirectattack { get; set; }
         [DataMember]
         public string facedownmonstername { get; set; }
         [DataMember]
@@ -34,11 +38,13 @@ namespace WindBot.Game.AI
     {
         private GameClient _game;
 
+        private string[] _welcome;
         private string[] _duelstart;
         private string[] _newturn;
         private string[] _endturn;
         private string[] _directattack;
         private string[] _attack;
+        private string[] _ondirectattack;
         private string _facedownmonstername;
         private string[] _activate;
         private string[] _summon;
@@ -52,17 +58,24 @@ namespace WindBot.Game.AI
             using (FileStream fs = File.OpenRead("Dialogs/" + Environment.GetEnvironmentVariable("YGOPRO_DIALOG") + ".json")) 
             {
                 DialogsData data = (DialogsData)serializer.ReadObject(fs);
+                _welcome = data.welcome;
                 _duelstart = data.duelstart;
                 _newturn = data.newturn;
                 _endturn = data.endturn;
                 _directattack = data.directattack;
                 _attack = data.attack;
+                _ondirectattack = data.ondirectattack;
                 _facedownmonstername = data.facedownmonstername;
                 _activate = data.activate;
                 _summon = data.summon;
                 _setmonster = data.setmonster;
                 _chaining = data.chaining;
             }
+        }
+
+        public void SendWelcome()
+        {
+            InternalSendMessage(_welcome);
         }
 
         public void SendDuelStart()
@@ -92,6 +105,11 @@ namespace WindBot.Game.AI
                 defender = _facedownmonstername;
             }
             InternalSendMessage(_attack, attacker, defender);
+        }
+
+        public void SendOnDirectAttack(string attacker)
+        {
+            InternalSendMessage(_ondirectattack, attacker);
         }
 
         public void SendActivate(string spell)

@@ -23,6 +23,14 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when the AI join the game.
+        /// </summary>
+        public void OnJoinGame()
+        {
+            _dialogs.SendWelcome();
+        }
+
+        /// <summary>
         /// Called when the duel starts.
         /// </summary>
         public void OnStart()
@@ -57,6 +65,14 @@ namespace WindBot.Game
             m_position = CardPosition.FaceUpAttack;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
                 _dialogs.SendNewTurn();
+        }
+
+        /// <summary>
+        /// Called when the AI got attack directly.
+        /// </summary>
+        public void OnDirectAttack(ClientCard card)
+        {
+            _dialogs.SendOnDirectAttack(card.Name);
         }
 
         /// <summary>

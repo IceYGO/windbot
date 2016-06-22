@@ -86,6 +86,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.Recover, OnRecover);
             _messages.Add(GameMessage.LpUpdate, OnLpUpdate);
             _messages.Add(GameMessage.Move, OnMove);
+            _messages.Add(GameMessage.Attack, OnAttack);
             _messages.Add(GameMessage.PosChange, OnPosChange);
             _messages.Add(GameMessage.Chaining, OnChaining);
             _messages.Add(GameMessage.ChainEnd, OnChainEnd);
@@ -124,6 +125,7 @@ namespace WindBot.Game
             foreach (NamedCard card in Deck.SideCards)
                 deck.Write(card.Id);
             Connection.Send(deck);
+            _ai.OnJoinGame();
         }
 
         private void OnTypeChange(BinaryReader packet)
@@ -352,6 +354,25 @@ namespace WindBot.Game
                     if (newcard != null)
                         newcard.Overlays.AddRange(card.Overlays);
                 }
+            }
+        }
+
+        private void OnAttack(BinaryReader packet)
+        {
+            int ca = packet.ReadByte();
+            int la = packet.ReadByte();
+            int sa = packet.ReadByte();
+            packet.ReadByte(); //
+            packet.ReadByte(); // cd
+            int ld = packet.ReadByte();
+            packet.ReadByte(); // sd
+            packet.ReadByte(); //
+
+            ClientCard attackcard = _duel.GetCard(ca, (CardLocation)la, sa);
+
+            if (ld == 0)
+            {
+                _ai.OnDirectAttack(attackcard);
             }
         }
 

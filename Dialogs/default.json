@@ -1,4 +1,7 @@
 {
+  "welcome": [
+    "Hi, I'm Windbot."
+  ],
   "duelstart": [
     "Good luck, have fun."
   ],
@@ -31,6 +34,11 @@
     "{0}, charge the {1}!",
     "{0}, strike that {1}!",
     "{0}, unleash your power on this {1}!"
+  ],
+  "ondirectattack": [
+    "Ahhhhh...",
+    "Just {0} ...",
+    "Think you can defeat me?"
   ],
   "activate": [
     "I'm activating {0}.",
