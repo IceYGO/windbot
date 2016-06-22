@@ -74,6 +74,10 @@ namespace WindBot.Game
         {
             _dialogs.SendOnDirectAttack(card.Name);
         }
+        public void OnDirectAttack()
+        {
+            _dialogs.SendOnDirectAttack();
+        }
 
         /// <summary>
         /// Called when a chain is executed.

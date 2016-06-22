@@ -368,11 +368,11 @@ namespace WindBot.Game
             packet.ReadByte(); // sd
             packet.ReadByte(); //
 
-            ClientCard attackcard = _duel.GetCard(ca, (CardLocation)la, sa);
+            // ClientCard attackcard = _duel.GetCard(ca, (CardLocation)la, sa);
 
             if (ld == 0)
             {
-                _ai.OnDirectAttack(attackcard);
+                _ai.OnDirectAttack();
             }
         }
 

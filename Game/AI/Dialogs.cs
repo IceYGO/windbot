@@ -111,6 +111,10 @@ namespace WindBot.Game.AI
         {
             InternalSendMessage(_ondirectattack, attacker);
         }
+        public void SendOnDirectAttack()
+        {
+            InternalSendMessage(_ondirectattack);
+        }
 
         public void SendActivate(string spell)
         {
