@@ -359,7 +359,7 @@ namespace WindBot.Game
 
         private void OnAttack(BinaryReader packet)
         {
-            int ca = packet.ReadByte();
+            int ca = GetLocalPlayer(packet.ReadByte());
             int la = packet.ReadByte();
             int sa = packet.ReadByte();
             packet.ReadByte(); //
@@ -368,11 +368,10 @@ namespace WindBot.Game
             packet.ReadByte(); // sd
             packet.ReadByte(); //
 
-            // ClientCard attackcard = _duel.GetCard(ca, (CardLocation)la, sa);
-
-            if (ld == 0)
+            ClientCard attackcard = _duel.GetCard(ca, (CardLocation)la, sa);
+            if (ld == 0 && (attackcard != null) && (ca != 0))
             {
-                _ai.OnDirectAttack();
+                _ai.OnDirectAttack(attackcard);
             }
         }
 
