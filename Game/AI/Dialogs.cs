@@ -109,6 +109,10 @@ namespace WindBot.Game.AI
 
         public void SendOnDirectAttack(string attacker)
         {
+            if (attacker == "" || attacker == null)
+            {
+                attacker = _facedownmonstername;
+            }
             InternalSendMessage(_ondirectattack, attacker);
         }
         public void SendOnDirectAttack()
