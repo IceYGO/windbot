@@ -117,9 +117,10 @@ namespace DevBot.Game.AI.Decks
 
         private bool ZwLionArms()
         {
-            if (ActivateDescription == (int)CardId.ZwLionArms * 16 + 0 ||
-                ActivateDescription == (int)CardId.ZwLionArms * 16 + 1)
+            if (ActivateDescription == (int)CardId.ZwLionArms * 16 + 0)
                 return true;
+            if (ActivateDescription == (int)CardId.ZwLionArms * 16 + 1)
+                return !Card.IsDisabled();
             return false;
         }
 

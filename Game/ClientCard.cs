@@ -27,6 +27,7 @@ namespace WindBot.Game
         public List<int> Overlays { get; private set; }
         public int Owner { get; private set; }
         public int Controller { get; private set; }
+        public int Disabled { get; private set; }
 
         public int[] ActionIndex { get; set; }
         public IDictionary<int, int> ActionActivateIndex { get; private set; }
@@ -115,7 +116,7 @@ namespace WindBot.Game
             if ((flag & (int)Query.Owner) != 0)
                 Owner = duel.GetLocalPlayer(packet.ReadInt32());
             if ((flag & (int)Query.IsDisabled) != 0)
-                packet.ReadInt32();
+                Disabled = packet.ReadInt32();
             if ((flag & (int)Query.IsPublic) != 0)
                 packet.ReadInt32();
             if ((flag & (int)Query.LScale) != 0)
@@ -172,6 +173,11 @@ namespace WindBot.Game
         public bool IsDefense()
         {
             return HasPosition(CardPosition.Defence);
+        }
+
+        public bool IsDisabled()
+        {
+            return (Disabled != 0);
         }
 
         public int GetDefensePower()
