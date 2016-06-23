@@ -51,6 +51,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Game\AI\Decks\BlueEyesExecutor.cs" />
     <Compile Include="Game\AI\AIFunctions.cs" />
     <Compile Include="Game\AI\CardContainer.cs" />
     <Compile Include="Game\AI\CardExecutor.cs" />
@@ -95,6 +96,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Decks\AI_BlueEyes.ydk">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

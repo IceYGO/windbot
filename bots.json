@@ -34,6 +34,26 @@
         "name": "谜之剑士LV4",
         "deck": "Zexal Weapons",
         "dialog": "zh-CN"
+      },
+      {
+        "name": "复制植物",
+        "deck": "Blue-Eyes",
+        "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "复制植物",
+        "deck": "Blue-Eyes",
+        "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "复制植物",
+        "deck": "Blue-Eyes",
+        "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "复制植物",
+        "deck": "Blue-Eyes",
+        "dialog": "copy.zh-CN"
       }
     ]
 }
