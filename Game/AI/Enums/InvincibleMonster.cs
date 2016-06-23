@@ -11,6 +11,7 @@
         MaskedHeroDivineWind = 22093873,
         DarknessNeosphere = 60417395,
         MetaionTheTimelord = 74530899,
-        CastleGate = 36931229
+        CastleGate = 36931229,
+        Number39Utopia = 84013237
     }
 }

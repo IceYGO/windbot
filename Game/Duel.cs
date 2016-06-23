@@ -15,6 +15,7 @@ namespace WindBot.Game
         public DuelPhase Phase { get; set; }
         public MainPhase MainPhase { get; set; }
         public BattlePhase BattlePhase { get; set; }
+        public IList<ClientCard> ChainTargets { get; set; }
 
         public Duel()
         {
@@ -22,6 +23,7 @@ namespace WindBot.Game
             Fields = new ClientField[2];
             Fields[0] = new ClientField();
             Fields[1] = new ClientField();
+            ChainTargets = new List<ClientCard>();
         }
 
         public ClientCard GetCard(int player, CardLocation loc, int index)

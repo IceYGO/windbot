@@ -145,6 +145,16 @@ namespace WindBot.Game.AI
             return null;
         }
 
+        public static ClientCard GetDangerousMonster(this IEnumerable<ClientCard> cards)
+        {
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && card.IsMonsterDangerous())
+                    return card;
+            }
+            return null;
+        }
+
         public static ClientCard GetNegateAttackSpell(this IEnumerable<ClientCard> cards)
         {
             foreach (ClientCard card in cards)

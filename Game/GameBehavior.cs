@@ -93,7 +93,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.SortChain, OnChainSorting);
             _messages.Add(GameMessage.UpdateCard, OnUpdateCard);
             _messages.Add(GameMessage.UpdateData, OnUpdateData);
-
+            _messages.Add(GameMessage.BecomeTarget, OnBecomeTarget);
             _messages.Add(GameMessage.SelectBattleCmd, OnSelectBattleCmd);
             _messages.Add(GameMessage.SelectCard, OnSelectCard);
             _messages.Add(GameMessage.SelectChain, OnSelectChain);
@@ -398,11 +398,13 @@ namespace WindBot.Game
             ClientCard card = _duel.GetCard(pcc, pcl, pcs, subs);
             int cc = GetLocalPlayer(packet.ReadByte());
             _ai.OnChaining(card, cc);
+            _duel.ChainTargets.Clear();
         }
 
         private void OnChainEnd(BinaryReader packet)
         {
             _ai.OnChainEnd();
+            //_duel.ChainTargets.Clear();
         }
 
         private void OnChainSorting(BinaryReader packet)
@@ -465,6 +467,21 @@ namespace WindBot.Game
                     card.Update(packet, _duel);
                     packet.BaseStream.Position = pos + len - 4;
                 }
+            }
+        }
+
+        private void OnBecomeTarget(BinaryReader packet)
+        {
+            int count = packet.ReadByte();
+            for (int i = 0; i < count; ++i)
+            {
+                int player = GetLocalPlayer(packet.ReadByte());
+                int loc = packet.ReadByte();
+                int seq = packet.ReadByte();
+                /*int sseq = */packet.ReadByte();
+                ClientCard card = _duel.GetCard(player, (CardLocation)loc, seq);
+                if (card == null) continue;
+                _duel.ChainTargets.Add(card);
             }
         }
 
@@ -667,7 +684,7 @@ namespace WindBot.Game
                 Connection.Send(CtosMessage.Response, 0);
                 return;
             }
-
+            
             if (card.Id == 0) card.SetId(cardId);
 
             int reply = _ai.OnSelectEffectYn(card) ? (1) : (0);
@@ -872,6 +889,11 @@ namespace WindBot.Game
                         cards.Add(card);
                     packet.ReadInt32();
                 }
+            }
+
+            for (int k = 0; k < mandatoryCards.Count; ++k)
+            {
+                sumval -= mandatoryCards[k].Level;
             }
 
             IList<ClientCard> selected = _ai.OnSelectSum(cards, sumval, min, max);

@@ -86,7 +86,17 @@ namespace WindBot.Game.AI
             CurrentChain.Clear();
         }
 
+        public virtual void OnNewTurn()
+        {
+            // Some AI need do something on new turn
+        }
+
         public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+        {
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max)
         {
             return null;
         }

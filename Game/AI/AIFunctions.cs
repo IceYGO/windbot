@@ -84,5 +84,24 @@ namespace WindBot.Game.AI
             }
             return !nomonster;
         }
+
+        public ClientCard GetOneEnnemyBetterThanValue(int value, bool onlyatk)
+        {
+            for (int i = 0; i < 5; ++i)
+            {
+                ClientCard card = Duel.Fields[1].MonsterZone[i];
+                if (card == null) continue;
+                if (onlyatk && card.IsDefense()) continue;
+                int ennemyValue = card.GetDefensePower();
+                if (ennemyValue >= value)
+                    return card;
+            }
+            return null;
+        }
+
+        public int GetStringId(int id, int option)
+        {
+            return id * 16 + option;
+        }
     }
 }

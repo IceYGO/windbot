@@ -64,7 +64,10 @@ namespace WindBot.Game
             m_option = -1;
             m_position = CardPosition.FaceUpAttack;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
+            {
                 _dialogs.SendNewTurn();
+                Executor.OnNewTurn();
+            }
         }
 
         /// <summary>
@@ -341,13 +344,57 @@ namespace WindBot.Game
         /// <returns></returns>
         public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max)
         {
-            // Always return one card. The first available.
+            IList<ClientCard> selected = new List<ClientCard>();
+            selected = Executor.OnSelectSum(cards, sum, min, max);
+            if (selected != null)
+            {
+                return selected;
+            }
+            selected = new List<ClientCard>();
+            int trysum = 0;
             foreach (ClientCard card in cards)
             {
-                if (card.Level == sum)
-                    return new[] { card };
+                // try level add
+                if (trysum + card.Level > sum)
+                {
+                    continue;
+                }
+                selected.Add(card);
+                trysum += card.Level;
+                //Logger.WriteLine(card.Id + "");
+                //Logger.WriteLine(trysum + " selected " + sum);
+                if (trysum == sum)
+                {
+                    return selected;
+                }
             }
-            // However return everything, that may work.
+            IList<ClientCard> selected2 = new List<ClientCard>();
+            foreach (ClientCard card in selected)
+            {
+                // clone
+                selected2.Add(card);
+            }
+            foreach (ClientCard card in selected)
+            {
+                // try level sub
+                selected2.Remove(card);
+                trysum -= card.Level;
+                //Logger.WriteLine(card.Id + "");
+                //Logger.WriteLine(trysum + " selected2 " + sum);
+                if (trysum == sum)
+                {
+                    return selected2;
+                }
+            }
+            foreach (ClientCard card in cards)
+            {
+                // try level equal
+                if (card.Level == sum)
+                {
+                    return new[] { card };
+                }
+            }
+            // try all
             return cards;
         }
 

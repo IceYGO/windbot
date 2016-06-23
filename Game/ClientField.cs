@@ -88,9 +88,29 @@ namespace WindBot.Game
             return HasInCards(Hand, cardId);
         }
 
+        public bool HasInHand(List<int> cardId)
+        {
+            return HasInCards(Hand, cardId);
+        }
+
         public bool HasInGraveyard(int cardId)
         {
             return HasInCards(Graveyard, cardId);
+        }
+    
+        public bool HasInGraveyard(List<int> cardId)
+        {
+            return HasInCards(Graveyard, cardId);
+        }
+
+        public bool HasInBanished(int cardId)
+        {
+            return HasInCards(Banished, cardId);
+        }
+
+        public bool HasInBanished(List<int> cardId)
+        {
+            return HasInCards(Banished, cardId);
         }
 
         public bool HasAttackingMonster()
@@ -116,6 +136,11 @@ namespace WindBot.Game
         }
 
         public bool HasInMonstersZone(int cardId)
+        {
+            return HasInCards(MonsterZone, cardId);
+        }
+
+        public bool HasInMonstersZone(List<int> cardId)
         {
             return HasInCards(MonsterZone, cardId);
         }
@@ -151,6 +176,28 @@ namespace WindBot.Game
             return count;
         }
 
+        public int GetCountCardInZone(IEnumerable<ClientCard> cards, int cardId)
+        {
+            int count = 0;
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && card.Id == cardId)
+                    count++;
+            }
+            return count;
+        }
+
+        public int GetCountCardInZone(IEnumerable<ClientCard> cards, List<int> cardId)
+        {
+            int count = 0;
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && cardId.Contains(card.Id))
+                    count++;
+            }
+            return count;
+        }
+
         private static List<ClientCard> GetCards(IEnumerable<ClientCard> cards, CardType type)
         {
             List<ClientCard> nCards = new List<ClientCard>();
@@ -178,6 +225,16 @@ namespace WindBot.Game
             foreach (ClientCard card in cards)
             {
                 if (card != null && card.Id == cardId)
+                    return true;
+            }
+            return false;
+        }
+
+        private static bool HasInCards(IEnumerable<ClientCard> cards, List<int> cardId)
+        {
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && cardId.Contains(card.Id))
                     return true;
             }
             return false;
