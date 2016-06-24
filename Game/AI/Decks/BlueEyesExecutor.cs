@@ -108,7 +108,7 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Repos, 改变攻守表示);
             AddExecutor(ExecutorType.MonsterSet, (int)CardId.太古的白石);
             AddExecutor(ExecutorType.MonsterSet, (int)CardId.传说的白石);
-            AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, 盖卡);
 
         }
 
@@ -616,7 +616,7 @@ namespace MycardBot.Game.AI.Decks
                 Logger.WriteLine("只有一个大怪兽，光波龙抢之.");
                 return true;
             }
-            if (monsters.Count >= 2)
+            if (monsters.Count >= 3)
             {
                 foreach (ClientCard monster in monsters)
                 {
@@ -846,6 +846,16 @@ namespace MycardBot.Game.AI.Decks
                 Logger.WriteLine("先攻可以超量森罗的姬芽宫.");
                 return true;
             }
+            if (Duel.Phase == DuelPhase.Main1 && !Duel.Fields[0].HasInMonstersZone(new List<int>
+                {
+                    (int)CardId.青眼亚白龙,
+                    (int)CardId.青眼白龙,
+                    (int)CardId.白色灵龙
+                }))
+            {
+                Logger.WriteLine("不能出L9，只能叠森罗的姬芽宫.");
+                return true;
+            }
             if (Duel.Phase == DuelPhase.Main2)
             {
                 Logger.WriteLine("主阶段2超量森罗的姬芽宫.");
@@ -854,24 +864,23 @@ namespace MycardBot.Game.AI.Decks
             return false;
         }
 
-        private bool BreakthroughSkill()
-        {
-            return (CurrentChain.Count > 0 && DefaultTrap());
-        }
-
         private bool 改变攻守表示()
         {
             bool ennemyBetter = AI.Utils.IsEnnemyBetter(true, true);
 
             if (Card.IsAttack() && ennemyBetter)
                 return true;
+            if (Card.IsFacedown())
+                return true;
             if (Card.IsDefense() && !ennemyBetter && Card.Attack >= Card.Defense)
                 return true;
-            if (Card.IsDefense() && (Card.Id == (int)CardId.青眼精灵龙
+            if (Card.IsDefense() && (
+                   Card.Id == (int)CardId.青眼精灵龙
                 || Card.Id == (int)CardId.苍眼银龙
                 ))
                 return true;
-            if (Card.IsAttack() && (Card.Id == (int)CardId.青色眼睛的贤士
+            if (Card.IsAttack() && (
+                   Card.Id == (int)CardId.青色眼睛的贤士
                 || Card.Id == (int)CardId.太古的白石
                 || Card.Id == (int)CardId.传说的白石
                 ))
