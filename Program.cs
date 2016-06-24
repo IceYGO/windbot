@@ -9,7 +9,7 @@ namespace WindBot
 {
     public class Program
     {
-        public static short ProVersion = Int16.Parse(Environment.GetEnvironmentVariable("YGOPRO_VERSION"));
+        public static short ProVersion = 0x133A;
         public static int PlayerNameSize = 20;
 
         internal static Random Rand;
@@ -40,8 +40,17 @@ namespace WindBot
         private static void Run()
         {
             Init("cards.cdb");
-
-            GameClient client = new GameClient(Environment.GetEnvironmentVariable("YGOPRO_NAME"), Environment.GetEnvironmentVariable("YGOPRO_DECK"), Environment.GetEnvironmentVariable("YGOPRO_HOST"), Int32.Parse(Environment.GetEnvironmentVariable("YGOPRO_PORT")));
+            GameClient client;
+            string EnvName = Environment.GetEnvironmentVariable("YGOPRO_NAME");
+            if (EnvName != null)
+            {
+                ProVersion = Int16.Parse(Environment.GetEnvironmentVariable("YGOPRO_VERSION"));
+                client = new GameClient(EnvName, Environment.GetEnvironmentVariable("YGOPRO_DECK"), Environment.GetEnvironmentVariable("YGOPRO_HOST"), Int32.Parse(Environment.GetEnvironmentVariable("YGOPRO_PORT")));
+            }
+            else
+            {
+                client = new GameClient("谜之剑士LV4", "Blue-Eyes", "127.0.0.1", 7911);
+            }
             client.Start();
             while (client.Connection.IsConnected)
             {
