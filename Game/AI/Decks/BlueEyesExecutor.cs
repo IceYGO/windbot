@@ -44,6 +44,7 @@ namespace MycardBot.Game.AI.Decks
         }
 
         private List<ClientCard> 使用过的青眼亚白龙 = new List<ClientCard>();
+        ClientCard 使用过的光波龙;
 
         public BlueEyesExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -65,7 +66,7 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.抵价购物, 抵价购物效果);
 
             // 吸一口
-            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶);
+            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶, 强欲而贪欲之壶效果);
 
             // 有亚白就跳
             AddExecutor(ExecutorType.SpSummon, (int)CardId.青眼亚白龙);
@@ -77,8 +78,8 @@ namespace MycardBot.Game.AI.Decks
 
             // 通招
             AddExecutor(ExecutorType.Summon, (int)CardId.青色眼睛的贤士);
-            AddExecutor(ExecutorType.Summon, (int)CardId.太古的白石);
-            AddExecutor(ExecutorType.Summon, (int)CardId.传说的白石);
+            AddExecutor(ExecutorType.Summon, (int)CardId.太古的白石, 太古的白石通常召唤);
+            AddExecutor(ExecutorType.Summon, (int)CardId.传说的白石, 太古的白石通常召唤);
 
             // 效果
             AddExecutor(ExecutorType.Activate, (int)CardId.青眼亚白龙, 青眼亚白龙效果);
@@ -87,18 +88,26 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.白色灵龙, 白色灵龙效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.青眼精灵龙, 青眼精灵龙效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.希望魁龙银河巨神, 希望魁龙银河巨神效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.银河眼光波龙, 银河眼光波龙效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.银河眼光子龙皇, 银河眼光子龙皇效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.银河眼重铠光子龙, 银河眼重铠光子龙效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.银河眼暗物质龙, 银河眼暗物质龙效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.苍眼银龙, 苍眼银龙效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.森罗的姬牙宫);
 
             // 出大怪
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.银河眼光波龙, 银河眼光波龙超量召唤);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.银河眼光子龙皇, 银河眼光子龙皇超量召唤);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.银河眼重铠光子龙, 银河眼重铠光子龙超量召唤);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.银河眼暗物质龙, 银河眼暗物质龙超量召唤);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.青眼精灵龙, 青眼精灵龙同调召唤);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.希望魁龙银河巨神, 希望魁龙银河巨神超量召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.森罗的姬牙宫);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.森罗的姬牙宫, 森罗的姬芽宫超量召唤);
 
-            // 改变攻守表示
+            // 没别的可干
             AddExecutor(ExecutorType.Repos, 改变攻守表示);
-
-            // Set traps
+            AddExecutor(ExecutorType.MonsterSet, (int)CardId.太古的白石);
+            AddExecutor(ExecutorType.MonsterSet, (int)CardId.传说的白石);
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
         }
@@ -187,6 +196,7 @@ namespace MycardBot.Game.AI.Decks
             foreach (ClientCard card in cards)
             {
                 // try level equal
+                Logger.WriteLine("同调素材可以选择: " + card.Name);
                 if (card.Level == sum)
                 {
                     return new[] { card };
@@ -198,7 +208,6 @@ namespace MycardBot.Game.AI.Decks
                 }
                 selected.Add(card);
                 trysum += card.Level;
-                Logger.WriteLine(card.Id + "");
                 Logger.WriteLine(trysum + " selected " + sum);
                 if (trysum == sum)
                 {
@@ -225,6 +234,16 @@ namespace MycardBot.Game.AI.Decks
             }
             // try all
             return cards;
+        }
+
+        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
+        {
+            if (defender.IsMonsterInvincible())
+            {
+                if (defender.IsMonsterDangerous() || defender.IsDefense())
+                    return false;
+            }
+            return attacker.Attack > 0;
         }
 
         private bool 龙之灵庙效果()
@@ -408,6 +427,11 @@ namespace MycardBot.Game.AI.Decks
             return true;
         }
 
+        private bool 强欲而贪欲之壶效果()
+        {
+            return Duel.Fields[0].Deck.Count > 15;
+        }
+
         private bool 苍眼银龙效果()
         {
             Logger.WriteLine("苍眼银龙效果.");
@@ -502,7 +526,6 @@ namespace MycardBot.Game.AI.Decks
             }
         }
 
-
         private bool 希望魁龙银河巨神效果()
         {
             Logger.WriteLine("希望魁龙银河巨神" + ActivateDescription);
@@ -553,8 +576,8 @@ namespace MycardBot.Game.AI.Decks
                 if (spells.Count == 0)
                 {
                     Logger.WriteLine("对面没坑，跳个本体.");
-                    //AI.SelectCard((int)CardId.青眼白龙);
-                    AI.SelectCard((int)CardId.白色灵龙);
+                    AI.SelectCard((int)CardId.青眼白龙);
+                    //AI.SelectCard((int)CardId.白色灵龙);
                 }
                 else
                 {
@@ -564,6 +587,207 @@ namespace MycardBot.Game.AI.Decks
                 return true;
             }
         }
+
+        private bool 太古的白石通常召唤()
+        {
+            Logger.WriteLine("白石通常召唤.");
+            return Duel.Fields[0].HasInMonstersZone(new List<int>
+                {
+                    (int)CardId.青色眼睛的贤士,
+                    (int)CardId.太古的白石,
+                    (int)CardId.传说的白石,
+                    (int)CardId.青眼亚白龙,
+                    (int)CardId.青眼白龙,
+                    (int)CardId.白色灵龙
+                });
+        }
+
+        private bool 银河眼光波龙超量召唤()
+        {
+            Logger.WriteLine("银河眼光波龙超量召唤.");
+            if (Duel.Turn == 1)
+            {
+                Logger.WriteLine("先攻不叠银河眼，叠银河巨神.");
+                return false;
+            }
+            List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+            if (monsters.Count == 1 && !monsters[0].IsFacedown() && ((monsters[0].IsDefense() && monsters[0].GetDefensePower() >= 3000) && monsters[0].HasType(CardType.Xyz)))
+            {
+                Logger.WriteLine("只有一个大怪兽，光波龙抢之.");
+                return true;
+            }
+            if (monsters.Count >= 2)
+            {
+                foreach (ClientCard monster in monsters)
+                {
+                    if(!monster.IsFacedown() && ((monster.IsDefense() && monster.GetDefensePower() >= 3000) || monster.HasType(CardType.Xyz)))
+                    {
+                        Logger.WriteLine("貌似打不死，出个光波龙看看.");
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private bool 银河眼光子龙皇超量召唤()
+        {
+            Logger.WriteLine("银河眼光子龙皇超量召唤.");
+            if (Duel.Turn == 1)
+            {
+                Logger.WriteLine("先攻不叠银河眼，叠银河巨神.");
+                return false;
+            }
+            if (AI.Utils.IsOneEnnemyBetterThanValue(2999, false))
+            {
+                Logger.WriteLine("有高攻怪兽，出银河眼.");
+                return true;
+            }
+            return false;
+        }
+
+        private bool 银河眼重铠光子龙超量召唤()
+        {
+            Logger.WriteLine("银河眼重铠光子龙超量召唤.");
+            if (Duel.Fields[0].HasInMonstersZone((int)CardId.银河眼光波龙))
+            {
+                List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+                foreach (ClientCard monster in monsters)
+                {
+                    if ((monster.IsDisabled() && monster.HasType(CardType.Xyz) && !monster.Equals(使用过的光波龙))
+                        || (Duel.Phase == DuelPhase.Main2 && monster.Equals(使用过的光波龙)))
+                    {
+                        AI.SelectCard(monster);
+                        return true;
+                    }
+                }
+            }
+            if (Duel.Fields[0].HasInMonstersZone((int)CardId.银河眼光子龙皇))
+            {
+                if (!AI.Utils.IsOneEnnemyBetterThanValue(4000, false))
+                {
+                    Logger.WriteLine("没有高攻怪兽，出重铠.");
+                    AI.SelectCard((int)CardId.银河眼光子龙皇);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool 银河眼暗物质龙超量召唤()
+        {
+            Logger.WriteLine("银河眼重铠光子龙超量召唤.");
+            if (Duel.Fields[0].HasInMonstersZone((int)CardId.银河眼重铠光子龙))
+            {
+                AI.SelectCard((int)CardId.银河眼重铠光子龙);
+                return true;
+            }
+            return false;
+        }
+
+        private bool 银河眼光子龙皇效果()
+        {
+            return true;
+        }
+
+        private bool 银河眼光波龙效果()
+        {
+            Logger.WriteLine("银河眼光波龙效果.");
+            List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                if (monster.HasType(CardType.Xyz))
+                {
+                    AI.SelectCard(monster);
+                    使用过的光波龙 = Card;
+                    return true;
+                }
+            }
+            foreach (ClientCard monster in monsters)
+            {
+                if (monster.IsDefense())
+                {
+                    AI.SelectCard(monster);
+                    使用过的光波龙 = Card;
+                    return true;
+                }
+            }
+            使用过的光波龙 = Card;
+            return true;
+        }
+
+        private bool 银河眼重铠光子龙效果()
+        {
+            Logger.WriteLine("重铠优先炸后场.");
+            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            foreach (ClientCard spell in spells)
+            {
+                if (spell.IsSpellNegateAttack())
+                {
+                    AI.SelectCard(spell);
+                    return true;
+                }
+            }
+            foreach (ClientCard spell in spells)
+            {
+                if (!spell.IsFacedown())
+                {
+                    AI.SelectCard(spell);
+                    return true;
+                }
+            }
+            List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+            if (monsters.Count >= 2)
+            {
+                Logger.WriteLine("怪多就先炸守备的.");
+                foreach (ClientCard monster in monsters)
+                {
+                    if (monster.IsDefense())
+                    {
+                        AI.SelectCard(monster);
+                        return true;
+                    }
+                }
+                return true;
+            }
+            if (monsters.Count == 2)
+            {
+                Logger.WriteLine("2只怪只炸打不过的，剩下留给暗物质打.");
+                foreach (ClientCard monster in monsters)
+                {
+                    if (monster.IsMonsterInvincible() || monster.IsMonsterDangerous() || monster.GetDefensePower() > 4000)
+                    {
+                        AI.SelectCard(monster);
+                        return true;
+                    }
+                }
+            }
+            if (monsters.Count == 1)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private bool 银河眼暗物质龙效果()
+        {
+            AI.SelectCard(new[]
+                {
+                    (int)CardId.太古的白石,
+                    (int)CardId.传说的白石,
+                    (int)CardId.白色灵龙,
+                    (int)CardId.青眼白龙
+                });
+            AI.SelectNextCard(new[]
+                {
+                    (int)CardId.太古的白石,
+                    (int)CardId.传说的白石,
+                    (int)CardId.白色灵龙,
+                    (int)CardId.青眼白龙
+                });
+            return true;
+        }
+
 
         private bool 青眼精灵龙同调召唤()
         {
@@ -615,6 +839,21 @@ namespace MycardBot.Game.AI.Decks
             return false;
         }
 
+        private bool 森罗的姬芽宫超量召唤()
+        {
+            if (Duel.Turn == 1)
+            {
+                Logger.WriteLine("先攻可以超量森罗的姬芽宫.");
+                return true;
+            }
+            if (Duel.Phase == DuelPhase.Main2)
+            {
+                Logger.WriteLine("主阶段2超量森罗的姬芽宫.");
+                return true;
+            }
+            return false;
+        }
+
         private bool BreakthroughSkill()
         {
             return (CurrentChain.Count > 0 && DefaultTrap());
@@ -644,7 +883,6 @@ namespace MycardBot.Game.AI.Decks
         {
             return (Card.IsTrap() || (Card.Id==(int)CardId.银龙的轰咆)) && Duel.Fields[0].GetSpellCountWithoutField() < 4;
         }
-
 
         private bool 手里有2个(int id)
         {
