@@ -76,9 +76,6 @@ namespace DevBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.AdreusKeeperOfArmageddon);
             AddExecutor(ExecutorType.Activate, (int)CardId.Number61Volcasaurus);
 
-            // Spummon GaiaDragonTheThunderCharger if Volcasaurus or ZwLionArms had been used
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GaiaDragonTheThunderCharger);
-
             // Weapons
             AddExecutor(ExecutorType.Activate, (int)CardId.ZwTornadoBringer);
             AddExecutor(ExecutorType.Activate, (int)CardId.ZwLightningBlade);
@@ -111,6 +108,9 @@ namespace DevBot.Game.AI.Decks
 
             // Reposition
             AddExecutor(ExecutorType.Repos, MonsterRepos);
+
+            // Spummon GaiaDragonTheThunderCharger if Volcasaurus or ZwLionArms had been used
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.GaiaDragonTheThunderCharger);
 
             // Set and activate traps
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
