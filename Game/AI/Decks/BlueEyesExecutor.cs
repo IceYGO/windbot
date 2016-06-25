@@ -45,6 +45,7 @@ namespace MycardBot.Game.AI.Decks
 
         private List<ClientCard> 使用过的青眼亚白龙 = new List<ClientCard>();
         ClientCard 使用过的光波龙;
+        bool 已特殊召唤青眼亚白龙 = false;
 
         public BlueEyesExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -69,7 +70,7 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶, 强欲而贪欲之壶效果);
 
             // 有亚白就跳
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.青眼亚白龙);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.青眼亚白龙, 青眼亚白龙特殊召唤);
 
             // 苏生
             AddExecutor(ExecutorType.Activate, (int)CardId.复活之福音, 死者苏生效果);
@@ -106,22 +107,25 @@ namespace MycardBot.Game.AI.Decks
 
             // 没别的可干
             AddExecutor(ExecutorType.Repos, 改变攻守表示);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.太古的白石);
+            // 优先盖传说白石以期望拿到白龙打开局面
             AddExecutor(ExecutorType.MonsterSet, (int)CardId.传说的白石);
+            AddExecutor(ExecutorType.MonsterSet, (int)CardId.太古的白石);
             AddExecutor(ExecutorType.SpellSet, 盖卡);
 
         }
 
         public override bool OnSelectHand()
         {
-            // 先攻
-            return false;
+            // 随机先后攻
+            return Program.Rand.Next(2) > 0;
         }
 
         public override void OnNewTurn()
         {
-            // 回合开始时重置亚白龙状况
+            // 回合开始时重置状况
             使用过的青眼亚白龙.Clear();
+            使用过的光波龙 = null;
+            已特殊召唤青眼亚白龙 = false;
         }
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
@@ -542,6 +546,19 @@ namespace MycardBot.Game.AI.Decks
             if (ActivateDescription == AI.Utils.GetStringId((int)CardId.太古的白石, 0))
                 {
                 Logger.WriteLine("太古白石回收效果.");
+                if (Duel.Fields[0].HasInHand((int)CardId.抵价购物)
+                    && !Duel.Fields[0].HasInHand((int)CardId.青眼白龙)
+                    && !Duel.Fields[0].HasInHand((int)CardId.青眼亚白龙))
+                {
+                    Logger.WriteLine("回收喂八抽.");
+                    AI.SelectCard((int)CardId.青眼白龙);
+                    return true;
+                }
+                if (已特殊召唤青眼亚白龙)
+                {
+                    Logger.WriteLine("已经跳过亚白龙，下回合再回收.");
+                    return false;
+                }
                 if (Duel.Fields[0].HasInHand((int)CardId.青眼白龙)
                     && !Duel.Fields[0].HasInHand((int)CardId.青眼亚白龙)
                     && Duel.Fields[0].HasInGraveyard((int)CardId.青眼亚白龙))
@@ -555,14 +572,6 @@ namespace MycardBot.Game.AI.Decks
                     && Duel.Fields[0].HasInGraveyard((int)CardId.青眼白龙))
                 {
                     Logger.WriteLine("有亚白龙缺本体，回收.");
-                    AI.SelectCard((int)CardId.青眼白龙);
-                    return true;
-                }
-                if (Duel.Fields[0].HasInHand((int)CardId.抵价购物)
-                    && !Duel.Fields[0].HasInHand((int)CardId.青眼白龙)
-                    && !Duel.Fields[0].HasInHand((int)CardId.青眼亚白龙))
-                {
-                    Logger.WriteLine("回收喂八抽.");
                     AI.SelectCard((int)CardId.青眼白龙);
                     return true;
                 }
@@ -586,6 +595,12 @@ namespace MycardBot.Game.AI.Decks
                 }
                 return true;
             }
+        }
+
+        private bool 青眼亚白龙特殊召唤()
+        {
+            已特殊召唤青眼亚白龙 = true;
+            return true;
         }
 
         private bool 太古的白石通常召唤()

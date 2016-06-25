@@ -51,7 +51,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Game\AI\Decks\BlueEyesExecutor.cs" />
     <Compile Include="Game\AI\AIFunctions.cs" />
     <Compile Include="Game\AI\CardContainer.cs" />
     <Compile Include="Game\AI\CardExecutor.cs" />
@@ -59,10 +58,12 @@
     <Compile Include="Game\AI\CardSelector.cs" />
     <Compile Include="Game\AI\DeckAttribute.cs" />
     <Compile Include="Game\AI\DecksManager.cs" />
+    <Compile Include="Game\AI\Decks\BlueEyesExecutor.cs" />
     <Compile Include="Game\AI\Decks\BurnExecutor.cs" />
     <Compile Include="Game\AI\Decks\DragunityExecutor.cs" />
     <Compile Include="Game\AI\Decks\FrogExecutor.cs" />
     <Compile Include="Game\AI\Decks\HorusExecutor.cs" />
+    <Compile Include="Game\AI\Decks\DoEverythingExecutor.cs" />
     <Compile Include="Game\AI\Decks\OldSchoolExecutor.cs" />
     <Compile Include="Game\AI\Decks\Rank5Executor.cs" />
     <Compile Include="Game\AI\Decks\ZexalWeaponsExecutor.cs" />
@@ -96,9 +97,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Decks\AI_BlueEyes.ydk">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

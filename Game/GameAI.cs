@@ -63,6 +63,7 @@ namespace WindBot.Game
             m_nextSelector = null;
             m_option = -1;
             m_position = CardPosition.FaceUpAttack;
+            Duel.LastSummonPlayer = -1;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
                 _dialogs.SendNewTurn();
@@ -89,6 +90,7 @@ namespace WindBot.Game
         /// <param name="player">Player who is currently chaining.</param>
         public void OnChaining(ClientCard card, int player)
         {
+            Duel.LastSummonPlayer = -1;
             Executor.OnChaining(player,card);
         }
         
@@ -268,6 +270,7 @@ namespace WindBot.Game
                     if (ShouldExecute(exec, card, ExecutorType.SpSummon))
                     {
                         _dialogs.SendSummon(card.Name);
+                        Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.SpSummon, card.ActionIndex);
                     }
                 }
@@ -276,6 +279,7 @@ namespace WindBot.Game
                     if (ShouldExecute(exec, card, ExecutorType.Summon))
                     {
                         _dialogs.SendSummon(card.Name);
+                        Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
                     if (ShouldExecute(exec, card, ExecutorType.SummonOrSet))
@@ -287,6 +291,7 @@ namespace WindBot.Game
                             return new MainPhaseAction(MainPhaseAction.MainAction.SetMonster, card.ActionIndex);
                         }
                         _dialogs.SendSummon(card.Name);
+                        Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
                 }                

@@ -47,13 +47,14 @@ namespace WindBot.Game.AI
             for (int i = defenders.Count - 1; i >= 0; --i)
             {
                 ClientCard defender = defenders[i];
-                int value = defender.GetDefensePower();
+                int def = defender.GetDefensePower();
                 for (int j = 0; j < attackers.Count; ++j)
                 {
                     ClientCard attacker = attackers[j];
+                    attacker.RealPower = attacker.Attack;
                     if (!OnPreBattleBetween(attacker, defender))
                         continue;
-                    if (attacker.Attack > value || (attacker.Attack >= value && j == attackers.Count - 1))
+                    if (attacker.RealPower > def || (attacker.RealPower >= def && j == attackers.Count - 1))
                         return AI.Attack(attacker, defender);
                 }
             }

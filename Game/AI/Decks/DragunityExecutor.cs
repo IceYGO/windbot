@@ -31,6 +31,7 @@ namespace DevBot.Game.AI.Decks
             DimensionalPrison = 70342110,
             AssaultModeActivate = 80280737,
             FiveHeadedDragon = 99267150,
+            CrystalWingSynchroDragon = 50954680,
             ScrapDragon = 76774528,
             StardustDragon = 44508094,
             DragunityKnightGaeDearg = 34116027,
@@ -54,6 +55,7 @@ namespace DevBot.Game.AI.Decks
 
             // Execute monsters
             AddExecutor(ExecutorType.Activate, (int)CardId.ScrapDragon, ScrapDragonEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragonEffect);
             AddExecutor(ExecutorType.Activate, (int)CardId.DragunityPhalanx);
             AddExecutor(ExecutorType.Activate, (int)CardId.DragunityKnightVajrayana);
             AddExecutor(ExecutorType.Activate, (int)CardId.DragunityArmaMysletainn);
@@ -62,6 +64,7 @@ namespace DevBot.Game.AI.Decks
             // Summon
             AddExecutor(ExecutorType.Activate, (int)CardId.DragonsMirror, DragonsMirror);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.ScrapDragon, ScrapDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragonSummon);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.StardustDragon);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.DragunityKnightVajrayana);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.DragunityKnightGaeDearg);
@@ -157,7 +160,7 @@ namespace DevBot.Game.AI.Decks
                 needId = (int)CardId.DragunityDux;
             else
             {
-                bool hasRealMonster = false;
+                /*bool hasRealMonster = false;
                 foreach (ClientCard card in field.GetMonsters())
                 {
                     if (card.Id != (int)CardId.AssaultBeast)
@@ -166,8 +169,8 @@ namespace DevBot.Game.AI.Decks
                         break;
                     }
                 }
-                if (!hasRealMonster || GetProblematicCard() != null)
-                    needId = (int)CardId.DragunityDux;
+                if (!hasRealMonster || GetProblematicCard() != null)*/
+                needId = (int)CardId.DragunityDux;
             }
 
             if (needId == -1)
@@ -338,8 +341,8 @@ namespace DevBot.Game.AI.Decks
 
         private bool ScrapDragonSummon()
         {
-            if (AI.Utils.IsOneEnnemyBetterThanValue(2500, true))
-                return true;
+            //if (AI.Utils.IsOneEnnemyBetterThanValue(2500, true))
+            //    return true;
             ClientCard invincible = GetProblematicCard();
             return invincible != null;
         }
@@ -393,6 +396,18 @@ namespace DevBot.Game.AI.Decks
             AI.SelectNextCard(destroyCard);
 
             return true;
+        }
+
+        private bool CrystalWingSynchroDragonSummon()
+        {
+            return !Duel.Fields[0].HasInHand((int)CardId.AssaultModeActivate)
+                && !Duel.Fields[0].HasInHand((int)CardId.AssaultBeast)
+                && !Duel.Fields[0].HasInSpellZone((int)CardId.AssaultModeActivate);
+        }
+
+        private bool CrystalWingSynchroDragonEffect()
+        {
+            return LastChainPlayer != 0;
         }
 
         private bool DragunityPhalanxSummon()

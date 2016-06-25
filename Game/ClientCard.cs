@@ -24,6 +24,7 @@ namespace WindBot.Game
         public int Defense { get; private set; }
         public int BaseAttack { get; private set; }
         public int BaseDefense { get; private set; }
+        public int RealPower { get; set; }
         public List<int> Overlays { get; private set; }
         public int Owner { get; private set; }
         public int Controller { get; private set; }
