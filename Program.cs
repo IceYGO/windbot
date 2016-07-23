@@ -1,4 +1,4 @@
-﻿using OCGWrapper;
+﻿using YGOSharp.OCGWrapper;
 using System;
 using System.IO;
 using System.Threading;
@@ -13,7 +13,6 @@ namespace WindBot
         public static int PlayerNameSize = 20;
 
         internal static Random Rand;
-        
         internal static void Main()
         {
 #if !DEBUG
@@ -36,7 +35,7 @@ namespace WindBot
             DecksManager.Init();
             InitCardsManager(databasePath);
         }
-        
+
         private static void Run()
         {
             Init("cards.cdb");

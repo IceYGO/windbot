@@ -1,5 +1,5 @@
-﻿using OCGWrapper;
-using OCGWrapper.Enums;
+﻿using YGOSharp.OCGWrapper;
+using YGOSharp.OCGWrapper.Enums;
 using System;
 using System.Collections.Generic;
 using System.IO;
