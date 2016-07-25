@@ -74,6 +74,7 @@ namespace WindBot.Game
             _packets.Add(StocMessage.DuelEnd, OnDuelEnd);
             _packets.Add(StocMessage.Chat, OnChat);
 
+            _messages.Add(GameMessage.Retry, OnRetry);
             _messages.Add(GameMessage.Start, OnStart);
             _messages.Add(GameMessage.Win, OnWin);
             _messages.Add(GameMessage.Draw, OnDraw);
@@ -225,6 +226,11 @@ namespace WindBot.Game
         {
             packet.ReadInt16(); // player
             packet.ReadUnicode(256); // message
+        }
+
+        private void OnRetry(BinaryReader packet)
+        {
+            throw new Exception("Got MSG_RETRY.");
         }
 
         private void OnStart(BinaryReader packet)

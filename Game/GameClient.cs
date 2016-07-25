@@ -12,17 +12,20 @@ namespace WindBot.Game
         public YGOClient Connection { get; private set; }
         public string Username;
         public string Deck;
+        public string Dialog;
 
         private string _serverHost;
         private int _serverPort;
+        
         private string _roomInfos;
 
         private GameBehavior _behavior;
 
-        public GameClient(string username, string deck, string serverHost, int serverPort, string roomInfos = "")
+        public GameClient(string username = "Windbot", string deck = "Blue-Eyes", string serverHost = "127.0.0.1", int serverPort = 7911, string dialog = "default", string roomInfos = "")
         {
             Username = username;
             Deck = deck;
+            Dialog = dialog;
             _serverHost = serverHost;
             _serverPort = serverPort;
             _roomInfos = roomInfos;

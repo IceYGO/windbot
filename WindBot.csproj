@@ -42,6 +42,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
     <Reference Include="YGOSharp.Network">
       <HintPath>.\YGOSharp.Network.dll</HintPath>
