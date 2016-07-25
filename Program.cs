@@ -118,6 +118,11 @@ namespace WindBot
                     }
                 }
                 Logger.WriteLine(client.Username + " end.");
+                System.Threading.Thread.CurrentThread.Abort();
+            }
+            catch (ThreadAbortException ex)
+            {
+                //Logger.WriteErrorLine("Run Error: " + ex);
             }
             catch (Exception ex)
             {
