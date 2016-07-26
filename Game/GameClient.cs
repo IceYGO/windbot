@@ -14,6 +14,9 @@ namespace WindBot.Game
         public string Deck;
         public string Dialog;
 
+        public int TickDelay = 30;
+        public int nextTickDelay = 1;
+
         private string _serverHost;
         private int _serverPort;
         private short _proVersion;
@@ -60,6 +63,7 @@ namespace WindBot.Game
 
         public void Tick()
         {
+            nextTickDelay = TickDelay;
             Connection.Update();
         }
 

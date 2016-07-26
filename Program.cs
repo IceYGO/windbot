@@ -124,7 +124,7 @@ namespace WindBot
             while (client.Connection.IsConnected)
             {
                 client.Tick();
-                Thread.Sleep(30);
+                Thread.Sleep(client.nextTickDelay);
             }
         }
 
@@ -207,7 +207,7 @@ namespace WindBot
                     try
                     {
                         client.Tick();
-                        Thread.Sleep(30);
+                        Thread.Sleep(client.nextTickDelay);
                     }
                     catch (Exception ex)
                     {
