@@ -203,6 +203,7 @@ namespace WindBot.Game
         {
             byte[] replay = packet.ReadToEnd();
 
+            /*
             const string directory = "Replays";
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
@@ -213,8 +214,9 @@ namespace WindBot.Game
 
             if (Regex.IsMatch(file, @"^[\w\-. ]+$"))
                 File.WriteAllBytes(fullname, replay);
+            */
 
-            Connection.Close();
+            //Connection.Close();
         }
         
         private void OnDuelEnd(BinaryReader packet)
