@@ -8,6 +8,11 @@ namespace WindBot
         {
             Console.WriteLine("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + message);
         }
+        public static void DebugWriteLine(string message)
+        {
+            if (Program.DebugMode)
+            Console.WriteLine("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + message);
+        }
         public static void WriteErrorLine(string message)
         {
             Console.Error.WriteLine("[" + DateTime.Now.ToString("HH:mm:ss") + "] " + message);

@@ -366,8 +366,8 @@ namespace WindBot.Game
                 }
                 selected.Add(card);
                 trysum += card.Level;
-                //Logger.WriteLine(card.Id + "");
-                //Logger.WriteLine(trysum + " selected " + sum);
+                //Logger.DebugWriteLine(card.Id + "");
+                //Logger.DebugWriteLine(trysum + " selected " + sum);
                 if (trysum == sum)
                 {
                     return selected;
@@ -384,8 +384,8 @@ namespace WindBot.Game
                 // try level sub
                 selected2.Remove(card);
                 trysum -= card.Level;
-                //Logger.WriteLine(card.Id + "");
-                //Logger.WriteLine(trysum + " selected2 " + sum);
+                //Logger.DebugWriteLine(card.Id + "");
+                //Logger.DebugWriteLine(trysum + " selected2 " + sum);
                 if (trysum == sum)
                 {
                     return selected2;

@@ -146,7 +146,7 @@ namespace WindBot.Game
 
         private void OnPlayerEnter(BinaryReader packet)
         {
-            string name = packet.ReadUnicode(Program.PlayerNameSize);
+            string name = packet.ReadUnicode(20);
             int pos = packet.ReadByte();
             if (pos < 8)
                 _room.Names[pos] = name;
@@ -230,6 +230,7 @@ namespace WindBot.Game
 
         private void OnRetry(BinaryReader packet)
         {
+            Connection.Close();
             throw new Exception("Got MSG_RETRY.");
         }
 
