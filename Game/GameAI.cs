@@ -23,6 +23,14 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when the AI got the error message.
+        /// </summary>
+        public void OnRetry()
+        {
+            _dialogs.SendSorry();
+        }
+
+        /// <summary>
         /// Called when the AI join the game.
         /// </summary>
         public void OnJoinGame()

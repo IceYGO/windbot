@@ -235,6 +235,7 @@ namespace WindBot.Game
 
         private void OnRetry(BinaryReader packet)
         {
+            _ai.OnRetry();
             Connection.Close();
             throw new Exception("Got MSG_RETRY.");
         }

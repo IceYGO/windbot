@@ -74,6 +74,11 @@ namespace WindBot.Game.AI
             }
         }
 
+        public void SendSorry()
+        {
+            InternalSendMessage(new[] { "Sorry, an error occurs." });
+        }
+
         public void SendWelcome()
         {
             InternalSendMessage(_welcome);

@@ -118,14 +118,7 @@ namespace WindBot
             string EnvPassword = Environment.GetEnvironmentVariable("YGOPRO_PASSWORD");
             if (EnvPassword != null)
                 Info.HostInfo = EnvPassword;
-
-            GameClient client = new GameClient(Info);
-            client.Start();
-            while (client.Connection.IsConnected)
-            {
-                client.Tick();
-                Thread.Sleep(client.nextTickDelay);
-            }
+            Run(Info);
         }
 
         private static void RunAsServer(int ServerPort)
