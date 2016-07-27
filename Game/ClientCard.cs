@@ -29,6 +29,7 @@ namespace WindBot.Game
         public int Owner { get; private set; }
         public int Controller { get; private set; }
         public int Disabled { get; private set; }
+        public int SelectSeq { get; set; }
 
         public int[] ActionIndex { get; set; }
         public IDictionary<int, int> ActionActivateIndex { get; private set; }

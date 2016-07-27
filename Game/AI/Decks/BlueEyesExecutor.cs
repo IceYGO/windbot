@@ -180,7 +180,7 @@ namespace MycardBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max)
         {
-            Logger.DebugWriteLine(cards.Count + " sync " + sum);
+            //Logger.DebugWriteLine(cards.Count + " sync " + sum);
             IList<ClientCard> selected = new List<ClientCard>();
             int trysum = 0;
             if (使用过的青眼亚白龙.Count > 0 && cards.IndexOf(使用过的青眼亚白龙[0])>0)
@@ -193,7 +193,7 @@ namespace MycardBot.Game.AI.Decks
                 trysum = card.Level;
                 if (trysum == sum)
                 {
-                    Logger.DebugWriteLine(trysum + " dselected " + sum);
+                    Logger.DebugWriteLine("直接选择了" + card.Name);
                     return selected;
                 }
             }
@@ -203,15 +203,18 @@ namespace MycardBot.Game.AI.Decks
                 Logger.DebugWriteLine("同调素材可以选择: " + card.Name);
                 if (card.Level == sum)
                 {
+                    Logger.DebugWriteLine("直接选择了" + card.Name);
                     return new[] { card };
                 }
                 // try level add
                 if (trysum + card.Level > sum)
                 {
+                    Logger.DebugWriteLine("跳过了" + card.Name);
                     continue;
                 }
                 selected.Add(card);
                 trysum += card.Level;
+                Logger.DebugWriteLine("添加" + card.Name);
                 Logger.DebugWriteLine(trysum + " selected " + sum);
                 if (trysum == sum)
                 {
@@ -229,7 +232,7 @@ namespace MycardBot.Game.AI.Decks
                 // try level sub
                 selected2.Remove(card);
                 trysum -= card.Level;
-                Logger.DebugWriteLine(card.Id + "");
+                Logger.DebugWriteLine("排除" + card.Name);
                 Logger.DebugWriteLine(trysum + " selected2 " + sum);
                 if (trysum == sum)
                 {

@@ -895,6 +895,7 @@ namespace WindBot.Game
                     {
                         if (cardId != 0 && card.Id != cardId)
                             card.SetId(cardId);
+                        card.SelectSeq = i;
                     }
                     if (j == 0)
                         mandatoryCards.Add(card);
@@ -915,23 +916,13 @@ namespace WindBot.Game
             int index = 0;
 
             result[index++] = (byte)(mandatoryCards.Count + selected.Count);
-            while (index < mandatoryCards.Count)
+            while (index <= mandatoryCards.Count)
             {
                 result[index++] = 0;
             }
             for (int i = 0; i < selected.Count; ++i)
             {
-                int id = 0;
-                for (int j = 0; j < cards.Count; ++j)
-                {
-                    if (cards[j] == null) continue;
-                    if (cards[j].Equals(selected[i]))
-                    {
-                        id = j;
-                        break;
-                    }
-                }
-                result[index++] = (byte)id;
+                result[index++] = (byte)selected[i].SelectSeq;
             }
 
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
