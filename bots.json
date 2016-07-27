@@ -59,6 +59,16 @@
         "name": "尼亚",
         "deck": "Yosenju",
         "dialog": "near.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Evilswarm",
+        "dialog": "near.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Graydle",
+        "dialog": "near.zh-CN"
       }
     ]
 }
