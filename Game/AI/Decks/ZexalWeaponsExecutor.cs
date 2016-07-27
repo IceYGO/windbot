@@ -58,7 +58,7 @@ namespace DevBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
             AddExecutor(ExecutorType.Activate, (int)CardId.Raigeki, DefaultRaigeki);
             AddExecutor(ExecutorType.Activate, (int)CardId.ReinforcementOfTheArmy, ReinforcementOfTheArmy);
-            AddExecutor(ExecutorType.Activate, (int)CardId.XyzChangeTactics);
+            AddExecutor(ExecutorType.Activate, (int)CardId.XyzChangeTactics, XyzChangeTactics);
 
             // XYZ summons
             AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia);
@@ -178,6 +178,8 @@ namespace DevBot.Game.AI.Decks
 
         private bool InstantFusion()
         {
+            if (Duel.LifePoints[0] <= 1000)
+                return false;
             List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
             int count4 = 0;
             int count5 = 0;
@@ -199,6 +201,11 @@ namespace DevBot.Game.AI.Decks
                 return true;
             }
             return false;
+        }
+
+        private bool XyzChangeTactics()
+        {
+            return Duel.LifePoints[0] > 500;
         }
 
         private bool NumberS39UtopiatheLightning()
