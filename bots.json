@@ -54,6 +54,11 @@
         "name": "复制植物",
         "deck": "Blue-Eyes",
         "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Yosenju",
+        "dialog": "near.zh-CN"
       }
     ]
 }
