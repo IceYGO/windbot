@@ -295,7 +295,6 @@ namespace WindBot.Game
 
         private void OnNewTurn(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             _duel.Turn++;
             _duel.Player = GetLocalPlayer(packet.ReadByte());
             _ai.OnNewTurn();
@@ -303,14 +302,12 @@ namespace WindBot.Game
 
         private void OnNewPhase(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             _duel.Phase = (DuelPhase)packet.ReadInt16();
             _ai.OnNewPhase();
         }
 
         private void OnDamage(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             int player = GetLocalPlayer(packet.ReadByte());
             int final = _duel.LifePoints[player] - packet.ReadInt32();
             if (final < 0) final = 0;
@@ -319,14 +316,12 @@ namespace WindBot.Game
 
         private void OnRecover(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             int player = GetLocalPlayer(packet.ReadByte());
             _duel.LifePoints[player] += packet.ReadInt32();
         }
 
         private void OnLpUpdate(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             int player = GetLocalPlayer(packet.ReadByte());
             _duel.LifePoints[player] = packet.ReadInt32();
         }
@@ -377,7 +372,6 @@ namespace WindBot.Game
 
         private void OnAttack(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             int ca = GetLocalPlayer(packet.ReadByte());
             int la = packet.ReadByte();
             int sa = packet.ReadByte();
@@ -422,21 +416,18 @@ namespace WindBot.Game
 
         private void OnChainEnd(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             _ai.OnChainEnd();
             //_duel.ChainTargets.Clear();
         }
 
         private void OnChainSorting(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             BinaryWriter writer = GamePacketFactory.Create(CtosMessage.Response);
             Connection.Send(CtosMessage.Response, -1);
         }
 
         private void OnUpdateCard(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             int player = GetLocalPlayer(packet.ReadByte());
             int loc = packet.ReadByte();
             int seq = packet.ReadByte();
@@ -451,7 +442,6 @@ namespace WindBot.Game
 
         private void OnUpdateData(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             int player = GetLocalPlayer(packet.ReadByte());
             CardLocation loc = (CardLocation)packet.ReadByte();
 
@@ -619,7 +609,6 @@ namespace WindBot.Game
 
         private void OnSelectChain(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             packet.ReadByte(); // player
             int count = packet.ReadByte();
             packet.ReadByte(); // specount
@@ -792,7 +781,6 @@ namespace WindBot.Game
 
         private void OnSelectPlace(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             packet.ReadByte(); // player
             packet.ReadByte(); // min
             int field = ~packet.ReadInt32();
@@ -862,7 +850,6 @@ namespace WindBot.Game
 
         private void OnSelectPosition(BinaryReader packet)
         {
-            Game.nextTickDelay = 1;
             packet.ReadByte(); // player
             int cardId = packet.ReadInt32();
             int pos = packet.ReadByte();

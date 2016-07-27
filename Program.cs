@@ -200,7 +200,7 @@ namespace WindBot
                     try
                     {
                         client.Tick();
-                        Thread.Sleep(client.nextTickDelay);
+                        Thread.Sleep(30);
                     }
                     catch (Exception ex)
                     {
