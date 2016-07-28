@@ -12,11 +12,6 @@
       },
       {
         "name": "琪露诺",
-        "deck": "Horus",
-        "dialog": "cirno.zh-CN"
-      },
-      {
-        "name": "琪露诺",
         "deck": "OldSchool",
         "dialog": "cirno.zh-CN"
       },
@@ -51,11 +46,6 @@
         "dialog": "copy.zh-CN"
       },
       {
-        "name": "复制植物",
-        "deck": "Blue-Eyes",
-        "dialog": "copy.zh-CN"
-      },
-      {
         "name": "尼亚",
         "deck": "Yosenju",
         "dialog": "near.zh-CN"
@@ -68,11 +58,6 @@
       {
         "name": "尼亚",
         "deck": "Yosenju",
-        "dialog": "near.zh-CN"
-      },
-      {
-        "name": "尼亚",
-        "deck": "Evilswarm",
         "dialog": "near.zh-CN"
       }
     ]
