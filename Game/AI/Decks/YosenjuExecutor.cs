@@ -133,6 +133,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, (int)CardId.No39希望皇霍普, 电光皇特殊召唤);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普一);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普电光皇);
+            AddExecutor(ExecutorType.Activate, (int)CardId.闪光No39希望皇霍普电光皇);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.星尘龙, 星尘龙效果);
 
