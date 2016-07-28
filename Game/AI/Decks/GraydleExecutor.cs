@@ -29,6 +29,11 @@
 
         private bool DontChainMyself()
         {
+            foreach (CardExecutor exec in Executors)
+            {
+                if (exec.Type == Type && exec.CardId == Card.Id)
+                    return false;
+            }
             return LastChainPlayer != 0;
         }
 
