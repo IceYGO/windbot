@@ -42,6 +42,11 @@ namespace WindBot.Game
             return GetCount(SpellZone);
         }
 
+        public int GetHandCount()
+        {
+            return GetCount(Hand);
+        }
+
         public int GetSpellCountWithoutField()
         {
             int count = 0;

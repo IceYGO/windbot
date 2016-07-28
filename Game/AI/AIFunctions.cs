@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI
 {
@@ -35,6 +36,21 @@ namespace WindBot.Game.AI
             if (powerA == powerB)
                 return 0;
             return 1;
+        }
+
+        public int GetBestAttack(ClientField field, bool onlyatk)
+        {
+            int bestAtk = -1;
+            for (int i = 0; i < 5; ++i)
+            {
+                ClientCard card = field.MonsterZone[i];
+                if (card == null) continue;
+                if (onlyatk && card.IsDefense()) continue;
+                int ennemyValue = card.GetDefensePower();
+                if (ennemyValue > bestAtk)
+                    bestAtk = ennemyValue;
+            }
+            return bestAtk;
         }
 
         public bool IsEnnemyBetter(bool onlyatk, bool all)
@@ -102,6 +118,11 @@ namespace WindBot.Game.AI
         public int GetStringId(int id, int option)
         {
             return id * 16 + option;
+        }
+
+        public bool IsTurn1OrMain2()
+        {
+            return Duel.Turn == 1 || Duel.Phase == DuelPhase.Main2;
         }
     }
 }

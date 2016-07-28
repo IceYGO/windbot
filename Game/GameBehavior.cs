@@ -529,13 +529,15 @@ namespace WindBot.Game
                 int con = GetLocalPlayer(packet.ReadByte());
                 CardLocation loc = (CardLocation)packet.ReadByte();
                 int seq = packet.ReadByte();
-                packet.ReadByte(); // diratt
+                int diratt = packet.ReadByte();
 
                 ClientCard card = _duel.GetCard(con, loc, seq);
                 if (card != null)
                 {
                     card.ActionIndex[1] = i;
-                    battle.AttackableCards.Add(_duel.GetCard(con, loc, seq));
+                    if (diratt > 0)
+                        card.CanDirectAttack = true;
+                    battle.AttackableCards.Add(card);
                 }
             }
 
@@ -625,7 +627,7 @@ namespace WindBot.Game
                 int con = GetLocalPlayer(packet.ReadByte());
                 int loc = packet.ReadByte();
                 int seq = packet.ReadByte();
-                int sseq = 0; //packet.ReadByte();
+                int sseq = packet.ReadByte();
 
                 int desc = packet.ReadInt32();
                 cards.Add(_duel.GetCard(con, loc, seq, sseq));

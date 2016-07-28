@@ -632,14 +632,19 @@ namespace WindBot.Game
 
         public BattlePhaseAction Attack(ClientCard attacker, ClientCard defender)
         {
+            Executor.SetCard(0, attacker, -1);
             if (defender != null)
             {
                 string cardName = defender.Name ?? "monster";
+                attacker.ShouldDirectAttack = false;
                 _dialogs.SendAttack(attacker.Name, cardName);
                 SelectCard(defender);
             }
             else
+            {
+                attacker.ShouldDirectAttack = true;
                 _dialogs.SendDirectAttack(attacker.Name);
+            }
             return new BattlePhaseAction(BattlePhaseAction.BattleAction.Attack, attacker.ActionIndex);
         }
 

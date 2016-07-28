@@ -33,7 +33,7 @@ namespace WindBot.Game.AI
 
         public virtual bool OnSelectHand()
         {
-            return true; // I want to begin !
+            return Program.Rand.Next(2) > 0;
         }
 
         public virtual BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
@@ -57,6 +57,13 @@ namespace WindBot.Game.AI
                     if (attacker.RealPower > def || (attacker.RealPower >= def && j == attackers.Count - 1))
                         return AI.Attack(attacker, defender);
                 }
+            }
+
+            for (int i = attackers.Count - 1; i >= 0; --i)
+            {
+                ClientCard attacker = attackers[i];
+                if (attacker.CanDirectAttack)
+                    return AI.Attack(attacker, null);
             }
 
             if (!Battle.CanMainPhaseTwo)
