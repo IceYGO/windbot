@@ -133,7 +133,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, (int)CardId.No39希望皇霍普, 电光皇特殊召唤);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普一);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普电光皇);
-            AddExecutor(ExecutorType.Activate, (int)CardId.闪光No39希望皇霍普电光皇);
+
+            AddExecutor(ExecutorType.Activate, (int)CardId.星尘龙, 星尘龙效果);
 
             // 坑人
             AddExecutor(ExecutorType.Activate, (int)CardId.星光大道, DefaultTrap);
@@ -341,6 +342,11 @@ namespace WindBot.Game.AI.Decks
             int selfBestAttack = AI.Utils.GetBestAttack(Duel.Fields[0], true);
             int oppoBestAttack = AI.Utils.GetBestAttack(Duel.Fields[1], false);
             return selfBestAttack <= oppoBestAttack;
+        }
+
+        private bool 星尘龙效果()
+        {
+            return LastChainPlayer == 1;
         }
 
         private bool DontChainMyself()
