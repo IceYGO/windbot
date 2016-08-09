@@ -253,7 +253,7 @@ namespace WindBot.Game
             extra = packet.ReadInt16();
             _duel.Fields[GetLocalPlayer(1)].Init(deck, extra);
 
-            Logger.WriteLine("Duel started: " + _room.Names[0] + " versus " + _room.Names[1]);
+            Logger.DebugWriteLine("Duel started: " + _room.Names[0] + " versus " + _room.Names[1]);
             _ai.OnStart();
         }
 
@@ -263,7 +263,7 @@ namespace WindBot.Game
 
             string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
             string textResult = (result == 2 ? "Draw" : result == 0 ? "Win" : "Lose");
-            Logger.WriteLine("Duel finished against " + otherName + ", result: " + textResult);
+            Logger.DebugWriteLine("Duel finished against " + otherName + ", result: " + textResult);
         }
 
         private void OnDraw(BinaryReader packet)
