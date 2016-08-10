@@ -226,11 +226,14 @@ namespace WindBot.Game
 
         private void OnChat(BinaryReader packet)
         {
-            packet.ReadInt16(); // player
+            int player = packet.ReadInt16();
             string message = packet.ReadUnicode(256);
             string myName = _room.Position == 0 ? _room.Names[0] : _room.Names[1];
             string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
-            Logger.WriteLine(otherName + " say to " + myName + ": " + message);
+            if (player>=4)
+                Logger.DebugWriteLine(myName + " System or Watch : " + message);
+            else
+                Logger.WriteLine(otherName + " say to " + myName + ": " + message);
         }
 
         private void OnRetry(BinaryReader packet)
