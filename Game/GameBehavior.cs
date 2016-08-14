@@ -447,7 +447,6 @@ namespace WindBot.Game
         {
             int player = GetLocalPlayer(packet.ReadByte());
             CardLocation loc = (CardLocation)packet.ReadByte();
-
             IList<ClientCard> cards = null;
             switch (loc)
             {
@@ -478,9 +477,9 @@ namespace WindBot.Game
                 foreach (ClientCard card in cards)
                 {
                     int len = packet.ReadInt32();
-                    if (len == 4) continue;
                     long pos = packet.BaseStream.Position;
-                    card.Update(packet, _duel);
+                    if (len > 8)
+                      card.Update(packet, _duel);
                     packet.BaseStream.Position = pos + len - 4;
                 }
             }
