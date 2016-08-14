@@ -140,9 +140,9 @@ namespace WindBot.Game.AI.Decks
             // 坑人
             AddExecutor(ExecutorType.Activate, (int)CardId.星光大道, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.魔力抽取);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之宣告, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, 神之警告);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, 神之通告);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之宣告, 神之宣告);
             AddExecutor(ExecutorType.Activate, (int)CardId.大宇宙, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.虚无空间, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.波纹防护罩波浪之力, DefaultUniqueTrap);
@@ -191,6 +191,21 @@ namespace WindBot.Game.AI.Decks
         private bool 宇宙旋风()
         {
             return (Duel.LifePoints[0] > 1000) && DefaultMysticalSpaceTyphoon();
+        }
+
+        private bool 神之警告()
+        {
+            return (Duel.LifePoints[0] > 2000) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+        }
+
+        private bool 神之通告()
+        {
+            return (Duel.LifePoints[0] > 1500) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+        }
+
+        private bool 神之宣告()
+        {
+            return !(Duel.ChainTargets.Count == 1 && Card.Equals(Duel.ChainTargets[0])) && DefaultTrap();
         }
 
         private bool 强欲而谦虚之壶()

@@ -116,8 +116,8 @@ namespace DevBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.BreakthroughSkill, BreakthroughSkill);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnWarning, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnStrike, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnWarning, SolemnWarning);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnStrike, SolemnStrike);
         }
 
         public override bool OnSelectHand()
@@ -278,6 +278,16 @@ namespace DevBot.Game.AI.Decks
         private bool BreakthroughSkill()
         {
             return (CurrentChain.Count > 0 && DefaultTrap());
+        }
+
+        private bool SolemnWarning()
+        {
+            return (Duel.LifePoints[0] > 2000) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+        }
+
+        private bool SolemnStrike()
+        {
+            return (Duel.LifePoints[0] > 1500) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
         }
 
         private bool MonsterRepos()
