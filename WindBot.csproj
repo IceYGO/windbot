@@ -59,6 +59,7 @@
     <Compile Include="Game\AI\CardSelector.cs" />
     <Compile Include="Game\AI\DeckAttribute.cs" />
     <Compile Include="Game\AI\DecksManager.cs" />
+    <Compile Include="Game\AI\Decks\RainbowExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlueEyesExecutor.cs" />
     <Compile Include="Game\AI\Decks\BurnExecutor.cs" />
     <Compile Include="Game\AI\Decks\EvilswarmExecutor.cs" />
