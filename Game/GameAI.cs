@@ -326,6 +326,11 @@ namespace WindBot.Game
         {
             if (m_option != -1)
                 return m_option;
+
+            int result = Executor.OnSelectOption(options);
+            if (result != -1)
+                return result;
+
             return 0; // Always select the first option.
         }
 

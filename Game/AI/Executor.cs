@@ -114,6 +114,11 @@ namespace WindBot.Game.AI
             return true;
         }
 
+        public virtual int OnSelectOption(IList<int> options)
+        {
+            return -1;
+        }
+
         public bool ChainContainsCard(int id)
         {
             foreach (ClientCard card in CurrentChain)
