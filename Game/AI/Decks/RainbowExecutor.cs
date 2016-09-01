@@ -72,8 +72,9 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, (int)CardId.虫惑的落穴);
 
             AddExecutor(ExecutorType.Summon, (int)CardId.救援兔);
-
             AddExecutor(ExecutorType.Activate, (int)CardId.救援兔, 救援兔效果);
+
+            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶, 强欲而贪欲之壶效果);
 
             AddExecutor(ExecutorType.Summon, (int)CardId.曼陀罗天使号手, 曼陀罗天使号手通常召唤);
             AddExecutor(ExecutorType.Summon, (int)CardId.打喷嚏的河马龙, 打喷嚏的河马龙通常召唤);
@@ -104,7 +105,6 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.芙莉西亚之虫惑魔);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.No59背反之料理人, No59背反之料理人特殊召唤);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶, 强欲而贪欲之壶效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.地碎, 地碎效果);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.No39希望皇霍普, 电光皇特殊召唤);
@@ -144,8 +144,10 @@ namespace MycardBot.Game.AI.Decks
             }
             if (!(defender.Id == (int)CardId.闪光No39希望皇霍普电光皇))
             {
-                if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled())
+                if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.No39希望皇霍普))
                     attacker.RealPower = 5000;
+                if (Duel.Fields[0].HasInMonstersZone((int)CardId.No37希望织龙蜘蛛鲨, true, true))
+                    attacker.RealPower = attacker.RealPower + 1000;
             }
             return attacker.RealPower > defender.GetDefensePower();
         }

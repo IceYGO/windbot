@@ -140,19 +140,24 @@ namespace WindBot.Game
             return false;
         }
 
-        public bool HasInMonstersZone(int cardId)
+        public bool HasInMonstersZone(int cardId, bool notDisabled = false, bool hasXyzMaterial = false)
         {
-            return HasInCards(MonsterZone, cardId);
+            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial);
         }
 
-        public bool HasInMonstersZone(List<int> cardId)
+        public bool HasInMonstersZone(List<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
         {
-            return HasInCards(MonsterZone, cardId);
+            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial);
         }
 
-        public bool HasInSpellZone(int cardId)
+        public bool HasInSpellZone(int cardId, bool notDisabled = false)
         {
-            return HasInCards(SpellZone, cardId);
+            return HasInCards(SpellZone, cardId, notDisabled);
+        }
+
+        public bool HasInSpellZone(List<int> cardId, bool notDisabled = false)
+        {
+            return HasInCards(SpellZone, cardId, notDisabled);
         }
 
         public int GetRemainingCount(int cardId, int initialCount)
@@ -225,21 +230,21 @@ namespace WindBot.Game
             return nCards;
         }
 
-        private static bool HasInCards(IEnumerable<ClientCard> cards, int cardId)
+        private static bool HasInCards(IEnumerable<ClientCard> cards, int cardId, bool notDisabled = false, bool hasXyzMaterial = false)
         {
             foreach (ClientCard card in cards)
             {
-                if (card != null && card.Id == cardId)
+                if (card != null && card.Id == cardId && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()))
                     return true;
             }
             return false;
         }
 
-        private static bool HasInCards(IEnumerable<ClientCard> cards, List<int> cardId)
+        private static bool HasInCards(IEnumerable<ClientCard> cards, List<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
         {
             foreach (ClientCard card in cards)
             {
-                if (card != null && cardId.Contains(card.Id))
+                if (card != null && cardId.Contains(card.Id) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()))
                     return true;
             }
             return false;

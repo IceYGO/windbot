@@ -184,6 +184,21 @@ namespace WindBot.Game
             return (Disabled != 0);
         }
 
+        public bool HasXyzMaterial()
+        {
+            return Overlays.Count > 0;
+        }
+
+        public bool HasXyzMaterial(int count)
+        {
+            return Overlays.Count >= count;
+        }
+
+        public bool HasXyzMaterial(int count, int cardid)
+        {
+            return Overlays.Count >= count && Overlays.Contains(cardid);
+        }
+
         public int GetDefensePower()
         {
             return IsAttack() ? Attack : Defense;

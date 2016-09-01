@@ -182,7 +182,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (attacker.Attribute == (int)CardAttribute.Wind && Duel.Fields[0].HasInHand((int)CardId.妖仙兽辻斩风))
                     attacker.RealPower = attacker.RealPower + 1000;
-                if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled())
+                if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.No39希望皇霍普))
                     attacker.RealPower = 5000;
             }
             return attacker.RealPower > defender.GetDefensePower();

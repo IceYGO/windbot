@@ -136,7 +136,7 @@ namespace DevBot.Game.AI.Decks
             {
                 if (attacker.Attribute == (int)CardAttribute.Light && Duel.Fields[0].HasInHand((int)CardId.Honest))
                     attacker.RealPower = attacker.RealPower + defender.Attack;
-                if (attacker.Id == (int)CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled())
+                if (attacker.Id == (int)CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.Number39Utopia))
                     attacker.RealPower = 5000;
             }
             return attacker.RealPower > defender.GetDefensePower();
@@ -144,7 +144,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool Number39Utopia()
         {
-            if (!HasChainedTrap(0) && Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Card.Overlays.Count > 1)
+            if (!HasChainedTrap(0) && Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Card.HasXyzMaterial(2))
                 return true;
             return false;
         }
