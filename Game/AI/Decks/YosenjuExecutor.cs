@@ -190,6 +190,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool 宇宙旋风()
         {
+            foreach (ClientCard card in CurrentChain)
+                if (card.Id == (int)CardId.宇宙旋风)
+                    return false;
             return (Duel.LifePoints[0] > 1000) && DefaultMysticalSpaceTyphoon();
         }
 
@@ -205,7 +208,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 神之宣告()
         {
-            return !(Duel.ChainTargets.Count == 1 && Card.Equals(Duel.ChainTargets[0])) && DefaultTrap();
+            return !(Duel.ChainTargets.Count == 1 && Card.Equals(Duel.ChainTargets[0])) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
         }
 
         private bool 强欲而谦虚之壶()
