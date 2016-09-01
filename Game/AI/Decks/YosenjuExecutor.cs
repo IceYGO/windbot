@@ -164,6 +164,8 @@ namespace WindBot.Game.AI.Decks
         public override bool OnSelectYesNo(int desc)
         {
             // 镰贰太刀能不直击就不直击
+            if (Card == null)
+                return true;
             Logger.DebugWriteLine(Card.Name);
             if (Card.Id == (int)CardId.妖仙兽镰贰太刀)
                 return Card.ShouldDirectAttack;
