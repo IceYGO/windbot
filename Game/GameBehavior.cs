@@ -539,6 +539,8 @@ namespace WindBot.Game
                     card.ActionIndex[1] = i;
                     if (diratt > 0)
                         card.CanDirectAttack = true;
+                    else
+                        card.CanDirectAttack = false;
                     battle.AttackableCards.Add(card);
                 }
             }
