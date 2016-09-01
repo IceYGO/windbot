@@ -89,27 +89,36 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.我我我枪手);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.红莲魔龙右红痕);
-            AddExecutor(ExecutorType.Activate, (int)CardId.红莲魔龙右红痕);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.星尘龙);
-            AddExecutor(ExecutorType.Activate, (int)CardId.星尘龙, 星尘龙效果);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.进化帝半鸟龙, 进化帝半鸟龙特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.进化帝半鸟龙, 进化帝半鸟龙效果);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.入魔梦魇骑士, 入魔梦魇骑士特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.入魔梦魇骑士);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.电光千鸟);
-            AddExecutor(ExecutorType.Activate, (int)CardId.电光千鸟);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.电光千鸟, 电光千鸟特殊召唤);
+            AddExecutor(ExecutorType.Activate, (int)CardId.电光千鸟, 电光千鸟效果);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.No37希望织龙蜘蛛鲨);
             AddExecutor(ExecutorType.Activate, (int)CardId.No37希望织龙蜘蛛鲨);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.芙莉西亚之虫惑魔, 芙莉西亚之虫惑魔特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.芙莉西亚之虫惑魔);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.No59背反之料理人, No59背反之料理人特殊召唤);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.地碎, 地碎效果);
+
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.鸟铳士卡斯泰尔, 鸟铳士卡斯泰尔特殊召唤);
+            AddExecutor(ExecutorType.Activate, (int)CardId.鸟铳士卡斯泰尔, 鸟铳士卡斯泰尔效果);
+
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.爆龙剑士点火星日珥, 爆龙剑士点火星日珥特殊召唤);
+            AddExecutor(ExecutorType.Activate, (int)CardId.爆龙剑士点火星日珥, 爆龙剑士点火星日珥效果);
+
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.红莲魔龙右红痕, 红莲魔龙右红痕特殊召唤);
+            AddExecutor(ExecutorType.Activate, (int)CardId.红莲魔龙右红痕, 红莲魔龙右红痕效果);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.No39希望皇霍普, 电光皇特殊召唤);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普电光皇);
             AddExecutor(ExecutorType.Activate, (int)CardId.闪光No39希望皇霍普电光皇);
+
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.星尘龙);
+            AddExecutor(ExecutorType.Activate, (int)CardId.星尘龙, 星尘龙效果);
+
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.No59背反之料理人, No59背反之料理人特殊召唤);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.星光大道, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.沙尘防护罩尘埃之力, DefaultUniqueTrap);
@@ -258,6 +267,90 @@ namespace MycardBot.Game.AI.Decks
             int selfCount = Duel.Fields[0].GetMonsterCount() + Duel.Fields[0].GetSpellCount();
             int oppoCount = Duel.Fields[1].GetMonsterCount() + Duel.Fields[1].GetSpellCount();
             return selfCount < oppoCount;
+        }
+
+        private bool 红莲魔龙右红痕特殊召唤()
+        {
+            int selfBestAttack = AI.Utils.GetBestAttack(Duel.Fields[0], true);
+            int oppoBestAttack = AI.Utils.GetBestAttack(Duel.Fields[1], false);
+            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || 红莲魔龙右红痕效果();
+        }
+
+        private bool 红莲魔龙右红痕效果()
+        {
+            int selfCount = 0;
+            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                if (!monster.Equals(Card) && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
+                    selfCount++;
+            }
+
+            int oppoCount = 0;
+            monsters = Duel.Fields[1].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                // 没有办法获取特殊召唤的状态，只好默认全部是特招的
+                if (monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
+                    oppoCount++;
+            }
+
+            return selfCount <= oppoCount || oppoCount > 2;
+        }
+
+        private bool 鸟铳士卡斯泰尔特殊召唤()
+        {
+            return AI.Utils.GetProblematicCard() != null;
+        }
+
+        private bool 鸟铳士卡斯泰尔效果()
+        {
+            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.鸟铳士卡斯泰尔, 0))
+                return false;
+            AI.SelectNextCard(AI.Utils.GetProblematicCard());
+            return true;
+        }
+
+        private bool 爆龙剑士点火星日珥特殊召唤()
+        {
+            return AI.Utils.GetProblematicCard() != null;
+        }
+
+        private bool 爆龙剑士点火星日珥效果()
+        {
+            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.爆龙剑士点火星日珥, 1))
+                return true;
+            AI.SelectNextCard(AI.Utils.GetProblematicCard());
+            return true;
+        }
+
+        private bool 电光千鸟特殊召唤()
+        {
+            List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                if (monster.IsFacedown())
+                {
+                    return true;
+                }
+            }
+            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            foreach (ClientCard spell in spells)
+            {
+                if (spell.IsFacedown())
+                {
+                    return true;
+                }
+            }
+
+            return AI.Utils.GetProblematicCard() != null;
+        }
+
+        private bool 电光千鸟效果()
+        {
+            ClientCard problematicCard = AI.Utils.GetProblematicCard();
+            AI.SelectCard(problematicCard);
+            return true;
         }
 
         private bool 星尘龙效果()
