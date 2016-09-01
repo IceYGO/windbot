@@ -164,13 +164,16 @@ namespace WindBot.Game
         {
             int remaining = initialCount;
             foreach (ClientCard card in Hand)
-                if (card.Id == cardId)
+                if (card != null && card.Id == cardId)
+                    remaining--;
+            foreach (ClientCard card in SpellZone)
+                if (card != null && card.Id == cardId)
                     remaining--;
             foreach (ClientCard card in Graveyard)
-                if (card.Id == cardId)
+                if (card != null && card.Id == cardId)
                     remaining--;
             foreach (ClientCard card in Banished)
-                if (card.Id == cardId)
+                if (card != null && card.Id == cardId)
                     remaining--;
             return (remaining < 0) ? 0 : remaining;
         }

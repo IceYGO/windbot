@@ -61,16 +61,6 @@ namespace MycardBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, (int)CardId.粗人预料, 粗人预料效果);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.星光大道);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.沙尘防护罩尘埃之力);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.波纹防护罩波浪之力);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.业炎防护罩火焰之力);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神风防护罩大气之力);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神圣防护罩反射镜力);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.邪恶防护罩暗黑之力);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.奈落的落穴);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.虫惑的落穴);
-
             AddExecutor(ExecutorType.Summon, (int)CardId.救援兔);
             AddExecutor(ExecutorType.Activate, (int)CardId.救援兔, 救援兔效果);
 
@@ -84,6 +74,8 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, (int)CardId.炼装勇士金驰, 炼装勇士金驰通常召唤);
 
             AddExecutor(ExecutorType.Summon, 通常召唤);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.爆龙剑士点火星日珥, 爆龙剑士点火星日珥特殊召唤);
+            AddExecutor(ExecutorType.Activate, (int)CardId.爆龙剑士点火星日珥, 爆龙剑士点火星日珥效果);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.我我我枪手, 我我我枪手特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.我我我枪手);
@@ -93,9 +85,11 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.进化帝半鸟龙, 进化帝半鸟龙效果);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.入魔梦魇骑士, 入魔梦魇骑士特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.入魔梦魇骑士);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.辉光子帕拉迪奥斯, 辉光子帕拉迪奥斯特殊召唤);
+            AddExecutor(ExecutorType.Activate, (int)CardId.辉光子帕拉迪奥斯, 辉光子帕拉迪奥斯效果);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.电光千鸟, 电光千鸟特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.电光千鸟, 电光千鸟效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.No37希望织龙蜘蛛鲨);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.No37希望织龙蜘蛛鲨, No37希望织龙蜘蛛鲨特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.No37希望织龙蜘蛛鲨);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.芙莉西亚之虫惑魔, 芙莉西亚之虫惑魔特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.芙莉西亚之虫惑魔);
@@ -115,10 +109,21 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普电光皇);
             AddExecutor(ExecutorType.Activate, (int)CardId.闪光No39希望皇霍普电光皇);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.星尘龙);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.星尘龙, 星尘龙特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.星尘龙, 星尘龙效果);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.No59背反之料理人, No59背反之料理人特殊召唤);
+            AddExecutor(ExecutorType.Activate, (int)CardId.No59背反之料理人, No59背反之料理人效果);
+
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.星光大道, 陷阱卡覆盖);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.沙尘防护罩尘埃之力, 陷阱卡覆盖);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.波纹防护罩波浪之力, 陷阱卡覆盖);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.业炎防护罩火焰之力, 陷阱卡覆盖);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.神风防护罩大气之力, 陷阱卡覆盖);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.神圣防护罩反射镜力, 陷阱卡覆盖);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.邪恶防护罩暗黑之力, 陷阱卡覆盖);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.奈落的落穴, 陷阱卡覆盖);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.虫惑的落穴, 陷阱卡覆盖);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.星光大道, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.沙尘防护罩尘埃之力, DefaultUniqueTrap);
@@ -266,7 +271,22 @@ namespace MycardBot.Game.AI.Decks
         {
             int selfCount = Duel.Fields[0].GetMonsterCount() + Duel.Fields[0].GetSpellCount();
             int oppoCount = Duel.Fields[1].GetMonsterCount() + Duel.Fields[1].GetSpellCount();
-            return selfCount < oppoCount;
+
+            int selfAttack = 0;
+            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                selfAttack += monster.GetDefensePower();
+            }
+
+            int oppoAttack = 0;
+            monsters = Duel.Fields[1].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                oppoAttack += monster.GetDefensePower();
+            }
+
+            return (selfCount < oppoCount) || (selfAttack < oppoAttack);
         }
 
         private bool 红莲魔龙右红痕特殊召唤()
@@ -295,7 +315,7 @@ namespace MycardBot.Game.AI.Decks
                     oppoCount++;
             }
 
-            return selfCount <= oppoCount || oppoCount > 2;
+            return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount > 2;
         }
 
         private bool 鸟铳士卡斯泰尔特殊召唤()
@@ -320,8 +340,56 @@ namespace MycardBot.Game.AI.Decks
         {
             if (ActivateDescription == AI.Utils.GetStringId((int)CardId.爆龙剑士点火星日珥, 1))
                 return true;
-            AI.SelectNextCard(AI.Utils.GetProblematicCard());
+            ClientCard target1 = null;
+            ClientCard target2 = AI.Utils.GetProblematicCard();
+            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            foreach (ClientCard spell in spells)
+            {
+                if (spell.HasType(CardType.Pendulum) && !spell.Equals(target2))
+                {
+                    target1 = spell;
+                    break;
+                }
+            }
+            List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                if (monster.HasType(CardType.Pendulum) && !monster.Equals(target2))
+                {
+                    target1 = monster;
+                    break;
+                }
+            }
+            if (target2 == null && target1 != null)
+            {
+                // 对面有P卡，随便吹另一张
+                foreach (ClientCard spell in spells)
+                {
+                    if (!spell.Equals(target1))
+                    {
+                        target2 = spell;
+                        break;
+                    }
+                }
+                foreach (ClientCard monster in monsters)
+                {
+                    if (!monster.Equals(target1))
+                    {
+                        target2 = monster;
+                        break;
+                    }
+                }
+            }
+            if (target2 == null)
+                return false;
+            AI.SelectCard(target1);
+            AI.SelectNextCard(target2);
             return true;
+        }
+
+        private bool No37希望织龙蜘蛛鲨特殊召唤()
+        {
+            return AI.Utils.IsAllEnnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnnemyBetterThanValue(3600, true);
         }
 
         private bool 电光千鸟特殊召唤()
@@ -349,18 +417,23 @@ namespace MycardBot.Game.AI.Decks
         private bool 电光千鸟效果()
         {
             ClientCard problematicCard = AI.Utils.GetProblematicCard();
-            AI.SelectCard(problematicCard);
+            AI.SelectNextCard(problematicCard);
             return true;
+        }
+
+        private bool 星尘龙特殊召唤()
+        {
+            return (AI.Utils.IsEnnemyBetter(false, false) && !AI.Utils.IsOneEnnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
         }
 
         private bool 星尘龙效果()
         {
-            return (Card.Location==CardLocation.Grave) || DefaultTrap();
+            return (Card.Location == CardLocation.Grave) || DefaultTrap();
         }
 
         private bool 进化帝半鸟龙特殊召唤()
         {
-            return !AI.Utils.IsOneEnnemyBetterThanValue(2400, false);
+            return (AI.Utils.IsAllEnnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
         }
 
         private bool 入魔梦魇骑士特殊召唤()
@@ -375,7 +448,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 芙莉西亚之虫惑魔特殊召唤()
         {
-            if (AI.Utils.IsTurn1OrMain2())
+            if (AI.Utils.IsTurn1OrMain2() && (Duel.Fields[0].GetRemainingCount((int)CardId.奈落的落穴, 1) + Duel.Fields[0].GetRemainingCount((int)CardId.虫惑的落穴, 1)) > 0)
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -385,7 +458,26 @@ namespace MycardBot.Game.AI.Decks
 
         private bool No59背反之料理人特殊召唤()
         {
-            return AI.Utils.IsTurn1OrMain2();
+            return ((Duel.Fields[0].GetMonsterCount() + Duel.Fields[0].GetSpellCount() - 2) <= 1) &&
+                ((AI.Utils.IsEnnemyBetter(false, false) && !AI.Utils.IsOneEnnemyBetterThanValue(2300, true)) || AI.Utils.IsTurn1OrMain2());
+        }
+
+        private bool No59背反之料理人效果()
+        {
+            if (Duel.Player == 0)
+            {
+                foreach (ClientCard card in Duel.ChainTargets)
+                {
+                    if (Card.Equals(card))
+                        return true;
+                }
+            }
+            else
+            {
+                if ((Duel.Fields[0].GetMonsterCount() + Duel.Fields[0].GetSpellCount() -1) <= 1)
+                    return true;
+            }
+            return false;
         }
 
         private bool 进化帝半鸟龙效果()
@@ -393,12 +485,17 @@ namespace MycardBot.Game.AI.Decks
             return DefaultTrap();
         }
 
+        private bool 辉光子帕拉迪奥斯特殊召唤()
+        {
+            return 辉光子帕拉迪奥斯效果();
+        }
+
         private bool 辉光子帕拉迪奥斯效果()
         {
             ClientCard result = AI.Utils.GetOneEnnemyBetterThanValue(2000, true);
             if (result != null)
             {
-                AI.SelectCard(result);
+                AI.SelectNextCard(result);
                 return true;
             }
             return false;
@@ -406,9 +503,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 电光皇特殊召唤()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Duel.Fields[0], true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Duel.Fields[1], false);
-            return selfBestAttack <= oppoBestAttack;
+            return AI.Utils.IsEnnemyBetter(false, false);
         }
 
         private bool 强欲而贪欲之壶效果()
@@ -419,6 +514,11 @@ namespace MycardBot.Game.AI.Decks
         private bool 地碎效果()
         {
             return AI.Utils.IsEnnemyBetter(false, false);
+        }
+
+        private bool 陷阱卡覆盖()
+        {
+            return !Duel.Fields[0].HasInMonstersZone((int)CardId.No59背反之料理人, true, true);
         }
     }
 }

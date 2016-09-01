@@ -124,13 +124,7 @@ namespace WindBot.Game.AI
             if (card != null)
                 return card;
             if (attack == 0)
-            {
-                int selfBestAttack = GetBestAttack(Duel.Fields[0], true);
-                int oppoBestAttack = GetBestAttack(Duel.Fields[1], false);
-                if (selfBestAttack <= oppoBestAttack)
-                    attack = oppoBestAttack;
-                return GetOneEnnemyBetterThanValue(oppoBestAttack, false);
-            }
+                attack = GetBestAttack(Duel.Fields[0], true);
             return GetOneEnnemyBetterThanValue(attack, false);
         }
 
