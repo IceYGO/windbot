@@ -51,7 +51,7 @@ namespace MycardBot.Game.AI.Decks
             : base(ai, duel)
         {
             // 有坑先清
-            AddExecutor(ExecutorType.Activate, (int)CardId.银河旋风, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.银河旋风, 银河旋风效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
 
             // 灵庙
@@ -253,6 +253,47 @@ namespace MycardBot.Game.AI.Decks
             return attacker.Attack > 0;
         }
 
+        private bool 银河旋风效果()
+        {
+            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            if (spells.Count == 0)
+                return false;
+            ClientCard selected = null;
+
+            if (Card.Location == CardLocation.Grave)
+            {
+                selected = Duel.Fields[1].SpellZone.GetFloodgate();
+                if (selected == null)
+                {
+                    foreach (ClientCard card in spells)
+                    {
+                        if (!card.IsFacedown())
+                        {
+                            selected = card;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (ClientCard card in spells)
+                {
+                    if (card.IsFacedown())
+                    {
+                        selected = card;
+                        break;
+                    }
+                }
+            }
+
+            if (selected == null)
+                return false;
+
+            AI.SelectCard(selected);
+            return true;
+        }
+
         private bool 龙之灵庙效果()
         {
             Logger.DebugWriteLine("龙之灵庙.");
@@ -413,17 +454,8 @@ namespace MycardBot.Game.AI.Decks
             {
                 return false;
             }
-            List<ClientCard> spells = Duel.Fields[1].GetSpells();
-            ClientCard selected = null;
-            foreach (ClientCard card in spells)
-            {
-                if (card.IsSpellNegateAttack())
-                {
-                    selected = card;
-                    break;
-                }
-            }
-            if (selected != null && Duel.Fields[0].HasInGraveyard((int)CardId.白色灵龙))
+            ClientCard floodgate = Duel.Fields[1].SpellZone.GetFloodgate();
+            if (floodgate != null && Duel.Fields[0].HasInGraveyard((int)CardId.白色灵龙))
             {
                 AI.SelectCard((int)CardId.白色灵龙);
             }
@@ -475,6 +507,8 @@ namespace MycardBot.Game.AI.Decks
             if (ActivateDescription == -1) // AI.Utils.GetStringId((int)CardId.白色灵龙, 0))
             {
                 Logger.DebugWriteLine("白色灵龙拆后场.");
+                ClientCard target = Duel.Fields[1].SpellZone.GetFloodgate();
+                AI.SelectCard(target);
                 return true;
             }
             /*else if(Duel.Phase==DuelPhase.BattleStart)
@@ -740,7 +774,7 @@ namespace MycardBot.Game.AI.Decks
             List<ClientCard> spells = Duel.Fields[1].GetSpells();
             foreach (ClientCard spell in spells)
             {
-                if (spell.IsSpellNegateAttack())
+                if (spell.IsFloodgate())
                 {
                     AI.SelectCard(spell);
                     return true;

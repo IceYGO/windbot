@@ -120,7 +120,10 @@ namespace WindBot.Game.AI
             ClientCard card = Duel.Fields[1].MonsterZone.GetInvincibleMonster();
             if (card != null)
                 return card;
-            card = Duel.Fields[1].SpellZone.GetNegateAttackSpell();
+            card = Duel.Fields[1].MonsterZone.GetFloodgate();
+            if (card != null)
+                return card;
+            card = Duel.Fields[1].SpellZone.GetFloodgate();
             if (card != null)
                 return card;
             if (attack == 0)

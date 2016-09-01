@@ -33,15 +33,7 @@ namespace WindBot.Game.AI
             if (spells.Count == 0)
                 return false;
 
-            ClientCard selected = null;
-            foreach (ClientCard card in spells)
-            {
-                if (card.IsSpellNegateAttack())
-                {
-                    selected = card;
-                    break;
-                }
-            }
+            ClientCard selected = Duel.Fields[1].SpellZone.GetFloodgate();
 
             if (selected == null)
             {

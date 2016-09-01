@@ -76,6 +76,7 @@
     <Compile Include="Game\AI\Dialogs.cs" />
     <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
     <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
+    <Compile Include="Game\AI\Enums\Floodgate.cs" />
     <Compile Include="Game\AI\Enums\NegateAttackSpell.cs" />
     <Compile Include="Game\AI\Enums\NegatesEffects.cs" />
     <Compile Include="Game\AI\Enums\NegatesSpells.cs" />

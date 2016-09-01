@@ -469,7 +469,7 @@ namespace DevBot.Game.AI.Decks
         private ClientCard GetProblematicCard()
         {
             ClientCard card = Duel.Fields[1].MonsterZone.GetInvincibleMonster();
-            return card ?? Duel.Fields[1].SpellZone.GetNegateAttackSpell();
+            return card ?? Duel.Fields[1].SpellZone.GetFloodgate();
         }
     }
 }

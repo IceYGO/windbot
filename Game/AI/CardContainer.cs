@@ -164,5 +164,15 @@ namespace WindBot.Game.AI
             }
             return null;
         }
+
+        public static ClientCard GetFloodgate(this IEnumerable<ClientCard> cards)
+        {
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && card.IsFloodgate())
+                    return card;
+            }
+            return null;
+        }
     }
 }
