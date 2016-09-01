@@ -6,14 +6,16 @@ namespace WindBot.Game.AI
 {
     public abstract class DefaultExecutor : Executor
     {
+        private enum CardId
+        {
+            MysticalSpaceTyphoon = 5318639,
+            ChickenGame = 67616300
+        }
+
         protected DefaultExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-        }
-
-        private enum CardId
-        {
-            MysticalSpaceTyphoon = 5318639
+            AddExecutor(ExecutorType.Activate, (int)CardId.ChickenGame, DefaultChickenGame);
         }
 
         protected bool DefaultMysticalSpaceTyphoon()
@@ -151,6 +153,23 @@ namespace WindBot.Game.AI
             }
 
             return true;
+        }
+
+        protected bool DefaultChickenGame()
+        {
+            int count = 0;
+            foreach (CardExecutor exec in Executors)
+            {
+                if (exec.Type == Type && exec.CardId == Card.Id)
+                    count++;
+            }
+            if (count > 1 || Duel.LifePoints[0] <= 1000)
+                return false;
+            if (Duel.LifePoints[0] <= Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId((int)CardId.ChickenGame, 0))
+                return true;
+            if (Duel.LifePoints[0] > Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId((int)CardId.ChickenGame, 1))
+                return true;
+            return false;
         }
     }
 }
