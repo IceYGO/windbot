@@ -99,6 +99,8 @@ namespace DevBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.DimensionalPrison, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.AssaultModeActivate);
+
+            AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
         private bool DragonRavineField()

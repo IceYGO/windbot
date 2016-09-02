@@ -135,6 +135,7 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.奈落的落穴, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.虫惑的落穴, DefaultUniqueTrap);
 
+            AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
         public override void OnNewTurn()

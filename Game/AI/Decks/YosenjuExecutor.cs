@@ -147,6 +147,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.虚无空间, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.波纹防护罩波浪之力, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.沙尘防护罩尘埃之力, DefaultUniqueTrap);
+
+            AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
         public override bool OnSelectHand()
