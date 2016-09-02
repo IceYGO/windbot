@@ -15,7 +15,7 @@ namespace WindBot
         public WindBotInfo()
         {
             Name = "WindBot";
-            Deck = "Blue-Eyes";
+            Deck = null;
             Dialog = "default";
             Host = "127.0.0.1";
             Port = 7911;

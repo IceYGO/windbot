@@ -55,9 +55,9 @@ namespace WindBot
             // YGOPRO_HOST
             // YGOPRO_PORT
             // YGOPRO_NAME
-            // YGOPRO_DECK
             //
             // List of variables optional:
+            // YGOPRO_DECK
             // YGOPRO_VERSION
             // YGOPRO_DIALOG
             // YGOPRO_PASSWORD
@@ -126,9 +126,10 @@ namespace WindBot
             using (HttpListener MainServer = new HttpListener())
             {
                 MainServer.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
-                MainServer.Prefixes.Add("http://127.0.0.1:2399/");
+                MainServer.Prefixes.Add("http://127.0.0.1:" + ServerPort + "/");
                 MainServer.Start();
                 Logger.WriteLine("Windbot Server Start Successed.");
+                Logger.WriteLine("HTTP GET http://127.0.0.1:" + ServerPort + "/?name=Windbot&host=127.0.0.1&port=7911 to call the bot.");
                 while (true)
                 {
                     try
@@ -153,7 +154,7 @@ namespace WindBot
                         if (password != null)
                             Info.HostInfo = password;
 
-                        if (Info.Name == null || Info.Deck == null || Info.Host == null || port == null)
+                        if (Info.Name == null || Info.Host == null || port == null)
                         {
                             ctx.Response.StatusCode = 400;
                             ctx.Response.Close();
@@ -211,13 +212,7 @@ namespace WindBot
                     }
                 }
                 Logger.DebugWriteLine(client.Username + " end.");
-                //System.Threading.Thread.CurrentThread.Abort();
             }
-            //catch (ThreadAbortException)
-            //{
-                //if (DebugMode)
-                //    throw ex;
-            //}
             catch (Exception ex)
             {
                 if (!DebugMode)
