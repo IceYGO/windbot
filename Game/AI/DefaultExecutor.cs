@@ -67,6 +67,24 @@ namespace WindBot.Game.AI
             return false;
         }
 
+        protected bool DefaultCallOfTheHaunted()
+        {
+            if (!AI.Utils.IsEnnemyBetter(true, true))
+                return false;
+            ClientCard selected = null;
+            int BestAtk = 0;
+            foreach (ClientCard card in Duel.Fields[0].Graveyard)
+            {
+                if (card.Attack > BestAtk)
+                {
+                    BestAtk = card.Attack;
+                    selected = card;
+                }
+            }
+            AI.SelectCard(selected);
+            return true;
+        }
+
         protected bool DefaultTorrentialTribute()
         {
             return (AI.Utils.IsEnnemyBetter(true, true));
