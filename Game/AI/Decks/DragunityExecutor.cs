@@ -1,5 +1,6 @@
 ﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
+using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
 
@@ -58,7 +59,7 @@ namespace DevBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragonEffect);
             AddExecutor(ExecutorType.Activate, (int)CardId.DragunityPhalanx);
             AddExecutor(ExecutorType.Activate, (int)CardId.DragunityKnightVajrayana);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DragunityArmaMysletainn);
+            AddExecutor(ExecutorType.Activate, (int)CardId.DragunityArmaMysletainn, DragunityArmaMysletainnEffect);
             AddExecutor(ExecutorType.Activate, (int)CardId.DragunityDux);
 
             // Summon
@@ -98,7 +99,7 @@ namespace DevBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.StarlightRoad, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.DimensionalPrison, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.AssaultModeActivate);
+            AddExecutor(ExecutorType.Activate, (int)CardId.AssaultModeActivate, AssaultModeActivate);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -432,6 +433,12 @@ namespace DevBot.Game.AI.Decks
             return false;
         }
 
+        private bool DragunityArmaMysletainnEffect()
+        {
+            AI.SelectCard((int)CardId.DragunityPhalanx);
+            return true;
+        }
+
         private bool DragunityArmaMysletainnTribute()
         {
             if ((Duel.Fields[0].HasInMonstersZone((int)CardId.AssaultBeast)
@@ -466,6 +473,23 @@ namespace DevBot.Game.AI.Decks
             if (Card.Location == CardLocation.Grave)
                 return true;
             return LastChainPlayer == 1;
+        }
+
+        private bool AssaultModeActivate()
+        {
+            if (Duel.Player == 0 && Duel.Phase == DuelPhase.BattleStart)
+            {
+                List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+                foreach (ClientCard monster in monsters)
+                {
+                    if (monster.Id == (int)CardId.StardustDragon && monster.Attacked)
+                    {
+                        AI.SelectCard(monster);
+                        return true;
+                    }
+                }
+            }
+            return Duel.Player == 1;
         }
 
         private ClientCard GetProblematicCard()

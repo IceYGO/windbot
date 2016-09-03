@@ -542,7 +542,14 @@ namespace WindBot.Game
                     else
                         card.CanDirectAttack = false;
                     battle.AttackableCards.Add(card);
+                    card.Attacked = false;
                 }
+            }
+            List<ClientCard> monsters = _duel.Fields[0].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                if (!battle.AttackableCards.Contains(monster))
+                    monster.Attacked = true;
             }
 
             battle.CanMainPhaseTwo = packet.ReadByte() != 0;
