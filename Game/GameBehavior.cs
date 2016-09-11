@@ -634,6 +634,7 @@ namespace WindBot.Game
 
             for (int i = 0; i < count; ++i)
             {
+                packet.ReadByte(); // flag
                 packet.ReadInt32(); // card id
                 int con = GetLocalPlayer(packet.ReadByte());
                 int loc = packet.ReadByte();

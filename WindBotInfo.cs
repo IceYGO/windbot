@@ -20,7 +20,7 @@ namespace WindBot
             Host = "127.0.0.1";
             Port = 7911;
             HostInfo = "";
-            Version = 0x133A;
+            Version = 0x133B;
         }
     }
 }
