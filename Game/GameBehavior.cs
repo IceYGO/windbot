@@ -201,7 +201,7 @@ namespace WindBot.Game
 
         private void OnReplay(BinaryReader packet)
         {
-            byte[] replay = packet.ReadToEnd();
+            /*byte[] replay =*/ packet.ReadToEnd();
 
             /*
             const string directory = "Replays";
@@ -425,7 +425,7 @@ namespace WindBot.Game
 
         private void OnChainSorting(BinaryReader packet)
         {
-            BinaryWriter writer = GamePacketFactory.Create(CtosMessage.Response);
+            /*BinaryWriter writer =*/ GamePacketFactory.Create(CtosMessage.Response);
             Connection.Send(CtosMessage.Response, -1);
         }
 

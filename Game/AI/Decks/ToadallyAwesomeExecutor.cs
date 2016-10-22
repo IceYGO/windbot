@@ -473,6 +473,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             return AI.Utils.IsEnnemyBetter(true, false)
+                   && AI.Utils.GetBestAttack(Duel.Fields[1], true) > 2200
                    && num < 4
                    && !Duel.Fields[0].HasInMonstersZone(new List<int>
                         {
