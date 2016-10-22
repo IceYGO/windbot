@@ -49,7 +49,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
             AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.水舞台, 死者苏生效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.水舞台, 水舞台效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.冰结界的纹章, 冰结界的纹章效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.愚蠢的埋葬, 愚蠢的埋葬效果);
 
@@ -166,6 +166,17 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
+        private bool 水舞台效果()
+        {
+            if (Card.Location == CardLocation.Grave)
+            {
+                AI.SelectPosition(CardPosition.FaceUpDefence);
+                return 死者苏生效果();
+            }
+            return true;
+        }
+
+
         private bool 愚蠢的埋葬效果()
         {
             if (Duel.Fields[0].HasInHand((int)CardId.小灰篮史莱姆) && !Duel.Fields[0].HasInGraveyard((int)CardId.小灰篮史莱姆))
@@ -251,6 +262,7 @@ namespace WindBot.Game.AI.Decks
         private bool 小灰篮史莱姆效果()
         {
             AI.SelectCard((int)CardId.小灰篮史莱姆);
+            AI.SelectPosition(CardPosition.FaceUpDefence);
             AI.SelectNextCard(new[]
                 {
                     (int)CardId.鬼青蛙,
@@ -266,12 +278,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool 粹蛙效果()
         {
-            if (低攻怪兽通常召唤())
-            {
-                AI.SelectPosition(CardPosition.FaceUpDefence);
-                return true;
-            }
-            return false;
+            AI.SelectPosition(CardPosition.FaceUpDefence);
+            return true;
         }
 
         private bool 低攻怪兽通常召唤()
