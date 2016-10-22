@@ -736,7 +736,7 @@ namespace MycardBot.Game.AI.Decks
         private bool 银河眼光波龙超量召唤()
         {
             Logger.DebugWriteLine("银河眼光波龙超量召唤.");
-            if (Duel.Turn == 1)
+            if (Duel.Turn == 1 || 已发动灵魂补充)
             {
                 Logger.DebugWriteLine("先攻不叠银河眼，叠银河巨神.");
                 return false;
