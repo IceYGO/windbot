@@ -59,7 +59,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, (int)CardId.鬼青蛙, 鬼青蛙效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.小灰篮史莱姆, 小灰篮史莱姆效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.粹蛙, 低攻怪兽通常召唤);
+            AddExecutor(ExecutorType.Activate, (int)CardId.粹蛙, 粹蛙效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.冰结界的传道师);
             AddExecutor(ExecutorType.Activate, (int)CardId.魔知青蛙);
 
@@ -262,6 +262,16 @@ namespace WindBot.Game.AI.Decks
                     (int)CardId.小灰篮史莱姆
                 });
             return true;
+        }
+
+        private bool 粹蛙效果()
+        {
+            if (低攻怪兽通常召唤())
+            {
+                AI.SelectPosition(CardPosition.FaceUpDefence);
+                return true;
+            }
+            return false;
         }
 
         private bool 低攻怪兽通常召唤()
