@@ -118,6 +118,16 @@ namespace WindBot.Game
             return HasInCards(Banished, cardId);
         }
 
+        public bool HasInExtra(int cardId)
+        {
+            return HasInCards(ExtraDeck, cardId);
+        }
+
+        public bool HasInExtra(List<int> cardId)
+        {
+            return HasInCards(ExtraDeck, cardId);
+        }
+
         public bool HasAttackingMonster()
         {
             IList<ClientCard> monsters = GetMonsters();

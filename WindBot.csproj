@@ -61,6 +61,7 @@
     <Compile Include="Game\AI\DecksManager.cs" />
     <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
     <Compile Include="Game\AI\Decks\CyberDragonExecutor.cs" />
+    <Compile Include="Game\AI\Decks\ToadallyAwesomeExecutor.cs" />
     <Compile Include="Game\AI\Decks\NekrozExecutor.cs" />
     <Compile Include="Game\AI\Decks\GravekeeperExecutor.cs" />
     <Compile Include="Game\AI\Decks\RainbowExecutor.cs" />

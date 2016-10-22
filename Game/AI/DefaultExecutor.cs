@@ -53,6 +53,47 @@ namespace WindBot.Game.AI
             return true;
         }
 
+        protected bool DefaultGalaxyCyclone()
+        {
+            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            if (spells.Count == 0)
+                return false;
+            ClientCard selected = null;
+
+            if (Card.Location == CardLocation.Grave)
+            {
+                selected = Duel.Fields[1].SpellZone.GetFloodgate();
+                if (selected == null)
+                {
+                    foreach (ClientCard card in spells)
+                    {
+                        if (!card.IsFacedown())
+                        {
+                            selected = card;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (ClientCard card in spells)
+                {
+                    if (card.IsFacedown())
+                    {
+                        selected = card;
+                        break;
+                    }
+                }
+            }
+
+            if (selected == null)
+                return false;
+
+            AI.SelectCard(selected);
+            return true;
+        }
+
         protected bool DefaultBookOfMoon()
         {
             if (AI.Utils.IsEnnemyBetter(true, true))

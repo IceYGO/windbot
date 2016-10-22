@@ -52,7 +52,7 @@ namespace MycardBot.Game.AI.Decks
             : base(ai, duel)
         {
             // 有坑先清
-            AddExecutor(ExecutorType.Activate, (int)CardId.银河旋风, 银河旋风效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.银河旋风, DefaultGalaxyCyclone);
             AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
 
             // 灵庙
@@ -296,47 +296,6 @@ namespace MycardBot.Game.AI.Decks
                     return false;
             }
             return attacker.Attack > 0;
-        }
-
-        private bool 银河旋风效果()
-        {
-            List<ClientCard> spells = Duel.Fields[1].GetSpells();
-            if (spells.Count == 0)
-                return false;
-            ClientCard selected = null;
-
-            if (Card.Location == CardLocation.Grave)
-            {
-                selected = Duel.Fields[1].SpellZone.GetFloodgate();
-                if (selected == null)
-                {
-                    foreach (ClientCard card in spells)
-                    {
-                        if (!card.IsFacedown())
-                        {
-                            selected = card;
-                            break;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                foreach (ClientCard card in spells)
-                {
-                    if (card.IsFacedown())
-                    {
-                        selected = card;
-                        break;
-                    }
-                }
-            }
-
-            if (selected == null)
-                return false;
-
-            AI.SelectCard(selected);
-            return true;
         }
 
         private bool 龙之灵庙效果()
