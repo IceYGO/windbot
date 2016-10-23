@@ -69,6 +69,7 @@
     <Compile Include="Game\AI\Decks\BurnExecutor.cs" />
     <Compile Include="Game\AI\Decks\EvilswarmExecutor.cs" />
     <Compile Include="Game\AI\Decks\GraydleExecutor.cs" />
+    <Compile Include="Game\AI\Decks\LightswornExecutor.cs" />
     <Compile Include="Game\AI\Decks\YosenjuExecutor.cs" />
     <Compile Include="Game\AI\Decks\DragunityExecutor.cs" />
     <Compile Include="Game\AI\Decks\FrogExecutor.cs" />
