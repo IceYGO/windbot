@@ -63,17 +63,17 @@
       {
         "name": "永远之魂",
         "deck": "Burn",
-        "dialog": "zh-CN"
+        "dialog": "soul.zh-CN"
       },
       {
         "name": "永远之魂",
         "deck": "Frog",
-        "dialog": "zh-CN"
+        "dialog": "soul.zh-CN"
       },
       {
         "name": "永远之魂",
         "deck": "Horus",
-        "dialog": "zh-CN"
+        "dialog": "soul.zh-CN"
       }
     ]
 }
