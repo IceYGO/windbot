@@ -128,7 +128,7 @@ namespace WindBot.Game.AI
                 return card;
             if (attack == 0)
                 attack = GetBestAttack(Duel.Fields[0], true);
-            return GetOneEnnemyBetterThanValue(attack, false);
+            return GetOneEnnemyBetterThanValue(attack, true);
         }
 
 

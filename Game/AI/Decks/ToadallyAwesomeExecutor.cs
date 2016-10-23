@@ -122,7 +122,7 @@ namespace WindBot.Game.AI.Decks
                 if (attacker.Id == (int)CardId.神骑矢车菊圣人马 && !attacker.IsDisabled() && attacker.HasXyzMaterial())
                     attacker.RealPower = Duel.LifePoints[0] + attacker.Attack;
             }
-            return attacker.RealPower > defender.GetDefensePower();
+            return attacker.RealPower >= defender.GetDefensePower();
         }
 
         private bool 冰结界的纹章效果()
@@ -441,7 +441,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == (int)CardId.饼蛙)
+                if (monster.Id == (int)CardId.饼蛙 && monster.Attack <= 2200)
                 {
                     选择取除超量素材(Card.Overlays);
                     AI.SelectNextCard(monster);
@@ -450,7 +450,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == (int)CardId.神骑矢车菊圣人马)
+                if (monster.Id == (int)CardId.神骑矢车菊圣人马 && monster.Attack <= 2000)
                 {
                     选择取除超量素材(Card.Overlays);
                     AI.SelectNextCard(monster);
@@ -459,7 +459,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == (int)CardId.大薰风凤凰)
+                if (monster.Id == (int)CardId.大薰风凤凰 && monster.Attack <= 1500)
                 {
                     选择取除超量素材(Card.Overlays);
                     AI.SelectNextCard(monster);
