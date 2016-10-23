@@ -15,12 +15,17 @@ namespace DevBot.Game.AI.Decks
             Marshmallon = 31305911,
             SpiritReaper = 23205979,
             NaturiaBeans = 44789585,
+            ThunderShort = 20264508,
             Ookazi = 19523799,
             GoblinThief = 45311864,
             TremendousFire = 46918794,
             SwordsOfRevealingLight = 72302403,
             SupremacyBerry = 98380593,
+            ChainEnergy = 79323590,
+            DarkRoomofNightmare = 85562745,
             PoisonOfTheOldMan = 8842266,
+            OjamaTrio = 29843091,
+            Ceasefire = 36468556,
             MagicCylinder = 62279055,
             MinorGoblinOfficial = 1918087,
             ChainBurst = 48276469,
@@ -34,25 +39,26 @@ namespace DevBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
             // Activate Spells
+            AddExecutor(ExecutorType.Activate, (int)CardId.DarkRoomofNightmare);
             AddExecutor(ExecutorType.Activate, (int)CardId.Ookazi);
             AddExecutor(ExecutorType.Activate, (int)CardId.GoblinThief);
             AddExecutor(ExecutorType.Activate, (int)CardId.TremendousFire);
             AddExecutor(ExecutorType.Activate, (int)CardId.SwordsOfRevealingLight, SwordsOfRevealingLight);
             AddExecutor(ExecutorType.Activate, (int)CardId.SupremacyBerry, SupremacyBerry);
             AddExecutor(ExecutorType.Activate, (int)CardId.PoisonOfTheOldMan, PoisonOfTheOldMan);
-
-            // Set an invincible monster
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.Marshmallon, SetInvincibleMonster);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.SpiritReaper, SetInvincibleMonster);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.NaturiaBeans, SetInvincibleMonster);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ThunderShort, ThunderShort);
 
             // Hello, my name is Lava Golem
             AddExecutor(ExecutorType.SpSummon, (int)CardId.LavaGolem, LavaGolem);
 
-            // Set other monsters
-            AddExecutor(ExecutorType.Summon, (int)CardId.ReflectBounder);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.FencingFireFerret);
+            // Set an invincible monster
+            AddExecutor(ExecutorType.MonsterSet, (int)CardId.Marshmallon, SetInvincibleMonster);
+            AddExecutor(ExecutorType.MonsterSet, (int)CardId.SpiritReaper, SetInvincibleMonster);
             AddExecutor(ExecutorType.MonsterSet, (int)CardId.BlastSphere);
+
+            // Set other monsters
+            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.FencingFireFerret);
+            AddExecutor(ExecutorType.Summon, (int)CardId.ReflectBounder);
             AddExecutor(ExecutorType.MonsterSet, (int)CardId.NaturiaBeans);
 
             // We're a coward
@@ -60,9 +66,17 @@ namespace DevBot.Game.AI.Decks
 
             // Chain traps
             AddExecutor(ExecutorType.Activate, (int)CardId.MagicCylinder, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.Ceasefire, Ceasefire);
+            AddExecutor(ExecutorType.Activate, (int)CardId.OjamaTrio);
             AddExecutor(ExecutorType.Activate, (int)CardId.MinorGoblinOfficial);
             AddExecutor(ExecutorType.Activate, (int)CardId.ChainBurst);
             AddExecutor(ExecutorType.Activate, (int)CardId.SkullInvitation);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ChainEnergy);
+        }
+
+        public override bool OnSelectHand()
+        {
+            return true;
         }
 
         private bool SwordsOfRevealingLight()
@@ -82,13 +96,16 @@ namespace DevBot.Game.AI.Decks
             return true;
         }
 
+        private bool ThunderShort()
+        {
+            return Duel.Fields[1].GetMonsterCount() >= 3;
+        }
+
         private bool SetInvincibleMonster()
         {
             foreach (ClientCard card in Duel.Fields[0].GetMonsters())
             {
-                if (card.Id == (int)CardId.Marshmallon ||
-                    card.Id == (int)CardId.SpiritReaper ||
-                    (card.Id == (int)CardId.NaturiaBeans && Card.Id == (int)CardId.NaturiaBeans))
+                if (card.Id == (int)CardId.Marshmallon || card.Id == (int)CardId.SpiritReaper)
                 {
                     return false;
                 }
@@ -99,15 +116,17 @@ namespace DevBot.Game.AI.Decks
         private bool LavaGolem()
         {
             bool found = false;
-            foreach (ClientCard card in Duel.Fields[0].GetMonsters())
+            foreach (ClientCard card in Duel.Fields[1].GetMonsters())
             {
-                if (card.Id == (int)CardId.Marshmallon ||
-                    card.Id == (int)CardId.SpiritReaper)
+                if (card.Attack > 2000)
                     found = true;
             }
-            if (!found && Duel.LifePoints[1] > 1000)
-                return false;
-            return true;
+            return found;
+        }
+
+        private bool Ceasefire()
+        {
+            return Duel.Fields[0].GetMonsterCount() + Duel.Fields[1].GetMonsterCount() >= 3;
         }
 
         private bool ReposEverything()

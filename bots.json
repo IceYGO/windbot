@@ -2,7 +2,7 @@
     "windbots": [
       {
         "name": "琪露诺",
-        "deck": "ToadallyAwesome",
+        "deck": "Toadally Awesome",
         "dialog": "cirno.zh-CN"
       },
       {
@@ -59,6 +59,21 @@
         "name": "尼亚",
         "deck": "Yosenju",
         "dialog": "near.zh-CN"
+      },
+      {
+        "name": "永远之魂",
+        "deck": "Burn",
+        "dialog": "zh-CN"
+      },
+      {
+        "name": "永远之魂",
+        "deck": "Frog",
+        "dialog": "zh-CN"
+      },
+      {
+        "name": "永远之魂",
+        "deck": "Horus",
+        "dialog": "zh-CN"
       }
     ]
 }
