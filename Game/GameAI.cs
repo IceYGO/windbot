@@ -70,6 +70,7 @@ namespace WindBot.Game
             m_selector = null;
             m_nextSelector = null;
             m_option = -1;
+            m_yesno = -1;
             m_position = CardPosition.FaceUpAttack;
             Duel.LastSummonPlayer = -1;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
@@ -446,6 +447,8 @@ namespace WindBot.Game
         /// <returns>True for yes, false for no.</returns>
         public bool OnSelectYesNo(int desc)
         {
+            if (m_yesno != -1)
+                return m_yesno>0;
             return Executor.OnSelectYesNo(desc);
         }
 
@@ -465,10 +468,12 @@ namespace WindBot.Game
 
         private CardSelector m_selector;
         private CardSelector m_nextSelector;
+        private CardSelector m_thirdSelector;
         private CardPosition m_position = CardPosition.FaceUpAttack;
         private int m_option;
         private int m_number;
         private int m_announce;
+        private int m_yesno;
         private IList<CardAttribute> m_attributes = new List<CardAttribute>();
         private IList<CardRace> m_races = new List<CardRace>();
 
@@ -522,17 +527,45 @@ namespace WindBot.Game
             m_nextSelector = new CardSelector(loc);
         }
 
+        public void SelectThirdCard(ClientCard card)
+        {
+            m_thirdSelector = new CardSelector(card);
+        }
+
+        public void SelectThirdCard(IList<ClientCard> cards)
+        {
+            m_thirdSelector = new CardSelector(cards);
+        }
+
+        public void SelectThirdCard(int cardId)
+        {
+            m_thirdSelector = new CardSelector(cardId);
+        }
+
+        public void SelectThirdCard(IList<int> ids)
+        {
+            m_thirdSelector = new CardSelector(ids);
+        }
+
+        public void SelectThirdCard(CardLocation loc)
+        {
+            m_thirdSelector = new CardSelector(loc);
+        }
+
         public CardSelector GetSelectedCards()
         {
             CardSelector selected = m_selector;
+            m_selector = null;
             if (m_nextSelector != null)
             {
                 m_selector = m_nextSelector;
                 m_nextSelector = null;
+                if (m_thirdSelector != null)
+                {
+                    m_nextSelector = m_thirdSelector;
+                    m_thirdSelector = null;
+                }
             }
-            else
-                m_selector = null;
-
             return selected;
         }
 
@@ -580,6 +613,11 @@ namespace WindBot.Game
         public void SelectAnnounceID(int id)
         {
             m_announce = id;
+        }
+
+        public void SelectYesNo(bool opt)
+        {
+            m_yesno = opt?1:0;
         }
 
         /// <summary>

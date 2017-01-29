@@ -59,6 +59,7 @@
         NaturiaBarkion = 2956282,
         EvilswarmOphion = 91279700,
         MermailAbyssgaios = 74371660,
-        AbyssDweller = 21044178
+        AbyssDweller = 21044178,
+        ZoodiacDrident = 48905153
     }
 }
