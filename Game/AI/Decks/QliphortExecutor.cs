@@ -137,6 +137,10 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
         {
+            if (max <= min)
+            {
+                return null;
+            }
             IList<ClientCard> selected = new List<ClientCard>();
 
             // select the last cards
