@@ -165,6 +165,11 @@ namespace WindBot.Game
             return (HasType(CardType.Fusion) || HasType(CardType.Synchro) || HasType(CardType.Xyz));
         }
 
+        public bool IsFaceup()
+        {
+            return HasPosition(CardPosition.FaceUp);
+        }
+
         public bool IsFacedown()
         {
             return HasPosition(CardPosition.FaceDown);

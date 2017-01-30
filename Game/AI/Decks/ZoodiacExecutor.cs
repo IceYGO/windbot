@@ -39,7 +39,11 @@ namespace MycardBot.Game.AI.Decks
             十二兽虎炮 = 11510448,
             十二兽狗环 = 41375811,
             十二兽龙枪 = 48905153,
-            十二兽牛犄 = 85115440
+            十二兽牛犄 = 85115440,
+
+            雷击坏兽雷鸣龙王 = 48770333,
+            怒炎坏兽多哥兰 = 93332803,
+            对坏兽用决战兵器超级机械多哥兰 = 84769941
         }
 
         bool 已特殊召唤虎炮 = false;
@@ -64,24 +68,26 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.暴走魔法阵);
             AddExecutor(ExecutorType.Activate, (int)CardId.炎舞天玑, 炎舞天玑效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.十二兽的会局, 十二兽的会局效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.大薰风骑士翠玉);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.光子斩击者, 光子斩击者特殊召唤);
-
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.No39希望皇霍普, 电光皇特殊召唤);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普电光皇);
             AddExecutor(ExecutorType.Activate, (int)CardId.闪光No39希望皇霍普电光皇);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.召唤兽梅尔卡巴, DefaultTrap);
+
             AddExecutor(ExecutorType.Activate, 十二兽鼠骑素材效果);
+
             AddExecutor(ExecutorType.Activate, (int)CardId.十二兽龙枪, 十二兽龙枪效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽牛犄, 十二兽牛犄效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽虎炮, 十二兽虎炮效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽狗环, 十二兽狗环效果);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.十二兽狗环, 十二兽狗环特殊召唤);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.十二兽虎炮, 十二兽虎炮特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽虎炮, 十二兽虎炮效果);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.十二兽牛犄, 十二兽牛犄特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽牛犄, 十二兽牛犄效果);
-
             AddExecutor(ExecutorType.SpSummon, (int)CardId.十二兽龙枪, 十二兽龙枪特殊召唤);
 
             AddExecutor(ExecutorType.Summon, (int)CardId.十二兽鼠骑);
@@ -91,10 +97,14 @@ namespace MycardBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, (int)CardId.召唤师阿莱斯特);
             AddExecutor(ExecutorType.Activate, (int)CardId.召唤师阿莱斯特, 召唤师阿莱斯特效果);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.大薰风骑士翠玉);
-            AddExecutor(ExecutorType.Activate, (int)CardId.大薰风骑士翠玉);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.大薰风骑士翠玉, 大薰风骑士翠玉特殊召唤);
+
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.十二兽牛犄, 十二兽牛犄超量召唤);
+
+            AddExecutor(ExecutorType.Activate, (int)CardId.死者苏生, 死者苏生效果);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.光子斩击者);
+            AddExecutor(ExecutorType.Summon, (int)CardId.十二兽蛇笞);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.召唤魔术, 召唤魔术效果);
 
@@ -104,7 +114,7 @@ namespace MycardBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpellSet, (int)CardId.十二兽的方合);
 
-
+            AddExecutor(ExecutorType.Repos, MonsterRepos);
         }
 
         public override bool OnSelectHand()
@@ -130,8 +140,8 @@ namespace MycardBot.Game.AI.Decks
             }
             if (!(defender.Id == (int)CardId.闪光No39希望皇霍普电光皇))
             {
-                if (attacker.HasType(CardType.Fusion) && Duel.Fields[0].HasInHand((int)CardId.召唤师阿莱斯特))
-                    attacker.RealPower = attacker.RealPower + 1000;
+                //if (attacker.HasType(CardType.Fusion) && Duel.Fields[0].HasInHand((int)CardId.召唤师阿莱斯特))
+                //    attacker.RealPower = attacker.RealPower + 1000;
                 if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.No39希望皇霍普))
                     attacker.RealPower = 5000;
             }
@@ -154,22 +164,37 @@ namespace MycardBot.Game.AI.Decks
             AI.SelectCard(new[]
                 {
                     (int)CardId.坏星坏兽席兹奇埃鲁,
-                    (int)CardId.怪粉坏兽加达拉,
                     (int)CardId.多次元坏兽拉迪安,
+                    (int)CardId.怪粉坏兽加达拉,
                     (int)CardId.黏丝坏兽库莫古斯
                 });
             AI.SelectNextCard(new[]
                 {
                     (int)CardId.海龟坏兽加美西耶勒,
                     (int)CardId.黏丝坏兽库莫古斯,
-                    (int)CardId.多次元坏兽拉迪安,
-                    (int)CardId.怪粉坏兽加达拉
+                    (int)CardId.怪粉坏兽加达拉,
+                    (int)CardId.多次元坏兽拉迪安
                 });
             return DefaultDarkHole();
         }
 
         private bool 坏兽特殊召唤()
         {
+            IList<int> kaijus = new[] {
+                (int)CardId.坏星坏兽席兹奇埃鲁,
+                (int)CardId.怪粉坏兽加达拉,
+                (int)CardId.海龟坏兽加美西耶勒,
+                (int)CardId.多次元坏兽拉迪安,
+                (int)CardId.黏丝坏兽库莫古斯,
+                (int)CardId.雷击坏兽雷鸣龙王,
+                (int)CardId.怒炎坏兽多哥兰,
+                (int)CardId.对坏兽用决战兵器超级机械多哥兰
+            };
+            foreach (ClientCard monster in Duel.Fields[1].GetMonsters())
+            {
+                if (kaijus.Contains(monster.Id))
+                    return Card.GetDefensePower() > monster.GetDefensePower();
+            }
             ClientCard card = Duel.Fields[1].MonsterZone.GetFloodgate();
             if (card != null)
             {
@@ -209,7 +234,12 @@ namespace MycardBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                return !AI.Utils.IsTurn1OrMain2();
+                if (!(Duel.Phase == DuelPhase.BattleStep
+                    || Duel.Phase == DuelPhase.BattleStart
+                    || Duel.Phase == DuelPhase.Damage))
+                    return false;
+                return Duel.Player==0
+                    || AI.Utils.IsEnnemyBetter(false, false);
             }
             return true;
         }
@@ -292,6 +322,7 @@ namespace MycardBot.Game.AI.Decks
                     return;
                 }
             }
+            AI.SelectNextCard((int)CardId.召唤师阿莱斯特);
         }
 
         private bool 十二兽狗环特殊召唤()
@@ -304,6 +335,37 @@ namespace MycardBot.Game.AI.Decks
                 已特殊召唤狗环 = true;
                 return true;
             }
+            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽牛犄) && !已特殊召唤狗环)
+            {
+                AI.SelectCard((int)CardId.十二兽牛犄);
+                AI.SelectYesNo(true);
+                AI.SelectPosition(CardPosition.FaceUpDefence);
+                已特殊召唤狗环 = true;
+                return true;
+            }
+            return false;
+        }
+
+        private bool 十二兽狗环效果()
+        {
+            if (Duel.Fields[0].HasInGraveyard((int)CardId.十二兽蛇笞) || Duel.Fields[0].HasInGraveyard((int)CardId.十二兽马剑))
+            {
+                AI.SelectCard(new[]
+                {
+                    (int)CardId.十二兽牛犄,
+                    (int)CardId.十二兽虎炮,
+                    (int)CardId.十二兽狗环,
+                    (int)CardId.十二兽马剑,
+                    (int)CardId.十二兽鼠骑,
+                    (int)CardId.十二兽蛇笞
+                });
+                AI.SelectNextCard(new[]
+                {
+                    (int)CardId.十二兽蛇笞,
+                    (int)CardId.十二兽马剑
+                });
+                return true;
+            }
             return false;
         }
 
@@ -312,6 +374,14 @@ namespace MycardBot.Game.AI.Decks
             if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽狗环) && !已特殊召唤虎炮)
             {
                 AI.SelectCard((int)CardId.十二兽狗环);
+                AI.SelectYesNo(true);
+                AI.SelectPosition(CardPosition.FaceUpDefence);
+                已特殊召唤虎炮 = true;
+                return true;
+            }
+            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤虎炮)
+            {
+                AI.SelectCard((int)CardId.十二兽鼠骑);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 已特殊召唤虎炮 = true;
@@ -329,7 +399,14 @@ namespace MycardBot.Game.AI.Decks
                 已特殊召唤虎炮 = true;
                 return true;
             }
-
+            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽蛇笞) && !已特殊召唤虎炮
+                && Duel.Fields[0].HasInGraveyard((int)CardId.十二兽鼠骑))
+            {
+                AI.SelectCard((int)CardId.十二兽蛇笞);
+                AI.SelectYesNo(true);
+                已特殊召唤虎炮 = true;
+                return true;
+            }
             return false;
         }
 
@@ -358,6 +435,22 @@ namespace MycardBot.Game.AI.Decks
                 已特殊召唤牛犄 = true;
                 return true;
             }
+            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽狗环) && !已特殊召唤牛犄)
+            {
+                AI.SelectCard((int)CardId.十二兽狗环);
+                AI.SelectYesNo(true);
+                AI.SelectPosition(CardPosition.FaceUpDefence);
+                已特殊召唤牛犄 = true;
+                return true;
+            }
+            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤牛犄)
+            {
+                AI.SelectCard((int)CardId.十二兽鼠骑);
+                AI.SelectYesNo(true);
+                AI.SelectPosition(CardPosition.FaceUpDefence);
+                已特殊召唤牛犄 = true;
+                return true;
+            }
             if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽马剑) && !已特殊召唤牛犄)
             {
                 AI.SelectCard((int)CardId.十二兽马剑);
@@ -379,7 +472,24 @@ namespace MycardBot.Game.AI.Decks
                     (int)CardId.召唤师阿莱斯特,
                     (int)CardId.光子斩击者
                 });
-            AI.SelectNextCard((int)CardId.十二兽蛇笞);
+            if (Duel.Fields[0].HasInHand((int)CardId.十二兽蛇笞) && !Duel.Fields[0].HasInHand((int)CardId.十二兽鼠骑))
+                AI.SelectNextCard((int)CardId.十二兽鼠骑);
+            else
+                AI.SelectNextCard((int)CardId.十二兽蛇笞);
+            return true;
+        }
+
+        private bool 十二兽牛犄超量召唤()
+        {
+            AI.SelectYesNo(false);
+            AI.SelectPosition(CardPosition.FaceUpDefence);
+            AI.SelectCard(new[]
+                {
+                    (int)CardId.十二兽鼠骑,
+                    (int)CardId.光子斩击者,
+                    (int)CardId.十二兽蛇笞,
+                    (int)CardId.召唤师阿莱斯特
+                });
             return true;
         }
 
@@ -409,6 +519,8 @@ namespace MycardBot.Game.AI.Decks
         {
             if (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2)
                 return false;
+            if (Card.IsDisabled())
+                return false;
             AI.SelectCard(new[]
                 {
                     (int)CardId.十二兽龙枪
@@ -429,7 +541,48 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 十二兽龙枪效果()
         {
+            if (LastChainPlayer == 0)
+                return false;
             ClientCard target = AI.Utils.GetProblematicCard();
+            if (target == null)
+            {
+                List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+                foreach (ClientCard monster in monsters)
+                {
+                    if (monster.IsFaceup())
+                    {
+                        target=monster;
+                        break;
+                    }
+                }
+            }
+            if (target == null)
+            {
+                List<ClientCard> spells = Duel.Fields[1].GetSpells();
+                foreach (ClientCard spell in spells)
+                {
+                    if (spell.IsFaceup() && spell.IsSpellNegateAttack())
+                    {
+                        target = spell;
+                        break;
+                    }
+                }
+            }
+            if (target == null)
+            {
+                List<ClientCard> spells = Duel.Fields[1].GetSpells();
+                foreach (ClientCard spell in spells)
+                {
+                    if (spell.IsFaceup() && (spell.HasType(CardType.Continuous)
+                        || spell.HasType(CardType.Equip)
+                        || spell.HasType(CardType.Field)
+                        || spell.HasType(CardType.Pendulum)))
+                    {
+                        target = spell;
+                        break;
+                    }
+                }
+            }
             if (target == null)
                 return false;
             AI.SelectCard(new[]
@@ -444,7 +597,28 @@ namespace MycardBot.Game.AI.Decks
             AI.SelectNextCard(target);
             return true;
         }
-    
+
+        private bool 大薰风骑士翠玉特殊召唤()
+        {
+            return Duel.Fields[0].GetGraveyardMonsters().Count >= 3;
+        }
+
+        private bool 大薰风骑士翠玉效果()
+        {
+            AI.SelectCard(new[]
+                {
+                    (int)CardId.十二兽鼠骑,
+                    (int)CardId.召唤师阿莱斯特,
+                    (int)CardId.十二兽蛇笞
+                });
+            AI.SelectNextCard(new[]
+                {
+                    (int)CardId.十二兽鼠骑,
+                    (int)CardId.大薰风骑士翠玉
+                });
+            return true;
+        }
+
         private bool 炎舞天玑效果()
         {
             if (Duel.Fields[0].HasInHand((int)CardId.十二兽的会局)
@@ -463,6 +637,12 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 十二兽的会局效果()
         {
+            IList<ClientCard> spells = Duel.Fields[0].GetSpells();
+            foreach (ClientCard spell in spells)
+            {
+                if (spell.Id == (int)CardId.十二兽的会局 && !Card.Equals(spell))
+                    return false;
+            }
             AI.SelectCard(new[]
                 {
                     (int)CardId.炎舞天玑,
@@ -475,15 +655,39 @@ namespace MycardBot.Game.AI.Decks
                     (int)CardId.十二兽蛇笞,
                     (int)CardId.十二兽马剑
                 });
+            AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
 
         private bool 十二兽的方合效果()
         {
+            if (CurrentChain.Count > 0)
+                return false;
+            if (Card.Location != CardLocation.Grave)
+            {
+                AI.SelectCard((int)CardId.十二兽龙枪);
+                AI.SelectNextCard(new[]
+                {
+                    (int)CardId.十二兽蛇笞,
+                    (int)CardId.十二兽鼠骑,
+                    (int)CardId.十二兽马剑
+                });
+            }
+            return true;
+        }
+
+        private bool 死者苏生效果()
+        {
             AI.SelectCard(new[]
                 {
                     (int)CardId.十二兽鼠骑,
-                    (int)CardId.十二兽龙枪
+                    (int)CardId.十二兽蛇笞,
+                    (int)CardId.召唤兽梅尔卡巴,
+                    (int)CardId.坏星坏兽席兹奇埃鲁,
+                    (int)CardId.召唤兽墨瓦腊泥加,
+                    (int)CardId.十二兽虎炮,
+                    (int)CardId.十二兽狗环,
+                    (int)CardId.十二兽牛犄
                 });
             return true;
         }
