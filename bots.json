@@ -42,11 +42,6 @@
       },
       {
         "name": "复制植物",
-        "deck": "Zoodiac",
-        "dialog": "copy.zh-CN"
-      },
-      {
-        "name": "复制植物",
         "deck": "Blue-Eyes",
         "dialog": "copy.zh-CN"
       },
