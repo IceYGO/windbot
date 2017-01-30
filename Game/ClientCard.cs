@@ -22,6 +22,8 @@ namespace WindBot.Game
         public int Race { get; private set; }
         public int Attack { get; private set; }
         public int Defense { get; private set; }
+        public int LScale { get; private set; }
+        public int RScale { get; private set; }
         public int BaseAttack { get; private set; }
         public int BaseDefense { get; private set; }
         public int RealPower { get; set; }
@@ -125,9 +127,9 @@ namespace WindBot.Game
             if ((flag & (int)Query.IsPublic) != 0)
                 packet.ReadInt32();
             if ((flag & (int)Query.LScale) != 0)
-                packet.ReadInt32();
+                LScale = packet.ReadInt32();
             if ((flag & (int)Query.RScale) != 0)
-                packet.ReadInt32();
+                RScale = packet.ReadInt32();
         }
 
         public bool HasType(CardType type)

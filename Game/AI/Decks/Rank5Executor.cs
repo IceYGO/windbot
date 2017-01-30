@@ -85,7 +85,7 @@ namespace DevBot.Game.AI.Decks
 
             // Useful spells
             AddExecutor(ExecutorType.Activate, (int)CardId.二重召唤, 二重召唤效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.超量组件);
+            AddExecutor(ExecutorType.Activate, (int)CardId.超量组件, 超量组件效果);
 
 
             AddExecutor(ExecutorType.Activate, (int)CardId.超量苏生, 超量苏生效果);
@@ -345,6 +345,12 @@ namespace DevBot.Game.AI.Decks
                     (int)CardId.No61火山恐龙
                 });
             return true;
+        }
+
+        private bool 超量组件效果()
+        {
+            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            return monsters.Exists(p => p.HasType(CardType.Xyz));
         }
 
         private bool 重装机甲装甲车龙效果()

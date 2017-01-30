@@ -131,6 +131,27 @@ namespace WindBot.Game.AI
             return GetOneEnnemyBetterThanValue(attack, true);
         }
 
+        public ClientCard GetProblematicMonsterCard(int attack = 0)
+        {
+            ClientCard card = Duel.Fields[1].MonsterZone.GetInvincibleMonster();
+            if (card != null)
+                return card;
+            card = Duel.Fields[1].MonsterZone.GetFloodgate();
+            if (card != null)
+                return card;
+            if (attack == 0)
+                attack = GetBestAttack(Duel.Fields[0], true);
+            return GetOneEnnemyBetterThanValue(attack, true);
+        }
+
+        public ClientCard GetProblematicSpellCard()
+        {
+            ClientCard card = Duel.Fields[1].SpellZone.GetNegateAttackSpell();
+            if (card != null)
+                return card;
+            card = Duel.Fields[1].SpellZone.GetFloodgate();
+            return card;
+        }
 
         public int GetStringId(int id, int option)
         {

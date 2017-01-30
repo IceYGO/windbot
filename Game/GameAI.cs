@@ -325,7 +325,7 @@ namespace WindBot.Game
         /// <returns>Index of the selected option.</returns>
         public int OnSelectOption(IList<int> options)
         {
-            if (m_option != -1)
+            if (m_option != -1 && m_option < options.Count)
                 return m_option;
 
             int result = Executor.OnSelectOption(options);

@@ -108,6 +108,29 @@ namespace WindBot.Game.AI
             return false;
         }
 
+        protected bool DefaultCompulsoryEvacuationDevice()
+        {
+            ClientCard target = AI.Utils.GetProblematicMonsterCard();
+            if (target != null)
+            {
+                AI.SelectCard(target);
+                return true;
+            }
+            foreach (ClientCard card in Duel.ChainTargets)
+            {
+                if (Card.Equals(card))
+                {
+                    List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+                    foreach (ClientCard monster in monsters)
+                    {
+                        AI.SelectCard(monster);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         protected bool DefaultCallOfTheHaunted()
         {
             if (!AI.Utils.IsEnnemyBetter(true, true))
@@ -158,6 +181,13 @@ namespace WindBot.Game.AI
 
         protected bool DefaultTributeSummon()
         {
+            foreach (ClientCard card in Duel.Fields[0].SpellZone)
+            {
+                if (card != null &&
+                    card.Id == Card.Id &&
+                    card.HasPosition(CardPosition.FaceUp))
+                    return false;
+            }
             int tributecount = (int)Math.Ceiling((Card.Level - 4.0d) / 2.0d);
             for (int j = 0; j < 5; ++j)
             {
@@ -220,6 +250,88 @@ namespace WindBot.Game.AI
                 return true;
             if (Duel.LifePoints[0] > Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId((int)CardId.ChickenGame, 1))
                 return true;
+            return false;
+        }
+
+        protected bool DefaultDimensionalBarrier()
+        {
+            if (Duel.Player != 0)
+            {
+                List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+                int[] levels = new int[13];
+                bool tuner = false;
+                bool nontuner = false;
+                foreach (ClientCard monster in monsters)
+                {
+                    if (monster.HasType(CardType.Tuner))
+                        tuner = true;
+                    else if (!monster.HasType(CardType.Xyz))
+                        nontuner = true;
+                    if (monster.IsOneForXyz())
+                    {
+                        AI.SelectOption(3);
+                        return true;
+                    }
+                    levels[monster.Level] = levels[monster.Level] + 1;
+                }
+                if (tuner && nontuner)
+                {
+                    AI.SelectOption(2);
+                    return true;
+                }
+                for (int i=1; i<=12; i++)
+                {
+                    if (levels[i]>1)
+                    {
+                        AI.SelectOption(3);
+                        return true;
+                    }
+                }
+                ClientCard l = Duel.Fields[1].SpellZone[6];
+                ClientCard r = Duel.Fields[1].SpellZone[7];
+                if (l != null && r != null && l.LScale != r.RScale)
+                {
+                    AI.SelectOption(4);
+                    return true;
+                }
+            }
+            ClientCard lastchaincard = GetLastChainCard();
+            if (LastChainPlayer == 1 && lastchaincard != null && !lastchaincard.IsDisabled())
+            {
+                if (lastchaincard.HasType(CardType.Ritual))
+                {
+                    AI.SelectOption(0);
+                    return true;
+                }
+                if (lastchaincard.HasType(CardType.Fusion))
+                {
+                    AI.SelectOption(1);
+                    return true;
+                }
+                if (lastchaincard.HasType(CardType.Synchro))
+                {
+                    AI.SelectOption(2);
+                    return true;
+                }
+                if (lastchaincard.HasType(CardType.Xyz))
+                {
+                    AI.SelectOption(3);
+                    return true;
+                }
+                if (lastchaincard.IsFusionSpell())
+                {
+                    AI.SelectOption(1);
+                    return true;
+                }
+            }
+            foreach (ClientCard card in Duel.ChainTargets)
+            {
+                if (Card.Equals(card))
+                {
+                    AI.SelectOption(3);
+                    return true;
+                }
+            }
             return false;
         }
     }
