@@ -91,6 +91,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.PosChange, OnPosChange);
             _messages.Add(GameMessage.Chaining, OnChaining);
             _messages.Add(GameMessage.ChainEnd, OnChainEnd);
+            _messages.Add(GameMessage.SortCard, OnCardSorting);
             _messages.Add(GameMessage.SortChain, OnChainSorting);
             _messages.Add(GameMessage.UpdateCard, OnUpdateCard);
             _messages.Add(GameMessage.UpdateData, OnUpdateData);
@@ -421,6 +422,12 @@ namespace WindBot.Game
         {
             _ai.OnChainEnd();
             //_duel.ChainTargets.Clear();
+        }
+
+        private void OnCardSorting(BinaryReader packet)
+        {
+            /*BinaryWriter writer =*/ GamePacketFactory.Create(CtosMessage.Response);
+            Connection.Send(CtosMessage.Response, -1);
         }
 
         private void OnChainSorting(BinaryReader packet)
