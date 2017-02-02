@@ -81,6 +81,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.Draw, OnDraw);
             _messages.Add(GameMessage.ShuffleDeck, OnShuffleDeck);
             _messages.Add(GameMessage.ShuffleHand, OnShuffleHand);
+            _messages.Add(GameMessage.TagSwap, OnTagSwap);
             _messages.Add(GameMessage.NewTurn, OnNewTurn);
             _messages.Add(GameMessage.NewPhase, OnNewPhase);
             _messages.Add(GameMessage.Damage, OnDamage);
@@ -135,7 +136,7 @@ namespace WindBot.Game
         {
             int type = packet.ReadByte();
             int pos = type & 0xF;
-            if (pos != 0 && pos != 1)
+            if (pos < 0 || pos > 3)
             {
                 Connection.Close();
                 return;
@@ -296,6 +297,34 @@ namespace WindBot.Game
             packet.ReadByte();
             foreach (ClientCard card in _duel.Fields[player].Hand)
                 card.SetId(packet.ReadInt32());
+        }
+
+        private void OnTagSwap(BinaryReader packet)
+        {
+            int player = GetLocalPlayer(packet.ReadByte());
+            Logger.WriteLine("swap " + player);
+            int mcount = packet.ReadByte();
+            int ecount = packet.ReadByte();
+            int pcount = packet.ReadByte();
+            int hcount = packet.ReadByte();
+            int topcode = packet.ReadInt32();
+            _duel.Fields[player].Deck.Clear();
+            for (int i = 0; i < mcount; ++i)
+            {
+                _duel.Fields[player].Deck.Add(new ClientCard(0, CardLocation.Deck));
+            }
+            _duel.Fields[player].ExtraDeck.Clear();
+            for (int i = 0; i < ecount; ++i)
+            {
+                int code = packet.ReadInt32() & 0x7fffffff;
+                _duel.Fields[player].ExtraDeck.Add(new ClientCard(code, CardLocation.Extra));
+            }
+            _duel.Fields[player].Hand.Clear();
+            for (int i = 0; i < hcount; ++i)
+            {
+                int code = packet.ReadInt32();
+                _duel.Fields[player].Hand.Add(new ClientCard(code, CardLocation.Hand));
+            }
         }
 
         private void OnNewTurn(BinaryReader packet)
