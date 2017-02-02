@@ -682,9 +682,12 @@ namespace WindBot.Game
             }
 
             IList<int> used = _ai.OnSelectCounter(type, quantity, cards, counters);
-            byte[] result = new byte[used.Count];
-            for (int i = 0; i < quantity; ++i)
-                result[i] = (byte) used[i];
+            byte[] result = new byte[used.Count*2];
+            for (int i = 0; i < used.Count; ++i)
+            {
+                result[i * 2] = (byte)(used[i] & 0xff);
+                result[i * 2 + 1] = (byte)(used[i] >> 8);
+            }
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
             reply.Write(result);
             Connection.Send(reply);
