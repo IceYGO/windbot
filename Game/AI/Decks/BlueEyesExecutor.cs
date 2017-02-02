@@ -217,9 +217,11 @@ namespace MycardBot.Game.AI.Decks
             return null;
         }
 
-        public override IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max)
+        public override IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
         {
             Logger.DebugWriteLine("OnSelectSum " + cards.Count + " " + sum + " " + min + " " + max);
+            if (sum > 12 || !mode)
+                return null;
             IList<ClientCard> avail = new List<ClientCard>();
             foreach (ClientCard card in cards)
             {

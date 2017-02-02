@@ -32,6 +32,8 @@ namespace WindBot.Game
         public int Controller { get; private set; }
         public int Disabled { get; private set; }
         public int SelectSeq { get; set; }
+        public int OpParam1 { get; set; }
+        public int OpParam2 { get; set; }
         public bool CanDirectAttack { get; set; }
         public bool ShouldDirectAttack { get; set; }
         public bool Attacked { get; set; }

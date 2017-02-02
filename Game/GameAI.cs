@@ -360,57 +360,122 @@ namespace WindBot.Game
         /// <param name="sum">Result of the operation.</param>
         /// <param name="min">Minimum cards.</param>
         /// <param name="max">Maximum cards.</param>
+        /// <param name="mode">True for equal.</param>
         /// <returns></returns>
-        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max)
+        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
         {
             IList<ClientCard> selected = new List<ClientCard>();
-            selected = Executor.OnSelectSum(cards, sum, min, max);
+            selected = Executor.OnSelectSum(cards, sum, min, max, mode);
             if (selected != null)
             {
                 return selected;
             }
-            selected = new List<ClientCard>();
-            int trysum = 0;
-            foreach (ClientCard card in cards)
+            if (mode)
             {
-                // try level add
-                if (trysum + card.Level > sum)
+                foreach (ClientCard card in cards)
                 {
-                    continue;
+                    //Logger.WriteLine("OpParam1 " + card.OpParam1 + " OpParam2 " + card.OpParam2 + " sum " + sum);
+                    // try special level
+                    if (card.OpParam2 == sum)
+                    {
+                        return new[] { card };
+                    }
                 }
-                selected.Add(card);
-                trysum += card.Level;
-                //Logger.DebugWriteLine(card.Id + "");
-                //Logger.DebugWriteLine(trysum + " selected " + sum);
-                if (trysum == sum)
+                foreach (ClientCard card in cards)
                 {
-                    return selected;
+                    // try level equal
+                    if (card.OpParam1 == sum)
+                    {
+                        return new[] { card };
+                    }
+                }
+                selected = new List<ClientCard>();
+                int trysum = 0;
+                foreach (ClientCard card in cards)
+                {
+                    // try level add
+                    if (trysum + card.OpParam1 > sum)
+                    {
+                        continue;
+                    }
+                    selected.Add(card);
+                    trysum += card.OpParam1;
+                    //Logger.DebugWriteLine(card.Id + "");
+                    //Logger.DebugWriteLine(trysum + " selected " + sum);
+                    if (trysum == sum)
+                    {
+                        return selected;
+                    }
+                }
+                IList<ClientCard> selected2 = new List<ClientCard>();
+                foreach (ClientCard card in selected)
+                {
+                    // clone
+                    selected2.Add(card);
+                }
+                foreach (ClientCard card in selected)
+                {
+                    // try level sub
+                    selected2.Remove(card);
+                    trysum -= card.OpParam1;
+                    //Logger.DebugWriteLine(card.Id + "");
+                    //Logger.DebugWriteLine(trysum + " selected2 " + sum);
+                    if (trysum == sum)
+                    {
+                        return selected2;
+                    }
                 }
             }
-            IList<ClientCard> selected2 = new List<ClientCard>();
-            foreach (ClientCard card in selected)
+            else
             {
-                // clone
-                selected2.Add(card);
-            }
-            foreach (ClientCard card in selected)
-            {
-                // try level sub
-                selected2.Remove(card);
-                trysum -= card.Level;
-                //Logger.DebugWriteLine(card.Id + "");
-                //Logger.DebugWriteLine(trysum + " selected2 " + sum);
-                if (trysum == sum)
+                foreach (ClientCard card in cards)
                 {
-                    return selected2;
+                    //Logger.WriteLine("OpParam1 " + card.OpParam1 + " OpParam2 " + card.OpParam2 + " sum " + sum);
+                    // try special level
+                    if (card.OpParam2 >= sum)
+                    {
+                        return new[] { card };
+                    }
                 }
-            }
-            foreach (ClientCard card in cards)
-            {
-                // try level equal
-                if (card.Level == sum)
+                foreach (ClientCard card in cards)
                 {
-                    return new[] { card };
+                    // try level equal
+                    if (card.OpParam1 >= sum)
+                    {
+                        return new[] { card };
+                    }
+                }
+                selected = new List<ClientCard>();
+                int trysum = 0;
+                foreach (ClientCard card in cards)
+                {
+                    // try level add
+                    selected.Add(card);
+                    trysum += card.OpParam1;
+                    //Logger.DebugWriteLine(card.Id + "");
+                    //Logger.DebugWriteLine(trysum + " selected " + sum);
+                    if (trysum >= sum)
+                    {
+                        return selected;
+                    }
+                }
+                IList<ClientCard> selected2 = new List<ClientCard>();
+                foreach (ClientCard card in selected)
+                {
+                    // clone
+                    selected2.Add(card);
+                }
+                foreach (ClientCard card in selected)
+                {
+                    // try level sub
+                    selected2.Remove(card);
+                    trysum -= card.OpParam1;
+                    //Logger.DebugWriteLine(card.Id + "");
+                    //Logger.DebugWriteLine(trysum + " selected2 " + sum);
+                    if (trysum >= sum)
+                    {
+                        return selected2;
+                    }
                 }
             }
             // try all

@@ -886,7 +886,7 @@ namespace WindBot.Game
 
         private void OnSelectSum(BinaryReader packet)
         {
-            packet.ReadByte(); // mode
+            bool mode = packet.ReadByte() == 0;
             packet.ReadByte(); // player
             int sumval = packet.ReadInt32();
             int min = packet.ReadByte();
@@ -905,26 +905,35 @@ namespace WindBot.Game
                     CardLocation loc = (CardLocation)packet.ReadByte();
                     int seq = packet.ReadByte();
                     ClientCard card = _duel.GetCard(player, loc, seq);
-                    if (card != null)
+                    if (cardId != 0 && card.Id != cardId)
+                        card.SetId(cardId);
+                    card.SelectSeq = i;
+                    int OpParam = packet.ReadInt32();
+                    int OpParam1 = OpParam & 0xffff;
+                    int OpParam2 = OpParam >> 16;
+                    if (OpParam2 > 0 && OpParam1 > OpParam2)
                     {
-                        if (cardId != 0 && card.Id != cardId)
-                            card.SetId(cardId);
-                        card.SelectSeq = i;
+                        card.OpParam1 = OpParam2;
+                        card.OpParam2 = OpParam1;
+                    }
+                    else
+                    {
+                        card.OpParam1 = OpParam1;
+                        card.OpParam2 = OpParam2;
                     }
                     if (j == 0)
                         mandatoryCards.Add(card);
                     else
                         cards.Add(card);
-                    packet.ReadInt32();
                 }
             }
 
             for (int k = 0; k < mandatoryCards.Count; ++k)
             {
-                sumval -= mandatoryCards[k].Level;
+                sumval -= mandatoryCards[k].OpParam1;
             }
 
-            IList<ClientCard> selected = _ai.OnSelectSum(cards, sumval, min, max);
+            IList<ClientCard> selected = _ai.OnSelectSum(cards, sumval, min, max, mode);
 
             byte[] result = new byte[mandatoryCards.Count + selected.Count + 1];
             int index = 0;

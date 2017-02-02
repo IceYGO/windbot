@@ -86,6 +86,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.千手神, 千手神效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.万手神, 光枪龙之影灵衣);
             AddExecutor(ExecutorType.Activate, (int)CardId.虹光之宣告者);
+            AddExecutor(ExecutorType.Activate, (int)CardId.影灵衣术士施里特);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.三叉龙之影灵衣);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.决战兵器之影灵衣);
@@ -228,7 +229,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard((int)CardId.尤尼科之影灵衣);
                 return true;
             }
-            return false;
+            return true;
         }
 
         private bool 千手神效果()
@@ -248,7 +249,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard((int)CardId.尤尼科之影灵衣);
                 return true;
             }
-            return false;
+            return true;
         }
 
         private bool 尤尼科之影灵衣()
