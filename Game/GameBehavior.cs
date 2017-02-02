@@ -73,6 +73,7 @@ namespace WindBot.Game
             _packets.Add(StocMessage.Replay, OnReplay);
             _packets.Add(StocMessage.DuelEnd, OnDuelEnd);
             _packets.Add(StocMessage.Chat, OnChat);
+            _packets.Add(StocMessage.ChangeSide, OnJoinGame);
 
             _messages.Add(GameMessage.Retry, OnRetry);
             _messages.Add(GameMessage.Start, OnStart);

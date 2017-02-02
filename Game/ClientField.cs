@@ -15,6 +15,10 @@ namespace WindBot.Game
 
         public ClientField()
         {
+        }
+
+        public void Init(int deck, int extra)
+        {
             Hand = new List<ClientCard>();
             MonsterZone = new ClientCard[5];
             SpellZone = new ClientCard[8];
@@ -22,10 +26,7 @@ namespace WindBot.Game
             Banished = new List<ClientCard>();
             Deck = new List<ClientCard>();
             ExtraDeck = new List<ClientCard>();
-        }
 
-        public void Init(int deck, int extra)
-        {
             for (int i = 0; i < deck; ++i)
                 Deck.Add(new ClientCard(0, CardLocation.Deck));
             for (int i = 0; i < extra; ++i)
