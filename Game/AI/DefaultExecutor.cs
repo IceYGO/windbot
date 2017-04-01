@@ -189,7 +189,7 @@ namespace WindBot.Game.AI
                     return false;
             }
             int tributecount = (int)Math.Ceiling((Card.Level - 4.0d) / 2.0d);
-            for (int j = 0; j < 5; ++j)
+            for (int j = 0; j < 7; ++j)
             {
                 ClientCard tributeCard = Duel.Fields[0].MonsterZone[j];
                 if (tributeCard == null) continue;

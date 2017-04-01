@@ -41,7 +41,7 @@ namespace WindBot.Game.AI
         public int GetBestAttack(ClientField field, bool onlyatk)
         {
             int bestAtk = -1;
-            for (int i = 0; i < 5; ++i)
+            for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = field.MonsterZone[i];
                 if (card == null) continue;
@@ -71,7 +71,7 @@ namespace WindBot.Game.AI
         {
             int bestValue = -1;
             bool nomonster = true;
-            for (int i = 0; i < 5; ++i)
+            for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Duel.Fields[1].MonsterZone[i];
                 if (card == null) continue;
@@ -88,7 +88,7 @@ namespace WindBot.Game.AI
         public bool IsAllEnnemyBetterThanValue(int value, bool onlyatk)
         {
             bool nomonster = true;
-            for (int i = 0; i < 5; ++i)
+            for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Duel.Fields[1].MonsterZone[i];
                 if (card == null || card.Data == null) continue;
@@ -103,7 +103,7 @@ namespace WindBot.Game.AI
 
         public ClientCard GetOneEnnemyBetterThanValue(int value, bool onlyatk)
         {
-            for (int i = 0; i < 5; ++i)
+            for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Duel.Fields[1].MonsterZone[i];
                 if (card == null) continue;

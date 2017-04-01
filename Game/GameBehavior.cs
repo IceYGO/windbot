@@ -844,11 +844,11 @@ namespace WindBot.Game
             bool pendulumZone = false;
 
             int filter;
-            if ((field & 0x1f) != 0)
+            if ((field & 0x7f) != 0)
             {
                 resp[0] = (byte)GetLocalPlayer(0);
                 resp[1] = 0x4;
-                filter = field & 0x1f;
+                filter = field & 0x7f;
             }
             else if ((field & 0x1f00) != 0)
             {
@@ -863,11 +863,11 @@ namespace WindBot.Game
                 filter = (field >> 14) & 0x3;
                 pendulumZone = true;
             }
-            else if ((field & 0x1f0000) != 0)
+            else if ((field & 0x7f0000) != 0)
             {
                 resp[0] = (byte)GetLocalPlayer(1);
                 resp[1] = 0x4;
-                filter = (field >> 16) & 0x1f;
+                filter = (field >> 16) & 0x7f;
             }
             else if ((field & 0x1f000000) != 0)
             {
@@ -885,7 +885,9 @@ namespace WindBot.Game
 
             if (!pendulumZone)
             {
-                if ((filter & 0x4) != 0) resp[2] = 2;
+                if ((filter & 0x40) != 0) resp[2] = 6;
+                else if ((filter & 0x20) != 0) resp[2] = 5;
+                else if ((filter & 0x4) != 0) resp[2] = 2;
                 else if ((filter & 0x2) != 0) resp[2] = 1;
                 else if ((filter & 0x8) != 0) resp[2] = 3;
                 else if ((filter & 0x1) != 0) resp[2] = 0;

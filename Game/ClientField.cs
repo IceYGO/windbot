@@ -20,7 +20,7 @@ namespace WindBot.Game
         public void Init(int deck, int extra)
         {
             Hand = new List<ClientCard>();
-            MonsterZone = new ClientCard[5];
+            MonsterZone = new ClientCard[7];
             SpellZone = new ClientCard[8];
             Graveyard = new List<ClientCard>();
             Banished = new List<ClientCard>();
