@@ -74,6 +74,7 @@ namespace WindBot.Game
             _packets.Add(StocMessage.DuelEnd, OnDuelEnd);
             _packets.Add(StocMessage.Chat, OnChat);
             _packets.Add(StocMessage.ChangeSide, OnJoinGame);
+            _packets.Add(StocMessage.ErrorMsg, OnErrorMsg);
 
             _messages.Add(GameMessage.Retry, OnRetry);
             _messages.Add(GameMessage.Start, OnStart);
@@ -237,6 +238,27 @@ namespace WindBot.Game
                 Logger.DebugWriteLine(myName + " System or Watch : " + message);
             else
                 Logger.WriteLine(otherName + " say to " + myName + ": " + message);
+        }
+
+        private void OnErrorMsg(BinaryReader packet)
+        {
+            int msg = packet.ReadByte();
+            // align
+            packet.ReadByte();
+            packet.ReadByte();
+            packet.ReadByte();
+            int code = packet.ReadInt32();
+            if (msg == 2) //ERRMSG_DECKERROR
+            {
+                NamedCard card = NamedCard.Get(code);
+                if (card != null)
+                    _ai.OnDeckError(card.Name);
+                else if (code == 1)
+                    _ai.OnDeckError("DECK");
+                else
+                    _ai.OnDeckError("Unknown Card");
+            }
+            Connection.Close();
         }
 
         private void OnRetry(BinaryReader packet)

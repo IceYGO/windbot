@@ -2,6 +2,9 @@
   "welcome": [
     "Hi, I'm Windbot."
   ],
+  "deckerror": [
+    "Sorry, it seems that I have too much {0} in my deck."
+  ],
   "duelstart": [
     "Good luck, have fun."
   ],

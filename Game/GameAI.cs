@@ -30,6 +30,11 @@ namespace WindBot.Game
             _dialogs.SendSorry();
         }
 
+        public void OnDeckError(string card)
+        {
+            _dialogs.SendDeckSorry(card);
+        }
+
         /// <summary>
         /// Called when the AI join the game.
         /// </summary>

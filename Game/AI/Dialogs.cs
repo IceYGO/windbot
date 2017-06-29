@@ -12,6 +12,8 @@ namespace WindBot.Game.AI
         [DataMember]
         public string[] welcome { get; set; }
         [DataMember]
+        public string[] deckerror { get; set; }
+        [DataMember]
         public string[] duelstart { get; set; }
         [DataMember]
         public string[] newturn { get; set; }
@@ -39,6 +41,7 @@ namespace WindBot.Game.AI
         private GameClient _game;
 
         private string[] _welcome;
+        private string[] _deckerror;
         private string[] _duelstart;
         private string[] _newturn;
         private string[] _endturn;
@@ -60,6 +63,7 @@ namespace WindBot.Game.AI
             {
                 DialogsData data = (DialogsData)serializer.ReadObject(fs);
                 _welcome = data.welcome;
+                _deckerror = data.deckerror;
                 _duelstart = data.duelstart;
                 _newturn = data.newturn;
                 _endturn = data.endturn;
@@ -77,6 +81,14 @@ namespace WindBot.Game.AI
         public void SendSorry()
         {
             InternalSendMessage(new[] { "Sorry, an error occurs." });
+        }
+
+        public void SendDeckSorry(string card)
+        {
+            if (card == "DECK")
+                InternalSendMessage(new[] { "Deck illegal. Please check the database of your YGOPro and WindBot." });
+            else
+                InternalSendMessage(_deckerror, card);
         }
 
         public void SendWelcome()
