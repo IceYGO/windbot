@@ -49,6 +49,7 @@ namespace MycardBot.Game.AI.Decks
         bool 已特殊召唤虎炮 = false;
         bool 已特殊召唤狗环 = false;
         bool 已特殊召唤牛犄 = false;
+        int 蛇笞发动次数 = 0;
 
         public ZoodiacExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -129,6 +130,7 @@ namespace MycardBot.Game.AI.Decks
             已特殊召唤虎炮 = false;
             已特殊召唤狗环 = false;
             已特殊召唤牛犄 = false;
+            蛇笞发动次数 = 0;
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
@@ -519,12 +521,37 @@ namespace MycardBot.Game.AI.Decks
         {
             if (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2)
                 return false;
-            if (Card.IsDisabled())
+            if (Card.IsDisabled() || 蛇笞发动次数 >= 3)
                 return false;
-            AI.SelectCard(new[]
+            ClientCard target = null;
+            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                if (monster.IsFaceup() && monster.Id == (int)CardId.十二兽龙枪 && !monster.HasXyzMaterial())
                 {
-                    (int)CardId.十二兽龙枪
-                });
+                    target = monster;
+                    break;
+                }
+            }
+            /*if (target == null)
+            {
+                foreach (ClientCard monster in monsters)
+                {
+                    if (monster.IsFaceup() && monster.Type == (int)CardType.Xyz && monster.Id != (int)CardId.大薰风骑士翠玉 && !monster.HasXyzMaterial())
+                    {
+                        target = monster;
+                        break;
+                    }
+                }
+            }*/
+            if (target == null)
+            {
+                AI.SelectCard(new[]
+                    {
+                        (int)CardId.十二兽龙枪
+                    });
+            }
+            蛇笞发动次数++;
             return true;
         }
 
