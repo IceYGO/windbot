@@ -258,7 +258,7 @@ namespace WindBot.Game
                 else
                     _ai.OnDeckError("Unknown Card");
             }
-            Connection.Close();
+            //Connection.Close();
         }
 
         private void OnRetry(BinaryReader packet)
@@ -766,6 +766,7 @@ namespace WindBot.Game
             CardLocation loc = (CardLocation)packet.ReadByte();
             int seq = packet.ReadByte();
             packet.ReadByte();
+            int desc = packet.ReadInt32();
 
             ClientCard card = _duel.GetCard(player, loc, seq);
             if (card == null)
@@ -776,7 +777,7 @@ namespace WindBot.Game
             
             if (card.Id == 0) card.SetId(cardId);
 
-            int reply = _ai.OnSelectEffectYn(card) ? (1) : (0);
+            int reply = _ai.OnSelectEffectYn(card, desc) ? (1) : (0);
             Connection.Send(CtosMessage.Response, reply);
         }
 

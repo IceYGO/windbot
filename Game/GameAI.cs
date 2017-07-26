@@ -237,7 +237,7 @@ namespace WindBot.Game
         /// </summary>
         /// <param name="card">Card to activate.</param>
         /// <returns>True for yes, false for no.</returns>
-        public bool OnSelectEffectYn(ClientCard card)
+        public bool OnSelectEffectYn(ClientCard card, int desc)
         {
             foreach (CardExecutor exec in Executor.Executors)
             {
