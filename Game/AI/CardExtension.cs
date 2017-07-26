@@ -19,5 +19,20 @@ namespace WindBot.Game.AI
         {
             return Enum.IsDefined(typeof(NegateAttackSpell), card.Id);
         }
+
+        public static bool IsFloodgate(this ClientCard card)
+        {
+            return Enum.IsDefined(typeof(Floodgate), card.Id);
+        }
+
+        public static bool IsOneForXyz(this ClientCard card)
+        {
+            return Enum.IsDefined(typeof(OneForXyz), card.Id);
+        }
+
+        public static bool IsFusionSpell(this ClientCard card)
+        {
+            return Enum.IsDefined(typeof(FusionSpell), card.Id);
+        }
     }
 }

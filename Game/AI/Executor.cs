@@ -1,4 +1,4 @@
-﻿using OCGWrapper.Enums;
+﻿using YGOSharp.OCGWrapper.Enums;
 using System;
 using System.Collections.Generic;
 
@@ -33,7 +33,7 @@ namespace WindBot.Game.AI
 
         public virtual bool OnSelectHand()
         {
-            return true; // I want to begin !
+            return Program.Rand.Next(2) > 0;
         }
 
         public virtual BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
@@ -47,15 +47,23 @@ namespace WindBot.Game.AI
             for (int i = defenders.Count - 1; i >= 0; --i)
             {
                 ClientCard defender = defenders[i];
-                int value = defender.GetDefensePower();
+                int def = defender.GetDefensePower();
                 for (int j = 0; j < attackers.Count; ++j)
                 {
                     ClientCard attacker = attackers[j];
+                    attacker.RealPower = attacker.Attack;
                     if (!OnPreBattleBetween(attacker, defender))
                         continue;
-                    if (attacker.Attack > value || (attacker.Attack >= value && j == attackers.Count - 1))
+                    if (attacker.RealPower > def || (attacker.RealPower >= def && j == attackers.Count - 1))
                         return AI.Attack(attacker, defender);
                 }
+            }
+
+            for (int i = attackers.Count - 1; i >= 0; --i)
+            {
+                ClientCard attacker = attackers[i];
+                if (attacker.CanDirectAttack)
+                    return AI.Attack(attacker, null);
             }
 
             if (!Battle.CanMainPhaseTwo)
@@ -86,7 +94,17 @@ namespace WindBot.Game.AI
             CurrentChain.Clear();
         }
 
+        public virtual void OnNewTurn()
+        {
+            // Some AI need do something on new turn
+        }
+
         public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+        {
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
         {
             return null;
         }
@@ -94,6 +112,11 @@ namespace WindBot.Game.AI
         public virtual bool OnSelectYesNo(int desc)
         {
             return true;
+        }
+
+        public virtual int OnSelectOption(IList<int> options)
+        {
+            return -1;
         }
 
         public bool ChainContainsCard(int id)

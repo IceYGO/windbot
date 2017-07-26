@@ -1,4 +1,4 @@
-﻿using OCGWrapper.Enums;
+﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using WindBot.Game.AI;
 
@@ -20,6 +20,27 @@ namespace WindBot.Game
             Utils = new AIFunctions(duel);
 
             _dialogs = new Dialogs(game);
+        }
+
+        /// <summary>
+        /// Called when the AI got the error message.
+        /// </summary>
+        public void OnRetry()
+        {
+            _dialogs.SendSorry();
+        }
+
+        public void OnDeckError(string card)
+        {
+            _dialogs.SendDeckSorry(card);
+        }
+
+        /// <summary>
+        /// Called when the AI join the game.
+        /// </summary>
+        public void OnJoinGame()
+        {
+            _dialogs.SendWelcome();
         }
 
         /// <summary>
@@ -54,9 +75,26 @@ namespace WindBot.Game
             m_selector = null;
             m_nextSelector = null;
             m_option = -1;
+            m_yesno = -1;
             m_position = CardPosition.FaceUpAttack;
+            Duel.LastSummonPlayer = -1;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
+            {
                 _dialogs.SendNewTurn();
+                Executor.OnNewTurn();
+            }
+        }
+
+        /// <summary>
+        /// Called when the AI got attack directly.
+        /// </summary>
+        public void OnDirectAttack(ClientCard card)
+        {
+            _dialogs.SendOnDirectAttack(card.Name);
+        }
+        public void OnDirectAttack()
+        {
+            _dialogs.SendOnDirectAttack();
         }
 
         /// <summary>
@@ -66,6 +104,7 @@ namespace WindBot.Game
         /// <param name="player">Player who is currently chaining.</param>
         public void OnChaining(ClientCard card, int player)
         {
+            Duel.LastSummonPlayer = -1;
             Executor.OnChaining(player,card);
         }
         
@@ -198,7 +237,7 @@ namespace WindBot.Game
         /// </summary>
         /// <param name="card">Card to activate.</param>
         /// <returns>True for yes, false for no.</returns>
-        public bool OnSelectEffectYn(ClientCard card)
+        public bool OnSelectEffectYn(ClientCard card, int desc)
         {
             foreach (CardExecutor exec in Executor.Executors)
             {
@@ -245,6 +284,7 @@ namespace WindBot.Game
                     if (ShouldExecute(exec, card, ExecutorType.SpSummon))
                     {
                         _dialogs.SendSummon(card.Name);
+                        Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.SpSummon, card.ActionIndex);
                     }
                 }
@@ -253,6 +293,7 @@ namespace WindBot.Game
                     if (ShouldExecute(exec, card, ExecutorType.Summon))
                     {
                         _dialogs.SendSummon(card.Name);
+                        Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
                     if (ShouldExecute(exec, card, ExecutorType.SummonOrSet))
@@ -264,6 +305,7 @@ namespace WindBot.Game
                             return new MainPhaseAction(MainPhaseAction.MainAction.SetMonster, card.ActionIndex);
                         }
                         _dialogs.SendSummon(card.Name);
+                        Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
                 }                
@@ -288,8 +330,13 @@ namespace WindBot.Game
         /// <returns>Index of the selected option.</returns>
         public int OnSelectOption(IList<int> options)
         {
-            if (m_option != -1)
+            if (m_option != -1 && m_option < options.Count)
                 return m_option;
+
+            int result = Executor.OnSelectOption(options);
+            if (result != -1)
+                return result;
+
             return 0; // Always select the first option.
         }
 
@@ -318,16 +365,125 @@ namespace WindBot.Game
         /// <param name="sum">Result of the operation.</param>
         /// <param name="min">Minimum cards.</param>
         /// <param name="max">Maximum cards.</param>
+        /// <param name="mode">True for equal.</param>
         /// <returns></returns>
-        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max)
+        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
         {
-            // Always return one card. The first available.
-            foreach (ClientCard card in cards)
+            IList<ClientCard> selected = new List<ClientCard>();
+            selected = Executor.OnSelectSum(cards, sum, min, max, mode);
+            if (selected != null)
             {
-                if (card.Level == sum)
-                    return new[] { card };
+                return selected;
             }
-            // However return everything, that may work.
+            if (mode)
+            {
+                foreach (ClientCard card in cards)
+                {
+                    //Logger.WriteLine("OpParam1 " + card.OpParam1 + " OpParam2 " + card.OpParam2 + " sum " + sum);
+                    // try special level
+                    if (card.OpParam2 == sum)
+                    {
+                        return new[] { card };
+                    }
+                }
+                foreach (ClientCard card in cards)
+                {
+                    // try level equal
+                    if (card.OpParam1 == sum)
+                    {
+                        return new[] { card };
+                    }
+                }
+                selected = new List<ClientCard>();
+                int trysum = 0;
+                foreach (ClientCard card in cards)
+                {
+                    // try level add
+                    if (trysum + card.OpParam1 > sum)
+                    {
+                        continue;
+                    }
+                    selected.Add(card);
+                    trysum += card.OpParam1;
+                    //Logger.DebugWriteLine(card.Id + "");
+                    //Logger.DebugWriteLine(trysum + " selected " + sum);
+                    if (trysum == sum)
+                    {
+                        return selected;
+                    }
+                }
+                IList<ClientCard> selected2 = new List<ClientCard>();
+                foreach (ClientCard card in selected)
+                {
+                    // clone
+                    selected2.Add(card);
+                }
+                foreach (ClientCard card in selected)
+                {
+                    // try level sub
+                    selected2.Remove(card);
+                    trysum -= card.OpParam1;
+                    //Logger.DebugWriteLine(card.Id + "");
+                    //Logger.DebugWriteLine(trysum + " selected2 " + sum);
+                    if (trysum == sum)
+                    {
+                        return selected2;
+                    }
+                }
+            }
+            else
+            {
+                foreach (ClientCard card in cards)
+                {
+                    //Logger.WriteLine("OpParam1 " + card.OpParam1 + " OpParam2 " + card.OpParam2 + " sum " + sum);
+                    // try special level
+                    if (card.OpParam2 >= sum)
+                    {
+                        return new[] { card };
+                    }
+                }
+                foreach (ClientCard card in cards)
+                {
+                    // try level equal
+                    if (card.OpParam1 >= sum)
+                    {
+                        return new[] { card };
+                    }
+                }
+                selected = new List<ClientCard>();
+                int trysum = 0;
+                foreach (ClientCard card in cards)
+                {
+                    // try level add
+                    selected.Add(card);
+                    trysum += card.OpParam1;
+                    //Logger.DebugWriteLine(card.Id + "");
+                    //Logger.DebugWriteLine(trysum + " selected " + sum);
+                    if (trysum >= sum)
+                    {
+                        return selected;
+                    }
+                }
+                IList<ClientCard> selected2 = new List<ClientCard>();
+                foreach (ClientCard card in selected)
+                {
+                    // clone
+                    selected2.Add(card);
+                }
+                foreach (ClientCard card in selected)
+                {
+                    // try level sub
+                    selected2.Remove(card);
+                    trysum -= card.OpParam1;
+                    //Logger.DebugWriteLine(card.Id + "");
+                    //Logger.DebugWriteLine(trysum + " selected2 " + sum);
+                    if (trysum >= sum)
+                    {
+                        return selected2;
+                    }
+                }
+            }
+            // try all
             return cards;
         }
 
@@ -361,6 +517,8 @@ namespace WindBot.Game
         /// <returns>True for yes, false for no.</returns>
         public bool OnSelectYesNo(int desc)
         {
+            if (m_yesno != -1)
+                return m_yesno>0;
             return Executor.OnSelectYesNo(desc);
         }
 
@@ -380,10 +538,12 @@ namespace WindBot.Game
 
         private CardSelector m_selector;
         private CardSelector m_nextSelector;
+        private CardSelector m_thirdSelector;
         private CardPosition m_position = CardPosition.FaceUpAttack;
         private int m_option;
         private int m_number;
         private int m_announce;
+        private int m_yesno;
         private IList<CardAttribute> m_attributes = new List<CardAttribute>();
         private IList<CardRace> m_races = new List<CardRace>();
 
@@ -437,17 +597,45 @@ namespace WindBot.Game
             m_nextSelector = new CardSelector(loc);
         }
 
+        public void SelectThirdCard(ClientCard card)
+        {
+            m_thirdSelector = new CardSelector(card);
+        }
+
+        public void SelectThirdCard(IList<ClientCard> cards)
+        {
+            m_thirdSelector = new CardSelector(cards);
+        }
+
+        public void SelectThirdCard(int cardId)
+        {
+            m_thirdSelector = new CardSelector(cardId);
+        }
+
+        public void SelectThirdCard(IList<int> ids)
+        {
+            m_thirdSelector = new CardSelector(ids);
+        }
+
+        public void SelectThirdCard(CardLocation loc)
+        {
+            m_thirdSelector = new CardSelector(loc);
+        }
+
         public CardSelector GetSelectedCards()
         {
             CardSelector selected = m_selector;
+            m_selector = null;
             if (m_nextSelector != null)
             {
                 m_selector = m_nextSelector;
                 m_nextSelector = null;
+                if (m_thirdSelector != null)
+                {
+                    m_nextSelector = m_thirdSelector;
+                    m_thirdSelector = null;
+                }
             }
-            else
-                m_selector = null;
-
             return selected;
         }
 
@@ -495,6 +683,11 @@ namespace WindBot.Game
         public void SelectAnnounceID(int id)
         {
             m_announce = id;
+        }
+
+        public void SelectYesNo(bool opt)
+        {
+            m_yesno = opt?1:0;
         }
 
         /// <summary>
@@ -552,14 +745,19 @@ namespace WindBot.Game
 
         public BattlePhaseAction Attack(ClientCard attacker, ClientCard defender)
         {
+            Executor.SetCard(0, attacker, -1);
             if (defender != null)
             {
                 string cardName = defender.Name ?? "monster";
+                attacker.ShouldDirectAttack = false;
                 _dialogs.SendAttack(attacker.Name, cardName);
                 SelectCard(defender);
             }
             else
+            {
+                attacker.ShouldDirectAttack = true;
                 _dialogs.SendDirectAttack(attacker.Name);
+            }
             return new BattlePhaseAction(BattlePhaseAction.BattleAction.Attack, attacker.ActionIndex);
         }
 

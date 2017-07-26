@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI
 {
@@ -37,6 +38,21 @@ namespace WindBot.Game.AI
             return 1;
         }
 
+        public int GetBestAttack(ClientField field, bool onlyatk)
+        {
+            int bestAtk = -1;
+            for (int i = 0; i < 7; ++i)
+            {
+                ClientCard card = field.MonsterZone[i];
+                if (card == null) continue;
+                if (onlyatk && card.IsDefense()) continue;
+                int ennemyValue = card.GetDefensePower();
+                if (ennemyValue > bestAtk)
+                    bestAtk = ennemyValue;
+            }
+            return bestAtk;
+        }
+
         public bool IsEnnemyBetter(bool onlyatk, bool all)
         {
             if (Duel.Fields[1].GetMonsterCount() == 0)
@@ -55,7 +71,7 @@ namespace WindBot.Game.AI
         {
             int bestValue = -1;
             bool nomonster = true;
-            for (int i = 0; i < 5; ++i)
+            for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Duel.Fields[1].MonsterZone[i];
                 if (card == null) continue;
@@ -72,7 +88,7 @@ namespace WindBot.Game.AI
         public bool IsAllEnnemyBetterThanValue(int value, bool onlyatk)
         {
             bool nomonster = true;
-            for (int i = 0; i < 5; ++i)
+            for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Duel.Fields[1].MonsterZone[i];
                 if (card == null || card.Data == null) continue;
@@ -83,6 +99,68 @@ namespace WindBot.Game.AI
                     return false;
             }
             return !nomonster;
+        }
+
+        public ClientCard GetOneEnnemyBetterThanValue(int value, bool onlyatk)
+        {
+            for (int i = 0; i < 7; ++i)
+            {
+                ClientCard card = Duel.Fields[1].MonsterZone[i];
+                if (card == null) continue;
+                if (onlyatk && card.IsDefense()) continue;
+                int ennemyValue = card.GetDefensePower();
+                if (ennemyValue >= value)
+                    return card;
+            }
+            return null;
+        }
+
+        public ClientCard GetProblematicCard(int attack = 0)
+        {
+            ClientCard card = Duel.Fields[1].MonsterZone.GetInvincibleMonster();
+            if (card != null)
+                return card;
+            card = Duel.Fields[1].MonsterZone.GetFloodgate();
+            if (card != null)
+                return card;
+            card = Duel.Fields[1].SpellZone.GetFloodgate();
+            if (card != null)
+                return card;
+            if (attack == 0)
+                attack = GetBestAttack(Duel.Fields[0], true);
+            return GetOneEnnemyBetterThanValue(attack, true);
+        }
+
+        public ClientCard GetProblematicMonsterCard(int attack = 0)
+        {
+            ClientCard card = Duel.Fields[1].MonsterZone.GetInvincibleMonster();
+            if (card != null)
+                return card;
+            card = Duel.Fields[1].MonsterZone.GetFloodgate();
+            if (card != null)
+                return card;
+            if (attack == 0)
+                attack = GetBestAttack(Duel.Fields[0], true);
+            return GetOneEnnemyBetterThanValue(attack, true);
+        }
+
+        public ClientCard GetProblematicSpellCard()
+        {
+            ClientCard card = Duel.Fields[1].SpellZone.GetNegateAttackSpell();
+            if (card != null)
+                return card;
+            card = Duel.Fields[1].SpellZone.GetFloodgate();
+            return card;
+        }
+
+        public int GetStringId(int id, int option)
+        {
+            return id * 16 + option;
+        }
+
+        public bool IsTurn1OrMain2()
+        {
+            return Duel.Turn == 1 || Duel.Phase == DuelPhase.Main2;
         }
     }
 }

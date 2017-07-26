@@ -38,14 +38,17 @@
     <Reference Include="Mono.Data.Sqlite">
       <HintPath>.\Mono.Data.Sqlite.dll</HintPath>
     </Reference>
-    <Reference Include="OCGWrapper">
-      <HintPath>.\OCGWrapper.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
     <Reference Include="YGOSharp.Network">
       <HintPath>.\YGOSharp.Network.dll</HintPath>
+    </Reference>
+    <Reference Include="YGOSharp.OCGWrapper">
+      <HintPath>.\YGOSharp.OCGWrapper.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -56,17 +59,34 @@
     <Compile Include="Game\AI\CardSelector.cs" />
     <Compile Include="Game\AI\DeckAttribute.cs" />
     <Compile Include="Game\AI\DecksManager.cs" />
+    <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
+    <Compile Include="Game\AI\Decks\CyberDragonExecutor.cs" />
+    <Compile Include="Game\AI\Decks\ToadallyAwesomeExecutor.cs" />
+    <Compile Include="Game\AI\Decks\NekrozExecutor.cs" />
+    <Compile Include="Game\AI\Decks\GravekeeperExecutor.cs" />
+    <Compile Include="Game\AI\Decks\RainbowExecutor.cs" />
+    <Compile Include="Game\AI\Decks\BlueEyesExecutor.cs" />
     <Compile Include="Game\AI\Decks\BurnExecutor.cs" />
+    <Compile Include="Game\AI\Decks\EvilswarmExecutor.cs" />
+    <Compile Include="Game\AI\Decks\GraydleExecutor.cs" />
+    <Compile Include="Game\AI\Decks\LightswornExecutor.cs" />
+    <Compile Include="Game\AI\Decks\QliphortExecutor.cs" />
+    <Compile Include="Game\AI\Decks\YosenjuExecutor.cs" />
     <Compile Include="Game\AI\Decks\DragunityExecutor.cs" />
     <Compile Include="Game\AI\Decks\FrogExecutor.cs" />
     <Compile Include="Game\AI\Decks\HorusExecutor.cs" />
+    <Compile Include="Game\AI\Decks\DoEveryThingExecutor.cs" />
     <Compile Include="Game\AI\Decks\OldSchoolExecutor.cs" />
     <Compile Include="Game\AI\Decks\Rank5Executor.cs" />
+    <Compile Include="Game\AI\Decks\ZoodiacExecutor.cs" />
     <Compile Include="Game\AI\Decks\ZexalWeaponsExecutor.cs" />
     <Compile Include="Game\AI\DefaultExecutor.cs" />
     <Compile Include="Game\AI\Dialogs.cs" />
     <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
+    <Compile Include="Game\AI\Enums\FusionSpell.cs" />
+    <Compile Include="Game\AI\Enums\OneForXyz.cs" />
     <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
+    <Compile Include="Game\AI\Enums\Floodgate.cs" />
     <Compile Include="Game\AI\Enums\NegateAttackSpell.cs" />
     <Compile Include="Game\AI\Enums\NegatesEffects.cs" />
     <Compile Include="Game\AI\Enums\NegatesSpells.cs" />
@@ -90,33 +110,22 @@
     <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WindBotInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Decks\AI_Burn.ydk">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Decks\AI_Dragunity.ydk">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Decks\AI_Frog.ydk">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Decks\AI_Horus.ydk">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Decks\AI_OldSchool.ydk">
+    <None Include="sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Decks\AI_Rank5.ydk">
+    <None Include="bots.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Decks\AI_ZexalWeapons.ydk">
+    <None Include="Decks\*.ydk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="sqlite3.dll">
+    <None Include="Dialogs\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,4 +1,4 @@
-﻿using OCGWrapper.Enums;
+﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 
 namespace WindBot.Game.AI
@@ -145,11 +145,31 @@ namespace WindBot.Game.AI
             return null;
         }
 
+        public static ClientCard GetDangerousMonster(this IEnumerable<ClientCard> cards)
+        {
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && card.IsMonsterDangerous())
+                    return card;
+            }
+            return null;
+        }
+
         public static ClientCard GetNegateAttackSpell(this IEnumerable<ClientCard> cards)
         {
             foreach (ClientCard card in cards)
             {
                 if (card != null && card.IsSpellNegateAttack())
+                    return card;
+            }
+            return null;
+        }
+
+        public static ClientCard GetFloodgate(this IEnumerable<ClientCard> cards)
+        {
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && card.IsFloodgate())
                     return card;
             }
             return null;

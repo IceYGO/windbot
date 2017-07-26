@@ -1,4 +1,4 @@
-﻿using OCGWrapper.Enums;
+﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 
 namespace WindBot.Game
@@ -15,6 +15,8 @@ namespace WindBot.Game
         public DuelPhase Phase { get; set; }
         public MainPhase MainPhase { get; set; }
         public BattlePhase BattlePhase { get; set; }
+        public IList<ClientCard> ChainTargets { get; set; }
+        public int LastSummonPlayer { get; set; }
 
         public Duel()
         {
@@ -22,6 +24,8 @@ namespace WindBot.Game
             Fields = new ClientField[2];
             Fields[0] = new ClientField();
             Fields[1] = new ClientField();
+            ChainTargets = new List<ClientCard>();
+            LastSummonPlayer = -1;
         }
 
         public ClientCard GetCard(int player, CardLocation loc, int index)

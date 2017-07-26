@@ -1,0 +1,79 @@
+{
+    "windbots": [
+      {
+        "name": "琪露诺",
+        "deck": "Toadally Awesome",
+        "dialog": "cirno.zh-CN"
+      },
+      {
+        "name": "琪露诺",
+        "deck": "Rainbow",
+        "dialog": "cirno.zh-CN"
+      },
+      {
+        "name": "琪露诺",
+        "deck": "Rainbow",
+        "dialog": "cirno.zh-CN"
+      },
+      {
+        "name": "谜之剑士LV4",
+        "deck": "Dragunity",
+        "dialog": "swordsman.zh-CN"
+      },
+      {
+        "name": "谜之剑士LV4",
+        "deck": "Rank V",
+        "dialog": "swordsman.zh-CN"
+      },
+      {
+        "name": "谜之剑士LV4",
+        "deck": "Zexal Weapons",
+        "dialog": "swordsman.zh-CN"
+      },
+      {
+        "name": "复制植物",
+        "deck": "Zoodiac",
+        "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "复制植物",
+        "deck": "Zoodiac",
+        "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "复制植物",
+        "deck": "Blue-Eyes",
+        "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Yosenju",
+        "dialog": "near.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Qliphort",
+        "dialog": "near.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Qliphort",
+        "dialog": "near.zh-CN"
+      },
+      {
+        "name": "永远之魂",
+        "deck": "Burn",
+        "dialog": "soul.zh-CN"
+      },
+      {
+        "name": "永远之魂",
+        "deck": "Frog",
+        "dialog": "soul.zh-CN"
+      },
+      {
+        "name": "永远之魂",
+        "deck": "Horus",
+        "dialog": "soul.zh-CN"
+      }
+    ]
+}
