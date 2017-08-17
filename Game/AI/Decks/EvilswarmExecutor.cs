@@ -23,26 +23,16 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.宇宙旋风, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之宣告, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.宇宙旋风, DefaultCosmicCyclone);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之宣告, DefaultSolemnJudgment);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, DefaultSolemnStrike);
             AddExecutor(ExecutorType.SpellSet, (int)CardId.侵略的泛发感染);
-            AddExecutor(ExecutorType.Activate, DontChainMyself);
+            AddExecutor(ExecutorType.Activate, DefaultDontChainMyself);
             AddExecutor(ExecutorType.Summon);
             AddExecutor(ExecutorType.SpSummon);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
             AddExecutor(ExecutorType.SpellSet);
-        }
-
-        private bool DontChainMyself()
-        {
-            foreach (CardExecutor exec in Executors)
-            {
-                if (exec.Type == Type && exec.CardId == Card.Id)
-                    return false;
-            }
-            return LastChainPlayer != 0;
         }
 
         // will be added soon...?

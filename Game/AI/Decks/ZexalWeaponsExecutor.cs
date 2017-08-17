@@ -116,9 +116,9 @@ namespace WindBot.Game.AI.Decks
             // Set and activate traps
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.BreakthroughSkill, BreakthroughSkill);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnWarning, SolemnWarning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnStrike, SolemnStrike);
+            AddExecutor(ExecutorType.Activate, (int)CardId.BreakthroughSkill, DefaultBreakthroughSkill);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnStrike, DefaultSolemnStrike);
         }
 
         public override bool OnSelectHand()
@@ -274,21 +274,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
-        }
-
-        private bool BreakthroughSkill()
-        {
-            return (CurrentChain.Count > 0 && DefaultTrap());
-        }
-
-        private bool SolemnWarning()
-        {
-            return (Duel.LifePoints[0] > 2000) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
-        }
-
-        private bool SolemnStrike()
-        {
-            return (Duel.LifePoints[0] > 1500) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
         }
 
         private bool MonsterRepos()

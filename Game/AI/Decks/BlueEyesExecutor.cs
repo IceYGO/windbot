@@ -52,6 +52,7 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             // 有坑先清
+            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫, DefaultHarpiesFeatherDusterFirst);
             AddExecutor(ExecutorType.Activate, (int)CardId.银河旋风, DefaultGalaxyCyclone);
             AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
 
@@ -71,7 +72,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.抵价购物, 抵价购物效果);
 
             // 吸一口
-            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶, 强欲而贪欲之壶效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶, DefaultPotOfDesires);
 
             // 有亚白就跳
             AddExecutor(ExecutorType.SpSummon, (int)CardId.青眼亚白龙, 青眼亚白龙特殊召唤);
@@ -482,11 +483,6 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(targets);
             }
             return true;
-        }
-
-        private bool 强欲而贪欲之壶效果()
-        {
-            return Bot.Deck.Count > 15;
         }
 
         private bool 苍眼银龙效果()

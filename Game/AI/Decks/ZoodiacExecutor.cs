@@ -39,11 +39,7 @@ namespace WindBot.Game.AI.Decks
             十二兽虎炮 = 11510448,
             十二兽狗环 = 41375811,
             十二兽龙枪 = 48905153,
-            十二兽牛犄 = 85115440,
-
-            雷击坏兽雷鸣龙王 = 48770333,
-            怒炎坏兽多哥兰 = 93332803,
-            对坏兽用决战兵器超级机械多哥兰 = 84769941
+            十二兽牛犄 = 85115440
         }
 
         bool 已特殊召唤虎炮 = false;
@@ -56,14 +52,14 @@ namespace WindBot.Game.AI.Decks
         {
             // Quick spells
             AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
-            AddExecutor(ExecutorType.Activate, (int)CardId.遭受妨碍的坏兽安眠, 遭受妨碍的坏兽安眠效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.遭受妨碍的坏兽安眠, DefaultInterruptedKaijuSlumber);
             AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.海龟坏兽加美西耶勒, 坏兽特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.黏丝坏兽库莫古斯, 坏兽特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.怪粉坏兽加达拉, 坏兽特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.多次元坏兽拉迪安, 坏兽特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.坏星坏兽席兹奇埃鲁, 坏兽特殊召唤);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.海龟坏兽加美西耶勒, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.黏丝坏兽库莫古斯, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.怪粉坏兽加达拉, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.多次元坏兽拉迪安, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.坏星坏兽席兹奇埃鲁, DefaultKaijuSpsummon);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.星球改造);
             AddExecutor(ExecutorType.Activate, (int)CardId.暴走魔法阵);
@@ -150,73 +146,6 @@ namespace WindBot.Game.AI.Decks
             return attacker.RealPower > defender.GetDefensePower();
         }
 
-        private bool 遭受妨碍的坏兽安眠效果()
-        {
-            if (Card.Location == CardLocation.Grave)
-            {
-                AI.SelectCard(new[]
-                {
-                    (int)CardId.海龟坏兽加美西耶勒,
-                    (int)CardId.黏丝坏兽库莫古斯,
-                    (int)CardId.多次元坏兽拉迪安,
-                    (int)CardId.怪粉坏兽加达拉
-                });
-                return true;
-            }
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.坏星坏兽席兹奇埃鲁,
-                    (int)CardId.多次元坏兽拉迪安,
-                    (int)CardId.怪粉坏兽加达拉,
-                    (int)CardId.黏丝坏兽库莫古斯
-                });
-            AI.SelectNextCard(new[]
-                {
-                    (int)CardId.海龟坏兽加美西耶勒,
-                    (int)CardId.黏丝坏兽库莫古斯,
-                    (int)CardId.怪粉坏兽加达拉,
-                    (int)CardId.多次元坏兽拉迪安
-                });
-            return DefaultDarkHole();
-        }
-
-        private bool 坏兽特殊召唤()
-        {
-            IList<int> kaijus = new[] {
-                (int)CardId.坏星坏兽席兹奇埃鲁,
-                (int)CardId.怪粉坏兽加达拉,
-                (int)CardId.海龟坏兽加美西耶勒,
-                (int)CardId.多次元坏兽拉迪安,
-                (int)CardId.黏丝坏兽库莫古斯,
-                (int)CardId.雷击坏兽雷鸣龙王,
-                (int)CardId.怒炎坏兽多哥兰,
-                (int)CardId.对坏兽用决战兵器超级机械多哥兰
-            };
-            foreach (ClientCard monster in Enemy.GetMonsters())
-            {
-                if (kaijus.Contains(monster.Id))
-                    return Card.GetDefensePower() > monster.GetDefensePower();
-            }
-            ClientCard card = Enemy.MonsterZone.GetFloodgate();
-            if (card != null)
-            {
-                AI.SelectCard(card);
-                return true;
-            }
-            card = Enemy.MonsterZone.GetDangerousMonster();
-            if (card != null)
-            {
-                AI.SelectCard(card);
-                return true;
-            }
-            card = AI.Utils.GetOneEnemyBetterThanValue(Card.GetDefensePower(), false);
-            if (card != null)
-            {
-                AI.SelectCard(card);
-                return true;
-            }
-            return false;
-        }
 
         private bool 电光皇特殊召唤()
         {

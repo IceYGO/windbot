@@ -64,7 +64,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, (int)CardId.救援兔);
             AddExecutor(ExecutorType.Activate, (int)CardId.救援兔, 救援兔效果);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶, 强欲而贪欲之壶效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶, DefaultPotOfDesires);
 
             AddExecutor(ExecutorType.Summon, (int)CardId.曼陀罗天使号手, 曼陀罗天使号手通常召唤);
             AddExecutor(ExecutorType.Summon, (int)CardId.打喷嚏的河马龙, 打喷嚏的河马龙通常召唤);
@@ -94,7 +94,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, (int)CardId.芙莉西亚之虫惑魔, 芙莉西亚之虫惑魔特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.芙莉西亚之虫惑魔);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.地碎, 地碎效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.地碎, DefaultSmashingGround);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.鸟铳士卡斯泰尔, 鸟铳士卡斯泰尔特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.鸟铳士卡斯泰尔, 鸟铳士卡斯泰尔效果);
@@ -503,16 +503,6 @@ namespace WindBot.Game.AI.Decks
         }
 
         private bool 电光皇特殊召唤()
-        {
-            return AI.Utils.IsEnemyBetter(false, false);
-        }
-
-        private bool 强欲而贪欲之壶效果()
-        {
-            return Bot.Deck.Count > 15;
-        }
-
-        private bool 地碎效果()
         {
             return AI.Utils.IsEnemyBetter(false, false);
         }

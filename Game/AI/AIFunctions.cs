@@ -119,6 +119,21 @@ namespace WindBot.Game.AI
             return null;
         }
 
+        public ClientCard GetAnyEnemyMonster()
+        {
+            List<ClientCard> monsters = Enemy.GetMonsters();
+            ClientCard hmonster = monsters.GetHighestAttackMonster();
+            if (hmonster != null)
+            {
+                return hmonster;
+            }
+            foreach (ClientCard monster in monsters)
+            {
+                return monster;
+            }
+            return null;
+        }
+
         public ClientCard GetProblematicCard(int attack = 0)
         {
             ClientCard card = Enemy.MonsterZone.GetInvincibleMonster();
@@ -133,6 +148,20 @@ namespace WindBot.Game.AI
             if (attack == 0)
                 attack = GetBestAttack(Bot, true);
             return GetOneEnemyBetterThanValue(attack, true);
+        }
+
+        public ClientCard GetBestEnemyCard()
+        {
+            ClientCard card = GetProblematicCard();
+            if (card != null)
+                return card;
+            card = Enemy.MonsterZone.GetHighestAttackMonster();
+            if (card != null)
+                return card;
+            List<ClientCard> spells = Enemy.GetSpells();
+            if (spells.Count > 0)
+                return spells[0];
+            return null;
         }
 
         public ClientCard GetProblematicMonsterCard(int attack = 0)

@@ -40,7 +40,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.HorusTheBlackFlameDragonLv6);
-            AddExecutor(ExecutorType.Activate, (int)CardId.StampingDestruction, DefaultStampingDestruction);
+            AddExecutor(ExecutorType.Activate, (int)CardId.StampingDestruction, DefaultMysticalSpaceTyphoon);
             AddExecutor(ExecutorType.Activate, (int)CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
             AddExecutor(ExecutorType.Activate, (int)CardId.FoolishBurial, FoolishBurial);
             AddExecutor(ExecutorType.Activate, (int)CardId.Mountain, DefaultField);

@@ -112,7 +112,7 @@ namespace WindBot.Game.AI.Decks
 
             // 坑人
             AddExecutor(ExecutorType.Activate, (int)CardId.反大革命, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, 神之通告);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, DefaultSolemnStrike);
             AddExecutor(ExecutorType.Activate, (int)CardId.技能抽取, 技能抽取);
             AddExecutor(ExecutorType.Activate, (int)CardId.虚无空间, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.强制脱出装置, DefaultCompulsoryEvacuationDevice);
@@ -157,11 +157,6 @@ namespace WindBot.Game.AI.Decks
             if (Card.Level < 8)
                 AI.SelectOption(1);
             return true;
-        }
-
-        private bool 神之通告()
-        {
-            return (Duel.LifePoints[0] > 1500) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
         }
 
         private bool 技能抽取()
@@ -425,9 +420,5 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool DontChainMyself()
-        {
-            return LastChainPlayer != 0;
-        }
     }
 }

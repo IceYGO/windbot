@@ -170,7 +170,7 @@ namespace WindBot.Game.AI.Decks
                         break;
                     }
                 }
-                if (!hasRealMonster || GetProblematicCard() != null)*/
+                if (!hasRealMonster || AI.Utils.GetProblematicCard() != null)*/
                 needId = (int)CardId.DragunityDux;
             }
 
@@ -344,13 +344,13 @@ namespace WindBot.Game.AI.Decks
         {
             //if (AI.Utils.IsOneEnemyBetterThanValue(2500, true))
             //    return true;
-            ClientCard invincible = GetProblematicCard();
+            ClientCard invincible = AI.Utils.GetProblematicCard();
             return invincible != null;
         }
 
         private bool ScrapDragonEffect()
         {
-            ClientCard invincible = GetProblematicCard();
+            ClientCard invincible = AI.Utils.GetProblematicCard();
             if (invincible == null && !AI.Utils.IsOneEnemyBetterThanValue(2800 - 1, false))
                 return false;
 
@@ -488,12 +488,6 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             return Duel.Player == 1;
-        }
-
-        private ClientCard GetProblematicCard()
-        {
-            ClientCard card = Enemy.MonsterZone.GetInvincibleMonster();
-            return card ?? Enemy.SpellZone.GetFloodgate();
         }
     }
 }

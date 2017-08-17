@@ -52,7 +52,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.王家长眠之谷, 王家长眠之谷);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.奈落的落穴, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, DefaultSolemnWarning);
             AddExecutor(ExecutorType.Activate, (int)CardId.次元幽闭, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.降灵的仪式, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.王家长眠之谷的王墓, DefaultUniqueTrap);

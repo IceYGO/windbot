@@ -58,7 +58,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.我我我枪手);
 
             // 清场
-            AddExecutor(ExecutorType.Activate, (int)CardId.宇宙旋风, 宇宙旋风);
+            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, (int)CardId.宇宙旋风, DefaultCosmicCyclone);
             AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
             AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
 
@@ -140,9 +141,9 @@ namespace WindBot.Game.AI.Decks
             // 坑人
             AddExecutor(ExecutorType.Activate, (int)CardId.星光大道, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.魔力抽取);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, 神之警告);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, 神之通告);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之宣告, 神之宣告);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.Activate, (int)CardId.神之宣告, DefaultSolemnJudgment);
             AddExecutor(ExecutorType.Activate, (int)CardId.大宇宙, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.虚无空间, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.波纹防护罩波浪之力, DefaultUniqueTrap);
@@ -190,29 +191,6 @@ namespace WindBot.Game.AI.Decks
                     attacker.RealPower = 5000;
             }
             return attacker.RealPower > defender.GetDefensePower();
-        }
-
-        private bool 宇宙旋风()
-        {
-            foreach (ClientCard card in CurrentChain)
-                if (card.Id == (int)CardId.宇宙旋风)
-                    return false;
-            return (Duel.LifePoints[0] > 1000) && DefaultMysticalSpaceTyphoon();
-        }
-
-        private bool 神之警告()
-        {
-            return (Duel.LifePoints[0] > 2000) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
-        }
-
-        private bool 神之通告()
-        {
-            return (Duel.LifePoints[0] > 1500) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
-        }
-
-        private bool 神之宣告()
-        {
-            return !(Duel.ChainTargets.Count == 1 && Card.Equals(Duel.ChainTargets[0])) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
         }
 
         private bool 强欲而谦虚之壶()
@@ -372,9 +350,5 @@ namespace WindBot.Game.AI.Decks
             return LastChainPlayer == 1;
         }
 
-        private bool DontChainMyself()
-        {
-            return LastChainPlayer != 0;
-        }
     }
 }

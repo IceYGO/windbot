@@ -19,7 +19,7 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             AddExecutor(ExecutorType.SpSummon);
-            AddExecutor(ExecutorType.Activate, DontChainMyself);
+            AddExecutor(ExecutorType.Activate, DefaultDontChainMyself);
             AddExecutor(ExecutorType.SummonOrSet);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
             AddExecutor(ExecutorType.SpellSet);
@@ -41,9 +41,5 @@ namespace WindBot.Game.AI.Decks
             return Program.Rand.Next(options.Count);
         }
 
-        private bool DontChainMyself()
-        {
-            return LastChainPlayer != 0;
-        }
     }
 }

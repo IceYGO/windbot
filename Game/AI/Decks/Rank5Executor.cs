@@ -415,19 +415,5 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
-
-        private ClientCard GetBestEnemyCard()
-        {
-            ClientCard card = AI.Utils.GetProblematicCard();
-            if (card != null)
-                return card;
-            card = Enemy.MonsterZone.GetHighestAttackMonster();
-            if (card != null)
-                return card;
-            List<ClientCard> spells = Enemy.GetSpells();
-            if (spells.Count > 0)
-                return spells[0];
-            return null;
-        }
     }
 }

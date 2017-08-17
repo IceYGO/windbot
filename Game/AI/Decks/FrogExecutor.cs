@@ -189,11 +189,6 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool DarkHole()
-        {
-            return AI.Utils.IsEnemyBetter(false, false);
-        }
-
         private bool Terraforming()
         {
             if (Bot.HasInHand((int)CardId.Wetlands))
