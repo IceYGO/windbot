@@ -289,7 +289,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSpellSet()
         {
-            return Card.IsTrap() && Bot.GetSpellCountWithoutField() < 4;
+            return (Card.IsTrap() || Card.HasType(CardType.QuickPlay)) && Bot.GetSpellCountWithoutField() < 4;
         }
 
         /// <summary>
