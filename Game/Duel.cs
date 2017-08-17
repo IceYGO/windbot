@@ -6,6 +6,7 @@ namespace WindBot.Game
     public class Duel
     {
         public bool IsFirst { get; set; }
+        public bool IsNewRule { get; set; }
 
         public int[] LifePoints { get; private set; }
         public ClientField[] Fields { get; private set; }

@@ -221,8 +221,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                ClientCard l = Duel.Fields[0].SpellZone[6];
-                ClientCard r = Duel.Fields[0].SpellZone[7];
+                ClientCard l = AI.Utils.GetPZone(0, 0);
+                ClientCard r = AI.Utils.GetPZone(0, 1);
                 if (l == null && r == null)
                     AI.SelectCard((int)CardId.机壳工具丑恶);
             }
@@ -233,8 +233,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location != CardLocation.Hand)
                 return false;
-            ClientCard l = Duel.Fields[0].SpellZone[6];
-            ClientCard r = Duel.Fields[0].SpellZone[7];
+            ClientCard l = AI.Utils.GetPZone(0, 0);
+            ClientCard r = AI.Utils.GetPZone(0, 1);
             if (l == null && r == null)
                 return true;
             if (l == null && r.RScale != Card.LScale)
@@ -259,8 +259,8 @@ namespace WindBot.Game.AI.Decks
                 if (card.HasType(CardType.Pendulum) && card.IsFaceup())
                     count++;
             }
-            ClientCard l = Duel.Fields[0].SpellZone[6];
-            ClientCard r = Duel.Fields[0].SpellZone[7];
+            ClientCard l = AI.Utils.GetPZone(0, 0);
+            ClientCard r = AI.Utils.GetPZone(0, 1);
             if (l == null && r == null)
             {
                 if (已发动削命)
@@ -406,8 +406,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool 应进行灵摆召唤()
         {
-            ClientCard l = Duel.Fields[0].SpellZone[6];
-            ClientCard r = Duel.Fields[0].SpellZone[7];
+            ClientCard l = AI.Utils.GetPZone(0, 0);
+            ClientCard r = AI.Utils.GetPZone(0, 1);
             if (l != null && r != null && l.LScale != r.RScale)
             {
                 int count = 0;

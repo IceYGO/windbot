@@ -120,6 +120,11 @@ namespace WindBot.Game
 
         private void OnJoinGame(BinaryReader packet)
         {
+            /*int lflist = (int)*/ packet.ReadUInt32();
+            /*int rule = */ packet.ReadByte();
+            /*int mode = */ packet.ReadByte();
+            int duel_rule = packet.ReadByte();
+            _ai.Duel.IsNewRule = (duel_rule == 4);
             BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
             deck.Write(Deck.Cards.Count + Deck.ExtraCards.Count);
             deck.Write(Deck.SideCards.Count);

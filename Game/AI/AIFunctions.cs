@@ -153,6 +153,18 @@ namespace WindBot.Game.AI
             return card;
         }
 
+        public ClientCard GetPZone(int player, int id)
+        {
+            if (Duel.IsNewRule)
+            {
+                return Duel.Fields[player].SpellZone[id*4];
+            }
+            else
+            {
+                return Duel.Fields[player].SpellZone[6+id];
+            }
+        }
+
         public int GetStringId(int id, int option)
         {
             return id * 16 + option;
