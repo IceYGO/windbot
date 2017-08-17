@@ -56,7 +56,7 @@
             if (Main.SummonableCards.Count == 1 && Main.SummonableCards[0].Level < 5)
             {
                 bool canTribute = false;
-                foreach (ClientCard handCard in Duel.Fields[0].Hand)
+                foreach (ClientCard handCard in Bot.Hand)
                 {
                     if (handCard.IsMonster() && handCard.Level > 4 && handCard.Level < 6)
                         canTribute = true;
@@ -66,7 +66,7 @@
             }
 
             int monsters = 0;
-            foreach (ClientCard handCard in Duel.Fields[0].Hand)
+            foreach (ClientCard handCard in Bot.Hand)
             {
                 if (handCard.IsMonster())
                     monsters++;
@@ -80,7 +80,7 @@
 
         private bool SwordsOfRevealingLight()
         {
-            foreach (ClientCard handCard in Duel.Fields[1].GetMonsters())
+            foreach (ClientCard handCard in Enemy.GetMonsters())
             {
                 if (handCard.IsFacedown())
                     return true;

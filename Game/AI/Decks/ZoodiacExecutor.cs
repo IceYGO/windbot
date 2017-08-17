@@ -142,7 +142,7 @@ namespace MycardBot.Game.AI.Decks
             }
             if (!(defender.Id == (int)CardId.闪光No39希望皇霍普电光皇))
             {
-                //if (attacker.HasType(CardType.Fusion) && Duel.Fields[0].HasInHand((int)CardId.召唤师阿莱斯特))
+                //if (attacker.HasType(CardType.Fusion) && Bot.HasInHand((int)CardId.召唤师阿莱斯特))
                 //    attacker.RealPower = attacker.RealPower + 1000;
                 if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.No39希望皇霍普))
                     attacker.RealPower = 5000;
@@ -192,18 +192,18 @@ namespace MycardBot.Game.AI.Decks
                 (int)CardId.怒炎坏兽多哥兰,
                 (int)CardId.对坏兽用决战兵器超级机械多哥兰
             };
-            foreach (ClientCard monster in Duel.Fields[1].GetMonsters())
+            foreach (ClientCard monster in Enemy.GetMonsters())
             {
                 if (kaijus.Contains(monster.Id))
                     return Card.GetDefensePower() > monster.GetDefensePower();
             }
-            ClientCard card = Duel.Fields[1].MonsterZone.GetFloodgate();
+            ClientCard card = Enemy.MonsterZone.GetFloodgate();
             if (card != null)
             {
                 AI.SelectCard(card);
                 return true;
             }
-            card = Duel.Fields[1].MonsterZone.GetDangerousMonster();
+            card = Enemy.MonsterZone.GetDangerousMonster();
             if (card != null)
             {
                 AI.SelectCard(card);
@@ -220,16 +220,16 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 电光皇特殊召唤()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Duel.Fields[0], true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Duel.Fields[1], false);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
+            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
             return selfBestAttack < oppoBestAttack;
         }
 
         private bool 光子斩击者特殊召唤()
         {
-            return Duel.Fields[0].HasInHand((int)CardId.召唤师阿莱斯特)
-                && !Duel.Fields[0].HasInHand((int)CardId.十二兽鼠骑)
-                && !Duel.Fields[0].HasInHand((int)CardId.十二兽马剑);
+            return Bot.HasInHand((int)CardId.召唤师阿莱斯特)
+                && !Bot.HasInHand((int)CardId.十二兽鼠骑)
+                && !Bot.HasInHand((int)CardId.十二兽马剑);
         }
 
         private bool 召唤师阿莱斯特效果()
@@ -250,8 +250,8 @@ namespace MycardBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
                 return true;
-            IList<ClientCard> materials0 = Duel.Fields[0].Graveyard;
-            IList<ClientCard> materials1 = Duel.Fields[1].Graveyard;
+            IList<ClientCard> materials0 = Bot.Graveyard;
+            IList<ClientCard> materials1 = Enemy.Graveyard;
             ClientCard mat = null;
             foreach (ClientCard card in materials0)
             {
@@ -306,8 +306,8 @@ namespace MycardBot.Game.AI.Decks
 
         private void 选择墓地里的召唤师()
         {
-            IList<ClientCard> materials0 = Duel.Fields[0].Graveyard;
-            IList<ClientCard> materials1 = Duel.Fields[1].Graveyard;
+            IList<ClientCard> materials0 = Bot.Graveyard;
+            IList<ClientCard> materials1 = Enemy.Graveyard;
             foreach (ClientCard card in materials1)
             {
                 if (card.Id == (int)CardId.召唤师阿莱斯特)
@@ -329,7 +329,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 十二兽狗环特殊召唤()
         {
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤狗环)
+            if (Bot.HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤狗环)
             {
                 AI.SelectCard((int)CardId.十二兽鼠骑);
                 AI.SelectYesNo(true);
@@ -337,7 +337,7 @@ namespace MycardBot.Game.AI.Decks
                 已特殊召唤狗环 = true;
                 return true;
             }
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽牛犄) && !已特殊召唤狗环)
+            if (Bot.HasInMonstersZone((int)CardId.十二兽牛犄) && !已特殊召唤狗环)
             {
                 AI.SelectCard((int)CardId.十二兽牛犄);
                 AI.SelectYesNo(true);
@@ -350,7 +350,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 十二兽狗环效果()
         {
-            if (Duel.Fields[0].HasInGraveyard((int)CardId.十二兽蛇笞) || Duel.Fields[0].HasInGraveyard((int)CardId.十二兽马剑))
+            if (Bot.HasInGraveyard((int)CardId.十二兽蛇笞) || Bot.HasInGraveyard((int)CardId.十二兽马剑))
             {
                 AI.SelectCard(new[]
                 {
@@ -373,7 +373,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 十二兽虎炮特殊召唤()
         {
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽狗环) && !已特殊召唤虎炮)
+            if (Bot.HasInMonstersZone((int)CardId.十二兽狗环) && !已特殊召唤虎炮)
             {
                 AI.SelectCard((int)CardId.十二兽狗环);
                 AI.SelectYesNo(true);
@@ -381,7 +381,7 @@ namespace MycardBot.Game.AI.Decks
                 已特殊召唤虎炮 = true;
                 return true;
             }
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤虎炮)
+            if (Bot.HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤虎炮)
             {
                 AI.SelectCard((int)CardId.十二兽鼠骑);
                 AI.SelectYesNo(true);
@@ -389,8 +389,8 @@ namespace MycardBot.Game.AI.Decks
                 已特殊召唤虎炮 = true;
                 return true;
             }
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽马剑) && !已特殊召唤虎炮
-                && Duel.Fields[0].HasInGraveyard(new List<int>
+            if (Bot.HasInMonstersZone((int)CardId.十二兽马剑) && !已特殊召唤虎炮
+                && Bot.HasInGraveyard(new List<int>
                 {
                     (int)CardId.十二兽蛇笞,
                     (int)CardId.十二兽鼠骑
@@ -401,8 +401,8 @@ namespace MycardBot.Game.AI.Decks
                 已特殊召唤虎炮 = true;
                 return true;
             }
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽蛇笞) && !已特殊召唤虎炮
-                && Duel.Fields[0].HasInGraveyard((int)CardId.十二兽鼠骑))
+            if (Bot.HasInMonstersZone((int)CardId.十二兽蛇笞) && !已特殊召唤虎炮
+                && Bot.HasInGraveyard((int)CardId.十二兽鼠骑))
             {
                 AI.SelectCard((int)CardId.十二兽蛇笞);
                 AI.SelectYesNo(true);
@@ -414,7 +414,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 十二兽虎炮效果()
         {
-            //if (Card.HasXyzMaterial((int)CardId.十二兽鼠骑) || !Duel.Fields[0].HasInGraveyard((int)CardId.十二兽鼠骑))
+            //if (Card.HasXyzMaterial((int)CardId.十二兽鼠骑) || !Bot.HasInGraveyard((int)CardId.十二兽鼠骑))
             //    return false;
             AI.SelectCard((int)CardId.十二兽狗环);
             AI.SelectNextCard((int)CardId.十二兽虎炮);
@@ -429,7 +429,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 十二兽牛犄特殊召唤()
         {
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽虎炮) && !已特殊召唤牛犄)
+            if (Bot.HasInMonstersZone((int)CardId.十二兽虎炮) && !已特殊召唤牛犄)
             {
                 AI.SelectCard((int)CardId.十二兽虎炮);
                 AI.SelectYesNo(true);
@@ -437,7 +437,7 @@ namespace MycardBot.Game.AI.Decks
                 已特殊召唤牛犄 = true;
                 return true;
             }
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽狗环) && !已特殊召唤牛犄)
+            if (Bot.HasInMonstersZone((int)CardId.十二兽狗环) && !已特殊召唤牛犄)
             {
                 AI.SelectCard((int)CardId.十二兽狗环);
                 AI.SelectYesNo(true);
@@ -445,7 +445,7 @@ namespace MycardBot.Game.AI.Decks
                 已特殊召唤牛犄 = true;
                 return true;
             }
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤牛犄)
+            if (Bot.HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤牛犄)
             {
                 AI.SelectCard((int)CardId.十二兽鼠骑);
                 AI.SelectYesNo(true);
@@ -453,7 +453,7 @@ namespace MycardBot.Game.AI.Decks
                 已特殊召唤牛犄 = true;
                 return true;
             }
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.十二兽马剑) && !已特殊召唤牛犄)
+            if (Bot.HasInMonstersZone((int)CardId.十二兽马剑) && !已特殊召唤牛犄)
             {
                 AI.SelectCard((int)CardId.十二兽马剑);
                 AI.SelectYesNo(true);
@@ -474,7 +474,7 @@ namespace MycardBot.Game.AI.Decks
                     (int)CardId.召唤师阿莱斯特,
                     (int)CardId.光子斩击者
                 });
-            if (Duel.Fields[0].HasInHand((int)CardId.十二兽蛇笞) && !Duel.Fields[0].HasInHand((int)CardId.十二兽鼠骑))
+            if (Bot.HasInHand((int)CardId.十二兽蛇笞) && !Bot.HasInHand((int)CardId.十二兽鼠骑))
                 AI.SelectNextCard((int)CardId.十二兽鼠骑);
             else
                 AI.SelectNextCard((int)CardId.十二兽蛇笞);
@@ -524,7 +524,7 @@ namespace MycardBot.Game.AI.Decks
             if (Card.IsDisabled() || 蛇笞发动次数 >= 3)
                 return false;
             ClientCard target = null;
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 if (monster.IsFaceup() && monster.Id == (int)CardId.十二兽龙枪 && !monster.HasXyzMaterial())
@@ -573,7 +573,7 @@ namespace MycardBot.Game.AI.Decks
             ClientCard target = AI.Utils.GetProblematicCard();
             if (target == null)
             {
-                List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+                List<ClientCard> monsters = Enemy.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
                     if (monster.IsFaceup())
@@ -585,7 +585,7 @@ namespace MycardBot.Game.AI.Decks
             }
             if (target == null)
             {
-                List<ClientCard> spells = Duel.Fields[1].GetSpells();
+                List<ClientCard> spells = Enemy.GetSpells();
                 foreach (ClientCard spell in spells)
                 {
                     if (spell.IsFaceup() && spell.IsSpellNegateAttack())
@@ -597,7 +597,7 @@ namespace MycardBot.Game.AI.Decks
             }
             if (target == null)
             {
-                List<ClientCard> spells = Duel.Fields[1].GetSpells();
+                List<ClientCard> spells = Enemy.GetSpells();
                 foreach (ClientCard spell in spells)
                 {
                     if (spell.IsFaceup() && (spell.HasType(CardType.Continuous)
@@ -627,7 +627,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 大薰风骑士翠玉特殊召唤()
         {
-            return Duel.Fields[0].GetGraveyardMonsters().Count >= 3;
+            return Bot.GetGraveyardMonsters().Count >= 3;
         }
 
         private bool 大薰风骑士翠玉效果()
@@ -648,9 +648,9 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 炎舞天玑效果()
         {
-            if (Duel.Fields[0].HasInHand((int)CardId.十二兽的会局)
-               || Duel.Fields[0].HasInSpellZone((int)CardId.十二兽的会局)
-               || Duel.Fields[0].HasInHand((int)CardId.十二兽鼠骑))
+            if (Bot.HasInHand((int)CardId.十二兽的会局)
+               || Bot.HasInSpellZone((int)CardId.十二兽的会局)
+               || Bot.HasInHand((int)CardId.十二兽鼠骑))
             {
                 AI.SelectCard((int)CardId.十二兽蛇笞);
             }
@@ -664,7 +664,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 十二兽的会局效果()
         {
-            IList<ClientCard> spells = Duel.Fields[0].GetSpells();
+            IList<ClientCard> spells = Bot.GetSpells();
             foreach (ClientCard spell in spells)
             {
                 if (spell.Id == (int)CardId.十二兽的会局 && !Card.Equals(spell))

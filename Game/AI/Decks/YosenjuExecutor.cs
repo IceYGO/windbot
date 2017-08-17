@@ -184,7 +184,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (!(defender.Id == (int)CardId.闪光No39希望皇霍普电光皇))
             {
-                if (attacker.Attribute == (int)CardAttribute.Wind && Duel.Fields[0].HasInHand((int)CardId.妖仙兽辻斩风))
+                if (attacker.Attribute == (int)CardAttribute.Wind && Bot.HasInHand((int)CardId.妖仙兽辻斩风))
                     attacker.RealPower = attacker.RealPower + 1000;
                 if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.No39希望皇霍普))
                     attacker.RealPower = 5000;
@@ -269,7 +269,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 优先出重复的妖仙兽()
         {
-            foreach (ClientCard card in Duel.Fields[0].Hand)
+            foreach (ClientCard card in Bot.Hand)
             {
                 if (card != null && !card.Equals(Card) && card.Id == Card.Id)
                     return true;
@@ -279,7 +279,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 优先盖不重复的坑()
         {
-            foreach (ClientCard card in Duel.Fields[0].SpellZone)
+            foreach (ClientCard card in Bot.SpellZone)
             {
                 if (card != null && card.Id == Card.Id)
                     return false;
@@ -289,7 +289,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 魔陷区有空余格子()
         {
-            return Duel.Fields[0].GetSpellCountWithoutField() < 4;
+            return Bot.GetSpellCountWithoutField() < 4;
         }
 
         private bool 已发动过削命()
@@ -320,7 +320,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 我我我枪手特殊召唤()
         {
-            if (Duel.LifePoints[1] <= 800 || (Duel.Fields[0].GetMonsterCount()>=4 && Duel.LifePoints[1] <= 1600))
+            if (Duel.LifePoints[1] <= 800 || (Bot.GetMonsterCount()>=4 && Duel.LifePoints[1] <= 1600))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -330,28 +330,28 @@ namespace WindBot.Game.AI.Decks
 
         private bool 励辉士入魔蝇王特殊召唤()
         {
-            int selfCount = Duel.Fields[0].GetMonsterCount() + Duel.Fields[0].GetSpellCount() + Duel.Fields[0].GetHandCount();
-            int oppoCount = Duel.Fields[1].GetMonsterCount() + Duel.Fields[1].GetSpellCount() + Duel.Fields[1].GetHandCount();
+            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
+            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
             return (selfCount - 1 < oppoCount) && 励辉士入魔蝇王效果();
         }
 
         private bool 励辉士入魔蝇王效果()
         {
-            int selfCount = Duel.Fields[0].GetMonsterCount() + Duel.Fields[0].GetSpellCount();
-            int oppoCount = Duel.Fields[1].GetMonsterCount() + Duel.Fields[1].GetSpellCount();
+            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
+            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
             return selfCount < oppoCount;
         }
 
         private bool 暗叛逆超量龙特殊召唤()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Duel.Fields[0], true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Duel.Fields[1], true);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
+            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, true);
             return selfBestAttack <= oppoBestAttack;
         }
 
         private bool 暗叛逆超量龙效果()
         {
-            int oppoBestAttack = AI.Utils.GetBestAttack(Duel.Fields[1], true);
+            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, true);
             ClientCard target = AI.Utils.GetOneEnemyBetterThanValue(oppoBestAttack, true);
             if (target != null)
             {
@@ -362,8 +362,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool 电光皇特殊召唤()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Duel.Fields[0], true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Duel.Fields[1], false);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
+            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
             return selfBestAttack <= oppoBestAttack;
         }
 

@@ -83,28 +83,28 @@ namespace WindBot.Game.AI.Decks
 
         private bool 王家长眠之谷的祭殿()
         {
-            if (Card.Location == CardLocation.Hand && Duel.Fields[0].HasInSpellZone((int)Card.Id))
+            if (Card.Location == CardLocation.Hand && Bot.HasInSpellZone((int)Card.Id))
                 return false;
             return true;
         }
 
         private bool 王家长眠之谷()
         {
-            if (Duel.Fields[0].SpellZone[5] != null)
+            if (Bot.SpellZone[5] != null)
                 return false;
             return true;
         }
 
         private bool 罪星尘龙()
         {
-            if (Duel.Fields[0].SpellZone[5] != null)
+            if (Bot.SpellZone[5] != null)
                 return true;
             return false;
         }
 
         private bool 守墓的司令官()
         {
-            if (!Duel.Fields[0].HasInHand((int)CardId.王家长眠之谷) && !Duel.Fields[0].HasInSpellZone((int)CardId.王家长眠之谷))
+            if (!Bot.HasInHand((int)CardId.王家长眠之谷) && !Bot.HasInSpellZone((int)CardId.王家长眠之谷))
                 return true;
             return false;
         }
@@ -118,7 +118,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!Card.IsAttack())
                 return false;
-            foreach (ClientCard card in Duel.Fields[1].MonsterZone)
+            foreach (ClientCard card in Enemy.MonsterZone)
                 if (card != null && card.IsDefense() && card.Defense > 1500 && card.Attack < 1500 || card.Attack > 1500 && card.Defense < 1500)
                     return true;
             return false;
@@ -126,10 +126,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool 守墓的末裔()
         {
-            int bestatk = Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack;
+            int bestatk = Bot.GetMonsters().GetHighestAttackMonster().Attack;
             if (AI.Utils.IsOneEnemyBetterThanValue(bestatk, true))
             {
-                AI.SelectCard(Duel.Fields[1].GetMonsters().GetHighestAttackMonster());
+                AI.SelectCard(Enemy.GetMonsters().GetHighestAttackMonster());
                 return true;
             }
             return false;

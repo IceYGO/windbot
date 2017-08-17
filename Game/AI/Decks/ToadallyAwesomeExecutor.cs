@@ -127,11 +127,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool 冰结界的纹章效果()
         {
-            if (Duel.Fields[0].HasInHand(new List<int>
+            if (Bot.HasInHand(new List<int>
                 {
                     (int)CardId.冰结界的术者,
                     (int)CardId.冰结界的水影
-                }) || Duel.Fields[0].HasInMonstersZone(new List<int>
+                }) || Bot.HasInMonstersZone(new List<int>
                 {
                     (int)CardId.冰结界的术者,
                     (int)CardId.冰结界的水影
@@ -179,11 +179,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool 愚蠢的埋葬效果()
         {
-            if (Duel.Fields[0].HasInHand((int)CardId.小灰篮史莱姆) && !Duel.Fields[0].HasInGraveyard((int)CardId.小灰篮史莱姆))
+            if (Bot.HasInHand((int)CardId.小灰篮史莱姆) && !Bot.HasInGraveyard((int)CardId.小灰篮史莱姆))
                 AI.SelectCard((int)CardId.小灰篮史莱姆);
-            else if (Duel.Fields[0].HasInGraveyard((int)CardId.粹蛙) && !Duel.Fields[0].HasInGraveyard((int)CardId.魔知青蛙))
+            else if (Bot.HasInGraveyard((int)CardId.粹蛙) && !Bot.HasInGraveyard((int)CardId.魔知青蛙))
                 AI.SelectCard((int)CardId.魔知青蛙);
-            else if (Duel.Fields[0].HasInGraveyard((int)CardId.魔知青蛙) && !Duel.Fields[0].HasInGraveyard((int)CardId.粹蛙))
+            else if (Bot.HasInGraveyard((int)CardId.魔知青蛙) && !Bot.HasInGraveyard((int)CardId.粹蛙))
                 AI.SelectCard((int)CardId.粹蛙);
             else
                 AI.SelectCard(new[]
@@ -212,11 +212,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool 鬼青蛙特殊召唤()
         {
-            if (Duel.Fields[0].GetCountCardInZone(Duel.Fields[0].Hand, (int)CardId.小灰篮史莱姆)>=2 && !Duel.Fields[0].HasInGraveyard((int)CardId.小灰篮史莱姆))
+            if (Bot.GetCountCardInZone(Bot.Hand, (int)CardId.小灰篮史莱姆)>=2 && !Bot.HasInGraveyard((int)CardId.小灰篮史莱姆))
                 AI.SelectCard((int)CardId.小灰篮史莱姆);
-            else if (Duel.Fields[0].HasInGraveyard((int)CardId.粹蛙) && !Duel.Fields[0].HasInGraveyard((int)CardId.魔知青蛙))
+            else if (Bot.HasInGraveyard((int)CardId.粹蛙) && !Bot.HasInGraveyard((int)CardId.魔知青蛙))
                 AI.SelectCard((int)CardId.魔知青蛙);
-            else if (Duel.Fields[0].HasInGraveyard((int)CardId.魔知青蛙) && !Duel.Fields[0].HasInGraveyard((int)CardId.粹蛙))
+            else if (Bot.HasInGraveyard((int)CardId.魔知青蛙) && !Bot.HasInGraveyard((int)CardId.粹蛙))
                 AI.SelectCard((int)CardId.粹蛙);
             else
                 AI.SelectCard(new[]
@@ -240,7 +240,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if (Duel.Fields[0].HasInHand((int)CardId.魔知青蛙))
+                if (Bot.HasInHand((int)CardId.魔知青蛙))
                 {
                     AI.SelectCard(new[]
                         {
@@ -256,7 +256,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 小灰篮史莱姆优先通常召唤()
         {
-            return Duel.Fields[0].HasInGraveyard((int)CardId.小灰篮史莱姆);
+            return Bot.HasInGraveyard((int)CardId.小灰篮史莱姆);
         }
 
         private bool 小灰篮史莱姆效果()
@@ -284,7 +284,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 低攻怪兽通常召唤()
         {
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 if (monster.Level==2)
@@ -297,19 +297,19 @@ namespace WindBot.Game.AI.Decks
 
         private bool 冰结界下级通常召唤()
         {
-            return Duel.Fields[0].GetCountCardInZone(Duel.Fields[0].Hand, (int)CardId.冰结界的传道师) > 0;
+            return Bot.GetCountCardInZone(Bot.Hand, (int)CardId.冰结界的传道师) > 0;
         }
 
         private bool 冰结界的传道师通常召唤()
         {
-            return Duel.Fields[0].GetCountCardInZone(Duel.Fields[0].Hand, (int)CardId.冰结界的传道师) >= 2;
+            return Bot.GetCountCardInZone(Bot.Hand, (int)CardId.冰结界的传道师) >= 2;
         }
 
         private bool 饼蛙效果()
         {
             if (CurrentChain.Count > 0)
             {
-                List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+                List<ClientCard> monsters = Bot.GetMonsters();
                 List<int> 合适的COST = new List<int> {
                     (int)CardId.鬼青蛙,
                     (int)CardId.粹蛙,
@@ -325,7 +325,7 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
-                bool 有水舞台 = Duel.Fields[0].HasInSpellZone((int)CardId.水舞台, true);
+                bool 有水舞台 = Bot.HasInSpellZone((int)CardId.水舞台, true);
                 foreach (ClientCard monster in monsters)
                 {
                     if (monster.Id == (int)CardId.魔知青蛙 && !有水舞台)
@@ -334,8 +334,8 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
-                monsters = (List<ClientCard>)Duel.Fields[0].Hand;
-                bool 手里有2个史莱姆 = Duel.Fields[0].GetCountCardInZone(Duel.Fields[0].Hand, (int)CardId.小灰篮史莱姆) >= 2;
+                monsters = (List<ClientCard>)Bot.Hand;
+                bool 手里有2个史莱姆 = Bot.GetCountCardInZone(Bot.Hand, (int)CardId.小灰篮史莱姆) >= 2;
                 foreach (ClientCard monster in monsters)
                 {
                     if (monster.Id == (int)CardId.小灰篮史莱姆 && 手里有2个史莱姆)
@@ -344,7 +344,7 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
-                bool 需要丢魔知 = Duel.Fields[0].HasInGraveyard((int)CardId.粹蛙) && !Duel.Fields[0].HasInGraveyard((int)CardId.魔知青蛙) && !Duel.Fields[0].HasInGraveyard((int)CardId.鬼青蛙);
+                bool 需要丢魔知 = Bot.HasInGraveyard((int)CardId.粹蛙) && !Bot.HasInGraveyard((int)CardId.魔知青蛙) && !Bot.HasInGraveyard((int)CardId.鬼青蛙);
                 foreach (ClientCard monster in monsters)
                 {
                     if (monster.Id == (int)CardId.魔知青蛙 && 需要丢魔知)
@@ -370,7 +370,7 @@ namespace WindBot.Game.AI.Decks
             }
             else if (Card.Location == CardLocation.Grave)
             {
-                if (!Duel.Fields[0].HasInExtra((int)CardId.饼蛙))
+                if (!Bot.HasInExtra((int)CardId.饼蛙))
                 {
                     AI.SelectCard((int)CardId.饼蛙);
                 }
@@ -420,14 +420,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool 猫鲨特殊召唤()
         {
-            bool should = Duel.Fields[0].HasInMonstersZone((int)CardId.饼蛙)
+            bool should = Bot.HasInMonstersZone((int)CardId.饼蛙)
                         && ((AI.Utils.IsEnemyBetter(true, false)
-                            && !Duel.Fields[0].HasInMonstersZone(new List<int>
+                            && !Bot.HasInMonstersZone(new List<int>
                                 {
                                     (int)CardId.猫鲨,
                                     (int)CardId.神骑矢车菊圣人马
                                 }, true, true))
-                        || !Duel.Fields[0].HasInExtra((int)CardId.饼蛙));
+                        || !Bot.HasInExtra((int)CardId.饼蛙));
             if (should)
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
@@ -438,7 +438,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 猫鲨效果()
         {
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 if (monster.Id == (int)CardId.饼蛙 && monster.Attack <= 2200)
@@ -472,7 +472,7 @@ namespace WindBot.Game.AI.Decks
         private bool 神骑矢车菊圣人马特殊召唤()
         {
             int num = 0;
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 if (monster.Level ==2)
@@ -481,9 +481,9 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             return AI.Utils.IsEnemyBetter(true, false)
-                   && AI.Utils.GetBestAttack(Duel.Fields[1], true) > 2200
+                   && AI.Utils.GetBestAttack(Enemy, true) > 2200
                    && num < 4
-                   && !Duel.Fields[0].HasInMonstersZone(new List<int>
+                   && !Bot.HasInMonstersZone(new List<int>
                         {
                             (int)CardId.神骑矢车菊圣人马
                         }, true, true);
@@ -495,7 +495,7 @@ namespace WindBot.Game.AI.Decks
             {
                 int attack = 0;
                 int defence = 0;
-                List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+                List<ClientCard> monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
                     if (!monster.IsDefense())
@@ -503,7 +503,7 @@ namespace WindBot.Game.AI.Decks
                         attack += monster.Attack;
                     }
                 }
-                monsters = Duel.Fields[1].GetMonsters();
+                monsters = Enemy.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
                     defence += monster.GetDefensePower();
@@ -563,11 +563,11 @@ namespace WindBot.Game.AI.Decks
 
         private void 选择取除超量素材(List<int> Overlays)
         {
-            if (Overlays.Contains((int)CardId.小灰篮史莱姆) && Duel.Fields[0].HasInHand((int)CardId.小灰篮史莱姆) && !Duel.Fields[0].HasInGraveyard((int)CardId.小灰篮史莱姆))
+            if (Overlays.Contains((int)CardId.小灰篮史莱姆) && Bot.HasInHand((int)CardId.小灰篮史莱姆) && !Bot.HasInGraveyard((int)CardId.小灰篮史莱姆))
                 AI.SelectCard((int)CardId.小灰篮史莱姆);
-            else if (Overlays.Contains((int)CardId.魔知青蛙) && Duel.Fields[0].HasInGraveyard((int)CardId.粹蛙) && !Duel.Fields[0].HasInGraveyard((int)CardId.魔知青蛙))
+            else if (Overlays.Contains((int)CardId.魔知青蛙) && Bot.HasInGraveyard((int)CardId.粹蛙) && !Bot.HasInGraveyard((int)CardId.魔知青蛙))
                 AI.SelectCard((int)CardId.魔知青蛙);
-            else if (Overlays.Contains((int)CardId.粹蛙) && Duel.Fields[0].HasInGraveyard((int)CardId.魔知青蛙) && !Duel.Fields[0].HasInGraveyard((int)CardId.粹蛙))
+            else if (Overlays.Contains((int)CardId.粹蛙) && Bot.HasInGraveyard((int)CardId.魔知青蛙) && !Bot.HasInGraveyard((int)CardId.粹蛙))
                 AI.SelectCard((int)CardId.粹蛙);
             else
                 AI.SelectCard(new[]

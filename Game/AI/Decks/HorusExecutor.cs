@@ -68,12 +68,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool FoolishBurial()
         {
-            if (Duel.Fields[0].HasInGraveyard((int)CardId.WhiteNightDragon))
+            if (Bot.HasInGraveyard((int)CardId.WhiteNightDragon))
                 return false;
-            if (Duel.Fields[0].HasInHand((int)CardId.WhiteNightDragon))
+            if (Bot.HasInHand((int)CardId.WhiteNightDragon))
                 return false;
             int remaining = 2;
-            foreach (ClientCard card in Duel.Fields[0].Banished)
+            foreach (ClientCard card in Bot.Banished)
                 if (card.Id == (int)CardId.WhiteNightDragon)
                     remaining--;
             if (remaining > 0)
@@ -91,7 +91,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player == 1 && Duel.Phase == DuelPhase.End)
                 return false;
 
-            List<ClientCard> cards = new List<ClientCard>(Duel.Fields[0].Graveyard);
+            List<ClientCard> cards = new List<ClientCard>(Bot.Graveyard);
             cards.Sort(AIFunctions.CompareCardAttack);
             for (int i = cards.Count - 1; i >= 0; --i)
             {
@@ -109,7 +109,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterReborn()
         {
-            List<ClientCard> cards = new List<ClientCard>(Duel.Fields[0].Graveyard);
+            List<ClientCard> cards = new List<ClientCard>(Bot.Graveyard);
             cards.Sort(AIFunctions.CompareCardAttack);
             ClientCard selectedCard = null;
             for (int i = cards.Count - 1; i >= 0; --i)
@@ -123,7 +123,7 @@ namespace WindBot.Game.AI.Decks
                     break;
                 }
             }
-            cards = new List<ClientCard>(Duel.Fields[1].Graveyard);
+            cards = new List<ClientCard>(Enemy.Graveyard);
             cards.Sort(AIFunctions.CompareCardAttack);
             for (int i = cards.Count - 1; i >= 0; --i)
             {
@@ -147,7 +147,7 @@ namespace WindBot.Game.AI.Decks
         private bool WhiteNightDragon()
         {
             // We should summon Horus the Black Flame Dragon LV6 if he can lvlup.
-            if (Duel.Fields[1].GetMonsterCount() != 0 && !AI.Utils.IsAllEnemyBetterThanValue(2300 - 1, false))
+            if (Enemy.GetMonsterCount() != 0 && !AI.Utils.IsAllEnemyBetterThanValue(2300 - 1, false))
                 foreach (ClientCard card in Main.SummonableCards)
                     if (card.Id == 11224103)
                         return false;
@@ -162,7 +162,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DragonsRebirth()
         {
-            List<ClientCard> cards = new List<ClientCard>(Duel.Fields[0].GetMonsters());
+            List<ClientCard> cards = new List<ClientCard>(Bot.GetMonsters());
             if (cards.Count == 0)
                 return false;
             cards.Sort(AIFunctions.CompareCardAttack);
@@ -181,8 +181,8 @@ namespace WindBot.Game.AI.Decks
             if (tributeCard == null)
                 return false;
 
-            cards = new List<ClientCard>(Duel.Fields[0].Hand);
-            cards.AddRange(Duel.Fields[0].Graveyard);
+            cards = new List<ClientCard>(Bot.Hand);
+            cards.AddRange(Bot.Graveyard);
             if (cards.Count == 0)
                 return false;
             cards.Sort(AIFunctions.CompareCardAttack);

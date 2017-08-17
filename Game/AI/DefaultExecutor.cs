@@ -29,11 +29,11 @@ namespace WindBot.Game.AI
 
         protected bool DefaultStampingDestruction()
         {
-            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            List<ClientCard> spells = Enemy.GetSpells();
             if (spells.Count == 0)
                 return false;
 
-            ClientCard selected = Duel.Fields[1].SpellZone.GetFloodgate();
+            ClientCard selected = Enemy.SpellZone.GetFloodgate();
 
             if (selected == null)
             {
@@ -55,14 +55,14 @@ namespace WindBot.Game.AI
 
         protected bool DefaultGalaxyCyclone()
         {
-            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            List<ClientCard> spells = Enemy.GetSpells();
             if (spells.Count == 0)
                 return false;
             ClientCard selected = null;
 
             if (Card.Location == CardLocation.Grave)
             {
-                selected = Duel.Fields[1].SpellZone.GetFloodgate();
+                selected = Enemy.SpellZone.GetFloodgate();
                 if (selected == null)
                 {
                     foreach (ClientCard card in spells)
@@ -98,7 +98,7 @@ namespace WindBot.Game.AI
         {
             if (AI.Utils.IsEnemyBetter(true, true))
             {
-                ClientCard monster = Duel.Fields[1].GetMonsters().GetHighestAttackMonster();
+                ClientCard monster = Enemy.GetMonsters().GetHighestAttackMonster();
                 if (monster != null && monster.HasType(CardType.Effect) && (monster.HasType(CardType.Xyz) || monster.Level > 4))
                 {
                     AI.SelectCard(monster);
@@ -120,7 +120,7 @@ namespace WindBot.Game.AI
             {
                 if (Card.Equals(card))
                 {
-                    List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+                    List<ClientCard> monsters = Enemy.GetMonsters();
                     foreach (ClientCard monster in monsters)
                     {
                         AI.SelectCard(monster);
@@ -137,7 +137,7 @@ namespace WindBot.Game.AI
                 return false;
             ClientCard selected = null;
             int BestAtk = 0;
-            foreach (ClientCard card in Duel.Fields[0].Graveyard)
+            foreach (ClientCard card in Bot.Graveyard)
             {
                 if (card.Attack > BestAtk)
                 {
@@ -156,7 +156,7 @@ namespace WindBot.Game.AI
 
         protected bool DefaultHeavyStorm()
         {
-            return Duel.Fields[0].GetSpellCount() < Duel.Fields[1].GetSpellCount();
+            return Bot.GetSpellCount() < Enemy.GetSpellCount();
         }
 
         protected bool DefaultHammerShot()
@@ -176,12 +176,12 @@ namespace WindBot.Game.AI
 
         protected bool DefaultSpellSet()
         {
-            return Card.IsTrap() && Duel.Fields[0].GetSpellCountWithoutField() < 4;
+            return Card.IsTrap() && Bot.GetSpellCountWithoutField() < 4;
         }
 
         protected bool DefaultTributeSummon()
         {
-            foreach (ClientCard card in Duel.Fields[0].SpellZone)
+            foreach (ClientCard card in Bot.SpellZone)
             {
                 if (card != null &&
                     card.Id == Card.Id &&
@@ -191,7 +191,7 @@ namespace WindBot.Game.AI
             int tributecount = (int)Math.Ceiling((Card.Level - 4.0d) / 2.0d);
             for (int j = 0; j < 7; ++j)
             {
-                ClientCard tributeCard = Duel.Fields[0].MonsterZone[j];
+                ClientCard tributeCard = Bot.MonsterZone[j];
                 if (tributeCard == null) continue;
                 if (tributeCard.Attack < Card.Attack)
                     tributecount--;
@@ -201,7 +201,7 @@ namespace WindBot.Game.AI
 
         protected bool DefaultField()
         {
-            return Duel.Fields[0].SpellZone[5] == null;
+            return Bot.SpellZone[5] == null;
         }
 
         protected bool DefaultMonsterRepos()
@@ -225,7 +225,7 @@ namespace WindBot.Game.AI
             if (HasChainedTrap(0))
                 return false;
 
-            foreach (ClientCard card in Duel.Fields[0].SpellZone)
+            foreach (ClientCard card in Bot.SpellZone)
             {
                 if (card != null &&
                     card.Id == Card.Id &&
@@ -257,7 +257,7 @@ namespace WindBot.Game.AI
         {
             if (Duel.Player != 0)
             {
-                List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+                List<ClientCard> monsters = Enemy.GetMonsters();
                 int[] levels = new int[13];
                 bool tuner = false;
                 bool nontuner = false;
@@ -287,8 +287,8 @@ namespace WindBot.Game.AI
                         return true;
                     }
                 }
-                ClientCard l = Duel.Fields[1].SpellZone[6];
-                ClientCard r = Duel.Fields[1].SpellZone[7];
+                ClientCard l = Enemy.SpellZone[6];
+                ClientCard r = Enemy.SpellZone[7];
                 if (l != null && r != null && l.LScale != r.RScale)
                 {
                     AI.SelectOption(4);

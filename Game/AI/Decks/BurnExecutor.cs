@@ -81,7 +81,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool SwordsOfRevealingLight()
         {
-            int count = Duel.Fields[0].SpellZone.GetCardCount((int)CardId.SwordsOfRevealingLight);
+            int count = Bot.SpellZone.GetCardCount((int)CardId.SwordsOfRevealingLight);
             return count == 0;
         }
 
@@ -98,12 +98,12 @@ namespace DevBot.Game.AI.Decks
 
         private bool ThunderShort()
         {
-            return Duel.Fields[1].GetMonsterCount() >= 3;
+            return Enemy.GetMonsterCount() >= 3;
         }
 
         private bool SetInvincibleMonster()
         {
-            foreach (ClientCard card in Duel.Fields[0].GetMonsters())
+            foreach (ClientCard card in Bot.GetMonsters())
             {
                 if (card.Id == (int)CardId.Marshmallon || card.Id == (int)CardId.SpiritReaper)
                 {
@@ -116,7 +116,7 @@ namespace DevBot.Game.AI.Decks
         private bool LavaGolem()
         {
             bool found = false;
-            foreach (ClientCard card in Duel.Fields[1].GetMonsters())
+            foreach (ClientCard card in Enemy.GetMonsters())
             {
                 if (card.Attack > 2000)
                     found = true;
@@ -126,7 +126,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool Ceasefire()
         {
-            return Duel.Fields[0].GetMonsterCount() + Duel.Fields[1].GetMonsterCount() >= 3;
+            return Bot.GetMonsterCount() + Enemy.GetMonsterCount() >= 3;
         }
 
         private bool ReposEverything()

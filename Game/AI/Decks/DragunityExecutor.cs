@@ -116,27 +116,25 @@ namespace DevBot.Game.AI.Decks
             if (Card.Location != CardLocation.SpellZone)
                 return false;
 
-            ClientField field = Duel.Fields[0];
-
             int tributeId = -1;
-            if (field.HasInHand((int)CardId.DragunityPhalanx))
+            if (Bot.HasInHand((int)CardId.DragunityPhalanx))
                 tributeId = (int)CardId.DragunityPhalanx;
-            else if (field.HasInHand((int)CardId.FireFormationTenki))
+            else if (Bot.HasInHand((int)CardId.FireFormationTenki))
                 tributeId = (int)CardId.FireFormationTenki;
-            else if (field.HasInHand((int)CardId.Terraforming))
+            else if (Bot.HasInHand((int)CardId.Terraforming))
                 tributeId = (int)CardId.Terraforming;
-            else if (field.HasInHand((int)CardId.DragonRavine))
+            else if (Bot.HasInHand((int)CardId.DragonRavine))
                 tributeId = (int)CardId.DragonRavine;
-            else if (field.HasInHand((int)CardId.AssaultTeleport))
+            else if (Bot.HasInHand((int)CardId.AssaultTeleport))
                 tributeId = (int)CardId.AssaultTeleport;
-            else if (field.HasInHand((int)CardId.AssaultBeast))
+            else if (Bot.HasInHand((int)CardId.AssaultBeast))
                 tributeId = (int)CardId.AssaultBeast;
-            else if (field.HasInHand((int) CardId.DragunityArmaMysletainn))
+            else if (Bot.HasInHand((int) CardId.DragunityArmaMysletainn))
                 tributeId = (int)CardId.DragunityArmaMysletainn;
             else
             {
                 int count = 0;
-                foreach (ClientCard card in Duel.Fields[0].Hand)
+                foreach (ClientCard card in Bot.Hand)
                 {
                     if (card.Id == (int)CardId.DragunityDux)
                         ++count;
@@ -144,27 +142,27 @@ namespace DevBot.Game.AI.Decks
                 if (count >= 2)
                     tributeId = (int)CardId.DragunityDux;
             }
-            if (tributeId == -1 && field.HasInHand((int)CardId.StardustDragonAssaultMode))
+            if (tributeId == -1 && Bot.HasInHand((int)CardId.StardustDragonAssaultMode))
                 tributeId = (int)CardId.StardustDragonAssaultMode;
-            if (tributeId == -1 && field.HasInHand((int)CardId.DragunitySpearOfDestiny))
+            if (tributeId == -1 && Bot.HasInHand((int)CardId.DragunitySpearOfDestiny))
                 tributeId = (int)CardId.StardustDragonAssaultMode;
-            if (tributeId == -1 && field.HasInHand((int)CardId.DragonsMirror)
-                && Duel.Fields[0].GetMonsterCount() == 0)
+            if (tributeId == -1 && Bot.HasInHand((int)CardId.DragonsMirror)
+                && Bot.GetMonsterCount() == 0)
                 tributeId = (int)CardId.StardustDragonAssaultMode;
 
             if (tributeId == -1)
                 return false;
 
             int needId = -1;
-            if (!field.HasInMonstersZone((int)CardId.DragunityPhalanx) &&
-                !field.HasInGraveyard((int)CardId.DragunityPhalanx))
+            if (!Bot.HasInMonstersZone((int)CardId.DragunityPhalanx) &&
+                !Bot.HasInGraveyard((int)CardId.DragunityPhalanx))
                 needId = (int)CardId.DragunityPhalanx;
-            else if (field.GetMonsterCount() == 0)
+            else if (Bot.GetMonsterCount() == 0)
                 needId = (int)CardId.DragunityDux;
             else
             {
                 /*bool hasRealMonster = false;
-                foreach (ClientCard card in field.GetMonsters())
+                foreach (ClientCard card in Bot.GetMonsters())
                 {
                     if (card.Id != (int)CardId.AssaultBeast)
                     {
@@ -185,13 +183,13 @@ namespace DevBot.Game.AI.Decks
                 needId = (int)CardId.DragunityDux;
 
             int remaining = 3;
-            foreach (ClientCard card in Duel.Fields[0].Hand)
+            foreach (ClientCard card in Bot.Hand)
                 if (card.Id == needId)
                     remaining--;
-            foreach (ClientCard card in Duel.Fields[0].Graveyard)
+            foreach (ClientCard card in Bot.Graveyard)
                 if (card.Id == needId)
                     remaining--;
-            foreach (ClientCard card in Duel.Fields[0].Banished)
+            foreach (ClientCard card in Bot.Banished)
                 if (card.Id == needId)
                     remaining--;
             if (remaining <= 0)
@@ -213,16 +211,16 @@ namespace DevBot.Game.AI.Decks
 
         private bool Terraforming()
         {
-            if (Duel.Fields[0].HasInHand((int)CardId.DragonRavine))
+            if (Bot.HasInHand((int)CardId.DragonRavine))
                 return false;
-            if (Duel.Fields[0].SpellZone[5] != null)
+            if (Bot.SpellZone[5] != null)
                 return false;
             return true;
         }
 
         private bool SetUselessCards()
         {
-            ClientField field = Duel.Fields[0];
+            ClientField field = Bot;
 
             if (field.HasInSpellZone((int)CardId.FireFormationTenki))
                 return false;
@@ -233,24 +231,24 @@ namespace DevBot.Game.AI.Decks
             if (field.HasInSpellZone((int)CardId.DragonsMirror))
                 return false;
 
-            return Duel.Fields[0].GetSpellCountWithoutField() < 4;
+            return Bot.GetSpellCountWithoutField() < 4;
         }
 
         private bool FireFormationTenki()
         {
             if (Card.Location == CardLocation.Hand)
-                return Duel.Fields[0].GetSpellCountWithoutField() < 4;
+                return Bot.GetSpellCountWithoutField() < 4;
             return true;
         }
 
         private bool FoolishBurial()
         {
-            if (Duel.Fields[0].HasInGraveyard((int)CardId.DragunityPhalanx))
+            if (Bot.HasInGraveyard((int)CardId.DragunityPhalanx))
                 return false;
-            if (Duel.Fields[0].HasInHand((int)CardId.DragunityPhalanx))
+            if (Bot.HasInHand((int)CardId.DragunityPhalanx))
                 return false;
             int remaining = 3;
-            foreach (ClientCard card in Duel.Fields[0].Banished)
+            foreach (ClientCard card in Bot.Banished)
                 if (card.Id == (int)CardId.DragunityPhalanx)
                     remaining--;
             if (remaining > 0)
@@ -263,7 +261,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool MonsterReborn()
         {
-            List<ClientCard> cards = new List<ClientCard>(Duel.Fields[0].Graveyard);
+            List<ClientCard> cards = new List<ClientCard>(Bot.Graveyard);
             cards.Sort(AIFunctions.CompareCardAttack);
             ClientCard selectedCard = null;
             for (int i = cards.Count - 1; i >= 0; --i)
@@ -280,7 +278,7 @@ namespace DevBot.Game.AI.Decks
                     break;
                 }
             }
-            cards = new List<ClientCard>(Duel.Fields[1].Graveyard);
+            cards = new List<ClientCard>(Enemy.Graveyard);
             cards.Sort(AIFunctions.CompareCardAttack);
             for (int i = cards.Count - 1; i >= 0; --i)
             {
@@ -305,7 +303,7 @@ namespace DevBot.Game.AI.Decks
         {
             IList<ClientCard> tributes = new List<ClientCard>();
             int phalanxCount = 0;
-            foreach (ClientCard card in Duel.Fields[0].Graveyard)
+            foreach (ClientCard card in Bot.Graveyard)
             {
                 if (card.Id == (int) CardId.DragunityPhalanx)
                 {
@@ -322,7 +320,7 @@ namespace DevBot.Game.AI.Decks
             // if we have more than one in the graveyard.
             if (tributes.Count < 5 && phalanxCount > 1)
             {
-                foreach (ClientCard card in Duel.Fields[0].Graveyard)
+                foreach (ClientCard card in Bot.Graveyard)
                 {
                     if (card.Id == (int) CardId.DragunityPhalanx)
                     {
@@ -356,7 +354,7 @@ namespace DevBot.Game.AI.Decks
             if (invincible == null && !AI.Utils.IsOneEnemyBetterThanValue(2800 - 1, false))
                 return false;
 
-            ClientField field = Duel.Fields[0];
+            ClientField field = Bot;
 
             int tributeId = -1;
             if (field.HasInSpellZone((int)CardId.FireFormationTenki))
@@ -374,7 +372,7 @@ namespace DevBot.Game.AI.Decks
             else if (field.HasInSpellZone((int)CardId.DragonRavine))
                 tributeId = (int)CardId.DragonRavine;
 
-            List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+            List<ClientCard> monsters = Enemy.GetMonsters();
             monsters.Sort(AIFunctions.CompareCardAttack);
 
             ClientCard destroyCard = invincible;
@@ -403,9 +401,9 @@ namespace DevBot.Game.AI.Decks
 
         private bool CrystalWingSynchroDragonSummon()
         {
-            return !Duel.Fields[0].HasInHand((int)CardId.AssaultModeActivate)
-                && !Duel.Fields[0].HasInHand((int)CardId.AssaultBeast)
-                && !Duel.Fields[0].HasInSpellZone((int)CardId.AssaultModeActivate);
+            return !Bot.HasInHand((int)CardId.AssaultModeActivate)
+                && !Bot.HasInHand((int)CardId.AssaultBeast)
+                && !Bot.HasInSpellZone((int)CardId.AssaultModeActivate);
         }
 
         private bool CrystalWingSynchroDragonEffect()
@@ -415,17 +413,17 @@ namespace DevBot.Game.AI.Decks
 
         private bool DragunityPhalanxSummon()
         {
-            return Duel.Fields[0].HasInHand((int)CardId.DragunityArmaMysletainn);
+            return Bot.HasInHand((int)CardId.DragunityArmaMysletainn);
         }
 
         private bool DragunityArmaMysletainn()
         {
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.DragunityPhalanx))
+            if (Bot.HasInMonstersZone((int)CardId.DragunityPhalanx))
             {
                 AI.SelectCard((int)CardId.DragunityPhalanx);
                 return true;
             }
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.DragunityDux))
+            if (Bot.HasInMonstersZone((int)CardId.DragunityDux))
             {
                 AI.SelectCard((int)CardId.DragunityDux);
                 return true;
@@ -441,29 +439,29 @@ namespace DevBot.Game.AI.Decks
 
         private bool DragunityArmaMysletainnTribute()
         {
-            if ((Duel.Fields[0].HasInMonstersZone((int)CardId.AssaultBeast)
-                && Duel.Fields[0].HasInGraveyard((int)CardId.DragunityPhalanx))
-                || Duel.Fields[0].HasInMonstersZone((int)CardId.DragunityPhalanx)
-                || Duel.Fields[0].HasInHand((int)CardId.DragunitySpearOfDestiny))
+            if ((Bot.HasInMonstersZone((int)CardId.AssaultBeast)
+                && Bot.HasInGraveyard((int)CardId.DragunityPhalanx))
+                || Bot.HasInMonstersZone((int)CardId.DragunityPhalanx)
+                || Bot.HasInHand((int)CardId.DragunitySpearOfDestiny))
                 return true;
             return false;
         }
 
         private bool DragunityDux()
         {
-            return Duel.Fields[0].HasInGraveyard((int)CardId.DragunityPhalanx) ||
-                (Duel.Fields[0].GetMonsterCount() == 0 && Duel.Fields[0].HasInHand((int)CardId.DragunityArmaMysletainn) ||
-                Duel.Fields[0].HasInHand((int)CardId.DragunitySpearOfDestiny));
+            return Bot.HasInGraveyard((int)CardId.DragunityPhalanx) ||
+                (Bot.GetMonsterCount() == 0 && Bot.HasInHand((int)CardId.DragunityArmaMysletainn) ||
+                Bot.HasInHand((int)CardId.DragunitySpearOfDestiny));
         }
 
         private bool DragunityPhalanxSet()
         {
-            return Duel.Fields[0].GetMonsterCount() == 0 || !Duel.Fields[0].HasInGraveyard((int)CardId.DragunityPhalanx);
+            return Bot.GetMonsterCount() == 0 || !Bot.HasInGraveyard((int)CardId.DragunityPhalanx);
         }
 
         private bool AssaultBeast()
         {
-            if (!Duel.Fields[0].HasInSpellZone((int)CardId.AssaultModeActivate))
+            if (!Bot.HasInSpellZone((int)CardId.AssaultModeActivate))
                 return true;
             return false;
         }
@@ -479,7 +477,7 @@ namespace DevBot.Game.AI.Decks
         {
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.BattleStart)
             {
-                List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+                List<ClientCard> monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
                     if (monster.Id == (int)CardId.StardustDragon && monster.Attacked)
@@ -494,8 +492,8 @@ namespace DevBot.Game.AI.Decks
 
         private ClientCard GetProblematicCard()
         {
-            ClientCard card = Duel.Fields[1].MonsterZone.GetInvincibleMonster();
-            return card ?? Duel.Fields[1].SpellZone.GetFloodgate();
+            ClientCard card = Enemy.MonsterZone.GetInvincibleMonster();
+            return card ?? Enemy.SpellZone.GetFloodgate();
         }
     }
 }

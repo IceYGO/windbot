@@ -134,7 +134,7 @@ namespace DevBot.Game.AI.Decks
             }
             if (!(defender.Id == (int)CardId.NumberS39UtopiatheLightning))
             {
-                if (attacker.Attribute == (int)CardAttribute.Light && Duel.Fields[0].HasInHand((int)CardId.Honest))
+                if (attacker.Attribute == (int)CardAttribute.Light && Bot.HasInHand((int)CardId.Honest))
                     attacker.RealPower = attacker.RealPower + defender.Attack;
                 if (attacker.Id == (int)CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.Number39Utopia))
                     attacker.RealPower = 5000;
@@ -180,7 +180,7 @@ namespace DevBot.Game.AI.Decks
         {
             if (Duel.LifePoints[0] <= 1000)
                 return false;
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             int count4 = 0;
             int count5 = 0;
             foreach (ClientCard card in monsters)
@@ -220,7 +220,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool GoblindberghFirst()
         {
-            IList<ClientCard> hand = Duel.Fields[0].Hand;
+            IList<ClientCard> hand = Bot.Hand;
             foreach (ClientCard card in hand)
             {
                 if (card != Card && card.IsMonster() && card.Level == 4)
@@ -243,8 +243,8 @@ namespace DevBot.Game.AI.Decks
 
         private bool SummonerMonkEffect()
         {
-            if (Duel.Fields[0].HasInHand((int)CardId.InstantFusion) ||
-                Duel.Fields[0].HasInHand((int)CardId.MysticalSpaceTyphoon))
+            if (Bot.HasInHand((int)CardId.InstantFusion) ||
+                Bot.HasInHand((int)CardId.MysticalSpaceTyphoon))
             {
                 AI.SelectCard(new[]
                     {
@@ -266,7 +266,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool SolarWindJammer()
         {
-            if (!Duel.Fields[0].HasInHand(new List<int> {
+            if (!Bot.HasInHand(new List<int> {
                     (int)CardId.StarDrawing,
                     (int)CardId.InstantFusion
                 }))

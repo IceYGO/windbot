@@ -90,14 +90,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool 苍炎之修罗()
         {
-            if (Duel.Fields[0].HasInMonstersZone((int)CardId.晓之希洛克) && Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack < 3800)
+            if (Bot.HasInMonstersZone((int)CardId.晓之希洛克) && Bot.GetMonsters().GetHighestAttackMonster().Attack < 3800)
                 return true;
             return false;
         }
 
         private bool 黑旋风()
         {
-            if (Card.Location == CardLocation.Hand && Duel.Fields[0].HasInSpellZone(Card.Id))
+            if (Card.Location == CardLocation.Hand && Bot.HasInSpellZone(Card.Id))
                 return false;
             if (ActivateDescription == AI.Utils.GetStringId((int)Card.Id,0))
                 AI.SelectCard((int)CardId.疾风之盖尔);
@@ -106,8 +106,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool 晓之希洛克()
         {
-            int OpponentMonster = Duel.Fields[1].GetMonsterCount();
-            int AIMonster = Duel.Fields[0].GetMonsterCount();
+            int OpponentMonster = Enemy.GetMonsterCount();
+            int AIMonster = Bot.GetMonsterCount();
             if (OpponentMonster != 0 && AIMonster == 0)
                 return true;
             return false;
@@ -115,7 +115,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 黑枪之布拉斯特()
         {
-            List<ClientCard> monster = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monster = Bot.GetMonsters();
             foreach (ClientCard card in monster)
                 if (card != null && card.Id == (int)CardId.残夜之波刃剑鸟 || card.Id == (int)CardId.月影之卡鲁特 || card.Id == (int)CardId.疾风之盖尔 || card.Id == (int)CardId.黑枪之布拉斯特 || card.Id == (int)CardId.晓之希洛克 || card.Id == (int)CardId.苍炎之修罗 || card.Id == (int)CardId.极北之布利扎德)
                     return true;
@@ -124,7 +124,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 月影之卡鲁特()
         {
-            foreach (ClientCard card in Duel.Fields[0].Hand)
+            foreach (ClientCard card in Bot.Hand)
                 if (card != null && card.Id == (int)CardId.残夜之波刃剑鸟 || card.Id == (int)CardId.疾风之盖尔 || card.Id == (int)CardId.黑枪之布拉斯特 || card.Id == (int)CardId.晓之希洛克 || card.Id == (int)CardId.苍炎之修罗 || card.Id == (int)CardId.极北之布利扎德)
                     return false;
             return true;
@@ -132,7 +132,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 极北之布利扎德()
         {
-            foreach (ClientCard card in Duel.Fields[0].Graveyard)
+            foreach (ClientCard card in Bot.Graveyard)
                 if (card != null && card.Id == (int)CardId.月影之卡鲁特 || card.Id == (int)CardId.黑枪之布拉斯特 || card.Id == (int)CardId.苍炎之修罗 || card.Id == (int)CardId.残夜之波刃剑鸟)
                     return true;
             return false;
@@ -142,7 +142,7 @@ namespace WindBot.Game.AI.Decks
         {
             int Count = 0;
 
-            List<ClientCard> monster = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monster = Bot.GetMonsters();
             foreach (ClientCard card in monster)
                 if (card != null && card.Id == (int)CardId.残夜之波刃剑鸟 || card.Id == (int)CardId.月影之卡鲁特 || card.Id == (int)CardId.疾风之盖尔 || card.Id == (int)CardId.黑枪之布拉斯特 || card.Id == (int)CardId.晓之希洛克 || card.Id == (int)CardId.苍炎之修罗 || card.Id == (int)CardId.极北之布利扎德)
                     Count++;
@@ -156,7 +156,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Position == (int)CardPosition.FaceUp)
             {
-                AI.SelectCard(Duel.Fields[1].GetMonsters().GetHighestAttackMonster());
+                AI.SelectCard(Enemy.GetMonsters().GetHighestAttackMonster());
                 return true;
             }
             return false;
@@ -164,11 +164,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool 攻击力上升效果()
         {
-            if (Duel.Fields[1].GetMonsters().GetHighestAttackMonster().IsFacedown() || Duel.Fields[1].GetMonsters().GetHighestDefenseMonster().IsFacedown() || Duel.Fields[1].GetMonsterCount() == 0)
+            if (Enemy.GetMonsters().GetHighestAttackMonster().IsFacedown() || Enemy.GetMonsters().GetHighestDefenseMonster().IsFacedown() || Enemy.GetMonsterCount() == 0)
                 return false;
-            if (Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack < Duel.Fields[1].GetMonsters().GetHighestAttackMonster().Attack)
+            if (Bot.GetMonsters().GetHighestAttackMonster().Attack < Enemy.GetMonsters().GetHighestAttackMonster().Attack)
                 return true;
-            if (Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack < Duel.Fields[1].GetMonsters().GetHighestDefenseMonster().Defense)
+            if (Bot.GetMonsters().GetHighestAttackMonster().Attack < Enemy.GetMonsters().GetHighestDefenseMonster().Defense)
                 return true;
             return false;
         }

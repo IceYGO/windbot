@@ -97,7 +97,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (!(defender.Id == (int)CardId.闪光No39希望皇霍普电光皇))
             {
-                if (attacker.Attribute == (int)CardAttribute.Light && Duel.Fields[0].HasInHand((int)CardId.欧尼斯特))
+                if (attacker.Attribute == (int)CardAttribute.Light && Bot.HasInHand((int)CardId.欧尼斯特))
                     attacker.RealPower = attacker.RealPower + defender.Attack;
                 if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.No39希望皇霍普))
                     attacker.RealPower = 5000;
@@ -142,16 +142,16 @@ namespace WindBot.Game.AI.Decks
 
         private bool 增援效果()
         {
-            if (!Duel.Fields[0].HasInHand((int)CardId.哥布林德伯格))
+            if (!Bot.HasInHand((int)CardId.哥布林德伯格))
                 AI.SelectCard((int)CardId.哥布林德伯格);
-            else if (!Duel.Fields[0].HasInHand((int)CardId.光道暗杀者莱登))
+            else if (!Bot.HasInHand((int)CardId.光道暗杀者莱登))
                 AI.SelectCard((int)CardId.光道暗杀者莱登);
             return true;
         }
 
         private bool 光之援军效果()
         {
-            if (!Duel.Fields[0].HasInHand((int)CardId.光道召唤师露米娜丝))
+            if (!Bot.HasInHand((int)CardId.光道召唤师露米娜丝))
                 AI.SelectCard((int)CardId.光道召唤师露米娜丝);
             else
                 AI.SelectCard(new[]
@@ -179,7 +179,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 哥布林德伯格通常召唤()
         {
-            foreach (ClientCard card in Duel.Fields[0].Hand)
+            foreach (ClientCard card in Bot.Hand)
             {
                 if (card != Card && card.IsMonster() && card.Level == 4)
                     return true;
@@ -215,25 +215,25 @@ namespace WindBot.Game.AI.Decks
 
         private bool 励辉士入魔蝇王特殊召唤()
         {
-            int selfCount = Duel.Fields[0].GetMonsterCount() + Duel.Fields[0].GetSpellCount() + Duel.Fields[0].GetHandCount();
-            int oppoCount = Duel.Fields[1].GetMonsterCount() + Duel.Fields[1].GetSpellCount() + Duel.Fields[1].GetHandCount();
+            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
+            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
             return (selfCount - 1 < oppoCount) && 励辉士入魔蝇王效果();
         }
 
         private bool 励辉士入魔蝇王效果()
         {
-            int selfCount = Duel.Fields[0].GetMonsterCount() + Duel.Fields[0].GetSpellCount();
-            int oppoCount = Duel.Fields[1].GetMonsterCount() + Duel.Fields[1].GetSpellCount();
+            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
+            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
 
             int selfAttack = 0;
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 selfAttack += monster.GetDefensePower();
             }
 
             int oppoAttack = 0;
-            monsters = Duel.Fields[1].GetMonsters();
+            monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 oppoAttack += monster.GetDefensePower();
@@ -244,15 +244,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool 红莲魔龙右红痕特殊召唤()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Duel.Fields[0], true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Duel.Fields[1], false);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
+            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
             return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || 红莲魔龙右红痕效果();
         }
 
         private bool 红莲魔龙右红痕效果()
         {
             int selfCount = 0;
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 if (!monster.Equals(Card) && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
@@ -260,7 +260,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             int oppoCount = 0;
-            monsters = Duel.Fields[1].GetMonsters();
+            monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 // 没有办法获取特殊召唤的状态，只好默认全部是特招的

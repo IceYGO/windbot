@@ -19,7 +19,10 @@ namespace WindBot.Game.AI
         protected int ActivateDescription { get; private set; }
 
         protected int LastChainPlayer { get; private set; }
-        protected IList<ClientCard> CurrentChain { get; private set; } 
+        protected IList<ClientCard> CurrentChain { get; private set; }
+
+        public ClientField Bot { get; private set; }
+        public ClientField Enemy { get; private set; }
 
         protected Executor(GameAI ai, Duel duel)
         {
@@ -29,6 +32,9 @@ namespace WindBot.Game.AI
 
             LastChainPlayer = -1;
             CurrentChain = new List<ClientCard>();
+
+            Bot = Duel.Fields[0];
+            Enemy = Duel.Fields[1];
         }
 
         public virtual bool OnSelectHand()

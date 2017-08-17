@@ -6,10 +6,14 @@ namespace WindBot.Game.AI
     public class AIFunctions
     {
         public Duel Duel { get; private set; }
+        public ClientField Bot { get; private set; }
+        public ClientField Enemy { get; private set; }
 
         public AIFunctions(Duel duel)
         {
             Duel = duel;
+            Bot = Duel.Fields[0];
+            Enemy = Duel.Fields[1];
         }
 
         public static int CompareCardAttack(ClientCard cardA, ClientCard cardB)
@@ -55,9 +59,9 @@ namespace WindBot.Game.AI
 
         public bool IsEnemyBetter(bool onlyatk, bool all)
         {
-            if (Duel.Fields[1].GetMonsterCount() == 0)
+            if (Enemy.GetMonsterCount() == 0)
                 return false;
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             monsters.Sort(CompareCardAttack);
             int bestAtk = -1;
             if (monsters.Count > 0)
@@ -73,7 +77,7 @@ namespace WindBot.Game.AI
             bool nomonster = true;
             for (int i = 0; i < 7; ++i)
             {
-                ClientCard card = Duel.Fields[1].MonsterZone[i];
+                ClientCard card = Enemy.MonsterZone[i];
                 if (card == null) continue;
                 if (onlyatk && card.IsDefense()) continue;
                 nomonster = false;
@@ -90,7 +94,7 @@ namespace WindBot.Game.AI
             bool nomonster = true;
             for (int i = 0; i < 7; ++i)
             {
-                ClientCard card = Duel.Fields[1].MonsterZone[i];
+                ClientCard card = Enemy.MonsterZone[i];
                 if (card == null || card.Data == null) continue;
                 if (onlyatk && card.IsDefense()) continue;
                 nomonster = false;
@@ -105,7 +109,7 @@ namespace WindBot.Game.AI
         {
             for (int i = 0; i < 7; ++i)
             {
-                ClientCard card = Duel.Fields[1].MonsterZone[i];
+                ClientCard card = Enemy.MonsterZone[i];
                 if (card == null) continue;
                 if (onlyatk && card.IsDefense()) continue;
                 int enemyValue = card.GetDefensePower();
@@ -117,39 +121,39 @@ namespace WindBot.Game.AI
 
         public ClientCard GetProblematicCard(int attack = 0)
         {
-            ClientCard card = Duel.Fields[1].MonsterZone.GetInvincibleMonster();
+            ClientCard card = Enemy.MonsterZone.GetInvincibleMonster();
             if (card != null)
                 return card;
-            card = Duel.Fields[1].MonsterZone.GetFloodgate();
+            card = Enemy.MonsterZone.GetFloodgate();
             if (card != null)
                 return card;
-            card = Duel.Fields[1].SpellZone.GetFloodgate();
+            card = Enemy.SpellZone.GetFloodgate();
             if (card != null)
                 return card;
             if (attack == 0)
-                attack = GetBestAttack(Duel.Fields[0], true);
+                attack = GetBestAttack(Bot, true);
             return GetOneEnemyBetterThanValue(attack, true);
         }
 
         public ClientCard GetProblematicMonsterCard(int attack = 0)
         {
-            ClientCard card = Duel.Fields[1].MonsterZone.GetInvincibleMonster();
+            ClientCard card = Enemy.MonsterZone.GetInvincibleMonster();
             if (card != null)
                 return card;
-            card = Duel.Fields[1].MonsterZone.GetFloodgate();
+            card = Enemy.MonsterZone.GetFloodgate();
             if (card != null)
                 return card;
             if (attack == 0)
-                attack = GetBestAttack(Duel.Fields[0], true);
+                attack = GetBestAttack(Bot, true);
             return GetOneEnemyBetterThanValue(attack, true);
         }
 
         public ClientCard GetProblematicSpellCard()
         {
-            ClientCard card = Duel.Fields[1].SpellZone.GetNegateAttackSpell();
+            ClientCard card = Enemy.SpellZone.GetNegateAttackSpell();
             if (card != null)
                 return card;
-            card = Duel.Fields[1].SpellZone.GetFloodgate();
+            card = Enemy.SpellZone.GetFloodgate();
             return card;
         }
 

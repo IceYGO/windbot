@@ -100,19 +100,19 @@ namespace WindBot.Game.AI.Decks
 
         private bool 千手神召唤()
         {
-            if (!Duel.Fields[0].HasInHand(NekrozRituelCard) || Duel.Fields[0].HasInHand((int)CardId.影灵衣术士施里特) || !Duel.Fields[0].HasInHand(NekrozSpellCard))  
+            if (!Bot.HasInHand(NekrozRituelCard) || Bot.HasInHand((int)CardId.影灵衣术士施里特) || !Bot.HasInHand(NekrozSpellCard))  
                 return true;
-            foreach (ClientCard Card in Duel.Fields[0].Hand)
-                if (Card != null && Card.Id == (int)CardId.影灵衣的万华镜 && !Duel.Fields[0].HasInHand((int)CardId.尤尼科之影灵衣))
+            foreach (ClientCard Card in Bot.Hand)
+                if (Card != null && Card.Id == (int)CardId.影灵衣的万华镜 && !Bot.HasInHand((int)CardId.尤尼科之影灵衣))
                     return true;
-                else if (Card.Id == (int)CardId.三叉龙之影灵衣 || Card.Id == (int)CardId.决战兵器之影灵衣 && !Duel.Fields[0].HasInHand((int)CardId.影灵衣的降魔镜) || !Duel.Fields[0].HasInHand((int)CardId.影灵衣术士施里特))
+                else if (Card.Id == (int)CardId.三叉龙之影灵衣 || Card.Id == (int)CardId.决战兵器之影灵衣 && !Bot.HasInHand((int)CardId.影灵衣的降魔镜) || !Bot.HasInHand((int)CardId.影灵衣术士施里特))
                     return true;
             return false;
         }
 
         private bool 增援()
         {
-            if (!Duel.Fields[0].HasInGraveyard((int)CardId.影灵衣术士施里特) && !Duel.Fields[0].HasInHand((int)CardId.影灵衣术士施里特))
+            if (!Bot.HasInGraveyard((int)CardId.影灵衣术士施里特) && !Bot.HasInHand((int)CardId.影灵衣术士施里特))
             {
                 AI.SelectCard((int)CardId.影灵衣术士施里特);
                 return true;
@@ -122,21 +122,21 @@ namespace WindBot.Game.AI.Decks
 
         private bool 万手神召唤()
         {
-                if (!Duel.Fields[0].HasInHand((int)CardId.千手神) || !Duel.Fields[0].HasInHand((int)CardId.影灵衣术士施里特))
+                if (!Bot.HasInHand((int)CardId.千手神) || !Bot.HasInHand((int)CardId.影灵衣术士施里特))
                 return true;
             return false;
         }
 
         private bool 影灵衣舞姬召唤()
         {
-            if (!Duel.Fields[0].HasInHand((int)CardId.千手神) && !Duel.Fields[0].HasInHand((int)CardId.万手神))
+            if (!Bot.HasInHand((int)CardId.千手神) && !Bot.HasInHand((int)CardId.万手神))
                 return true;
             return false;
         }
 
         private bool 混沌幻影()
         {
-            if (Duel.Fields[0].HasInGraveyard((int)CardId.影灵衣术士施里特) && Duel.Fields[0].HasInHand(NekrozSpellCard) && Duel.Fields[0].HasInHand(NekrozRituelCard))
+            if (Bot.HasInGraveyard((int)CardId.影灵衣术士施里特) && Bot.HasInHand(NekrozSpellCard) && Bot.HasInHand(NekrozRituelCard))
                 return true;
             return false;
         }
@@ -149,14 +149,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool 影灵衣术士施里特()
         {
-            if (!Duel.Fields[0].HasInHand((int)CardId.千手神) && !Duel.Fields[0].HasInHand((int)CardId.万手神) && !Duel.Fields[0].HasInHand((int)CardId.影灵衣舞姬))
+            if (!Bot.HasInHand((int)CardId.千手神) && !Bot.HasInHand((int)CardId.万手神) && !Bot.HasInHand((int)CardId.影灵衣舞姬))
                 return true;
             return false;
         }
 
         private bool 三叉龙之影灵衣()
         {
-            if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
+            if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand((int)CardId.决战兵器之影灵衣))
                 return false;
             return true;
         }
@@ -173,7 +173,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 励辉士入魔蝇王()
         {
-            if (AI.Utils.IsAllEnemyBetterThanValue(Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack, true))
+            if (AI.Utils.IsAllEnemyBetterThanValue(Bot.GetMonsters().GetHighestAttackMonster().Attack, true))
             {
                 return true;
             }
@@ -189,9 +189,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool 天枪龙之影灵衣()
         {           
-            if (AI.Utils.IsOneEnemyBetterThanValue(Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack,true) && Duel.Phase == DuelPhase.Main1)
+            if (AI.Utils.IsOneEnemyBetterThanValue(Bot.GetMonsters().GetHighestAttackMonster().Attack,true) && Duel.Phase == DuelPhase.Main1)
             {
-                AI.SelectCard(Duel.Fields[1].GetMonsters().GetHighestAttackMonster());
+                AI.SelectCard(Enemy.GetMonsters().GetHighestAttackMonster());
                 return true;
             }
             return false;
@@ -199,32 +199,32 @@ namespace WindBot.Game.AI.Decks
 
         private bool 光枪龙之影灵衣()
         {
-            if (!Duel.Fields[0].HasInHand((int)CardId.影灵衣术士施里特))
+            if (!Bot.HasInHand((int)CardId.影灵衣术士施里特))
             {
                 AI.SelectCard((int)CardId.影灵衣术士施里特);
                 return true;
             }
-            else if (!Duel.Fields[0].HasInHand(NekrozSpellCard))
+            else if (!Bot.HasInHand(NekrozSpellCard))
             {
                 AI.SelectCard((int)CardId.影灵衣的降魔镜);
                 return true;
             }
-            else if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Duel.Fields[0].HasInHand((int)CardId.三叉龙之影灵衣))
+            else if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand((int)CardId.三叉龙之影灵衣))
             {
                 AI.SelectCard((int)CardId.三叉龙之影灵衣);
                 return true;
             }
-            else if (AI.Utils.IsAllEnemyBetterThanValue(2700,true) && !Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
+            else if (AI.Utils.IsAllEnemyBetterThanValue(2700,true) && !Bot.HasInHand((int)CardId.决战兵器之影灵衣))
             {
                 AI.SelectCard((int)CardId.决战兵器之影灵衣);
                 return true;
             }
-            else if (Duel.Fields[0].HasInHand((int)CardId.尤尼科之影灵衣) && !Duel.Fields[0].HasInHand((int)CardId.影灵衣的万华镜))
+            else if (Bot.HasInHand((int)CardId.尤尼科之影灵衣) && !Bot.HasInHand((int)CardId.影灵衣的万华镜))
             {
                 AI.SelectCard((int)CardId.影灵衣的万华镜);
                 return true;
             }
-            else if (!Duel.Fields[0].HasInHand((int)CardId.尤尼科之影灵衣) && Duel.Fields[0].HasInHand((int)CardId.影灵衣的万华镜))
+            else if (!Bot.HasInHand((int)CardId.尤尼科之影灵衣) && Bot.HasInHand((int)CardId.影灵衣的万华镜))
             {
                 AI.SelectCard((int)CardId.尤尼科之影灵衣);
                 return true;
@@ -234,17 +234,17 @@ namespace WindBot.Game.AI.Decks
 
         private bool 千手神效果()
         {
-            if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Duel.Fields[0].HasInHand((int)CardId.三叉龙之影灵衣))
+            if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand((int)CardId.三叉龙之影灵衣))
             {
                 AI.SelectCard((int)CardId.三叉龙之影灵衣);
                 return true;
             }
-            else if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && !Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
+            else if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && !Bot.HasInHand((int)CardId.决战兵器之影灵衣))
             {
                 AI.SelectCard((int)CardId.决战兵器之影灵衣);
                 return true;
             }
-            else if (!Duel.Fields[0].HasInHand((int)CardId.尤尼科之影灵衣) && Duel.Fields[0].HasInHand((int)CardId.影灵衣的万华镜))
+            else if (!Bot.HasInHand((int)CardId.尤尼科之影灵衣) && Bot.HasInHand((int)CardId.影灵衣的万华镜))
             {
                 AI.SelectCard((int)CardId.尤尼科之影灵衣);
                 return true;
@@ -254,7 +254,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 尤尼科之影灵衣()
         {
-            if (Duel.Fields[0].HasInGraveyard((int)CardId.影灵衣术士施里特))
+            if (Bot.HasInGraveyard((int)CardId.影灵衣术士施里特))
             {
                 AI.SelectCard((int)CardId.影灵衣术士施里特);
                 return true;
@@ -264,7 +264,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 辉剑鸟之影灵衣()
         {
-            if (!Duel.Fields[0].HasInHand(NekrozSpellCard))
+            if (!Bot.HasInHand(NekrozSpellCard))
             {
                 AI.SelectCard((int)CardId.影灵衣的降魔镜);
                 return true;
@@ -274,7 +274,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool IsTheLastPossibility()
         {
-            if (!Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣) && !Duel.Fields[0].HasInHand((int)CardId.三叉龙之影灵衣))
+            if (!Bot.HasInHand((int)CardId.决战兵器之影灵衣) && !Bot.HasInHand((int)CardId.三叉龙之影灵衣))
                 return true;
             return false;
         }
@@ -284,13 +284,13 @@ namespace WindBot.Game.AI.Decks
             List<int> NekrozCard = new List<int>();
             try
             {
-                foreach (ClientCard Card in Duel.Fields[0].Hand)
+                foreach (ClientCard Card in Bot.Hand)
                     if (Card != null && NekrozRituelCard.Contains((int)Card.Id))
                         NekrozCard.Add(Card.Id);
 
                 foreach (int Id in NekrozCard)
                 {
-                    if (Id == (int)CardId.三叉龙之影灵衣 && AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
+                    if (Id == (int)CardId.三叉龙之影灵衣 && AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand((int)CardId.决战兵器之影灵衣))
                     {
                         AI.SelectCard((int)CardId.三叉龙之影灵衣);
                         return true;
@@ -300,7 +300,7 @@ namespace WindBot.Game.AI.Decks
                         AI.SelectCard((int)CardId.决战兵器之影灵衣);
                         return true;
                     }
-                    else if (Id == (int)CardId.尤尼科之影灵衣 && Duel.Fields[0].HasInHand((int)CardId.影灵衣的万华镜) && !Duel.Fields[0].HasInGraveyard((int)CardId.影灵衣术士施里特))
+                    else if (Id == (int)CardId.尤尼科之影灵衣 && Bot.HasInHand((int)CardId.影灵衣的万华镜) && !Bot.HasInGraveyard((int)CardId.影灵衣术士施里特))
                     {
                         AI.SelectCard((int)CardId.尤尼科之影灵衣);
                         return true;

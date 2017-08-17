@@ -199,7 +199,7 @@ namespace WindBot.Game.AI.Decks
         
         private bool 优先盖不重复的坑()
         {
-            foreach (ClientCard card in Duel.Fields[0].SpellZone)
+            foreach (ClientCard card in Bot.SpellZone)
             {
                 if (card != null && card.Id == Card.Id)
                     return false;
@@ -209,7 +209,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 魔陷区有空余格子()
         {
-            return Duel.Fields[0].GetSpellCountWithoutField() < 4;
+            return Bot.GetSpellCountWithoutField() < 4;
         }
 
         private bool 已发动过削命()
@@ -249,12 +249,12 @@ namespace WindBot.Game.AI.Decks
             if (!Card.HasType(CardType.Pendulum) || Card.Location != CardLocation.Hand)
                 return false;
             int count = 0;
-            foreach (ClientCard card in Duel.Fields[0].Hand.GetMonsters())
+            foreach (ClientCard card in Bot.Hand.GetMonsters())
             {
                 if (!Card.Equals(card))
                     count++;
             }
-            foreach (ClientCard card in Duel.Fields[0].ExtraDeck.GetMonsters())
+            foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
             {
                 if (card.HasType(CardType.Pendulum) && card.IsFaceup())
                     count++;
@@ -266,7 +266,7 @@ namespace WindBot.Game.AI.Decks
                 if (已发动削命)
                     return true;
                 bool pair = false;
-                foreach (ClientCard card in Duel.Fields[0].Hand.GetMonsters())
+                foreach (ClientCard card in Bot.Hand.GetMonsters())
                 {
                     if (card.RScale != Card.LScale)
                     {
@@ -291,21 +291,21 @@ namespace WindBot.Game.AI.Decks
             int count = 0;
             int handcount = 0;
             int fieldcount = 0;
-            foreach (ClientCard card in Duel.Fields[0].Hand.GetMonsters())
+            foreach (ClientCard card in Bot.Hand.GetMonsters())
             {
                 count++;
                 handcount++;
             }
-            foreach (ClientCard card in Duel.Fields[0].MonsterZone.GetMonsters())
+            foreach (ClientCard card in Bot.MonsterZone.GetMonsters())
             {
                 fieldcount++;
             }
-            foreach (ClientCard card in Duel.Fields[0].ExtraDeck.GetMonsters())
+            foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
             {
                 if (card.HasType(CardType.Pendulum) && card.IsFaceup())
                     count++;
             }
-            if (count>0 && !Duel.Fields[0].HasInHand(低刻度))
+            if (count>0 && !Bot.HasInHand(低刻度))
             {
                 AI.SelectCard(低刻度);
             }
@@ -335,13 +335,13 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(target);
                 return true;
             }
-            List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+            List<ClientCard> monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 AI.SelectCard(monster);
                 return true;
             }
-            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            List<ClientCard> spells = Enemy.GetSpells();
             foreach (ClientCard spell in spells)
             {
                 if (spell.IsFacedown())
@@ -368,7 +368,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(target);
                 return true;
             }
-            List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+            List<ClientCard> monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 AI.SelectCard(monster);
@@ -387,7 +387,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(target);
                 return true;
             }
-            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            List<ClientCard> spells = Enemy.GetSpells();
             foreach (ClientCard spell in spells)
             {
                 if (spell.IsFacedown())
@@ -411,11 +411,11 @@ namespace WindBot.Game.AI.Decks
             if (l != null && r != null && l.LScale != r.RScale)
             {
                 int count = 0;
-                foreach (ClientCard card in Duel.Fields[0].Hand.GetMonsters())
+                foreach (ClientCard card in Bot.Hand.GetMonsters())
                 {
                     count++;
                 }
-                foreach (ClientCard card in Duel.Fields[0].ExtraDeck.GetMonsters())
+                foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
                 {
                     if (card.HasType(CardType.Pendulum) && card.IsFaceup())
                         count++;

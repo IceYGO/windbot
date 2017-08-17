@@ -9,7 +9,6 @@ namespace WindBot.Game.AI.Decks
     [Deck("CyberDragon", "AI_CyberDragon")]
     public class CyberDragonExecutor : DefaultExecutor
     {
-        ClientField Bot;
         bool 力量结合效果 = false;
 
         public enum CardId
@@ -46,8 +45,6 @@ namespace WindBot.Game.AI.Decks
         public CyberDragonExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            Bot = Duel.Fields[0];
-
             AddExecutor(ExecutorType.SpellSet, (int)CardId.融合解除);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.时间胶囊, Capsule);
@@ -91,10 +88,10 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
-        private bool CyberDragonInHand()  { return Duel.Fields[0].HasInHand((int)CardId.电子龙); }
-        private bool CyberDragonInGraveyard()  { return Duel.Fields[0].HasInGraveyard((int)CardId.电子龙); }
-        private bool CyberDragonInMonsterZone() { return Duel.Fields[0].HasInMonstersZone((int)CardId.电子龙); }
-        private bool CyberDragonIsBanished() { return Duel.Fields[0].HasInBanished((int)CardId.电子龙); }
+        private bool CyberDragonInHand()  { return Bot.HasInHand((int)CardId.电子龙); }
+        private bool CyberDragonInGraveyard()  { return Bot.HasInGraveyard((int)CardId.电子龙); }
+        private bool CyberDragonInMonsterZone() { return Bot.HasInMonstersZone((int)CardId.电子龙); }
+        private bool CyberDragonIsBanished() { return Bot.HasInBanished((int)CardId.电子龙); }
 
         private bool Capsule()
         {
@@ -130,20 +127,20 @@ namespace WindBot.Game.AI.Decks
             if (!AI.Utils.IsOneEnemyBetterThanValue(Bot.MonsterZone.GetHighestAttackMonster().Attack, false))
                 return false;
             else
-                AI.SelectCard(Duel.Fields[1].MonsterZone.GetHighestAttackMonster());     
+                AI.SelectCard(Enemy.MonsterZone.GetHighestAttackMonster());     
             return true;
         }
 
         private bool 没有电子龙可特殊召唤()
         {
-            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Duel.Fields[1].GetMonsterCount() != 0))
+            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0))
                 return false;
             return true;
         }
 
         private bool 装甲电子翼()
         {
-            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Duel.Fields[1].GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.电子龙三型) || Bot.HasInHand((int)CardId.电子凤凰)) && !AI.Utils.IsOneEnemyBetterThanValue(1800,true))
+            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.电子龙三型) || Bot.HasInHand((int)CardId.电子凤凰)) && !AI.Utils.IsOneEnemyBetterThanValue(1800,true))
                 return false;
             return true;
         }
@@ -152,7 +149,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.GetCountCardInZone(Bot.Hand, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙核) >= 1 && Bot.HasInHand((int)CardId.融合) || Bot.GetCountCardInZone(Bot.Hand, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.电子龙核) >= 1 && Bot.HasInHand((int)CardId.力量结合))
                 return true;
-            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Duel.Fields[1].GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.电子龙三型) || Bot.HasInHand((int)CardId.电子凤凰)) && !AI.Utils.IsOneEnemyBetterThanValue(1800, true))
+            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.电子龙三型) || Bot.HasInHand((int)CardId.电子凤凰)) && !AI.Utils.IsOneEnemyBetterThanValue(1800, true))
                 return false;
             return true;
         }

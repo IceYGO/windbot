@@ -109,7 +109,7 @@ namespace DevBot.Game.AI.Decks
                 return false;
             m_swapFrogSummoned = -1;
 
-            if (Duel.Fields[0].GetRemainingCount((int)CardId.Ronintoadin, 2) == 0)
+            if (Bot.GetRemainingCount((int)CardId.Ronintoadin, 2) == 0)
                 return false;
 
             AI.SelectCard((int)CardId.Ronintoadin);
@@ -127,7 +127,7 @@ namespace DevBot.Game.AI.Decks
             if (Card.IsDefense() || m_flipFlopFrogSummoned == Duel.Turn || Duel.Phase == DuelPhase.Main2)
             {
                 m_flipFlopFrogSummoned = -1;
-                List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+                List<ClientCard> monsters = Enemy.GetMonsters();
                 monsters.Sort(AIFunctions.CompareCardAttack);
                 monsters.Reverse();
                 AI.SelectCard(monsters);
@@ -138,7 +138,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool Ronintoadin()
         {
-            List<ClientCard> monsters = Duel.Fields[0].GetGraveyardMonsters();
+            List<ClientCard> monsters = Bot.GetGraveyardMonsters();
             if (monsters.Count > 2)
             {
                 if (GetSpellBonus() == 0)
@@ -169,7 +169,7 @@ namespace DevBot.Game.AI.Decks
                 cards.Add((int)CardId.FlipFlopFrog);
             }
 
-            if (Duel.Fields[0].SpellZone[5] == null)
+            if (Bot.SpellZone[5] == null)
             {
                 cards.Add((int)CardId.Terraforming);
                 cards.Add((int)CardId.Wetlands);
@@ -195,22 +195,22 @@ namespace DevBot.Game.AI.Decks
 
         private bool Terraforming()
         {
-            if (Duel.Fields[0].HasInHand((int)CardId.Wetlands))
+            if (Bot.HasInHand((int)CardId.Wetlands))
                 return false;
-            if (Duel.Fields[0].SpellZone[5] != null)
+            if (Bot.SpellZone[5] != null)
                 return false;
             return true;
         }
 
         private bool Solidarity()
         {
-            List<ClientCard> monsters = Duel.Fields[0].GetGraveyardMonsters();
+            List<ClientCard> monsters = Bot.GetGraveyardMonsters();
             return monsters.Count != 0;
         }
 
         private bool GravityBind()
         {
-            List<ClientCard> spells = Duel.Fields[0].GetSpells();
+            List<ClientCard> spells = Bot.GetSpells();
             foreach (ClientCard spell in spells)
             {
                 if (spell.Id == (int)CardId.GravityBind && !spell.IsFacedown())
@@ -235,7 +235,7 @@ namespace DevBot.Game.AI.Decks
             if (Card.IsDefense() && !enemyBetter)
                 result = true;
 
-            if (!result && Card.Id == (int)CardId.FlipFlopFrog && Duel.Fields[1].GetMonsterCount() > 0 && Card.IsFacedown())
+            if (!result && Card.Id == (int)CardId.FlipFlopFrog && Enemy.GetMonsterCount() > 0 && Card.IsFacedown())
                 result = true;
 
             if (Card.Id == (int)CardId.FlipFlopFrog && Card.IsFacedown() && result)
@@ -247,13 +247,13 @@ namespace DevBot.Game.AI.Decks
         private int GetSpellBonus()
         {
             int atk = 0;
-            if (Duel.Fields[0].SpellZone[5] != null)
+            if (Bot.SpellZone[5] != null)
                 atk += 1200;
 
-            List<ClientCard> monsters = Duel.Fields[0].GetGraveyardMonsters();
+            List<ClientCard> monsters = Bot.GetGraveyardMonsters();
             if (monsters.Count != 0)
             {
-                foreach (ClientCard card in Duel.Fields[0].GetSpells())
+                foreach (ClientCard card in Bot.GetSpells())
                 {
                     if (card.Id == (int)CardId.Solidarity)
                         atk += 800;

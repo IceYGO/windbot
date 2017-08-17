@@ -120,7 +120,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool 特殊召唤不重复的超量怪兽()
         {
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
                 if (monster.Id == Card.Id)
                     return false;
@@ -179,12 +179,12 @@ namespace DevBot.Game.AI.Decks
             if (场上有5星怪兽())
                 return true;
             int 其他的5星资源数量 = 0;
-            IList<ClientCard> hand = Duel.Fields[0].Hand;
+            IList<ClientCard> hand = Bot.Hand;
             foreach (ClientCard card in hand)
             {
                 if (card.Id == (int)CardId.简易融合 && !已发动简易融合)
                     ++其他的5星资源数量;
-                if (card.Id == (int)CardId.速攻同调士 && Duel.Fields[0].Hand.ContainsMonsterWithLevel(4))
+                if (card.Id == (int)CardId.速攻同调士 && Bot.Hand.ContainsMonsterWithLevel(4))
                     ++其他的5星资源数量;
                 if (card.Id == (int)CardId.迷雾恶魔 && !已通常召唤)
                     ++其他的5星资源数量;
@@ -210,7 +210,7 @@ namespace DevBot.Game.AI.Decks
         {
             if (!已通常召唤 || 已发动二重召唤)
                 return false;
-            IList<ClientCard> hand = Duel.Fields[0].Hand;
+            IList<ClientCard> hand = Bot.Hand;
             foreach (ClientCard card in hand)
             {
                 if (card.Id == (int)CardId.迷雾恶魔 ||
@@ -262,7 +262,7 @@ namespace DevBot.Game.AI.Decks
             }
             else
             {
-                List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+                List<ClientCard> monsters = Enemy.GetMonsters();
                 ClientCard bestmonster = null;
                 foreach (ClientCard monster in monsters)
                 {
@@ -285,7 +285,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool No61火山恐龙效果()
         {
-            ClientCard target = Duel.Fields[1].MonsterZone.GetFloodgate();
+            ClientCard target = Enemy.MonsterZone.GetFloodgate();
             if (target == null)
                 target = AI.Utils.GetOneEnemyBetterThanValue(2000, false);
             if (target != null)
@@ -310,12 +310,12 @@ namespace DevBot.Game.AI.Decks
 
         private bool 迅雷之骑士盖亚龙骑士特殊召唤()
         {
-            if (已发动火山恐龙 && Duel.Fields[0].HasInMonstersZone((int)CardId.No61火山恐龙))
+            if (已发动火山恐龙 && Bot.HasInMonstersZone((int)CardId.No61火山恐龙))
             {
                 AI.SelectCard((int)CardId.No61火山恐龙);
                 return true;
             }
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 if (monster.HasType(CardType.Xyz) && !monster.HasXyzMaterial())
@@ -329,7 +329,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool 超量苏生效果()
         {
-            foreach (ClientCard card in Duel.Fields[0].SpellZone)
+            foreach (ClientCard card in Bot.SpellZone)
             {
                 if (card != null &&
                     card.Id == Card.Id &&
@@ -349,7 +349,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool 超量组件效果()
         {
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             return monsters.Exists(p => p.HasType(CardType.Xyz));
         }
 
@@ -361,13 +361,13 @@ namespace DevBot.Game.AI.Decks
                 AI.SelectCard(target);
                 return true;
             }
-            List<ClientCard> monsters = Duel.Fields[1].GetMonsters();
+            List<ClientCard> monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 AI.SelectCard(monster);
                 return true;
             }
-            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            List<ClientCard> spells = Enemy.GetSpells();
             foreach (ClientCard spell in spells)
             {
                 if (spell.IsFacedown())
@@ -386,13 +386,13 @@ namespace DevBot.Game.AI.Decks
 
         private bool 超量遮护罩效果()
         {
-            List<ClientCard> spells = Duel.Fields[0].GetSpells();
+            List<ClientCard> spells = Bot.GetSpells();
             foreach (ClientCard spell in spells)
             {
                 if (spell.Id == (int)CardId.超量遮护罩 && !spell.IsFacedown())
                     return false;
             }
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 if (monster.HasType(CardType.Xyz))
@@ -403,7 +403,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool 场上有5星怪兽()
         {
-            List<ClientCard> monsters = Duel.Fields[0].GetMonsters();
+            List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 if (monster.HasType(CardType.Monster) &&
@@ -421,10 +421,10 @@ namespace DevBot.Game.AI.Decks
             ClientCard card = AI.Utils.GetProblematicCard();
             if (card != null)
                 return card;
-            card = Duel.Fields[1].MonsterZone.GetHighestAttackMonster();
+            card = Enemy.MonsterZone.GetHighestAttackMonster();
             if (card != null)
                 return card;
-            List<ClientCard> spells = Duel.Fields[1].GetSpells();
+            List<ClientCard> spells = Enemy.GetSpells();
             if (spells.Count > 0)
                 return spells[0];
             return null;
