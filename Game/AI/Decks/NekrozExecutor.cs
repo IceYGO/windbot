@@ -156,14 +156,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool 三叉龙之影灵衣()
         {
-            if (AI.Utils.IsAllEnnemyBetterThanValue(2700, true) && Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
+            if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
                 return false;
             return true;
         }
 
         private bool 决战兵器之影灵衣()
         {
-            if (AI.Utils.IsAllEnnemyBetterThanValue(3300, true))
+            if (AI.Utils.IsAllEnemyBetterThanValue(3300, true))
             {
                 AI.SelectCard((int)CardId.决战兵器之影灵衣);
                 return true;
@@ -173,7 +173,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 励辉士入魔蝇王()
         {
-            if (AI.Utils.IsAllEnnemyBetterThanValue(Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack, true))
+            if (AI.Utils.IsAllEnemyBetterThanValue(Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack, true))
             {
                 return true;
             }
@@ -189,7 +189,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 天枪龙之影灵衣()
         {           
-            if (AI.Utils.IsOneEnnemyBetterThanValue(Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack,true) && Duel.Phase == DuelPhase.Main1)
+            if (AI.Utils.IsOneEnemyBetterThanValue(Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack,true) && Duel.Phase == DuelPhase.Main1)
             {
                 AI.SelectCard(Duel.Fields[1].GetMonsters().GetHighestAttackMonster());
                 return true;
@@ -209,12 +209,12 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard((int)CardId.影灵衣的降魔镜);
                 return true;
             }
-            else if (AI.Utils.IsOneEnnemyBetterThanValue(3300, true) && !Duel.Fields[0].HasInHand((int)CardId.三叉龙之影灵衣))
+            else if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Duel.Fields[0].HasInHand((int)CardId.三叉龙之影灵衣))
             {
                 AI.SelectCard((int)CardId.三叉龙之影灵衣);
                 return true;
             }
-            else if (AI.Utils.IsAllEnnemyBetterThanValue(2700,true) && !Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
+            else if (AI.Utils.IsAllEnemyBetterThanValue(2700,true) && !Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
             {
                 AI.SelectCard((int)CardId.决战兵器之影灵衣);
                 return true;
@@ -234,12 +234,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool 千手神效果()
         {
-            if (AI.Utils.IsOneEnnemyBetterThanValue(3300, true) && !Duel.Fields[0].HasInHand((int)CardId.三叉龙之影灵衣))
+            if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Duel.Fields[0].HasInHand((int)CardId.三叉龙之影灵衣))
             {
                 AI.SelectCard((int)CardId.三叉龙之影灵衣);
                 return true;
             }
-            else if (AI.Utils.IsAllEnnemyBetterThanValue(2700, true) && !Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
+            else if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && !Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
             {
                 AI.SelectCard((int)CardId.决战兵器之影灵衣);
                 return true;
@@ -290,7 +290,7 @@ namespace WindBot.Game.AI.Decks
 
                 foreach (int Id in NekrozCard)
                 {
-                    if (Id == (int)CardId.三叉龙之影灵衣 && AI.Utils.IsAllEnnemyBetterThanValue(2700, true) && Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
+                    if (Id == (int)CardId.三叉龙之影灵衣 && AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Duel.Fields[0].HasInHand((int)CardId.决战兵器之影灵衣))
                     {
                         AI.SelectCard((int)CardId.三叉龙之影灵衣);
                         return true;

@@ -421,7 +421,7 @@ namespace WindBot.Game.AI.Decks
         private bool 猫鲨特殊召唤()
         {
             bool should = Duel.Fields[0].HasInMonstersZone((int)CardId.饼蛙)
-                        && ((AI.Utils.IsEnnemyBetter(true, false)
+                        && ((AI.Utils.IsEnemyBetter(true, false)
                             && !Duel.Fields[0].HasInMonstersZone(new List<int>
                                 {
                                     (int)CardId.猫鲨,
@@ -480,7 +480,7 @@ namespace WindBot.Game.AI.Decks
                     num++;
                 }
             }
-            return AI.Utils.IsEnnemyBetter(true, false)
+            return AI.Utils.IsEnemyBetter(true, false)
                    && AI.Utils.GetBestAttack(Duel.Fields[1], true) > 2200
                    && num < 4
                    && !Duel.Fields[0].HasInMonstersZone(new List<int>
@@ -508,7 +508,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     defence += monster.GetDefensePower();
                 }
-                if (attack - 2000 - defence > Duel.LifePoints[1] && !AI.Utils.IsEnnemyBetter(true, false))
+                if (attack - 2000 - defence > Duel.LifePoints[1] && !AI.Utils.IsEnemyBetter(true, false))
                     return true;
             }
             return false;
@@ -522,11 +522,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool 改变攻守表示()
         {
-            bool ennemyBetter = AI.Utils.IsEnnemyBetter(true, true);
+            bool enemyBetter = AI.Utils.IsEnemyBetter(true, true);
 
             if (Card.IsFacedown())
                 return true;
-            if (Card.IsDefense() && !ennemyBetter && Card.Attack >= Card.Defense)
+            if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
                 return true;
             return false;
         }

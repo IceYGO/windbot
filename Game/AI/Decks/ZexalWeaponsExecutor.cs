@@ -151,7 +151,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool Number61Volcasaurus()
         {
-            return AI.Utils.IsOneEnnemyBetterThanValue(2000, false);
+            return AI.Utils.IsOneEnemyBetterThanValue(2000, false);
         }
 
         private bool ZwLionArms()

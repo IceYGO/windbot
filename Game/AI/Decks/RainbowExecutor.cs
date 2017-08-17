@@ -390,7 +390,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool No37希望织龙蜘蛛鲨特殊召唤()
         {
-            return AI.Utils.IsAllEnnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnnemyBetterThanValue(3600, true);
+            return AI.Utils.IsAllEnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnemyBetterThanValue(3600, true);
         }
 
         private bool 电光千鸟特殊召唤()
@@ -424,7 +424,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 星尘龙特殊召唤()
         {
-            return (AI.Utils.IsEnnemyBetter(false, false) && !AI.Utils.IsOneEnnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
+            return (AI.Utils.IsEnemyBetter(false, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
         }
 
         private bool 星尘龙效果()
@@ -434,7 +434,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 进化帝半鸟龙特殊召唤()
         {
-            return (AI.Utils.IsAllEnnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
+            return (AI.Utils.IsAllEnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
         }
 
         private bool 入魔梦魇骑士特殊召唤()
@@ -460,7 +460,7 @@ namespace MycardBot.Game.AI.Decks
         private bool No59背反之料理人特殊召唤()
         {
             return ((Duel.Fields[0].GetMonsterCount() + Duel.Fields[0].GetSpellCount() - 2) <= 1) &&
-                ((AI.Utils.IsEnnemyBetter(false, false) && !AI.Utils.IsOneEnnemyBetterThanValue(2300, true)) || AI.Utils.IsTurn1OrMain2());
+                ((AI.Utils.IsEnemyBetter(false, false) && !AI.Utils.IsOneEnemyBetterThanValue(2300, true)) || AI.Utils.IsTurn1OrMain2());
         }
 
         private bool No59背反之料理人效果()
@@ -493,7 +493,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 辉光子帕拉迪奥斯效果()
         {
-            ClientCard result = AI.Utils.GetOneEnnemyBetterThanValue(2000, true);
+            ClientCard result = AI.Utils.GetOneEnemyBetterThanValue(2000, true);
             if (result != null)
             {
                 AI.SelectNextCard(result);
@@ -504,7 +504,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 电光皇特殊召唤()
         {
-            return AI.Utils.IsEnnemyBetter(false, false);
+            return AI.Utils.IsEnemyBetter(false, false);
         }
 
         private bool 强欲而贪欲之壶效果()
@@ -514,7 +514,7 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 地碎效果()
         {
-            return AI.Utils.IsEnnemyBetter(false, false);
+            return AI.Utils.IsEnemyBetter(false, false);
         }
 
         private bool 陷阱卡覆盖()

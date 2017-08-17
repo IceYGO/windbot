@@ -352,7 +352,7 @@ namespace WindBot.Game.AI.Decks
         private bool 暗叛逆超量龙效果()
         {
             int oppoBestAttack = AI.Utils.GetBestAttack(Duel.Fields[1], true);
-            ClientCard target = AI.Utils.GetOneEnnemyBetterThanValue(oppoBestAttack, true);
+            ClientCard target = AI.Utils.GetOneEnemyBetterThanValue(oppoBestAttack, true);
             if (target != null)
             {
                 AI.SelectNextCard(target);

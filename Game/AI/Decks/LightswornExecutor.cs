@@ -291,7 +291,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 辉光子帕拉迪奥斯效果()
         {
-            ClientCard result = AI.Utils.GetOneEnnemyBetterThanValue(2000, true);
+            ClientCard result = AI.Utils.GetOneEnemyBetterThanValue(2000, true);
             if (result != null)
             {
                 AI.SelectNextCard(result);
@@ -302,7 +302,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 电光皇特殊召唤()
         {
-            return AI.Utils.IsEnnemyBetter(false, false);
+            return AI.Utils.IsEnemyBetter(false, false);
         }
     }
 }

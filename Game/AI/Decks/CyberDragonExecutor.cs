@@ -127,7 +127,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 进化光焰()
         {
-            if (!AI.Utils.IsOneEnnemyBetterThanValue(Bot.MonsterZone.GetHighestAttackMonster().Attack, false))
+            if (!AI.Utils.IsOneEnemyBetterThanValue(Bot.MonsterZone.GetHighestAttackMonster().Attack, false))
                 return false;
             else
                 AI.SelectCard(Duel.Fields[1].MonsterZone.GetHighestAttackMonster());     
@@ -143,7 +143,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 装甲电子翼()
         {
-            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Duel.Fields[1].GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.电子龙三型) || Bot.HasInHand((int)CardId.电子凤凰)) && !AI.Utils.IsOneEnnemyBetterThanValue(1800,true))
+            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Duel.Fields[1].GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.电子龙三型) || Bot.HasInHand((int)CardId.电子凤凰)) && !AI.Utils.IsOneEnemyBetterThanValue(1800,true))
                 return false;
             return true;
         }
@@ -152,7 +152,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.GetCountCardInZone(Bot.Hand, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙核) >= 1 && Bot.HasInHand((int)CardId.融合) || Bot.GetCountCardInZone(Bot.Hand, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.电子龙核) >= 1 && Bot.HasInHand((int)CardId.力量结合))
                 return true;
-            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Duel.Fields[1].GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.电子龙三型) || Bot.HasInHand((int)CardId.电子凤凰)) && !AI.Utils.IsOneEnnemyBetterThanValue(1800, true))
+            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Duel.Fields[1].GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.电子龙三型) || Bot.HasInHand((int)CardId.电子凤凰)) && !AI.Utils.IsOneEnemyBetterThanValue(1800, true))
                 return false;
             return true;
         }
@@ -168,7 +168,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             else if (Card.Location == CardLocation.SpellZone)
             {
-                if (AI.Utils.IsOneEnnemyBetterThanValue(Bot.GetMonsters().GetHighestAttackMonster().Attack, true))
+                if (AI.Utils.IsOneEnemyBetterThanValue(Bot.GetMonsters().GetHighestAttackMonster().Attack, true))
                     if (ActivateDescription == AI.Utils.GetStringId((int)CardId.装甲电子翼, 2))
                         return true;
                 return false;

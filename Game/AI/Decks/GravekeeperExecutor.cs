@@ -127,7 +127,7 @@ namespace WindBot.Game.AI.Decks
         private bool 守墓的末裔()
         {
             int bestatk = Duel.Fields[0].GetMonsters().GetHighestAttackMonster().Attack;
-            if (AI.Utils.IsOneEnnemyBetterThanValue(bestatk, true))
+            if (AI.Utils.IsOneEnemyBetterThanValue(bestatk, true))
             {
                 AI.SelectCard(Duel.Fields[1].GetMonsters().GetHighestAttackMonster());
                 return true;

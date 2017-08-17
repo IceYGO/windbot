@@ -95,7 +95,7 @@ namespace DevBot.Game.AI.Decks
         private bool SwapFrogSummon()
         {
             int atk = Card.Attack + GetSpellBonus();
-            if (AI.Utils.IsAllEnnemyBetterThanValue(atk, true))
+            if (AI.Utils.IsAllEnemyBetterThanValue(atk, true))
                 return false;
 
             AI.SelectCard((int)CardId.Ronintoadin);
@@ -152,7 +152,7 @@ namespace DevBot.Game.AI.Decks
         {
             int atk = Card.Attack + GetSpellBonus();
 
-            if (AI.Utils.IsOneEnnemyBetterThanValue(atk, true))
+            if (AI.Utils.IsOneEnemyBetterThanValue(atk, true))
                 return false;
 
             if (Card.Id == (int)CardId.SwapFrog)
@@ -164,7 +164,7 @@ namespace DevBot.Game.AI.Decks
         {
             List<int> cards = new List<int>();
             
-            if (AI.Utils.IsEnnemyBetter(false, false))
+            if (AI.Utils.IsEnemyBetter(false, false))
             {
                 cards.Add((int)CardId.FlipFlopFrog);
             }
@@ -190,7 +190,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool DarkHole()
         {
-            return AI.Utils.IsEnnemyBetter(false, false);
+            return AI.Utils.IsEnemyBetter(false, false);
         }
 
         private bool Terraforming()
@@ -226,13 +226,13 @@ namespace DevBot.Game.AI.Decks
             if (Card.Id == (int)CardId.DewdarkOfTheIceBarrier)
                 return Card.IsDefense();
 
-            bool ennemyBetter = AI.Utils.IsOneEnnemyBetterThanValue(Card.Attack + (Card.IsFacedown() ? GetSpellBonus() : 0), true);
+            bool enemyBetter = AI.Utils.IsOneEnemyBetterThanValue(Card.Attack + (Card.IsFacedown() ? GetSpellBonus() : 0), true);
             if (Card.Attack < 800)
-                ennemyBetter = true;
+                enemyBetter = true;
             bool result = false;
-            if (Card.IsAttack() && ennemyBetter)
+            if (Card.IsAttack() && enemyBetter)
                 result =  true;
-            if (Card.IsDefense() && !ennemyBetter)
+            if (Card.IsDefense() && !enemyBetter)
                 result = true;
 
             if (!result && Card.Id == (int)CardId.FlipFlopFrog && Duel.Fields[1].GetMonsterCount() > 0 && Card.IsFacedown())

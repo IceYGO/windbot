@@ -46,14 +46,14 @@ namespace WindBot.Game.AI
                 ClientCard card = field.MonsterZone[i];
                 if (card == null) continue;
                 if (onlyatk && card.IsDefense()) continue;
-                int ennemyValue = card.GetDefensePower();
-                if (ennemyValue > bestAtk)
-                    bestAtk = ennemyValue;
+                int enemyValue = card.GetDefensePower();
+                if (enemyValue > bestAtk)
+                    bestAtk = enemyValue;
             }
             return bestAtk;
         }
 
-        public bool IsEnnemyBetter(bool onlyatk, bool all)
+        public bool IsEnemyBetter(bool onlyatk, bool all)
         {
             if (Duel.Fields[1].GetMonsterCount() == 0)
                 return false;
@@ -63,11 +63,11 @@ namespace WindBot.Game.AI
             if (monsters.Count > 0)
                 bestAtk = monsters[monsters.Count - 1].Attack;
             if (all)
-                return IsAllEnnemyBetterThanValue(bestAtk, onlyatk);
-            return IsOneEnnemyBetterThanValue(bestAtk, onlyatk);
+                return IsAllEnemyBetterThanValue(bestAtk, onlyatk);
+            return IsOneEnemyBetterThanValue(bestAtk, onlyatk);
         }
 
-        public bool IsOneEnnemyBetterThanValue(int value, bool onlyatk)
+        public bool IsOneEnemyBetterThanValue(int value, bool onlyatk)
         {
             int bestValue = -1;
             bool nomonster = true;
@@ -77,15 +77,15 @@ namespace WindBot.Game.AI
                 if (card == null) continue;
                 if (onlyatk && card.IsDefense()) continue;
                 nomonster = false;
-                int ennemyValue = card.GetDefensePower();
-                if (ennemyValue > bestValue)
-                    bestValue = ennemyValue;
+                int enemyValue = card.GetDefensePower();
+                if (enemyValue > bestValue)
+                    bestValue = enemyValue;
             }
             if (nomonster) return false;
             return bestValue > value;
         }
 
-        public bool IsAllEnnemyBetterThanValue(int value, bool onlyatk)
+        public bool IsAllEnemyBetterThanValue(int value, bool onlyatk)
         {
             bool nomonster = true;
             for (int i = 0; i < 7; ++i)
@@ -94,22 +94,22 @@ namespace WindBot.Game.AI
                 if (card == null || card.Data == null) continue;
                 if (onlyatk && card.IsDefense()) continue;
                 nomonster = false;
-                int ennemyValue = card.GetDefensePower();
-                if (ennemyValue <= value)
+                int enemyValue = card.GetDefensePower();
+                if (enemyValue <= value)
                     return false;
             }
             return !nomonster;
         }
 
-        public ClientCard GetOneEnnemyBetterThanValue(int value, bool onlyatk)
+        public ClientCard GetOneEnemyBetterThanValue(int value, bool onlyatk)
         {
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Duel.Fields[1].MonsterZone[i];
                 if (card == null) continue;
                 if (onlyatk && card.IsDefense()) continue;
-                int ennemyValue = card.GetDefensePower();
-                if (ennemyValue >= value)
+                int enemyValue = card.GetDefensePower();
+                if (enemyValue >= value)
                     return card;
             }
             return null;
@@ -128,7 +128,7 @@ namespace WindBot.Game.AI
                 return card;
             if (attack == 0)
                 attack = GetBestAttack(Duel.Fields[0], true);
-            return GetOneEnnemyBetterThanValue(attack, true);
+            return GetOneEnemyBetterThanValue(attack, true);
         }
 
         public ClientCard GetProblematicMonsterCard(int attack = 0)
@@ -141,7 +141,7 @@ namespace WindBot.Game.AI
                 return card;
             if (attack == 0)
                 attack = GetBestAttack(Duel.Fields[0], true);
-            return GetOneEnnemyBetterThanValue(attack, true);
+            return GetOneEnemyBetterThanValue(attack, true);
         }
 
         public ClientCard GetProblematicSpellCard()

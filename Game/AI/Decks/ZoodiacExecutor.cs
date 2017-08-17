@@ -209,7 +209,7 @@ namespace MycardBot.Game.AI.Decks
                 AI.SelectCard(card);
                 return true;
             }
-            card = AI.Utils.GetOneEnnemyBetterThanValue(Card.GetDefensePower(), false);
+            card = AI.Utils.GetOneEnemyBetterThanValue(Card.GetDefensePower(), false);
             if (card != null)
             {
                 AI.SelectCard(card);
@@ -241,7 +241,7 @@ namespace MycardBot.Game.AI.Decks
                     || Duel.Phase == DuelPhase.Damage))
                     return false;
                 return Duel.Player==0
-                    || AI.Utils.IsEnnemyBetter(false, false);
+                    || AI.Utils.IsEnemyBetter(false, false);
             }
             return true;
         }

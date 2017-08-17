@@ -344,7 +344,7 @@ namespace DevBot.Game.AI.Decks
 
         private bool ScrapDragonSummon()
         {
-            //if (AI.Utils.IsOneEnnemyBetterThanValue(2500, true))
+            //if (AI.Utils.IsOneEnemyBetterThanValue(2500, true))
             //    return true;
             ClientCard invincible = GetProblematicCard();
             return invincible != null;
@@ -353,7 +353,7 @@ namespace DevBot.Game.AI.Decks
         private bool ScrapDragonEffect()
         {
             ClientCard invincible = GetProblematicCard();
-            if (invincible == null && !AI.Utils.IsOneEnnemyBetterThanValue(2800 - 1, false))
+            if (invincible == null && !AI.Utils.IsOneEnemyBetterThanValue(2800 - 1, false))
                 return false;
 
             ClientField field = Duel.Fields[0];

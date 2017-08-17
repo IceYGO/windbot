@@ -280,14 +280,14 @@ namespace DevBot.Game.AI.Decks
 
         private bool No61火山恐龙特殊召唤()
         {
-            return AI.Utils.IsOneEnnemyBetterThanValue(2000, false);
+            return AI.Utils.IsOneEnemyBetterThanValue(2000, false);
         }
 
         private bool No61火山恐龙效果()
         {
             ClientCard target = Duel.Fields[1].MonsterZone.GetFloodgate();
             if (target == null)
-                target = AI.Utils.GetOneEnnemyBetterThanValue(2000, false);
+                target = AI.Utils.GetOneEnemyBetterThanValue(2000, false);
             if (target != null)
             {
                 AI.SelectCard((int)CardId.电子龙);
@@ -416,7 +416,7 @@ namespace DevBot.Game.AI.Decks
             return false;
         }
 
-        private ClientCard GetBestEnnemyCard()
+        private ClientCard GetBestEnemyCard()
         {
             ClientCard card = AI.Utils.GetProblematicCard();
             if (card != null)

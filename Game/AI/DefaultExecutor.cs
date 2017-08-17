@@ -96,7 +96,7 @@ namespace WindBot.Game.AI
 
         protected bool DefaultBookOfMoon()
         {
-            if (AI.Utils.IsEnnemyBetter(true, true))
+            if (AI.Utils.IsEnemyBetter(true, true))
             {
                 ClientCard monster = Duel.Fields[1].GetMonsters().GetHighestAttackMonster();
                 if (monster != null && monster.HasType(CardType.Effect) && (monster.HasType(CardType.Xyz) || monster.Level > 4))
@@ -133,7 +133,7 @@ namespace WindBot.Game.AI
 
         protected bool DefaultCallOfTheHaunted()
         {
-            if (!AI.Utils.IsEnnemyBetter(true, true))
+            if (!AI.Utils.IsEnemyBetter(true, true))
                 return false;
             ClientCard selected = null;
             int BestAtk = 0;
@@ -151,7 +151,7 @@ namespace WindBot.Game.AI
 
         protected bool DefaultTorrentialTribute()
         {
-            return (AI.Utils.IsEnnemyBetter(true, true));
+            return (AI.Utils.IsEnemyBetter(true, true));
         }
 
         protected bool DefaultHeavyStorm()
@@ -161,17 +161,17 @@ namespace WindBot.Game.AI
 
         protected bool DefaultHammerShot()
         {
-            return AI.Utils.IsEnnemyBetter(true, false);
+            return AI.Utils.IsEnemyBetter(true, false);
         }
 
         protected bool DefaultDarkHole()
         {
-            return AI.Utils.IsEnnemyBetter(false, false);
+            return AI.Utils.IsEnemyBetter(false, false);
         }
 
         protected bool DefaultRaigeki()
         {
-            return AI.Utils.IsEnnemyBetter(false, false);
+            return AI.Utils.IsEnemyBetter(false, false);
         }
 
         protected bool DefaultSpellSet()
@@ -206,11 +206,11 @@ namespace WindBot.Game.AI
 
         protected bool DefaultMonsterRepos()
         {
-            bool ennemyBetter = AI.Utils.IsEnnemyBetter(true, true);
+            bool enemyBetter = AI.Utils.IsEnemyBetter(true, true);
 
-            if (Card.IsAttack() && ennemyBetter)
+            if (Card.IsAttack() && enemyBetter)
                 return true;
-            if (Card.IsDefense() && !ennemyBetter && Card.Attack >= Card.Defense)
+            if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
                 return true;
             return false;
         }

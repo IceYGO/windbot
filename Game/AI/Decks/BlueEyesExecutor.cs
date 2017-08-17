@@ -430,7 +430,7 @@ namespace MycardBot.Game.AI.Decks
                 使用过的青眼亚白龙.Add(Card);
                 return true;
             }
-            card = AI.Utils.GetOneEnnemyBetterThanValue(Card.GetDefensePower(), false);
+            card = AI.Utils.GetOneEnemyBetterThanValue(Card.GetDefensePower(), false);
             if (card != null)
             {
                 Logger.DebugWriteLine("炸比自己强的怪.");
@@ -771,7 +771,7 @@ namespace MycardBot.Game.AI.Decks
                 Logger.DebugWriteLine("先攻不叠银河眼，叠银河巨神.");
                 return false;
             }
-            if (AI.Utils.IsOneEnnemyBetterThanValue(2999, false))
+            if (AI.Utils.IsOneEnemyBetterThanValue(2999, false))
             {
                 Logger.DebugWriteLine("有高攻怪兽，出银河眼.");
                 return true;
@@ -797,7 +797,7 @@ namespace MycardBot.Game.AI.Decks
             }
             if (Duel.Fields[0].HasInMonstersZone((int)CardId.银河眼光子龙皇))
             {
-                if (!AI.Utils.IsOneEnnemyBetterThanValue(4000, false))
+                if (!AI.Utils.IsOneEnemyBetterThanValue(4000, false))
                 {
                     Logger.DebugWriteLine("没有高攻怪兽，出重铠.");
                     AI.SelectCard((int)CardId.银河眼光子龙皇);
@@ -1122,13 +1122,13 @@ namespace MycardBot.Game.AI.Decks
 
         private bool 改变攻守表示()
         {
-            bool ennemyBetter = AI.Utils.IsEnnemyBetter(true, true);
+            bool enemyBetter = AI.Utils.IsEnemyBetter(true, true);
 
-            if (Card.IsAttack() && ennemyBetter)
+            if (Card.IsAttack() && enemyBetter)
                 return true;
             if (Card.IsFacedown())
                 return true;
-            if (Card.IsDefense() && !ennemyBetter && Card.Attack >= Card.Defense)
+            if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
                 return true;
             if (Card.IsDefense() && (
                    Card.Id == (int)CardId.青眼精灵龙

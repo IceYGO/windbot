@@ -147,7 +147,7 @@ namespace WindBot.Game.AI.Decks
         private bool WhiteNightDragon()
         {
             // We should summon Horus the Black Flame Dragon LV6 if he can lvlup.
-            if (Duel.Fields[1].GetMonsterCount() != 0 && !AI.Utils.IsAllEnnemyBetterThanValue(2300 - 1, false))
+            if (Duel.Fields[1].GetMonsterCount() != 0 && !AI.Utils.IsAllEnemyBetterThanValue(2300 - 1, false))
                 foreach (ClientCard card in Main.SummonableCards)
                     if (card.Id == 11224103)
                         return false;

@@ -85,7 +85,7 @@
                 if (handCard.IsFacedown())
                     return true;
             }
-            return AI.Utils.IsEnnemyBetter(true, false);
+            return AI.Utils.IsEnemyBetter(true, false);
         }
     }
 }
