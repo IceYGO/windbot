@@ -45,11 +45,13 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.FoolishBurial, FoolishBurial);
             AddExecutor(ExecutorType.Activate, (int)CardId.Mountain, DefaultField);
             AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
+
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberDragon);
+
             AddExecutor(ExecutorType.Activate, (int)CardId.Raigeki, DefaultRaigeki);
             AddExecutor(ExecutorType.Activate, (int)CardId.HammerShot, DefaultHammerShot);
             AddExecutor(ExecutorType.Activate, (int)CardId.Fissure);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberDragon);
             AddExecutor(ExecutorType.Activate, (int)CardId.BellowOfTheSilverDragon, BellowOfTheSilverDragon);
             AddExecutor(ExecutorType.Activate, (int)CardId.MonsterReborn, MonsterReborn);
 
