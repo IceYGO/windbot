@@ -469,7 +469,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool 连接召唤()
         {
-            return AI.Utils.IsTurn1OrMain2() && AI.Utils.GetBestAttack(Bot, true) < Card.Attack;
+            return (AI.Utils.IsTurn1OrMain2() || AI.Utils.IsEnemyBetter(false, false))
+                && AI.Utils.GetBestAttack(Bot, true) < Card.Attack;
         }
     }
 }
