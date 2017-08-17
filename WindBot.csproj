@@ -50,6 +50,9 @@
     <Reference Include="YGOSharp.OCGWrapper">
       <HintPath>.\YGOSharp.OCGWrapper.dll</HintPath>
     </Reference>
+    <Reference Include="YGOSharp.OCGWrapper.Enums">
+      <HintPath>.\YGOSharp.OCGWrapper.Enums.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Game\AI\AIFunctions.cs" />

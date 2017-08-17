@@ -1,6 +1,9 @@
 ﻿using YGOSharp.OCGWrapper.Enums;
 using System;
 using System.Collections.Generic;
+using WindBot;
+using WindBot.Game;
+using WindBot.Game.AI;
 
 namespace WindBot.Game.AI
 {
@@ -21,8 +24,8 @@ namespace WindBot.Game.AI
         protected int LastChainPlayer { get; private set; }
         protected IList<ClientCard> CurrentChain { get; private set; }
 
-        public ClientField Bot { get; private set; }
-        public ClientField Enemy { get; private set; }
+        protected ClientField Bot { get; private set; }
+        protected ClientField Enemy { get; private set; }
 
         protected Executor(GameAI ai, Duel duel)
         {

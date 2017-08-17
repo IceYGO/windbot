@@ -1,7 +1,10 @@
-﻿using WindBot.Game;
+﻿using YGOSharp.OCGWrapper.Enums;
+using System.Collections.Generic;
+using WindBot;
+using WindBot.Game;
 using WindBot.Game.AI;
 
-namespace DevBot.Game.AI.Decks
+namespace WindBot.Game.AI.Decks
 {
     [Deck("Burn", "AI_Burn")]
     public class BurnExecutor : DefaultExecutor

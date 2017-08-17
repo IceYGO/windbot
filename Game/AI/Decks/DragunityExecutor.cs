@@ -4,7 +4,7 @@ using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
 
-namespace DevBot.Game.AI.Decks
+namespace WindBot.Game.AI.Decks
 {
     [Deck("Dragunity", "AI_Dragunity")]
     public class DragunityExecutor : DefaultExecutor

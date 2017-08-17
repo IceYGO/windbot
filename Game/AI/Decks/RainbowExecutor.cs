@@ -4,7 +4,7 @@ using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
 
-namespace MycardBot.Game.AI.Decks
+namespace WindBot.Game.AI.Decks
 {
     [Deck("Rainbow", "AI_Rainbow")]
     class RainbowExecutor : DefaultExecutor

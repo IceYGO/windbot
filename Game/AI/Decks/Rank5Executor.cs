@@ -4,7 +4,7 @@ using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
 
-namespace DevBot.Game.AI.Decks
+namespace WindBot.Game.AI.Decks
 {
     [Deck("Rank V", "AI_Rank5")]
     public class Rank5Executor : DefaultExecutor

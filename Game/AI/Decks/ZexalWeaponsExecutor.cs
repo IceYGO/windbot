@@ -1,9 +1,10 @@
 ﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
+using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
 
-namespace DevBot.Game.AI.Decks
+namespace WindBot.Game.AI.Decks
 {
     [Deck("Zexal Weapons", "AI_ZexalWeapons")]
     class ZexalWeaponsExecutor : DefaultExecutor

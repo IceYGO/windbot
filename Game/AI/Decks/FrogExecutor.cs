@@ -1,9 +1,10 @@
 ﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
+using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
 
-namespace DevBot.Game.AI.Decks
+namespace WindBot.Game.AI.Decks
 {
     [Deck("Frog", "AI_Frog")]
     public class FrogExecutor : DefaultExecutor

@@ -1,4 +1,10 @@
-﻿namespace WindBot.Game.AI.Decks
+﻿using YGOSharp.OCGWrapper.Enums;
+using System.Collections.Generic;
+using WindBot;
+using WindBot.Game;
+using WindBot.Game.AI;
+
+namespace WindBot.Game.AI.Decks
 {
     [Deck("Graydle", "AI_Graydle")]
     public class GraydleExecutor : DefaultExecutor
