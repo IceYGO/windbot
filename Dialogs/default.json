@@ -43,6 +43,7 @@
     "Just {0} ...",
     "Think you can defeat me?"
   ],
+  "facedownmonstername": "monster",
   "activate": [
     "I'm activating {0}.",
     "I'm using the effect of {0}.",

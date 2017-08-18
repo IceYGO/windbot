@@ -264,7 +264,7 @@ namespace WindBot.Game.AI.Decks
         private bool 电脑网后门效果()
         {
             if (!(Duel.Player == 0 && Duel.Phase == DuelPhase.Main2) &&
-                !(Duel.Player == 1 && (Duel.Phase == DuelPhase.Battle || Duel.Phase == DuelPhase.End)))
+                !(Duel.Player == 1 && (Duel.Phase == DuelPhase.BattleStart || Duel.Phase == DuelPhase.End)))
             {
                 return false;
             }
