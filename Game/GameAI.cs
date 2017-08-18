@@ -157,7 +157,7 @@ namespace WindBot.Game
         public IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
         {
             // Check for the executor.
-            IList<ClientCard> result = Executor.OnSelectCard(cards, min,max,cancelable);
+            IList<ClientCard> result = Executor.OnSelectCard(cards, min, max, cancelable);
             if (result != null)
                 return result;
 
@@ -377,114 +377,101 @@ namespace WindBot.Game
             }
             if (mode)
             {
-                foreach (ClientCard card in cards)
+                // equal
+                if (min <= 1)
                 {
-                    //Logger.WriteLine("OpParam1 " + card.OpParam1 + " OpParam2 " + card.OpParam2 + " sum " + sum);
-                    // try special level
-                    if (card.OpParam2 == sum)
+                    foreach (ClientCard card in cards)
                     {
-                        return new[] { card };
+                        // try special level
+                        if (card.OpParam2 == sum)
+                        {
+                            return new[] { card };
+                        }
+                    }
+                    foreach (ClientCard card in cards)
+                    {
+                        // try level equal
+                        if (card.OpParam1 == sum)
+                        {
+                            return new[] { card };
+                        }
                     }
                 }
-                foreach (ClientCard card in cards)
+
+                int i = (min <= 1) ? 2 : min;
+                while (i <= max && i <= cards.Count)
                 {
-                    // try level equal
-                    if (card.OpParam1 == sum)
+                    IEnumerable<IEnumerable<ClientCard>> combos = CardContainer.GetCombinations(cards, i);
+
+                    foreach (IEnumerable<ClientCard> combo in combos)
                     {
-                        return new[] { card };
+                        Logger.DebugWriteLine("--");
+                        int s1 = 0, s2 = 0;
+                        selected = new List<ClientCard>();
+                        foreach (ClientCard card in combo)
+                        {
+                            s1 += card.OpParam1;
+                            s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
+                            selected.Add(card);
+                        }
+                        if (s1 == sum || s2 == sum)
+                        {
+                            return selected;
+                        }
                     }
-                }
-                selected = new List<ClientCard>();
-                int trysum = 0;
-                foreach (ClientCard card in cards)
-                {
-                    // try level add
-                    if (trysum + card.OpParam1 > sum)
-                    {
-                        continue;
-                    }
-                    selected.Add(card);
-                    trysum += card.OpParam1;
-                    //Logger.DebugWriteLine(card.Id + "");
-                    //Logger.DebugWriteLine(trysum + " selected " + sum);
-                    if (trysum == sum)
-                    {
-                        return selected;
-                    }
-                }
-                IList<ClientCard> selected2 = new List<ClientCard>();
-                foreach (ClientCard card in selected)
-                {
-                    // clone
-                    selected2.Add(card);
-                }
-                foreach (ClientCard card in selected)
-                {
-                    // try level sub
-                    selected2.Remove(card);
-                    trysum -= card.OpParam1;
-                    //Logger.DebugWriteLine(card.Id + "");
-                    //Logger.DebugWriteLine(trysum + " selected2 " + sum);
-                    if (trysum == sum)
-                    {
-                        return selected2;
-                    }
+                    i++;
                 }
             }
             else
             {
-                foreach (ClientCard card in cards)
+                // larger
+                if (min <= 1)
                 {
-                    //Logger.WriteLine("OpParam1 " + card.OpParam1 + " OpParam2 " + card.OpParam2 + " sum " + sum);
-                    // try special level
-                    if (card.OpParam2 >= sum)
+                    foreach (ClientCard card in cards)
                     {
-                        return new[] { card };
+                        // try special level
+                        if (card.OpParam2 >= sum)
+                        {
+                            return new[] { card };
+                        }
+                    }
+                    foreach (ClientCard card in cards)
+                    {
+                        // try level equal
+                        if (card.OpParam1 >= sum)
+                        {
+                            return new[] { card };
+                        }
                     }
                 }
-                foreach (ClientCard card in cards)
+
+                int i = (min <= 1) ? 2 : min;
+                while (i <= max && i <= cards.Count)
                 {
-                    // try level equal
-                    if (card.OpParam1 >= sum)
+                    IEnumerable<IEnumerable<ClientCard>> combos = CardContainer.GetCombinations(cards, i);
+
+                    foreach (IEnumerable<ClientCard> combo in combos)
                     {
-                        return new[] { card };
+                        Logger.DebugWriteLine("----");
+                        int s1 = 0, s2 = 0;
+                        selected = new List<ClientCard>();
+                        foreach (ClientCard card in combo)
+                        {
+                            s1 += card.OpParam1;
+                            s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
+                            selected.Add(card);
+                        }
+                        if (s1 >= sum || s2 >= sum)
+                        {
+                            return selected;
+                        }
                     }
-                }
-                selected = new List<ClientCard>();
-                int trysum = 0;
-                foreach (ClientCard card in cards)
-                {
-                    // try level add
-                    selected.Add(card);
-                    trysum += card.OpParam1;
-                    //Logger.DebugWriteLine(card.Id + "");
-                    //Logger.DebugWriteLine(trysum + " selected " + sum);
-                    if (trysum >= sum)
-                    {
-                        return selected;
-                    }
-                }
-                IList<ClientCard> selected2 = new List<ClientCard>();
-                foreach (ClientCard card in selected)
-                {
-                    // clone
-                    selected2.Add(card);
-                }
-                foreach (ClientCard card in selected)
-                {
-                    // try level sub
-                    selected2.Remove(card);
-                    trysum -= card.OpParam1;
-                    //Logger.DebugWriteLine(card.Id + "");
-                    //Logger.DebugWriteLine(trysum + " selected2 " + sum);
-                    if (trysum >= sum)
-                    {
-                        return selected2;
-                    }
+                    i++;
                 }
             }
-            // try all
-            return cards;
+
+            Logger.WriteErrorLine("Fail to select sum.");
+            return null;
         }
 
         /// <summary>

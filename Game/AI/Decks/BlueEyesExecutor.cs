@@ -221,74 +221,20 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
         {
             Logger.DebugWriteLine("OnSelectSum " + cards.Count + " " + sum + " " + min + " " + max);
-            if (sum > 12 || !mode)
+            if (sum != 8 || !mode)
                 return null;
-            IList<ClientCard> avail = new List<ClientCard>();
-            foreach (ClientCard card in cards)
+
+            foreach (ClientCard 亚白龙 in 使用过的青眼亚白龙)
             {
-                // clone
-                avail.Add(card);
-            }
-            IList<ClientCard> selected = new List<ClientCard>();
-            int trysum = 0;
-            if (使用过的青眼亚白龙.Count > 0 && avail.IndexOf(使用过的青眼亚白龙[0]) > 0)
-            {
-                Logger.DebugWriteLine("优先用使用过的亚白龙同调.");
-                ClientCard card = 使用过的青眼亚白龙[0];
-                使用过的青眼亚白龙.Remove(card);
-                avail.Remove(card);
-                selected.Add(card);
-                trysum = card.Level;
-                if (trysum == sum)
+                if (cards.IndexOf(亚白龙) > 0)
                 {
-                    Logger.DebugWriteLine("直接选择了使用过的青眼亚白龙");
-                    return selected;
+                    使用过的青眼亚白龙.Remove(亚白龙);
+                    Logger.DebugWriteLine("选择了使用过的青眼亚白龙");
+                    return new[] { 亚白龙 };
                 }
             }
-            foreach (ClientCard card in cards)
-            {
-                // try level equal
-                Logger.DebugWriteLine("同调素材可以选择: " + card.Name);
-                if (card.Level == sum)
-                {
-                    Logger.DebugWriteLine("直接选择了" + card.Name);
-                    return new[] { card };
-                }
-                // try level add
-                if (trysum + card.Level > sum)
-                {
-                    Logger.DebugWriteLine("跳过了" + card.Name);
-                    continue;
-                }
-                selected.Add(card);
-                trysum += card.Level;
-                Logger.DebugWriteLine("添加" + card.Name);
-                Logger.DebugWriteLine(trysum + " selected " + sum);
-                if (trysum == sum)
-                {
-                    return selected;
-                }
-            }
-            IList<ClientCard> selected2 = new List<ClientCard>();
-            foreach (ClientCard card in selected)
-            {
-                // clone
-                selected2.Add(card);
-            }
-            foreach (ClientCard card in selected)
-            {
-                // try level sub
-                selected2.Remove(card);
-                trysum -= card.Level;
-                Logger.DebugWriteLine("排除" + card.Name);
-                Logger.DebugWriteLine(trysum + " selected2 " + sum);
-                if (trysum == sum)
-                {
-                    return selected2;
-                }
-            }
-            // try all
-            return cards;
+
+            return null;
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
