@@ -350,9 +350,9 @@ namespace WindBot.Game
             //Logger.DebugWriteLine("swap " + player);
             int mcount = packet.ReadByte();
             int ecount = packet.ReadByte();
-            int pcount = packet.ReadByte();
+            /*int pcount = */ packet.ReadByte();
             int hcount = packet.ReadByte();
-            int topcode = packet.ReadInt32();
+            /*int topcode =*/ packet.ReadInt32();
             _duel.Fields[player].Deck.Clear();
             for (int i = 0; i < mcount; ++i)
             {
