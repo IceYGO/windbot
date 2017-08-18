@@ -237,12 +237,15 @@ namespace WindBot.Game
         {
             int player = packet.ReadInt16();
             string message = packet.ReadUnicode(256);
-            string myName = _room.Position == 0 ? _room.Names[0] : _room.Names[1];
-            string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
-            if (player>=4)
-                Logger.DebugWriteLine(myName + " System or Watch : " + message);
-            else
-                Logger.WriteLine(otherName + " say to " + myName + ": " + message);
+            if (!Program.DebugMode)
+            {
+                string myName = _room.Position == 0 ? _room.Names[0] : _room.Names[1];
+                string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
+                if (player >= 4)
+                    Logger.WriteLine(myName + " System or Watch : " + message);
+                else
+                    Logger.WriteLine(otherName + " say to " + myName + ": " + message);
+            }
         }
 
         private void OnErrorMsg(BinaryReader packet)
@@ -329,7 +332,7 @@ namespace WindBot.Game
         private void OnTagSwap(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            Logger.WriteLine("swap " + player);
+            //Logger.DebugWriteLine("swap " + player);
             int mcount = packet.ReadByte();
             int ecount = packet.ReadByte();
             int pcount = packet.ReadByte();
