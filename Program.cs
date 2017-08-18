@@ -190,18 +190,23 @@ namespace WindBot
 
         private static void Run(object o)
         {
+#if !DEBUG
             try
             {
+#endif
                 WindBotInfo Info = (WindBotInfo)o;
                 GameClient client = new GameClient(Info);
                 client.Start();
                 Logger.DebugWriteLine(client.Username + " started.");
                 while (client.Connection.IsConnected)
                 {
+#if !DEBUG
                     try
                     {
+#endif
                         client.Tick();
                         Thread.Sleep(30);
+#if !DEBUG
                     }
                     catch (Exception ex)
                     {
@@ -210,8 +215,10 @@ namespace WindBot
                         else
                             throw ex;
                     }
+#endif
                 }
                 Logger.DebugWriteLine(client.Username + " end.");
+#if !DEBUG
             }
             catch (Exception ex)
             {
@@ -220,6 +227,7 @@ namespace WindBot
                 else
                     throw ex;
             }
+#endif
         }
     }
 }
