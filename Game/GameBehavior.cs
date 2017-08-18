@@ -73,7 +73,7 @@ namespace WindBot.Game
             _packets.Add(StocMessage.Replay, OnReplay);
             _packets.Add(StocMessage.DuelEnd, OnDuelEnd);
             _packets.Add(StocMessage.Chat, OnChat);
-            _packets.Add(StocMessage.ChangeSide, OnJoinGame);
+            _packets.Add(StocMessage.ChangeSide, OnChangeSide);
             _packets.Add(StocMessage.ErrorMsg, OnErrorMsg);
 
             _messages.Add(GameMessage.Retry, OnRetry);
@@ -125,6 +125,21 @@ namespace WindBot.Game
             /*int mode = */ packet.ReadByte();
             int duel_rule = packet.ReadByte();
             _ai.Duel.IsNewRule = (duel_rule == 4);
+            BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
+            deck.Write(Deck.Cards.Count + Deck.ExtraCards.Count);
+            deck.Write(Deck.SideCards.Count);
+            foreach (NamedCard card in Deck.Cards)
+                deck.Write(card.Id);
+            foreach (NamedCard card in Deck.ExtraCards)
+                deck.Write(card.Id);
+            foreach (NamedCard card in Deck.SideCards)
+                deck.Write(card.Id);
+            Connection.Send(deck);
+            _ai.OnJoinGame();
+        }
+
+        private void OnChangeSide(BinaryReader packet)
+        {
             BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
             deck.Write(Deck.Cards.Count + Deck.ExtraCards.Count);
             deck.Write(Deck.SideCards.Count);

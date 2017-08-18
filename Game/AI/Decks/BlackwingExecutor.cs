@@ -164,11 +164,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool 攻击力上升效果()
         {
-            if (Enemy.GetMonsters().GetHighestAttackMonster().IsFacedown() || Enemy.GetMonsters().GetHighestDefenseMonster().IsFacedown() || Enemy.GetMonsterCount() == 0)
+            ClientCard bestMy = Bot.GetMonsters().GetHighestAttackMonster();
+            ClientCard bestEnemyATK = Enemy.GetMonsters().GetHighestAttackMonster();
+            ClientCard bestEnemyDEF = Enemy.GetMonsters().GetHighestDefenseMonster();
+            if (bestMy == null || (bestEnemyATK == null && bestEnemyDEF == null))
                 return false;
-            if (Bot.GetMonsters().GetHighestAttackMonster().Attack < Enemy.GetMonsters().GetHighestAttackMonster().Attack)
+            if (bestEnemyATK != null && bestMy.Attack < bestEnemyATK.Attack)
                 return true;
-            if (Bot.GetMonsters().GetHighestAttackMonster().Attack < Enemy.GetMonsters().GetHighestDefenseMonster().Defense)
+            if (bestEnemyDEF != null && bestMy.Attack < bestEnemyDEF.Defense)
                 return true;
             return false;
         }

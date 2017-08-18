@@ -118,9 +118,11 @@ namespace WindBot.Game.AI.Decks
         {
             if (!Card.IsAttack())
                 return false;
-            foreach (ClientCard card in Enemy.MonsterZone)
-                if (card != null && card.IsDefense() && card.Defense > 1500 && card.Attack < 1500 || card.Attack > 1500 && card.Defense < 1500)
+            foreach (ClientCard card in Enemy.GetMonsters())
+            {
+                if (card.IsDefense() && card.Defense > 1500 && card.Attack < 1500 || card.Attack > 1500 && card.Defense < 1500)
                     return true;
+            }
             return false;
         }
 
