@@ -80,7 +80,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.天枪龙之影灵衣, 天枪龙之影灵衣);
             AddExecutor(ExecutorType.Activate, (int)CardId.光枪龙之影灵衣, 光枪龙之影灵衣);
             AddExecutor(ExecutorType.Activate, (int)CardId.辉剑鸟之影灵衣, 辉剑鸟之影灵衣);
-            AddExecutor(ExecutorType.Activate, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王);
+            AddExecutor(ExecutorType.Activate, (int)CardId.三叉龙之影灵衣);
+            AddExecutor(ExecutorType.Activate, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.混沌幻影, 混沌幻影效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.增殖的G);
             AddExecutor(ExecutorType.Activate, (int)CardId.千手神, 千手神效果);
@@ -95,7 +96,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, (int)CardId.光枪龙之影灵衣);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.尤尼科之影灵衣);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.辉剑鸟之影灵衣);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王特殊召唤);
         }
 
         private bool 千手神召唤()
@@ -171,13 +172,18 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 励辉士入魔蝇王()
+        private bool 励辉士入魔蝇王特殊召唤()
         {
-            if (AI.Utils.IsAllEnemyBetterThanValue(Bot.GetMonsters().GetHighestAttackMonster().Attack, true))
-            {
-                return true;
-            }
-            return false;
+            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
+            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
+            return (selfCount - 1 < oppoCount) && 励辉士入魔蝇王效果();
+        }
+
+        private bool 励辉士入魔蝇王效果()
+        {
+            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
+            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
+            return selfCount < oppoCount;
         }
 
         private bool 瓦尔基鲁斯之影灵衣()
