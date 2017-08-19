@@ -1,4 +1,5 @@
 ﻿using YGOSharp.OCGWrapper.Enums;
+using System.Linq;
 using System.Collections.Generic;
 using WindBot.Game.AI;
 
@@ -369,28 +370,28 @@ namespace WindBot.Game
         /// <returns></returns>
         public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
         {
-            IList<ClientCard> selected = new List<ClientCard>();
-            selected = Executor.OnSelectSum(cards, sum, min, max, mode);
+            IList<ClientCard> selected = Executor.OnSelectSum(cards, sum, min, max, mode);
             if (selected != null)
             {
                 return selected;
             }
+
             if (mode)
             {
                 // equal
                 if (min <= 1)
                 {
+                    // try special level first
                     foreach (ClientCard card in cards)
                     {
-                        // try special level
                         if (card.OpParam2 == sum)
                         {
                             return new[] { card };
                         }
                     }
+                    // try level equal
                     foreach (ClientCard card in cards)
                     {
-                        // try level equal
                         if (card.OpParam1 == sum)
                         {
                             return new[] { card };
@@ -398,6 +399,19 @@ namespace WindBot.Game
                     }
                 }
 
+                // try all
+                int s1 = 0, s2 = 0;
+                foreach (ClientCard card in cards)
+                {
+                    s1 += card.OpParam1;
+                    s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
+                }
+                if (s1 == sum || s2 == sum)
+                {
+                    return cards;
+                }
+
+                // try all combinations
                 int i = (min <= 1) ? 2 : min;
                 while (i <= max && i <= cards.Count)
                 {
@@ -406,17 +420,16 @@ namespace WindBot.Game
                     foreach (IEnumerable<ClientCard> combo in combos)
                     {
                         Logger.DebugWriteLine("--");
-                        int s1 = 0, s2 = 0;
-                        selected = new List<ClientCard>();
+                        s1 = 0;
+                        s2 = 0;
                         foreach (ClientCard card in combo)
                         {
                             s1 += card.OpParam1;
                             s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                            selected.Add(card);
                         }
                         if (s1 == sum || s2 == sum)
                         {
-                            return selected;
+                            return combo.ToList();
                         }
                     }
                     i++;
@@ -427,17 +440,17 @@ namespace WindBot.Game
                 // larger
                 if (min <= 1)
                 {
+                    // try special level first
                     foreach (ClientCard card in cards)
                     {
-                        // try special level
                         if (card.OpParam2 >= sum)
                         {
                             return new[] { card };
                         }
                     }
+                    // try level equal
                     foreach (ClientCard card in cards)
                     {
-                        // try level equal
                         if (card.OpParam1 >= sum)
                         {
                             return new[] { card };
@@ -445,6 +458,19 @@ namespace WindBot.Game
                     }
                 }
 
+                // try all
+                int s1 = 0, s2 = 0;
+                foreach (ClientCard card in cards)
+                {
+                    s1 += card.OpParam1;
+                    s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
+                }
+                if (s1 >= sum || s2 >= sum)
+                {
+                    return cards;
+                }
+
+                // try all combinations
                 int i = (min <= 1) ? 2 : min;
                 while (i <= max && i <= cards.Count)
                 {
@@ -453,17 +479,16 @@ namespace WindBot.Game
                     foreach (IEnumerable<ClientCard> combo in combos)
                     {
                         Logger.DebugWriteLine("----");
-                        int s1 = 0, s2 = 0;
-                        selected = new List<ClientCard>();
+                        s1 = 0;
+                        s2 = 0;
                         foreach (ClientCard card in combo)
                         {
                             s1 += card.OpParam1;
                             s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                            selected.Add(card);
                         }
                         if (s1 >= sum || s2 >= sum)
                         {
-                            return selected;
+                            return combo.ToList();
                         }
                     }
                     i++;
@@ -471,7 +496,7 @@ namespace WindBot.Game
             }
 
             Logger.WriteErrorLine("Fail to select sum.");
-            return null;
+            return new List<ClientCard>();
         }
 
         /// <summary>
