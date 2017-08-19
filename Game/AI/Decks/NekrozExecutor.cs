@@ -189,7 +189,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool 天枪龙之影灵衣()
         {           
-            if (AI.Utils.IsOneEnemyBetterThanValue(Bot.GetMonsters().GetHighestAttackMonster().Attack,true) && Duel.Phase == DuelPhase.Main1)
+            if (AI.Utils.IsEnemyBetter(true, false) && Duel.Phase == DuelPhase.Main1)
             {
                 AI.SelectCard(Enemy.GetMonsters().GetHighestAttackMonster());
                 return true;
