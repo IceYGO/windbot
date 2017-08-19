@@ -225,7 +225,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTorrentialTribute()
         {
-            return (AI.Utils.IsEnemyBetter(true, true));
+            return !HasChainedTrap(0) && AI.Utils.IsEnemyBetter(true, true);
         }
 
         /// <summary>
