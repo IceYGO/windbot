@@ -257,7 +257,7 @@ namespace WindBot.Game
                 string myName = _room.Position == 0 ? _room.Names[0] : _room.Names[1];
                 string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
                 if (player >= 4)
-                    Logger.WriteLine(myName + " System or Watch : " + message);
+                    Logger.DebugWriteLine(myName + " System or Watch : " + message);
                 else
                     Logger.WriteLine(otherName + " say to " + myName + ": " + message);
             }
