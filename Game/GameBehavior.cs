@@ -979,6 +979,9 @@ namespace WindBot.Game
             int sumval = packet.ReadInt32();
             int min = packet.ReadByte();
             int max = packet.ReadByte();
+
+            if (max <= 0)
+                max = 99;
             
             IList<ClientCard> mandatoryCards = new List<ClientCard>();
             IList<ClientCard> cards = new List<ClientCard>();

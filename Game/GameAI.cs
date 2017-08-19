@@ -458,18 +458,6 @@ namespace WindBot.Game
                     }
                 }
 
-                // try all
-                int s1 = 0, s2 = 0;
-                foreach (ClientCard card in cards)
-                {
-                    s1 += card.OpParam1;
-                    s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                }
-                if (s1 >= sum || s2 >= sum)
-                {
-                    return cards;
-                }
-
                 // try all combinations
                 int i = (min <= 1) ? 2 : min;
                 while (i <= max && i <= cards.Count)
@@ -479,8 +467,7 @@ namespace WindBot.Game
                     foreach (IEnumerable<ClientCard> combo in combos)
                     {
                         Logger.DebugWriteLine("----");
-                        s1 = 0;
-                        s2 = 0;
+                        int s1 = 0, s2 = 0;
                         foreach (ClientCard card in combo)
                         {
                             s1 += card.OpParam1;
