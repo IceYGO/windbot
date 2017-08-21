@@ -101,6 +101,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.BecomeTarget, OnBecomeTarget);
             _messages.Add(GameMessage.SelectBattleCmd, OnSelectBattleCmd);
             _messages.Add(GameMessage.SelectCard, OnSelectCard);
+            _messages.Add(GameMessage.SelectUnselect, OnSelectUnselectCard);
             _messages.Add(GameMessage.SelectChain, OnSelectChain);
             _messages.Add(GameMessage.SelectCounter, OnSelectCounter);
             _messages.Add(GameMessage.SelectDisfield, OnSelectDisfield);
@@ -696,10 +697,82 @@ namespace WindBot.Game
             reply.Write(result);
             Connection.Send(reply);
         }
+        
+        private void InternalOnSelectUnselectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, bool, IList<ClientCard>> func)
+        {
+            packet.ReadByte(); // player
+            packet.ReadByte(); // buttonok
+            bool cancelable = packet.ReadByte() != 0;
+            int min = packet.ReadByte();
+            int max = packet.ReadByte();
+
+            IList<ClientCard> cards = new List<ClientCard>();
+            int count = packet.ReadByte();
+            for (int i = 0; i < count; ++i)
+            {
+                int id = packet.ReadInt32();
+                int player = GetLocalPlayer(packet.ReadByte());
+                CardLocation loc = (CardLocation)packet.ReadByte();
+                int seq = packet.ReadByte();
+                packet.ReadByte(); // pos
+                ClientCard card;
+                if (((int)loc & (int)CardLocation.Overlay) != 0)
+                    card = new ClientCard(id, CardLocation.Overlay);
+                else
+                    card = _duel.GetCard(player, loc, seq);
+                if (card == null) continue;
+                if (card.Id == 0)
+                    card.SetId(id);
+                cards.Add(card);
+            }
+            int count2 = packet.ReadByte();
+            for (int i = 0; i < count2; ++i)
+            {
+                int id = packet.ReadInt32();
+                int player = GetLocalPlayer(packet.ReadByte());
+                CardLocation loc = (CardLocation)packet.ReadByte();
+                int seq = packet.ReadByte();
+                packet.ReadByte(); // pos
+            }
+
+            IList<ClientCard> selected = func(cards, min, max, cancelable);
+
+            if (selected.Count == 0 && cancelable)
+            {
+                Connection.Send(CtosMessage.Response, -1);
+                return;
+            }
+
+            byte[] result = new byte[selected.Count + 1];
+            result[0] = (byte)selected.Count;
+            for (int i = 0; i < selected.Count; ++i)
+            {
+                int id = 0;
+                for (int j = 0; j < count; ++j)
+                {
+                    if (cards[j] == null) continue;
+                    if (cards[j].Equals(selected[i]))
+                    {
+                        id = j;
+                        break;
+                    }
+                }
+                result[i + 1] = (byte)id;
+            }
+
+            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
+            reply.Write(result);
+            Connection.Send(reply);
+        }
 
         private void OnSelectCard(BinaryReader packet)
         {
             InternalOnSelectCard(packet, _ai.OnSelectCard);
+        }
+        
+        private void OnSelectUnselectCard(BinaryReader packet)
+        {
+            InternalOnSelectUnselectCard(packet, _ai.OnSelectCard);
         }
 
         private void OnSelectChain(BinaryReader packet)
