@@ -21,6 +21,8 @@ namespace WindBot
 
         internal static void Main(string[] args)
         {
+            Logger.WriteLine("WindBot starting...");
+
             InitDatas("cards.cdb");
 
             int argc = args.Length;
@@ -48,6 +50,7 @@ namespace WindBot
             else if (argc == 5)
             {
                 RunFromArgs(args);
+                Logger.WriteLine("WindBot ended.");
             }
 
             // Use environment variables to run Windbot
@@ -73,13 +76,17 @@ namespace WindBot
             else if (Environment.GetEnvironmentVariable("YGOPRO_NAME") != null)
             {
                 RunFromEnv();
+                Logger.WriteLine("WindBot ended.");
             }
 
-            // Else, run from the default settings
+            // Else, tell the user to run it correctly
             else
             {
-                WindBotInfo Info = new WindBotInfo();
-                Run(Info);
+                Logger.WriteLine("");
+                Logger.WriteLine("See the readme for how to run WindBot!");
+                Logger.WriteLine("Press any key to quit...");
+                Logger.WriteLine("");
+                Console.ReadKey();
             }
         }
 
@@ -88,6 +95,8 @@ namespace WindBot
             Rand = new Random();
             DecksManager.Init();
             string absolutePath = Path.GetFullPath(databasePath);
+            if (!File.Exists(absolutePath))
+                absolutePath = Path.GetFullPath("../" + databasePath);
             NamedCardsManager.Init(absolutePath);
         }
 
@@ -128,8 +137,8 @@ namespace WindBot
                 MainServer.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
                 MainServer.Prefixes.Add("http://127.0.0.1:" + ServerPort + "/");
                 MainServer.Start();
-                Logger.WriteLine("Windbot Server Start Successed.");
-                Logger.WriteLine("HTTP GET http://127.0.0.1:" + ServerPort + "/?name=Windbot&host=127.0.0.1&port=7911 to call the bot.");
+                Logger.WriteLine("WindBot server start successed.");
+                Logger.WriteLine("HTTP GET http://127.0.0.1:" + ServerPort + "/?name=WindBot&host=127.0.0.1&port=7911 to call the bot.");
                 while (true)
                 {
                     try
