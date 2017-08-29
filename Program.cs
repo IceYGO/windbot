@@ -175,23 +175,17 @@ namespace WindBot
                                 Thread workThread = new Thread(new ParameterizedThreadStart(Run));
                                 workThread.Start(Info);
                             }
-                            catch (Exception ex)
+                            catch (Exception ex) when (!DebugMode)
                             {
-                                if (!DebugMode)
-                                    Logger.WriteErrorLine("Start Thread Error: " + ex);
-                                else
-                                    throw ex;
+                                Logger.WriteErrorLine("Start Thread Error: " + ex);
                             }
                             ctx.Response.StatusCode = 200;
                             ctx.Response.Close();
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (!DebugMode)
                     {
-                        if (!DebugMode)
-                            Logger.WriteErrorLine("Parse Http Request Error: " + ex);
-                        else
-                            throw ex;
+                        Logger.WriteErrorLine("Parse Http Request Error: " + ex);
                     }
                 }
             }
@@ -199,44 +193,30 @@ namespace WindBot
 
         private static void Run(object o)
         {
-#if !DEBUG
             try
             {
-#endif
                 WindBotInfo Info = (WindBotInfo)o;
                 GameClient client = new GameClient(Info);
                 client.Start();
                 Logger.DebugWriteLine(client.Username + " started.");
                 while (client.Connection.IsConnected)
                 {
-#if !DEBUG
                     try
                     {
-#endif
                         client.Tick();
                         Thread.Sleep(30);
-#if !DEBUG
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (!DebugMode)
                     {
-                        if (!DebugMode)
-                            Logger.WriteErrorLine("Tick Error: " + ex);
-                        else
-                            throw ex;
+                        Logger.WriteErrorLine("Tick Error: " + ex);
                     }
-#endif
                 }
                 Logger.DebugWriteLine(client.Username + " end.");
-#if !DEBUG
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!DebugMode)
             {
-                if (!DebugMode)
-                    Logger.WriteErrorLine("Run Error: " + ex);
-                else
-                    throw ex;
+                Logger.WriteErrorLine("Run Error: " + ex);
             }
-#endif
         }
     }
 }
