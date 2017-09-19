@@ -161,7 +161,8 @@ namespace WindBot.Game.AI
         private void InternalSendMessage(IList<string> array, params object[] opts)
         {
             string message = string.Format(array[Program.Rand.Next(array.Count)], opts);
-            _game.Chat(message);
+            if (message != "")
+                _game.Chat(message);
         }
     }
 }
