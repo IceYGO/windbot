@@ -53,9 +53,18 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when the AI do the rock-paper-scissors.
+        /// </summary>
+        /// <returns>1 for Scissors, 2 for Rock, 3 for Paper.</returns>
+        public int OnRockPaperScissors()
+        {
+            return Executor.OnRockPaperScissors();
+        }
+
+        /// <summary>
         /// Called when the AI won the rock-paper-scissors.
         /// </summary>
-        /// <returns>True if the AI should begin, false otherwise.</returns>
+        /// <returns>True if the AI should begin first, false otherwise.</returns>
         public bool OnSelectHand()
         {
             return Executor.OnSelectHand();

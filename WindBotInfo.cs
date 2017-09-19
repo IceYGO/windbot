@@ -11,6 +11,7 @@ namespace WindBot
         public int Port { get; set; }
         public string HostInfo { get; set; }
         public int Version { get; set; }
+        public int Hand { get; set; }
 
         public WindBotInfo()
         {
@@ -21,6 +22,7 @@ namespace WindBot
             Port = 7911;
             HostInfo = "";
             Version = 0x233C;
+            Hand = 0;
         }
     }
 }

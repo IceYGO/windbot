@@ -24,11 +24,13 @@ namespace WindBot.Game
 
         private Room _room;
         private Duel _duel;
+        private int _hand;
 
         public GameBehavior(GameClient game)
         {
             Game = game;
             Connection = game.Connection;
+            _hand = game.Hand;
 
             _packets = new Dictionary<StocMessage, Action<BinaryReader>>();
             _messages = new Dictionary<GameMessage, Action<BinaryReader>>();
@@ -207,7 +209,12 @@ namespace WindBot.Game
 
         private void OnSelectHand(BinaryReader packet)
         {
-            Connection.Send(CtosMessage.HandResult, (byte)Program.Rand.Next(1, 4));
+            int result;
+            if (_hand > 0)
+                result = _hand;
+            else
+                result = _ai.OnRockPaperScissors();
+            Connection.Send(CtosMessage.HandResult, (byte)result);
         }
 
         private void OnSelectTp(BinaryReader packet)

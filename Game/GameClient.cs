@@ -13,6 +13,7 @@ namespace WindBot.Game
         public string Username;
         public string Deck;
         public string Dialog;
+        public int Hand;
 
         private string _serverHost;
         private int _serverPort;
@@ -27,6 +28,7 @@ namespace WindBot.Game
             Username = Info.Name;
             Deck = Info.Deck;
             Dialog = Info.Dialog;
+            Hand = Info.Hand;
             _serverHost = Info.Host;
             _serverPort = Info.Port;
             _roomInfo = Info.HostInfo;

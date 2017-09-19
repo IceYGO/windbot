@@ -162,6 +162,9 @@ namespace WindBot
                         string password = HttpUtility.ParseQueryString(RawUrl).Get("password");
                         if (password != null)
                             Info.HostInfo = password;
+                        string hand = HttpUtility.ParseQueryString(RawUrl).Get("hand");
+                        if (hand != null)
+                            Info.Hand = Int32.Parse(hand);
 
                         if (Info.Name == null || Info.Host == null || port == null)
                         {
