@@ -1,6 +1,4 @@
-﻿using OCGWrapper;
-using OCGWrapper.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -8,6 +6,8 @@ using WindBot.Game.AI;
 using YGOSharp.Network;
 using YGOSharp.Network.Enums;
 using YGOSharp.Network.Utils;
+using YGOSharp.OCGWrapper;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game
 {
@@ -571,6 +571,7 @@ namespace WindBot.Game
 
             for (int i = 0; i < count; ++i)
             {
+                packet.ReadByte(); // flag
                 packet.ReadInt32(); // card id
                 int con = GetLocalPlayer(packet.ReadByte());
                 int loc = packet.ReadByte();
@@ -601,7 +602,7 @@ namespace WindBot.Game
         {
             packet.ReadByte(); // player
             int type = packet.ReadInt16();
-            int quantity = packet.ReadByte();
+            int quantity = packet.ReadInt16();
 
             IList<ClientCard> cards = new List<ClientCard>();
             IList<int> counters = new List<int>();
@@ -612,17 +613,16 @@ namespace WindBot.Game
                 int player = GetLocalPlayer(packet.ReadByte());
                 CardLocation loc = (CardLocation) packet.ReadByte();
                 int seq = packet.ReadByte();
-                int num = packet.ReadByte();
+                int num = packet.ReadInt16();
                 cards.Add(_duel.GetCard(player, loc, seq));
                 counters.Add(num);
             }
 
             IList<int> used = _ai.OnSelectCounter(type, quantity, cards, counters);
-            byte[] result = new byte[used.Count];
-            for (int i = 0; i < quantity; ++i)
-                result[i] = (byte) used[i];
+
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
-            reply.Write(result);
+            for (int i = 0; i < quantity; ++i)
+                reply.Write((short)used[i]);
             Connection.Send(reply);
         }
 

@@ -1,5 +1,5 @@
-﻿using OCGWrapper.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI.Decks
 {

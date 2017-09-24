@@ -36,9 +36,8 @@ namespace WindBot.Game.AI
                 object[] attributes = info.GetCustomAttributes(false);
                 foreach (object attribute in attributes)
                 {
-                    if (attribute is DeckAttribute)
+                    if (attribute is DeckAttribute deck)
                     {
-                        DeckAttribute deck = (DeckAttribute)attribute;
                         _decks.Add(deck.Name, new DeckInstance(deck.File, type));
                     }
                 }

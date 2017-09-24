@@ -1,6 +1,6 @@
-﻿using OCGWrapper.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using WindBot.Game.AI;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game
 {

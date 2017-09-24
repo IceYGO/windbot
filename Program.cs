@@ -1,15 +1,15 @@
-﻿using OCGWrapper;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading;
 using WindBot.Game;
 using WindBot.Game.AI;
+using YGOSharp.OCGWrapper;
 
 namespace WindBot
 {
     public class Program
     {
-        public static short ProVersion = 0x1330;
+        public static short ProVersion = 0x133D;
         public static int PlayerNameSize = 20;
 
         internal static Random Rand;

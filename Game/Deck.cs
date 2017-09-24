@@ -1,7 +1,7 @@
-﻿using OCGWrapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using YGOSharp.OCGWrapper;
 
 namespace WindBot.Game
 {
@@ -63,8 +63,7 @@ namespace WindBot.Game
                         continue;
                     }
 
-                    int id;
-                    if (!int.TryParse(line, out id))
+                    if (!int.TryParse(line, out int id))
                         continue;
 
                     deck.AddNewCard(id, side);
