@@ -11,86 +11,86 @@ namespace WindBot.Game.AI.Decks
     {
         public enum CardId
         {
-            裁决之龙 = 57774843,
-            光道兽沃尔夫 = 58996430,
-            光道战士加洛斯 = 59019082,
-            光道暗杀者莱登 = 77558536,
-            光道魔术师丽拉 = 22624373,
-            娱乐法师戏法小丑 = 67696066,
-            哥布林德伯格 = 25259669,
-            英豪挑战者千刀兵 = 1833916,
-            光道弓手费莉丝 = 73176465,
-            欧尼斯特 = 37742478,
-            光道召唤师露米娜丝 = 95503687,
-            光道少女密涅瓦 = 40164421,
-            光道猎犬雷光 = 21502796,
-            成长的鳞茎 = 67441435,
-            太阳交换 = 691925,
-            银河旋风 = 5133471,
-            鹰身女妖的羽毛扫 = 18144506,
-            增援 = 32807846,
-            炼装融合 = 73594093,
-            光之援军 = 94886282,
-            冰结界之龙三叉龙 = 52687916,
-            红莲魔龙右红痕 = 80666118,
-            PSY骨架王Ω = 74586817,
-            光道主大天使米迦勒 = 4779823,
-            PSY骨架王Ζ = 37192109,
-            闪光No39希望皇霍普电光皇 = 56832966,
-            No39希望皇霍普 = 84013237,
-            鸟铳士卡斯泰尔 = 82633039,
-            光道圣女密涅瓦 = 30100551,
-            励辉士入魔蝇王 = 46772449,
-            彼岸的旅人但丁 = 83531441,
-            解码语者 = 1861629,
-            金毛妇 = 3987233
+            JudgmentDragon = 57774843,
+            Wulf = 58996430,
+            Garoth = 59019082,
+            Raiden = 77558536,
+            Lyla = 22624373,
+            Felis = 73176465,
+            Lumina = 95503687,
+            Minerva = 40164421,
+            Ryko = 21502796,
+            PerformageTrickClown = 67696066,
+            Goblindbergh = 25259669,
+            ThousandBlades = 1833916,
+            Honest = 37742478,
+            GlowUpBulb = 67441435,
+
+            SolarRecharge = 691925,
+            GalaxyCyclone = 5133471,
+            HarpiesFeatherDuster = 18144506,
+            ReinforcementOfTheArmy = 32807846,
+            MetalfoesFusion = 73594093,
+            ChargeOfTheLightBrigade = 94886282,
+
+            Michael = 4779823,
+            MinervaTheExalted = 30100551,
+            TrishulaDragonOfTheIceBarrier = 52687916,
+            ScarlightRedDragonArchfiend = 80666118,
+            PSYFramelordOmega = 74586817,
+            PSYFramelordZeta = 37192109,
+            NumberS39UtopiatheLightning = 56832966,
+            Number39Utopia = 84013237,
+            CastelTheSkyblasterMusketeer = 82633039,
+            EvilswarmExcitonKnight = 46772449,
+            DanteTravelerOfTheBurningAbyss = 83531441,
+            DecodeTalker = 1861629,
+            MissusRadiant = 3987233
 
         }
 
-        bool 已发动小丑 = false;
+        bool ClownUsed = false;
 
         public LightswornExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫, DefaultHarpiesFeatherDusterFirst);
-            AddExecutor(ExecutorType.Activate, (int)CardId.银河旋风, DefaultGalaxyCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
+            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, (int)CardId.GalaxyCyclone, DefaultGalaxyCyclone);
+            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.炼装融合);
-            AddExecutor(ExecutorType.Activate, (int)CardId.成长的鳞茎);
+            AddExecutor(ExecutorType.Activate, (int)CardId.MetalfoesFusion);
+            AddExecutor(ExecutorType.Activate, (int)CardId.GlowUpBulb);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.裁决之龙, DefaultDarkHole);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.裁决之龙);
+            AddExecutor(ExecutorType.Activate, (int)CardId.JudgmentDragon, DefaultDarkHole);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.JudgmentDragon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.增援, 增援效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.光之援军, 光之援军效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.太阳交换, 太阳交换效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ReinforcementOfTheArmy, ReinforcementOfTheArmyEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ChargeOfTheLightBrigade, ChargeOfTheLightBrigadeEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SolarRecharge, SolarRechargeEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.哥布林德伯格, 哥布林德伯格通常召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.哥布林德伯格, 哥布林德伯格效果);
+            AddExecutor(ExecutorType.Summon, (int)CardId.Goblindbergh, GoblindberghSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.Goblindbergh, GoblindberghEffect);
 
-            // 常用额外
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.鸟铳士卡斯泰尔, 鸟铳士卡斯泰尔特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.鸟铳士卡斯泰尔, 鸟铳士卡斯泰尔效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.红莲魔龙右红痕, 红莲魔龙右红痕特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.红莲魔龙右红痕, 红莲魔龙右红痕效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.No39希望皇霍普, 电光皇特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普电光皇);
-            AddExecutor(ExecutorType.Activate, (int)CardId.闪光No39希望皇霍普电光皇);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CastelTheSkyblasterMusketeer, CastelTheSkyblasterMusketeerSummom);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CastelTheSkyblasterMusketeer, CastelTheSkyblasterMusketeerEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.ScarlightRedDragonArchfiend, ScarlightRedDragonArchfiendSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ScarlightRedDragonArchfiend, ScarlightRedDragonArchfiendEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, NumberS39UtopiatheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiatheLightning);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.娱乐法师戏法小丑, 娱乐法师戏法小丑效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.英豪挑战者千刀兵);
-            AddExecutor(ExecutorType.Activate, (int)CardId.欧尼斯特, 欧尼斯特效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.PerformageTrickClown, PerformageTrickClownEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ThousandBlades);
+            AddExecutor(ExecutorType.Activate, (int)CardId.Honest, HonestEffect);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
         public override void OnNewTurn()
         {
-            // 回合开始时重置状况
-            已发动小丑 = false;
+            ClownUsed = false;
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
@@ -100,11 +100,11 @@ namespace WindBot.Game.AI.Decks
                 if (defender.IsMonsterDangerous() || defender.IsDefense())
                     return false;
             }
-            if (!(defender.Id == (int)CardId.闪光No39希望皇霍普电光皇))
+            if (!(defender.Id == (int)CardId.NumberS39UtopiatheLightning))
             {
-                if (attacker.Attribute == (int)CardAttribute.Light && Bot.HasInHand((int)CardId.欧尼斯特))
+                if (attacker.Attribute == (int)CardAttribute.Light && Bot.HasInHand((int)CardId.Honest))
                     attacker.RealPower = attacker.RealPower + defender.Attack;
-                if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.No39希望皇霍普))
+                if (attacker.Id == (int)CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.Number39Utopia))
                     attacker.RealPower = 5000;
             }
             return attacker.RealPower > defender.GetDefensePower();
@@ -114,7 +114,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (max == 2 && min == 2 && cards[0].Location == CardLocation.MonsterZone)
             {
-                Logger.DebugWriteLine("超量召唤.");
+                Logger.DebugWriteLine("OnSelectCard XYZ");
                 IList<ClientCard> avail = new List<ClientCard>();
                 foreach (ClientCard card in cards)
                 {
@@ -124,7 +124,7 @@ namespace WindBot.Game.AI.Decks
                 IList<ClientCard> result = new List<ClientCard>();
                 foreach (ClientCard card in cards)
                 {
-                    if (!result.Contains(card) && (!已发动小丑 || card.Id != (int)CardId.娱乐法师戏法小丑))
+                    if (!result.Contains(card) && (!ClownUsed || card.Id != (int)CardId.PerformageTrickClown))
                         result.Add(card);
                     if (result.Count >= 2)
                         break;
@@ -145,44 +145,44 @@ namespace WindBot.Game.AI.Decks
             return null;
         }
 
-        private bool 增援效果()
+        private bool ReinforcementOfTheArmyEffect()
         {
-            if (!Bot.HasInHand((int)CardId.哥布林德伯格))
-                AI.SelectCard((int)CardId.哥布林德伯格);
-            else if (!Bot.HasInHand((int)CardId.光道暗杀者莱登))
-                AI.SelectCard((int)CardId.光道暗杀者莱登);
+            if (!Bot.HasInHand((int)CardId.Goblindbergh))
+                AI.SelectCard((int)CardId.Goblindbergh);
+            else if (!Bot.HasInHand((int)CardId.Raiden))
+                AI.SelectCard((int)CardId.Raiden);
             return true;
         }
 
-        private bool 光之援军效果()
+        private bool ChargeOfTheLightBrigadeEffect()
         {
-            if (!Bot.HasInHand((int)CardId.光道召唤师露米娜丝))
-                AI.SelectCard((int)CardId.光道召唤师露米娜丝);
+            if (!Bot.HasInHand((int)CardId.Lumina))
+                AI.SelectCard((int)CardId.Lumina);
             else
                 AI.SelectCard(new[]
                 {
-                    (int)CardId.光道暗杀者莱登,
-                    (int)CardId.光道召唤师露米娜丝,
-                    (int)CardId.光道少女密涅瓦,
-                    (int)CardId.光道魔术师丽拉
+                    (int)CardId.Raiden,
+                    (int)CardId.Lumina,
+                    (int)CardId.Minerva,
+                    (int)CardId.Lyla
                 });
             return true;
         }
 
-        private bool 太阳交换效果()
+        private bool SolarRechargeEffect()
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.光道兽沃尔夫,
-                    (int)CardId.光道弓手费莉丝,
-                    (int)CardId.光道少女密涅瓦,
-                    (int)CardId.光道魔术师丽拉,
-                    (int)CardId.光道暗杀者莱登
+                    (int)CardId.Wulf,
+                    (int)CardId.Felis,
+                    (int)CardId.Minerva,
+                    (int)CardId.Lyla,
+                    (int)CardId.Raiden
                 });
             return true;
         }
 
-        private bool 哥布林德伯格通常召唤()
+        private bool GoblindberghSummon()
         {
             foreach (ClientCard card in Bot.Hand)
             {
@@ -192,39 +192,39 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 哥布林德伯格效果()
+        private bool GoblindberghEffect()
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.光道弓手费莉丝,
-                    (int)CardId.光道兽沃尔夫,
-                    (int)CardId.光道暗杀者莱登,
-                    (int)CardId.娱乐法师戏法小丑,
-                    (int)CardId.英豪挑战者千刀兵
+                    (int)CardId.Felis,
+                    (int)CardId.Wulf,
+                    (int)CardId.Raiden,
+                    (int)CardId.PerformageTrickClown,
+                    (int)CardId.ThousandBlades
                 });
             return true;
         }
 
-        private bool 娱乐法师戏法小丑效果()
+        private bool PerformageTrickClownEffect()
         {
-            已发动小丑 = true;
+            ClownUsed = true;
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
 
-        private bool 欧尼斯特效果()
+        private bool HonestEffect()
         {
             return Duel.Phase != DuelPhase.Main1;
         }
 
-        private bool 励辉士入魔蝇王特殊召唤()
+        private bool EvilswarmExcitonKnightSummon()
         {
             int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
             int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
-            return (selfCount - 1 < oppoCount) && 励辉士入魔蝇王效果();
+            return (selfCount - 1 < oppoCount) && EvilswarmExcitonKnightEffect();
         }
 
-        private bool 励辉士入魔蝇王效果()
+        private bool EvilswarmExcitonKnightEffect()
         {
             int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
             int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
@@ -246,14 +246,14 @@ namespace WindBot.Game.AI.Decks
             return (selfCount < oppoCount) || (selfAttack < oppoAttack);
         }
 
-        private bool 红莲魔龙右红痕特殊召唤()
+        private bool ScarlightRedDragonArchfiendSummon()
         {
             int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
             int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
-            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || 红莲魔龙右红痕效果();
+            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || ScarlightRedDragonArchfiendEffect();
         }
 
-        private bool 红莲魔龙右红痕效果()
+        private bool ScarlightRedDragonArchfiendEffect()
         {
             int selfCount = 0;
             List<ClientCard> monsters = Bot.GetMonsters();
@@ -267,7 +267,6 @@ namespace WindBot.Game.AI.Decks
             monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                // 没有办法获取特殊召唤的状态，只好默认全部是特招的
                 if (monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
                     oppoCount++;
             }
@@ -275,36 +274,20 @@ namespace WindBot.Game.AI.Decks
             return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount > 2;
         }
 
-        private bool 鸟铳士卡斯泰尔特殊召唤()
+        private bool CastelTheSkyblasterMusketeerSummom()
         {
             return AI.Utils.GetProblematicCard() != null;
         }
 
-        private bool 鸟铳士卡斯泰尔效果()
+        private bool CastelTheSkyblasterMusketeerEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.鸟铳士卡斯泰尔, 0))
+            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.CastelTheSkyblasterMusketeer, 0))
                 return false;
             AI.SelectNextCard(AI.Utils.GetProblematicCard());
             return true;
         }
 
-        private bool 辉光子帕拉迪奥斯特殊召唤()
-        {
-            return 辉光子帕拉迪奥斯效果();
-        }
-
-        private bool 辉光子帕拉迪奥斯效果()
-        {
-            ClientCard result = AI.Utils.GetOneEnemyBetterThanValue(2000, true);
-            if (result != null)
-            {
-                AI.SelectNextCard(result);
-                return true;
-            }
-            return false;
-        }
-
-        private bool 电光皇特殊召唤()
+        private bool NumberS39UtopiatheLightningSummon()
         {
             return AI.Utils.IsEnemyBetter(false, false);
         }

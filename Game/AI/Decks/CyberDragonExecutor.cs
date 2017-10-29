@@ -9,120 +9,120 @@ namespace WindBot.Game.AI.Decks
     [Deck("CyberDragon", "AI_CyberDragon")]
     public class CyberDragonExecutor : DefaultExecutor
     {
-        bool 力量结合效果 = false;
+        bool PowerBondUsed = false;
 
         public enum CardId
         {
-            电子镭射龙 = 4162088,
-            电子障壁龙 = 68774379,
-            电子龙 = 70095154,
-            电子龙三型 = 59281922,
-            电子凤凰 = 3370104,
-            装甲电子翼 = 67159705,
-            原始电子龙 = 26439287,
-            电子麒麟 = 76986005,
-            电子龙核 = 23893227,
-            电子多变龙 = 3657444,
+            CyberLaserDragon = 4162088,
+            CyberBarrierDragon = 68774379,
+            CyberDragon = 70095154,
+            CyberDragonDrei = 59281922,
+            CyberPhoenix = 3370104,
+            ArmoredCybern = 67159705,
+            ProtoCyberDragon = 26439287,
+            CyberKirin = 76986005,
+            CyberDragonCore = 23893227,
+            CyberValley = 3657444,
             Raigeki = 12580477,
             DarkHole = 53129443,
-            时间胶囊 = 11961740,
-            融合 = 24094653,
-            力量结合 = 37630732,
-            进化光焰 = 52875873,
-            光子发生装置 = 66607691,
-            融合解除 = 95286165,
-            奈落的落穴 = 29401950,
-            神圣防护罩反射镜力 = 44095762,
-            攻击反射装置 = 91989718,
-            电子隐秘技术 = 92773018,
-            活死人的呼声 = 97077563,
-            盗贼的七道具 = 3819470,
-            电子双生龙 = 74157028,
-            电子终结龙 = 1546123,
-            电子龙新星 = 58069384
+            DifferentDimensionCapsule = 11961740,
+            Polymerization = 24094653,
+            PowerBond = 37630732,
+            EvolutionBurst = 52875873,
+            PhotonGeneratorUnit = 66607691,
+            DeFusion = 95286165,
+            BottomlessTrapHole = 29401950,
+            MirrorForce = 44095762,
+            AttackReflectorUnit = 91989718,
+            CyberneticHiddenTechnology = 92773018,
+            CallOfTheHaunted = 97077563,
+            SevenToolsOfTheBandit = 3819470,
+            CyberTwinDragon = 74157028,
+            CyberEndDragon = 1546123,
+            CyberDragonNova = 58069384
         }
 
         public CyberDragonExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.融合解除);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.DeFusion);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.时间胶囊, Capsule);
+            AddExecutor(ExecutorType.Activate, (int)CardId.DifferentDimensionCapsule, Capsule);
             AddExecutor(ExecutorType.Activate, (int)CardId.Raigeki, DefaultRaigeki);
-            AddExecutor(ExecutorType.Activate, (int)CardId.融合, 融合);
-            AddExecutor(ExecutorType.Activate, (int)CardId.力量结合, 力量结合);
-            AddExecutor(ExecutorType.Activate, (int)CardId.进化光焰, 进化光焰);
+            AddExecutor(ExecutorType.Activate, (int)CardId.Polymerization, PolymerizationEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.PowerBond, PowerBondEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.EvolutionBurst, EvolutionBurstEffect);
             AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.光子发生装置);
-            AddExecutor(ExecutorType.Activate, (int)CardId.融合解除, 融合解除);
+            AddExecutor(ExecutorType.Activate, (int)CardId.PhotonGeneratorUnit);
+            AddExecutor(ExecutorType.Activate, (int)CardId.DeFusion, DeFusionEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.奈落的落穴, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神圣防护罩反射镜力, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.攻击反射装置);
-            AddExecutor(ExecutorType.Activate, (int)CardId.盗贼的七道具, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.活死人的呼声, DefaultCallOfTheHaunted);
+            AddExecutor(ExecutorType.Activate, (int)CardId.BottomlessTrapHole, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.AttackReflectorUnit);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SevenToolsOfTheBandit, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CallOfTheHaunted, DefaultCallOfTheHaunted);
 
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.电子龙三型, 没有电子龙可特殊召唤);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.电子凤凰, 没有电子龙可特殊召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.电子多变龙, 没有电子龙可特殊召唤);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.电子龙核, 没有电子龙可特殊召唤);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.装甲电子翼, 装甲电子翼);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.原始电子龙, 原始电子龙);
-            AddExecutor(ExecutorType.Summon, (int)CardId.电子麒麟, 电子麒麟);
+            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.CyberDragonDrei, NoCyberDragonSpsummon);
+            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.CyberPhoenix, NoCyberDragonSpsummon);
+            AddExecutor(ExecutorType.Summon, (int)CardId.CyberValley, NoCyberDragonSpsummon);
+            AddExecutor(ExecutorType.MonsterSet, (int)CardId.CyberDragonCore, NoCyberDragonSpsummon);
+            AddExecutor(ExecutorType.MonsterSet, (int)CardId.ArmoredCybern, ArmoredCybernSet);
+            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.ProtoCyberDragon, ProtoCyberDragonSummon);
+            AddExecutor(ExecutorType.Summon, (int)CardId.CyberKirin, CyberKirinSummon);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.电子龙);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.电子终结龙);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.电子双生龙);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.电子障壁龙);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.电子镭射龙);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberDragon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberEndDragon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberTwinDragon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberBarrierDragon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberLaserDragon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.电子障壁龙);
-            AddExecutor(ExecutorType.Activate, (int)CardId.电子镭射龙);
-            AddExecutor(ExecutorType.Activate, (int)CardId.电子龙三型);
-            AddExecutor(ExecutorType.Activate, (int)CardId.电子凤凰);
-            AddExecutor(ExecutorType.Activate, (int)CardId.电子麒麟);
-            AddExecutor(ExecutorType.Activate, (int)CardId.装甲电子翼, 装甲电子翼效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.电子多变龙);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CyberBarrierDragon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CyberLaserDragon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CyberDragonDrei);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CyberPhoenix);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CyberKirin);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ArmoredCybern, ArmoredCybernEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CyberValley);
 
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
-        private bool CyberDragonInHand()  { return Bot.HasInHand((int)CardId.电子龙); }
-        private bool CyberDragonInGraveyard()  { return Bot.HasInGraveyard((int)CardId.电子龙); }
-        private bool CyberDragonInMonsterZone() { return Bot.HasInMonstersZone((int)CardId.电子龙); }
-        private bool CyberDragonIsBanished() { return Bot.HasInBanished((int)CardId.电子龙); }
+        private bool CyberDragonInHand()  { return Bot.HasInHand((int)CardId.CyberDragon); }
+        private bool CyberDragonInGraveyard()  { return Bot.HasInGraveyard((int)CardId.CyberDragon); }
+        private bool CyberDragonInMonsterZone() { return Bot.HasInMonstersZone((int)CardId.CyberDragon); }
+        private bool CyberDragonIsBanished() { return Bot.HasInBanished((int)CardId.CyberDragon); }
 
         private bool Capsule()
         {
             List<int> SelectedCard = new List<int>();
-            SelectedCard.Add((int)CardId.力量结合);
+            SelectedCard.Add((int)CardId.PowerBond);
             SelectedCard.Add((int)CardId.DarkHole);
             SelectedCard.Add((int)CardId.Raigeki);
             AI.SelectCard(SelectedCard);
             return true;
         }
 
-        private bool 融合()
+        private bool PolymerizationEffect()
         {
-            if (Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.原始电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙三型) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙三型) + Bot.GetCountCardInZone(Bot.Hand, (int)CardId.电子龙) >= 3)
-                AI.SelectCard((int)CardId.电子终结龙);
+            if (Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.ProtoCyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.CyberDragonDrei) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.CyberDragonDrei) + Bot.GetCountCardInZone(Bot.Hand, (int)CardId.CyberDragon) >= 3)
+                AI.SelectCard((int)CardId.CyberEndDragon);
             else
-                AI.SelectCard((int)CardId.电子双生龙);
+                AI.SelectCard((int)CardId.CyberTwinDragon);
             return true;
         }
 
-        private bool 力量结合()
+        private bool PowerBondEffect()
         {
-            力量结合效果 = true;
-            if (Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.原始电子龙) + Bot.GetCountCardInZone(Bot.Hand, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.Hand, (int)CardId.电子龙核) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.电子龙核) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.电子龙三型) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙三型) >= 3)
-                AI.SelectCard((int)CardId.电子终结龙);
+            PowerBondUsed = true;
+            if (Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.ProtoCyberDragon) + Bot.GetCountCardInZone(Bot.Hand, (int)CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.Hand, (int)CardId.CyberDragonCore) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.CyberDragonCore) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.CyberDragonDrei) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.CyberDragonDrei) >= 3)
+                AI.SelectCard((int)CardId.CyberEndDragon);
             else
-                AI.SelectCard((int)CardId.电子双生龙);
+                AI.SelectCard((int)CardId.CyberTwinDragon);
             return true;
         }
 
-        private bool 进化光焰()
+        private bool EvolutionBurstEffect()
         {
             ClientCard bestMy = Bot.GetMonsters().GetHighestAttackMonster();
             if (bestMy == null || !AI.Utils.IsOneEnemyBetterThanValue(bestMy.Attack, false))
@@ -132,49 +132,49 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool 没有电子龙可特殊召唤()
+        private bool NoCyberDragonSpsummon()
         {
             if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0))
                 return false;
             return true;
         }
 
-        private bool 装甲电子翼()
+        private bool ArmoredCybernSet()
         {
-            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.电子龙三型) || Bot.HasInHand((int)CardId.电子凤凰)) && !AI.Utils.IsOneEnemyBetterThanValue(1800,true))
+            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.CyberDragonDrei) || Bot.HasInHand((int)CardId.CyberPhoenix)) && !AI.Utils.IsOneEnemyBetterThanValue(1800,true))
                 return false;
             return true;
         }
 
-        private bool 原始电子龙()
+        private bool ProtoCyberDragonSummon()
         {
-            if (Bot.GetCountCardInZone(Bot.Hand, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙核) >= 1 && Bot.HasInHand((int)CardId.融合) || Bot.GetCountCardInZone(Bot.Hand, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.电子龙) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.电子龙核) >= 1 && Bot.HasInHand((int)CardId.力量结合))
+            if (Bot.GetCountCardInZone(Bot.Hand, (int)CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.CyberDragonCore) >= 1 && Bot.HasInHand((int)CardId.Polymerization) || Bot.GetCountCardInZone(Bot.Hand, (int)CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.Graveyard, (int)CardId.CyberDragonCore) >= 1 && Bot.HasInHand((int)CardId.PowerBond))
                 return true;
-            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.电子龙三型) || Bot.HasInHand((int)CardId.电子凤凰)) && !AI.Utils.IsOneEnemyBetterThanValue(1800, true))
+            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand((int)CardId.CyberDragonDrei) || Bot.HasInHand((int)CardId.CyberPhoenix)) && !AI.Utils.IsOneEnemyBetterThanValue(1800, true))
                 return false;
             return true;
         }
 
-        private bool 电子麒麟()
+        private bool CyberKirinSummon()
         {
-            return 力量结合效果;
+            return PowerBondUsed;
         }
 
-        private bool 装甲电子翼效果()
+        private bool ArmoredCybernEffect()
         {
             if (Card.Location == CardLocation.Hand)
                 return true;
             else if (Card.Location == CardLocation.SpellZone)
             {
                 if (AI.Utils.IsOneEnemyBetterThanValue(Bot.GetMonsters().GetHighestAttackMonster().Attack, true))
-                    if (ActivateDescription == AI.Utils.GetStringId((int)CardId.装甲电子翼, 2))
+                    if (ActivateDescription == AI.Utils.GetStringId((int)CardId.ArmoredCybern, 2))
                         return true;
                 return false;
             }
             return false;
         }
 
-        private bool 融合解除()
+        private bool DeFusionEffect()
         {
             if (Duel.Phase == DuelPhase.Battle)
             {

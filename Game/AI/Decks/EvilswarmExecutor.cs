@@ -11,23 +11,23 @@ namespace WindBot.Game.AI.Decks
     {
         public enum CardId
         {
-            黑洞 = 53129443,
-            宇宙旋风 = 8267140,
-            侵略的泛发感染 = 27541267,
-            神之宣告 = 41420027,
-            神之警告 = 84749824,
-            神之通告 = 40605147
+            DarkHole = 53129443,
+            CosmicCyclone = 8267140,
+            InfestationPandemic = 27541267,
+            SolemnJudgment = 41420027,
+            SolemnWarning = 84749824,
+            SolemnStrike = 40605147
         }
 
         public EvilswarmExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.宇宙旋风, DefaultCosmicCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之宣告, DefaultSolemnJudgment);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, DefaultSolemnStrike);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.侵略的泛发感染);
+            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CosmicCyclone, DefaultCosmicCyclone);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnJudgment, DefaultSolemnJudgment);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnStrike, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.InfestationPandemic);
             AddExecutor(ExecutorType.Activate, DefaultDontChainMyself);
             AddExecutor(ExecutorType.Summon);
             AddExecutor(ExecutorType.SpSummon);

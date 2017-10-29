@@ -11,26 +11,26 @@ namespace WindBot.Game.AI.Decks
     {
         public enum CardId
         {
-            残夜之波刃剑鸟 = 81105204,
-            晓之希洛克 = 75498415,
-            苍炎之修罗 = 58820853,
-            黑枪之布拉斯特 = 49003716,
-            月影之卡鲁特 = 85215458,
-            疾风之盖尔 = 2009101,
-            极北之布利扎德 = 22835145,
-            银盾之密史脱拉 = 46710683,
+            KrisTheCrackOfDawn = 81105204,
+            SiroccoTheDawn = 75498415,
+            ShuraTheBlueFlame = 58820853,
+            BoraTheSpear = 49003716,
+            KalutTheMoonShadow = 85215458,
+            GaleTheWhirlwind = 2009101,
+            BlizzardTheFarNorth = 22835145,
+            MistralTheSilverShield = 46710683,
             Raigeki = 12580477,
             DarkHole = 53129443,
             MysticalSpaceTyphoon = 5318639,
-            黑旋风 = 91351370,
-            神圣防护罩 = 44095762,
-            三角乌鸦阵 = 59839761,
-            次元幽闭 = 70342110,
-            孤高之银风鸦 = 33236860,
-            黑羽龙 = 9012916,
-            铠翼鸦 = 69031175,
-            兵翼鸦 = 76913983,
-            煌星之怒剑鸟 = 17377751
+            BlackWhirlwind = 91351370,
+            MirrorForce = 44095762,
+            DeltaCrowAntiReverse = 59839761,
+            DimensionalPrison = 70342110,
+            SilverwindTheAscendant = 33236860,
+            BlackWingedDragon = 9012916,
+            ArmorMaster = 69031175,
+            ArmedWing = 76913983,
+            GramTheShiningStar = 17377751
         }
 
         public BlackwingExecutor(GameAI ai, Duel duel)
@@ -41,42 +41,42 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
             AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
             AddExecutor(ExecutorType.Activate, (int)CardId.Raigeki, DefaultRaigeki);
-            AddExecutor(ExecutorType.Activate, (int)CardId.黑旋风, 黑旋风);
+            AddExecutor(ExecutorType.Activate, (int)CardId.BlackWhirlwind, BlackWhirlwindEffect);
             
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.残夜之波刃剑鸟);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.残夜之波刃剑鸟);
-            AddExecutor(ExecutorType.Summon, (int)CardId.晓之希洛克, 晓之希洛克);
-            AddExecutor(ExecutorType.Summon, (int)CardId.苍炎之修罗, 苍炎之修罗);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.苍炎之修罗);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.黑枪之布拉斯特);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.黑枪之布拉斯特);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.月影之卡鲁特, 月影之卡鲁特);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.疾风之盖尔);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.疾风之盖尔);
-            AddExecutor(ExecutorType.Summon, (int)CardId.极北之布利扎德, 极北之布利扎德);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.银盾之密史脱拉);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.KrisTheCrackOfDawn);
+            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.KrisTheCrackOfDawn);
+            AddExecutor(ExecutorType.Summon, (int)CardId.SiroccoTheDawn, SiroccoTheDawnSummon);
+            AddExecutor(ExecutorType.Summon, (int)CardId.ShuraTheBlueFlame, ShuraTheBlueFlameSummon);
+            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.ShuraTheBlueFlame);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.BoraTheSpear);
+            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.BoraTheSpear);
+            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.KalutTheMoonShadow, KalutTheMoonShadowSummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.GaleTheWhirlwind);
+            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.GaleTheWhirlwind);
+            AddExecutor(ExecutorType.Summon, (int)CardId.BlizzardTheFarNorth, BlizzardTheFarNorthSummon);
+            AddExecutor(ExecutorType.MonsterSet, (int)CardId.MistralTheSilverShield);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.孤高之银风鸦);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.铠翼鸦);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.煌星之怒剑鸟);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.兵翼鸦);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.黑羽龙);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.SilverwindTheAscendant);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.ArmorMaster);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.GramTheShiningStar);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.ArmedWing);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.BlackWingedDragon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.神圣防护罩, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.次元幽闭, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.三角乌鸦阵, 三角乌鸦阵);
-            AddExecutor(ExecutorType.Activate, (int)CardId.三角乌鸦阵, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.DimensionalPrison, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.DeltaCrowAntiReverse, DeltaCrowAntiReverseEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.极北之布利扎德);
-            AddExecutor(ExecutorType.Activate, (int)CardId.苍炎之修罗);
-            AddExecutor(ExecutorType.Activate, (int)CardId.月影之卡鲁特, 攻击力上升效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.晓之希洛克, 攻击力上升效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.疾风之盖尔, 疾风之盖尔效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.孤高之银风鸦);
-            AddExecutor(ExecutorType.Activate, (int)CardId.黑羽龙);
-            AddExecutor(ExecutorType.Activate, (int)CardId.铠翼鸦);
-            AddExecutor(ExecutorType.Activate, (int)CardId.兵翼鸦);
-            AddExecutor(ExecutorType.Activate, (int)CardId.煌星之怒剑鸟);
+            AddExecutor(ExecutorType.Activate, (int)CardId.BlizzardTheFarNorth);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ShuraTheBlueFlame);
+            AddExecutor(ExecutorType.Activate, (int)CardId.BoraTheSpear, BoraTheSpearEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.KalutTheMoonShadow, AttackUpEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SiroccoTheDawn, AttackUpEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.GaleTheWhirlwind, GaleTheWhirlwindEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SilverwindTheAscendant);
+            AddExecutor(ExecutorType.Activate, (int)CardId.BlackWingedDragon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ArmorMaster);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ArmedWing);
+            AddExecutor(ExecutorType.Activate, (int)CardId.GramTheShiningStar);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -88,23 +88,23 @@ namespace WindBot.Game.AI.Decks
             return base.OnPreBattleBetween(attacker, defender);
         }
 
-        private bool 苍炎之修罗()
+        private bool ShuraTheBlueFlameSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.晓之希洛克) && Bot.GetMonsters().GetHighestAttackMonster().Attack < 3800)
+            if (Bot.HasInMonstersZone((int)CardId.SiroccoTheDawn) && Bot.GetMonsters().GetHighestAttackMonster().Attack < 3800)
                 return true;
             return false;
         }
 
-        private bool 黑旋风()
+        private bool BlackWhirlwindEffect()
         {
             if (Card.Location == CardLocation.Hand && Bot.HasInSpellZone(Card.Id))
                 return false;
             if (ActivateDescription == AI.Utils.GetStringId((int)Card.Id,0))
-                AI.SelectCard((int)CardId.疾风之盖尔);
+                AI.SelectCard((int)CardId.GaleTheWhirlwind);
             return true;
         }
 
-        private bool 晓之希洛克()
+        private bool SiroccoTheDawnSummon()
         {
             int OpponentMonster = Enemy.GetMonsterCount();
             int AIMonster = Bot.GetMonsterCount();
@@ -113,38 +113,38 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 黑枪之布拉斯特()
+        private bool BoraTheSpearEffect()
         {
             List<ClientCard> monster = Bot.GetMonsters();
             foreach (ClientCard card in monster)
-                if (card != null && card.Id == (int)CardId.残夜之波刃剑鸟 || card.Id == (int)CardId.月影之卡鲁特 || card.Id == (int)CardId.疾风之盖尔 || card.Id == (int)CardId.黑枪之布拉斯特 || card.Id == (int)CardId.晓之希洛克 || card.Id == (int)CardId.苍炎之修罗 || card.Id == (int)CardId.极北之布利扎德)
+                if (card != null && card.Id == (int)CardId.KrisTheCrackOfDawn || card.Id == (int)CardId.KalutTheMoonShadow || card.Id == (int)CardId.GaleTheWhirlwind || card.Id == (int)CardId.BoraTheSpear || card.Id == (int)CardId.SiroccoTheDawn || card.Id == (int)CardId.ShuraTheBlueFlame || card.Id == (int)CardId.BlizzardTheFarNorth)
                     return true;
             return false;
         }
 
-        private bool 月影之卡鲁特()
+        private bool KalutTheMoonShadowSummon()
         {
             foreach (ClientCard card in Bot.Hand)
-                if (card != null && card.Id == (int)CardId.残夜之波刃剑鸟 || card.Id == (int)CardId.疾风之盖尔 || card.Id == (int)CardId.黑枪之布拉斯特 || card.Id == (int)CardId.晓之希洛克 || card.Id == (int)CardId.苍炎之修罗 || card.Id == (int)CardId.极北之布利扎德)
+                if (card != null && card.Id == (int)CardId.KrisTheCrackOfDawn || card.Id == (int)CardId.GaleTheWhirlwind || card.Id == (int)CardId.BoraTheSpear || card.Id == (int)CardId.SiroccoTheDawn || card.Id == (int)CardId.ShuraTheBlueFlame || card.Id == (int)CardId.BlizzardTheFarNorth)
                     return false;
             return true;
         }
 
-        private bool 极北之布利扎德()
+        private bool BlizzardTheFarNorthSummon()
         {
             foreach (ClientCard card in Bot.Graveyard)
-                if (card != null && card.Id == (int)CardId.月影之卡鲁特 || card.Id == (int)CardId.黑枪之布拉斯特 || card.Id == (int)CardId.苍炎之修罗 || card.Id == (int)CardId.残夜之波刃剑鸟)
+                if (card != null && card.Id == (int)CardId.KalutTheMoonShadow || card.Id == (int)CardId.BoraTheSpear || card.Id == (int)CardId.ShuraTheBlueFlame || card.Id == (int)CardId.KrisTheCrackOfDawn)
                     return true;
             return false;
         }
 
-        private bool 三角乌鸦阵()
+        private bool DeltaCrowAntiReverseEffect()
         {
             int Count = 0;
 
             List<ClientCard> monster = Bot.GetMonsters();
             foreach (ClientCard card in monster)
-                if (card != null && card.Id == (int)CardId.残夜之波刃剑鸟 || card.Id == (int)CardId.月影之卡鲁特 || card.Id == (int)CardId.疾风之盖尔 || card.Id == (int)CardId.黑枪之布拉斯特 || card.Id == (int)CardId.晓之希洛克 || card.Id == (int)CardId.苍炎之修罗 || card.Id == (int)CardId.极北之布利扎德)
+                if (card != null && card.Id == (int)CardId.KrisTheCrackOfDawn || card.Id == (int)CardId.KalutTheMoonShadow || card.Id == (int)CardId.GaleTheWhirlwind || card.Id == (int)CardId.BoraTheSpear || card.Id == (int)CardId.SiroccoTheDawn || card.Id == (int)CardId.ShuraTheBlueFlame || card.Id == (int)CardId.BlizzardTheFarNorth)
                     Count++;
 
             if (Count == 3)
@@ -152,7 +152,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 疾风之盖尔效果()
+        private bool GaleTheWhirlwindEffect()
         {
             if (Card.Position == (int)CardPosition.FaceUp)
             {
@@ -162,7 +162,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 攻击力上升效果()
+        private bool AttackUpEffect()
         {
             ClientCard bestMy = Bot.GetMonsters().GetHighestAttackMonster();
             ClientCard bestEnemyATK = Enemy.GetMonsters().GetHighestAttackMonster();
