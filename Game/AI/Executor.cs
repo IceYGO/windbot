@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using YGOSharp.OCGWrapper.Enums;
 using WindBot;
