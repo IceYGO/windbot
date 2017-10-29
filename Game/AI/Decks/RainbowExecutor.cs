@@ -11,142 +11,140 @@ namespace WindBot.Game.AI.Decks
     {
         public enum CardId
         {
-            幻壳龙 = 18108166,
-            幻之狮鹫 = 74852097,
-            龙剑士卓辉星灵摆 = 75195825,
-            曼陀罗天使号手 = 87979586,
-            炼装勇士金驰 = 33256280,
-            打喷嚏的河马龙 = 51934376,
-            救援兔 = 85138716,
+            MysteryShellDragon = 18108166,
+            PhantomGryphon = 74852097,
+            MasterPendulumTheDracoslayer = 75195825,
+            AngelTrumpeter = 87979586,
+            MetalfoesGoldriver = 33256280,
+            Kabazauls = 51934376,
+            RescueRabbit = 85138716,
 
-            粗人预料 = 911883,
-            鹰身女妖的羽毛扫 = 18144506,
-            强欲而贪欲之壶 = 35261759,
-            死者苏生 = 83764718,
-            地碎 = 97169186,
+            UnexpectedDai = 911883,
+            HarpiesFeatherDuster = 18144506,
+            PotOfDesires = 35261759,
+            MonsterReborn = 83764718,
+            SmashingGround = 97169186,
 
-            沙尘防护罩尘埃之力 = 40838625,
-            波纹防护罩波浪之力 = 47475363,
-            业炎防护罩火焰之力 = 75249652,
-            神风防护罩大气之力 = 5650082,
-            神圣防护罩反射镜力 = 44095762,
-            邪恶防护罩暗黑之力 = 20522190,
-            奈落的落穴 = 29401950,
-            虫惑的落穴 = 29616929,
-            星光大道 = 58120309,
+            QuakingMirrorForce = 40838625,
+            DrowningMirrorForce = 47475363,
+            BlazingMirrorForce = 75249652,
+            StormingMirrorForce = 5650082,
+            MirrorForce = 44095762,
+            DarkMirrorForce = 20522190,
+            BottomlessTrapHole = 29401950,
+            TraptrixTrapHoleNightmare = 29616929,
+            StarlightRoad = 58120309,
 
-            红莲魔龙右红痕 = 80666118,
-            爆龙剑士点火星日珥 = 18239909,
-            星尘龙 = 44508094,
-            闪光No39希望皇霍普电光皇 = 56832966,
-            No37希望织龙蜘蛛鲨 = 37279508,
-            No39希望皇霍普 = 84013237,
-            进化帝半鸟龙 = 74294676,
-            No59背反之料理人 = 82697249,
-            鸟铳士卡斯泰尔 = 82633039,
-            辉光子帕拉迪奥斯 = 61344030,
-            电光千鸟 = 22653490,
-            励辉士入魔蝇王 = 46772449,
-            我我我枪手 = 12014404,
-            入魔梦魇骑士 = 359563,
-            芙莉西亚之虫惑魔 = 6511113
+            ScarlightRedDragonArchfiend = 80666118,
+            IgnisterProminenceTheBlastingDracoslayer = 18239909,
+            StardustDragon = 44508094,
+            NumberS39UtopiatheLightning = 56832966,
+            Number37HopeWovenDragonSpiderShark = 37279508,
+            Number39Utopia = 84013237,
+            EvolzarLaggia = 74294676,
+            Number59CrookedCook = 82697249,
+            CastelTheSkyblasterMusketeer = 82633039,
+            StarliegePaladynamo = 61344030,
+            LightningChidori = 22653490,
+            EvilswarmExcitonKnight = 46772449,
+            GagagaCowboy = 12014404,
+            EvilswarmNightmare = 359563,
+            TraptrixRafflesia = 6511113
         }
 
-        private bool 已通常召唤 = false;
+        private bool NormalSummoned = false;
 
         public RainbowExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
+            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.粗人预料, 粗人预料效果);
+            AddExecutor(ExecutorType.Activate, (int)CardId.UnexpectedDai, UnexpectedDaiEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.救援兔);
-            AddExecutor(ExecutorType.Activate, (int)CardId.救援兔, 救援兔效果);
+            AddExecutor(ExecutorType.Summon, (int)CardId.RescueRabbit);
+            AddExecutor(ExecutorType.Activate, (int)CardId.RescueRabbit, RescueRabbitEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶, DefaultPotOfDesires);
+            AddExecutor(ExecutorType.Activate, (int)CardId.PotOfDesires, DefaultPotOfDesires);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.曼陀罗天使号手, 曼陀罗天使号手通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.打喷嚏的河马龙, 打喷嚏的河马龙通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.龙剑士卓辉星灵摆, 龙剑士卓辉星灵摆通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.幻壳龙, 幻壳龙通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.幻之狮鹫, 幻之狮鹫通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.炼装勇士金驰, 炼装勇士金驰通常召唤);
+            AddExecutor(ExecutorType.Summon, (int)CardId.AngelTrumpeter, AngelTrumpeterSummon);
+            AddExecutor(ExecutorType.Summon, (int)CardId.Kabazauls, KabazaulsSummon);
+            AddExecutor(ExecutorType.Summon, (int)CardId.MasterPendulumTheDracoslayer, MasterPendulumTheDracoslayerSummon);
+            AddExecutor(ExecutorType.Summon, (int)CardId.MysteryShellDragon, MysteryShellDragonSummon);
+            AddExecutor(ExecutorType.Summon, (int)CardId.PhantomGryphon, PhantomGryphonSummon);
+            AddExecutor(ExecutorType.Summon, (int)CardId.MetalfoesGoldriver, MetalfoesGoldriverSummon);
 
-            AddExecutor(ExecutorType.Summon, 通常召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.爆龙剑士点火星日珥, 爆龙剑士点火星日珥特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.爆龙剑士点火星日珥, 爆龙剑士点火星日珥效果);
+            AddExecutor(ExecutorType.Summon, NormalSummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.我我我枪手, 我我我枪手特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.我我我枪手);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.进化帝半鸟龙, 进化帝半鸟龙特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.进化帝半鸟龙, 进化帝半鸟龙效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.入魔梦魇骑士, 入魔梦魇骑士特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.入魔梦魇骑士);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.辉光子帕拉迪奥斯, 辉光子帕拉迪奥斯特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.辉光子帕拉迪奥斯, 辉光子帕拉迪奥斯效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.电光千鸟, 电光千鸟特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.电光千鸟, 电光千鸟效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.No37希望织龙蜘蛛鲨, No37希望织龙蜘蛛鲨特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.No37希望织龙蜘蛛鲨);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.芙莉西亚之虫惑魔, 芙莉西亚之虫惑魔特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.芙莉西亚之虫惑魔);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.GagagaCowboy, GagagaCowboySummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.GagagaCowboy);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvolzarLaggia, EvolzarLaggiaSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.EvolzarLaggia, EvolzarLaggiaEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmNightmare, EvilswarmNightmareSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmNightmare);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.StarliegePaladynamo, StarliegePaladynamoSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.StarliegePaladynamo, StarliegePaladynamoEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.LightningChidori, LightningChidoriSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.LightningChidori, LightningChidoriEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number37HopeWovenDragonSpiderShark, Number37HopeWovenDragonSpiderSharkSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.Number37HopeWovenDragonSpiderShark);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.TraptrixRafflesia, TraptrixRafflesiaSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.TraptrixRafflesia);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.地碎, DefaultSmashingGround);
+            AddExecutor(ExecutorType.Activate, (int)CardId.SmashingGround, DefaultSmashingGround);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.鸟铳士卡斯泰尔, 鸟铳士卡斯泰尔特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.鸟铳士卡斯泰尔, 鸟铳士卡斯泰尔效果);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CastelTheSkyblasterMusketeer, CastelTheSkyblasterMusketeerSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CastelTheSkyblasterMusketeer, CastelTheSkyblasterMusketeerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.爆龙剑士点火星日珥, 爆龙剑士点火星日珥特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.爆龙剑士点火星日珥, 爆龙剑士点火星日珥效果);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.红莲魔龙右红痕, 红莲魔龙右红痕特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.红莲魔龙右红痕, 红莲魔龙右红痕效果);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.ScarlightRedDragonArchfiend, ScarlightRedDragonArchfiendSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ScarlightRedDragonArchfiend, ScarlightRedDragonArchfiendEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.No39希望皇霍普, 电光皇特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普电光皇);
-            AddExecutor(ExecutorType.Activate, (int)CardId.闪光No39希望皇霍普电光皇);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, NumberS39UtopiatheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiatheLightning);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.星尘龙, 星尘龙特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.星尘龙, 星尘龙效果);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.StardustDragon, StardustDragonSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragon, StardustDragonEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.No59背反之料理人, No59背反之料理人特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.No59背反之料理人, No59背反之料理人效果);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number59CrookedCook, Number59CrookedCookSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.Number59CrookedCook, Number59CrookedCookEffect);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.星光大道, 陷阱卡覆盖);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.沙尘防护罩尘埃之力, 陷阱卡覆盖);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.波纹防护罩波浪之力, 陷阱卡覆盖);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.业炎防护罩火焰之力, 陷阱卡覆盖);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神风防护罩大气之力, 陷阱卡覆盖);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神圣防护罩反射镜力, 陷阱卡覆盖);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.邪恶防护罩暗黑之力, 陷阱卡覆盖);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.奈落的落穴, 陷阱卡覆盖);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.虫惑的落穴, 陷阱卡覆盖);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.StarlightRoad, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.QuakingMirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.DrowningMirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.BlazingMirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.StormingMirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.MirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.DarkMirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.BottomlessTrapHole, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, (int)CardId.TraptrixTrapHoleNightmare, TrapSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.星光大道, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.沙尘防护罩尘埃之力, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.波纹防护罩波浪之力, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.业炎防护罩火焰之力, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神风防护罩大气之力, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神圣防护罩反射镜力, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.邪恶防护罩暗黑之力, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.奈落的落穴, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.虫惑的落穴, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.StarlightRoad, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.QuakingMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.DrowningMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.BlazingMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.StormingMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.DarkMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.BottomlessTrapHole, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, (int)CardId.TraptrixTrapHoleNightmare, DefaultUniqueTrap);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
         public override void OnNewTurn()
         {
-            // 回合开始时重置状况
-            已通常召唤 = false;
+            NormalSummoned = false;
         }
         
         public override bool OnSelectHand()
         {
-            // 随机先后攻
             return Program.Rand.Next(2) > 0;
         }
 
@@ -157,101 +155,101 @@ namespace WindBot.Game.AI.Decks
                 if (defender.IsMonsterDangerous() || defender.IsDefense())
                     return false;
             }
-            if (!(defender.Id == (int)CardId.闪光No39希望皇霍普电光皇))
+            if (!(defender.Id == (int)CardId.NumberS39UtopiatheLightning))
             {
-                if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.No39希望皇霍普))
+                if (attacker.Id == (int)CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.Number39Utopia))
                     attacker.RealPower = 5000;
-                if (Bot.HasInMonstersZone((int)CardId.No37希望织龙蜘蛛鲨, true, true))
+                if (Bot.HasInMonstersZone((int)CardId.Number37HopeWovenDragonSpiderShark, true, true))
                     attacker.RealPower = attacker.RealPower + 1000;
             }
             return attacker.RealPower > defender.GetDefensePower();
         }
 
-        private bool 粗人预料效果()
+        private bool UnexpectedDaiEffect()
         {
-            if (Bot.HasInHand((int)CardId.救援兔) || 已通常召唤)
+            if (Bot.HasInHand((int)CardId.RescueRabbit) || NormalSummoned)
                 AI.SelectCard(new[]
                 {
-                    (int)CardId.幻壳龙,
-                    (int)CardId.幻之狮鹫
+                    (int)CardId.MysteryShellDragon,
+                    (int)CardId.PhantomGryphon
                 });
             else if (AI.Utils.IsTurn1OrMain2())
             {
-                if (Bot.HasInHand((int)CardId.幻壳龙))
-                    AI.SelectCard((int)CardId.幻壳龙);
-                else if (Bot.HasInHand((int)CardId.打喷嚏的河马龙))
-                    AI.SelectCard((int)CardId.打喷嚏的河马龙);
-                else if (Bot.HasInHand((int)CardId.曼陀罗天使号手))
-                    AI.SelectCard((int)CardId.曼陀罗天使号手);
+                if (Bot.HasInHand((int)CardId.MysteryShellDragon))
+                    AI.SelectCard((int)CardId.MysteryShellDragon);
+                else if (Bot.HasInHand((int)CardId.Kabazauls))
+                    AI.SelectCard((int)CardId.Kabazauls);
+                else if (Bot.HasInHand((int)CardId.AngelTrumpeter))
+                    AI.SelectCard((int)CardId.AngelTrumpeter);
             }
             else
             {
-                if (Bot.HasInHand((int)CardId.打喷嚏的河马龙))
-                    AI.SelectCard((int)CardId.打喷嚏的河马龙);
-                else if (Bot.HasInHand((int)CardId.龙剑士卓辉星灵摆))
-                    AI.SelectCard((int)CardId.龙剑士卓辉星灵摆);
-                else if (Bot.HasInHand((int)CardId.幻之狮鹫))
-                    AI.SelectCard((int)CardId.幻之狮鹫);
-                else if (Bot.HasInHand((int)CardId.曼陀罗天使号手))
+                if (Bot.HasInHand((int)CardId.Kabazauls))
+                    AI.SelectCard((int)CardId.Kabazauls);
+                else if (Bot.HasInHand((int)CardId.MasterPendulumTheDracoslayer))
+                    AI.SelectCard((int)CardId.MasterPendulumTheDracoslayer);
+                else if (Bot.HasInHand((int)CardId.PhantomGryphon))
+                    AI.SelectCard((int)CardId.PhantomGryphon);
+                else if (Bot.HasInHand((int)CardId.AngelTrumpeter))
                     AI.SelectCard(new[]
                     {
-                        (int)CardId.炼装勇士金驰,
-                        (int)CardId.龙剑士卓辉星灵摆
+                        (int)CardId.MetalfoesGoldriver,
+                        (int)CardId.MasterPendulumTheDracoslayer
                     });
             }
             return true;
         }
 
-        private bool 救援兔效果()
+        private bool RescueRabbitEffect()
         {
             if (AI.Utils.IsTurn1OrMain2())
                 AI.SelectCard(new[]
                     {
-                        (int)CardId.打喷嚏的河马龙,
-                        (int)CardId.幻壳龙
+                        (int)CardId.Kabazauls,
+                        (int)CardId.MysteryShellDragon
                     });
             else
                 AI.SelectCard(new[]
                     {
-                        (int)CardId.龙剑士卓辉星灵摆,
-                        (int)CardId.幻之狮鹫,
-                        (int)CardId.打喷嚏的河马龙,
-                        (int)CardId.炼装勇士金驰,
-                        (int)CardId.曼陀罗天使号手
+                        (int)CardId.MasterPendulumTheDracoslayer,
+                        (int)CardId.PhantomGryphon,
+                        (int)CardId.Kabazauls,
+                        (int)CardId.MetalfoesGoldriver,
+                        (int)CardId.AngelTrumpeter
                     });
             return true;
         }
 
-        private bool 幻壳龙通常召唤()
+        private bool MysteryShellDragonSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.幻壳龙);
+            return Bot.HasInMonstersZone((int)CardId.MysteryShellDragon);
         }
-        private bool 幻之狮鹫通常召唤()
+        private bool PhantomGryphonSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.幻之狮鹫);
+            return Bot.HasInMonstersZone((int)CardId.PhantomGryphon);
         }
-        private bool 龙剑士卓辉星灵摆通常召唤()
+        private bool MasterPendulumTheDracoslayerSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.龙剑士卓辉星灵摆);
+            return Bot.HasInMonstersZone((int)CardId.MasterPendulumTheDracoslayer);
         }
-        private bool 曼陀罗天使号手通常召唤()
+        private bool AngelTrumpeterSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.曼陀罗天使号手);
+            return Bot.HasInMonstersZone((int)CardId.AngelTrumpeter);
         }
-        private bool 炼装勇士金驰通常召唤()
+        private bool MetalfoesGoldriverSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.炼装勇士金驰);
+            return Bot.HasInMonstersZone((int)CardId.MetalfoesGoldriver);
         }
-        private bool 打喷嚏的河马龙通常召唤()
+        private bool KabazaulsSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.打喷嚏的河马龙);
+            return Bot.HasInMonstersZone((int)CardId.Kabazauls);
         }
-        private bool 通常召唤()
+        private bool NormalSummon()
         {
             return true;
         }
 
-        private bool 我我我枪手特殊召唤()
+        private bool GagagaCowboySummon()
         {
             if (Duel.LifePoints[1] <= 800)
             {
@@ -261,14 +259,14 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 励辉士入魔蝇王特殊召唤()
+        private bool EvilswarmExcitonKnightSummon()
         {
             int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
             int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
-            return (selfCount - 1 < oppoCount) && 励辉士入魔蝇王效果();
+            return (selfCount - 1 < oppoCount) && EvilswarmExcitonKnightEffect();
         }
 
-        private bool 励辉士入魔蝇王效果()
+        private bool EvilswarmExcitonKnightEffect()
         {
             int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
             int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
@@ -290,14 +288,14 @@ namespace WindBot.Game.AI.Decks
             return (selfCount < oppoCount) || (selfAttack < oppoAttack);
         }
 
-        private bool 红莲魔龙右红痕特殊召唤()
+        private bool ScarlightRedDragonArchfiendSummon()
         {
             int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
             int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
-            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || 红莲魔龙右红痕效果();
+            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || ScarlightRedDragonArchfiendEffect();
         }
 
-        private bool 红莲魔龙右红痕效果()
+        private bool ScarlightRedDragonArchfiendEffect()
         {
             int selfCount = 0;
             List<ClientCard> monsters = Bot.GetMonsters();
@@ -319,27 +317,27 @@ namespace WindBot.Game.AI.Decks
             return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount > 2;
         }
 
-        private bool 鸟铳士卡斯泰尔特殊召唤()
+        private bool CastelTheSkyblasterMusketeerSummon()
         {
             return AI.Utils.GetProblematicCard() != null;
         }
 
-        private bool 鸟铳士卡斯泰尔效果()
+        private bool CastelTheSkyblasterMusketeerEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.鸟铳士卡斯泰尔, 0))
+            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.CastelTheSkyblasterMusketeer, 0))
                 return false;
             AI.SelectNextCard(AI.Utils.GetProblematicCard());
             return true;
         }
 
-        private bool 爆龙剑士点火星日珥特殊召唤()
+        private bool IgnisterProminenceTheBlastingDracoslayerSummon()
         {
             return AI.Utils.GetProblematicCard() != null;
         }
 
-        private bool 爆龙剑士点火星日珥效果()
+        private bool IgnisterProminenceTheBlastingDracoslayerEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.爆龙剑士点火星日珥, 1))
+            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.IgnisterProminenceTheBlastingDracoslayer, 1))
                 return true;
             ClientCard target1 = null;
             ClientCard target2 = AI.Utils.GetProblematicCard();
@@ -363,7 +361,6 @@ namespace WindBot.Game.AI.Decks
             }
             if (target2 == null && target1 != null)
             {
-                // 对面有P卡，随便吹另一张
                 foreach (ClientCard spell in spells)
                 {
                     if (!spell.Equals(target1))
@@ -388,12 +385,12 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool No37希望织龙蜘蛛鲨特殊召唤()
+        private bool Number37HopeWovenDragonSpiderSharkSummon()
         {
             return AI.Utils.IsAllEnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnemyBetterThanValue(3600, true);
         }
 
-        private bool 电光千鸟特殊召唤()
+        private bool LightningChidoriSummon()
         {
             List<ClientCard> monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
@@ -415,29 +412,29 @@ namespace WindBot.Game.AI.Decks
             return AI.Utils.GetProblematicCard() != null;
         }
 
-        private bool 电光千鸟效果()
+        private bool LightningChidoriEffect()
         {
             ClientCard problematicCard = AI.Utils.GetProblematicCard();
             AI.SelectNextCard(problematicCard);
             return true;
         }
 
-        private bool 星尘龙特殊召唤()
+        private bool StardustDragonSummon()
         {
             return (AI.Utils.IsEnemyBetter(false, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
         }
 
-        private bool 星尘龙效果()
+        private bool StardustDragonEffect()
         {
             return (Card.Location == CardLocation.Grave) || DefaultTrap();
         }
 
-        private bool 进化帝半鸟龙特殊召唤()
+        private bool EvolzarLaggiaSummon()
         {
             return (AI.Utils.IsAllEnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
         }
 
-        private bool 入魔梦魇骑士特殊召唤()
+        private bool EvilswarmNightmareSummon()
         {
             if (AI.Utils.IsTurn1OrMain2())
             {
@@ -447,9 +444,9 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 芙莉西亚之虫惑魔特殊召唤()
+        private bool TraptrixRafflesiaSummon()
         {
-            if (AI.Utils.IsTurn1OrMain2() && (Bot.GetRemainingCount((int)CardId.奈落的落穴, 1) + Bot.GetRemainingCount((int)CardId.虫惑的落穴, 1)) > 0)
+            if (AI.Utils.IsTurn1OrMain2() && (Bot.GetRemainingCount((int)CardId.BottomlessTrapHole, 1) + Bot.GetRemainingCount((int)CardId.TraptrixTrapHoleNightmare, 1)) > 0)
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -457,13 +454,13 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool No59背反之料理人特殊召唤()
+        private bool Number59CrookedCookSummon()
         {
             return ((Bot.GetMonsterCount() + Bot.GetSpellCount() - 2) <= 1) &&
                 ((AI.Utils.IsEnemyBetter(false, false) && !AI.Utils.IsOneEnemyBetterThanValue(2300, true)) || AI.Utils.IsTurn1OrMain2());
         }
 
-        private bool No59背反之料理人效果()
+        private bool Number59CrookedCookEffect()
         {
             if (Duel.Player == 0)
             {
@@ -481,17 +478,17 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 进化帝半鸟龙效果()
+        private bool EvolzarLaggiaEffect()
         {
             return DefaultTrap();
         }
 
-        private bool 辉光子帕拉迪奥斯特殊召唤()
+        private bool StarliegePaladynamoSummon()
         {
-            return 辉光子帕拉迪奥斯效果();
+            return StarliegePaladynamoEffect();
         }
 
-        private bool 辉光子帕拉迪奥斯效果()
+        private bool StarliegePaladynamoEffect()
         {
             ClientCard result = AI.Utils.GetOneEnemyBetterThanValue(2000, true);
             if (result != null)
@@ -502,14 +499,14 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 电光皇特殊召唤()
+        private bool NumberS39UtopiatheLightningSummon()
         {
             return AI.Utils.IsEnemyBetter(false, false);
         }
 
-        private bool 陷阱卡覆盖()
+        private bool TrapSet()
         {
-            return !Bot.HasInMonstersZone((int)CardId.No59背反之料理人, true, true);
+            return !Bot.HasInMonstersZone((int)CardId.Number59CrookedCook, true, true);
         }
     }
 }
