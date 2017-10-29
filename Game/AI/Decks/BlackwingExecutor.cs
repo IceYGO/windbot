@@ -6,6 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
+    // NOT FINISHED YET
     [Deck("Blackwing", "AI_Blackwing")]
     public class BlackwingExecutor : DefaultExecutor
     {

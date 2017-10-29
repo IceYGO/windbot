@@ -132,7 +132,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool QuickdrawSynchronSummon()
         {
-            if (!NeedLV5())
+            if (!needLV5())
                 return false;
             AI.SelectCard(new[]
                 {
@@ -150,7 +150,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MistArchfiendSummon()
         {
-            if (!NeedLV5())
+            if (!needLV5())
                 return false;
             AI.SelectOption(1);
             NormalSummoned = true;
@@ -159,13 +159,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool InstantFusionEffect()
         {
-            if (!NeedLV5())
+            if (!needLV5())
                 return false;
             InstantFusionUsed = true;
             return true;
         }
 
-        private bool NeedLV5()
+        private bool needLV5()
         {
             if (HaveLV5OnField())
                 return true;

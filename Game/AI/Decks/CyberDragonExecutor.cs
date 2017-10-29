@@ -6,6 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
+    // NOT FINISHED YET
     [Deck("CyberDragon", "AI_CyberDragon")]
     public class CyberDragonExecutor : DefaultExecutor
     {

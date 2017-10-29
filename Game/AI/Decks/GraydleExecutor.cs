@@ -6,6 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
+    // NOT FINISHED YET
     [Deck("Graydle", "AI_Graydle")]
     public class GraydleExecutor : DefaultExecutor
     {
