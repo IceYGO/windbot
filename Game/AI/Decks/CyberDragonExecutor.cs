@@ -124,7 +124,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool 进化光焰()
         {
-            if (!AI.Utils.IsOneEnemyBetterThanValue(Bot.MonsterZone.GetHighestAttackMonster().Attack, false))
+            ClientCard bestMy = Bot.GetMonsters().GetHighestAttackMonster();
+            if (bestMy == null || !AI.Utils.IsOneEnemyBetterThanValue(bestMy.Attack, false))
                 return false;
             else
                 AI.SelectCard(Enemy.MonsterZone.GetHighestAttackMonster());     

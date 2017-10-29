@@ -13,37 +13,38 @@ namespace WindBot.Game.AI.Decks
         {
             裁决之龙 = 57774843,
             光道兽沃尔夫 = 58996430,
-            妖精传姬白雪 = 55623480,
+            光道战士加洛斯 = 59019082,
             光道暗杀者莱登 = 77558536,
             光道魔术师丽拉 = 22624373,
             娱乐法师戏法小丑 = 67696066,
-            日食翼龙 = 51858306,
             哥布林德伯格 = 25259669,
             英豪挑战者千刀兵 = 1833916,
             光道弓手费莉丝 = 73176465,
             欧尼斯特 = 37742478,
             光道召唤师露米娜丝 = 95503687,
             光道少女密涅瓦 = 40164421,
+            光道猎犬雷光 = 21502796,
             成长的鳞茎 = 67441435,
             太阳交换 = 691925,
+            银河旋风 = 5133471,
             鹰身女妖的羽毛扫 = 18144506,
             增援 = 32807846,
-            愚蠢的埋葬 = 81439173,
-            死者苏生 = 83764718,
+            炼装融合 = 73594093,
             光之援军 = 94886282,
-            琰魔龙红莲魔渊 = 9753964,
             冰结界之龙三叉龙 = 52687916,
             红莲魔龙右红痕 = 80666118,
             PSY骨架王Ω = 74586817,
             光道主大天使米迦勒 = 4779823,
-            幻透翼同调龙 = 82044279,
+            PSY骨架王Ζ = 37192109,
             闪光No39希望皇霍普电光皇 = 56832966,
             No39希望皇霍普 = 84013237,
-            No101寂静荣誉方舟骑士 = 48739166,
             鸟铳士卡斯泰尔 = 82633039,
-            辉光子帕拉迪奥斯 = 61344030,
             光道圣女密涅瓦 = 30100551,
-            励辉士入魔蝇王 = 46772449
+            励辉士入魔蝇王 = 46772449,
+            彼岸的旅人但丁 = 83531441,
+            解码语者 = 1861629,
+            金毛妇 = 3987233
+
         }
 
         bool 已发动小丑 = false;
@@ -51,7 +52,13 @@ namespace WindBot.Game.AI.Decks
         public LightswornExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
+            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, (int)CardId.银河旋风, DefaultGalaxyCyclone);
             AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
+
+            AddExecutor(ExecutorType.Activate, (int)CardId.炼装融合);
+            AddExecutor(ExecutorType.Activate, (int)CardId.成长的鳞茎);
+
             AddExecutor(ExecutorType.Activate, (int)CardId.裁决之龙, DefaultDarkHole);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.裁决之龙);
 
@@ -60,12 +67,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.太阳交换, 太阳交换效果);
 
             AddExecutor(ExecutorType.Summon, (int)CardId.哥布林德伯格, 哥布林德伯格通常召唤);
+            AddExecutor(ExecutorType.Activate, (int)CardId.哥布林德伯格, 哥布林德伯格效果);
 
             // 常用额外
             AddExecutor(ExecutorType.SpSummon, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.辉光子帕拉迪奥斯, 辉光子帕拉迪奥斯特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.辉光子帕拉迪奥斯, 辉光子帕拉迪奥斯效果);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.鸟铳士卡斯泰尔, 鸟铳士卡斯泰尔特殊召唤);
             AddExecutor(ExecutorType.Activate, (int)CardId.鸟铳士卡斯泰尔, 鸟铳士卡斯泰尔效果);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.红莲魔龙右红痕, 红莲魔龙右红痕特殊召唤);
@@ -74,7 +80,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普电光皇);
             AddExecutor(ExecutorType.Activate, (int)CardId.闪光No39希望皇霍普电光皇);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.日食翼龙);
             AddExecutor(ExecutorType.Activate, (int)CardId.娱乐法师戏法小丑, 娱乐法师戏法小丑效果);
             AddExecutor(ExecutorType.Activate, (int)CardId.英豪挑战者千刀兵);
             AddExecutor(ExecutorType.Activate, (int)CardId.欧尼斯特, 欧尼斯特效果);
@@ -194,7 +199,6 @@ namespace WindBot.Game.AI.Decks
                     (int)CardId.光道弓手费莉丝,
                     (int)CardId.光道兽沃尔夫,
                     (int)CardId.光道暗杀者莱登,
-                    (int)CardId.妖精传姬白雪,
                     (int)CardId.娱乐法师戏法小丑,
                     (int)CardId.英豪挑战者千刀兵
                 });
