@@ -1,11 +1,11 @@
-﻿using YGOSharp.OCGWrapper;
 using System;
 using System.IO;
 using System.Threading;
-using WindBot.Game;
-using WindBot.Game.AI;
 using System.Net;
 using System.Web;
+using WindBot.Game;
+using WindBot.Game.AI;
+using YGOSharp.OCGWrapper;
 
 namespace WindBot
 {

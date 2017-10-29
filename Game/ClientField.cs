@@ -1,5 +1,5 @@
-﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game
 {

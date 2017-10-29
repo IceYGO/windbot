@@ -1,7 +1,7 @@
-﻿using YGOSharp.OCGWrapper;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using YGOSharp.OCGWrapper;
 
 namespace WindBot.Game
 {
