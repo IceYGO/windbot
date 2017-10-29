@@ -11,11 +11,6 @@
         "dialog": "cirno.zh-CN"
       },
       {
-        "name": "琪露诺",
-        "deck": "Rainbow",
-        "dialog": "cirno.zh-CN"
-      },
-      {
         "name": "谜之剑士LV4",
         "deck": "Dragunity",
         "dialog": "swordsman.zh-CN"
@@ -29,11 +24,6 @@
         "name": "谜之剑士LV4",
         "deck": "Zexal Weapons",
         "dialog": "swordsman.zh-CN"
-      },
-      {
-        "name": "复制植物",
-        "deck": "Zoodiac",
-        "dialog": "copy.zh-CN"
       },
       {
         "name": "复制植物",
@@ -56,24 +46,49 @@
         "dialog": "near.zh-CN"
       },
       {
-        "name": "尼亚",
-        "deck": "Qliphort",
-        "dialog": "near.zh-CN"
+        "name": "千奈",
+        "deck": "Nekroz",
+        "dialog": "sennai.zh-CN"
       },
       {
-        "name": "试作型机器人1732",
+        "name": "千奈",
         "deck": "ST1732",
-        "dialog": "default"
+        "dialog": "sennai.zh-CN"
       },
       {
-        "name": "试作型机器人1732",
-        "deck": "ST1732",
-        "dialog": "default"
+        "name": "千奈",
+        "deck": "LightSworn",
+        "dialog": "sennai.zh-CN"
       },
       {
-        "name": "试作型机器人1732",
-        "deck": "ST1732",
-        "dialog": "default"
+        "name": "弥音",
+        "deck": "Blackwing",
+        "dialog": "sennai.zh-CN"
+      },
+	  {
+        "name": "弥音",
+        "deck": "CyberDragon",
+        "dialog": "sennai.zh-CN"
+      },
+	  {
+        "name": "弥音",
+        "deck": "Evilswarm",
+        "dialog": "sennai.zh-CN"
+      },
+	  {
+        "name": "早苗",
+        "deck": "Gravekeeper",
+        "dialog": "sennai.zh-CN"
+      },
+	  {
+        "name": "早苗",
+        "deck": "Graydle",
+        "dialog": "sennai.zh-CN"
+      },
+	  {
+        "name": "早苗",
+        "deck": "Old School",
+        "dialog": "sennai.zh-CN"
       },
       {
         "name": "永远之魂",
