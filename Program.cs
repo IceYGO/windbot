@@ -27,18 +27,9 @@ namespace WindBot
 
             int argc = args.Length;
 
-            // If the first commandline parameter is DebugMode
-            if (argc > 0 && args[0] == "DebugMode")
-            {
-                DebugMode = true;
-                // Shift the args array to skip the first parameter
-                argc--;
-                Array.Copy(args, 1, args, 0, argc);
-            }
-
             // Only one parameter will make Windbot run as a server, use the parameter as port
             // provide a http interface to create bot.
-            // eg. http://127.0.0.1:2399/?name=%E2%91%A8&deck=Blue-Eyes&host=127.0.0.1&port=7911&dialog=cirno.zh-CN&version=4922
+            // eg. http://127.0.0.1:2399/?name=%E2%91%A8&deck=Blue-Eyes&host=127.0.0.1&port=7911&dialog=cirno.zh-CN&version=4928
             if (argc == 1)
             {
                 RunAsServer(Int32.Parse(args[0]));
@@ -50,33 +41,6 @@ namespace WindBot
             else if (argc == 5)
             {
                 RunFromArgs(args);
-                Logger.WriteLine("WindBot ended.");
-            }
-
-            // Use environment variables to run Windbot
-            // List of variables required:
-            // YGOPRO_HOST
-            // YGOPRO_PORT
-            // YGOPRO_NAME
-            //
-            // List of variables optional:
-            // YGOPRO_DECK
-            // YGOPRO_VERSION
-            // YGOPRO_DIALOG
-            // YGOPRO_PASSWORD
-            //
-            // eg. (cmd)
-            // set YGOPRO_VERSION=4922
-            // set YGOPRO_HOST=127.0.0.1
-            // set YGOPRO_PORT=7911
-            // set YGOPRO_NAME=Meow
-            // set YGOPRO_DECK=Blue-Eyes
-            // set YGOPRO_DIALOG=zh-CN
-            // WindBot.exe
-            else if (Environment.GetEnvironmentVariable("YGOPRO_NAME") != null)
-            {
-                RunFromEnv();
-                Logger.WriteLine("WindBot ended.");
             }
 
             // Else, tell the user to run it correctly
@@ -108,25 +72,6 @@ namespace WindBot
             Info.Host = args[2];
             Info.Port = Int32.Parse(args[3]);
             Info.HostInfo = args[4];
-            Run(Info);
-        }
-
-        private static void RunFromEnv()
-        {
-            WindBotInfo Info = new WindBotInfo();
-            Info.Name = Environment.GetEnvironmentVariable("YGOPRO_NAME");
-            Info.Deck = Environment.GetEnvironmentVariable("YGOPRO_DECK");
-            Info.Host = Environment.GetEnvironmentVariable("YGOPRO_HOST");
-            Info.Port = Int32.Parse(Environment.GetEnvironmentVariable("YGOPRO_PORT"));
-            string EnvDialog = Environment.GetEnvironmentVariable("YGOPRO_DIALOG");
-            if (EnvDialog != null)
-                Info.Dialog = EnvDialog;
-            string EnvVersion = Environment.GetEnvironmentVariable("YGOPRO_VERSION");
-            if (EnvVersion != null)
-                Info.Version = Int16.Parse(EnvVersion);
-            string EnvPassword = Environment.GetEnvironmentVariable("YGOPRO_PASSWORD");
-            if (EnvPassword != null)
-                Info.HostInfo = EnvPassword;
             Run(Info);
         }
 
