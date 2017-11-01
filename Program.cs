@@ -23,34 +23,28 @@ namespace WindBot
         {
             Logger.WriteLine("WindBot starting...");
 
-            InitDatas("cards.cdb");
+            Config.Load(args);
 
-            int argc = args.Length;
+            string databasePath = Config.GetString("DbPath", "cards.cdb");
 
-            // Only one parameter will make Windbot run as a server, use the parameter as port
-            // provide a http interface to create bot.
-            // eg. http://127.0.0.1:2399/?name=%E2%91%A8&deck=Blue-Eyes&host=127.0.0.1&port=7911&dialog=cirno.zh-CN&version=4928
-            if (argc == 1)
+            InitDatas(databasePath);
+
+            bool serverMode = Config.GetBool("ServerMode", false);
+
+            if (serverMode)
             {
-                RunAsServer(Int32.Parse(args[0]));
+                int serverPort = Config.GetInt("ServerPort", 2399);
+                RunAsServer(serverPort);
             }
-
-            // Use all five parameters to run Windbot
-            // The parameters should be name, deck, server ip, server port, password
-            // eg. WindBot.exe "My Bot" "Zexal Weapons" 127.0.0.1 7911 ""
-            else if (argc == 5)
-            {
-                RunFromArgs(args);
-            }
-
-            // Else, tell the user to run it correctly
             else
             {
-                Logger.WriteLine("");
-                Logger.WriteLine("See the readme for how to run WindBot!");
-                Logger.WriteLine("Press any key to quit...");
-                Logger.WriteLine("");
-                Console.ReadKey();
+                if (args.Length == 0)
+                {
+                    Logger.WriteLine("=== WARN ===");
+                    Logger.WriteLine("No input found, tring to connect to localhost YGOPro host.");
+                    Logger.WriteLine("If it fail, the program will quit sliently.");
+                }
+                RunFromArgs();
             }
         }
 
@@ -61,17 +55,22 @@ namespace WindBot
             string absolutePath = Path.GetFullPath(databasePath);
             if (!File.Exists(absolutePath))
                 absolutePath = Path.GetFullPath("../" + databasePath);
+            if (!File.Exists(absolutePath))
+                Logger.WriteErrorLine("Can't find cards database file. Please place cards.cdb next to WindBot.exe .");
             NamedCardsManager.Init(absolutePath);
         }
 
-        private static void RunFromArgs(string[] args)
+        private static void RunFromArgs()
         {
             WindBotInfo Info = new WindBotInfo();
-            Info.Name = args[0];
-            Info.Deck = args[1];
-            Info.Host = args[2];
-            Info.Port = Int32.Parse(args[3]);
-            Info.HostInfo = args[4];
+            Info.Name = Config.GetString("Name", Info.Name);
+            Info.Deck = Config.GetString("Deck", Info.Deck);
+            Info.Dialog = Config.GetString("Dialog", Info.Dialog);
+            Info.Host = Config.GetString("Host", Info.Host);
+            Info.Port = Config.GetInt("Port", Info.Port);
+            Info.HostInfo = Config.GetString("HostInfo", Info.HostInfo);
+            Info.Version = Config.GetInt("Version", Info.Version);
+            Info.Hand = Config.GetInt("Hand", Info.Hand);
             Run(Info);
         }
 
