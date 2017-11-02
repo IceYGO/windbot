@@ -261,15 +261,10 @@ namespace WindBot.Game
         {
             int player = packet.ReadInt16();
             string message = packet.ReadUnicode(256);
-            if (!Program.DebugMode)
-            {
-                string myName = _room.Position == 0 ? _room.Names[0] : _room.Names[1];
-                string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
-                if (player < 4)
-                    Logger.WriteLine(otherName + " say to " + myName + ": " + message);
-                //else
-                //    Logger.WriteLine(myName + " System or Watch : " + message);
-            }
+            string myName = _room.Position == 0 ? _room.Names[0] : _room.Names[1];
+            string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
+            if (player < 4)
+                Logger.DebugWriteLine(otherName + " say to " + myName + ": " + message);
         }
 
         private void OnErrorMsg(BinaryReader packet)

@@ -11,10 +11,11 @@ namespace WindBot
 {
     public class Program
     {
+        // in safe mode, all errors will be catched instead of causing the program to crash.
 #if DEBUG
-        public static bool DebugMode = true;
+        public static bool SafeMode = false;
 #else
-        public static bool DebugMode = false;
+        public static bool SafeMode = true;
 #endif
 
         internal static Random Rand;
@@ -122,7 +123,7 @@ namespace WindBot
                                 Thread workThread = new Thread(new ParameterizedThreadStart(Run));
                                 workThread.Start(Info);
                             }
-                            catch (Exception ex) when (!DebugMode)
+                            catch (Exception ex) when (SafeMode)
                             {
                                 Logger.WriteErrorLine("Start Thread Error: " + ex);
                             }
@@ -130,7 +131,7 @@ namespace WindBot
                             ctx.Response.Close();
                         }
                     }
-                    catch (Exception ex) when (!DebugMode)
+                    catch (Exception ex) when (SafeMode)
                     {
                         Logger.WriteErrorLine("Parse Http Request Error: " + ex);
                     }
@@ -153,14 +154,14 @@ namespace WindBot
                         client.Tick();
                         Thread.Sleep(30);
                     }
-                    catch (Exception ex) when (!DebugMode)
+                    catch (Exception ex) when (SafeMode)
                     {
                         Logger.WriteErrorLine("Tick Error: " + ex);
                     }
                 }
                 Logger.DebugWriteLine(client.Username + " end.");
             }
-            catch (Exception ex) when (!DebugMode)
+            catch (Exception ex) when (SafeMode)
             {
                 Logger.WriteErrorLine("Run Error: " + ex);
             }
