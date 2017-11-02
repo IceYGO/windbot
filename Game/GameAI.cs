@@ -75,6 +75,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnNewTurn()
         {
+            Executor.OnNewTurn();
         }
 
         /// <summary>
@@ -91,7 +92,6 @@ namespace WindBot.Game
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
                 _dialogs.SendNewTurn();
-                Executor.OnNewTurn();
             }
         }
 
@@ -101,10 +101,6 @@ namespace WindBot.Game
         public void OnDirectAttack(ClientCard card)
         {
             _dialogs.SendOnDirectAttack(card.Name);
-        }
-        public void OnDirectAttack()
-        {
-            _dialogs.SendOnDirectAttack();
         }
 
         /// <summary>
@@ -369,13 +365,13 @@ namespace WindBot.Game
         }
 
         /// <summary>
-        /// Called when the AI has to tribute for a synchro monster.
+        /// Called when the AI has to tribute for a synchro monster or ritual monster.
         /// </summary>
         /// <param name="cards">Available cards.</param>
         /// <param name="sum">Result of the operation.</param>
         /// <param name="min">Minimum cards.</param>
         /// <param name="max">Maximum cards.</param>
-        /// <param name="mode">True for equal.</param>
+        /// <param name="mode">True for exact equal.</param>
         /// <returns></returns>
         public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
         {

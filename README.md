@@ -121,6 +121,8 @@ The parameters are same as commandlines, but low cased.
 
 * `AI.SelectMaterials` which select a set of cards for F/S/X/L summon
 
+* `AI.SelectTribute`
+
 * Better new master rule support
 
 * More default common cards executor

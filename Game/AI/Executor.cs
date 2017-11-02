@@ -50,6 +50,12 @@ namespace WindBot.Game.AI
             return Program.Rand.Next(2) > 0;
         }
 
+        /// <summary>
+        /// Called when the AI has to decide if it should attack
+        /// </summary>
+        /// <param name="attackers">List of monsters that can attcack.</param>
+        /// <param name="defenders">List of monsters of enemy.</param>
+        /// <returns>A new BattlePhaseAction containing the action to do.</returns>
         public virtual BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
             if (attackers.Count == 0)
@@ -86,6 +92,13 @@ namespace WindBot.Game.AI
             return AI.ToMainPhase2();
         }
 
+        /// <summary>
+        /// Decide whether to declare attack between attacker and defender.
+        /// Can be overrided to update the RealPower of attacker for cards like Honest.
+        /// </summary>
+        /// <param name="attacker">Card that attack.</param>
+        /// <param name="defender">Card that defend.</param>
+        /// <returns>true if the attack can be done.</returns>
         public virtual bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
             if (defender.IsMonsterInvincible())
@@ -115,11 +128,13 @@ namespace WindBot.Game.AI
 
         public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
         {
+            // For overriding
             return null;
         }
 
         public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
         {
+            // For overriding
             return null;
         }
 
@@ -181,6 +196,9 @@ namespace WindBot.Game.AI
             Battle = battle;
         }
 
+        /// <summary>
+        /// Set global variables Type, Card, ActivateDescription for Executor
+        /// </summary>
         public void SetCard(ExecutorType type, ClientCard card, int description)
         {
             Type = type;
@@ -188,21 +206,33 @@ namespace WindBot.Game.AI
             ActivateDescription = description;
         }
 
+        /// <summary>
+        /// Do the action for the card if func return true.
+        /// </summary>
         public void AddExecutor(ExecutorType type, int cardId, Func<bool> func)
         {
             Executors.Add(new CardExecutor(type, cardId, func));
         }
 
+        /// <summary>
+        /// Do the action for the card if available.
+        /// </summary>
         public void AddExecutor(ExecutorType type, int cardId)
         {
             Executors.Add(new CardExecutor(type, cardId, null));
         }
 
+        /// <summary>
+        /// Do the action for every card if func return true.
+        /// </summary>
         public void AddExecutor(ExecutorType type, Func<bool> func)
         {
             Executors.Add(new CardExecutor(type, -1, func));
         }
 
+        /// <summary>
+        /// Do the action for every card if no other Executor is added to it.
+        /// </summary>
         public void AddExecutor(ExecutorType type)
         {
             Executors.Add(new CardExecutor(type, -1, DefaultNoExecutor));

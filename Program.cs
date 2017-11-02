@@ -11,7 +11,7 @@ namespace WindBot
 {
     public class Program
     {
-        // in safe mode, all errors will be catched instead of causing the program to crash.
+        // In safe mode, all errors will be catched instead of causing the program to crash.
 #if DEBUG
         public static bool SafeMode = false;
 #else
@@ -34,11 +34,13 @@ namespace WindBot
 
             if (serverMode)
             {
+                // Run in server mode, provide a http interface to create bot.
                 int serverPort = Config.GetInt("ServerPort", 2399);
                 RunAsServer(serverPort);
             }
             else
             {
+                // Join the host specified on the command line.
                 if (args.Length == 0)
                 {
                     Logger.WriteLine("=== WARN ===");
@@ -55,6 +57,7 @@ namespace WindBot
             DecksManager.Init();
             string absolutePath = Path.GetFullPath(databasePath);
             if (!File.Exists(absolutePath))
+                // In case windbot is placed in a folder under ygopro folder
                 absolutePath = Path.GetFullPath("../" + databasePath);
             if (!File.Exists(absolutePath))
                 Logger.WriteErrorLine("Can't find cards database file. Please place cards.cdb next to WindBot.exe .");
