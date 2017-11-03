@@ -111,6 +111,8 @@ The parameters are same as commandlines, but low cased.
 
 * The attack won't be canceled when battle replay happens.
 
+* If one chain includes two activation that use `AI.SelectCard`, the second one won't select correctly.
+
 ### TODO list
 
 * More decks
