@@ -290,8 +290,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool ScarlightRedDragonArchfiendSummon()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
             return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || ScarlightRedDragonArchfiendEffect();
         }
 
@@ -319,20 +319,20 @@ namespace WindBot.Game.AI.Decks
 
         private bool CastelTheSkyblasterMusketeerSummon()
         {
-            return AI.Utils.GetProblematicCard() != null;
+            return AI.Utils.GetProblematicEnemyCard() != null;
         }
 
         private bool CastelTheSkyblasterMusketeerEffect()
         {
             if (ActivateDescription == AI.Utils.GetStringId((int)CardId.CastelTheSkyblasterMusketeer, 0))
                 return false;
-            AI.SelectNextCard(AI.Utils.GetProblematicCard());
+            AI.SelectNextCard(AI.Utils.GetProblematicEnemyCard());
             return true;
         }
 
         private bool IgnisterProminenceTheBlastingDracoslayerSummon()
         {
-            return AI.Utils.GetProblematicCard() != null;
+            return AI.Utils.GetProblematicEnemyCard() != null;
         }
 
         private bool IgnisterProminenceTheBlastingDracoslayerEffect()
@@ -340,7 +340,7 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == AI.Utils.GetStringId((int)CardId.IgnisterProminenceTheBlastingDracoslayer, 1))
                 return true;
             ClientCard target1 = null;
-            ClientCard target2 = AI.Utils.GetProblematicCard();
+            ClientCard target2 = AI.Utils.GetProblematicEnemyCard();
             List<ClientCard> spells = Enemy.GetSpells();
             foreach (ClientCard spell in spells)
             {
@@ -409,19 +409,19 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            return AI.Utils.GetProblematicCard() != null;
+            return AI.Utils.GetProblematicEnemyCard() != null;
         }
 
         private bool LightningChidoriEffect()
         {
-            ClientCard problematicCard = AI.Utils.GetProblematicCard();
+            ClientCard problematicCard = AI.Utils.GetProblematicEnemyCard();
             AI.SelectNextCard(problematicCard);
             return true;
         }
 
         private bool StardustDragonSummon()
         {
-            return (AI.Utils.IsEnemyBetter(false, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
+            return (AI.Utils.IsOneEnemyBetter() && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
         }
 
         private bool StardustDragonEffect()
@@ -457,18 +457,15 @@ namespace WindBot.Game.AI.Decks
         private bool Number59CrookedCookSummon()
         {
             return ((Bot.GetMonsterCount() + Bot.GetSpellCount() - 2) <= 1) &&
-                ((AI.Utils.IsEnemyBetter(false, false) && !AI.Utils.IsOneEnemyBetterThanValue(2300, true)) || AI.Utils.IsTurn1OrMain2());
+                ((AI.Utils.IsOneEnemyBetter() && !AI.Utils.IsOneEnemyBetterThanValue(2300, true)) || AI.Utils.IsTurn1OrMain2());
         }
 
         private bool Number59CrookedCookEffect()
         {
             if (Duel.Player == 0)
             {
-                foreach (ClientCard card in Duel.ChainTargets)
-                {
-                    if (Card.Equals(card))
-                        return true;
-                }
+                if (AI.Utils.IsChainTarget(Card))
+                    return true;
             }
             else
             {
@@ -501,7 +498,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool NumberS39UtopiatheLightningSummon()
         {
-            return AI.Utils.IsEnemyBetter(false, false);
+            return AI.Utils.IsOneEnemyBetter(true);
         }
 
         private bool TrapSet()

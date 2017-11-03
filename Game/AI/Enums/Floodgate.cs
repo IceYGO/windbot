@@ -1,5 +1,8 @@
 ﻿namespace WindBot.Game.AI.Enums
 {
+    /// <summary>
+    /// Cards that restrict player from performing some action. Bot will preferentially destroy them.
+    /// </summary>
     public enum Floodgate
     {
         BarrierStatueoftheTorrent = 10963799,
@@ -24,11 +27,13 @@
         LevelLimitAreaB = 3136426,
         DimensionalFissure = 81674782,
         Necrovalley = 47355498,
+        SavageColosseum = 32391631,
         SecretVillageoftheSpellcasters = 68462976,
         SwordsofRevealingLight = 72302403,
         MessengerofPeace = 44656491,
         KaiserColosseum = 35059553,
         DomainoftheTrueMonarchs = 84171830,
+        ZombieWorld = 4064256,
         ImperialOrder = 61740673,
         MacroCosmos = 30241314,
         MindDrain = 68937720,
@@ -41,6 +46,7 @@
         LightImprisoningMirror = 53341729,
         ShadowImprisoningMirror = 99735427,
         WallofRevealingLight = 17078030,
+        GravityBind = 85742772,
         VanitysEmptiness = 5851097,
         Lose1Turn = 24348804,
         Reqliate = 20426907,

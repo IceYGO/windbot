@@ -344,32 +344,30 @@ namespace WindBot.Game.AI.Decks
         {
             //if (AI.Utils.IsOneEnemyBetterThanValue(2500, true))
             //    return true;
-            ClientCard invincible = AI.Utils.GetProblematicCard();
+            ClientCard invincible = AI.Utils.GetProblematicEnemyCard();
             return invincible != null;
         }
 
         private bool ScrapDragonEffect()
         {
-            ClientCard invincible = AI.Utils.GetProblematicCard();
+            ClientCard invincible = AI.Utils.GetProblematicEnemyCard();
             if (invincible == null && !AI.Utils.IsOneEnemyBetterThanValue(2800 - 1, false))
                 return false;
 
-            ClientField field = Bot;
-
             int tributeId = -1;
-            if (field.HasInSpellZone((int)CardId.FireFormationTenki))
+            if (Bot.HasInSpellZone((int)CardId.FireFormationTenki))
                 tributeId = (int)CardId.FireFormationTenki;
-            else if (field.HasInSpellZone((int)CardId.Terraforming))
+            else if (Bot.HasInSpellZone((int)CardId.Terraforming))
                 tributeId = (int)CardId.Terraforming;
-            else if (field.HasInSpellZone((int)CardId.DragonsMirror))
+            else if (Bot.HasInSpellZone((int)CardId.DragonsMirror))
                 tributeId = (int)CardId.DragonsMirror;
-            else if (field.HasInSpellZone((int)CardId.CardsOfConsonance))
+            else if (Bot.HasInSpellZone((int)CardId.CardsOfConsonance))
                 tributeId = (int)CardId.CardsOfConsonance;
-            else if (field.HasInSpellZone((int)CardId.AssaultTeleport))
+            else if (Bot.HasInSpellZone((int)CardId.AssaultTeleport))
                 tributeId = (int)CardId.AssaultTeleport;
-            else if (field.HasInSpellZone((int)CardId.AssaultModeActivate))
+            else if (Bot.HasInSpellZone((int)CardId.AssaultModeActivate))
                 tributeId = (int)CardId.AssaultModeActivate;
-            else if (field.HasInSpellZone((int)CardId.DragonRavine))
+            else if (Bot.HasInSpellZone((int)CardId.DragonRavine))
                 tributeId = (int)CardId.DragonRavine;
 
             List<ClientCard> monsters = Enemy.GetMonsters();

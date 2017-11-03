@@ -91,7 +91,7 @@ namespace WindBot.Game.AI.Decks
                 if (handCard.IsFacedown())
                     return true;
             }
-            return AI.Utils.IsEnemyBetter(true, false);
+            return AI.Utils.IsOneEnemyBetter(true);
         }
     }
 }

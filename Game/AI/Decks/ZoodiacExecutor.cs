@@ -90,9 +90,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, (int)CardId.Drident, DridentSummon);
 
             AddExecutor(ExecutorType.Summon, (int)CardId.Ratpier);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Ratpier, Ratpier);
+            AddExecutor(ExecutorType.Activate, (int)CardId.Ratpier, RatpierEffect);
             AddExecutor(ExecutorType.Summon, (int)CardId.Thoroughblade);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Thoroughblade, Ratpier);
+            AddExecutor(ExecutorType.Activate, (int)CardId.Thoroughblade, RatpierEffect);
             AddExecutor(ExecutorType.Summon, (int)CardId.AleisterTheInvoker);
             AddExecutor(ExecutorType.Activate, (int)CardId.AleisterTheInvoker, AleisterTheInvokerEffect);
 
@@ -151,8 +151,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool NumberS39UtopiatheLightningSummon()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
             return selfBestAttack < oppoBestAttack;
         }
 
@@ -172,7 +172,7 @@ namespace WindBot.Game.AI.Decks
                     || Duel.Phase == DuelPhase.Damage))
                     return false;
                 return Duel.Player==0
-                    || AI.Utils.IsEnemyBetter(false, false);
+                    || AI.Utils.IsOneEnemyBetter();
             }
             return true;
         }
@@ -486,7 +486,7 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool Ratpier()
+        private bool RatpierEffect()
         {
             AI.SelectCard(new[]
                 {
@@ -501,46 +501,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (LastChainPlayer == 0)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicCard();
-            if (target == null)
-            {
-                List<ClientCard> monsters = Enemy.GetMonsters();
-                foreach (ClientCard monster in monsters)
-                {
-                    if (monster.IsFaceup())
-                    {
-                        target=monster;
-                        break;
-                    }
-                }
-            }
-            if (target == null)
-            {
-                List<ClientCard> spells = Enemy.GetSpells();
-                foreach (ClientCard spell in spells)
-                {
-                    if (spell.IsFaceup() && spell.IsSpellNegateAttack())
-                    {
-                        target = spell;
-                        break;
-                    }
-                }
-            }
-            if (target == null)
-            {
-                List<ClientCard> spells = Enemy.GetSpells();
-                foreach (ClientCard spell in spells)
-                {
-                    if (spell.IsFaceup() && (spell.HasType(CardType.Continuous)
-                        || spell.HasType(CardType.Equip)
-                        || spell.HasType(CardType.Field)
-                        || spell.HasType(CardType.Pendulum)))
-                    {
-                        target = spell;
-                        break;
-                    }
-                }
-            }
+            ClientCard target = AI.Utils.GetBestEnemyCard(true);
             if (target == null)
                 return false;
             AI.SelectCard(new[]

@@ -314,14 +314,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool DarkRebellionXyzDragonSummon()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, true);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy);
             return selfBestAttack <= oppoBestAttack;
         }
 
         private bool DarkRebellionXyzDragonEffect()
         {
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, true);
+            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy);
             ClientCard target = AI.Utils.GetOneEnemyBetterThanValue(oppoBestAttack, true);
             if (target != null)
             {
@@ -332,8 +332,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool NumberS39UtopiatheLightningSummon()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
             return selfBestAttack <= oppoBestAttack;
         }
 

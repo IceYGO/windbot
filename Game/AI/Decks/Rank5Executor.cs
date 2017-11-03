@@ -276,9 +276,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Number61VolcasaurusEffect()
         {
-            ClientCard target = Enemy.MonsterZone.GetFloodgate();
-            if (target == null)
-                target = AI.Utils.GetOneEnemyBetterThanValue(2000, false);
+            ClientCard target = AI.Utils.GetProblematicEnemyMonster(2000);
             if (target != null)
             {
                 AI.SelectCard((int)CardId.CyberDragon);
@@ -291,7 +289,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TirasKeeperOfGenesisEffect()
         {
-            ClientCard target = AI.Utils.GetProblematicCard();
+            ClientCard target = AI.Utils.GetProblematicEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -346,30 +344,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool PanzerDragonEffect()
         {
-            ClientCard target = AI.Utils.GetProblematicCard();
+            ClientCard target = AI.Utils.GetBestEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
-                return true;
-            }
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                AI.SelectCard(monster);
-                return true;
-            }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
-            {
-                if (spell.IsFacedown())
-                {
-                    AI.SelectCard(spell);
-                    return true;
-                }
-            }
-            foreach (ClientCard spell in spells)
-            {
-                AI.SelectCard(spell);
                 return true;
             }
             return false;

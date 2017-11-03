@@ -165,7 +165,7 @@ namespace WindBot.Game.AI.Decks
         {
             List<int> cards = new List<int>();
             
-            if (AI.Utils.IsEnemyBetter(false, false))
+            if (AI.Utils.IsOneEnemyBetter())
             {
                 cards.Add((int)CardId.FlipFlopFrog);
             }

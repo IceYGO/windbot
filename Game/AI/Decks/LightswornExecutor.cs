@@ -74,7 +74,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightSummon);
             AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.CastelTheSkyblasterMusketeer, CastelTheSkyblasterMusketeerSummom);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CastelTheSkyblasterMusketeer, CastelTheSkyblasterMusketeerSummon);
             AddExecutor(ExecutorType.Activate, (int)CardId.CastelTheSkyblasterMusketeer, CastelTheSkyblasterMusketeerEffect);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.ScarlightRedDragonArchfiend, ScarlightRedDragonArchfiendSummon);
             AddExecutor(ExecutorType.Activate, (int)CardId.ScarlightRedDragonArchfiend, ScarlightRedDragonArchfiendEffect);
@@ -249,8 +249,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool ScarlightRedDragonArchfiendSummon()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
             return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || ScarlightRedDragonArchfiendEffect();
         }
 
@@ -275,22 +275,22 @@ namespace WindBot.Game.AI.Decks
             return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount > 2;
         }
 
-        private bool CastelTheSkyblasterMusketeerSummom()
+        private bool CastelTheSkyblasterMusketeerSummon()
         {
-            return AI.Utils.GetProblematicCard() != null;
+            return AI.Utils.GetProblematicEnemyCard() != null;
         }
 
         private bool CastelTheSkyblasterMusketeerEffect()
         {
             if (ActivateDescription == AI.Utils.GetStringId((int)CardId.CastelTheSkyblasterMusketeer, 0))
                 return false;
-            AI.SelectNextCard(AI.Utils.GetProblematicCard());
+            AI.SelectNextCard(AI.Utils.GetProblematicEnemyCard());
             return true;
         }
 
         private bool NumberS39UtopiatheLightningSummon()
         {
-            return AI.Utils.IsEnemyBetter(false, false);
+            return AI.Utils.IsOneEnemyBetter();
         }
     }
 }

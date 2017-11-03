@@ -189,7 +189,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MindControlEffect()
         {
-            ClientCard target = AI.Utils.GetAnyEnemyMonster();
+            ClientCard target = AI.Utils.GetBestEnemyMonster();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -470,8 +470,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool LinkSummon()
         {
-            return (AI.Utils.IsTurn1OrMain2() || AI.Utils.IsEnemyBetter(false, false))
-                && AI.Utils.GetBestAttack(Bot, true) < Card.Attack;
+            return (AI.Utils.IsTurn1OrMain2() || AI.Utils.IsOneEnemyBetter())
+                && AI.Utils.GetBestAttack(Bot) < Card.Attack;
         }
     }
 }

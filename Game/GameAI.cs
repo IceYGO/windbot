@@ -304,7 +304,7 @@ namespace WindBot.Game
                     }
                     if (ShouldExecute(exec, card, ExecutorType.SummonOrSet))
                     {
-                        if (Utils.IsEnemyBetter(true, true) && Utils.IsAllEnemyBetterThanValue(card.Attack + 300, false) &&
+                        if (Utils.IsAllEnemyBetter(true) && Utils.IsAllEnemyBetterThanValue(card.Attack + 300, false) &&
                             main.MonsterSetableCards.Contains(card))
                         {
                             _dialogs.SendSetMonster();

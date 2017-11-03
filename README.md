@@ -125,4 +125,6 @@ The parameters are same as commandlines, but low cased.
 
 * Better new master rule support
 
+* Update the known card enums
+
 * More default common cards executor

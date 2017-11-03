@@ -244,10 +244,9 @@ namespace WindBot.Game.AI.Decks
                 if (!Card.Equals(card))
                     count++;
             }
-            foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
+            foreach (ClientCard card in Bot.ExtraDeck.GetFaceupPendulumMonsters())
             {
-                if (card.HasType(CardType.Pendulum) && card.IsFaceup())
-                    count++;
+                count++;
             }
             ClientCard l = AI.Utils.GetPZone(0, 0);
             ClientCard r = AI.Utils.GetPZone(0, 1);
@@ -290,10 +289,9 @@ namespace WindBot.Game.AI.Decks
             {
                 fieldcount++;
             }
-            foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
+            foreach (ClientCard card in Bot.ExtraDeck.GetFaceupPendulumMonsters())
             {
-                if (card.HasType(CardType.Pendulum) && card.IsFaceup())
-                    count++;
+                count++;
             }
             if (count>0 && !Bot.HasInHand(LowScaleCards))
             {
@@ -319,30 +317,10 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicCard();
+            ClientCard target = AI.Utils.GetBestEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
-                return true;
-            }
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                AI.SelectCard(monster);
-                return true;
-            }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
-            {
-                if (spell.IsFacedown())
-                {
-                    AI.SelectCard(spell);
-                    return true;
-                }
-            }
-            foreach (ClientCard spell in spells)
-            {
-                AI.SelectCard(spell);
                 return true;
             }
             return false;
@@ -352,16 +330,10 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicMonsterCard();
+            ClientCard target = AI.Utils.GetBestEnemyMonster();
             if (target != null)
             {
                 AI.SelectCard(target);
-                return true;
-            }
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                AI.SelectCard(monster);
                 return true;
             }
             return false;
@@ -371,24 +343,10 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicSpellCard();
+            ClientCard target = AI.Utils.GetBestEnemySpell();
             if (target != null)
             {
                 AI.SelectCard(target);
-                return true;
-            }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
-            {
-                if (spell.IsFacedown())
-                {
-                    AI.SelectCard(spell);
-                    return true;
-                }
-            }
-            foreach (ClientCard spell in spells)
-            {
-                AI.SelectCard(spell);
                 return true;
             }
             return false;
@@ -405,10 +363,9 @@ namespace WindBot.Game.AI.Decks
                 {
                     count++;
                 }
-                foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
+                foreach (ClientCard card in Bot.ExtraDeck.GetFaceupPendulumMonsters())
                 {
-                    if (card.HasType(CardType.Pendulum) && card.IsFaceup())
-                        count++;
+                    count++;
                 }
                 return count > 1;
             }

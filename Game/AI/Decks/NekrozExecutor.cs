@@ -72,7 +72,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SummonOrSet, (int)CardId.DancePrincess, DancePrincessSummon);
             AddExecutor(ExecutorType.MonsterSet, (int)CardId.Shurit, ShuritSet);
-            AddExecutor(ExecutorType.Summon, (int)CardId.ThousandHands, ThousandHandsSummom);
+            AddExecutor(ExecutorType.Summon, (int)CardId.ThousandHands, ThousandHandsSummon);
             AddExecutor(ExecutorType.Summon, (int)CardId.TenThousandHands, TenThousandHandsSummon);
             AddExecutor(ExecutorType.Summon, (int)CardId.PhantomOfChaos, PhantomOfChaosSummon);
 
@@ -101,7 +101,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightSummon);
         }
 
-        private bool ThousandHandsSummom()
+        private bool ThousandHandsSummon()
         {
             if (!Bot.HasInHand(NekrozRituelCard) || Bot.HasInHand((int)CardId.Shurit) || !Bot.HasInHand(NekrozSpellCard))  
                 return true;
@@ -190,7 +190,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GungnirEffect()
         {           
-            if (AI.Utils.IsEnemyBetter(true, false) && Duel.Phase == DuelPhase.Main1)
+            if (AI.Utils.IsOneEnemyBetter(true) && Duel.Phase == DuelPhase.Main1)
             {
                 AI.SelectCard(Enemy.GetMonsters().GetHighestAttackMonster());
                 return true;

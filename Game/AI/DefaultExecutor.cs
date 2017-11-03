@@ -124,7 +124,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultBookOfMoon()
         {
-            if (AI.Utils.IsEnemyBetter(true, true))
+            if (AI.Utils.IsAllEnemyBetter(true))
             {
                 ClientCard monster = Enemy.GetMonsters().GetHighestAttackMonster();
                 if (monster != null && monster.HasType(CardType.Effect) && (monster.HasType(CardType.Xyz) || monster.Level > 4))
@@ -141,22 +141,19 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultCompulsoryEvacuationDevice()
         {
-            ClientCard target = AI.Utils.GetProblematicMonsterCard();
+            ClientCard target = AI.Utils.GetProblematicEnemyMonster();
             if (target != null)
             {
                 AI.SelectCard(target);
                 return true;
             }
-            foreach (ClientCard card in Duel.ChainTargets)
+            if (AI.Utils.IsChainTarget(Card))
             {
-                if (Card.Equals(card))
+                ClientCard monster = AI.Utils.GetBestEnemyMonster();
+                if (monster != null)
                 {
-                    ClientCard monster = AI.Utils.GetAnyEnemyMonster();
-                    if (monster != null)
-                    {
-                        AI.SelectCard(monster);
-                        return true;
-                    }
+                    AI.SelectCard(monster);
+                    return true;
                 }
             }
             return false;
@@ -167,7 +164,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultCallOfTheHaunted()
         {
-            if (!AI.Utils.IsEnemyBetter(true, true))
+            if (!AI.Utils.IsAllEnemyBetter(true))
                 return false;
             ClientCard selected = null;
             int BestAtk = 0;
@@ -201,7 +198,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnJudgment()
         {
-            return !(Duel.ChainTargets.Count == 1 && Card.Equals(Duel.ChainTargets[0])) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+            return !AI.Utils.IsChainTargetOnly(Card) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -225,7 +222,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTorrentialTribute()
         {
-            return !HasChainedTrap(0) && AI.Utils.IsEnemyBetter(true, true);
+            return !HasChainedTrap(0) && AI.Utils.IsAllEnemyBetter(true);
         }
 
         /// <summary>
@@ -249,7 +246,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultHammerShot()
         {
-            return AI.Utils.IsEnemyBetter(true, false);
+            return AI.Utils.IsOneEnemyBetter(true);
         }
 
         /// <summary>
@@ -257,7 +254,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultDarkHole()
         {
-            return AI.Utils.IsEnemyBetter(false, false);
+            return AI.Utils.IsOneEnemyBetter();
         }
 
         /// <summary>
@@ -265,7 +262,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultRaigeki()
         {
-            return AI.Utils.IsEnemyBetter(false, false);
+            return AI.Utils.IsOneEnemyBetter();
         }
 
         /// <summary>
@@ -273,7 +270,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSmashingGround()
         {
-            return AI.Utils.IsEnemyBetter(false, false);
+            return AI.Utils.IsOneEnemyBetter();
         }
 
         /// <summary>
@@ -328,7 +325,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultMonsterRepos()
         {
-            bool enemyBetter = AI.Utils.IsEnemyBetter(true, true);
+            bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
 
             if (Card.IsAttack() && enemyBetter)
                 return true;
@@ -476,13 +473,10 @@ namespace WindBot.Game.AI
                     return true;
                 }
             }
-            foreach (ClientCard card in Duel.ChainTargets)
+            if (AI.Utils.IsChainTarget(Card))
             {
-                if (Card.Equals(card))
-                {
-                    AI.SelectOption(XYZ);
-                    return true;
-                }
+                AI.SelectOption(XYZ);
+                return true;
             }
             return false;
         }
@@ -552,7 +546,7 @@ namespace WindBot.Game.AI
                 AI.SelectCard(card);
                 return true;
             }
-            card = AI.Utils.GetOneEnemyBetterThanValue(Card.GetDefensePower(), false);
+            card = AI.Utils.GetOneEnemyBetterThanValue(Card.GetDefensePower());
             if (card != null)
             {
                 AI.SelectCard(card);

@@ -99,10 +99,10 @@ namespace WindBot.Game.AI.Decks
 
             // special summon from extra
             AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesCipherDragon, GalaxyEyesCipherDragonSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesPrimePhotonDragon, GalaxyEyesPrimePhotonDragonSumom);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesPrimePhotonDragon, GalaxyEyesPrimePhotonDragonSummon);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesFullArmorPhotonDragon, GalaxyEyesFullArmorPhotonDragonSummon);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesCipherBladeDragon, GalaxyEyesCipherBladeDragonSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesDarkMatterDragon, GalaxyEyesDarkMatterDragonSummom);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesDarkMatterDragon, GalaxyEyesDarkMatterDragonSummon);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.Giganticastle, GiganticastleSummon);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.BlueEyesSpiritDragon, BlueEyesSpiritDragonSummon);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.HopeHarbingerDragonTitanicGalaxy, HopeHarbingerDragonTitanicGalaxySummon);
@@ -332,28 +332,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool AlternativeWhiteDragonEffect()
         {
-            ClientCard card = Enemy.MonsterZone.GetFloodgate();
-            if (card != null)
-            {
-                AI.SelectCard(card);
-                UsedAlternativeWhiteDragon.Add(Card);
-                return true;
-            }
-            card = Enemy.MonsterZone.GetInvincibleMonster();
-            if (card != null)
-            {
-                AI.SelectCard(card);
-                UsedAlternativeWhiteDragon.Add(Card);
-                return true;
-            }
-            card = Enemy.MonsterZone.GetDangerousMonster();
-            if (card != null)
-            {
-                AI.SelectCard(card);
-                UsedAlternativeWhiteDragon.Add(Card);
-                return true;
-            }
-            card = AI.Utils.GetOneEnemyBetterThanValue(Card.GetDefensePower(), false);
+            ClientCard card = AI.Utils.GetProblematicEnemyMonster(Card.GetDefensePower());
             if (card != null)
             {
                 AI.SelectCard(card);
@@ -362,6 +341,8 @@ namespace WindBot.Game.AI.Decks
             }
             if (CanDealWithUsedAlternativeWhiteDragon())
             {
+                card = AI.Utils.GetBestEnemyMonster();
+                AI.SelectCard(card);
                 UsedAlternativeWhiteDragon.Add(Card);
                 return true;
             }
@@ -487,7 +468,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == -1)
             {
-                ClientCard target = Enemy.SpellZone.GetFloodgate();
+                ClientCard target = AI.Utils.GetBestEnemySpell();
                 AI.SelectCard(target);
                 return true;
             }
@@ -504,12 +485,9 @@ namespace WindBot.Game.AI.Decks
                         && !Bot.HasInGraveyard((int)CardId.DragonSpiritOfWhite)
                         && !Bot.HasInGraveyard((int)CardId.WhiteDragon);
                 }
-                foreach (ClientCard card in Duel.ChainTargets)
+                if (AI.Utils.IsChainTarget(Card))
                 {
-                    if (Card.Equals(card))
-                    {
-                        return HaveEnoughWhiteDragonInHand();
-                    }
+                    return HaveEnoughWhiteDragonInHand();
                 }
                 return false;
             }
@@ -528,13 +506,10 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                foreach (ClientCard card in Duel.ChainTargets)
+                if (AI.Utils.IsChainTarget(Card))
                 {
-                    if (Card.Equals(card))
-                    {
-                        AI.SelectCard((int)CardId.AzureEyesSilverDragon);
-                        return true;
-                    }
+                    AI.SelectCard((int)CardId.AzureEyesSilverDragon);
+                    return true;
                 }
                 return false;
             }
@@ -638,7 +613,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool GalaxyEyesPrimePhotonDragonSumom()
+        private bool GalaxyEyesPrimePhotonDragonSummon()
         {
             if (Duel.Turn == 1)
             {
@@ -679,7 +654,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GalaxyEyesCipherBladeDragonSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.GalaxyEyesFullArmorPhotonDragon) && AI.Utils.GetProblematicCard() != null)
+            if (Bot.HasInMonstersZone((int)CardId.GalaxyEyesFullArmorPhotonDragon) && AI.Utils.GetProblematicEnemyCard() != null)
             {
                 AI.SelectCard((int)CardId.GalaxyEyesFullArmorPhotonDragon);
                 return true;
@@ -687,7 +662,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool GalaxyEyesDarkMatterDragonSummom()
+        private bool GalaxyEyesDarkMatterDragonSummon()
         {
             if (Bot.HasInMonstersZone((int)CardId.GalaxyEyesFullArmorPhotonDragon))
             {
@@ -729,22 +704,22 @@ namespace WindBot.Game.AI.Decks
 
         private bool GalaxyEyesFullArmorPhotonDragonEffect()
         {
-            ClientCard floodgate = Enemy.SpellZone.GetFloodgate();
-            if (floodgate != null)
+            ClientCard target = AI.Utils.GetProblematicEnemySpell();
+            if (target != null)
             {
-                AI.SelectCard(floodgate);
+                AI.SelectCard(target);
                 return true;
             }
-            floodgate = Enemy.MonsterZone.GetFloodgate();
-            if (floodgate != null)
+            target = AI.Utils.GetProblematicEnemyMonster();
+            if (target != null)
             {
-                AI.SelectCard(floodgate);
+                AI.SelectCard(target);
                 return true;
             }
             List<ClientCard> spells = Enemy.GetSpells();
             foreach (ClientCard spell in spells)
             {
-                if (!spell.IsFacedown())
+                if (spell.IsFaceup())
                 {
                     AI.SelectCard(spell);
                     return true;
@@ -787,7 +762,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return true;
             }
-            ClientCard target = AI.Utils.GetProblematicCard();
+            ClientCard target = AI.Utils.GetProblematicEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -847,8 +822,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Phase != DuelPhase.Main1 || Duel.Turn == 1 || SoulChargeUsed)
                 return false;
-            int bestSelfAttack = AI.Utils.GetBestAttack(Bot, false);
-            int bestEnemyAttack = AI.Utils.GetBestAttack(Enemy, false);
+            int bestSelfAttack = AI.Utils.GetBestAttack(Bot);
+            int bestEnemyAttack = AI.Utils.GetBestPower(Enemy);
             return bestSelfAttack <= bestEnemyAttack && bestEnemyAttack > 2500 && bestEnemyAttack <= 3100;
         }
 
@@ -973,7 +948,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Repos()
         {
-            bool enemyBetter = AI.Utils.IsEnemyBetter(true, true);
+            bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
 
             if (Card.IsAttack() && enemyBetter)
                 return true;
