@@ -11,13 +11,6 @@ namespace WindBot
 {
     public class Program
     {
-        // In safe mode, all errors will be catched instead of causing the program to crash.
-#if DEBUG
-        public static bool SafeMode = false;
-#else
-        public static bool SafeMode = true;
-#endif
-
         internal static Random Rand;
 
         internal static void Main(string[] args)
@@ -89,85 +82,102 @@ namespace WindBot
                 Logger.WriteLine("HTTP GET http://127.0.0.1:" + ServerPort + "/?name=WindBot&host=127.0.0.1&port=7911 to call the bot.");
                 while (true)
                 {
-                    try
-                    {
-                        HttpListenerContext ctx = MainServer.GetContext();
+#if !DEBUG
+    try
+    {
+#endif
+                    HttpListenerContext ctx = MainServer.GetContext();
 
-                        WindBotInfo Info = new WindBotInfo();
-                        string RawUrl = Path.GetFileName(ctx.Request.RawUrl);
-                        Info.Name = HttpUtility.ParseQueryString(RawUrl).Get("name");
-                        Info.Deck = HttpUtility.ParseQueryString(RawUrl).Get("deck");
-                        Info.Host = HttpUtility.ParseQueryString(RawUrl).Get("host");
-                        string port = HttpUtility.ParseQueryString(RawUrl).Get("port");
-                        if (port != null)
-                            Info.Port = Int32.Parse(port);
-                        string dialog = HttpUtility.ParseQueryString(RawUrl).Get("dialog");
-                        if (dialog != null)
-                            Info.Dialog = dialog;
-                        string version = HttpUtility.ParseQueryString(RawUrl).Get("version");
-                        if (version != null)
-                            Info.Version = Int16.Parse(version);
-                        string password = HttpUtility.ParseQueryString(RawUrl).Get("password");
-                        if (password != null)
-                            Info.HostInfo = password;
-                        string hand = HttpUtility.ParseQueryString(RawUrl).Get("hand");
-                        if (hand != null)
-                            Info.Hand = Int32.Parse(hand);
+                    WindBotInfo Info = new WindBotInfo();
+                    string RawUrl = Path.GetFileName(ctx.Request.RawUrl);
+                    Info.Name = HttpUtility.ParseQueryString(RawUrl).Get("name");
+                    Info.Deck = HttpUtility.ParseQueryString(RawUrl).Get("deck");
+                    Info.Host = HttpUtility.ParseQueryString(RawUrl).Get("host");
+                    string port = HttpUtility.ParseQueryString(RawUrl).Get("port");
+                    if (port != null)
+                        Info.Port = Int32.Parse(port);
+                    string dialog = HttpUtility.ParseQueryString(RawUrl).Get("dialog");
+                    if (dialog != null)
+                        Info.Dialog = dialog;
+                    string version = HttpUtility.ParseQueryString(RawUrl).Get("version");
+                    if (version != null)
+                        Info.Version = Int16.Parse(version);
+                    string password = HttpUtility.ParseQueryString(RawUrl).Get("password");
+                    if (password != null)
+                        Info.HostInfo = password;
+                    string hand = HttpUtility.ParseQueryString(RawUrl).Get("hand");
+                    if (hand != null)
+                        Info.Hand = Int32.Parse(hand);
 
-                        if (Info.Name == null || Info.Host == null || port == null)
-                        {
-                            ctx.Response.StatusCode = 400;
-                            ctx.Response.Close();
-                        }
-                        else
-                        {
-                            try
-                            {
-                                Thread workThread = new Thread(new ParameterizedThreadStart(Run));
-                                workThread.Start(Info);
-                            }
-                            catch (Exception ex) when (SafeMode)
-                            {
-                                Logger.WriteErrorLine("Start Thread Error: " + ex);
-                            }
-                            ctx.Response.StatusCode = 200;
-                            ctx.Response.Close();
-                        }
-                    }
-                    catch (Exception ex) when (SafeMode)
+                    if (Info.Name == null || Info.Host == null || port == null)
                     {
-                        Logger.WriteErrorLine("Parse Http Request Error: " + ex);
+                        ctx.Response.StatusCode = 400;
+                        ctx.Response.Close();
                     }
+                    else
+                    {
+#if !DEBUG
+        try
+        {
+#endif
+                        Thread workThread = new Thread(new ParameterizedThreadStart(Run));
+                        workThread.Start(Info);
+#if !DEBUG
+        }
+        catch (Exception ex)
+        {
+            Logger.WriteErrorLine("Start Thread Error: " + ex);
+        }
+#endif
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.Close();
+                    }
+#if !DEBUG
+    }
+    catch (Exception ex)
+    {
+        Logger.WriteErrorLine("Parse Http Request Error: " + ex);
+    }
+#endif
                 }
             }
         }
 
         private static void Run(object o)
         {
-            try
+#if !DEBUG
+    try
+    {
+    //all errors will be catched instead of causing the program to crash.
+#endif
+            WindBotInfo Info = (WindBotInfo)o;
+            GameClient client = new GameClient(Info);
+            client.Start();
+            Logger.DebugWriteLine(client.Username + " started.");
+            while (client.Connection.IsConnected)
             {
-                WindBotInfo Info = (WindBotInfo)o;
-                GameClient client = new GameClient(Info);
-                client.Start();
-                Logger.DebugWriteLine(client.Username + " started.");
-                while (client.Connection.IsConnected)
-                {
-                    try
-                    {
-                        client.Tick();
-                        Thread.Sleep(30);
-                    }
-                    catch (Exception ex) when (SafeMode)
-                    {
-                        Logger.WriteErrorLine("Tick Error: " + ex);
-                    }
-                }
-                Logger.DebugWriteLine(client.Username + " end.");
+#if !DEBUG
+        try
+        {
+#endif
+                client.Tick();
+                Thread.Sleep(30);
+#if !DEBUG
+        }
+        catch (Exception ex)
+        {
+            Logger.WriteErrorLine("Tick Error: " + ex);
+        }
+#endif
             }
-            catch (Exception ex) when (SafeMode)
-            {
-                Logger.WriteErrorLine("Run Error: " + ex);
-            }
+            Logger.DebugWriteLine(client.Username + " end.");
+#if !DEBUG
+    }
+    catch (Exception ex)
+    {
+        Logger.WriteErrorLine("Run Error: " + ex);
+    }
+#endif
         }
     }
 }
