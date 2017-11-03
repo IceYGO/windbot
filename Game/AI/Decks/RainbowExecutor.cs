@@ -79,8 +79,8 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.GagagaCowboy, GagagaCowboySummon);
             AddExecutor(ExecutorType.Activate, (int)CardId.GagagaCowboy);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.EvolzarLaggia, EvolzarLaggiaSummon);
             AddExecutor(ExecutorType.Activate, (int)CardId.EvolzarLaggia, EvolzarLaggiaEffect);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmNightmare, EvilswarmNightmareSummon);
@@ -96,21 +96,21 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, (int)CardId.SmashingGround, DefaultSmashingGround);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.CastelTheSkyblasterMusketeer, CastelTheSkyblasterMusketeerSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CastelTheSkyblasterMusketeer, CastelTheSkyblasterMusketeerEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.CastelTheSkyblasterMusketeer, DefaultCastelTheSkyblasterMusketeerSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.CastelTheSkyblasterMusketeer, DefaultCastelTheSkyblasterMusketeerEffect);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerSummon);
             AddExecutor(ExecutorType.Activate, (int)CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.ScarlightRedDragonArchfiend, ScarlightRedDragonArchfiendSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ScarlightRedDragonArchfiend, ScarlightRedDragonArchfiendEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, NumberS39UtopiatheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiatheLightning);
             AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiatheLightning);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.StardustDragon, StardustDragonSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragon, StardustDragonEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.StardustDragon, DefaultStardustDragonSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragon, DefaultStardustDragonEffect);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.Number59CrookedCook, Number59CrookedCookSummon);
             AddExecutor(ExecutorType.Activate, (int)CardId.Number59CrookedCook, Number59CrookedCookEffect);
@@ -259,77 +259,6 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool EvilswarmExcitonKnightSummon()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
-            return (selfCount - 1 < oppoCount) && EvilswarmExcitonKnightEffect();
-        }
-
-        private bool EvilswarmExcitonKnightEffect()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
-
-            int selfAttack = 0;
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                selfAttack += monster.GetDefensePower();
-            }
-
-            int oppoAttack = 0;
-            monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                oppoAttack += monster.GetDefensePower();
-            }
-
-            return (selfCount < oppoCount) || (selfAttack < oppoAttack);
-        }
-
-        private bool ScarlightRedDragonArchfiendSummon()
-        {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
-            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
-            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || ScarlightRedDragonArchfiendEffect();
-        }
-
-        private bool ScarlightRedDragonArchfiendEffect()
-        {
-            int selfCount = 0;
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                if (!monster.Equals(Card) && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
-                    selfCount++;
-            }
-
-            int oppoCount = 0;
-            monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                // 没有办法获取特殊召唤的状态，只好默认全部是特招的
-                if (monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
-                    oppoCount++;
-            }
-
-            return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount > 2;
-        }
-
-        private bool CastelTheSkyblasterMusketeerSummon()
-        {
-            return AI.Utils.GetProblematicEnemyCard() != null;
-        }
-
-        private bool CastelTheSkyblasterMusketeerEffect()
-        {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.CastelTheSkyblasterMusketeer, 0))
-                return false;
-            AI.SelectNextCard(AI.Utils.GetProblematicEnemyCard());
-            return true;
-        }
-
         private bool IgnisterProminenceTheBlastingDracoslayerSummon()
         {
             return AI.Utils.GetProblematicEnemyCard() != null;
@@ -419,16 +348,6 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool StardustDragonSummon()
-        {
-            return (AI.Utils.IsOneEnemyBetter() && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
-        }
-
-        private bool StardustDragonEffect()
-        {
-            return (Card.Location == CardLocation.Grave) || DefaultTrap();
-        }
-
         private bool EvolzarLaggiaSummon()
         {
             return (AI.Utils.IsAllEnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
@@ -494,11 +413,6 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
-        }
-
-        private bool NumberS39UtopiatheLightningSummon()
-        {
-            return AI.Utils.IsOneEnemyBetter(true);
         }
 
         private bool TrapSet()

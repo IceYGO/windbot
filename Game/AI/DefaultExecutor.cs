@@ -19,9 +19,12 @@ namespace WindBot.Game.AI
             ThunderKingtheLightningstrikeKaiju = 48770333,
             DogorantheMadFlameKaiju = 93332803,
             SuperAntiKaijuWarMachineMechaDogoran = 84769941,
+
             MysticalSpaceTyphoon = 5318639,
             CosmicCyclone = 8267140,
-            ChickenGame = 67616300
+            ChickenGame = 67616300,
+
+            CastelTheSkyblasterMusketeer = 82633039
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
@@ -553,6 +556,100 @@ namespace WindBot.Game.AI
                 return true;
             }
             return false;
+        }
+
+        protected bool DefaultNumberS39UtopiaTheLightningSummon()
+        {
+            int bestBotAttack = AI.Utils.GetBestAttack(Bot);
+            return AI.Utils.IsOneEnemyBetterThanValue(bestBotAttack, false);
+        }
+
+        protected bool DefaultEvilswarmExcitonKnightSummon()
+        {
+            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
+            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
+            return (selfCount - 1 < oppoCount) && DefaultEvilswarmExcitonKnightEffect();
+        }
+
+        protected bool DefaultEvilswarmExcitonKnightEffect()
+        {
+            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
+            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
+
+            int selfAttack = 0;
+            List<ClientCard> monsters = Bot.GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                selfAttack += monster.GetDefensePower();
+            }
+
+            int oppoAttack = 0;
+            monsters = Enemy.GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                oppoAttack += monster.GetDefensePower();
+            }
+
+            return (selfCount < oppoCount) || (selfAttack < oppoAttack);
+        }
+
+        protected bool DefaultStardustDragonSummon()
+        {
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
+            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 2500) || AI.Utils.IsTurn1OrMain2();
+        }
+
+        protected bool DefaultStardustDragonEffect()
+        {
+            return (Card.Location == CardLocation.Grave) || LastChainPlayer == 1;
+        }
+
+        protected bool DefaultCastelTheSkyblasterMusketeerSummon()
+        {
+            return AI.Utils.GetProblematicEnemyCard() != null;
+        }
+
+        protected bool DefaultCastelTheSkyblasterMusketeerEffect()
+        {
+            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.CastelTheSkyblasterMusketeer, 0))
+                return false;
+            ClientCard target = AI.Utils.GetProblematicEnemyCard();
+            if (target != null)
+            {
+                AI.SelectNextCard(target);
+                return true;
+            }
+            return false;
+        }
+
+        protected bool DefaultScarlightRedDragonArchfiendSummon()
+        {
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
+            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || DefaultScarlightRedDragonArchfiendEffect();
+        }
+
+        protected bool DefaultScarlightRedDragonArchfiendEffect()
+        {
+            int selfCount = 0;
+            List<ClientCard> monsters = Bot.GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                // The bot don't know if the card is special summoned, so let we assume all monsters are special summoned
+                if (!monster.Equals(Card) && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
+                    selfCount++;
+            }
+
+            int oppoCount = 0;
+            monsters = Enemy.GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                if (monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
+                    oppoCount++;
+            }
+
+            return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount > 2;
         }
 
     }

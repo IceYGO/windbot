@@ -94,8 +94,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, (int)CardId.CardsOfConsonance, SetUselessCards);
 
             // Chain traps and monsters
-            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragonAssaultMode, StardustDragon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragon, StardustDragon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragonAssaultMode, DefaultStardustDragonEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragon, DefaultStardustDragonEffect);
             AddExecutor(ExecutorType.Activate, (int)CardId.StarlightRoad, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.DimensionalPrison, DefaultTrap);
@@ -462,13 +462,6 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInSpellZone((int)CardId.AssaultModeActivate))
                 return true;
             return false;
-        }
-
-        private bool StardustDragon()
-        {
-            if (Card.Location == CardLocation.Grave)
-                return true;
-            return LastChainPlayer == 1;
         }
 
         private bool AssaultModeActivate()

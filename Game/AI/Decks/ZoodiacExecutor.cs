@@ -71,7 +71,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.PhotonThrasher, PhotonThrasherSummon);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, NumberS39UtopiatheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiatheLightning);
             AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiatheLightning);
 
@@ -146,14 +146,6 @@ namespace WindBot.Game.AI.Decks
                     attacker.RealPower = 5000;
             }
             return attacker.RealPower > defender.GetDefensePower();
-        }
-
-
-        private bool NumberS39UtopiatheLightningSummon()
-        {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
-            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
-            return selfBestAttack < oppoBestAttack;
         }
 
         private bool PhotonThrasherSummon()

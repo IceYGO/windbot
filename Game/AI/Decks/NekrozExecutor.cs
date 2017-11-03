@@ -83,7 +83,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, (int)CardId.Brionac, BrionacEffect);
             AddExecutor(ExecutorType.Activate, (int)CardId.Clausolas, ClausolasEffect);
             AddExecutor(ExecutorType.Activate, (int)CardId.Trishula);
-            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
             AddExecutor(ExecutorType.Activate, (int)CardId.PhantomOfChaos, PhantomOfChaosEffect);
             AddExecutor(ExecutorType.Activate, (int)CardId.MaxxC);
             AddExecutor(ExecutorType.Activate, (int)CardId.ThousandHands, ThousandHandsEffect);
@@ -98,7 +98,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, (int)CardId.Brionac);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.Unicore);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.Clausolas);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
         }
 
         private bool ThousandHandsSummon()
@@ -165,20 +165,6 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
-        }
-
-        private bool EvilswarmExcitonKnightSummon()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
-            return (selfCount - 1 < oppoCount) && EvilswarmExcitonKnightEffect();
-        }
-
-        private bool EvilswarmExcitonKnightEffect()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
-            return selfCount < oppoCount;
         }
 
         private bool ValkyrusEffect()

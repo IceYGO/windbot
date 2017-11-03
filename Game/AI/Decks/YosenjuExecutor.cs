@@ -120,18 +120,18 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, (int)CardId.PotOfDuality, CardOfDemiseAcivated);
             AddExecutor(ExecutorType.SpellSet, (int)CardId.CosmicCyclone, CardOfDemiseAcivated);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
 
             AddExecutor(ExecutorType.SpSummon, (int)CardId.DarkRebellionXyzDragon, DarkRebellionXyzDragonSummon);
             AddExecutor(ExecutorType.Activate, (int)CardId.DarkRebellionXyzDragon, DarkRebellionXyzDragonEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, NumberS39UtopiatheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiaOne);
             AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiatheLightning);
             AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiatheLightning);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragon, StardustDragonEffect);
+            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragon, DefaultStardustDragonEffect);
 
             AddExecutor(ExecutorType.Activate, (int)CardId.StarlightRoad, DefaultTrap);
             AddExecutor(ExecutorType.Activate, (int)CardId.MagicDrain);
@@ -298,20 +298,6 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool EvilswarmExcitonKnightSummon()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
-            return (selfCount - 1 < oppoCount) && EvilswarmExcitonKnightEffect();
-        }
-
-        private bool EvilswarmExcitonKnightEffect()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
-            return selfCount < oppoCount;
-        }
-
         private bool DarkRebellionXyzDragonSummon()
         {
             int selfBestAttack = AI.Utils.GetBestAttack(Bot);
@@ -336,11 +322,5 @@ namespace WindBot.Game.AI.Decks
             int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
             return selfBestAttack <= oppoBestAttack;
         }
-
-        private bool StardustDragonEffect()
-        {
-            return LastChainPlayer == 1;
-        }
-
     }
 }
