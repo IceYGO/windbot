@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Toadally Awesome", "AI_ToadallyAwesome")]
+    [Deck("Toadally Awesome", "AI_ToadallyAwesome", "OutDated")]
     public class ToadallyAwesomeExecutor : DefaultExecutor
     {
         public enum CardId

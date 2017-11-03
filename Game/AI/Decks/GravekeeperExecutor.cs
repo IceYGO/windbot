@@ -7,7 +7,7 @@ using WindBot.Game.AI;
 namespace WindBot.Game.AI.Decks
 {
     // NOT FINISHED YET
-    [Deck("Gravekeeper", "AI_Gravekeeper")]
+    [Deck("Gravekeeper", "AI_Gravekeeper", "NotFinished")]
     public class GravekeeperExecutor : DefaultExecutor
     {
         public enum CardId

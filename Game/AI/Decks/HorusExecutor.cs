@@ -6,7 +6,7 @@ using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Horus", "AI_Horus")]
+    [Deck("Horus", "AI_Horus", "Easy")]
     public class HorusExecutor : DefaultExecutor
     {
         public enum CardId

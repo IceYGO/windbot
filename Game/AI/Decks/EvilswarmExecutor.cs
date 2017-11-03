@@ -7,7 +7,7 @@ using WindBot.Game.AI;
 namespace WindBot.Game.AI.Decks
 {
     // NOT FINISHED YET
-    [Deck("Evilswarm", "AI_Evilswarm")]
+    [Deck("Evilswarm", "AI_Evilswarm", "NotFinished")]
     public class EvilswarmExecutor : DefaultExecutor
     {
         public enum CardId

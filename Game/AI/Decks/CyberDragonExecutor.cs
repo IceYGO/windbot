@@ -7,7 +7,7 @@ using WindBot.Game.AI;
 namespace WindBot.Game.AI.Decks
 {
     // NOT FINISHED YET
-    [Deck("CyberDragon", "AI_CyberDragon")]
+    [Deck("CyberDragon", "AI_CyberDragon", "NotFinished")]
     public class CyberDragonExecutor : DefaultExecutor
     {
         bool PowerBondUsed = false;

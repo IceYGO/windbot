@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Burn", "AI_Burn")]
+    [Deck("Burn", "AI_Burn", "Easy")]
     public class BurnExecutor : DefaultExecutor
     {
         public enum CardId

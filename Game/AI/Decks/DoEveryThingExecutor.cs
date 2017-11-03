@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Test", "AI_Test")]
+    [Deck("Test", "AI_Test", "Test")]
     public class DoEverythingExecutor : DefaultExecutor
     {
         public enum CardId

@@ -7,7 +7,7 @@ using WindBot.Game.AI;
 namespace WindBot.Game.AI.Decks
 {
     // NOT FINISHED YET
-    [Deck("Nekroz", "AI_Nekroz")]
+    [Deck("Nekroz", "AI_Nekroz", "NotFinished")]
     public class NekrozExecutor : DefaultExecutor
     {  
         public enum CardId
