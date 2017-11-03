@@ -57,8 +57,6 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * OldSchool
 
-* ST1732
-
 **Normal**:
 
 * Blue-Eyes
@@ -70,6 +68,8 @@ WindBot can run as a "server", provide a http interface to create bot.
 * Rainbow
 
 * Rank V
+
+* ST1732
 
 * Toadally Awesome (old lflist)
 

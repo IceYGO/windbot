@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("ST1732", "AI_ST1732", "Easy")]
+    [Deck("ST1732", "AI_ST1732", "Normal")]
     public class ST1732Executor : DefaultExecutor
     {
         public enum CardId
