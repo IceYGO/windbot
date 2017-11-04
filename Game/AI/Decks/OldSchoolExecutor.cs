@@ -64,13 +64,6 @@ namespace WindBot.Game.AI.Decks
 
         private int _lastDoubleSummon;
 
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
-        {
-            if (defender.IsMonsterInvincible() && !defender.IsMonsterDangerous() && attacker.Id == CardId.AncientGearGolem)
-                return true;
-            return base.OnPreBattleBetween(attacker, defender);
-        }
-
         private bool DoubleSummon()
         {
             if (_lastDoubleSummon == Duel.Turn)

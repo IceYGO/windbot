@@ -10,7 +10,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public static bool IsMonsterInvincible(this ClientCard card)
         {
-            return Enum.IsDefined(typeof(InvincibleMonster), card.Id);
+            return !card.IsDisabled() && Enum.IsDefined(typeof(InvincibleMonster), card.Id);
         }
 
         /// <summary>

@@ -28,6 +28,7 @@ namespace WindBot.Game.AI
             public static int ChickenGame = 67616300;
 
             public static int CastelTheSkyblasterMusketeer = 82633039;
+            public static int CrystalWingSynchroDragon = 50954680;
             public static int NumberS39UtopiaTheLightning = 56832966;
             public static int Number39Utopia = 84013237;
             public static int UltimayaTzolkin = 1686814;
@@ -49,21 +50,27 @@ namespace WindBot.Game.AI
         /// <returns>true if the attack can be done.</returns>
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
+
+            if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (!attacker.IsMonsterHasPreventActivationEffectInBattle() && (defender.IsMonsterDangerous() || defender.IsDefense()))
+                if (defender.IsMonsterDangerous() || (defender.IsMonsterInvincible() && defender.IsDefense()))
+                {
                     return false;
+                }
+
+                if (defender.Id == _CardId.CrystalWingSynchroDragon && !defender.IsDisabled() && attacker.Level >= 5)
+                {
+                    return false;
+                }
+
+                if (defender.Id == _CardId.NumberS39UtopiaTheLightning && !defender.IsDisabled() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
+                    defender.RealPower = 5000;
             }
+
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
                 if (attacker.Id == _CardId.NumberS39UtopiaTheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, _CardId.Number39Utopia))
                     attacker.RealPower = 5000;
-            }
-
-            if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
-            {
-                if (defender.Id == _CardId.NumberS39UtopiaTheLightning && !defender.IsDisabled() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
-                    defender.RealPower = 5000;
             }
 
             if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && defender.Id != _CardId.DupeFrog)

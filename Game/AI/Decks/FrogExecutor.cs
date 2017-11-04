@@ -84,15 +84,6 @@ namespace WindBot.Game.AI.Decks
         private int m_swapFrogSummoned;
         private int m_flipFlopFrogSummoned;
 
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
-        {
-            if (attacker.Id == CardId.Unifrog || attacker.Id == CardId.DewdarkOfTheIceBarrier)
-                return true;
-            if (defender.IsMonsterInvincible() && !defender.IsMonsterDangerous() && attacker.Id == CardId.SubmarineFrog)
-                return true;
-            return base.OnPreBattleBetween(attacker, defender);
-        }
-
         private bool SwapFrogSummon()
         {
             int atk = Card.Attack + GetSpellBonus();

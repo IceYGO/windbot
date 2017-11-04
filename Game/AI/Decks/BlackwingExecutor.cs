@@ -82,13 +82,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
-        {
-            if (defender.IsMonsterInvincible() && !defender.IsMonsterDangerous() && attacker.Id == 83104731)
-                return true;
-            return base.OnPreBattleBetween(attacker, defender);
-        }
-
         private bool ShuraTheBlueFlameSummon()
         {
             if (Bot.HasInMonstersZone(CardId.SiroccoTheDawn) && Bot.GetMonsters().GetHighestAttackMonster().Attack < 3800)
