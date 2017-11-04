@@ -11,8 +11,8 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int LeoWizard = 4392470;
-            public static int Bunilla = 69380702;
+            public const int LeoWizard = 4392470;
+            public const int Bunilla = 69380702;
         }
 
         public DoEverythingExecutor(GameAI ai, Duel duel)

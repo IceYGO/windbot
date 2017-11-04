@@ -11,28 +11,28 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int LavaGolem = 102380;
-            public static int ReflectBounder = 2851070;
-            public static int FencingFireFerret = 97396380;
-            public static int BlastSphere = 26302522;
-            public static int Marshmallon = 31305911;
-            public static int SpiritReaper = 23205979;
-            public static int NaturiaBeans = 44789585;
-            public static int ThunderShort = 20264508;
-            public static int Ookazi = 19523799;
-            public static int GoblinThief = 45311864;
-            public static int TremendousFire = 46918794;
-            public static int SwordsOfRevealingLight = 72302403;
-            public static int SupremacyBerry = 98380593;
-            public static int ChainEnergy = 79323590;
-            public static int DarkRoomofNightmare = 85562745;
-            public static int PoisonOfTheOldMan = 8842266;
-            public static int OjamaTrio = 29843091;
-            public static int Ceasefire = 36468556;
-            public static int MagicCylinder = 62279055;
-            public static int MinorGoblinOfficial = 1918087;
-            public static int ChainBurst = 48276469;
-            public static int SkullInvitation = 98139712;
+            public const int LavaGolem = 102380;
+            public const int ReflectBounder = 2851070;
+            public const int FencingFireFerret = 97396380;
+            public const int BlastSphere = 26302522;
+            public const int Marshmallon = 31305911;
+            public const int SpiritReaper = 23205979;
+            public const int NaturiaBeans = 44789585;
+            public const int ThunderShort = 20264508;
+            public const int Ookazi = 19523799;
+            public const int GoblinThief = 45311864;
+            public const int TremendousFire = 46918794;
+            public const int SwordsOfRevealingLight = 72302403;
+            public const int SupremacyBerry = 98380593;
+            public const int ChainEnergy = 79323590;
+            public const int DarkRoomofNightmare = 85562745;
+            public const int PoisonOfTheOldMan = 8842266;
+            public const int OjamaTrio = 29843091;
+            public const int Ceasefire = 36468556;
+            public const int MagicCylinder = 62279055;
+            public const int MinorGoblinOfficial = 1918087;
+            public const int ChainBurst = 48276469;
+            public const int SkullInvitation = 98139712;
         }
 
         public BurnExecutor(GameAI ai, Duel duel)

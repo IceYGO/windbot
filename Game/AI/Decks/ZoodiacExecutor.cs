@@ -11,37 +11,37 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int JizukirutheStarDestroyingKaiju = 63941210;
-            public static int GadarlatheMysteryDustKaiju = 36956512;
-            public static int GamecieltheSeaTurtleKaiju = 55063751;
-            public static int RadiantheMultidimensionalKaiju = 28674152;
-            public static int KumongoustheStickyStringKaiju = 29726552;
-            public static int PhotonThrasher = 65367484;
-            public static int Thoroughblade = 77150143;
-            public static int Whiptail = 31755044;
-            public static int Ratpier = 78872731;
-            public static int AleisterTheInvoker = 86120751;
+            public const int JizukirutheStarDestroyingKaiju = 63941210;
+            public const int GadarlatheMysteryDustKaiju = 36956512;
+            public const int GamecieltheSeaTurtleKaiju = 55063751;
+            public const int RadiantheMultidimensionalKaiju = 28674152;
+            public const int KumongoustheStickyStringKaiju = 29726552;
+            public const int PhotonThrasher = 65367484;
+            public const int Thoroughblade = 77150143;
+            public const int Whiptail = 31755044;
+            public const int Ratpier = 78872731;
+            public const int AleisterTheInvoker = 86120751;
 
-            public static int HarpiesFeatherDuster = 18144506;
-            public static int DarkHole = 53129443;
-            public static int Terraforming = 73628505;
-            public static int Invocation = 74063034;
-            public static int MonsterReborn = 83764718;
-            public static int InterruptedKaijuSlumber = 99330325;
-            public static int ZoodiacBarrage = 46060017;
-            public static int FireFormationTenki = 57103969;
-            public static int MagicalMeltdown = 47679935;
-            public static int ZoodiacCombo = 73881652;
+            public const int HarpiesFeatherDuster = 18144506;
+            public const int DarkHole = 53129443;
+            public const int Terraforming = 73628505;
+            public const int Invocation = 74063034;
+            public const int MonsterReborn = 83764718;
+            public const int InterruptedKaijuSlumber = 99330325;
+            public const int ZoodiacBarrage = 46060017;
+            public const int FireFormationTenki = 57103969;
+            public const int MagicalMeltdown = 47679935;
+            public const int ZoodiacCombo = 73881652;
 
-            public static int InvokedMechaba = 75286621;
-            public static int InvokedMagellanica = 48791583;
-            public static int NumberS39UtopiatheLightning = 56832966;
-            public static int Number39Utopia = 84013237;
-            public static int DaigustoEmeral = 581014;
-            public static int Tigermortar = 11510448;
-            public static int Chakanine = 41375811;
-            public static int Drident = 48905153;
-            public static int Broadbull = 85115440;
+            public const int InvokedMechaba = 75286621;
+            public const int InvokedMagellanica = 48791583;
+            public const int NumberS39UtopiatheLightning = 56832966;
+            public const int Number39Utopia = 84013237;
+            public const int DaigustoEmeral = 581014;
+            public const int Tigermortar = 11510448;
+            public const int Chakanine = 41375811;
+            public const int Drident = 48905153;
+            public const int Broadbull = 85115440;
         }
 
         bool TigermortarSpsummoned = false;

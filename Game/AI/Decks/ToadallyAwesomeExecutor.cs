@@ -11,35 +11,35 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int CryomancerOfTheIceBarrier = 23950192;
-            public static int DewdarkOfTheIceBarrier = 90311614;
-            public static int SwapFrog = 9126351;
-            public static int PriorOfTheIceBarrier = 50088247;
-            public static int Ronintoadin = 1357146;
-            public static int DupeFrog = 46239604;
-            public static int GraydleSlimeJr = 80250319;
+            public const int CryomancerOfTheIceBarrier = 23950192;
+            public const int DewdarkOfTheIceBarrier = 90311614;
+            public const int SwapFrog = 9126351;
+            public const int PriorOfTheIceBarrier = 50088247;
+            public const int Ronintoadin = 1357146;
+            public const int DupeFrog = 46239604;
+            public const int GraydleSlimeJr = 80250319;
 
-            public static int GalaxyCyclone = 5133471;
-            public static int HarpiesFeatherDuster = 18144506;
-            public static int Surface = 33057951;
-            public static int DarkHole = 53129443;
-            public static int CardDestruction = 72892473;
-            public static int FoolishBurial = 81439173;
-            public static int MonsterReborn = 83764718;
-            public static int MedallionOfTheIceBarrier = 84206435;
-            public static int Salvage = 96947648;
-            public static int AquariumStage = 29047353;
+            public const int GalaxyCyclone = 5133471;
+            public const int HarpiesFeatherDuster = 18144506;
+            public const int Surface = 33057951;
+            public const int DarkHole = 53129443;
+            public const int CardDestruction = 72892473;
+            public const int FoolishBurial = 81439173;
+            public const int MonsterReborn = 83764718;
+            public const int MedallionOfTheIceBarrier = 84206435;
+            public const int Salvage = 96947648;
+            public const int AquariumStage = 29047353;
 
-            public static int HeraldOfTheArcLight = 79606837;
-            public static int ToadallyAwesome = 90809975;
-            public static int SkyCavalryCentaurea = 36776089;
-            public static int DaigustoPhoenix = 2766877;
-            public static int CatShark = 84224627;
+            public const int HeraldOfTheArcLight = 79606837;
+            public const int ToadallyAwesome = 90809975;
+            public const int SkyCavalryCentaurea = 36776089;
+            public const int DaigustoPhoenix = 2766877;
+            public const int CatShark = 84224627;
 
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int BookOfMoon = 14087893;
-            public static int CallOfTheHaunted = 97077563;
-            public static int TorrentialTribute = 53582587;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int BookOfMoon = 14087893;
+            public const int CallOfTheHaunted = 97077563;
+            public const int TorrentialTribute = 53582587;
         }
 
         public ToadallyAwesomeExecutor(GameAI ai, Duel duel)

@@ -11,24 +11,24 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int Scout = 65518099;
-            public static int Stealth = 13073850;
-            public static int Shell = 90885155;
-            public static int Helix = 37991342;
-            public static int Carrier = 91907707;
-            public static int DarkHole = 53129443;
-            public static int CardOfDemise = 59750328;
-            public static int SummonersArt = 79816536;
-            public static int PotOfDuality = 98645731;
-            public static int Saqlifice = 17639150;
-            public static int MirrorForce = 44095762;
-            public static int TorrentialTribute = 53582587;
-            public static int DimensionalBarrier = 83326048;
-            public static int CompulsoryEvacuationDevice = 94192409;
-            public static int VanitysEmptiness = 5851097;
-            public static int SkillDrain = 82732705;
-            public static int SolemnStrike = 40605147;
-            public static int TheHugeRevolutionIsOver = 99188141;
+            public const int Scout = 65518099;
+            public const int Stealth = 13073850;
+            public const int Shell = 90885155;
+            public const int Helix = 37991342;
+            public const int Carrier = 91907707;
+            public const int DarkHole = 53129443;
+            public const int CardOfDemise = 59750328;
+            public const int SummonersArt = 79816536;
+            public const int PotOfDuality = 98645731;
+            public const int Saqlifice = 17639150;
+            public const int MirrorForce = 44095762;
+            public const int TorrentialTribute = 53582587;
+            public const int DimensionalBarrier = 83326048;
+            public const int CompulsoryEvacuationDevice = 94192409;
+            public const int VanitysEmptiness = 5851097;
+            public const int SkillDrain = 82732705;
+            public const int SolemnStrike = 40605147;
+            public const int TheHugeRevolutionIsOver = 99188141;
         }
 
         bool CardOfDemiseUsed = false;

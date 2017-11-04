@@ -12,31 +12,31 @@ namespace WindBot.Game.AI.Decks
     {  
         public class CardId
         {
-            public static int DancePrincess = 52738610;
-            public static int ThousandHands = 23401839;
-            public static int TenThousandHands = 95492061;
-            public static int Shurit = 90307777;
-            public static int MaxxC = 23434538;
-            public static int DecisiveArmor = 88240999;
-            public static int Trishula = 52068432;
-            public static int Valkyrus = 25857246;
-            public static int Gungnir = 74122412;
-            public static int Brionac = 26674724;
-            public static int Unicore = 89463537;
-            public static int Clausolas = 99185129;
-            public static int PhantomOfChaos = 30312361;
+            public const int DancePrincess = 52738610;
+            public const int ThousandHands = 23401839;
+            public const int TenThousandHands = 95492061;
+            public const int Shurit = 90307777;
+            public const int MaxxC = 23434538;
+            public const int DecisiveArmor = 88240999;
+            public const int Trishula = 52068432;
+            public const int Valkyrus = 25857246;
+            public const int Gungnir = 74122412;
+            public const int Brionac = 26674724;
+            public const int Unicore = 89463537;
+            public const int Clausolas = 99185129;
+            public const int PhantomOfChaos = 30312361;
 
-            public static int DarkHole = 53129443;
-            public static int ReinforcementOfTheArmy = 32807846;
-            public static int TradeIn = 38120068;
-            public static int PreparationOfRites = 96729612;
-            public static int Mirror = 14735698;
-            public static int Kaleidoscope = 51124303;
-            public static int Cycle = 97211663;
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int RoyalDecree = 51452091;
-            public static int EvilswarmExcitonKnight = 46772449;
-            public static int HeraldOfTheArcLight = 79606837;
+            public const int DarkHole = 53129443;
+            public const int ReinforcementOfTheArmy = 32807846;
+            public const int TradeIn = 38120068;
+            public const int PreparationOfRites = 96729612;
+            public const int Mirror = 14735698;
+            public const int Kaleidoscope = 51124303;
+            public const int Cycle = 97211663;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int RoyalDecree = 51452091;
+            public const int EvilswarmExcitonKnight = 46772449;
+            public const int HeraldOfTheArcLight = 79606837;
         }
 
         List<int> NekrozRituelCard = new List<int>();

@@ -12,26 +12,26 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int KrisTheCrackOfDawn = 81105204;
-            public static int SiroccoTheDawn = 75498415;
-            public static int ShuraTheBlueFlame = 58820853;
-            public static int BoraTheSpear = 49003716;
-            public static int KalutTheMoonShadow = 85215458;
-            public static int GaleTheWhirlwind = 2009101;
-            public static int BlizzardTheFarNorth = 22835145;
-            public static int MistralTheSilverShield = 46710683;
-            public static int Raigeki = 12580477;
-            public static int DarkHole = 53129443;
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int BlackWhirlwind = 91351370;
-            public static int MirrorForce = 44095762;
-            public static int DeltaCrowAntiReverse = 59839761;
-            public static int DimensionalPrison = 70342110;
-            public static int SilverwindTheAscendant = 33236860;
-            public static int BlackWingedDragon = 9012916;
-            public static int ArmorMaster = 69031175;
-            public static int ArmedWing = 76913983;
-            public static int GramTheShiningStar = 17377751;
+            public const int KrisTheCrackOfDawn = 81105204;
+            public const int SiroccoTheDawn = 75498415;
+            public const int ShuraTheBlueFlame = 58820853;
+            public const int BoraTheSpear = 49003716;
+            public const int KalutTheMoonShadow = 85215458;
+            public const int GaleTheWhirlwind = 2009101;
+            public const int BlizzardTheFarNorth = 22835145;
+            public const int MistralTheSilverShield = 46710683;
+            public const int Raigeki = 12580477;
+            public const int DarkHole = 53129443;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int BlackWhirlwind = 91351370;
+            public const int MirrorForce = 44095762;
+            public const int DeltaCrowAntiReverse = 59839761;
+            public const int DimensionalPrison = 70342110;
+            public const int SilverwindTheAscendant = 33236860;
+            public const int BlackWingedDragon = 9012916;
+            public const int ArmorMaster = 69031175;
+            public const int ArmedWing = 76913983;
+            public const int GramTheShiningStar = 17377751;
         }
 
         public BlackwingExecutor(GameAI ai, Duel duel)

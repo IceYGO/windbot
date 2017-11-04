@@ -12,41 +12,41 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int JudgmentDragon = 57774843;
-            public static int Wulf = 58996430;
-            public static int Garoth = 59019082;
-            public static int Raiden = 77558536;
-            public static int Lyla = 22624373;
-            public static int Felis = 73176465;
-            public static int Lumina = 95503687;
-            public static int Minerva = 40164421;
-            public static int Ryko = 21502796;
-            public static int PerformageTrickClown = 67696066;
-            public static int Goblindbergh = 25259669;
-            public static int ThousandBlades = 1833916;
-            public static int Honest = 37742478;
-            public static int GlowUpBulb = 67441435;
+            public const int JudgmentDragon = 57774843;
+            public const int Wulf = 58996430;
+            public const int Garoth = 59019082;
+            public const int Raiden = 77558536;
+            public const int Lyla = 22624373;
+            public const int Felis = 73176465;
+            public const int Lumina = 95503687;
+            public const int Minerva = 40164421;
+            public const int Ryko = 21502796;
+            public const int PerformageTrickClown = 67696066;
+            public const int Goblindbergh = 25259669;
+            public const int ThousandBlades = 1833916;
+            public const int Honest = 37742478;
+            public const int GlowUpBulb = 67441435;
 
-            public static int SolarRecharge = 691925;
-            public static int GalaxyCyclone = 5133471;
-            public static int HarpiesFeatherDuster = 18144506;
-            public static int ReinforcementOfTheArmy = 32807846;
-            public static int MetalfoesFusion = 73594093;
-            public static int ChargeOfTheLightBrigade = 94886282;
+            public const int SolarRecharge = 691925;
+            public const int GalaxyCyclone = 5133471;
+            public const int HarpiesFeatherDuster = 18144506;
+            public const int ReinforcementOfTheArmy = 32807846;
+            public const int MetalfoesFusion = 73594093;
+            public const int ChargeOfTheLightBrigade = 94886282;
 
-            public static int Michael = 4779823;
-            public static int MinervaTheExalted = 30100551;
-            public static int TrishulaDragonOfTheIceBarrier = 52687916;
-            public static int ScarlightRedDragonArchfiend = 80666118;
-            public static int PSYFramelordOmega = 74586817;
-            public static int PSYFramelordZeta = 37192109;
-            public static int NumberS39UtopiatheLightning = 56832966;
-            public static int Number39Utopia = 84013237;
-            public static int CastelTheSkyblasterMusketeer = 82633039;
-            public static int EvilswarmExcitonKnight = 46772449;
-            public static int DanteTravelerOfTheBurningAbyss = 83531441;
-            public static int DecodeTalker = 1861629;
-            public static int MissusRadiant = 3987233;
+            public const int Michael = 4779823;
+            public const int MinervaTheExalted = 30100551;
+            public const int TrishulaDragonOfTheIceBarrier = 52687916;
+            public const int ScarlightRedDragonArchfiend = 80666118;
+            public const int PSYFramelordOmega = 74586817;
+            public const int PSYFramelordZeta = 37192109;
+            public const int NumberS39UtopiatheLightning = 56832966;
+            public const int Number39Utopia = 84013237;
+            public const int CastelTheSkyblasterMusketeer = 82633039;
+            public const int EvilswarmExcitonKnight = 46772449;
+            public const int DanteTravelerOfTheBurningAbyss = 83531441;
+            public const int DecodeTalker = 1861629;
+            public const int MissusRadiant = 3987233;
         }
 
         bool ClownUsed = false;

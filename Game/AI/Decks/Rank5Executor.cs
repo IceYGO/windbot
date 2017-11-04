@@ -11,32 +11,32 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int MistArchfiend = 28601770;
-            public static int CyberDragon = 70095154;
-            public static int ZWEagleClaw = 29353756;
-            public static int SolarWindJammer = 33911264;
-            public static int QuickdrawSynchron = 20932152;
-            public static int WindUpSoldier = 12299841;
-            public static int StarDrawing = 24610207;
-            public static int ChronomalyGoldenJet = 88552992;
+            public const int MistArchfiend = 28601770;
+            public const int CyberDragon = 70095154;
+            public const int ZWEagleClaw = 29353756;
+            public const int SolarWindJammer = 33911264;
+            public const int QuickdrawSynchron = 20932152;
+            public const int WindUpSoldier = 12299841;
+            public const int StarDrawing = 24610207;
+            public const int ChronomalyGoldenJet = 88552992;
 
-            public static int InstantFusion = 1845204;
-            public static int DoubleSummon = 43422537;
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int BookOfMoon = 14087893;
-            public static int XyzUnit = 13032689;
-            public static int XyzReborn = 26708437;
-            public static int MirrorForce = 44095762;
-            public static int TorrentialTribute = 53582587;
-            public static int XyzVeil = 96457619;
+            public const int InstantFusion = 1845204;
+            public const int DoubleSummon = 43422537;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int BookOfMoon = 14087893;
+            public const int XyzUnit = 13032689;
+            public const int XyzReborn = 26708437;
+            public const int MirrorForce = 44095762;
+            public const int TorrentialTribute = 53582587;
+            public const int XyzVeil = 96457619;
 
-            public static int PanzerDragon = 72959823;
-            public static int GaiaDragonTheThunderCharger = 91949988;
-            public static int CyberDragonInfinity = 10443957;
-            public static int TirasKeeperOfGenesis = 31386180;
-            public static int Number61Volcasaurus = 29669359;
-            public static int SharkFortress = 50449881;
-            public static int CyberDragonNova = 58069384;
+            public const int PanzerDragon = 72959823;
+            public const int GaiaDragonTheThunderCharger = 91949988;
+            public const int CyberDragonInfinity = 10443957;
+            public const int TirasKeeperOfGenesis = 31386180;
+            public const int Number61Volcasaurus = 29669359;
+            public const int SharkFortress = 50449881;
+            public const int CyberDragonNova = 58069384;
         }
 
         private bool NormalSummoned = false;

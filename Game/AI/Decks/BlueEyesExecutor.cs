@@ -11,35 +11,35 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int WhiteDragon = 89631139;
-            public static int AlternativeWhiteDragon = 38517737;
-            public static int DragonSpiritOfWhite = 45467446;
-            public static int WhiteStoneOfAncients = 71039903;
-            public static int WhiteStoneOfLegend = 79814787;
-            public static int SageWithEyesOfBlue = 8240199;
-            public static int EffectVeiler = 97268402;
-            public static int GalaxyCyclone = 5133471;
-            public static int HarpiesFeatherDuster = 18144506;
-            public static int ReturnOfTheDragonLords = 6853254;
-            public static int PotOfDesires = 35261759;
-            public static int TradeIn = 38120068;
-            public static int CardsOfConsonance = 39701395;
-            public static int DragonShrine = 41620959;
-            public static int MelodyOfAwakeningDragon = 48800175;
-            public static int SoulCharge = 54447022;
-            public static int MonsterReborn = 83764718;
-            public static int SilversCry = 87025064;
+            public const int WhiteDragon = 89631139;
+            public const int AlternativeWhiteDragon = 38517737;
+            public const int DragonSpiritOfWhite = 45467446;
+            public const int WhiteStoneOfAncients = 71039903;
+            public const int WhiteStoneOfLegend = 79814787;
+            public const int SageWithEyesOfBlue = 8240199;
+            public const int EffectVeiler = 97268402;
+            public const int GalaxyCyclone = 5133471;
+            public const int HarpiesFeatherDuster = 18144506;
+            public const int ReturnOfTheDragonLords = 6853254;
+            public const int PotOfDesires = 35261759;
+            public const int TradeIn = 38120068;
+            public const int CardsOfConsonance = 39701395;
+            public const int DragonShrine = 41620959;
+            public const int MelodyOfAwakeningDragon = 48800175;
+            public const int SoulCharge = 54447022;
+            public const int MonsterReborn = 83764718;
+            public const int SilversCry = 87025064;
 
-            public static int Giganticastle = 63422098;
-            public static int AzureEyesSilverDragon = 40908371;
-            public static int BlueEyesSpiritDragon = 59822133;
-            public static int GalaxyEyesDarkMatterDragon = 58820923;
-            public static int GalaxyEyesCipherBladeDragon = 2530830;
-            public static int GalaxyEyesFullArmorPhotonDragon = 39030163;
-            public static int GalaxyEyesPrimePhotonDragon = 31801517;
-            public static int GalaxyEyesCipherDragon = 18963306;
-            public static int HopeHarbingerDragonTitanicGalaxy = 63767246;
-            public static int SylvanPrincessprite = 33909817;
+            public const int Giganticastle = 63422098;
+            public const int AzureEyesSilverDragon = 40908371;
+            public const int BlueEyesSpiritDragon = 59822133;
+            public const int GalaxyEyesDarkMatterDragon = 58820923;
+            public const int GalaxyEyesCipherBladeDragon = 2530830;
+            public const int GalaxyEyesFullArmorPhotonDragon = 39030163;
+            public const int GalaxyEyesPrimePhotonDragon = 31801517;
+            public const int GalaxyEyesCipherDragon = 18963306;
+            public const int HopeHarbingerDragonTitanicGalaxy = 63767246;
+            public const int SylvanPrincessprite = 33909817;
         }
 
         private List<ClientCard> UsedAlternativeWhiteDragon = new List<ClientCard>();

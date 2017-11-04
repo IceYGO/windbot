@@ -14,33 +14,33 @@ namespace WindBot.Game.AI.Decks
 
         public class CardId
         {
-            public static int CyberLaserDragon = 4162088;
-            public static int CyberBarrierDragon = 68774379;
-            public static int CyberDragon = 70095154;
-            public static int CyberDragonDrei = 59281922;
-            public static int CyberPhoenix = 3370104;
-            public static int ArmoredCybern = 67159705;
-            public static int ProtoCyberDragon = 26439287;
-            public static int CyberKirin = 76986005;
-            public static int CyberDragonCore = 23893227;
-            public static int CyberValley = 3657444;
-            public static int Raigeki = 12580477;
-            public static int DarkHole = 53129443;
-            public static int DifferentDimensionCapsule = 11961740;
-            public static int Polymerization = 24094653;
-            public static int PowerBond = 37630732;
-            public static int EvolutionBurst = 52875873;
-            public static int PhotonGeneratorUnit = 66607691;
-            public static int DeFusion = 95286165;
-            public static int BottomlessTrapHole = 29401950;
-            public static int MirrorForce = 44095762;
-            public static int AttackReflectorUnit = 91989718;
-            public static int CyberneticHiddenTechnology = 92773018;
-            public static int CallOfTheHaunted = 97077563;
-            public static int SevenToolsOfTheBandit = 3819470;
-            public static int CyberTwinDragon = 74157028;
-            public static int CyberEndDragon = 1546123;
-            public static int CyberDragonNova = 58069384;
+            public const int CyberLaserDragon = 4162088;
+            public const int CyberBarrierDragon = 68774379;
+            public const int CyberDragon = 70095154;
+            public const int CyberDragonDrei = 59281922;
+            public const int CyberPhoenix = 3370104;
+            public const int ArmoredCybern = 67159705;
+            public const int ProtoCyberDragon = 26439287;
+            public const int CyberKirin = 76986005;
+            public const int CyberDragonCore = 23893227;
+            public const int CyberValley = 3657444;
+            public const int Raigeki = 12580477;
+            public const int DarkHole = 53129443;
+            public const int DifferentDimensionCapsule = 11961740;
+            public const int Polymerization = 24094653;
+            public const int PowerBond = 37630732;
+            public const int EvolutionBurst = 52875873;
+            public const int PhotonGeneratorUnit = 66607691;
+            public const int DeFusion = 95286165;
+            public const int BottomlessTrapHole = 29401950;
+            public const int MirrorForce = 44095762;
+            public const int AttackReflectorUnit = 91989718;
+            public const int CyberneticHiddenTechnology = 92773018;
+            public const int CallOfTheHaunted = 97077563;
+            public const int SevenToolsOfTheBandit = 3819470;
+            public const int CyberTwinDragon = 74157028;
+            public const int CyberEndDragon = 1546123;
+            public const int CyberDragonNova = 58069384;
         }
 
         public CyberDragonExecutor(GameAI ai, Duel duel)

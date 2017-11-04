@@ -11,28 +11,28 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int AlexandriteDragon = 43096270;
-            public static int LusterDragon = 11091375;
-            public static int WhiteNightDragon = 79473793;
-            public static int HorusTheBlackFlameDragonLv8 = 48229808;
-            public static int HorusTheBlackFlameDragonLv6 = 11224103;
-            public static int CyberDragon = 70095154;
-            public static int AxeDragonute = 84914462;
-            public static int DodgerDragon = 47013502;
-            public static int GolemDragon = 9666558;
-            public static int Raigeki = 12580477;
-            public static int HammerShot = 26412047;
-            public static int DarkHole = 53129443;
-            public static int Fissure = 66788016;
-            public static int StampingDestruction = 81385346;
-            public static int FoolishBurial = 81439173;
-            public static int MonsterReborn = 83764718;
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int BellowOfTheSilverDragon = 80600103;
-            public static int Mountain = 50913601;
-            public static int DragonsRebirth = 20638610;
-            public static int MirrorForce = 44095762;
-            public static int DimensionalPrison = 70342110;
+            public const int AlexandriteDragon = 43096270;
+            public const int LusterDragon = 11091375;
+            public const int WhiteNightDragon = 79473793;
+            public const int HorusTheBlackFlameDragonLv8 = 48229808;
+            public const int HorusTheBlackFlameDragonLv6 = 11224103;
+            public const int CyberDragon = 70095154;
+            public const int AxeDragonute = 84914462;
+            public const int DodgerDragon = 47013502;
+            public const int GolemDragon = 9666558;
+            public const int Raigeki = 12580477;
+            public const int HammerShot = 26412047;
+            public const int DarkHole = 53129443;
+            public const int Fissure = 66788016;
+            public const int StampingDestruction = 81385346;
+            public const int FoolishBurial = 81439173;
+            public const int MonsterReborn = 83764718;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int BellowOfTheSilverDragon = 80600103;
+            public const int Mountain = 50913601;
+            public const int DragonsRebirth = 20638610;
+            public const int MirrorForce = 44095762;
+            public const int DimensionalPrison = 70342110;
         }
 
         public HorusExecutor(GameAI ai, Duel duel) : base(ai, duel)

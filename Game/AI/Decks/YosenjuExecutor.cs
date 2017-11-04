@@ -11,40 +11,40 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int YosenjuKama1 = 65247798;
-            public static int YosenjuKama2 = 92246806;
-            public static int YosenjuKama3 = 28630501;
-            public static int YosenjuTsujik = 25244515;
+            public const int YosenjuKama1 = 65247798;
+            public const int YosenjuKama2 = 92246806;
+            public const int YosenjuKama3 = 28630501;
+            public const int YosenjuTsujik = 25244515;
 
-            public static int HarpiesFeatherDuster = 18144507;
-            public static int DarkHole = 53129443;
-            public static int CardOfDemise = 59750328;
-            public static int PotOfDuality = 98645731;
-            public static int CosmicCyclone = 8267140;
-            public static int QuakingMirrorForce = 40838625;
-            public static int DrowningMirrorForce = 47475363;
-            public static int StarlightRoad = 58120309;
-            public static int VanitysEmptiness = 5851097;
-            public static int MacroCosmos = 30241314;
-            public static int SolemnStrike = 40605147;
-            public static int SolemnWarning = 84749824;
-            public static int SolemnJudgment = 41420027;
-            public static int MagicDrain = 59344077;
+            public const int HarpiesFeatherDuster = 18144507;
+            public const int DarkHole = 53129443;
+            public const int CardOfDemise = 59750328;
+            public const int PotOfDuality = 98645731;
+            public const int CosmicCyclone = 8267140;
+            public const int QuakingMirrorForce = 40838625;
+            public const int DrowningMirrorForce = 47475363;
+            public const int StarlightRoad = 58120309;
+            public const int VanitysEmptiness = 5851097;
+            public const int MacroCosmos = 30241314;
+            public const int SolemnStrike = 40605147;
+            public const int SolemnWarning = 84749824;
+            public const int SolemnJudgment = 41420027;
+            public const int MagicDrain = 59344077;
 
-            public static int StardustDragon = 44508094;
-            public static int NumberS39UtopiatheLightning = 56832966;
-            public static int NumberS39UtopiaOne = 86532744;
-            public static int DarkRebellionXyzDragon = 16195942;
-            public static int Number39Utopia = 84013237;
-            public static int Number103Ragnazero = 94380860;
-            public static int BrotherhoodOfTheFireFistTigerKing = 96381979;
-            public static int Number106GiantHand = 63746411;
-            public static int CastelTheSkyblasterMusketeer = 82633039;
-            public static int DiamondDireWolf = 95169481;
-            public static int LightningChidori = 22653490;
-            public static int EvilswarmExcitonKnight = 46772449;
-            public static int AbyssDweller = 21044178;
-            public static int GagagaCowboy = 12014404;
+            public const int StardustDragon = 44508094;
+            public const int NumberS39UtopiatheLightning = 56832966;
+            public const int NumberS39UtopiaOne = 86532744;
+            public const int DarkRebellionXyzDragon = 16195942;
+            public const int Number39Utopia = 84013237;
+            public const int Number103Ragnazero = 94380860;
+            public const int BrotherhoodOfTheFireFistTigerKing = 96381979;
+            public const int Number106GiantHand = 63746411;
+            public const int CastelTheSkyblasterMusketeer = 82633039;
+            public const int DiamondDireWolf = 95169481;
+            public const int LightningChidori = 22653490;
+            public const int EvilswarmExcitonKnight = 46772449;
+            public const int AbyssDweller = 21044178;
+            public const int GagagaCowboy = 12014404;
         }
 
         bool CardOfDemiseUsed = false;

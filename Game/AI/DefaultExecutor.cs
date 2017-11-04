@@ -11,27 +11,27 @@ namespace WindBot.Game.AI
     {
         protected class _CardId
         {
-            public static int JizukirutheStarDestroyingKaiju = 63941210;
-            public static int GadarlatheMysteryDustKaiju = 36956512;
-            public static int GamecieltheSeaTurtleKaiju = 55063751;
-            public static int RadiantheMultidimensionalKaiju = 28674152;
-            public static int KumongoustheStickyStringKaiju = 29726552;
-            public static int ThunderKingtheLightningstrikeKaiju = 48770333;
-            public static int DogorantheMadFlameKaiju = 93332803;
-            public static int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
+            public const int JizukirutheStarDestroyingKaiju = 63941210;
+            public const int GadarlatheMysteryDustKaiju = 36956512;
+            public const int GamecieltheSeaTurtleKaiju = 55063751;
+            public const int RadiantheMultidimensionalKaiju = 28674152;
+            public const int KumongoustheStickyStringKaiju = 29726552;
+            public const int ThunderKingtheLightningstrikeKaiju = 48770333;
+            public const int DogorantheMadFlameKaiju = 93332803;
+            public const int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
 
-            public static int DupeFrog = 46239604;
-            public static int MaraudingCaptain = 2460565;
+            public const int DupeFrog = 46239604;
+            public const int MaraudingCaptain = 2460565;
 
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int CosmicCyclone = 8267140;
-            public static int ChickenGame = 67616300;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int CosmicCyclone = 8267140;
+            public const int ChickenGame = 67616300;
 
-            public static int CastelTheSkyblasterMusketeer = 82633039;
-            public static int CrystalWingSynchroDragon = 50954680;
-            public static int NumberS39UtopiaTheLightning = 56832966;
-            public static int Number39Utopia = 84013237;
-            public static int UltimayaTzolkin = 1686814;
+            public const int CastelTheSkyblasterMusketeer = 82633039;
+            public const int CrystalWingSynchroDragon = 50954680;
+            public const int NumberS39UtopiaTheLightning = 56832966;
+            public const int Number39Utopia = 84013237;
+            public const int UltimayaTzolkin = 1686814;
 
         }
 
