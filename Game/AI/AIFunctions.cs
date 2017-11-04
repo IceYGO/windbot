@@ -230,6 +230,7 @@ namespace WindBot.Game.AI
 
             List<ClientCard> monsters = Enemy.GetMonsters();
 
+            // after GetHighestAttackMonster, the left monsters must be face-down.
             if (monsters.Count > 0 && !onlyFaceup)
                 return monsters[0];
 

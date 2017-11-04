@@ -558,12 +558,18 @@ namespace WindBot.Game.AI
             return false;
         }
 
+        /// <summary>
+        /// Summon when we don't have monster attack higher than enemy's.
+        /// </summary>
         protected bool DefaultNumberS39UtopiaTheLightningSummon()
         {
             int bestBotAttack = AI.Utils.GetBestAttack(Bot);
             return AI.Utils.IsOneEnemyBetterThanValue(bestBotAttack, false);
         }
 
+        /// <summary>
+        /// Summon when it can and should use effect.
+        /// </summary>
         protected bool DefaultEvilswarmExcitonKnightSummon()
         {
             int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
@@ -571,10 +577,16 @@ namespace WindBot.Game.AI
             return (selfCount - 1 < oppoCount) && DefaultEvilswarmExcitonKnightEffect();
         }
 
+        /// <summary>
+        /// Activate when we have less cards than enemy's, or the atk sum of we is lower than enemy's.
+        /// </summary>
         protected bool DefaultEvilswarmExcitonKnightEffect()
         {
             int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
             int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
+
+            if (selfCount < oppoCount)
+                return true;
 
             int selfAttack = 0;
             List<ClientCard> monsters = Bot.GetMonsters();
@@ -590,9 +602,12 @@ namespace WindBot.Game.AI
                 oppoAttack += monster.GetDefensePower();
             }
 
-            return (selfCount < oppoCount) || (selfAttack < oppoAttack);
+            return selfAttack < oppoAttack;
         }
 
+        /// <summary>
+        /// Summon in main2, or when the attack of we is lower than enemy's, but not when enemy have monster higher than 2500.
+        /// </summary>
         protected bool DefaultStardustDragonSummon()
         {
             int selfBestAttack = AI.Utils.GetBestAttack(Bot);
@@ -600,16 +615,25 @@ namespace WindBot.Game.AI
             return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 2500) || AI.Utils.IsTurn1OrMain2();
         }
 
+        /// <summary>
+        /// Negate enemy's destroy effect, and revive from grave.
+        /// </summary>
         protected bool DefaultStardustDragonEffect()
         {
             return (Card.Location == CardLocation.Grave) || LastChainPlayer == 1;
         }
 
+        /// <summary>
+        /// Summon when enemy have card which we must solve.
+        /// </summary>
         protected bool DefaultCastelTheSkyblasterMusketeerSummon()
         {
             return AI.Utils.GetProblematicEnemyCard() != null;
         }
 
+        /// <summary>
+        /// Bounce the problematic enemy card. Ignore the 1st effect.
+        /// </summary>
         protected bool DefaultCastelTheSkyblasterMusketeerEffect()
         {
             if (ActivateDescription == AI.Utils.GetStringId(_CardId.CastelTheSkyblasterMusketeer, 0))
@@ -623,6 +647,9 @@ namespace WindBot.Game.AI
             return false;
         }
 
+        /// <summary>
+        /// Summon when it should use effect, or when the attack of we is lower than enemy's, but not when enemy have monster higher than 3000.
+        /// </summary>
         protected bool DefaultScarlightRedDragonArchfiendSummon()
         {
             int selfBestAttack = AI.Utils.GetBestAttack(Bot);
@@ -630,6 +657,9 @@ namespace WindBot.Game.AI
             return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || DefaultScarlightRedDragonArchfiendEffect();
         }
 
+        /// <summary>
+        /// Activate when we have less monsters than enemy, or when enemy have more than 3 monsters.
+        /// </summary>
         protected bool DefaultScarlightRedDragonArchfiendEffect()
         {
             int selfCount = 0;
@@ -649,7 +679,7 @@ namespace WindBot.Game.AI
                     oppoCount++;
             }
 
-            return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount > 2;
+            return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount >= 3;
         }
 
     }
