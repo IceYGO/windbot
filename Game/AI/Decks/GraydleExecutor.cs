@@ -6,26 +6,27 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Graydle", "AI_Graydle")]
+    // NOT FINISHED YET
+    [Deck("Graydle", "AI_Graydle", "NotFinished")]
     public class GraydleExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            DarkHole = 53129443,
-            CosmicCyclone = 8267140,
-            SolemnJudgment = 41420027,
-            SolemnWarning = 84749824,
-            SolemnStrike = 40605147
+            public static int DarkHole = 53129443;
+            public static int CosmicCyclone = 8267140;
+            public static int SolemnJudgment = 41420027;
+            public static int SolemnWarning = 84749824;
+            public static int SolemnStrike = 40605147;
         }
 
         public GraydleExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CosmicCyclone, DefaultCosmicCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnJudgment, DefaultSolemnJudgment);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnWarning, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnStrike, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.CosmicCyclone, DefaultCosmicCyclone);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
             AddExecutor(ExecutorType.Activate, DefaultDontChainMyself);
             AddExecutor(ExecutorType.MonsterSet);
             AddExecutor(ExecutorType.SpSummon);

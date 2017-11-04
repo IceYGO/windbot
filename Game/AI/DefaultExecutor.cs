@@ -9,25 +9,28 @@ namespace WindBot.Game.AI
 {
     public abstract class DefaultExecutor : Executor
     {
-        private enum CardId
+        protected class _CardId
         {
-            JizukirutheStarDestroyingKaiju = 63941210,
-            GadarlatheMysteryDustKaiju = 36956512,
-            GamecieltheSeaTurtleKaiju = 55063751,
-            RadiantheMultidimensionalKaiju = 28674152,
-            KumongoustheStickyStringKaiju = 29726552,
-            ThunderKingtheLightningstrikeKaiju = 48770333,
-            DogorantheMadFlameKaiju = 93332803,
-            SuperAntiKaijuWarMachineMechaDogoran = 84769941,
-            MysticalSpaceTyphoon = 5318639,
-            CosmicCyclone = 8267140,
-            ChickenGame = 67616300
+            public static int JizukirutheStarDestroyingKaiju = 63941210;
+            public static int GadarlatheMysteryDustKaiju = 36956512;
+            public static int GamecieltheSeaTurtleKaiju = 55063751;
+            public static int RadiantheMultidimensionalKaiju = 28674152;
+            public static int KumongoustheStickyStringKaiju = 29726552;
+            public static int ThunderKingtheLightningstrikeKaiju = 48770333;
+            public static int DogorantheMadFlameKaiju = 93332803;
+            public static int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
+
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int CosmicCyclone = 8267140;
+            public static int ChickenGame = 67616300;
+
+            public static int CastelTheSkyblasterMusketeer = 82633039;
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.ChickenGame, DefaultChickenGame);
+            AddExecutor(ExecutorType.Activate, _CardId.ChickenGame, DefaultChickenGame);
         }
 
         /// <summary>
@@ -36,7 +39,7 @@ namespace WindBot.Game.AI
         protected bool DefaultMysticalSpaceTyphoon()
         {
             foreach (ClientCard card in CurrentChain)
-                if (card.Id == (int)CardId.MysticalSpaceTyphoon)
+                if (card.Id == _CardId.MysticalSpaceTyphoon)
                     return false;
 
             List<ClientCard> spells = Enemy.GetSpells();
@@ -69,7 +72,7 @@ namespace WindBot.Game.AI
         protected bool DefaultCosmicCyclone()
         {
             foreach (ClientCard card in CurrentChain)
-                if (card.Id == (int)CardId.CosmicCyclone)
+                if (card.Id == _CardId.CosmicCyclone)
                     return false;
             return (Duel.LifePoints[0] > 1000) && DefaultMysticalSpaceTyphoon();
         }
@@ -124,7 +127,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultBookOfMoon()
         {
-            if (AI.Utils.IsEnemyBetter(true, true))
+            if (AI.Utils.IsAllEnemyBetter(true))
             {
                 ClientCard monster = Enemy.GetMonsters().GetHighestAttackMonster();
                 if (monster != null && monster.HasType(CardType.Effect) && (monster.HasType(CardType.Xyz) || monster.Level > 4))
@@ -141,22 +144,19 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultCompulsoryEvacuationDevice()
         {
-            ClientCard target = AI.Utils.GetProblematicMonsterCard();
+            ClientCard target = AI.Utils.GetProblematicEnemyMonster();
             if (target != null)
             {
                 AI.SelectCard(target);
                 return true;
             }
-            foreach (ClientCard card in Duel.ChainTargets)
+            if (AI.Utils.IsChainTarget(Card))
             {
-                if (Card.Equals(card))
+                ClientCard monster = AI.Utils.GetBestEnemyMonster();
+                if (monster != null)
                 {
-                    ClientCard monster = AI.Utils.GetAnyEnemyMonster();
-                    if (monster != null)
-                    {
-                        AI.SelectCard(monster);
-                        return true;
-                    }
+                    AI.SelectCard(monster);
+                    return true;
                 }
             }
             return false;
@@ -167,7 +167,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultCallOfTheHaunted()
         {
-            if (!AI.Utils.IsEnemyBetter(true, true))
+            if (!AI.Utils.IsAllEnemyBetter(true))
                 return false;
             ClientCard selected = null;
             int BestAtk = 0;
@@ -201,7 +201,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnJudgment()
         {
-            return !(Duel.ChainTargets.Count == 1 && Card.Equals(Duel.ChainTargets[0])) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+            return !AI.Utils.IsChainTargetOnly(Card) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -225,7 +225,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTorrentialTribute()
         {
-            return !HasChainedTrap(0) && AI.Utils.IsEnemyBetter(true, true);
+            return !HasChainedTrap(0) && AI.Utils.IsAllEnemyBetter(true);
         }
 
         /// <summary>
@@ -249,7 +249,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultHammerShot()
         {
-            return AI.Utils.IsEnemyBetter(true, false);
+            return AI.Utils.IsOneEnemyBetter(true);
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultDarkHole()
         {
-            return AI.Utils.IsEnemyBetter(false, false);
+            return AI.Utils.IsOneEnemyBetter();
         }
 
         /// <summary>
@@ -265,7 +265,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultRaigeki()
         {
-            return AI.Utils.IsEnemyBetter(false, false);
+            return AI.Utils.IsOneEnemyBetter();
         }
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSmashingGround()
         {
-            return AI.Utils.IsEnemyBetter(false, false);
+            return AI.Utils.IsOneEnemyBetter();
         }
 
         /// <summary>
@@ -328,7 +328,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultMonsterRepos()
         {
-            bool enemyBetter = AI.Utils.IsEnemyBetter(true, true);
+            bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
 
             if (Card.IsAttack() && enemyBetter)
                 return true;
@@ -390,9 +390,9 @@ namespace WindBot.Game.AI
             }
             if (count > 1 || Duel.LifePoints[0] <= 1000)
                 return false;
-            if (Duel.LifePoints[0] <= Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId((int)CardId.ChickenGame, 0))
+            if (Duel.LifePoints[0] <= Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 0))
                 return true;
-            if (Duel.LifePoints[0] > Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId((int)CardId.ChickenGame, 1))
+            if (Duel.LifePoints[0] > Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 1))
                 return true;
             return false;
         }
@@ -476,13 +476,10 @@ namespace WindBot.Game.AI
                     return true;
                 }
             }
-            foreach (ClientCard card in Duel.ChainTargets)
+            if (AI.Utils.IsChainTarget(Card))
             {
-                if (Card.Equals(card))
-                {
-                    AI.SelectOption(XYZ);
-                    return true;
-                }
+                AI.SelectOption(XYZ);
+                return true;
             }
             return false;
         }
@@ -496,26 +493,26 @@ namespace WindBot.Game.AI
             {
                 AI.SelectCard(new[]
                 {
-                    (int)CardId.GamecieltheSeaTurtleKaiju,
-                    (int)CardId.KumongoustheStickyStringKaiju,
-                    (int)CardId.RadiantheMultidimensionalKaiju,
-                    (int)CardId.GadarlatheMysteryDustKaiju
+                    _CardId.GamecieltheSeaTurtleKaiju,
+                    _CardId.KumongoustheStickyStringKaiju,
+                    _CardId.RadiantheMultidimensionalKaiju,
+                    _CardId.GadarlatheMysteryDustKaiju
                 });
                 return true;
             }
             AI.SelectCard(new[]
                 {
-                    (int)CardId.JizukirutheStarDestroyingKaiju,
-                    (int)CardId.RadiantheMultidimensionalKaiju,
-                    (int)CardId.GadarlatheMysteryDustKaiju,
-                    (int)CardId.KumongoustheStickyStringKaiju
+                    _CardId.JizukirutheStarDestroyingKaiju,
+                    _CardId.RadiantheMultidimensionalKaiju,
+                    _CardId.GadarlatheMysteryDustKaiju,
+                    _CardId.KumongoustheStickyStringKaiju
                 });
             AI.SelectNextCard(new[]
                 {
-                    (int)CardId.GamecieltheSeaTurtleKaiju,
-                    (int)CardId.KumongoustheStickyStringKaiju,
-                    (int)CardId.GadarlatheMysteryDustKaiju,
-                    (int)CardId.RadiantheMultidimensionalKaiju
+                    _CardId.GamecieltheSeaTurtleKaiju,
+                    _CardId.KumongoustheStickyStringKaiju,
+                    _CardId.GadarlatheMysteryDustKaiju,
+                    _CardId.RadiantheMultidimensionalKaiju
                 });
             return DefaultDarkHole();
         }
@@ -526,14 +523,14 @@ namespace WindBot.Game.AI
         protected bool DefaultKaijuSpsummon()
         {
             IList<int> kaijus = new[] {
-                (int)CardId.JizukirutheStarDestroyingKaiju,
-                (int)CardId.GadarlatheMysteryDustKaiju,
-                (int)CardId.GamecieltheSeaTurtleKaiju,
-                (int)CardId.RadiantheMultidimensionalKaiju,
-                (int)CardId.KumongoustheStickyStringKaiju,
-                (int)CardId.ThunderKingtheLightningstrikeKaiju,
-                (int)CardId.DogorantheMadFlameKaiju,
-                (int)CardId.SuperAntiKaijuWarMachineMechaDogoran
+                _CardId.JizukirutheStarDestroyingKaiju,
+                _CardId.GadarlatheMysteryDustKaiju,
+                _CardId.GamecieltheSeaTurtleKaiju,
+                _CardId.RadiantheMultidimensionalKaiju,
+                _CardId.KumongoustheStickyStringKaiju,
+                _CardId.ThunderKingtheLightningstrikeKaiju,
+                _CardId.DogorantheMadFlameKaiju,
+                _CardId.SuperAntiKaijuWarMachineMechaDogoran
             };
             foreach (ClientCard monster in Enemy.GetMonsters())
             {
@@ -552,13 +549,137 @@ namespace WindBot.Game.AI
                 AI.SelectCard(card);
                 return true;
             }
-            card = AI.Utils.GetOneEnemyBetterThanValue(Card.GetDefensePower(), false);
+            card = AI.Utils.GetOneEnemyBetterThanValue(Card.GetDefensePower());
             if (card != null)
             {
                 AI.SelectCard(card);
                 return true;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Summon when we don't have monster attack higher than enemy's.
+        /// </summary>
+        protected bool DefaultNumberS39UtopiaTheLightningSummon()
+        {
+            int bestBotAttack = AI.Utils.GetBestAttack(Bot);
+            return AI.Utils.IsOneEnemyBetterThanValue(bestBotAttack, false);
+        }
+
+        /// <summary>
+        /// Summon when it can and should use effect.
+        /// </summary>
+        protected bool DefaultEvilswarmExcitonKnightSummon()
+        {
+            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
+            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
+            return (selfCount - 1 < oppoCount) && DefaultEvilswarmExcitonKnightEffect();
+        }
+
+        /// <summary>
+        /// Activate when we have less cards than enemy's, or the atk sum of we is lower than enemy's.
+        /// </summary>
+        protected bool DefaultEvilswarmExcitonKnightEffect()
+        {
+            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
+            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
+
+            if (selfCount < oppoCount)
+                return true;
+
+            int selfAttack = 0;
+            List<ClientCard> monsters = Bot.GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                selfAttack += monster.GetDefensePower();
+            }
+
+            int oppoAttack = 0;
+            monsters = Enemy.GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                oppoAttack += monster.GetDefensePower();
+            }
+
+            return selfAttack < oppoAttack;
+        }
+
+        /// <summary>
+        /// Summon in main2, or when the attack of we is lower than enemy's, but not when enemy have monster higher than 2500.
+        /// </summary>
+        protected bool DefaultStardustDragonSummon()
+        {
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
+            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 2500) || AI.Utils.IsTurn1OrMain2();
+        }
+
+        /// <summary>
+        /// Negate enemy's destroy effect, and revive from grave.
+        /// </summary>
+        protected bool DefaultStardustDragonEffect()
+        {
+            return (Card.Location == CardLocation.Grave) || LastChainPlayer == 1;
+        }
+
+        /// <summary>
+        /// Summon when enemy have card which we must solve.
+        /// </summary>
+        protected bool DefaultCastelTheSkyblasterMusketeerSummon()
+        {
+            return AI.Utils.GetProblematicEnemyCard() != null;
+        }
+
+        /// <summary>
+        /// Bounce the problematic enemy card. Ignore the 1st effect.
+        /// </summary>
+        protected bool DefaultCastelTheSkyblasterMusketeerEffect()
+        {
+            if (ActivateDescription == AI.Utils.GetStringId(_CardId.CastelTheSkyblasterMusketeer, 0))
+                return false;
+            ClientCard target = AI.Utils.GetProblematicEnemyCard();
+            if (target != null)
+            {
+                AI.SelectNextCard(target);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Summon when it should use effect, or when the attack of we is lower than enemy's, but not when enemy have monster higher than 3000.
+        /// </summary>
+        protected bool DefaultScarlightRedDragonArchfiendSummon()
+        {
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
+            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || DefaultScarlightRedDragonArchfiendEffect();
+        }
+
+        /// <summary>
+        /// Activate when we have less monsters than enemy, or when enemy have more than 3 monsters.
+        /// </summary>
+        protected bool DefaultScarlightRedDragonArchfiendEffect()
+        {
+            int selfCount = 0;
+            List<ClientCard> monsters = Bot.GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                // The bot don't know if the card is special summoned, so let we assume all monsters are special summoned
+                if (!monster.Equals(Card) && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
+                    selfCount++;
+            }
+
+            int oppoCount = 0;
+            monsters = Enemy.GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                if (monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
+                    oppoCount++;
+            }
+
+            return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount >= 3;
         }
 
     }

@@ -75,6 +75,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
     <Compile Include="Game\AI\AIFunctions.cs" />
     <Compile Include="Game\AI\CardContainer.cs" />
     <Compile Include="Game\AI\CardExecutor.cs" />
@@ -113,11 +114,6 @@
     <Compile Include="Game\AI\Enums\OneForXyz.cs" />
     <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
     <Compile Include="Game\AI\Enums\Floodgate.cs" />
-    <Compile Include="Game\AI\Enums\NegateAttackSpell.cs" />
-    <Compile Include="Game\AI\Enums\NegatesEffects.cs" />
-    <Compile Include="Game\AI\Enums\NegatesSpells.cs" />
-    <Compile Include="Game\AI\Enums\NegatesSummons.cs" />
-    <Compile Include="Game\AI\Enums\NegatesTraps.cs" />
     <Compile Include="Game\AI\Executor.cs" />
     <Compile Include="Game\AI\ExecutorType.cs" />
     <Compile Include="Game\BattlePhase.cs" />

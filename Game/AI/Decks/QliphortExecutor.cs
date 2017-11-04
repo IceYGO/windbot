@@ -9,113 +9,113 @@ namespace WindBot.Game.AI.Decks
     [Deck("Qliphort", "AI_Qliphort")]
     public class QliphortExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            Scout = 65518099,
-            Stealth = 13073850,
-            Shell = 90885155,
-            Helix = 37991342,
-            Carrier = 91907707,
-            DarkHole = 53129443,
-            CardOfDemise = 59750328,
-            SummonersArt = 79816536,
-            PotOfDuality = 98645731,
-            Saqlifice = 17639150,
-            MirrorForce = 44095762,
-            TorrentialTribute = 53582587,
-            DimensionalBarrier = 83326048,
-            CompulsoryEvacuationDevice = 94192409,
-            VanitysEmptiness = 5851097,
-            SkillDrain = 82732705,
-            SolemnStrike = 40605147,
-            TheHugeRevolutionIsOver = 99188141
+            public static int Scout = 65518099;
+            public static int Stealth = 13073850;
+            public static int Shell = 90885155;
+            public static int Helix = 37991342;
+            public static int Carrier = 91907707;
+            public static int DarkHole = 53129443;
+            public static int CardOfDemise = 59750328;
+            public static int SummonersArt = 79816536;
+            public static int PotOfDuality = 98645731;
+            public static int Saqlifice = 17639150;
+            public static int MirrorForce = 44095762;
+            public static int TorrentialTribute = 53582587;
+            public static int DimensionalBarrier = 83326048;
+            public static int CompulsoryEvacuationDevice = 94192409;
+            public static int VanitysEmptiness = 5851097;
+            public static int SkillDrain = 82732705;
+            public static int SolemnStrike = 40605147;
+            public static int TheHugeRevolutionIsOver = 99188141;
         }
 
         bool CardOfDemiseUsed = false;
 
         List<int> LowScaleCards = new List<int>
         {
-            (int)CardId.Stealth,
-            (int)CardId.Carrier
+            CardId.Stealth,
+            CardId.Carrier
         };
         List<int> HighScaleCards = new List<int>
         {
-            (int)CardId.Scout,
-            (int)CardId.Shell,
-            (int)CardId.Helix
+            CardId.Scout,
+            CardId.Shell,
+            CardId.Helix
         };
 
         public QliphortExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SummonersArt);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.SummonersArt);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Scout, ScoutActivate);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Scout, ScoutEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Scout, ScoutActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Scout, ScoutEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Stealth, ScaleActivate);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Shell, ScaleActivate);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Helix, ScaleActivate);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Carrier, ScaleActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Stealth, ScaleActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Shell, ScaleActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Helix, ScaleActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Carrier, ScaleActivate);
 
             AddExecutor(ExecutorType.Summon, NormalSummon);
             AddExecutor(ExecutorType.SpSummon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Saqlifice, SaqlificeEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Saqlifice, SaqlificeEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Stealth, StealthEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Helix, HelixEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Carrier, CarrierEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Stealth, StealthEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Helix, HelixEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Carrier, CarrierEffect);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SkillDrain, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.VanitysEmptiness, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DimensionalBarrier, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.TorrentialTribute, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnStrike, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MirrorForce, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.CompulsoryEvacuationDevice, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.TheHugeRevolutionIsOver, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.SkillDrain, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.DimensionalBarrier, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.TorrentialTribute, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.MirrorForce, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.CompulsoryEvacuationDevice, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.TheHugeRevolutionIsOver, TrapSetUnique);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.Saqlifice, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SkillDrain, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.VanitysEmptiness, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DimensionalBarrier, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.TorrentialTribute, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnStrike, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MirrorForce, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.CompulsoryEvacuationDevice, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.TheHugeRevolutionIsOver, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DarkHole, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SummonersArt, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.PotOfDuality, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.Saqlifice, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SkillDrain, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.DimensionalBarrier, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.TorrentialTribute, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.MirrorForce, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.CompulsoryEvacuationDevice, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.TheHugeRevolutionIsOver, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.DarkHole, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SummonersArt, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.PotOfDuality, TrapSetWhenZoneFree);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.PotOfDuality, PotOfDualityEffect);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.CardOfDemise);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CardOfDemise, CardOfDemiseEffect);
+            AddExecutor(ExecutorType.Activate, CardId.PotOfDuality, PotOfDualityEffect);
+            AddExecutor(ExecutorType.SpellSet, CardId.CardOfDemise);
+            AddExecutor(ExecutorType.Activate, CardId.CardOfDemise, CardOfDemiseEffect);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.Saqlifice, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SkillDrain, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.VanitysEmptiness, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DimensionalBarrier, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.TorrentialTribute, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnStrike, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MirrorForce, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.CompulsoryEvacuationDevice, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.TheHugeRevolutionIsOver, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DarkHole, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SummonersArt, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.PotOfDuality, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.Saqlifice, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SkillDrain, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.DimensionalBarrier, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.TorrentialTribute, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.MirrorForce, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.CompulsoryEvacuationDevice, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.TheHugeRevolutionIsOver, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.DarkHole, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SummonersArt, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.PotOfDuality, CardOfDemiseAcivated);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.TheHugeRevolutionIsOver, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnStrike, DefaultSolemnStrike);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SkillDrain, SkillDrainEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.VanitysEmptiness, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CompulsoryEvacuationDevice, DefaultCompulsoryEvacuationDevice);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DimensionalBarrier, DefaultDimensionalBarrier);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TorrentialTribute, DefaultTorrentialTribute);
+            AddExecutor(ExecutorType.Activate, CardId.TheHugeRevolutionIsOver, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.Activate, CardId.SkillDrain, SkillDrainEffect);
+            AddExecutor(ExecutorType.Activate, CardId.VanitysEmptiness, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.CompulsoryEvacuationDevice, DefaultCompulsoryEvacuationDevice);
+            AddExecutor(ExecutorType.Activate, CardId.DimensionalBarrier, DefaultDimensionalBarrier);
+            AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -147,7 +147,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool NormalSummon()
         {
-            if (Card.Id == (int)CardId.Scout)
+            if (Card.Id == CardId.Scout)
                 return false;
             if (Card.Level < 8)
                 AI.SelectOption(1);
@@ -163,16 +163,16 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                     {
-                    (int)CardId.Scout,
-                    (int)CardId.SkillDrain,
-                    (int)CardId.VanitysEmptiness,
-                    (int)CardId.DimensionalBarrier,
-                    (int)CardId.Stealth,
-                    (int)CardId.Shell,
-                    (int)CardId.Helix,
-                    (int)CardId.Carrier,
-                    (int)CardId.SolemnStrike,
-                    (int)CardId.CardOfDemise
+                    CardId.Scout,
+                    CardId.SkillDrain,
+                    CardId.VanitysEmptiness,
+                    CardId.DimensionalBarrier,
+                    CardId.Stealth,
+                    CardId.Shell,
+                    CardId.Helix,
+                    CardId.Carrier,
+                    CardId.SolemnStrike,
+                    CardId.CardOfDemise
                 });
             return !ShouldPendulum();
         }
@@ -214,7 +214,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard l = AI.Utils.GetPZone(0, 0);
                 ClientCard r = AI.Utils.GetPZone(0, 1);
                 if (l == null && r == null)
-                    AI.SelectCard((int)CardId.Scout);
+                    AI.SelectCard(CardId.Scout);
             }
             return true;
         }
@@ -244,10 +244,9 @@ namespace WindBot.Game.AI.Decks
                 if (!Card.Equals(card))
                     count++;
             }
-            foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
+            foreach (ClientCard card in Bot.ExtraDeck.GetFaceupPendulumMonsters())
             {
-                if (card.HasType(CardType.Pendulum) && card.IsFaceup())
-                    count++;
+                count++;
             }
             ClientCard l = AI.Utils.GetPZone(0, 0);
             ClientCard r = AI.Utils.GetPZone(0, 1);
@@ -290,10 +289,9 @@ namespace WindBot.Game.AI.Decks
             {
                 fieldcount++;
             }
-            foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
+            foreach (ClientCard card in Bot.ExtraDeck.GetFaceupPendulumMonsters())
             {
-                if (card.HasType(CardType.Pendulum) && card.IsFaceup())
-                    count++;
+                count++;
             }
             if (count>0 && !Bot.HasInHand(LowScaleCards))
             {
@@ -303,9 +301,9 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectCard(new[]
                 {
-                    (int)CardId.Saqlifice,
-                    (int)CardId.Shell,
-                    (int)CardId.Helix
+                    CardId.Saqlifice,
+                    CardId.Shell,
+                    CardId.Helix
                 });
             }
             else
@@ -319,30 +317,10 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicCard();
+            ClientCard target = AI.Utils.GetBestEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
-                return true;
-            }
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                AI.SelectCard(monster);
-                return true;
-            }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
-            {
-                if (spell.IsFacedown())
-                {
-                    AI.SelectCard(spell);
-                    return true;
-                }
-            }
-            foreach (ClientCard spell in spells)
-            {
-                AI.SelectCard(spell);
                 return true;
             }
             return false;
@@ -352,16 +330,10 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicMonsterCard();
+            ClientCard target = AI.Utils.GetBestEnemyMonster();
             if (target != null)
             {
                 AI.SelectCard(target);
-                return true;
-            }
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                AI.SelectCard(monster);
                 return true;
             }
             return false;
@@ -371,24 +343,10 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicSpellCard();
+            ClientCard target = AI.Utils.GetBestEnemySpell();
             if (target != null)
             {
                 AI.SelectCard(target);
-                return true;
-            }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
-            {
-                if (spell.IsFacedown())
-                {
-                    AI.SelectCard(spell);
-                    return true;
-                }
-            }
-            foreach (ClientCard spell in spells)
-            {
-                AI.SelectCard(spell);
                 return true;
             }
             return false;
@@ -405,10 +363,9 @@ namespace WindBot.Game.AI.Decks
                 {
                     count++;
                 }
-                foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
+                foreach (ClientCard card in Bot.ExtraDeck.GetFaceupPendulumMonsters())
                 {
-                    if (card.HasType(CardType.Pendulum) && card.IsFaceup())
-                        count++;
+                    count++;
                 }
                 return count > 1;
             }

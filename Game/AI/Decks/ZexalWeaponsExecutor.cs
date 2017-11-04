@@ -9,116 +9,116 @@ namespace WindBot.Game.AI.Decks
     [Deck("Zexal Weapons", "AI_ZexalWeapons")]
     class ZexalWeaponsExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            CyberDragon = 70095155,
-            ZwTornadoBringer = 81471108,
-            ZwLightningBlade = 45082499,
-            ZwAsuraStrike = 40941889,
-            SolarWindJammer = 33911264,
-            PhotonTrasher = 65367484,
-            StarDrawing = 24610207,
-            SacredCrane = 30914564,
-            Goblindbergh = 25259669,
-            Honest = 37742478,
-            Kagetokage = 94656263,
-            HeroicChallengerExtraSword = 34143852,
-            TinGoldfish = 18063928,
-            SummonerMonk = 423585,
-            InstantFusion = 1845204,
-            Raigeki = 12580477,
-            ReinforcementOfTheArmy = 32807846,
-            DarkHole = 53129443,
-            MysticalSpaceTyphoon = 5318639,
-            BreakthroughSkill = 78474168,
-            SolemnWarning = 84749824,
-            SolemnStrike = 40605147,
-            XyzChangeTactics = 11705261,
+            public static int CyberDragon = 70095155;
+            public static int ZwTornadoBringer = 81471108;
+            public static int ZwLightningBlade = 45082499;
+            public static int ZwAsuraStrike = 40941889;
+            public static int SolarWindJammer = 33911264;
+            public static int PhotonTrasher = 65367484;
+            public static int StarDrawing = 24610207;
+            public static int SacredCrane = 30914564;
+            public static int Goblindbergh = 25259669;
+            public static int Honest = 37742478;
+            public static int Kagetokage = 94656263;
+            public static int HeroicChallengerExtraSword = 34143852;
+            public static int TinGoldfish = 18063928;
+            public static int SummonerMonk = 423585;
+            public static int InstantFusion = 1845204;
+            public static int Raigeki = 12580477;
+            public static int ReinforcementOfTheArmy = 32807846;
+            public static int DarkHole = 53129443;
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int BreakthroughSkill = 78474168;
+            public static int SolemnWarning = 84749824;
+            public static int SolemnStrike = 40605147;
+            public static int XyzChangeTactics = 11705261;
 
-            FlameSwordsman = 45231177,
-            DarkfireDragon = 17881964,
-            GaiaDragonTheThunderCharger = 91949988,
-            ZwLionArms = 60992364,
-            AdreusKeeperOfArmageddon = 94119480,
-            Number61Volcasaurus = 29669359,
-            GemKnightPearl = 71594310,
-            Number39Utopia = 84013237,
-            NumberS39UtopiaOne= 86532744,
-            NumberS39UtopiatheLightning = 56832966,
-            MaestrokeTheSymphonyDjinn = 25341652,
-            GagagaCowboy = 12014404
+            public static int FlameSwordsman = 45231177;
+            public static int DarkfireDragon = 17881964;
+            public static int GaiaDragonTheThunderCharger = 91949988;
+            public static int ZwLionArms = 60992364;
+            public static int AdreusKeeperOfArmageddon = 94119480;
+            public static int Number61Volcasaurus = 29669359;
+            public static int GemKnightPearl = 71594310;
+            public static int Number39Utopia = 84013237;
+            public static int NumberS39UtopiaOne = 86532744;
+            public static int NumberS39UtopiatheLightning = 56832966;
+            public static int MaestrokeTheSymphonyDjinn = 25341652;
+            public static int GagagaCowboy = 12014404;
         }
 
         public ZexalWeaponsExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
             // Quick spells
-            AddExecutor(ExecutorType.Activate, (int)CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
 
             // Spell cards
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Raigeki, DefaultRaigeki);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ReinforcementOfTheArmy, ReinforcementOfTheArmy);
-            AddExecutor(ExecutorType.Activate, (int)CardId.XyzChangeTactics, XyzChangeTactics);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.Raigeki, DefaultRaigeki);
+            AddExecutor(ExecutorType.Activate, CardId.ReinforcementOfTheArmy, ReinforcementOfTheArmy);
+            AddExecutor(ExecutorType.Activate, CardId.XyzChangeTactics, XyzChangeTactics);
 
             // XYZ summons
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiaOne);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiatheLightning);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number61Volcasaurus, Number61Volcasaurus);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.ZwLionArms);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.AdreusKeeperOfArmageddon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia);
+            AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiaOne);
+            AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number61Volcasaurus, Number61Volcasaurus);
+            AddExecutor(ExecutorType.SpSummon, CardId.ZwLionArms);
+            AddExecutor(ExecutorType.SpSummon, CardId.AdreusKeeperOfArmageddon);
 
             // XYZ effects
-            AddExecutor(ExecutorType.Activate, (int)CardId.Number39Utopia, Number39Utopia);
-            AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiaOne);
-            AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiatheLightning, NumberS39UtopiatheLightning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ZwLionArms, ZwLionArms);
-            AddExecutor(ExecutorType.Activate, (int)CardId.AdreusKeeperOfArmageddon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Number61Volcasaurus);
+            AddExecutor(ExecutorType.Activate, CardId.Number39Utopia, Number39Utopia);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiaOne);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning, NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.ZwLionArms, ZwLionArms);
+            AddExecutor(ExecutorType.Activate, CardId.AdreusKeeperOfArmageddon);
+            AddExecutor(ExecutorType.Activate, CardId.Number61Volcasaurus);
 
             // Weapons
-            AddExecutor(ExecutorType.Activate, (int)CardId.ZwTornadoBringer);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ZwLightningBlade);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ZwAsuraStrike);
+            AddExecutor(ExecutorType.Activate, CardId.ZwTornadoBringer);
+            AddExecutor(ExecutorType.Activate, CardId.ZwLightningBlade);
+            AddExecutor(ExecutorType.Activate, CardId.ZwAsuraStrike);
 
 
             // Special summons
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.PhotonTrasher);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberDragon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.SolarWindJammer, SolarWindJammer);
+            AddExecutor(ExecutorType.SpSummon, CardId.PhotonTrasher);
+            AddExecutor(ExecutorType.SpSummon, CardId.CyberDragon);
+            AddExecutor(ExecutorType.SpSummon, CardId.SolarWindJammer, SolarWindJammer);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.InstantFusion, InstantFusion);
+            AddExecutor(ExecutorType.Activate, CardId.InstantFusion, InstantFusion);
 
             // Normal summons
-            AddExecutor(ExecutorType.Summon, (int)CardId.Goblindbergh, GoblindberghFirst);
-            AddExecutor(ExecutorType.Summon, (int)CardId.TinGoldfish, GoblindberghFirst);
-            AddExecutor(ExecutorType.Summon, (int)CardId.StarDrawing);
-            AddExecutor(ExecutorType.Summon, (int)CardId.SacredCrane);
-            AddExecutor(ExecutorType.Summon, (int)CardId.HeroicChallengerExtraSword);
-            AddExecutor(ExecutorType.Summon, (int)CardId.Goblindbergh);
-            AddExecutor(ExecutorType.Summon, (int)CardId.TinGoldfish);
-            AddExecutor(ExecutorType.Summon, (int)CardId.SummonerMonk);
+            AddExecutor(ExecutorType.Summon, CardId.Goblindbergh, GoblindberghFirst);
+            AddExecutor(ExecutorType.Summon, CardId.TinGoldfish, GoblindberghFirst);
+            AddExecutor(ExecutorType.Summon, CardId.StarDrawing);
+            AddExecutor(ExecutorType.Summon, CardId.SacredCrane);
+            AddExecutor(ExecutorType.Summon, CardId.HeroicChallengerExtraSword);
+            AddExecutor(ExecutorType.Summon, CardId.Goblindbergh);
+            AddExecutor(ExecutorType.Summon, CardId.TinGoldfish);
+            AddExecutor(ExecutorType.Summon, CardId.SummonerMonk);
 
             // Summons: Effects
-            AddExecutor(ExecutorType.Activate, (int)CardId.Goblindbergh, GoblindberghEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TinGoldfish, GoblindberghEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Kagetokage);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SummonerMonk, SummonerMonkEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Honest, Honest);
+            AddExecutor(ExecutorType.Activate, CardId.Goblindbergh, GoblindberghEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TinGoldfish, GoblindberghEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Kagetokage);
+            AddExecutor(ExecutorType.Activate, CardId.SummonerMonk, SummonerMonkEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Honest, Honest);
 
             // Reposition
             AddExecutor(ExecutorType.Repos, MonsterRepos);
 
             // Spummon GaiaDragonTheThunderCharger if Volcasaurus or ZwLionArms had been used
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GaiaDragonTheThunderCharger);
+            AddExecutor(ExecutorType.SpSummon, CardId.GaiaDragonTheThunderCharger);
 
             // Set and activate traps
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.BreakthroughSkill, DefaultBreakthroughSkill);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnWarning, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnStrike, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.Activate, CardId.BreakthroughSkill, DefaultBreakthroughSkill);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
         }
 
         public override bool OnSelectHand()
@@ -133,11 +133,11 @@ namespace WindBot.Game.AI.Decks
                 if (defender.IsMonsterDangerous() || defender.IsDefense())
                     return false;
             }
-            if (!(defender.Id == (int)CardId.NumberS39UtopiatheLightning))
+            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
             {
-                if (attacker.Attribute == (int)CardAttribute.Light && Bot.HasInHand((int)CardId.Honest))
+                if (attacker.Attribute == (int)CardAttribute.Light && Bot.HasInHand(CardId.Honest))
                     attacker.RealPower = attacker.RealPower + defender.Attack;
-                if (attacker.Id == (int)CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.Number39Utopia))
+                if (attacker.Id == CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, CardId.Number39Utopia))
                     attacker.RealPower = 5000;
             }
             return attacker.RealPower > defender.GetDefensePower();
@@ -157,9 +157,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool ZwLionArms()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.ZwLionArms, 0))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.ZwLionArms, 0))
                 return true;
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.ZwLionArms, 1))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.ZwLionArms, 1))
                 return !Card.IsDisabled();
             return false;
         }
@@ -168,11 +168,11 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.Goblindbergh,
-                    (int)CardId.TinGoldfish,
-                    (int)CardId.StarDrawing,
-                    (int)CardId.Kagetokage,
-                    (int)CardId.SacredCrane
+                    CardId.Goblindbergh,
+                    CardId.TinGoldfish,
+                    CardId.StarDrawing,
+                    CardId.Kagetokage,
+                    CardId.SacredCrane
                 });
             return true;
         }
@@ -193,12 +193,12 @@ namespace WindBot.Game.AI.Decks
             }
             if (count5 == 1)
             {
-                AI.SelectCard((int)CardId.FlameSwordsman);
+                AI.SelectCard(CardId.FlameSwordsman);
                 return true;
             }
             else if (count4 == 1)
             {
-                AI.SelectCard((int)CardId.DarkfireDragon);
+                AI.SelectCard(CardId.DarkfireDragon);
                 return true;
             }
             return false;
@@ -234,33 +234,33 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.SacredCrane,
-                    (int)CardId.HeroicChallengerExtraSword,
-                    (int)CardId.StarDrawing,
-                    (int)CardId.SummonerMonk
+                    CardId.SacredCrane,
+                    CardId.HeroicChallengerExtraSword,
+                    CardId.StarDrawing,
+                    CardId.SummonerMonk
                 });
             return true;
         }
 
         private bool SummonerMonkEffect()
         {
-            if (Bot.HasInHand((int)CardId.InstantFusion) ||
-                Bot.HasInHand((int)CardId.MysticalSpaceTyphoon))
+            if (Bot.HasInHand(CardId.InstantFusion) ||
+                Bot.HasInHand(CardId.MysticalSpaceTyphoon))
             {
                 AI.SelectCard(new[]
                     {
-                        (int)CardId.InstantFusion,
-                        (int)CardId.MysticalSpaceTyphoon
+                        CardId.InstantFusion,
+                        CardId.MysticalSpaceTyphoon
                     });
                 return true;
             }
             AI.SelectNextCard(new[]
                 {
-                    (int)CardId.Goblindbergh,
-                    (int)CardId.TinGoldfish,
-                    (int)CardId.StarDrawing,
-                    (int)CardId.Kagetokage,
-                    (int)CardId.SacredCrane
+                    CardId.Goblindbergh,
+                    CardId.TinGoldfish,
+                    CardId.StarDrawing,
+                    CardId.Kagetokage,
+                    CardId.SacredCrane
                 });
             return false;
         }
@@ -268,8 +268,8 @@ namespace WindBot.Game.AI.Decks
         private bool SolarWindJammer()
         {
             if (!Bot.HasInHand(new List<int> {
-                    (int)CardId.StarDrawing,
-                    (int)CardId.InstantFusion
+                    CardId.StarDrawing,
+                    CardId.InstantFusion
                 }))
                 return false;
             AI.SelectPosition(CardPosition.FaceUpDefence);
@@ -278,7 +278,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterRepos()
         {
-            if (Card.Id == (int)CardId.NumberS39UtopiatheLightning)
+            if (Card.Id == CardId.NumberS39UtopiatheLightning)
                 return false;
             return base.DefaultMonsterRepos();
         }

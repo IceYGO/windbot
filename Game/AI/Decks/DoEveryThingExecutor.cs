@@ -6,13 +6,13 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Test", "AI_Test")]
+    [Deck("Test", "AI_Test", "Test")]
     public class DoEverythingExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            LeoWizard = 4392470,
-            Bunilla = 69380702
+            public static int LeoWizard = 4392470;
+            public static int Bunilla = 69380702;
         }
 
         public DoEverythingExecutor(GameAI ai, Duel duel)

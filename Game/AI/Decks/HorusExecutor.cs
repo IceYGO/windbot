@@ -6,84 +6,84 @@ using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Horus", "AI_Horus")]
+    [Deck("Horus", "AI_Horus", "Easy")]
     public class HorusExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            AlexandriteDragon = 43096270,
-            LusterDragon = 11091375,
-            WhiteNightDragon = 79473793,
-            HorusTheBlackFlameDragonLv8 = 48229808,
-            HorusTheBlackFlameDragonLv6 = 11224103,
-            CyberDragon = 70095154,
-            AxeDragonute = 84914462,
-            DodgerDragon = 47013502,
-            GolemDragon = 9666558,
-            Raigeki = 12580477,
-            HammerShot = 26412047,
-            DarkHole = 53129443,
-            Fissure = 66788016,
-            StampingDestruction = 81385346,
-            FoolishBurial = 81439173,
-            MonsterReborn = 83764718,
-            MysticalSpaceTyphoon = 5318639,
-            BellowOfTheSilverDragon = 80600103,
-            Mountain = 50913601,
-            DragonsRebirth = 20638610,
-            MirrorForce = 44095762,
-            DimensionalPrison = 70342110
+            public static int AlexandriteDragon = 43096270;
+            public static int LusterDragon = 11091375;
+            public static int WhiteNightDragon = 79473793;
+            public static int HorusTheBlackFlameDragonLv8 = 48229808;
+            public static int HorusTheBlackFlameDragonLv6 = 11224103;
+            public static int CyberDragon = 70095154;
+            public static int AxeDragonute = 84914462;
+            public static int DodgerDragon = 47013502;
+            public static int GolemDragon = 9666558;
+            public static int Raigeki = 12580477;
+            public static int HammerShot = 26412047;
+            public static int DarkHole = 53129443;
+            public static int Fissure = 66788016;
+            public static int StampingDestruction = 81385346;
+            public static int FoolishBurial = 81439173;
+            public static int MonsterReborn = 83764718;
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int BellowOfTheSilverDragon = 80600103;
+            public static int Mountain = 50913601;
+            public static int DragonsRebirth = 20638610;
+            public static int MirrorForce = 44095762;
+            public static int DimensionalPrison = 70342110;
         }
 
         public HorusExecutor(GameAI ai, Duel duel) : base(ai, duel)
         {
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.HorusTheBlackFlameDragonLv6);
-            AddExecutor(ExecutorType.Activate, (int)CardId.StampingDestruction, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.FoolishBurial, FoolishBurial);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Mountain, DefaultField);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.HorusTheBlackFlameDragonLv6);
+            AddExecutor(ExecutorType.Activate, CardId.StampingDestruction, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.FoolishBurial, FoolishBurial);
+            AddExecutor(ExecutorType.Activate, CardId.Mountain, DefaultField);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberDragon);
+            AddExecutor(ExecutorType.SpSummon, CardId.CyberDragon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Raigeki, DefaultRaigeki);
-            AddExecutor(ExecutorType.Activate, (int)CardId.HammerShot, DefaultHammerShot);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Fissure);
+            AddExecutor(ExecutorType.Activate, CardId.Raigeki, DefaultRaigeki);
+            AddExecutor(ExecutorType.Activate, CardId.HammerShot, DefaultHammerShot);
+            AddExecutor(ExecutorType.Activate, CardId.Fissure);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.BellowOfTheSilverDragon, BellowOfTheSilverDragon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MonsterReborn, MonsterReborn);
+            AddExecutor(ExecutorType.Activate, CardId.BellowOfTheSilverDragon, BellowOfTheSilverDragon);
+            AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, MonsterReborn);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.WhiteNightDragon, WhiteNightDragon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.HorusTheBlackFlameDragonLv6, DefaultTributeSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.AlexandriteDragon);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.AxeDragonute);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.DodgerDragon);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.GolemDragon);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.LusterDragon);
+            AddExecutor(ExecutorType.Summon, CardId.WhiteNightDragon, WhiteNightDragon);
+            AddExecutor(ExecutorType.Summon, CardId.HorusTheBlackFlameDragonLv6, DefaultTributeSummon);
+            AddExecutor(ExecutorType.Summon, CardId.AlexandriteDragon);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.AxeDragonute);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.DodgerDragon);
+            AddExecutor(ExecutorType.MonsterSet, CardId.GolemDragon);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.LusterDragon);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.HorusTheBlackFlameDragonLv8, HorusTheBlackFlameDragonLv8);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DimensionalPrison, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DragonsRebirth, DragonsRebirth);
+            AddExecutor(ExecutorType.Activate, CardId.HorusTheBlackFlameDragonLv8, HorusTheBlackFlameDragonLv8);
+            AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.DimensionalPrison, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.DragonsRebirth, DragonsRebirth);
         }
 
         private bool FoolishBurial()
         {
-            if (Bot.HasInGraveyard((int)CardId.WhiteNightDragon))
+            if (Bot.HasInGraveyard(CardId.WhiteNightDragon))
                 return false;
-            if (Bot.HasInHand((int)CardId.WhiteNightDragon))
+            if (Bot.HasInHand(CardId.WhiteNightDragon))
                 return false;
             int remaining = 2;
             foreach (ClientCard card in Bot.Banished)
-                if (card.Id == (int)CardId.WhiteNightDragon)
+                if (card.Id == CardId.WhiteNightDragon)
                     remaining--;
             if (remaining > 0)
             {
-                AI.SelectCard((int)CardId.WhiteNightDragon);
+                AI.SelectCard(CardId.WhiteNightDragon);
                 return true;
             }
             return false;
@@ -197,7 +197,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard monster = cards[i];
                 if (monster.Attack < 2300)
                     return false;
-                if (monster.Race == (int)CardRace.Dragon && monster.Id != (int)CardId.HorusTheBlackFlameDragonLv8)
+                if (monster.Race == (int)CardRace.Dragon && monster.Id != CardId.HorusTheBlackFlameDragonLv8)
                 {
                     summonCard = monster;
                     break;

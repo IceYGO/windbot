@@ -9,168 +9,161 @@ namespace WindBot.Game.AI.Decks
     [Deck("Yosenju", "AI_Yosenju")]
     public class YosenjuExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            妖仙兽镰壹太刀 = 65247798,
-            妖仙兽镰贰太刀 = 92246806,
-            妖仙兽镰叁太刀 = 28630501,
-            妖仙兽辻斩风 = 25244515,
-            鹰身女妖的羽毛扫 = 18144507,
-            黑洞 = 53129443,
-            削命的宝札 = 59750328,
-            强欲而谦虚之壶 = 98645731,
-            宇宙旋风 = 8267140,
-            沙尘防护罩尘埃之力 = 40838625,
-            波纹防护罩波浪之力 = 47475363,
-            星光大道 = 58120309,
-            虚无空间 = 5851097,
-            大宇宙 = 30241314,
-            神之通告 = 40605147,
-            神之警告 = 84749824,
-            神之宣告 = 41420027,
-            魔力抽取 = 59344077,
-            星尘龙 = 44508094,
-            闪光No39希望皇霍普电光皇 = 56832966,
-            闪光No39希望皇霍普一 = 86532744,
-            暗叛逆超量龙 = 16195942,
-            No39希望皇霍普 = 84013237,
-            No103神葬零娘暮零 = 94380860,
-            魁炎星王宋虎 = 96381979,
-            No106巨岩掌巨手 = 63746411,
-            鸟铳士卡斯泰尔 = 82633039,
-            恐牙狼钻石恐狼 = 95169481,
-            电光千鸟 = 22653490,
-            励辉士入魔蝇王 = 46772449,
-            深渊的潜伏者 = 21044178,
-            我我我枪手 = 12014404
+            public static int YosenjuKama1 = 65247798;
+            public static int YosenjuKama2 = 92246806;
+            public static int YosenjuKama3 = 28630501;
+            public static int YosenjuTsujik = 25244515;
+
+            public static int HarpiesFeatherDuster = 18144507;
+            public static int DarkHole = 53129443;
+            public static int CardOfDemise = 59750328;
+            public static int PotOfDuality = 98645731;
+            public static int CosmicCyclone = 8267140;
+            public static int QuakingMirrorForce = 40838625;
+            public static int DrowningMirrorForce = 47475363;
+            public static int StarlightRoad = 58120309;
+            public static int VanitysEmptiness = 5851097;
+            public static int MacroCosmos = 30241314;
+            public static int SolemnStrike = 40605147;
+            public static int SolemnWarning = 84749824;
+            public static int SolemnJudgment = 41420027;
+            public static int MagicDrain = 59344077;
+
+            public static int StardustDragon = 44508094;
+            public static int NumberS39UtopiatheLightning = 56832966;
+            public static int NumberS39UtopiaOne = 86532744;
+            public static int DarkRebellionXyzDragon = 16195942;
+            public static int Number39Utopia = 84013237;
+            public static int Number103Ragnazero = 94380860;
+            public static int BrotherhoodOfTheFireFistTigerKing = 96381979;
+            public static int Number106GiantHand = 63746411;
+            public static int CastelTheSkyblasterMusketeer = 82633039;
+            public static int DiamondDireWolf = 95169481;
+            public static int LightningChidori = 22653490;
+            public static int EvilswarmExcitonKnight = 46772449;
+            public static int AbyssDweller = 21044178;
+            public static int GagagaCowboy = 12014404;
         }
 
-        bool 已发动削命 = false;
+        bool CardOfDemiseUsed = false;
 
         public YosenjuExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            // 结束阶段优先丢卡
-            AddExecutor(ExecutorType.Activate, (int)CardId.削命的宝札, 削命的宝札结束阶段);
+            // do the end phase effect of Card Of Demise before Yosenjus return to hand
+            AddExecutor(ExecutorType.Activate, CardId.CardOfDemise, CardOfDemiseEPEffect);
 
-            // 能烧就烧
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.我我我枪手, 我我我枪手特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.我我我枪手);
+            // burn if enemy's LP is below 800
+            AddExecutor(ExecutorType.SpSummon, CardId.GagagaCowboy, GagagaCowboySummon);
+            AddExecutor(ExecutorType.Activate, CardId.GagagaCowboy);
 
-            // 清场
-            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫, DefaultHarpiesFeatherDusterFirst);
-            AddExecutor(ExecutorType.Activate, (int)CardId.宇宙旋风, DefaultCosmicCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
-            AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, CardId.CosmicCyclone, DefaultCosmicCyclone);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
 
-            // 开壶
-            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而谦虚之壶, 强欲而谦虚之壶);
+            AddExecutor(ExecutorType.Activate, CardId.PotOfDuality, PotOfDualityEffect);
 
-            // 通招
-            AddExecutor(ExecutorType.Summon, (int)CardId.妖仙兽镰壹太刀, 优先出重复的妖仙兽);
-            AddExecutor(ExecutorType.Summon, (int)CardId.妖仙兽镰贰太刀, 优先出重复的妖仙兽);
-            AddExecutor(ExecutorType.Summon, (int)CardId.妖仙兽镰叁太刀, 优先出重复的妖仙兽);
-            AddExecutor(ExecutorType.Summon, (int)CardId.妖仙兽镰壹太刀);
-            AddExecutor(ExecutorType.Summon, (int)CardId.妖仙兽镰贰太刀);
-            AddExecutor(ExecutorType.Summon, (int)CardId.妖仙兽镰叁太刀);
-            AddExecutor(ExecutorType.Summon, (int)CardId.妖仙兽辻斩风);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama1, HaveAnotherYosenjuWithSameNameInHand);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama2, HaveAnotherYosenjuWithSameNameInHand);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama3, HaveAnotherYosenjuWithSameNameInHand);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama1);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama2);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama3);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuTsujik);
 
-            // 妖仙兽效果无脑发动
-            AddExecutor(ExecutorType.Activate, (int)CardId.妖仙兽镰壹太刀, 妖仙兽效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.妖仙兽镰贰太刀, 妖仙兽效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.妖仙兽镰叁太刀, 妖仙兽效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.妖仙兽辻斩风, 妖仙兽效果);
+            AddExecutor(ExecutorType.Activate, CardId.YosenjuKama1, YosenjuEffect);
+            AddExecutor(ExecutorType.Activate, CardId.YosenjuKama2, YosenjuEffect);
+            AddExecutor(ExecutorType.Activate, CardId.YosenjuKama3, YosenjuEffect);
+            AddExecutor(ExecutorType.Activate, CardId.YosenjuTsujik, YosenjuEffect);
 
-            // 盖坑
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之宣告, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之通告, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之警告, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.大宇宙, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.虚无空间, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.魔力抽取, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.波纹防护罩波浪之力, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.沙尘防护罩尘埃之力, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.星光大道, 优先盖不重复的坑);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnJudgment, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnWarning, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.MacroCosmos, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.MagicDrain, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.DrowningMirrorForce, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.QuakingMirrorForce, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.StarlightRoad, TrapSetUnique);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之宣告, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之通告, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之警告, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.大宇宙, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.虚无空间, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.魔力抽取, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.波纹防护罩波浪之力, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.沙尘防护罩尘埃之力, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.星光大道, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.鹰身女妖的羽毛扫, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.黑洞, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.强欲而谦虚之壶, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.宇宙旋风, 魔陷区有空余格子);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnJudgment, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnWarning, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.MacroCosmos, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.MagicDrain, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.DrowningMirrorForce, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.QuakingMirrorForce, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.StarlightRoad, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.HarpiesFeatherDuster, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.DarkHole, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.PotOfDuality, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.CosmicCyclone, TrapSetWhenZoneFree);
 
-            // 开完削命继续盖坑
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.削命的宝札);
-            AddExecutor(ExecutorType.Activate, (int)CardId.削命的宝札, 削命的宝札);
+            AddExecutor(ExecutorType.SpellSet, CardId.CardOfDemise);
+            AddExecutor(ExecutorType.Activate, CardId.CardOfDemise, CardOfDemiseEffect);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之宣告, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之通告, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之警告, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.大宇宙, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.虚无空间, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.魔力抽取, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.波纹防护罩波浪之力, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.沙尘防护罩尘埃之力, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.星光大道, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.鹰身女妖的羽毛扫, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.黑洞, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.强欲而谦虚之壶, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.宇宙旋风, 已发动过削命);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnJudgment, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnWarning, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.MacroCosmos, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.MagicDrain, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.DrowningMirrorForce, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.QuakingMirrorForce, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.StarlightRoad, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.HarpiesFeatherDuster, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.DarkHole, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.PotOfDuality, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.CosmicCyclone, CardOfDemiseAcivated);
 
-            // 常用额外
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王效果);
+            AddExecutor(ExecutorType.SpSummon, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.Activate, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.暗叛逆超量龙, 暗叛逆超量龙特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.暗叛逆超量龙, 暗叛逆超量龙效果);
+            AddExecutor(ExecutorType.SpSummon, CardId.DarkRebellionXyzDragon, DarkRebellionXyzDragonSummon);
+            AddExecutor(ExecutorType.Activate, CardId.DarkRebellionXyzDragon, DarkRebellionXyzDragonEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.No39希望皇霍普, 电光皇特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普一);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普电光皇);
-            AddExecutor(ExecutorType.Activate, (int)CardId.闪光No39希望皇霍普电光皇);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiaOne);
+            AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.星尘龙, 星尘龙效果);
+            AddExecutor(ExecutorType.Activate, CardId.StardustDragon, DefaultStardustDragonEffect);
 
-            // 坑人
-            AddExecutor(ExecutorType.Activate, (int)CardId.星光大道, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.魔力抽取);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, DefaultSolemnStrike);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之宣告, DefaultSolemnJudgment);
-            AddExecutor(ExecutorType.Activate, (int)CardId.大宇宙, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.虚无空间, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.波纹防护罩波浪之力, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.沙尘防护罩尘埃之力, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.StarlightRoad, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.MagicDrain);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
+            AddExecutor(ExecutorType.Activate, CardId.MacroCosmos, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.VanitysEmptiness, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.DrowningMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.QuakingMirrorForce, DefaultUniqueTrap);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
         public override bool OnSelectHand()
         {
-            // 抢先攻
+            // go first
             return true;
         }
 
         public override void OnNewTurn()
         {
-            // 回合开始时重置状况
-            已发动削命 = false;
+            CardOfDemiseUsed = false;
         }
 
         public override bool OnSelectYesNo(int desc)
         {
-            // 镰贰太刀能不直击就不直击
+            // Yosenju Kama 2 shouldn't attack directly at most times
             if (Card == null)
                 return true;
-            Logger.DebugWriteLine(Card.Name);
-            if (Card.Id == (int)CardId.妖仙兽镰贰太刀)
+            // Logger.DebugWriteLine(Card.Name);
+            if (Card.Id == CardId.YosenjuKama2)
                 return Card.ShouldDirectAttack;
             else
                 return true;
@@ -183,69 +176,69 @@ namespace WindBot.Game.AI.Decks
                 if (defender.IsMonsterDangerous() || defender.IsDefense())
                     return false;
             }
-            if (!(defender.Id == (int)CardId.闪光No39希望皇霍普电光皇))
+            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
             {
-                if (attacker.Attribute == (int)CardAttribute.Wind && Bot.HasInHand((int)CardId.妖仙兽辻斩风))
+                if (attacker.Attribute == (int)CardAttribute.Wind && Bot.HasInHand(CardId.YosenjuTsujik))
                     attacker.RealPower = attacker.RealPower + 1000;
-                if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.No39希望皇霍普))
+                if (attacker.Id == CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, CardId.Number39Utopia))
                     attacker.RealPower = 5000;
             }
             return attacker.RealPower > defender.GetDefensePower();
         }
 
-        private bool 强欲而谦虚之壶()
+        private bool PotOfDualityEffect()
         {
-            if (已发动削命)
+            if (CardOfDemiseUsed)
             {
                 AI.SelectCard(new[]
                     {
-                    (int)CardId.星光大道,
-                    (int)CardId.魔力抽取,
-                    (int)CardId.神之宣告,
-                    (int)CardId.虚无空间,
-                    (int)CardId.鹰身女妖的羽毛扫,
-                    (int)CardId.波纹防护罩波浪之力,
-                    (int)CardId.沙尘防护罩尘埃之力,
-                    (int)CardId.神之通告,
-                    (int)CardId.神之警告,
-                    (int)CardId.大宇宙,
-                    (int)CardId.削命的宝札
+                    CardId.StarlightRoad,
+                    CardId.MagicDrain,
+                    CardId.SolemnJudgment,
+                    CardId.VanitysEmptiness,
+                    CardId.HarpiesFeatherDuster,
+                    CardId.DrowningMirrorForce,
+                    CardId.QuakingMirrorForce,
+                    CardId.SolemnStrike,
+                    CardId.SolemnWarning,
+                    CardId.MacroCosmos,
+                    CardId.CardOfDemise
                 });
             }
             else
             {
                 AI.SelectCard(new[]
                     {
-                    (int)CardId.妖仙兽镰叁太刀,
-                    (int)CardId.妖仙兽镰壹太刀,
-                    (int)CardId.妖仙兽镰贰太刀,
-                    (int)CardId.星光大道,
-                    (int)CardId.魔力抽取,
-                    (int)CardId.虚无空间,
-                    (int)CardId.鹰身女妖的羽毛扫,
-                    (int)CardId.波纹防护罩波浪之力,
-                    (int)CardId.沙尘防护罩尘埃之力,
-                    (int)CardId.神之通告,
-                    (int)CardId.神之宣告,
-                    (int)CardId.神之警告,
-                    (int)CardId.大宇宙,
-                    (int)CardId.削命的宝札,
+                    CardId.YosenjuKama3,
+                    CardId.YosenjuKama1,
+                    CardId.YosenjuKama2,
+                    CardId.StarlightRoad,
+                    CardId.MagicDrain,
+                    CardId.VanitysEmptiness,
+                    CardId.HarpiesFeatherDuster,
+                    CardId.DrowningMirrorForce,
+                    CardId.QuakingMirrorForce,
+                    CardId.SolemnStrike,
+                    CardId.SolemnJudgment,
+                    CardId.SolemnWarning,
+                    CardId.MacroCosmos,
+                    CardId.CardOfDemise,
                 });
             }
             return true;
         }
 
-        private bool 削命的宝札()
+        private bool CardOfDemiseEffect()
         {
             if (AI.Utils.IsTurn1OrMain2())
             {
-                已发动削命 = true;
+                CardOfDemiseUsed = true;
                 return true;
             }
             return false;
         }
 
-        private bool 优先出重复的妖仙兽()
+        private bool HaveAnotherYosenjuWithSameNameInHand()
         {
             foreach (ClientCard card in Bot.Hand)
             {
@@ -255,48 +248,47 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 优先盖不重复的坑()
+        private bool TrapSetUnique()
         {
             foreach (ClientCard card in Bot.SpellZone)
             {
                 if (card != null && card.Id == Card.Id)
                     return false;
             }
-            return 魔陷区有空余格子();
+            return TrapSetWhenZoneFree();
         }
 
-        private bool 魔陷区有空余格子()
+        private bool TrapSetWhenZoneFree()
         {
             return Bot.GetSpellCountWithoutField() < 4;
         }
 
-        private bool 已发动过削命()
+        private bool CardOfDemiseAcivated()
         {
-            return 已发动削命;
+            return CardOfDemiseUsed;
         }
 
-        private bool 妖仙兽效果()
+        private bool YosenjuEffect()
         {
-            // 妖仙兽结束阶段不优先回手
+            // Don't activate the return to hand effect first
             if (Duel.Phase == DuelPhase.End)
                 return false;
             AI.SelectCard(new[]
                 {
-                    (int)CardId.妖仙兽镰壹太刀,
-                    (int)CardId.妖仙兽镰贰太刀,
-                    (int)CardId.妖仙兽镰叁太刀
+                    CardId.YosenjuKama1,
+                    CardId.YosenjuKama2,
+                    CardId.YosenjuKama3
                 });
             return true;
         }
 
-        private bool 削命的宝札结束阶段()
+        private bool CardOfDemiseEPEffect()
         {
-            // 削命宝札结束阶段在妖仙回手前丢手卡
-            Logger.DebugWriteLine("削命的宝札" + (Duel.Phase == DuelPhase.End));
+            // do the end phase effect of Card Of Demise before Yosenjus return to hand
             return Duel.Phase == DuelPhase.End;
         }
 
-        private bool 我我我枪手特殊召唤()
+        private bool GagagaCowboySummon()
         {
             if (Duel.LifePoints[1] <= 800 || (Bot.GetMonsterCount()>=4 && Duel.LifePoints[1] <= 1600))
             {
@@ -306,30 +298,16 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 励辉士入魔蝇王特殊召唤()
+        private bool DarkRebellionXyzDragonSummon()
         {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
-            return (selfCount - 1 < oppoCount) && 励辉士入魔蝇王效果();
-        }
-
-        private bool 励辉士入魔蝇王效果()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
-            return selfCount < oppoCount;
-        }
-
-        private bool 暗叛逆超量龙特殊召唤()
-        {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, true);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy);
             return selfBestAttack <= oppoBestAttack;
         }
 
-        private bool 暗叛逆超量龙效果()
+        private bool DarkRebellionXyzDragonEffect()
         {
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, true);
+            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy);
             ClientCard target = AI.Utils.GetOneEnemyBetterThanValue(oppoBestAttack, true);
             if (target != null)
             {
@@ -338,17 +316,11 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool 电光皇特殊召唤()
+        private bool NumberS39UtopiatheLightningSummon()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
+            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
+            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
             return selfBestAttack <= oppoBestAttack;
         }
-
-        private bool 星尘龙效果()
-        {
-            return LastChainPlayer == 1;
-        }
-
     }
 }

@@ -6,13 +6,13 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("MokeyMokeyKing", "AI_MokeyMokeyKing")]
+    [Deck("MokeyMokeyKing", "AI_MokeyMokeyKing", "Easy")]
     public class MokeyMokeyKingExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            LeoWizard = 4392470,
-            Bunilla = 69380702
+            public static int LeoWizard = 4392470;
+            public static int Bunilla = 69380702;
         }
 
         private int RockCount = 0;

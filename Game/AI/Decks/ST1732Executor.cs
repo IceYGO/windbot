@@ -6,179 +6,180 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("ST1732", "AI_ST1732")]
+    [Deck("ST1732", "AI_ST1732", "Normal")]
     public class ST1732Executor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            数字机灵 = 32295838,
-            比特机灵 = 36211150,
-            双汇编亚龙 = 7445307,
-            引导交错鹿 = 70950698,
-            猞猁连接杀手 = 35595518,
-            RAM云雄羊 = 9190563,
-            ROM云雌羊 = 44956694,
-            均衡负载王 = 8567955,
-            反向连接兽 = 71172240,
-            克莱因客户端蚁 = 45778242,
-            网络小龙 = 62706865,
-            点阵图跳离士 = 18789533,
-            精神操作 = 37520316,
-            黑洞 = 53129443,
-            死者苏生 = 83764718,
-            旋风 = 5318639,
-            宇宙旋风 = 8267140,
-            月之书 = 14087893,
-            电脑网后门 = 43839002,
-            月镜盾 = 19508728,
-            电脑网宇宙 = 61583217,
-            奈落的落穴 = 29401950,
-            神圣防护罩反射镜力 = 44095762,
-            激流葬 = 53582587,
-            重编码存活 = 70238111,
-            次元障壁 = 83326048,
-            强制脱出装置 = 94192409,
-            神之通告 = 40605147,
+            public static int Digitron = 32295838;
+            public static int Bitron = 36211150;
+            public static int DualAssembloom = 7445307;
+            public static int BootStagguard = 70950698;
+            public static int Linkslayer = 35595518;
+            public static int RAMClouder = 9190563;
+            public static int ROMCloudia = 44956694;
+            public static int BalancerLord = 8567955;
+            public static int Backlinker = 71172240;
+            public static int Kleinant = 45778242;
+            public static int Draconnet = 62706865;
+            public static int DotScaper = 18789533;
 
-            解码语者 = 1861629,
-            编码语者 = 6622715,
-            三栅极男巫 = 32617464,
-            蜜罐机器人 = 34472920,
-            二进制女巫 = 79016563,
-            连接蜘蛛 = 98978921,
+            public static int MindControl = 37520316;
+            public static int DarkHole = 53129443;
+            public static int MonsterReborn = 83764718;
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int CosmicCyclone = 8267140;
+            public static int BookOfMoon = 14087893;
+            public static int CynetBackdoor = 43839002;
+            public static int MoonMirrorShield = 19508728;
+            public static int CynetUniverse = 61583217;
+            public static int BottomlessTrapHole = 29401950;
+            public static int MirrorForce = 44095762;
+            public static int TorrentialTribute = 53582587;
+            public static int RecodedAlive = 70238111;
+            public static int DimensionalBarrier = 83326048;
+            public static int CompulsoryEvacuationDevice = 94192409;
+            public static int SolemnStrike = 40605147;
 
-            引导鹿衍生物 = 70950699
+            public static int DecodeTalker = 1861629;
+            public static int EncodeTalker = 6622715;
+            public static int TriGateWizard = 32617464;
+            public static int Honeybot = 34472920;
+            public static int BinarySorceress = 79016563;
+            public static int LinkSpider = 98978921;
+
+            public static int StagToken = 70950699;
         }
 
-        bool 已发动均衡负载王 = false;
+        bool BalancerLordUsed = false;
 
         public ST1732Executor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.宇宙旋风, DefaultCosmicCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.旋风, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.月之书, DefaultBookOfMoon);
+            AddExecutor(ExecutorType.Activate, CardId.CosmicCyclone, DefaultCosmicCyclone);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.BookOfMoon, DefaultBookOfMoon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.电脑网宇宙, 电脑网宇宙效果);
+            AddExecutor(ExecutorType.Activate, CardId.CynetUniverse, CynetUniverseEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.猞猁连接杀手);
-            AddExecutor(ExecutorType.Activate, (int)CardId.猞猁连接杀手, 猞猁连接杀手效果);
+            AddExecutor(ExecutorType.SpSummon, CardId.Linkslayer);
+            AddExecutor(ExecutorType.Activate, CardId.Linkslayer, LinkslayerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.连接蜘蛛);
-            AddExecutor(ExecutorType.Activate, (int)CardId.连接蜘蛛);
+            AddExecutor(ExecutorType.SpSummon, CardId.LinkSpider);
+            AddExecutor(ExecutorType.Activate, CardId.LinkSpider);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.精神操作, 精神操作效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.反向连接兽);
-            AddExecutor(ExecutorType.Activate, (int)CardId.反向连接兽, 反向连接兽效果);
+            AddExecutor(ExecutorType.Activate, CardId.MindControl, MindControlEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.Backlinker);
+            AddExecutor(ExecutorType.Activate, CardId.Backlinker, BacklinkerEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.引导交错鹿, 引导交错鹿效果);
+            AddExecutor(ExecutorType.Activate, CardId.BootStagguard, BootStagguardEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.死者苏生, 死者苏生效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.月镜盾, 月镜盾效果);
+            AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, MonsterRebornEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MoonMirrorShield, MoonMirrorShieldEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.电脑网后门, 电脑网后门效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.重编码存活);
+            AddExecutor(ExecutorType.Activate, CardId.CynetBackdoor, CynetBackdoorEffect);
+            AddExecutor(ExecutorType.Activate, CardId.RecodedAlive);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.均衡负载王, 均衡负载王通常召唤);
+            AddExecutor(ExecutorType.Summon, CardId.BalancerLord, BalancerLordSummon);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.ROM云雌羊, ROM云雌羊通常召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ROM云雌羊, ROM云雌羊效果);
+            AddExecutor(ExecutorType.Summon, CardId.ROMCloudia, ROMCloudiaSummon);
+            AddExecutor(ExecutorType.Activate, CardId.ROMCloudia, ROMCloudiaEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.网络小龙, 网络小龙通常召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.网络小龙, 网络小龙效果);
+            AddExecutor(ExecutorType.Summon, CardId.Draconnet, DraconnetSummon);
+            AddExecutor(ExecutorType.Activate, CardId.Draconnet, DraconnetEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.克莱因客户端蚁);
-            AddExecutor(ExecutorType.Activate, (int)CardId.克莱因客户端蚁, 克莱因客户端蚁效果);
+            AddExecutor(ExecutorType.Summon, CardId.Kleinant);
+            AddExecutor(ExecutorType.Activate, CardId.Kleinant, KleinantEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.RAM云雄羊);
-            AddExecutor(ExecutorType.Activate, (int)CardId.RAM云雄羊, RAM云雄羊效果);
+            AddExecutor(ExecutorType.Summon, CardId.RAMClouder);
+            AddExecutor(ExecutorType.Activate, CardId.RAMClouder, RAMClouderEffect);
 
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.点阵图跳离士);
-            AddExecutor(ExecutorType.Activate, (int)CardId.点阵图跳离士, 点阵图跳离士效果);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.DotScaper);
+            AddExecutor(ExecutorType.Activate, CardId.DotScaper, DotScaperEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.均衡负载王);
-            AddExecutor(ExecutorType.Summon, (int)CardId.ROM云雌羊);
-            AddExecutor(ExecutorType.Summon, (int)CardId.网络小龙);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.反向连接兽);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.数字机灵);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.比特机灵);
+            AddExecutor(ExecutorType.Summon, CardId.BalancerLord);
+            AddExecutor(ExecutorType.Summon, CardId.ROMCloudia);
+            AddExecutor(ExecutorType.Summon, CardId.Draconnet);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.Backlinker);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.Digitron);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.Bitron);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.均衡负载王, 均衡负载王效果);
+            AddExecutor(ExecutorType.Activate, CardId.BalancerLord, BalancerLordEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.解码语者, 连接召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.解码语者);
+            AddExecutor(ExecutorType.SpSummon, CardId.DecodeTalker, LinkSummon);
+            AddExecutor(ExecutorType.Activate, CardId.DecodeTalker);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.三栅极男巫, 连接召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.三栅极男巫);
+            AddExecutor(ExecutorType.SpSummon, CardId.TriGateWizard, LinkSummon);
+            AddExecutor(ExecutorType.Activate, CardId.TriGateWizard);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.编码语者, 连接召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.编码语者);
+            AddExecutor(ExecutorType.SpSummon, CardId.EncodeTalker, LinkSummon);
+            AddExecutor(ExecutorType.Activate, CardId.EncodeTalker);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.蜜罐机器人, 连接召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.二进制女巫, 连接召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.二进制女巫);
+            AddExecutor(ExecutorType.SpSummon, CardId.Honeybot, LinkSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.BinarySorceress, LinkSummon);
+            AddExecutor(ExecutorType.Activate, CardId.BinarySorceress);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.电脑网后门, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.重编码存活, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.CynetBackdoor, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.RecodedAlive, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之通告, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.强制脱出装置, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.次元障壁, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.激流葬, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神圣防护罩反射镜力, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.奈落的落穴, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.月之书, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.宇宙旋风, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.旋风, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.CompulsoryEvacuationDevice, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.DimensionalBarrier, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.TorrentialTribute, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.MirrorForce, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.BottomlessTrapHole, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.BookOfMoon, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.CosmicCyclone, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.MysticalSpaceTyphoon, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, DefaultSolemnStrike);
-            AddExecutor(ExecutorType.Activate, (int)CardId.强制脱出装置, DefaultCompulsoryEvacuationDevice);
-            AddExecutor(ExecutorType.Activate, (int)CardId.次元障壁, DefaultDimensionalBarrier);
-            AddExecutor(ExecutorType.Activate, (int)CardId.激流葬, DefaultTorrentialTribute);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神圣防护罩反射镜力, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.奈落的落穴, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.Activate, CardId.CompulsoryEvacuationDevice, DefaultCompulsoryEvacuationDevice);
+            AddExecutor(ExecutorType.Activate, CardId.DimensionalBarrier, DefaultDimensionalBarrier);
+            AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
+            AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultUniqueTrap);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
         public override bool OnSelectHand()
         {
-            // 抢后攻
+            // go second
             return false;
         }
 
         public override void OnNewTurn()
         {
-            // 回合开始时重置状况
-            已发动均衡负载王 = false;
+            // reset
+            BalancerLordUsed = false;
         }
 
         public override int OnSelectOption(IList<int> options)
         {
-            // 月镜盾回卡组底
+            // put Moon Mirror Shield to the bottom of deck
             return options.Count == 2 ? 1 : 0;
         }
 
         public override bool OnSelectYesNo(int desc)
         {
-            if (desc == 210) //是否要继续选择？
+            if (desc == 210) // Continue selecting? (Link Summoning)
                 return false;
-            if (desc == 31) //是否直接攻击？
+            if (desc == 31) // Direct Attack?
                 return true;
             return base.OnSelectYesNo(desc);
         }
 
-        private bool 猞猁连接杀手效果()
+        private bool LinkslayerEffect()
         {
             IList<ClientCard> targets = Enemy.GetSpells();
             if (targets.Count > 0)
             {
                 AI.SelectCard(new[]{
-                    (int)CardId.双汇编亚龙,
-                    (int)CardId.比特机灵,
-                    (int)CardId.数字机灵,
-                    (int)CardId.重编码存活
+                    CardId.DualAssembloom,
+                    CardId.Bitron,
+                    CardId.Digitron,
+                    CardId.RecodedAlive
                 });
                 AI.SelectNextCard(targets);
                 return true;
@@ -186,9 +187,9 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 精神操作效果()
+        private bool MindControlEffect()
         {
-            ClientCard target = AI.Utils.GetAnyEnemyMonster();
+            ClientCard target = AI.Utils.GetBestEnemyMonster();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -197,34 +198,34 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 反向连接兽效果()
+        private bool BacklinkerEffect()
         {
             return (Bot.MonsterZone[5] == null) && (Bot.MonsterZone[6] == null);
         }
 
-        private bool 引导交错鹿效果()
+        private bool BootStagguardEffect()
         {
             if (Card.Location != CardLocation.Hand)
                 AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
 
-        private bool 死者苏生效果()
+        private bool MonsterRebornEffect()
         {
             List<int> targets = new List<int> {
-                    (int)CardId.解码语者,
-                    (int)CardId.编码语者,
-                    (int)CardId.三栅极男巫,
-                    (int)CardId.二进制女巫,
-                    (int)CardId.蜜罐机器人,
-                    (int)CardId.双汇编亚龙,
-                    (int)CardId.引导交错鹿,
-                    (int)CardId.均衡负载王,
-                    (int)CardId.ROM云雌羊,
-                    (int)CardId.猞猁连接杀手,
-                    (int)CardId.RAM云雄羊,
-                    (int)CardId.反向连接兽,
-                    (int)CardId.克莱因客户端蚁
+                    CardId.DecodeTalker,
+                    CardId.EncodeTalker,
+                    CardId.TriGateWizard,
+                    CardId.BinarySorceress,
+                    CardId.Honeybot,
+                    CardId.DualAssembloom,
+                    CardId.BootStagguard,
+                    CardId.BalancerLord,
+                    CardId.ROMCloudia,
+                    CardId.Linkslayer,
+                    CardId.RAMClouder,
+                    CardId.Backlinker,
+                    CardId.Kleinant
                 };
             if (!Bot.HasInGraveyard(targets))
             {
@@ -234,7 +235,7 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool 月镜盾效果()
+        private bool MoonMirrorShieldEffect()
         {
             List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
@@ -245,7 +246,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 电脑网宇宙效果()
+        private bool CynetUniverseEffect()
         {
             if (Card.Location == CardLocation.Hand)
                 return DefaultField();
@@ -261,7 +262,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 电脑网后门效果()
+        private bool CynetBackdoorEffect()
         {
             if (!(Duel.Player == 0 && Duel.Phase == DuelPhase.Main2) &&
                 !(Duel.Player == 1 && (Duel.Phase == DuelPhase.BattleStart || Duel.Phase == DuelPhase.End)))
@@ -291,7 +292,7 @@ namespace WindBot.Game.AI.Decks
                 monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.Id == (int)CardId.均衡负载王)
+                    if (monster.Id == CardId.BalancerLord)
                     {
                         AI.SelectCard(monster);
                         selected = true;
@@ -315,99 +316,99 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectNextCard(new[]
                 {
-                    (int)CardId.ROM云雌羊,
-                    (int)CardId.均衡负载王,
-                    (int)CardId.克莱因客户端蚁,
-                    (int)CardId.网络小龙,
-                    (int)CardId.反向连接兽
+                    CardId.ROMCloudia,
+                    CardId.BalancerLord,
+                    CardId.Kleinant,
+                    CardId.Draconnet,
+                    CardId.Backlinker
                 });
                 return true;
             }
             return false;
         }
 
-        private bool 均衡负载王通常召唤()
+        private bool BalancerLordSummon()
         {
-            return !已发动均衡负载王;
+            return !BalancerLordUsed;
         }
 
-        private bool 均衡负载王效果()
+        private bool BalancerLordEffect()
         {
             if (Card.Location == CardLocation.Removed)
                 return true;
             bool hastarget = Bot.HasInHand(new List<int> {
-                    (int)CardId.网络小龙,
-                    (int)CardId.克莱因客户端蚁,
-                    (int)CardId.均衡负载王,
-                    (int)CardId.ROM云雌羊,
-                    (int)CardId.RAM云雄羊,
-                    (int)CardId.点阵图跳离士
+                    CardId.Draconnet,
+                    CardId.Kleinant,
+                    CardId.BalancerLord,
+                    CardId.ROMCloudia,
+                    CardId.RAMClouder,
+                    CardId.DotScaper
                 });
-            if (hastarget && !已发动均衡负载王)
+            if (hastarget && !BalancerLordUsed)
             {
-                已发动均衡负载王 = true;
+                BalancerLordUsed = true;
                 return true;
             }
             return false;
         }
 
-        private bool ROM云雌羊通常召唤()
+        private bool ROMCloudiaSummon()
         {
             return Bot.HasInGraveyard(new List<int> {
-                    (int)CardId.引导交错鹿,
-                    (int)CardId.均衡负载王,
-                    (int)CardId.克莱因客户端蚁,
-                    (int)CardId.猞猁连接杀手,
-                    (int)CardId.网络小龙,
-                    (int)CardId.RAM云雄羊
+                    CardId.BootStagguard,
+                    CardId.BalancerLord,
+                    CardId.Kleinant,
+                    CardId.Linkslayer,
+                    CardId.Draconnet,
+                    CardId.RAMClouder
                 });
         }
 
-        private bool ROM云雌羊效果()
+        private bool ROMCloudiaEffect()
         {
             if (Card.Location == CardLocation.MonsterZone)
             {
                 AI.SelectCard(new[]{
-                    (int)CardId.引导交错鹿,
-                    (int)CardId.均衡负载王,
-                    (int)CardId.克莱因客户端蚁,
-                    (int)CardId.猞猁连接杀手,
-                    (int)CardId.网络小龙,
-                    (int)CardId.RAM云雄羊
+                    CardId.BootStagguard,
+                    CardId.BalancerLord,
+                    CardId.Kleinant,
+                    CardId.Linkslayer,
+                    CardId.Draconnet,
+                    CardId.RAMClouder
                 });
                 return true;
             }
             else
             {
                 AI.SelectCard(new[]{
-                    (int)CardId.均衡负载王,
-                    (int)CardId.克莱因客户端蚁,
-                    (int)CardId.RAM云雄羊,
-                    (int)CardId.点阵图跳离士
+                    CardId.BalancerLord,
+                    CardId.Kleinant,
+                    CardId.RAMClouder,
+                    CardId.DotScaper
                 });
                 return true;
             }
         }
 
-        private bool 网络小龙通常召唤()
+        private bool DraconnetSummon()
         {
-            return Bot.GetRemainingCount((int)CardId.数字机灵, 1) > 0
-                || Bot.GetRemainingCount((int)CardId.比特机灵, 1) > 0;
+            return Bot.GetRemainingCount(CardId.Digitron, 1) > 0
+                || Bot.GetRemainingCount(CardId.Bitron, 1) > 0;
         }
 
-        private bool 网络小龙效果()
+        private bool DraconnetEffect()
         {
-            AI.SelectCard((int)CardId.比特机灵);
+            AI.SelectCard(CardId.Bitron);
             return true;
         }
 
-        private bool 克莱因客户端蚁效果()
+        private bool KleinantEffect()
         {
             IList<int> targets = new[] {
-                (int)CardId.双汇编亚龙,
-                (int)CardId.比特机灵,
-                (int)CardId.数字机灵,
-                (int)CardId.点阵图跳离士
+                CardId.DualAssembloom,
+                CardId.Bitron,
+                CardId.Digitron,
+                CardId.DotScaper
             };
             foreach (ClientCard monster in Bot.Hand)
             {
@@ -418,10 +419,10 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             IList<int> targets2 = new[] {
-                (int)CardId.引导鹿衍生物,
-                (int)CardId.比特机灵,
-                (int)CardId.数字机灵,
-                (int)CardId.点阵图跳离士
+                CardId.StagToken,
+                CardId.Bitron,
+                CardId.Digitron,
+                CardId.DotScaper
             };
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -434,43 +435,43 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool RAM云雄羊效果()
+        private bool RAMClouderEffect()
         {
             AI.SelectCard(new[]{
-                    (int)CardId.引导鹿衍生物,
-                    (int)CardId.比特机灵,
-                    (int)CardId.数字机灵,
-                    (int)CardId.点阵图跳离士,
-                    (int)CardId.网络小龙,
-                    (int)CardId.反向连接兽,
-                    (int)CardId.RAM云雄羊
+                    CardId.StagToken,
+                    CardId.Bitron,
+                    CardId.Digitron,
+                    CardId.DotScaper,
+                    CardId.Draconnet,
+                    CardId.Backlinker,
+                    CardId.RAMClouder
                 });
             AI.SelectNextCard(new[]{
-                    (int)CardId.解码语者,
-                    (int)CardId.编码语者,
-                    (int)CardId.三栅极男巫,
-                    (int)CardId.二进制女巫,
-                    (int)CardId.蜜罐机器人,
-                    (int)CardId.双汇编亚龙,
-                    (int)CardId.引导交错鹿,
-                    (int)CardId.均衡负载王,
-                    (int)CardId.ROM云雌羊,
-                    (int)CardId.猞猁连接杀手,
-                    (int)CardId.RAM云雄羊
+                    CardId.DecodeTalker,
+                    CardId.EncodeTalker,
+                    CardId.TriGateWizard,
+                    CardId.BinarySorceress,
+                    CardId.Honeybot,
+                    CardId.DualAssembloom,
+                    CardId.BootStagguard,
+                    CardId.BalancerLord,
+                    CardId.ROMCloudia,
+                    CardId.Linkslayer,
+                    CardId.RAMClouder
                 });
             return true;
         }
 
-        private bool 点阵图跳离士效果()
+        private bool DotScaperEffect()
         {
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
 
-        private bool 连接召唤()
+        private bool LinkSummon()
         {
-            return (AI.Utils.IsTurn1OrMain2() || AI.Utils.IsEnemyBetter(false, false))
-                && AI.Utils.GetBestAttack(Bot, true) < Card.Attack;
+            return (AI.Utils.IsTurn1OrMain2() || AI.Utils.IsOneEnemyBetter())
+                && AI.Utils.GetBestAttack(Bot) < Card.Attack;
         }
     }
 }

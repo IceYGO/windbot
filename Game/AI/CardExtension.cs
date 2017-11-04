@@ -5,19 +5,20 @@ namespace WindBot.Game.AI
 {
     public static class CardExtension
     {
+        /// <summary>
+        /// Is this monster is invincible to battle?
+        /// </summary>
         public static bool IsMonsterInvincible(this ClientCard card)
         {
             return Enum.IsDefined(typeof(InvincibleMonster), card.Id);
         }
 
+        /// <summary>
+        /// Is this monster is dangerous to attack?
+        /// </summary>
         public static bool IsMonsterDangerous(this ClientCard card)
         {
             return Enum.IsDefined(typeof(DangerousMonster), card.Id);
-        }
-
-        public static bool IsSpellNegateAttack(this ClientCard card)
-        {
-            return Enum.IsDefined(typeof(NegateAttackSpell), card.Id);
         }
 
         public static bool IsFloodgate(this ClientCard card)

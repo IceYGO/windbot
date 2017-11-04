@@ -6,104 +6,107 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Toadally Awesome", "AI_ToadallyAwesome")]
+    [Deck("Toadally Awesome", "AI_ToadallyAwesome", "OutDated")]
     public class ToadallyAwesomeExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            冰结界的术者 = 23950192,
-            冰结界的水影 = 90311614,
-            鬼青蛙 = 9126351,
-            冰结界的传道师 = 50088247,
-            粹蛙 = 1357146,
-            魔知青蛙 = 46239604,
-            小灰篮史莱姆 = 80250319,
-            银河旋风 = 5133471,
-            鹰身女妖的羽毛扫 = 18144506,
-            浮上 = 33057951,
-            黑洞 = 53129443,
-            手札抹杀 = 72892473,
-            愚蠢的埋葬 = 81439173,
-            死者苏生 = 83764718,
-            冰结界的纹章 = 84206435,
-            海上打捞 = 96947648,
-            水舞台 = 29047353,
-            虹光之宣告者 = 79606837,
-            饼蛙 = 90809975,
-            神骑矢车菊圣人马 = 36776089,
-            大薰风凤凰 = 2766877,
-            猫鲨 = 84224627,
+            public static int CryomancerOfTheIceBarrier = 23950192;
+            public static int DewdarkOfTheIceBarrier = 90311614;
+            public static int SwapFrog = 9126351;
+            public static int PriorOfTheIceBarrier = 50088247;
+            public static int Ronintoadin = 1357146;
+            public static int DupeFrog = 46239604;
+            public static int GraydleSlimeJr = 80250319;
 
-            旋风 = 5318639,
-            月之书 = 14087893,
-            活死人的呼声 = 97077563,
-            激流葬 = 53582587,
+            public static int GalaxyCyclone = 5133471;
+            public static int HarpiesFeatherDuster = 18144506;
+            public static int Surface = 33057951;
+            public static int DarkHole = 53129443;
+            public static int CardDestruction = 72892473;
+            public static int FoolishBurial = 81439173;
+            public static int MonsterReborn = 83764718;
+            public static int MedallionOfTheIceBarrier = 84206435;
+            public static int Salvage = 96947648;
+            public static int AquariumStage = 29047353;
 
-            闪光No39希望皇霍普电光皇 = 56832966
+            public static int HeraldOfTheArcLight = 79606837;
+            public static int ToadallyAwesome = 90809975;
+            public static int SkyCavalryCentaurea = 36776089;
+            public static int DaigustoPhoenix = 2766877;
+            public static int CatShark = 84224627;
+
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int BookOfMoon = 14087893;
+            public static int CallOfTheHaunted = 97077563;
+            public static int TorrentialTribute = 53582587;
+
+            public static int NumberS39UtopiatheLightning = 56832966;
         }
 
         public ToadallyAwesomeExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫, DefaultHarpiesFeatherDusterFirst);
-            AddExecutor(ExecutorType.Activate, (int)CardId.银河旋风, DefaultGalaxyCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
-            AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyCyclone, DefaultGalaxyCyclone);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.水舞台, 水舞台效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.冰结界的纹章, 冰结界的纹章效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.愚蠢的埋葬, 愚蠢的埋葬效果);
+            AddExecutor(ExecutorType.Activate, CardId.AquariumStage, AquariumStageEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MedallionOfTheIceBarrier, MedallionOfTheIceBarrierEffect);
+            AddExecutor(ExecutorType.Activate, CardId.FoolishBurial, FoolishBurialEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.冰结界的传道师);
-            AddExecutor(ExecutorType.Summon, (int)CardId.小灰篮史莱姆, 小灰篮史莱姆优先通常召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.鬼青蛙, 鬼青蛙特殊召唤);
+            AddExecutor(ExecutorType.SpSummon, CardId.PriorOfTheIceBarrier);
+            AddExecutor(ExecutorType.Summon, CardId.GraydleSlimeJr, GraydleSlimeJrSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.SwapFrog, SwapFrogSpsummon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.鬼青蛙, 鬼青蛙效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.小灰篮史莱姆, 小灰篮史莱姆效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.粹蛙, 粹蛙效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.冰结界的传道师);
-            AddExecutor(ExecutorType.Activate, (int)CardId.魔知青蛙);
+            AddExecutor(ExecutorType.Activate, CardId.SwapFrog, SwapFrogEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GraydleSlimeJr, GraydleSlimeJrEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Ronintoadin, RonintoadinEffect);
+            AddExecutor(ExecutorType.Activate, CardId.PriorOfTheIceBarrier);
+            AddExecutor(ExecutorType.Activate, CardId.DupeFrog);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.浮上, 死者苏生效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.死者苏生, 死者苏生效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.海上打捞, 海上打捞效果);
+            AddExecutor(ExecutorType.Activate, CardId.Surface, SurfaceEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, SurfaceEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Salvage, SalvageEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.鬼青蛙);
-            AddExecutor(ExecutorType.Summon, (int)CardId.冰结界的水影, 冰结界下级通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.冰结界的术者, 冰结界下级通常召唤);
+            AddExecutor(ExecutorType.Summon, CardId.SwapFrog);
+            AddExecutor(ExecutorType.Summon, CardId.DewdarkOfTheIceBarrier, IceBarrierSummon);
+            AddExecutor(ExecutorType.Summon, CardId.CryomancerOfTheIceBarrier, IceBarrierSummon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.手札抹杀);
+            AddExecutor(ExecutorType.Activate, CardId.CardDestruction);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.小灰篮史莱姆, 低攻怪兽通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.冰结界的传道师, 低攻怪兽通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.粹蛙, 低攻怪兽通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.魔知青蛙, 低攻怪兽通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.冰结界的传道师, 冰结界的传道师通常召唤);
+            AddExecutor(ExecutorType.Summon, CardId.GraydleSlimeJr, NormalSummon);
+            AddExecutor(ExecutorType.Summon, CardId.PriorOfTheIceBarrier, NormalSummon);
+            AddExecutor(ExecutorType.Summon, CardId.Ronintoadin, NormalSummon);
+            AddExecutor(ExecutorType.Summon, CardId.DupeFrog, NormalSummon);
+            AddExecutor(ExecutorType.Summon, CardId.PriorOfTheIceBarrier, PriorOfTheIceBarrierSummon);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.猫鲨, 猫鲨特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.猫鲨, 猫鲨效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.神骑矢车菊圣人马, 神骑矢车菊圣人马特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神骑矢车菊圣人马);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.大薰风凤凰, 大薰风凤凰特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.大薰风凤凰);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.饼蛙);
-            AddExecutor(ExecutorType.Activate, (int)CardId.饼蛙, 饼蛙效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.虹光之宣告者, 虹光之宣告者特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.虹光之宣告者);
+            AddExecutor(ExecutorType.SpSummon, CardId.CatShark, CatSharkSummon);
+            AddExecutor(ExecutorType.Activate, CardId.CatShark, CatSharkEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.SkyCavalryCentaurea, SkyCavalryCentaureaSummon);
+            AddExecutor(ExecutorType.Activate, CardId.SkyCavalryCentaurea);
+            AddExecutor(ExecutorType.SpSummon, CardId.DaigustoPhoenix, DaigustoPhoenixSummon);
+            AddExecutor(ExecutorType.Activate, CardId.DaigustoPhoenix);
+            AddExecutor(ExecutorType.SpSummon, CardId.ToadallyAwesome);
+            AddExecutor(ExecutorType.Activate, CardId.ToadallyAwesome, ToadallyAwesomeEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.HeraldOfTheArcLight, HeraldOfTheArcLightSummon);
+            AddExecutor(ExecutorType.Activate, CardId.HeraldOfTheArcLight);
 
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.小灰篮史莱姆);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.魔知青蛙);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.粹蛙);
+            AddExecutor(ExecutorType.MonsterSet, CardId.GraydleSlimeJr);
+            AddExecutor(ExecutorType.MonsterSet, CardId.DupeFrog);
+            AddExecutor(ExecutorType.MonsterSet, CardId.Ronintoadin);
 
-            AddExecutor(ExecutorType.Repos, 改变攻守表示);
-            // 饼蛙抢来的卡的发动
-            AddExecutor(ExecutorType.Activate, (int)CardId.旋风, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.月之书, DefaultBookOfMoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.活死人的呼声, 死者苏生效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.激流葬, DefaultTorrentialTribute);
-            AddExecutor(ExecutorType.Activate, 其他魔法发动);
-            AddExecutor(ExecutorType.Activate, 其他陷阱发动);
-            AddExecutor(ExecutorType.Activate, 其他怪兽发动);
+            AddExecutor(ExecutorType.Repos, Repos);
+
+            // cards got by Toadall yAwesome
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.BookOfMoon, DefaultBookOfMoon);
+            AddExecutor(ExecutorType.Activate, CardId.CallOfTheHaunted, SurfaceEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
+            AddExecutor(ExecutorType.Activate, OtherSpellEffect);
+            AddExecutor(ExecutorType.Activate, OtherTrapEffect);
+            AddExecutor(ExecutorType.Activate, OtherMonsterEffect);
         }
 
         public override bool OnSelectHand()
@@ -118,136 +121,136 @@ namespace WindBot.Game.AI.Decks
                 if (defender.IsMonsterDangerous() || defender.IsDefense())
                     return false;
             }
-            if (!(defender.Id == (int)CardId.闪光No39希望皇霍普电光皇))
+            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
             {
-                if (attacker.Id == (int)CardId.神骑矢车菊圣人马 && !attacker.IsDisabled() && attacker.HasXyzMaterial())
+                if (attacker.Id == CardId.SkyCavalryCentaurea && !attacker.IsDisabled() && attacker.HasXyzMaterial())
                     attacker.RealPower = Duel.LifePoints[0] + attacker.Attack;
             }
             return attacker.RealPower >= defender.GetDefensePower();
         }
 
-        private bool 冰结界的纹章效果()
+        private bool MedallionOfTheIceBarrierEffect()
         {
             if (Bot.HasInHand(new List<int>
                 {
-                    (int)CardId.冰结界的术者,
-                    (int)CardId.冰结界的水影
+                    CardId.CryomancerOfTheIceBarrier,
+                    CardId.DewdarkOfTheIceBarrier
                 }) || Bot.HasInMonstersZone(new List<int>
                 {
-                    (int)CardId.冰结界的术者,
-                    (int)CardId.冰结界的水影
+                    CardId.CryomancerOfTheIceBarrier,
+                    CardId.DewdarkOfTheIceBarrier
                 }))
             {
-                AI.SelectCard((int)CardId.冰结界的传道师);
+                AI.SelectCard(CardId.PriorOfTheIceBarrier);
             }
             else
             {
                 AI.SelectCard(new[]
                     {
-                    (int)CardId.冰结界的术者,
-                    (int)CardId.冰结界的水影
+                    CardId.CryomancerOfTheIceBarrier,
+                    CardId.DewdarkOfTheIceBarrier
                 });
             }
             return true;
         }
 
-        private bool 死者苏生效果()
+        private bool SurfaceEffect()
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.饼蛙,
-                    (int)CardId.虹光之宣告者,
-                    (int)CardId.鬼青蛙,
-                    (int)CardId.冰结界的水影,
-                    (int)CardId.冰结界的术者,
-                    (int)CardId.魔知青蛙,
-                    (int)CardId.粹蛙,
-                    (int)CardId.小灰篮史莱姆
+                    CardId.ToadallyAwesome,
+                    CardId.HeraldOfTheArcLight,
+                    CardId.SwapFrog,
+                    CardId.DewdarkOfTheIceBarrier,
+                    CardId.CryomancerOfTheIceBarrier,
+                    CardId.DupeFrog,
+                    CardId.Ronintoadin,
+                    CardId.GraydleSlimeJr
                 });
             return true;
         }
 
-        private bool 水舞台效果()
+        private bool AquariumStageEffect()
         {
             if (Card.Location == CardLocation.Grave)
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
-                return 死者苏生效果();
+                return SurfaceEffect();
             }
             return true;
         }
 
 
-        private bool 愚蠢的埋葬效果()
+        private bool FoolishBurialEffect()
         {
-            if (Bot.HasInHand((int)CardId.小灰篮史莱姆) && !Bot.HasInGraveyard((int)CardId.小灰篮史莱姆))
-                AI.SelectCard((int)CardId.小灰篮史莱姆);
-            else if (Bot.HasInGraveyard((int)CardId.粹蛙) && !Bot.HasInGraveyard((int)CardId.魔知青蛙))
-                AI.SelectCard((int)CardId.魔知青蛙);
-            else if (Bot.HasInGraveyard((int)CardId.魔知青蛙) && !Bot.HasInGraveyard((int)CardId.粹蛙))
-                AI.SelectCard((int)CardId.粹蛙);
+            if (Bot.HasInHand(CardId.GraydleSlimeJr) && !Bot.HasInGraveyard(CardId.GraydleSlimeJr))
+                AI.SelectCard(CardId.GraydleSlimeJr);
+            else if (Bot.HasInGraveyard(CardId.Ronintoadin) && !Bot.HasInGraveyard(CardId.DupeFrog))
+                AI.SelectCard(CardId.DupeFrog);
+            else if (Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.Ronintoadin))
+                AI.SelectCard(CardId.Ronintoadin);
             else
                 AI.SelectCard(new[]
                     {
-                        (int)CardId.小灰篮史莱姆,
-                        (int)CardId.粹蛙,
-                        (int)CardId.魔知青蛙,
-                        (int)CardId.冰结界的术者,
-                        (int)CardId.冰结界的水影,
-                        (int)CardId.冰结界的传道师,
-                        (int)CardId.鬼青蛙
+                        CardId.GraydleSlimeJr,
+                        CardId.Ronintoadin,
+                        CardId.DupeFrog,
+                        CardId.CryomancerOfTheIceBarrier,
+                        CardId.DewdarkOfTheIceBarrier,
+                        CardId.PriorOfTheIceBarrier,
+                        CardId.SwapFrog
                     });
             return true;
         }
 
-        private bool 海上打捞效果()
+        private bool SalvageEffect()
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.鬼青蛙,
-                    (int)CardId.冰结界的传道师,
-                    (int)CardId.小灰篮史莱姆
+                    CardId.SwapFrog,
+                    CardId.PriorOfTheIceBarrier,
+                    CardId.GraydleSlimeJr
                 });
             return true;
         }
 
-        private bool 鬼青蛙特殊召唤()
+        private bool SwapFrogSpsummon()
         {
-            if (Bot.GetCountCardInZone(Bot.Hand, (int)CardId.小灰篮史莱姆)>=2 && !Bot.HasInGraveyard((int)CardId.小灰篮史莱姆))
-                AI.SelectCard((int)CardId.小灰篮史莱姆);
-            else if (Bot.HasInGraveyard((int)CardId.粹蛙) && !Bot.HasInGraveyard((int)CardId.魔知青蛙))
-                AI.SelectCard((int)CardId.魔知青蛙);
-            else if (Bot.HasInGraveyard((int)CardId.魔知青蛙) && !Bot.HasInGraveyard((int)CardId.粹蛙))
-                AI.SelectCard((int)CardId.粹蛙);
+            if (Bot.GetCountCardInZone(Bot.Hand, CardId.GraydleSlimeJr)>=2 && !Bot.HasInGraveyard(CardId.GraydleSlimeJr))
+                AI.SelectCard(CardId.GraydleSlimeJr);
+            else if (Bot.HasInGraveyard(CardId.Ronintoadin) && !Bot.HasInGraveyard(CardId.DupeFrog))
+                AI.SelectCard(CardId.DupeFrog);
+            else if (Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.Ronintoadin))
+                AI.SelectCard(CardId.Ronintoadin);
             else
                 AI.SelectCard(new[]
                     {
-                        (int)CardId.粹蛙,
-                        (int)CardId.魔知青蛙,
-                        (int)CardId.冰结界的术者,
-                        (int)CardId.冰结界的水影,
-                        (int)CardId.冰结界的传道师,
-                        (int)CardId.小灰篮史莱姆,
-                        (int)CardId.鬼青蛙
+                        CardId.Ronintoadin,
+                        CardId.DupeFrog,
+                        CardId.CryomancerOfTheIceBarrier,
+                        CardId.DewdarkOfTheIceBarrier,
+                        CardId.PriorOfTheIceBarrier,
+                        CardId.GraydleSlimeJr,
+                        CardId.SwapFrog
                     });
             return true;
         }
 
-        private bool 鬼青蛙效果()
+        private bool SwapFrogEffect()
         {
             if (ActivateDescription == -1)
             {
-                return 愚蠢的埋葬效果();
+                return FoolishBurialEffect();
             }
             else
             {
-                if (Bot.HasInHand((int)CardId.魔知青蛙))
+                if (Bot.HasInHand(CardId.DupeFrog))
                 {
                     AI.SelectCard(new[]
                         {
-                            (int)CardId.冰结界的传道师,
-                            (int)CardId.小灰篮史莱姆,
-                            (int)CardId.鬼青蛙
+                            CardId.PriorOfTheIceBarrier,
+                            CardId.GraydleSlimeJr,
+                            CardId.SwapFrog
                         });
                     return true;
                 }
@@ -255,35 +258,35 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 小灰篮史莱姆优先通常召唤()
+        private bool GraydleSlimeJrSummon()
         {
-            return Bot.HasInGraveyard((int)CardId.小灰篮史莱姆);
+            return Bot.HasInGraveyard(CardId.GraydleSlimeJr);
         }
 
-        private bool 小灰篮史莱姆效果()
+        private bool GraydleSlimeJrEffect()
         {
-            AI.SelectCard((int)CardId.小灰篮史莱姆);
+            AI.SelectCard(CardId.GraydleSlimeJr);
             AI.SelectPosition(CardPosition.FaceUpDefence);
             AI.SelectNextCard(new[]
                 {
-                    (int)CardId.鬼青蛙,
-                    (int)CardId.冰结界的术者,
-                    (int)CardId.冰结界的水影,
-                    (int)CardId.粹蛙,
-                    (int)CardId.魔知青蛙,
-                    (int)CardId.冰结界的传道师,
-                    (int)CardId.小灰篮史莱姆
+                    CardId.SwapFrog,
+                    CardId.CryomancerOfTheIceBarrier,
+                    CardId.DewdarkOfTheIceBarrier,
+                    CardId.Ronintoadin,
+                    CardId.DupeFrog,
+                    CardId.PriorOfTheIceBarrier,
+                    CardId.GraydleSlimeJr
                 });
             return true;
         }
 
-        private bool 粹蛙效果()
+        private bool RonintoadinEffect()
         {
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
 
-        private bool 低攻怪兽通常召唤()
+        private bool NormalSummon()
         {
             List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
@@ -296,59 +299,60 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 冰结界下级通常召唤()
+        private bool IceBarrierSummon()
         {
-            return Bot.GetCountCardInZone(Bot.Hand, (int)CardId.冰结界的传道师) > 0;
+            return Bot.GetCountCardInZone(Bot.Hand, CardId.PriorOfTheIceBarrier) > 0;
         }
 
-        private bool 冰结界的传道师通常召唤()
+        private bool PriorOfTheIceBarrierSummon()
         {
-            return Bot.GetCountCardInZone(Bot.Hand, (int)CardId.冰结界的传道师) >= 2;
+            return Bot.GetCountCardInZone(Bot.Hand, CardId.PriorOfTheIceBarrier) >= 2;
         }
 
-        private bool 饼蛙效果()
+        private bool ToadallyAwesomeEffect()
         {
             if (CurrentChain.Count > 0)
             {
+                // negate effect, select a cost for it
                 List<ClientCard> monsters = Bot.GetMonsters();
-                List<int> 合适的COST = new List<int> {
-                    (int)CardId.鬼青蛙,
-                    (int)CardId.粹蛙,
-                    (int)CardId.小灰篮史莱姆,
-                    (int)CardId.冰结界的术者,
-                    (int)CardId.冰结界的水影
+                List<int> suitableCost = new List<int> {
+                    CardId.SwapFrog,
+                    CardId.Ronintoadin,
+                    CardId.GraydleSlimeJr,
+                    CardId.CryomancerOfTheIceBarrier,
+                    CardId.DewdarkOfTheIceBarrier
                 };
                 foreach (ClientCard monster in monsters)
                 {
-                    if (合适的COST.Contains(monster.Id))
+                    if (suitableCost.Contains(monster.Id))
                     {
                         AI.SelectCard(monster);
                         return true;
                     }
                 }
-                bool 有水舞台 = Bot.HasInSpellZone((int)CardId.水舞台, true);
+                bool haveAquariumStage = Bot.HasInSpellZone(CardId.AquariumStage, true);
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.Id == (int)CardId.魔知青蛙 && !有水舞台)
+                    if (monster.Id == CardId.DupeFrog && !haveAquariumStage)
                     {
                         AI.SelectCard(monster);
                         return true;
                     }
                 }
                 monsters = (List<ClientCard>)Bot.Hand;
-                bool 手里有2个史莱姆 = Bot.GetCountCardInZone(Bot.Hand, (int)CardId.小灰篮史莱姆) >= 2;
+                bool HaveTwoGraydleSlimeJrInHand = Bot.GetCountCardInZone(Bot.Hand, CardId.GraydleSlimeJr) >= 2;
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.Id == (int)CardId.小灰篮史莱姆 && 手里有2个史莱姆)
+                    if (monster.Id == CardId.GraydleSlimeJr && HaveTwoGraydleSlimeJrInHand)
                     {
                         AI.SelectCard(monster);
                         return true;
                     }
                 }
-                bool 需要丢魔知 = Bot.HasInGraveyard((int)CardId.粹蛙) && !Bot.HasInGraveyard((int)CardId.魔知青蛙) && !Bot.HasInGraveyard((int)CardId.鬼青蛙);
+                bool NeedDupeFrogInGrave = Bot.HasInGraveyard(CardId.Ronintoadin) && !Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.SwapFrog);
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.Id == (int)CardId.魔知青蛙 && 需要丢魔知)
+                    if (monster.Id == CardId.DupeFrog && NeedDupeFrogInGrave)
                     {
                         AI.SelectCard(monster);
                         return true;
@@ -356,7 +360,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.Id == (int)CardId.粹蛙 || monster.Id == (int)CardId.魔知青蛙)
+                    if (monster.Id == CardId.Ronintoadin || monster.Id == CardId.DupeFrog)
                     {
                         AI.SelectCard(monster);
                         return true;
@@ -371,46 +375,46 @@ namespace WindBot.Game.AI.Decks
             }
             else if (Card.Location == CardLocation.Grave)
             {
-                if (!Bot.HasInExtra((int)CardId.饼蛙))
+                if (!Bot.HasInExtra(CardId.ToadallyAwesome))
                 {
-                    AI.SelectCard((int)CardId.饼蛙);
+                    AI.SelectCard(CardId.ToadallyAwesome);
                 }
                 else
                 {
                     AI.SelectCard(new[]
                         {
-                            (int)CardId.鬼青蛙,
-                            (int)CardId.冰结界的传道师,
-                            (int)CardId.小灰篮史莱姆
+                            CardId.SwapFrog,
+                            CardId.PriorOfTheIceBarrier,
+                            CardId.GraydleSlimeJr
                         });
                 }
                 return true;
             }
             else if (Duel.Phase == DuelPhase.Standby)
             {
-                选择取除超量素材(Card.Overlays);
+                SelectXYZDetach(Card.Overlays);
                 if (Duel.Player == 0)
                 {
                     AI.SelectNextCard(new[]
                         {
-                            (int)CardId.鬼青蛙,
-                            (int)CardId.冰结界的术者,
-                            (int)CardId.冰结界的水影,
-                            (int)CardId.粹蛙,
-                            (int)CardId.魔知青蛙,
-                            (int)CardId.小灰篮史莱姆
+                            CardId.SwapFrog,
+                            CardId.CryomancerOfTheIceBarrier,
+                            CardId.DewdarkOfTheIceBarrier,
+                            CardId.Ronintoadin,
+                            CardId.DupeFrog,
+                            CardId.GraydleSlimeJr
                         });
                 }
                 else
                 {
                     AI.SelectNextCard(new[]
                         {
-                            (int)CardId.魔知青蛙,
-                            (int)CardId.鬼青蛙,
-                            (int)CardId.粹蛙,
-                            (int)CardId.小灰篮史莱姆,
-                            (int)CardId.冰结界的术者,
-                            (int)CardId.冰结界的水影
+                            CardId.DupeFrog,
+                            CardId.SwapFrog,
+                            CardId.Ronintoadin,
+                            CardId.GraydleSlimeJr,
+                            CardId.CryomancerOfTheIceBarrier,
+                            CardId.DewdarkOfTheIceBarrier
                         });
                     AI.SelectPosition(CardPosition.FaceUpDefence);
                 }
@@ -419,16 +423,16 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool 猫鲨特殊召唤()
+        private bool CatSharkSummon()
         {
-            bool should = Bot.HasInMonstersZone((int)CardId.饼蛙)
-                        && ((AI.Utils.IsEnemyBetter(true, false)
+            bool should = Bot.HasInMonstersZone(CardId.ToadallyAwesome)
+                        && ((AI.Utils.IsOneEnemyBetter(true)
                             && !Bot.HasInMonstersZone(new List<int>
                                 {
-                                    (int)CardId.猫鲨,
-                                    (int)CardId.神骑矢车菊圣人马
+                                    CardId.CatShark,
+                                    CardId.SkyCavalryCentaurea
                                 }, true, true))
-                        || !Bot.HasInExtra((int)CardId.饼蛙));
+                        || !Bot.HasInExtra(CardId.ToadallyAwesome));
             if (should)
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
@@ -437,32 +441,32 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 猫鲨效果()
+        private bool CatSharkEffect()
         {
             List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == (int)CardId.饼蛙 && monster.Attack <= 2200)
+                if (monster.Id == CardId.ToadallyAwesome && monster.Attack <= 2200)
                 {
-                    选择取除超量素材(Card.Overlays);
+                    SelectXYZDetach(Card.Overlays);
                     AI.SelectNextCard(monster);
                     return true;
                 }
             }
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == (int)CardId.神骑矢车菊圣人马 && monster.Attack <= 2000)
+                if (monster.Id == CardId.SkyCavalryCentaurea && monster.Attack <= 2000)
                 {
-                    选择取除超量素材(Card.Overlays);
+                    SelectXYZDetach(Card.Overlays);
                     AI.SelectNextCard(monster);
                     return true;
                 }
             }
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == (int)CardId.大薰风凤凰 && monster.Attack <= 1500)
+                if (monster.Id == CardId.DaigustoPhoenix && monster.Attack <= 1500)
                 {
-                    选择取除超量素材(Card.Overlays);
+                    SelectXYZDetach(Card.Overlays);
                     AI.SelectNextCard(monster);
                     return true;
                 }
@@ -470,7 +474,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 神骑矢车菊圣人马特殊召唤()
+        private bool SkyCavalryCentaureaSummon()
         {
             int num = 0;
             List<ClientCard> monsters = Bot.GetMonsters();
@@ -481,16 +485,16 @@ namespace WindBot.Game.AI.Decks
                     num++;
                 }
             }
-            return AI.Utils.IsEnemyBetter(true, false)
-                   && AI.Utils.GetBestAttack(Enemy, true) > 2200
+            return AI.Utils.IsOneEnemyBetter(true)
+                   && AI.Utils.GetBestAttack(Enemy) > 2200
                    && num < 4
                    && !Bot.HasInMonstersZone(new List<int>
                         {
-                            (int)CardId.神骑矢车菊圣人马
+                            CardId.SkyCavalryCentaurea
                         }, true, true);
         }
 
-        private bool 大薰风凤凰特殊召唤()
+        private bool DaigustoPhoenixSummon()
         {
             if (Duel.Turn != 1)
             {
@@ -509,21 +513,21 @@ namespace WindBot.Game.AI.Decks
                 {
                     defence += monster.GetDefensePower();
                 }
-                if (attack - 2000 - defence > Duel.LifePoints[1] && !AI.Utils.IsEnemyBetter(true, false))
+                if (attack - 2000 - defence > Duel.LifePoints[1] && !AI.Utils.IsOneEnemyBetter(true))
                     return true;
             }
             return false;
         }
 
-        private bool 虹光之宣告者特殊召唤()
+        private bool HeraldOfTheArcLightSummon()
         {
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
 
-        private bool 改变攻守表示()
+        private bool Repos()
         {
-            bool enemyBetter = AI.Utils.IsEnemyBetter(true, true);
+            bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
 
             if (Card.IsFacedown())
                 return true;
@@ -532,7 +536,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 其他魔法发动()
+        private bool OtherSpellEffect()
         {
             foreach (CardExecutor exec in Executors)
             {
@@ -542,7 +546,7 @@ namespace WindBot.Game.AI.Decks
             return Card.IsSpell();
         }
 
-        private bool 其他陷阱发动()
+        private bool OtherTrapEffect()
         {
             foreach (CardExecutor exec in Executors)
             {
@@ -552,7 +556,7 @@ namespace WindBot.Game.AI.Decks
             return Card.IsTrap() && DefaultTrap();
         }
 
-        private bool 其他怪兽发动()
+        private bool OtherMonsterEffect()
         {
             foreach (CardExecutor exec in Executors)
             {
@@ -562,24 +566,24 @@ namespace WindBot.Game.AI.Decks
             return Card.IsMonster();
         }
 
-        private void 选择取除超量素材(List<int> Overlays)
+        private void SelectXYZDetach(List<int> Overlays)
         {
-            if (Overlays.Contains((int)CardId.小灰篮史莱姆) && Bot.HasInHand((int)CardId.小灰篮史莱姆) && !Bot.HasInGraveyard((int)CardId.小灰篮史莱姆))
-                AI.SelectCard((int)CardId.小灰篮史莱姆);
-            else if (Overlays.Contains((int)CardId.魔知青蛙) && Bot.HasInGraveyard((int)CardId.粹蛙) && !Bot.HasInGraveyard((int)CardId.魔知青蛙))
-                AI.SelectCard((int)CardId.魔知青蛙);
-            else if (Overlays.Contains((int)CardId.粹蛙) && Bot.HasInGraveyard((int)CardId.魔知青蛙) && !Bot.HasInGraveyard((int)CardId.粹蛙))
-                AI.SelectCard((int)CardId.粹蛙);
+            if (Overlays.Contains(CardId.GraydleSlimeJr) && Bot.HasInHand(CardId.GraydleSlimeJr) && !Bot.HasInGraveyard(CardId.GraydleSlimeJr))
+                AI.SelectCard(CardId.GraydleSlimeJr);
+            else if (Overlays.Contains(CardId.DupeFrog) && Bot.HasInGraveyard(CardId.Ronintoadin) && !Bot.HasInGraveyard(CardId.DupeFrog))
+                AI.SelectCard(CardId.DupeFrog);
+            else if (Overlays.Contains(CardId.Ronintoadin) && Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.Ronintoadin))
+                AI.SelectCard(CardId.Ronintoadin);
             else
                 AI.SelectCard(new[]
                     {
-                        (int)CardId.小灰篮史莱姆,
-                        (int)CardId.粹蛙,
-                        (int)CardId.魔知青蛙,
-                        (int)CardId.冰结界的术者,
-                        (int)CardId.冰结界的水影,
-                        (int)CardId.冰结界的传道师,
-                        (int)CardId.鬼青蛙
+                        CardId.GraydleSlimeJr,
+                        CardId.Ronintoadin,
+                        CardId.DupeFrog,
+                        CardId.CryomancerOfTheIceBarrier,
+                        CardId.DewdarkOfTheIceBarrier,
+                        CardId.PriorOfTheIceBarrier,
+                        CardId.SwapFrog
                     });
         }
     }

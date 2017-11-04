@@ -42,44 +42,40 @@ namespace WindBot.Game.AI
             return 1;
         }
 
-        public int GetBestAttack(ClientField field, bool onlyatk)
+        /// <summary>
+        /// Get the best ATK or DEF power of the field.
+        /// </summary>
+        /// <param name="field">Bot or Enemy.</param>
+        /// <param name="onlyATK">Only calculate attack.</param>
+        public int GetBestPower(ClientField field, bool onlyATK = false)
         {
-            int bestAtk = -1;
+            int bestPower = -1;
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = field.MonsterZone[i];
-                if (card == null) continue;
-                if (onlyatk && card.IsDefense()) continue;
-                int enemyValue = card.GetDefensePower();
-                if (enemyValue > bestAtk)
-                    bestAtk = enemyValue;
+                if (card == null || card.Data == null) continue;
+                if (onlyATK && card.IsDefense()) continue;
+                int newPower = card.GetDefensePower();
+                if (newPower > bestPower)
+                    bestPower = newPower;
             }
-            return bestAtk;
+            return bestPower;
         }
 
-        public bool IsEnemyBetter(bool onlyatk, bool all)
+        public int GetBestAttack(ClientField field)
         {
-            if (Enemy.GetMonsterCount() == 0)
-                return false;
-            List<ClientCard> monsters = Bot.GetMonsters();
-            monsters.Sort(CompareCardAttack);
-            int bestAtk = -1;
-            if (monsters.Count > 0)
-                bestAtk = monsters[monsters.Count - 1].Attack;
-            if (all)
-                return IsAllEnemyBetterThanValue(bestAtk, onlyatk);
-            return IsOneEnemyBetterThanValue(bestAtk, onlyatk);
+            return GetBestPower(field, true);
         }
 
-        public bool IsOneEnemyBetterThanValue(int value, bool onlyatk)
+        public bool IsOneEnemyBetterThanValue(int value, bool onlyATK)
         {
             int bestValue = -1;
             bool nomonster = true;
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Enemy.MonsterZone[i];
-                if (card == null) continue;
-                if (onlyatk && card.IsDefense()) continue;
+                if (card == null || card.Data == null) continue;
+                if (onlyATK && card.IsDefense()) continue;
                 nomonster = false;
                 int enemyValue = card.GetDefensePower();
                 if (enemyValue > bestValue)
@@ -89,14 +85,14 @@ namespace WindBot.Game.AI
             return bestValue > value;
         }
 
-        public bool IsAllEnemyBetterThanValue(int value, bool onlyatk)
+        public bool IsAllEnemyBetterThanValue(int value, bool onlyATK)
         {
             bool nomonster = true;
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Enemy.MonsterZone[i];
                 if (card == null || card.Data == null) continue;
-                if (onlyatk && card.IsDefense()) continue;
+                if (onlyATK && card.IsDefense()) continue;
                 nomonster = false;
                 int enemyValue = card.GetDefensePower();
                 if (enemyValue <= value)
@@ -105,85 +101,160 @@ namespace WindBot.Game.AI
             return !nomonster;
         }
 
-        public ClientCard GetOneEnemyBetterThanValue(int value, bool onlyatk)
+        /// <summary>
+        /// Deprecated, use IsOneEnemyBetter and IsAllEnemyBetter instead.
+        /// </summary>
+        public bool IsEnemyBetter(bool onlyATK, bool all)
         {
+            if (all)
+                return IsAllEnemyBetter(onlyATK);
+            else
+                return IsOneEnemyBetter(onlyATK);
+        }
+
+        /// <summary>
+        /// Is there an enemy monster who has better power than the best power of the bot's?
+        /// </summary>
+        /// <param name="onlyATK">Only calculate attack.</param>
+        public bool IsOneEnemyBetter(bool onlyATK = false)
+        {
+            int bestBotPower = GetBestPower(Bot, onlyATK);
+            return IsOneEnemyBetterThanValue(bestBotPower, onlyATK);
+        }
+
+        /// <summary>
+        /// Do all enemy monsters have better power than the best power of the bot's?
+        /// </summary>
+        /// <param name="onlyATK">Only calculate attack.</param>
+        public bool IsAllEnemyBetter(bool onlyATK = false)
+        {
+            int bestBotPower = GetBestPower(Bot, onlyATK);
+            return IsAllEnemyBetterThanValue(bestBotPower, onlyATK);
+        }
+
+        public ClientCard GetOneEnemyBetterThanValue(int value, bool onlyATK = false)
+        {
+            ClientCard bestCard = null;
+            int bestValue = value;
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Enemy.MonsterZone[i];
-                if (card == null) continue;
-                if (onlyatk && card.IsDefense()) continue;
+                if (card == null || card.Data == null) continue;
+                if (onlyATK && card.IsDefense()) continue;
                 int enemyValue = card.GetDefensePower();
-                if (enemyValue >= value)
-                    return card;
+                if (enemyValue >= bestValue)
+                {
+                    bestCard = card;
+                    bestValue = enemyValue;
+                }
             }
-            return null;
+            return bestCard;
         }
 
-        public ClientCard GetAnyEnemyMonster()
+        public ClientCard GetOneEnemyBetterThanMyBest(bool onlyATK = false)
         {
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            ClientCard hmonster = monsters.GetHighestAttackMonster();
-            if (hmonster != null)
-            {
-                return hmonster;
-            }
-            foreach (ClientCard monster in monsters)
-            {
-                return monster;
-            }
-            return null;
+            int bestBotPower = GetBestPower(Bot, onlyATK);
+            return GetOneEnemyBetterThanValue(bestBotPower, onlyATK);
         }
 
-        public ClientCard GetProblematicCard(int attack = 0)
+        public ClientCard GetProblematicEnemyCard(int attack = 0)
         {
-            ClientCard card = Enemy.MonsterZone.GetInvincibleMonster();
+            ClientCard card = Enemy.MonsterZone.GetFloodgate();
             if (card != null)
                 return card;
-            card = Enemy.MonsterZone.GetFloodgate();
-            if (card != null)
-                return card;
+
             card = Enemy.SpellZone.GetFloodgate();
             if (card != null)
                 return card;
+
+            card = Enemy.MonsterZone.GetDangerousMonster();
+            if (card != null)
+                return card;
+
+            card = Enemy.MonsterZone.GetInvincibleMonster();
+            if (card != null)
+                return card;
+
             if (attack == 0)
-                attack = GetBestAttack(Bot, true);
+                attack = GetBestAttack(Bot);
             return GetOneEnemyBetterThanValue(attack, true);
         }
 
-        public ClientCard GetBestEnemyCard()
+        public ClientCard GetProblematicEnemyMonster(int attack = 0)
         {
-            ClientCard card = GetProblematicCard();
+            ClientCard card = Enemy.MonsterZone.GetFloodgate();
             if (card != null)
                 return card;
+
+            card = Enemy.MonsterZone.GetDangerousMonster();
+            if (card != null)
+                return card;
+
+            card = Enemy.MonsterZone.GetInvincibleMonster();
+            if (card != null)
+                return card;
+
+            if (attack == 0)
+                attack = GetBestAttack(Bot);
+            return GetOneEnemyBetterThanValue(attack, true);
+        }
+
+        public ClientCard GetProblematicEnemySpell()
+        {
+            ClientCard card = Enemy.SpellZone.GetFloodgate();
+            return card;
+        }
+
+        public ClientCard GetBestEnemyCard(bool onlyFaceup = false)
+        {
+            ClientCard card = GetBestEnemyMonster(onlyFaceup);
+            if (card != null)
+                return card;
+
+            card = GetBestEnemySpell(onlyFaceup);
+            if (card != null)
+                return card;
+
+            return null;
+        }
+
+        public ClientCard GetBestEnemyMonster(bool onlyFaceup = false)
+        {
+            ClientCard card = GetProblematicEnemyMonster();
+            if (card != null)
+                return card;
+
             card = Enemy.MonsterZone.GetHighestAttackMonster();
             if (card != null)
                 return card;
-            List<ClientCard> spells = Enemy.GetSpells();
-            if (spells.Count > 0)
-                return spells[0];
+
+            List<ClientCard> monsters = Enemy.GetMonsters();
+
+            // after GetHighestAttackMonster, the left monsters must be face-down.
+            if (monsters.Count > 0 && !onlyFaceup)
+                return monsters[0];
+
             return null;
         }
 
-        public ClientCard GetProblematicMonsterCard(int attack = 0)
+        public ClientCard GetBestEnemySpell(bool onlyFaceup = false)
         {
-            ClientCard card = Enemy.MonsterZone.GetInvincibleMonster();
+            ClientCard card = GetProblematicEnemySpell();
             if (card != null)
                 return card;
-            card = Enemy.MonsterZone.GetFloodgate();
-            if (card != null)
-                return card;
-            if (attack == 0)
-                attack = GetBestAttack(Bot, true);
-            return GetOneEnemyBetterThanValue(attack, true);
-        }
 
-        public ClientCard GetProblematicSpellCard()
-        {
-            ClientCard card = Enemy.SpellZone.GetNegateAttackSpell();
-            if (card != null)
-                return card;
-            card = Enemy.SpellZone.GetFloodgate();
-            return card;
+            List<ClientCard> spells = Enemy.GetSpells();
+
+            foreach (ClientCard ecard in spells)
+            {
+                if (ecard.IsFaceup())
+                    return ecard;
+            }
+
+            if (spells.Count > 0 && !onlyFaceup)
+                return spells[0];
+
+            return null;
         }
 
         public ClientCard GetPZone(int player, int id)
@@ -207,5 +278,23 @@ namespace WindBot.Game.AI
         {
             return Duel.Turn == 1 || Duel.Phase == DuelPhase.Main2;
         }
+
+        public bool IsChainTarget(ClientCard card)
+        {
+            foreach (ClientCard target in Duel.ChainTargets)
+            {
+                if (card.Equals(target))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool IsChainTargetOnly(ClientCard card)
+        {
+            return Duel.ChainTargets.Count == 1 && card.Equals(Duel.ChainTargets[0]);
+        }
+
     }
 }

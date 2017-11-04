@@ -6,33 +6,33 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Burn", "AI_Burn")]
+    [Deck("Burn", "AI_Burn", "Easy")]
     public class BurnExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            LavaGolem = 102380,
-            ReflectBounder = 2851070,
-            FencingFireFerret = 97396380,
-            BlastSphere = 26302522,
-            Marshmallon = 31305911,
-            SpiritReaper = 23205979,
-            NaturiaBeans = 44789585,
-            ThunderShort = 20264508,
-            Ookazi = 19523799,
-            GoblinThief = 45311864,
-            TremendousFire = 46918794,
-            SwordsOfRevealingLight = 72302403,
-            SupremacyBerry = 98380593,
-            ChainEnergy = 79323590,
-            DarkRoomofNightmare = 85562745,
-            PoisonOfTheOldMan = 8842266,
-            OjamaTrio = 29843091,
-            Ceasefire = 36468556,
-            MagicCylinder = 62279055,
-            MinorGoblinOfficial = 1918087,
-            ChainBurst = 48276469,
-            SkullInvitation = 98139712
+            public static int LavaGolem = 102380;
+            public static int ReflectBounder = 2851070;
+            public static int FencingFireFerret = 97396380;
+            public static int BlastSphere = 26302522;
+            public static int Marshmallon = 31305911;
+            public static int SpiritReaper = 23205979;
+            public static int NaturiaBeans = 44789585;
+            public static int ThunderShort = 20264508;
+            public static int Ookazi = 19523799;
+            public static int GoblinThief = 45311864;
+            public static int TremendousFire = 46918794;
+            public static int SwordsOfRevealingLight = 72302403;
+            public static int SupremacyBerry = 98380593;
+            public static int ChainEnergy = 79323590;
+            public static int DarkRoomofNightmare = 85562745;
+            public static int PoisonOfTheOldMan = 8842266;
+            public static int OjamaTrio = 29843091;
+            public static int Ceasefire = 36468556;
+            public static int MagicCylinder = 62279055;
+            public static int MinorGoblinOfficial = 1918087;
+            public static int ChainBurst = 48276469;
+            public static int SkullInvitation = 98139712;
         }
 
         public BurnExecutor(GameAI ai, Duel duel)
@@ -42,39 +42,39 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
             // Activate Spells
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkRoomofNightmare);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Ookazi);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GoblinThief);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TremendousFire);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SwordsOfRevealingLight, SwordsOfRevealingLight);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SupremacyBerry, SupremacyBerry);
-            AddExecutor(ExecutorType.Activate, (int)CardId.PoisonOfTheOldMan, PoisonOfTheOldMan);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ThunderShort, ThunderShort);
+            AddExecutor(ExecutorType.Activate, CardId.DarkRoomofNightmare);
+            AddExecutor(ExecutorType.Activate, CardId.Ookazi);
+            AddExecutor(ExecutorType.Activate, CardId.GoblinThief);
+            AddExecutor(ExecutorType.Activate, CardId.TremendousFire);
+            AddExecutor(ExecutorType.Activate, CardId.SwordsOfRevealingLight, SwordsOfRevealingLight);
+            AddExecutor(ExecutorType.Activate, CardId.SupremacyBerry, SupremacyBerry);
+            AddExecutor(ExecutorType.Activate, CardId.PoisonOfTheOldMan, PoisonOfTheOldMan);
+            AddExecutor(ExecutorType.Activate, CardId.ThunderShort, ThunderShort);
 
             // Hello, my name is Lava Golem
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.LavaGolem, LavaGolem);
+            AddExecutor(ExecutorType.SpSummon, CardId.LavaGolem, LavaGolem);
 
             // Set an invincible monster
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.Marshmallon, SetInvincibleMonster);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.SpiritReaper, SetInvincibleMonster);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.BlastSphere);
+            AddExecutor(ExecutorType.MonsterSet, CardId.Marshmallon, SetInvincibleMonster);
+            AddExecutor(ExecutorType.MonsterSet, CardId.SpiritReaper, SetInvincibleMonster);
+            AddExecutor(ExecutorType.MonsterSet, CardId.BlastSphere);
 
             // Set other monsters
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.FencingFireFerret);
-            AddExecutor(ExecutorType.Summon, (int)CardId.ReflectBounder);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.NaturiaBeans);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.FencingFireFerret);
+            AddExecutor(ExecutorType.Summon, CardId.ReflectBounder);
+            AddExecutor(ExecutorType.MonsterSet, CardId.NaturiaBeans);
 
             // We're a coward
             AddExecutor(ExecutorType.Repos, ReposEverything);
 
             // Chain traps
-            AddExecutor(ExecutorType.Activate, (int)CardId.MagicCylinder, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Ceasefire, Ceasefire);
-            AddExecutor(ExecutorType.Activate, (int)CardId.OjamaTrio);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MinorGoblinOfficial);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ChainBurst);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SkullInvitation);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ChainEnergy);
+            AddExecutor(ExecutorType.Activate, CardId.MagicCylinder, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.Ceasefire, Ceasefire);
+            AddExecutor(ExecutorType.Activate, CardId.OjamaTrio);
+            AddExecutor(ExecutorType.Activate, CardId.MinorGoblinOfficial);
+            AddExecutor(ExecutorType.Activate, CardId.ChainBurst);
+            AddExecutor(ExecutorType.Activate, CardId.SkullInvitation);
+            AddExecutor(ExecutorType.Activate, CardId.ChainEnergy);
         }
 
         public override bool OnSelectHand()
@@ -84,7 +84,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SwordsOfRevealingLight()
         {
-            int count = Bot.SpellZone.GetCardCount((int)CardId.SwordsOfRevealingLight);
+            int count = Bot.SpellZone.GetCardCount(CardId.SwordsOfRevealingLight);
             return count == 0;
         }
 
@@ -108,7 +108,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard card in Bot.GetMonsters())
             {
-                if (card.Id == (int)CardId.Marshmallon || card.Id == (int)CardId.SpiritReaper)
+                if (card.Id == CardId.Marshmallon || card.Id == CardId.SpiritReaper)
                 {
                     return false;
                 }
@@ -134,9 +134,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool ReposEverything()
         {
-            if (Card.Id == (int)CardId.ReflectBounder)
+            if (Card.Id == CardId.ReflectBounder)
                 return Card.IsDefense();
-            if (Card.Id == (int)CardId.FencingFireFerret)
+            if (Card.Id == CardId.FencingFireFerret)
                 return DefaultMonsterRepos();
             if (Card.IsAttack())
                 return true;

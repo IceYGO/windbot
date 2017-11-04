@@ -6,36 +6,37 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Nekroz", "AI_Nekroz")]
+    // NOT FINISHED YET
+    [Deck("Nekroz", "AI_Nekroz", "NotFinished")]
     public class NekrozExecutor : DefaultExecutor
     {  
-        public enum CardId
+        public class CardId
         {
-            DancePrincess = 52738610,
-            ThousandHands = 23401839,
-            TenThousandHands = 95492061,
-            Shurit = 90307777,
-            MaxxC = 23434538,
-            DecisiveArmor = 88240999,
-            Trishula = 52068432,
-            Valkyrus = 25857246,
-            Gungnir = 74122412,
-            Brionac = 26674724,
-            Unicore = 89463537,
-            Clausolas = 99185129,
-            PhantomOfChaos = 30312361,
+            public static int DancePrincess = 52738610;
+            public static int ThousandHands = 23401839;
+            public static int TenThousandHands = 95492061;
+            public static int Shurit = 90307777;
+            public static int MaxxC = 23434538;
+            public static int DecisiveArmor = 88240999;
+            public static int Trishula = 52068432;
+            public static int Valkyrus = 25857246;
+            public static int Gungnir = 74122412;
+            public static int Brionac = 26674724;
+            public static int Unicore = 89463537;
+            public static int Clausolas = 99185129;
+            public static int PhantomOfChaos = 30312361;
 
-            DarkHole = 53129443,
-            ReinforcementOfTheArmy = 32807846,
-            TradeIn = 38120068,
-            PreparationOfRites = 96729612,
-            Mirror = 14735698,
-            Kaleidoscope = 51124303,
-            Cycle = 97211663,
-            MysticalSpaceTyphoon = 5318639,
-            RoyalDecree = 51452091,
-            EvilswarmExcitonKnight = 46772449,
-            HeraldOfTheArcLight = 79606837
+            public static int DarkHole = 53129443;
+            public static int ReinforcementOfTheArmy = 32807846;
+            public static int TradeIn = 38120068;
+            public static int PreparationOfRites = 96729612;
+            public static int Mirror = 14735698;
+            public static int Kaleidoscope = 51124303;
+            public static int Cycle = 97211663;
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int RoyalDecree = 51452091;
+            public static int EvilswarmExcitonKnight = 46772449;
+            public static int HeraldOfTheArcLight = 79606837;
         }
 
         List<int> NekrozRituelCard = new List<int>();
@@ -44,79 +45,79 @@ namespace WindBot.Game.AI.Decks
         public NekrozExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            NekrozRituelCard.Add((int)CardId.Clausolas); 
-            NekrozRituelCard.Add((int)CardId.Unicore);
-            NekrozRituelCard.Add((int)CardId.DecisiveArmor);
-            NekrozRituelCard.Add((int)CardId.Brionac);
-            NekrozRituelCard.Add((int)CardId.Trishula);
-            NekrozRituelCard.Add((int)CardId.Gungnir);
-            NekrozRituelCard.Add((int)CardId.Valkyrus);
+            NekrozRituelCard.Add(CardId.Clausolas); 
+            NekrozRituelCard.Add(CardId.Unicore);
+            NekrozRituelCard.Add(CardId.DecisiveArmor);
+            NekrozRituelCard.Add(CardId.Brionac);
+            NekrozRituelCard.Add(CardId.Trishula);
+            NekrozRituelCard.Add(CardId.Gungnir);
+            NekrozRituelCard.Add(CardId.Valkyrus);
 
-            NekrozSpellCard.Add((int)CardId.Mirror);
-            NekrozSpellCard.Add((int)CardId.Kaleidoscope);
-            NekrozSpellCard.Add((int)CardId.Cycle);
+            NekrozSpellCard.Add(CardId.Mirror);
+            NekrozSpellCard.Add(CardId.Kaleidoscope);
+            NekrozSpellCard.Add(CardId.Cycle);
 
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ReinforcementOfTheArmy, ReinforcementOfTheArmyEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TradeIn);
-            AddExecutor(ExecutorType.Activate, (int)CardId.PreparationOfRites);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Mirror);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Kaleidoscope);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Cycle);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.RoyalDecree);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.ReinforcementOfTheArmy, ReinforcementOfTheArmyEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TradeIn);
+            AddExecutor(ExecutorType.Activate, CardId.PreparationOfRites);
+            AddExecutor(ExecutorType.Activate, CardId.Mirror);
+            AddExecutor(ExecutorType.Activate, CardId.Kaleidoscope);
+            AddExecutor(ExecutorType.Activate, CardId.Cycle);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.RoyalDecree);
 
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.DancePrincess, DancePrincessSummon);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.Shurit, ShuritSet);
-            AddExecutor(ExecutorType.Summon, (int)CardId.ThousandHands, ThousandHandsSummom);
-            AddExecutor(ExecutorType.Summon, (int)CardId.TenThousandHands, TenThousandHandsSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.PhantomOfChaos, PhantomOfChaosSummon);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.DancePrincess, DancePrincessSummon);
+            AddExecutor(ExecutorType.MonsterSet, CardId.Shurit, ShuritSet);
+            AddExecutor(ExecutorType.Summon, CardId.ThousandHands, ThousandHandsSummon);
+            AddExecutor(ExecutorType.Summon, CardId.TenThousandHands, TenThousandHandsSummon);
+            AddExecutor(ExecutorType.Summon, CardId.PhantomOfChaos, PhantomOfChaosSummon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Unicore, UnicoreEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DecisiveArmor, DecisiveArmorEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Valkyrus, ValkyrusEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Gungnir, GungnirEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Brionac, BrionacEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Clausolas, ClausolasEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Trishula);
-            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.PhantomOfChaos, PhantomOfChaosEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MaxxC);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ThousandHands, ThousandHandsEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TenThousandHands, BrionacEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.HeraldOfTheArcLight);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Shurit);
+            AddExecutor(ExecutorType.Activate, CardId.Unicore, UnicoreEffect);
+            AddExecutor(ExecutorType.Activate, CardId.DecisiveArmor, DecisiveArmorEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Valkyrus, ValkyrusEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Gungnir, GungnirEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Brionac, BrionacEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Clausolas, ClausolasEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Trishula);
+            AddExecutor(ExecutorType.Activate, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.Activate, CardId.PhantomOfChaos, PhantomOfChaosEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MaxxC);
+            AddExecutor(ExecutorType.Activate, CardId.ThousandHands, ThousandHandsEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TenThousandHands, BrionacEffect);
+            AddExecutor(ExecutorType.Activate, CardId.HeraldOfTheArcLight);
+            AddExecutor(ExecutorType.Activate, CardId.Shurit);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Trishula);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.DecisiveArmor);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Valkyrus);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Gungnir);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Brionac);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Unicore);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Clausolas);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Trishula);
+            AddExecutor(ExecutorType.SpSummon, CardId.DecisiveArmor);
+            AddExecutor(ExecutorType.SpSummon, CardId.Valkyrus);
+            AddExecutor(ExecutorType.SpSummon, CardId.Gungnir);
+            AddExecutor(ExecutorType.SpSummon, CardId.Brionac);
+            AddExecutor(ExecutorType.SpSummon, CardId.Unicore);
+            AddExecutor(ExecutorType.SpSummon, CardId.Clausolas);
+            AddExecutor(ExecutorType.SpSummon, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
         }
 
-        private bool ThousandHandsSummom()
+        private bool ThousandHandsSummon()
         {
-            if (!Bot.HasInHand(NekrozRituelCard) || Bot.HasInHand((int)CardId.Shurit) || !Bot.HasInHand(NekrozSpellCard))  
+            if (!Bot.HasInHand(NekrozRituelCard) || Bot.HasInHand(CardId.Shurit) || !Bot.HasInHand(NekrozSpellCard))  
                 return true;
             foreach (ClientCard Card in Bot.Hand)
-                if (Card != null && Card.Id == (int)CardId.Kaleidoscope && !Bot.HasInHand((int)CardId.Unicore))
+                if (Card != null && Card.Id == CardId.Kaleidoscope && !Bot.HasInHand(CardId.Unicore))
                     return true;
-                else if (Card.Id == (int)CardId.Trishula || Card.Id == (int)CardId.DecisiveArmor && !Bot.HasInHand((int)CardId.Mirror) || !Bot.HasInHand((int)CardId.Shurit))
+                else if (Card.Id == CardId.Trishula || Card.Id == CardId.DecisiveArmor && !Bot.HasInHand(CardId.Mirror) || !Bot.HasInHand(CardId.Shurit))
                     return true;
             return false;
         }
 
         private bool ReinforcementOfTheArmyEffect()
         {
-            if (!Bot.HasInGraveyard((int)CardId.Shurit) && !Bot.HasInHand((int)CardId.Shurit))
+            if (!Bot.HasInGraveyard(CardId.Shurit) && !Bot.HasInHand(CardId.Shurit))
             {
-                AI.SelectCard((int)CardId.Shurit);
+                AI.SelectCard(CardId.Shurit);
                 return true;
             }
             return false;
@@ -124,34 +125,34 @@ namespace WindBot.Game.AI.Decks
 
         private bool TenThousandHandsSummon()
         {
-                if (!Bot.HasInHand((int)CardId.ThousandHands) || !Bot.HasInHand((int)CardId.Shurit))
+                if (!Bot.HasInHand(CardId.ThousandHands) || !Bot.HasInHand(CardId.Shurit))
                 return true;
             return false;
         }
 
         private bool DancePrincessSummon()
         {
-            if (!Bot.HasInHand((int)CardId.ThousandHands) && !Bot.HasInHand((int)CardId.TenThousandHands))
+            if (!Bot.HasInHand(CardId.ThousandHands) && !Bot.HasInHand(CardId.TenThousandHands))
                 return true;
             return false;
         }
 
         private bool PhantomOfChaosSummon()
         {
-            if (Bot.HasInGraveyard((int)CardId.Shurit) && Bot.HasInHand(NekrozSpellCard) && Bot.HasInHand(NekrozRituelCard))
+            if (Bot.HasInGraveyard(CardId.Shurit) && Bot.HasInHand(NekrozSpellCard) && Bot.HasInHand(NekrozRituelCard))
                 return true;
             return false;
         }
 
         private bool PhantomOfChaosEffect()
         {
-            AI.SelectCard((int)CardId.Shurit);
+            AI.SelectCard(CardId.Shurit);
             return true;
         }
 
         private bool ShuritSet()
         {
-            if (!Bot.HasInHand((int)CardId.ThousandHands) && !Bot.HasInHand((int)CardId.TenThousandHands) && !Bot.HasInHand((int)CardId.DancePrincess))
+            if (!Bot.HasInHand(CardId.ThousandHands) && !Bot.HasInHand(CardId.TenThousandHands) && !Bot.HasInHand(CardId.DancePrincess))
                 return true;
             return false;
         }
@@ -160,24 +161,10 @@ namespace WindBot.Game.AI.Decks
         {
             if (AI.Utils.IsAllEnemyBetterThanValue(3300, true))
             {
-                AI.SelectCard((int)CardId.DecisiveArmor);
+                AI.SelectCard(CardId.DecisiveArmor);
                 return true;
             }
             return false;
-        }
-
-        private bool EvilswarmExcitonKnightSummon()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
-            return (selfCount - 1 < oppoCount) && EvilswarmExcitonKnightEffect();
-        }
-
-        private bool EvilswarmExcitonKnightEffect()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
-            return selfCount < oppoCount;
         }
 
         private bool ValkyrusEffect()
@@ -189,7 +176,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GungnirEffect()
         {           
-            if (AI.Utils.IsEnemyBetter(true, false) && Duel.Phase == DuelPhase.Main1)
+            if (AI.Utils.IsOneEnemyBetter(true) && Duel.Phase == DuelPhase.Main1)
             {
                 AI.SelectCard(Enemy.GetMonsters().GetHighestAttackMonster());
                 return true;
@@ -199,34 +186,34 @@ namespace WindBot.Game.AI.Decks
 
         private bool BrionacEffect()
         {
-            if (!Bot.HasInHand((int)CardId.Shurit))
+            if (!Bot.HasInHand(CardId.Shurit))
             {
-                AI.SelectCard((int)CardId.Shurit);
+                AI.SelectCard(CardId.Shurit);
                 return true;
             }
             else if (!Bot.HasInHand(NekrozSpellCard))
             {
-                AI.SelectCard((int)CardId.Mirror);
+                AI.SelectCard(CardId.Mirror);
                 return true;
             }
-            else if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand((int)CardId.Trishula))
+            else if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand(CardId.Trishula))
             {
-                AI.SelectCard((int)CardId.Trishula);
+                AI.SelectCard(CardId.Trishula);
                 return true;
             }
-            else if (AI.Utils.IsAllEnemyBetterThanValue(2700,true) && !Bot.HasInHand((int)CardId.DecisiveArmor))
+            else if (AI.Utils.IsAllEnemyBetterThanValue(2700,true) && !Bot.HasInHand(CardId.DecisiveArmor))
             {
-                AI.SelectCard((int)CardId.DecisiveArmor);
+                AI.SelectCard(CardId.DecisiveArmor);
                 return true;
             }
-            else if (Bot.HasInHand((int)CardId.Unicore) && !Bot.HasInHand((int)CardId.Kaleidoscope))
+            else if (Bot.HasInHand(CardId.Unicore) && !Bot.HasInHand(CardId.Kaleidoscope))
             {
-                AI.SelectCard((int)CardId.Kaleidoscope);
+                AI.SelectCard(CardId.Kaleidoscope);
                 return true;
             }
-            else if (!Bot.HasInHand((int)CardId.Unicore) && Bot.HasInHand((int)CardId.Kaleidoscope))
+            else if (!Bot.HasInHand(CardId.Unicore) && Bot.HasInHand(CardId.Kaleidoscope))
             {
-                AI.SelectCard((int)CardId.Unicore);
+                AI.SelectCard(CardId.Unicore);
                 return true;
             }
             return true;
@@ -234,19 +221,19 @@ namespace WindBot.Game.AI.Decks
 
         private bool ThousandHandsEffect()
         {
-            if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand((int)CardId.Trishula))
+            if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand(CardId.Trishula))
             {
-                AI.SelectCard((int)CardId.Trishula);
+                AI.SelectCard(CardId.Trishula);
                 return true;
             }
-            else if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && !Bot.HasInHand((int)CardId.DecisiveArmor))
+            else if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && !Bot.HasInHand(CardId.DecisiveArmor))
             {
-                AI.SelectCard((int)CardId.DecisiveArmor);
+                AI.SelectCard(CardId.DecisiveArmor);
                 return true;
             }
-            else if (!Bot.HasInHand((int)CardId.Unicore) && Bot.HasInHand((int)CardId.Kaleidoscope))
+            else if (!Bot.HasInHand(CardId.Unicore) && Bot.HasInHand(CardId.Kaleidoscope))
             {
-                AI.SelectCard((int)CardId.Unicore);
+                AI.SelectCard(CardId.Unicore);
                 return true;
             }
             return true;
@@ -254,9 +241,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool UnicoreEffect()
         {
-            if (Bot.HasInGraveyard((int)CardId.Shurit))
+            if (Bot.HasInGraveyard(CardId.Shurit))
             {
-                AI.SelectCard((int)CardId.Shurit);
+                AI.SelectCard(CardId.Shurit);
                 return true;
             }
             return false;
@@ -266,7 +253,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!Bot.HasInHand(NekrozSpellCard))
             {
-                AI.SelectCard((int)CardId.Mirror);
+                AI.SelectCard(CardId.Mirror);
                 return true;
             }
             return false;
@@ -274,7 +261,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool IsTheLastPossibility()
         {
-            if (!Bot.HasInHand((int)CardId.DecisiveArmor) && !Bot.HasInHand((int)CardId.Trishula))
+            if (!Bot.HasInHand(CardId.DecisiveArmor) && !Bot.HasInHand(CardId.Trishula))
                 return true;
             return false;
         }
@@ -290,42 +277,42 @@ namespace WindBot.Game.AI.Decks
 
                 foreach (int Id in NekrozCard)
                 {
-                    if (Id == (int)CardId.Trishula && AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand((int)CardId.DecisiveArmor))
+                    if (Id == CardId.Trishula && AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand(CardId.DecisiveArmor))
                     {
-                        AI.SelectCard((int)CardId.Trishula);
+                        AI.SelectCard(CardId.Trishula);
                         return true;
                     }
-                    else if (Id == (int)CardId.DecisiveArmor)
+                    else if (Id == CardId.DecisiveArmor)
                     {
-                        AI.SelectCard((int)CardId.DecisiveArmor);
+                        AI.SelectCard(CardId.DecisiveArmor);
                         return true;
                     }
-                    else if (Id == (int)CardId.Unicore && Bot.HasInHand((int)CardId.Kaleidoscope) && !Bot.HasInGraveyard((int)CardId.Shurit))
+                    else if (Id == CardId.Unicore && Bot.HasInHand(CardId.Kaleidoscope) && !Bot.HasInGraveyard(CardId.Shurit))
                     {
-                        AI.SelectCard((int)CardId.Unicore);
+                        AI.SelectCard(CardId.Unicore);
                         return true;
                     }
-                    else if (Id == (int)CardId.Valkyrus)
+                    else if (Id == CardId.Valkyrus)
                     {
                         if (IsTheLastPossibility())
                         {
-                            AI.SelectCard((int)CardId.Valkyrus);
+                            AI.SelectCard(CardId.Valkyrus);
                             return true;
                         }
                     }
-                    else if (Id == (int)CardId.Gungnir)
+                    else if (Id == CardId.Gungnir)
                     {
                         if (IsTheLastPossibility())
                         {
-                            AI.SelectCard((int)CardId.Gungnir);
+                            AI.SelectCard(CardId.Gungnir);
                             return true;
                         }
                     }
-                    else if (Id == (int)CardId.Clausolas)
+                    else if (Id == CardId.Clausolas)
                     {
                         if (IsTheLastPossibility())
                         {
-                            AI.SelectCard((int)CardId.Clausolas);
+                            AI.SelectCard(CardId.Clausolas);
                             return true;
                         }
                     }

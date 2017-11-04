@@ -6,31 +6,32 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Blackwing", "AI_Blackwing")]
+    // NOT FINISHED YET
+    [Deck("Blackwing", "AI_Blackwing", "NotFinished")]
     public class BlackwingExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            KrisTheCrackOfDawn = 81105204,
-            SiroccoTheDawn = 75498415,
-            ShuraTheBlueFlame = 58820853,
-            BoraTheSpear = 49003716,
-            KalutTheMoonShadow = 85215458,
-            GaleTheWhirlwind = 2009101,
-            BlizzardTheFarNorth = 22835145,
-            MistralTheSilverShield = 46710683,
-            Raigeki = 12580477,
-            DarkHole = 53129443,
-            MysticalSpaceTyphoon = 5318639,
-            BlackWhirlwind = 91351370,
-            MirrorForce = 44095762,
-            DeltaCrowAntiReverse = 59839761,
-            DimensionalPrison = 70342110,
-            SilverwindTheAscendant = 33236860,
-            BlackWingedDragon = 9012916,
-            ArmorMaster = 69031175,
-            ArmedWing = 76913983,
-            GramTheShiningStar = 17377751
+            public static int KrisTheCrackOfDawn = 81105204;
+            public static int SiroccoTheDawn = 75498415;
+            public static int ShuraTheBlueFlame = 58820853;
+            public static int BoraTheSpear = 49003716;
+            public static int KalutTheMoonShadow = 85215458;
+            public static int GaleTheWhirlwind = 2009101;
+            public static int BlizzardTheFarNorth = 22835145;
+            public static int MistralTheSilverShield = 46710683;
+            public static int Raigeki = 12580477;
+            public static int DarkHole = 53129443;
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int BlackWhirlwind = 91351370;
+            public static int MirrorForce = 44095762;
+            public static int DeltaCrowAntiReverse = 59839761;
+            public static int DimensionalPrison = 70342110;
+            public static int SilverwindTheAscendant = 33236860;
+            public static int BlackWingedDragon = 9012916;
+            public static int ArmorMaster = 69031175;
+            public static int ArmedWing = 76913983;
+            public static int GramTheShiningStar = 17377751;
         }
 
         public BlackwingExecutor(GameAI ai, Duel duel)
@@ -38,45 +39,45 @@ namespace WindBot.Game.AI.Decks
         {
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Raigeki, DefaultRaigeki);
-            AddExecutor(ExecutorType.Activate, (int)CardId.BlackWhirlwind, BlackWhirlwindEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.Raigeki, DefaultRaigeki);
+            AddExecutor(ExecutorType.Activate, CardId.BlackWhirlwind, BlackWhirlwindEffect);
             
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.KrisTheCrackOfDawn);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.KrisTheCrackOfDawn);
-            AddExecutor(ExecutorType.Summon, (int)CardId.SiroccoTheDawn, SiroccoTheDawnSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.ShuraTheBlueFlame, ShuraTheBlueFlameSummon);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.ShuraTheBlueFlame);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.BoraTheSpear);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.BoraTheSpear);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.KalutTheMoonShadow, KalutTheMoonShadowSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GaleTheWhirlwind);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.GaleTheWhirlwind);
-            AddExecutor(ExecutorType.Summon, (int)CardId.BlizzardTheFarNorth, BlizzardTheFarNorthSummon);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.MistralTheSilverShield);
+            AddExecutor(ExecutorType.SpSummon, CardId.KrisTheCrackOfDawn);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.KrisTheCrackOfDawn);
+            AddExecutor(ExecutorType.Summon, CardId.SiroccoTheDawn, SiroccoTheDawnSummon);
+            AddExecutor(ExecutorType.Summon, CardId.ShuraTheBlueFlame, ShuraTheBlueFlameSummon);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.ShuraTheBlueFlame);
+            AddExecutor(ExecutorType.SpSummon, CardId.BoraTheSpear);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.BoraTheSpear);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.KalutTheMoonShadow, KalutTheMoonShadowSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GaleTheWhirlwind);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.GaleTheWhirlwind);
+            AddExecutor(ExecutorType.Summon, CardId.BlizzardTheFarNorth, BlizzardTheFarNorthSummon);
+            AddExecutor(ExecutorType.MonsterSet, CardId.MistralTheSilverShield);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.SilverwindTheAscendant);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.ArmorMaster);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GramTheShiningStar);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.ArmedWing);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.BlackWingedDragon);
+            AddExecutor(ExecutorType.SpSummon, CardId.SilverwindTheAscendant);
+            AddExecutor(ExecutorType.SpSummon, CardId.ArmorMaster);
+            AddExecutor(ExecutorType.SpSummon, CardId.GramTheShiningStar);
+            AddExecutor(ExecutorType.SpSummon, CardId.ArmedWing);
+            AddExecutor(ExecutorType.SpSummon, CardId.BlackWingedDragon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DimensionalPrison, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DeltaCrowAntiReverse, DeltaCrowAntiReverseEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.DimensionalPrison, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.DeltaCrowAntiReverse, DeltaCrowAntiReverseEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.BlizzardTheFarNorth);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ShuraTheBlueFlame);
-            AddExecutor(ExecutorType.Activate, (int)CardId.BoraTheSpear, BoraTheSpearEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.KalutTheMoonShadow, AttackUpEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SiroccoTheDawn, AttackUpEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GaleTheWhirlwind, GaleTheWhirlwindEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SilverwindTheAscendant);
-            AddExecutor(ExecutorType.Activate, (int)CardId.BlackWingedDragon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ArmorMaster);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ArmedWing);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GramTheShiningStar);
+            AddExecutor(ExecutorType.Activate, CardId.BlizzardTheFarNorth);
+            AddExecutor(ExecutorType.Activate, CardId.ShuraTheBlueFlame);
+            AddExecutor(ExecutorType.Activate, CardId.BoraTheSpear, BoraTheSpearEffect);
+            AddExecutor(ExecutorType.Activate, CardId.KalutTheMoonShadow, AttackUpEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SiroccoTheDawn, AttackUpEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GaleTheWhirlwind, GaleTheWhirlwindEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SilverwindTheAscendant);
+            AddExecutor(ExecutorType.Activate, CardId.BlackWingedDragon);
+            AddExecutor(ExecutorType.Activate, CardId.ArmorMaster);
+            AddExecutor(ExecutorType.Activate, CardId.ArmedWing);
+            AddExecutor(ExecutorType.Activate, CardId.GramTheShiningStar);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -90,7 +91,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShuraTheBlueFlameSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.SiroccoTheDawn) && Bot.GetMonsters().GetHighestAttackMonster().Attack < 3800)
+            if (Bot.HasInMonstersZone(CardId.SiroccoTheDawn) && Bot.GetMonsters().GetHighestAttackMonster().Attack < 3800)
                 return true;
             return false;
         }
@@ -100,7 +101,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Hand && Bot.HasInSpellZone(Card.Id))
                 return false;
             if (ActivateDescription == AI.Utils.GetStringId((int)Card.Id,0))
-                AI.SelectCard((int)CardId.GaleTheWhirlwind);
+                AI.SelectCard(CardId.GaleTheWhirlwind);
             return true;
         }
 
@@ -117,7 +118,7 @@ namespace WindBot.Game.AI.Decks
         {
             List<ClientCard> monster = Bot.GetMonsters();
             foreach (ClientCard card in monster)
-                if (card != null && card.Id == (int)CardId.KrisTheCrackOfDawn || card.Id == (int)CardId.KalutTheMoonShadow || card.Id == (int)CardId.GaleTheWhirlwind || card.Id == (int)CardId.BoraTheSpear || card.Id == (int)CardId.SiroccoTheDawn || card.Id == (int)CardId.ShuraTheBlueFlame || card.Id == (int)CardId.BlizzardTheFarNorth)
+                if (card != null && card.Id == CardId.KrisTheCrackOfDawn || card.Id == CardId.KalutTheMoonShadow || card.Id == CardId.GaleTheWhirlwind || card.Id == CardId.BoraTheSpear || card.Id == CardId.SiroccoTheDawn || card.Id == CardId.ShuraTheBlueFlame || card.Id == CardId.BlizzardTheFarNorth)
                     return true;
             return false;
         }
@@ -125,7 +126,7 @@ namespace WindBot.Game.AI.Decks
         private bool KalutTheMoonShadowSummon()
         {
             foreach (ClientCard card in Bot.Hand)
-                if (card != null && card.Id == (int)CardId.KrisTheCrackOfDawn || card.Id == (int)CardId.GaleTheWhirlwind || card.Id == (int)CardId.BoraTheSpear || card.Id == (int)CardId.SiroccoTheDawn || card.Id == (int)CardId.ShuraTheBlueFlame || card.Id == (int)CardId.BlizzardTheFarNorth)
+                if (card != null && card.Id == CardId.KrisTheCrackOfDawn || card.Id == CardId.GaleTheWhirlwind || card.Id == CardId.BoraTheSpear || card.Id == CardId.SiroccoTheDawn || card.Id == CardId.ShuraTheBlueFlame || card.Id == CardId.BlizzardTheFarNorth)
                     return false;
             return true;
         }
@@ -133,7 +134,7 @@ namespace WindBot.Game.AI.Decks
         private bool BlizzardTheFarNorthSummon()
         {
             foreach (ClientCard card in Bot.Graveyard)
-                if (card != null && card.Id == (int)CardId.KalutTheMoonShadow || card.Id == (int)CardId.BoraTheSpear || card.Id == (int)CardId.ShuraTheBlueFlame || card.Id == (int)CardId.KrisTheCrackOfDawn)
+                if (card != null && card.Id == CardId.KalutTheMoonShadow || card.Id == CardId.BoraTheSpear || card.Id == CardId.ShuraTheBlueFlame || card.Id == CardId.KrisTheCrackOfDawn)
                     return true;
             return false;
         }
@@ -144,7 +145,7 @@ namespace WindBot.Game.AI.Decks
 
             List<ClientCard> monster = Bot.GetMonsters();
             foreach (ClientCard card in monster)
-                if (card != null && card.Id == (int)CardId.KrisTheCrackOfDawn || card.Id == (int)CardId.KalutTheMoonShadow || card.Id == (int)CardId.GaleTheWhirlwind || card.Id == (int)CardId.BoraTheSpear || card.Id == (int)CardId.SiroccoTheDawn || card.Id == (int)CardId.ShuraTheBlueFlame || card.Id == (int)CardId.BlizzardTheFarNorth)
+                if (card != null && card.Id == CardId.KrisTheCrackOfDawn || card.Id == CardId.KalutTheMoonShadow || card.Id == CardId.GaleTheWhirlwind || card.Id == CardId.BoraTheSpear || card.Id == CardId.SiroccoTheDawn || card.Id == CardId.ShuraTheBlueFlame || card.Id == CardId.BlizzardTheFarNorth)
                     Count++;
 
             if (Count == 3)

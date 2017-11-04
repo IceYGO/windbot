@@ -118,6 +118,8 @@ namespace WindBot.Game
             _messages.Add(GameMessage.AnnounceCard, OnAnnounceCard);
             _messages.Add(GameMessage.AnnounceNumber, OnAnnounceNumber);
             _messages.Add(GameMessage.AnnounceRace, OnAnnounceRace);
+            _messages.Add(GameMessage.AnnounceCardFilter, OnAnnounceCard);
+            _messages.Add(GameMessage.RockPaperScissors, OnRockPaperScissors);
         }
 
         private void OnJoinGame(BinaryReader packet)
@@ -259,15 +261,10 @@ namespace WindBot.Game
         {
             int player = packet.ReadInt16();
             string message = packet.ReadUnicode(256);
-            if (!Program.DebugMode)
-            {
-                string myName = _room.Position == 0 ? _room.Names[0] : _room.Names[1];
-                string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
-                if (player < 4)
-                    Logger.WriteLine(otherName + " say to " + myName + ": " + message);
-                //else
-                //    Logger.WriteLine(myName + " System or Watch : " + message);
-            }
+            string myName = _room.Position == 0 ? _room.Names[0] : _room.Names[1];
+            string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
+            if (player < 4)
+                Logger.DebugWriteLine(otherName + " say to " + myName + ": " + message);
         }
 
         private void OnErrorMsg(BinaryReader packet)
@@ -1085,6 +1082,7 @@ namespace WindBot.Game
 
         private void OnAnnounceCard(BinaryReader packet)
         {
+            // not fully implemented
             Connection.Send(CtosMessage.Response, _ai.OnAnnounceCard());
         }
 
@@ -1116,6 +1114,17 @@ namespace WindBot.Game
             for (int i = 0; i < count; ++i)
                 reply += (int)races[i];
             Connection.Send(CtosMessage.Response, reply);
+        }
+
+        private void OnRockPaperScissors(BinaryReader packet)
+        {
+            packet.ReadByte(); // player
+            int result;
+            if (_hand > 0)
+                result = _hand;
+            else
+                result = _ai.OnRockPaperScissors();
+            Connection.Send(CtosMessage.Response, result);
         }
     }
 }
