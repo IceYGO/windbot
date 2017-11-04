@@ -9,42 +9,42 @@ namespace WindBot.Game.AI.Decks
     [Deck("Yosenju", "AI_Yosenju")]
     public class YosenjuExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            YosenjuKama1 = 65247798,
-            YosenjuKama2 = 92246806,
-            YosenjuKama3 = 28630501,
-            YosenjuTsujik = 25244515,
+            public static int YosenjuKama1 = 65247798;
+            public static int YosenjuKama2 = 92246806;
+            public static int YosenjuKama3 = 28630501;
+            public static int YosenjuTsujik = 25244515;
 
-            HarpiesFeatherDuster = 18144507,
-            DarkHole = 53129443,
-            CardOfDemise = 59750328,
-            PotOfDuality = 98645731,
-            CosmicCyclone = 8267140,
-            QuakingMirrorForce = 40838625,
-            DrowningMirrorForce = 47475363,
-            StarlightRoad = 58120309,
-            VanitysEmptiness = 5851097,
-            MacroCosmos = 30241314,
-            SolemnStrike = 40605147,
-            SolemnWarning = 84749824,
-            SolemnJudgment = 41420027,
-            MagicDrain = 59344077,
+            public static int HarpiesFeatherDuster = 18144507;
+            public static int DarkHole = 53129443;
+            public static int CardOfDemise = 59750328;
+            public static int PotOfDuality = 98645731;
+            public static int CosmicCyclone = 8267140;
+            public static int QuakingMirrorForce = 40838625;
+            public static int DrowningMirrorForce = 47475363;
+            public static int StarlightRoad = 58120309;
+            public static int VanitysEmptiness = 5851097;
+            public static int MacroCosmos = 30241314;
+            public static int SolemnStrike = 40605147;
+            public static int SolemnWarning = 84749824;
+            public static int SolemnJudgment = 41420027;
+            public static int MagicDrain = 59344077;
 
-            StardustDragon = 44508094,
-            NumberS39UtopiatheLightning = 56832966,
-            NumberS39UtopiaOne = 86532744,
-            DarkRebellionXyzDragon = 16195942,
-            Number39Utopia = 84013237,
-            Number103Ragnazero = 94380860,
-            BrotherhoodOfTheFireFistTigerKing = 96381979,
-            Number106GiantHand = 63746411,
-            CastelTheSkyblasterMusketeer = 82633039,
-            DiamondDireWolf = 95169481,
-            LightningChidori = 22653490,
-            EvilswarmExcitonKnight = 46772449,
-            AbyssDweller = 21044178,
-            GagagaCowboy = 12014404
+            public static int StardustDragon = 44508094;
+            public static int NumberS39UtopiatheLightning = 56832966;
+            public static int NumberS39UtopiaOne = 86532744;
+            public static int DarkRebellionXyzDragon = 16195942;
+            public static int Number39Utopia = 84013237;
+            public static int Number103Ragnazero = 94380860;
+            public static int BrotherhoodOfTheFireFistTigerKing = 96381979;
+            public static int Number106GiantHand = 63746411;
+            public static int CastelTheSkyblasterMusketeer = 82633039;
+            public static int DiamondDireWolf = 95169481;
+            public static int LightningChidori = 22653490;
+            public static int EvilswarmExcitonKnight = 46772449;
+            public static int AbyssDweller = 21044178;
+            public static int GagagaCowboy = 12014404;
         }
 
         bool CardOfDemiseUsed = false;
@@ -53,95 +53,95 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             // do the end phase effect of Card Of Demise before Yosenjus return to hand
-            AddExecutor(ExecutorType.Activate, (int)CardId.CardOfDemise, CardOfDemiseEPEffect);
+            AddExecutor(ExecutorType.Activate, CardId.CardOfDemise, CardOfDemiseEPEffect);
 
             // burn if enemy's LP is below 800
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GagagaCowboy, GagagaCowboySummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GagagaCowboy);
+            AddExecutor(ExecutorType.SpSummon, CardId.GagagaCowboy, GagagaCowboySummon);
+            AddExecutor(ExecutorType.Activate, CardId.GagagaCowboy);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster, DefaultHarpiesFeatherDusterFirst);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CosmicCyclone, DefaultCosmicCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, CardId.CosmicCyclone, DefaultCosmicCyclone);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.PotOfDuality, PotOfDualityEffect);
+            AddExecutor(ExecutorType.Activate, CardId.PotOfDuality, PotOfDualityEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.YosenjuKama1, HaveAnotherYosenjuWithSameNameInHand);
-            AddExecutor(ExecutorType.Summon, (int)CardId.YosenjuKama2, HaveAnotherYosenjuWithSameNameInHand);
-            AddExecutor(ExecutorType.Summon, (int)CardId.YosenjuKama3, HaveAnotherYosenjuWithSameNameInHand);
-            AddExecutor(ExecutorType.Summon, (int)CardId.YosenjuKama1);
-            AddExecutor(ExecutorType.Summon, (int)CardId.YosenjuKama2);
-            AddExecutor(ExecutorType.Summon, (int)CardId.YosenjuKama3);
-            AddExecutor(ExecutorType.Summon, (int)CardId.YosenjuTsujik);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama1, HaveAnotherYosenjuWithSameNameInHand);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama2, HaveAnotherYosenjuWithSameNameInHand);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama3, HaveAnotherYosenjuWithSameNameInHand);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama1);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama2);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuKama3);
+            AddExecutor(ExecutorType.Summon, CardId.YosenjuTsujik);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.YosenjuKama1, YosenjuEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.YosenjuKama2, YosenjuEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.YosenjuKama3, YosenjuEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.YosenjuTsujik, YosenjuEffect);
+            AddExecutor(ExecutorType.Activate, CardId.YosenjuKama1, YosenjuEffect);
+            AddExecutor(ExecutorType.Activate, CardId.YosenjuKama2, YosenjuEffect);
+            AddExecutor(ExecutorType.Activate, CardId.YosenjuKama3, YosenjuEffect);
+            AddExecutor(ExecutorType.Activate, CardId.YosenjuTsujik, YosenjuEffect);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnJudgment, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnStrike, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnWarning, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MacroCosmos, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.VanitysEmptiness, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MagicDrain, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DrowningMirrorForce, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.QuakingMirrorForce, TrapSetUnique);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.StarlightRoad, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnJudgment, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnWarning, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.MacroCosmos, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.MagicDrain, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.DrowningMirrorForce, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.QuakingMirrorForce, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.StarlightRoad, TrapSetUnique);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnJudgment, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnStrike, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnWarning, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MacroCosmos, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.VanitysEmptiness, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MagicDrain, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DrowningMirrorForce, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.QuakingMirrorForce, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.StarlightRoad, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.HarpiesFeatherDuster, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DarkHole, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.PotOfDuality, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.CosmicCyclone, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnJudgment, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnWarning, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.MacroCosmos, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.MagicDrain, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.DrowningMirrorForce, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.QuakingMirrorForce, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.StarlightRoad, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.HarpiesFeatherDuster, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.DarkHole, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.PotOfDuality, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.CosmicCyclone, TrapSetWhenZoneFree);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.CardOfDemise);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CardOfDemise, CardOfDemiseEffect);
+            AddExecutor(ExecutorType.SpellSet, CardId.CardOfDemise);
+            AddExecutor(ExecutorType.Activate, CardId.CardOfDemise, CardOfDemiseEffect);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnJudgment, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnStrike, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnWarning, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MacroCosmos, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.VanitysEmptiness, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MagicDrain, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DrowningMirrorForce, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.QuakingMirrorForce, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.StarlightRoad, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.HarpiesFeatherDuster, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DarkHole, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.PotOfDuality, CardOfDemiseAcivated);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.CosmicCyclone, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnJudgment, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnWarning, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.MacroCosmos, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.MagicDrain, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.DrowningMirrorForce, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.QuakingMirrorForce, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.StarlightRoad, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.HarpiesFeatherDuster, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.DarkHole, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.PotOfDuality, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.CosmicCyclone, CardOfDemiseAcivated);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.Activate, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.DarkRebellionXyzDragon, DarkRebellionXyzDragonSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkRebellionXyzDragon, DarkRebellionXyzDragonEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.DarkRebellionXyzDragon, DarkRebellionXyzDragonSummon);
+            AddExecutor(ExecutorType.Activate, CardId.DarkRebellionXyzDragon, DarkRebellionXyzDragonEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiaOne);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiatheLightning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiaOne);
+            AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragon, DefaultStardustDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.StardustDragon, DefaultStardustDragonEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.StarlightRoad, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MagicDrain);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnWarning, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnStrike, DefaultSolemnStrike);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnJudgment, DefaultSolemnJudgment);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MacroCosmos, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.VanitysEmptiness, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DrowningMirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.QuakingMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.StarlightRoad, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.MagicDrain);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
+            AddExecutor(ExecutorType.Activate, CardId.MacroCosmos, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.VanitysEmptiness, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.DrowningMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.QuakingMirrorForce, DefaultUniqueTrap);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -163,7 +163,7 @@ namespace WindBot.Game.AI.Decks
             if (Card == null)
                 return true;
             // Logger.DebugWriteLine(Card.Name);
-            if (Card.Id == (int)CardId.YosenjuKama2)
+            if (Card.Id == CardId.YosenjuKama2)
                 return Card.ShouldDirectAttack;
             else
                 return true;
@@ -176,11 +176,11 @@ namespace WindBot.Game.AI.Decks
                 if (defender.IsMonsterDangerous() || defender.IsDefense())
                     return false;
             }
-            if (!(defender.Id == (int)CardId.NumberS39UtopiatheLightning))
+            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
             {
-                if (attacker.Attribute == (int)CardAttribute.Wind && Bot.HasInHand((int)CardId.YosenjuTsujik))
+                if (attacker.Attribute == (int)CardAttribute.Wind && Bot.HasInHand(CardId.YosenjuTsujik))
                     attacker.RealPower = attacker.RealPower + 1000;
-                if (attacker.Id == (int)CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.Number39Utopia))
+                if (attacker.Id == CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, CardId.Number39Utopia))
                     attacker.RealPower = 5000;
             }
             return attacker.RealPower > defender.GetDefensePower();
@@ -192,37 +192,37 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectCard(new[]
                     {
-                    (int)CardId.StarlightRoad,
-                    (int)CardId.MagicDrain,
-                    (int)CardId.SolemnJudgment,
-                    (int)CardId.VanitysEmptiness,
-                    (int)CardId.HarpiesFeatherDuster,
-                    (int)CardId.DrowningMirrorForce,
-                    (int)CardId.QuakingMirrorForce,
-                    (int)CardId.SolemnStrike,
-                    (int)CardId.SolemnWarning,
-                    (int)CardId.MacroCosmos,
-                    (int)CardId.CardOfDemise
+                    CardId.StarlightRoad,
+                    CardId.MagicDrain,
+                    CardId.SolemnJudgment,
+                    CardId.VanitysEmptiness,
+                    CardId.HarpiesFeatherDuster,
+                    CardId.DrowningMirrorForce,
+                    CardId.QuakingMirrorForce,
+                    CardId.SolemnStrike,
+                    CardId.SolemnWarning,
+                    CardId.MacroCosmos,
+                    CardId.CardOfDemise
                 });
             }
             else
             {
                 AI.SelectCard(new[]
                     {
-                    (int)CardId.YosenjuKama3,
-                    (int)CardId.YosenjuKama1,
-                    (int)CardId.YosenjuKama2,
-                    (int)CardId.StarlightRoad,
-                    (int)CardId.MagicDrain,
-                    (int)CardId.VanitysEmptiness,
-                    (int)CardId.HarpiesFeatherDuster,
-                    (int)CardId.DrowningMirrorForce,
-                    (int)CardId.QuakingMirrorForce,
-                    (int)CardId.SolemnStrike,
-                    (int)CardId.SolemnJudgment,
-                    (int)CardId.SolemnWarning,
-                    (int)CardId.MacroCosmos,
-                    (int)CardId.CardOfDemise,
+                    CardId.YosenjuKama3,
+                    CardId.YosenjuKama1,
+                    CardId.YosenjuKama2,
+                    CardId.StarlightRoad,
+                    CardId.MagicDrain,
+                    CardId.VanitysEmptiness,
+                    CardId.HarpiesFeatherDuster,
+                    CardId.DrowningMirrorForce,
+                    CardId.QuakingMirrorForce,
+                    CardId.SolemnStrike,
+                    CardId.SolemnJudgment,
+                    CardId.SolemnWarning,
+                    CardId.MacroCosmos,
+                    CardId.CardOfDemise,
                 });
             }
             return true;
@@ -275,9 +275,9 @@ namespace WindBot.Game.AI.Decks
                 return false;
             AI.SelectCard(new[]
                 {
-                    (int)CardId.YosenjuKama1,
-                    (int)CardId.YosenjuKama2,
-                    (int)CardId.YosenjuKama3
+                    CardId.YosenjuKama1,
+                    CardId.YosenjuKama2,
+                    CardId.YosenjuKama3
                 });
             return true;
         }

@@ -9,46 +9,46 @@ namespace WindBot.Game.AI.Decks
     [Deck("ST1732", "AI_ST1732", "Normal")]
     public class ST1732Executor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            Digitron = 32295838,
-            Bitron = 36211150,
-            DualAssembloom = 7445307,
-            BootStagguard = 70950698,
-            Linkslayer = 35595518,
-            RAMClouder = 9190563,
-            ROMCloudia = 44956694,
-            BalancerLord = 8567955,
-            Backlinker = 71172240,
-            Kleinant = 45778242,
-            Draconnet = 62706865,
-            DotScaper = 18789533,
+            public static int Digitron = 32295838;
+            public static int Bitron = 36211150;
+            public static int DualAssembloom = 7445307;
+            public static int BootStagguard = 70950698;
+            public static int Linkslayer = 35595518;
+            public static int RAMClouder = 9190563;
+            public static int ROMCloudia = 44956694;
+            public static int BalancerLord = 8567955;
+            public static int Backlinker = 71172240;
+            public static int Kleinant = 45778242;
+            public static int Draconnet = 62706865;
+            public static int DotScaper = 18789533;
 
-            MindControl = 37520316,
-            DarkHole = 53129443,
-            MonsterReborn = 83764718,
-            MysticalSpaceTyphoon = 5318639,
-            CosmicCyclone = 8267140,
-            BookOfMoon = 14087893,
-            CynetBackdoor = 43839002,
-            MoonMirrorShield = 19508728,
-            CynetUniverse = 61583217,
-            BottomlessTrapHole = 29401950,
-            MirrorForce = 44095762,
-            TorrentialTribute = 53582587,
-            RecodedAlive = 70238111,
-            DimensionalBarrier = 83326048,
-            CompulsoryEvacuationDevice = 94192409,
-            SolemnStrike = 40605147,
+            public static int MindControl = 37520316;
+            public static int DarkHole = 53129443;
+            public static int MonsterReborn = 83764718;
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int CosmicCyclone = 8267140;
+            public static int BookOfMoon = 14087893;
+            public static int CynetBackdoor = 43839002;
+            public static int MoonMirrorShield = 19508728;
+            public static int CynetUniverse = 61583217;
+            public static int BottomlessTrapHole = 29401950;
+            public static int MirrorForce = 44095762;
+            public static int TorrentialTribute = 53582587;
+            public static int RecodedAlive = 70238111;
+            public static int DimensionalBarrier = 83326048;
+            public static int CompulsoryEvacuationDevice = 94192409;
+            public static int SolemnStrike = 40605147;
 
-            DecodeTalker = 1861629,
-            EncodeTalker = 6622715,
-            TriGateWizard = 32617464,
-            Honeybot = 34472920,
-            BinarySorceress = 79016563,
-            LinkSpider = 98978921,
+            public static int DecodeTalker = 1861629;
+            public static int EncodeTalker = 6622715;
+            public static int TriGateWizard = 32617464;
+            public static int Honeybot = 34472920;
+            public static int BinarySorceress = 79016563;
+            public static int LinkSpider = 98978921;
 
-            StagToken = 70950699
+            public static int StagToken = 70950699;
         }
 
         bool BalancerLordUsed = false;
@@ -56,89 +56,89 @@ namespace WindBot.Game.AI.Decks
         public ST1732Executor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.CosmicCyclone, DefaultCosmicCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.BookOfMoon, DefaultBookOfMoon);
+            AddExecutor(ExecutorType.Activate, CardId.CosmicCyclone, DefaultCosmicCyclone);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.BookOfMoon, DefaultBookOfMoon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.CynetUniverse, CynetUniverseEffect);
+            AddExecutor(ExecutorType.Activate, CardId.CynetUniverse, CynetUniverseEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Linkslayer);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Linkslayer, LinkslayerEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.Linkslayer);
+            AddExecutor(ExecutorType.Activate, CardId.Linkslayer, LinkslayerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.LinkSpider);
-            AddExecutor(ExecutorType.Activate, (int)CardId.LinkSpider);
+            AddExecutor(ExecutorType.SpSummon, CardId.LinkSpider);
+            AddExecutor(ExecutorType.Activate, CardId.LinkSpider);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.MindControl, MindControlEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Backlinker);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Backlinker, BacklinkerEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MindControl, MindControlEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.Backlinker);
+            AddExecutor(ExecutorType.Activate, CardId.Backlinker, BacklinkerEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.BootStagguard, BootStagguardEffect);
+            AddExecutor(ExecutorType.Activate, CardId.BootStagguard, BootStagguardEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.MonsterReborn, MonsterRebornEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MoonMirrorShield, MoonMirrorShieldEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, MonsterRebornEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MoonMirrorShield, MoonMirrorShieldEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.CynetBackdoor, CynetBackdoorEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.RecodedAlive);
+            AddExecutor(ExecutorType.Activate, CardId.CynetBackdoor, CynetBackdoorEffect);
+            AddExecutor(ExecutorType.Activate, CardId.RecodedAlive);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.BalancerLord, BalancerLordSummon);
+            AddExecutor(ExecutorType.Summon, CardId.BalancerLord, BalancerLordSummon);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.ROMCloudia, ROMCloudiaSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ROMCloudia, ROMCloudiaEffect);
+            AddExecutor(ExecutorType.Summon, CardId.ROMCloudia, ROMCloudiaSummon);
+            AddExecutor(ExecutorType.Activate, CardId.ROMCloudia, ROMCloudiaEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.Draconnet, DraconnetSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Draconnet, DraconnetEffect);
+            AddExecutor(ExecutorType.Summon, CardId.Draconnet, DraconnetSummon);
+            AddExecutor(ExecutorType.Activate, CardId.Draconnet, DraconnetEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.Kleinant);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Kleinant, KleinantEffect);
+            AddExecutor(ExecutorType.Summon, CardId.Kleinant);
+            AddExecutor(ExecutorType.Activate, CardId.Kleinant, KleinantEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.RAMClouder);
-            AddExecutor(ExecutorType.Activate, (int)CardId.RAMClouder, RAMClouderEffect);
+            AddExecutor(ExecutorType.Summon, CardId.RAMClouder);
+            AddExecutor(ExecutorType.Activate, CardId.RAMClouder, RAMClouderEffect);
 
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.DotScaper);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DotScaper, DotScaperEffect);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.DotScaper);
+            AddExecutor(ExecutorType.Activate, CardId.DotScaper, DotScaperEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.BalancerLord);
-            AddExecutor(ExecutorType.Summon, (int)CardId.ROMCloudia);
-            AddExecutor(ExecutorType.Summon, (int)CardId.Draconnet);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.Backlinker);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.Digitron);
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.Bitron);
+            AddExecutor(ExecutorType.Summon, CardId.BalancerLord);
+            AddExecutor(ExecutorType.Summon, CardId.ROMCloudia);
+            AddExecutor(ExecutorType.Summon, CardId.Draconnet);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.Backlinker);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.Digitron);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.Bitron);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.BalancerLord, BalancerLordEffect);
+            AddExecutor(ExecutorType.Activate, CardId.BalancerLord, BalancerLordEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.DecodeTalker, LinkSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DecodeTalker);
+            AddExecutor(ExecutorType.SpSummon, CardId.DecodeTalker, LinkSummon);
+            AddExecutor(ExecutorType.Activate, CardId.DecodeTalker);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.TriGateWizard, LinkSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TriGateWizard);
+            AddExecutor(ExecutorType.SpSummon, CardId.TriGateWizard, LinkSummon);
+            AddExecutor(ExecutorType.Activate, CardId.TriGateWizard);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.EncodeTalker, LinkSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.EncodeTalker);
+            AddExecutor(ExecutorType.SpSummon, CardId.EncodeTalker, LinkSummon);
+            AddExecutor(ExecutorType.Activate, CardId.EncodeTalker);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Honeybot, LinkSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.BinarySorceress, LinkSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.BinarySorceress);
+            AddExecutor(ExecutorType.SpSummon, CardId.Honeybot, LinkSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.BinarySorceress, LinkSummon);
+            AddExecutor(ExecutorType.Activate, CardId.BinarySorceress);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.CynetBackdoor, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.RecodedAlive, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.CynetBackdoor, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.RecodedAlive, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.SolemnStrike, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.CompulsoryEvacuationDevice, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DimensionalBarrier, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.TorrentialTribute, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MirrorForce, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.BottomlessTrapHole, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.BookOfMoon, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.CosmicCyclone, DefaultSpellSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MysticalSpaceTyphoon, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.CompulsoryEvacuationDevice, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.DimensionalBarrier, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.TorrentialTribute, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.MirrorForce, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.BottomlessTrapHole, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.BookOfMoon, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.CosmicCyclone, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.MysticalSpaceTyphoon, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnStrike, DefaultSolemnStrike);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CompulsoryEvacuationDevice, DefaultCompulsoryEvacuationDevice);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DimensionalBarrier, DefaultDimensionalBarrier);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TorrentialTribute, DefaultTorrentialTribute);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.BottomlessTrapHole, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.Activate, CardId.CompulsoryEvacuationDevice, DefaultCompulsoryEvacuationDevice);
+            AddExecutor(ExecutorType.Activate, CardId.DimensionalBarrier, DefaultDimensionalBarrier);
+            AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
+            AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultUniqueTrap);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -176,10 +176,10 @@ namespace WindBot.Game.AI.Decks
             if (targets.Count > 0)
             {
                 AI.SelectCard(new[]{
-                    (int)CardId.DualAssembloom,
-                    (int)CardId.Bitron,
-                    (int)CardId.Digitron,
-                    (int)CardId.RecodedAlive
+                    CardId.DualAssembloom,
+                    CardId.Bitron,
+                    CardId.Digitron,
+                    CardId.RecodedAlive
                 });
                 AI.SelectNextCard(targets);
                 return true;
@@ -213,19 +213,19 @@ namespace WindBot.Game.AI.Decks
         private bool MonsterRebornEffect()
         {
             List<int> targets = new List<int> {
-                    (int)CardId.DecodeTalker,
-                    (int)CardId.EncodeTalker,
-                    (int)CardId.TriGateWizard,
-                    (int)CardId.BinarySorceress,
-                    (int)CardId.Honeybot,
-                    (int)CardId.DualAssembloom,
-                    (int)CardId.BootStagguard,
-                    (int)CardId.BalancerLord,
-                    (int)CardId.ROMCloudia,
-                    (int)CardId.Linkslayer,
-                    (int)CardId.RAMClouder,
-                    (int)CardId.Backlinker,
-                    (int)CardId.Kleinant
+                    CardId.DecodeTalker,
+                    CardId.EncodeTalker,
+                    CardId.TriGateWizard,
+                    CardId.BinarySorceress,
+                    CardId.Honeybot,
+                    CardId.DualAssembloom,
+                    CardId.BootStagguard,
+                    CardId.BalancerLord,
+                    CardId.ROMCloudia,
+                    CardId.Linkslayer,
+                    CardId.RAMClouder,
+                    CardId.Backlinker,
+                    CardId.Kleinant
                 };
             if (!Bot.HasInGraveyard(targets))
             {
@@ -292,7 +292,7 @@ namespace WindBot.Game.AI.Decks
                 monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.Id == (int)CardId.BalancerLord)
+                    if (monster.Id == CardId.BalancerLord)
                     {
                         AI.SelectCard(monster);
                         selected = true;
@@ -316,11 +316,11 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectNextCard(new[]
                 {
-                    (int)CardId.ROMCloudia,
-                    (int)CardId.BalancerLord,
-                    (int)CardId.Kleinant,
-                    (int)CardId.Draconnet,
-                    (int)CardId.Backlinker
+                    CardId.ROMCloudia,
+                    CardId.BalancerLord,
+                    CardId.Kleinant,
+                    CardId.Draconnet,
+                    CardId.Backlinker
                 });
                 return true;
             }
@@ -337,12 +337,12 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Removed)
                 return true;
             bool hastarget = Bot.HasInHand(new List<int> {
-                    (int)CardId.Draconnet,
-                    (int)CardId.Kleinant,
-                    (int)CardId.BalancerLord,
-                    (int)CardId.ROMCloudia,
-                    (int)CardId.RAMClouder,
-                    (int)CardId.DotScaper
+                    CardId.Draconnet,
+                    CardId.Kleinant,
+                    CardId.BalancerLord,
+                    CardId.ROMCloudia,
+                    CardId.RAMClouder,
+                    CardId.DotScaper
                 });
             if (hastarget && !BalancerLordUsed)
             {
@@ -355,12 +355,12 @@ namespace WindBot.Game.AI.Decks
         private bool ROMCloudiaSummon()
         {
             return Bot.HasInGraveyard(new List<int> {
-                    (int)CardId.BootStagguard,
-                    (int)CardId.BalancerLord,
-                    (int)CardId.Kleinant,
-                    (int)CardId.Linkslayer,
-                    (int)CardId.Draconnet,
-                    (int)CardId.RAMClouder
+                    CardId.BootStagguard,
+                    CardId.BalancerLord,
+                    CardId.Kleinant,
+                    CardId.Linkslayer,
+                    CardId.Draconnet,
+                    CardId.RAMClouder
                 });
         }
 
@@ -369,22 +369,22 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.MonsterZone)
             {
                 AI.SelectCard(new[]{
-                    (int)CardId.BootStagguard,
-                    (int)CardId.BalancerLord,
-                    (int)CardId.Kleinant,
-                    (int)CardId.Linkslayer,
-                    (int)CardId.Draconnet,
-                    (int)CardId.RAMClouder
+                    CardId.BootStagguard,
+                    CardId.BalancerLord,
+                    CardId.Kleinant,
+                    CardId.Linkslayer,
+                    CardId.Draconnet,
+                    CardId.RAMClouder
                 });
                 return true;
             }
             else
             {
                 AI.SelectCard(new[]{
-                    (int)CardId.BalancerLord,
-                    (int)CardId.Kleinant,
-                    (int)CardId.RAMClouder,
-                    (int)CardId.DotScaper
+                    CardId.BalancerLord,
+                    CardId.Kleinant,
+                    CardId.RAMClouder,
+                    CardId.DotScaper
                 });
                 return true;
             }
@@ -392,23 +392,23 @@ namespace WindBot.Game.AI.Decks
 
         private bool DraconnetSummon()
         {
-            return Bot.GetRemainingCount((int)CardId.Digitron, 1) > 0
-                || Bot.GetRemainingCount((int)CardId.Bitron, 1) > 0;
+            return Bot.GetRemainingCount(CardId.Digitron, 1) > 0
+                || Bot.GetRemainingCount(CardId.Bitron, 1) > 0;
         }
 
         private bool DraconnetEffect()
         {
-            AI.SelectCard((int)CardId.Bitron);
+            AI.SelectCard(CardId.Bitron);
             return true;
         }
 
         private bool KleinantEffect()
         {
             IList<int> targets = new[] {
-                (int)CardId.DualAssembloom,
-                (int)CardId.Bitron,
-                (int)CardId.Digitron,
-                (int)CardId.DotScaper
+                CardId.DualAssembloom,
+                CardId.Bitron,
+                CardId.Digitron,
+                CardId.DotScaper
             };
             foreach (ClientCard monster in Bot.Hand)
             {
@@ -419,10 +419,10 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             IList<int> targets2 = new[] {
-                (int)CardId.StagToken,
-                (int)CardId.Bitron,
-                (int)CardId.Digitron,
-                (int)CardId.DotScaper
+                CardId.StagToken,
+                CardId.Bitron,
+                CardId.Digitron,
+                CardId.DotScaper
             };
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -438,26 +438,26 @@ namespace WindBot.Game.AI.Decks
         private bool RAMClouderEffect()
         {
             AI.SelectCard(new[]{
-                    (int)CardId.StagToken,
-                    (int)CardId.Bitron,
-                    (int)CardId.Digitron,
-                    (int)CardId.DotScaper,
-                    (int)CardId.Draconnet,
-                    (int)CardId.Backlinker,
-                    (int)CardId.RAMClouder
+                    CardId.StagToken,
+                    CardId.Bitron,
+                    CardId.Digitron,
+                    CardId.DotScaper,
+                    CardId.Draconnet,
+                    CardId.Backlinker,
+                    CardId.RAMClouder
                 });
             AI.SelectNextCard(new[]{
-                    (int)CardId.DecodeTalker,
-                    (int)CardId.EncodeTalker,
-                    (int)CardId.TriGateWizard,
-                    (int)CardId.BinarySorceress,
-                    (int)CardId.Honeybot,
-                    (int)CardId.DualAssembloom,
-                    (int)CardId.BootStagguard,
-                    (int)CardId.BalancerLord,
-                    (int)CardId.ROMCloudia,
-                    (int)CardId.Linkslayer,
-                    (int)CardId.RAMClouder
+                    CardId.DecodeTalker,
+                    CardId.EncodeTalker,
+                    CardId.TriGateWizard,
+                    CardId.BinarySorceress,
+                    CardId.Honeybot,
+                    CardId.DualAssembloom,
+                    CardId.BootStagguard,
+                    CardId.BalancerLord,
+                    CardId.ROMCloudia,
+                    CardId.Linkslayer,
+                    CardId.RAMClouder
                 });
             return true;
         }

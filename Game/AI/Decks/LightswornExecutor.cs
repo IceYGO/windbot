@@ -10,44 +10,43 @@ namespace WindBot.Game.AI.Decks
     [Deck("Lightsworn", "AI_Lightsworn", "NotFinished")]
     public class LightswornExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            JudgmentDragon = 57774843,
-            Wulf = 58996430,
-            Garoth = 59019082,
-            Raiden = 77558536,
-            Lyla = 22624373,
-            Felis = 73176465,
-            Lumina = 95503687,
-            Minerva = 40164421,
-            Ryko = 21502796,
-            PerformageTrickClown = 67696066,
-            Goblindbergh = 25259669,
-            ThousandBlades = 1833916,
-            Honest = 37742478,
-            GlowUpBulb = 67441435,
+            public static int JudgmentDragon = 57774843;
+            public static int Wulf = 58996430;
+            public static int Garoth = 59019082;
+            public static int Raiden = 77558536;
+            public static int Lyla = 22624373;
+            public static int Felis = 73176465;
+            public static int Lumina = 95503687;
+            public static int Minerva = 40164421;
+            public static int Ryko = 21502796;
+            public static int PerformageTrickClown = 67696066;
+            public static int Goblindbergh = 25259669;
+            public static int ThousandBlades = 1833916;
+            public static int Honest = 37742478;
+            public static int GlowUpBulb = 67441435;
 
-            SolarRecharge = 691925,
-            GalaxyCyclone = 5133471,
-            HarpiesFeatherDuster = 18144506,
-            ReinforcementOfTheArmy = 32807846,
-            MetalfoesFusion = 73594093,
-            ChargeOfTheLightBrigade = 94886282,
+            public static int SolarRecharge = 691925;
+            public static int GalaxyCyclone = 5133471;
+            public static int HarpiesFeatherDuster = 18144506;
+            public static int ReinforcementOfTheArmy = 32807846;
+            public static int MetalfoesFusion = 73594093;
+            public static int ChargeOfTheLightBrigade = 94886282;
 
-            Michael = 4779823,
-            MinervaTheExalted = 30100551,
-            TrishulaDragonOfTheIceBarrier = 52687916,
-            ScarlightRedDragonArchfiend = 80666118,
-            PSYFramelordOmega = 74586817,
-            PSYFramelordZeta = 37192109,
-            NumberS39UtopiatheLightning = 56832966,
-            Number39Utopia = 84013237,
-            CastelTheSkyblasterMusketeer = 82633039,
-            EvilswarmExcitonKnight = 46772449,
-            DanteTravelerOfTheBurningAbyss = 83531441,
-            DecodeTalker = 1861629,
-            MissusRadiant = 3987233
-
+            public static int Michael = 4779823;
+            public static int MinervaTheExalted = 30100551;
+            public static int TrishulaDragonOfTheIceBarrier = 52687916;
+            public static int ScarlightRedDragonArchfiend = 80666118;
+            public static int PSYFramelordOmega = 74586817;
+            public static int PSYFramelordZeta = 37192109;
+            public static int NumberS39UtopiatheLightning = 56832966;
+            public static int Number39Utopia = 84013237;
+            public static int CastelTheSkyblasterMusketeer = 82633039;
+            public static int EvilswarmExcitonKnight = 46772449;
+            public static int DanteTravelerOfTheBurningAbyss = 83531441;
+            public static int DecodeTalker = 1861629;
+            public static int MissusRadiant = 3987233;
         }
 
         bool ClownUsed = false;
@@ -55,36 +54,36 @@ namespace WindBot.Game.AI.Decks
         public LightswornExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster, DefaultHarpiesFeatherDusterFirst);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GalaxyCyclone, DefaultGalaxyCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyCyclone, DefaultGalaxyCyclone);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.MetalfoesFusion);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GlowUpBulb);
+            AddExecutor(ExecutorType.Activate, CardId.MetalfoesFusion);
+            AddExecutor(ExecutorType.Activate, CardId.GlowUpBulb);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.JudgmentDragon, DefaultDarkHole);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.JudgmentDragon);
+            AddExecutor(ExecutorType.Activate, CardId.JudgmentDragon, DefaultDarkHole);
+            AddExecutor(ExecutorType.SpSummon, CardId.JudgmentDragon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.ReinforcementOfTheArmy, ReinforcementOfTheArmyEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ChargeOfTheLightBrigade, ChargeOfTheLightBrigadeEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolarRecharge, SolarRechargeEffect);
+            AddExecutor(ExecutorType.Activate, CardId.ReinforcementOfTheArmy, ReinforcementOfTheArmyEffect);
+            AddExecutor(ExecutorType.Activate, CardId.ChargeOfTheLightBrigade, ChargeOfTheLightBrigadeEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SolarRecharge, SolarRechargeEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.Goblindbergh, GoblindberghSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Goblindbergh, GoblindberghEffect);
+            AddExecutor(ExecutorType.Summon, CardId.Goblindbergh, GoblindberghSummon);
+            AddExecutor(ExecutorType.Activate, CardId.Goblindbergh, GoblindberghEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.CastelTheSkyblasterMusketeer, DefaultCastelTheSkyblasterMusketeerSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CastelTheSkyblasterMusketeer, DefaultCastelTheSkyblasterMusketeerEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiatheLightning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.SpSummon, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.Activate, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.CastelTheSkyblasterMusketeer, DefaultCastelTheSkyblasterMusketeerSummon);
+            AddExecutor(ExecutorType.Activate, CardId.CastelTheSkyblasterMusketeer, DefaultCastelTheSkyblasterMusketeerEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendSummon);
+            AddExecutor(ExecutorType.Activate, CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.PerformageTrickClown, PerformageTrickClownEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ThousandBlades);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Honest, HonestEffect);
+            AddExecutor(ExecutorType.Activate, CardId.PerformageTrickClown, PerformageTrickClownEffect);
+            AddExecutor(ExecutorType.Activate, CardId.ThousandBlades);
+            AddExecutor(ExecutorType.Activate, CardId.Honest, HonestEffect);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -101,11 +100,11 @@ namespace WindBot.Game.AI.Decks
                 if (defender.IsMonsterDangerous() || defender.IsDefense())
                     return false;
             }
-            if (!(defender.Id == (int)CardId.NumberS39UtopiatheLightning))
+            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
             {
-                if (attacker.Attribute == (int)CardAttribute.Light && Bot.HasInHand((int)CardId.Honest))
+                if (attacker.Attribute == (int)CardAttribute.Light && Bot.HasInHand(CardId.Honest))
                     attacker.RealPower = attacker.RealPower + defender.Attack;
-                if (attacker.Id == (int)CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.Number39Utopia))
+                if (attacker.Id == CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, CardId.Number39Utopia))
                     attacker.RealPower = 5000;
             }
             return attacker.RealPower > defender.GetDefensePower();
@@ -125,7 +124,7 @@ namespace WindBot.Game.AI.Decks
                 IList<ClientCard> result = new List<ClientCard>();
                 foreach (ClientCard card in cards)
                 {
-                    if (!result.Contains(card) && (!ClownUsed || card.Id != (int)CardId.PerformageTrickClown))
+                    if (!result.Contains(card) && (!ClownUsed || card.Id != CardId.PerformageTrickClown))
                         result.Add(card);
                     if (result.Count >= 2)
                         break;
@@ -148,24 +147,24 @@ namespace WindBot.Game.AI.Decks
 
         private bool ReinforcementOfTheArmyEffect()
         {
-            if (!Bot.HasInHand((int)CardId.Goblindbergh))
-                AI.SelectCard((int)CardId.Goblindbergh);
-            else if (!Bot.HasInHand((int)CardId.Raiden))
-                AI.SelectCard((int)CardId.Raiden);
+            if (!Bot.HasInHand(CardId.Goblindbergh))
+                AI.SelectCard(CardId.Goblindbergh);
+            else if (!Bot.HasInHand(CardId.Raiden))
+                AI.SelectCard(CardId.Raiden);
             return true;
         }
 
         private bool ChargeOfTheLightBrigadeEffect()
         {
-            if (!Bot.HasInHand((int)CardId.Lumina))
-                AI.SelectCard((int)CardId.Lumina);
+            if (!Bot.HasInHand(CardId.Lumina))
+                AI.SelectCard(CardId.Lumina);
             else
                 AI.SelectCard(new[]
                 {
-                    (int)CardId.Raiden,
-                    (int)CardId.Lumina,
-                    (int)CardId.Minerva,
-                    (int)CardId.Lyla
+                    CardId.Raiden,
+                    CardId.Lumina,
+                    CardId.Minerva,
+                    CardId.Lyla
                 });
             return true;
         }
@@ -174,11 +173,11 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.Wulf,
-                    (int)CardId.Felis,
-                    (int)CardId.Minerva,
-                    (int)CardId.Lyla,
-                    (int)CardId.Raiden
+                    CardId.Wulf,
+                    CardId.Felis,
+                    CardId.Minerva,
+                    CardId.Lyla,
+                    CardId.Raiden
                 });
             return true;
         }
@@ -197,11 +196,11 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.Felis,
-                    (int)CardId.Wulf,
-                    (int)CardId.Raiden,
-                    (int)CardId.PerformageTrickClown,
-                    (int)CardId.ThousandBlades
+                    CardId.Felis,
+                    CardId.Wulf,
+                    CardId.Raiden,
+                    CardId.PerformageTrickClown,
+                    CardId.ThousandBlades
                 });
             return true;
         }

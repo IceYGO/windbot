@@ -9,39 +9,39 @@ namespace WindBot.Game.AI.Decks
     [Deck("Zoodiac", "AI_Zoodiac", "OutDated")]
     class ZoodiacExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            JizukirutheStarDestroyingKaiju = 63941210,
-            GadarlatheMysteryDustKaiju = 36956512,
-            GamecieltheSeaTurtleKaiju = 55063751,
-            RadiantheMultidimensionalKaiju = 28674152,
-            KumongoustheStickyStringKaiju = 29726552,
-            PhotonThrasher = 65367484,
-            Thoroughblade = 77150143,
-            Whiptail = 31755044,
-            Ratpier = 78872731,
-            AleisterTheInvoker = 86120751,
+            public static int JizukirutheStarDestroyingKaiju = 63941210;
+            public static int GadarlatheMysteryDustKaiju = 36956512;
+            public static int GamecieltheSeaTurtleKaiju = 55063751;
+            public static int RadiantheMultidimensionalKaiju = 28674152;
+            public static int KumongoustheStickyStringKaiju = 29726552;
+            public static int PhotonThrasher = 65367484;
+            public static int Thoroughblade = 77150143;
+            public static int Whiptail = 31755044;
+            public static int Ratpier = 78872731;
+            public static int AleisterTheInvoker = 86120751;
 
-            HarpiesFeatherDuster = 18144506,
-            DarkHole = 53129443,
-            Terraforming = 73628505,
-            Invocation = 74063034,
-            MonsterReborn = 83764718,
-            InterruptedKaijuSlumber = 99330325,
-            ZoodiacBarrage = 46060017,
-            FireFormationTenki = 57103969,
-            MagicalMeltdown = 47679935,
-            ZoodiacCombo = 73881652,
+            public static int HarpiesFeatherDuster = 18144506;
+            public static int DarkHole = 53129443;
+            public static int Terraforming = 73628505;
+            public static int Invocation = 74063034;
+            public static int MonsterReborn = 83764718;
+            public static int InterruptedKaijuSlumber = 99330325;
+            public static int ZoodiacBarrage = 46060017;
+            public static int FireFormationTenki = 57103969;
+            public static int MagicalMeltdown = 47679935;
+            public static int ZoodiacCombo = 73881652;
 
-            InvokedMechaba = 75286621,
-            InvokedMagellanica = 48791583,
-            NumberS39UtopiatheLightning = 56832966,
-            Number39Utopia = 84013237,
-            DaigustoEmeral = 581014,
-            Tigermortar = 11510448,
-            Chakanine = 41375811,
-            Drident = 48905153,
-            Broadbull = 85115440
+            public static int InvokedMechaba = 75286621;
+            public static int InvokedMagellanica = 48791583;
+            public static int NumberS39UtopiatheLightning = 56832966;
+            public static int Number39Utopia = 84013237;
+            public static int DaigustoEmeral = 581014;
+            public static int Tigermortar = 11510448;
+            public static int Chakanine = 41375811;
+            public static int Drident = 48905153;
+            public static int Broadbull = 85115440;
         }
 
         bool TigermortarSpsummoned = false;
@@ -53,65 +53,65 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             // Quick spells
-            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster);
-            AddExecutor(ExecutorType.Activate, (int)CardId.InterruptedKaijuSlumber, DefaultInterruptedKaijuSlumber);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
+            AddExecutor(ExecutorType.Activate, CardId.InterruptedKaijuSlumber, DefaultInterruptedKaijuSlumber);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GamecieltheSeaTurtleKaiju, DefaultKaijuSpsummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.KumongoustheStickyStringKaiju, DefaultKaijuSpsummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GadarlatheMysteryDustKaiju, DefaultKaijuSpsummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.RadiantheMultidimensionalKaiju, DefaultKaijuSpsummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.JizukirutheStarDestroyingKaiju, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GamecieltheSeaTurtleKaiju, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.KumongoustheStickyStringKaiju, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GadarlatheMysteryDustKaiju, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.RadiantheMultidimensionalKaiju, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.JizukirutheStarDestroyingKaiju, DefaultKaijuSpsummon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Terraforming);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MagicalMeltdown);
-            AddExecutor(ExecutorType.Activate, (int)CardId.FireFormationTenki, FireFormationTenkiEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ZoodiacBarrage, ZoodiacBarrageEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DaigustoEmeral, DaigustoEmeralEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Terraforming);
+            AddExecutor(ExecutorType.Activate, CardId.MagicalMeltdown);
+            AddExecutor(ExecutorType.Activate, CardId.FireFormationTenki, FireFormationTenkiEffect);
+            AddExecutor(ExecutorType.Activate, CardId.ZoodiacBarrage, ZoodiacBarrageEffect);
+            AddExecutor(ExecutorType.Activate, CardId.DaigustoEmeral, DaigustoEmeralEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.PhotonThrasher, PhotonThrasherSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.PhotonThrasher, PhotonThrasherSummon);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiatheLightning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.InvokedMechaba, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.InvokedMechaba, DefaultTrap);
 
             AddExecutor(ExecutorType.Activate, RatpierMaterialEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Drident, DridentEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Broadbull, BroadbullEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Tigermortar, TigermortarEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Chakanine, ChakanineEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Drident, DridentEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Broadbull, BroadbullEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Tigermortar, TigermortarEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Chakanine, ChakanineEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Chakanine, ChakanineSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Tigermortar, TigermortarSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Broadbull, BroadbullSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Drident, DridentSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Chakanine, ChakanineSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Tigermortar, TigermortarSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Broadbull, BroadbullSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Drident, DridentSummon);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.Ratpier);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Ratpier, RatpierEffect);
-            AddExecutor(ExecutorType.Summon, (int)CardId.Thoroughblade);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Thoroughblade, RatpierEffect);
-            AddExecutor(ExecutorType.Summon, (int)CardId.AleisterTheInvoker);
-            AddExecutor(ExecutorType.Activate, (int)CardId.AleisterTheInvoker, AleisterTheInvokerEffect);
+            AddExecutor(ExecutorType.Summon, CardId.Ratpier);
+            AddExecutor(ExecutorType.Activate, CardId.Ratpier, RatpierEffect);
+            AddExecutor(ExecutorType.Summon, CardId.Thoroughblade);
+            AddExecutor(ExecutorType.Activate, CardId.Thoroughblade, RatpierEffect);
+            AddExecutor(ExecutorType.Summon, CardId.AleisterTheInvoker);
+            AddExecutor(ExecutorType.Activate, CardId.AleisterTheInvoker, AleisterTheInvokerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.DaigustoEmeral, DaigustoEmeralSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.DaigustoEmeral, DaigustoEmeralSummon);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Broadbull, BroadbullXYZSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Broadbull, BroadbullXYZSummon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.MonsterReborn, MonsterRebornEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, MonsterRebornEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.PhotonThrasher);
-            AddExecutor(ExecutorType.Summon, (int)CardId.Whiptail);
+            AddExecutor(ExecutorType.SpSummon, CardId.PhotonThrasher);
+            AddExecutor(ExecutorType.Summon, CardId.Whiptail);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Invocation, InvocationEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Invocation, InvocationEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Whiptail, WhiptailEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Whiptail, WhiptailEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.ZoodiacCombo, ZoodiacComboEffect);
+            AddExecutor(ExecutorType.Activate, CardId.ZoodiacCombo, ZoodiacComboEffect);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.ZoodiacCombo);
+            AddExecutor(ExecutorType.SpellSet, CardId.ZoodiacCombo);
 
             AddExecutor(ExecutorType.Repos, MonsterRepos);
         }
@@ -138,11 +138,11 @@ namespace WindBot.Game.AI.Decks
                 if (defender.IsMonsterDangerous() || defender.IsDefense())
                     return false;
             }
-            if (!(defender.Id == (int)CardId.NumberS39UtopiatheLightning))
+            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
             {
-                //if (attacker.HasType(CardType.Fusion) && Bot.HasInHand((int)CardId.AleisterTheInvoker))
+                //if (attacker.HasType(CardType.Fusion) && Bot.HasInHand(CardId.AleisterTheInvoker))
                 //    attacker.RealPower = attacker.RealPower + 1000;
-                if (attacker.Id == (int)CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.Number39Utopia))
+                if (attacker.Id == CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, CardId.Number39Utopia))
                     attacker.RealPower = 5000;
             }
             return attacker.RealPower > defender.GetDefensePower();
@@ -150,9 +150,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool PhotonThrasherSummon()
         {
-            return Bot.HasInHand((int)CardId.AleisterTheInvoker)
-                && !Bot.HasInHand((int)CardId.Ratpier)
-                && !Bot.HasInHand((int)CardId.Thoroughblade);
+            return Bot.HasInHand(CardId.AleisterTheInvoker)
+                && !Bot.HasInHand(CardId.Ratpier)
+                && !Bot.HasInHand(CardId.Thoroughblade);
         }
 
         private bool AleisterTheInvokerEffect()
@@ -194,7 +194,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (mat != null)
             {
-                AI.SelectCard((int)CardId.InvokedMechaba);
+                AI.SelectCard(CardId.InvokedMechaba);
                 SelectAleisterInGrave();
                 AI.SelectThirdCard(mat);
                 AI.SelectPosition(CardPosition.FaceUpAttack);
@@ -218,7 +218,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (mat != null)
             {
-                AI.SelectCard((int)CardId.InvokedMagellanica);
+                AI.SelectCard(CardId.InvokedMagellanica);
                 SelectAleisterInGrave();
                 AI.SelectThirdCard(mat);
                 AI.SelectPosition(CardPosition.FaceUpAttack);
@@ -233,7 +233,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> materials1 = Enemy.Graveyard;
             foreach (ClientCard card in materials1)
             {
-                if (card.Id == (int)CardId.AleisterTheInvoker)
+                if (card.Id == CardId.AleisterTheInvoker)
                 {
                     AI.SelectNextCard(card);
                     return;
@@ -241,28 +241,28 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard card in materials0)
             {
-                if (card.Id == (int)CardId.AleisterTheInvoker)
+                if (card.Id == CardId.AleisterTheInvoker)
                 {
                     AI.SelectNextCard(card);
                     return;
                 }
             }
-            AI.SelectNextCard((int)CardId.AleisterTheInvoker);
+            AI.SelectNextCard(CardId.AleisterTheInvoker);
         }
 
         private bool ChakanineSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.Ratpier) && !ChakanineSpsummoned)
+            if (Bot.HasInMonstersZone(CardId.Ratpier) && !ChakanineSpsummoned)
             {
-                AI.SelectCard((int)CardId.Ratpier);
+                AI.SelectCard(CardId.Ratpier);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 ChakanineSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.Broadbull) && !ChakanineSpsummoned)
+            if (Bot.HasInMonstersZone(CardId.Broadbull) && !ChakanineSpsummoned)
             {
-                AI.SelectCard((int)CardId.Broadbull);
+                AI.SelectCard(CardId.Broadbull);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 ChakanineSpsummoned = true;
@@ -273,21 +273,21 @@ namespace WindBot.Game.AI.Decks
 
         private bool ChakanineEffect()
         {
-            if (Bot.HasInGraveyard((int)CardId.Whiptail) || Bot.HasInGraveyard((int)CardId.Thoroughblade))
+            if (Bot.HasInGraveyard(CardId.Whiptail) || Bot.HasInGraveyard(CardId.Thoroughblade))
             {
                 AI.SelectCard(new[]
                 {
-                    (int)CardId.Broadbull,
-                    (int)CardId.Tigermortar,
-                    (int)CardId.Chakanine,
-                    (int)CardId.Thoroughblade,
-                    (int)CardId.Ratpier,
-                    (int)CardId.Whiptail
+                    CardId.Broadbull,
+                    CardId.Tigermortar,
+                    CardId.Chakanine,
+                    CardId.Thoroughblade,
+                    CardId.Ratpier,
+                    CardId.Whiptail
                 });
                 AI.SelectNextCard(new[]
                 {
-                    (int)CardId.Whiptail,
-                    (int)CardId.Thoroughblade
+                    CardId.Whiptail,
+                    CardId.Thoroughblade
                 });
                 return true;
             }
@@ -296,38 +296,38 @@ namespace WindBot.Game.AI.Decks
 
         private bool TigermortarSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.Chakanine) && !TigermortarSpsummoned)
+            if (Bot.HasInMonstersZone(CardId.Chakanine) && !TigermortarSpsummoned)
             {
-                AI.SelectCard((int)CardId.Chakanine);
+                AI.SelectCard(CardId.Chakanine);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 TigermortarSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.Ratpier) && !TigermortarSpsummoned)
+            if (Bot.HasInMonstersZone(CardId.Ratpier) && !TigermortarSpsummoned)
             {
-                AI.SelectCard((int)CardId.Ratpier);
+                AI.SelectCard(CardId.Ratpier);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 TigermortarSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.Thoroughblade) && !TigermortarSpsummoned
+            if (Bot.HasInMonstersZone(CardId.Thoroughblade) && !TigermortarSpsummoned
                 && Bot.HasInGraveyard(new List<int>
                 {
-                    (int)CardId.Whiptail,
-                    (int)CardId.Ratpier
+                    CardId.Whiptail,
+                    CardId.Ratpier
                 }))
             {
-                AI.SelectCard((int)CardId.Thoroughblade);
+                AI.SelectCard(CardId.Thoroughblade);
                 AI.SelectYesNo(true);
                 TigermortarSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.Whiptail) && !TigermortarSpsummoned
-                && Bot.HasInGraveyard((int)CardId.Ratpier))
+            if (Bot.HasInMonstersZone(CardId.Whiptail) && !TigermortarSpsummoned
+                && Bot.HasInGraveyard(CardId.Ratpier))
             {
-                AI.SelectCard((int)CardId.Whiptail);
+                AI.SelectCard(CardId.Whiptail);
                 AI.SelectYesNo(true);
                 TigermortarSpsummoned = true;
                 return true;
@@ -337,48 +337,48 @@ namespace WindBot.Game.AI.Decks
 
         private bool TigermortarEffect()
         {
-            //if (Card.HasXyzMaterial((int)CardId.Ratpier) || !Bot.HasInGraveyard((int)CardId.Ratpier))
+            //if (Card.HasXyzMaterial(CardId.Ratpier) || !Bot.HasInGraveyard(CardId.Ratpier))
             //    return false;
-            AI.SelectCard((int)CardId.Chakanine);
-            AI.SelectNextCard((int)CardId.Tigermortar);
+            AI.SelectCard(CardId.Chakanine);
+            AI.SelectNextCard(CardId.Tigermortar);
             AI.SelectThirdCard(new[]
                 {
-                    (int)CardId.Ratpier,
-                    (int)CardId.Whiptail,
-                    (int)CardId.Thoroughblade
+                    CardId.Ratpier,
+                    CardId.Whiptail,
+                    CardId.Thoroughblade
                 });
             return true;
         }
 
         private bool BroadbullSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.Tigermortar) && !BroadbullSpsummoned)
+            if (Bot.HasInMonstersZone(CardId.Tigermortar) && !BroadbullSpsummoned)
             {
-                AI.SelectCard((int)CardId.Tigermortar);
+                AI.SelectCard(CardId.Tigermortar);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 BroadbullSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.Chakanine) && !BroadbullSpsummoned)
+            if (Bot.HasInMonstersZone(CardId.Chakanine) && !BroadbullSpsummoned)
             {
-                AI.SelectCard((int)CardId.Chakanine);
+                AI.SelectCard(CardId.Chakanine);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 BroadbullSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.Ratpier) && !BroadbullSpsummoned)
+            if (Bot.HasInMonstersZone(CardId.Ratpier) && !BroadbullSpsummoned)
             {
-                AI.SelectCard((int)CardId.Ratpier);
+                AI.SelectCard(CardId.Ratpier);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 BroadbullSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.Thoroughblade) && !BroadbullSpsummoned)
+            if (Bot.HasInMonstersZone(CardId.Thoroughblade) && !BroadbullSpsummoned)
             {
-                AI.SelectCard((int)CardId.Thoroughblade);
+                AI.SelectCard(CardId.Thoroughblade);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 BroadbullSpsummoned = true;
@@ -391,16 +391,16 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.Tigermortar,
-                    (int)CardId.Chakanine,
-                    (int)CardId.Drident,
-                    (int)CardId.AleisterTheInvoker,
-                    (int)CardId.PhotonThrasher
+                    CardId.Tigermortar,
+                    CardId.Chakanine,
+                    CardId.Drident,
+                    CardId.AleisterTheInvoker,
+                    CardId.PhotonThrasher
                 });
-            if (Bot.HasInHand((int)CardId.Whiptail) && !Bot.HasInHand((int)CardId.Ratpier))
-                AI.SelectNextCard((int)CardId.Ratpier);
+            if (Bot.HasInHand(CardId.Whiptail) && !Bot.HasInHand(CardId.Ratpier))
+                AI.SelectNextCard(CardId.Ratpier);
             else
-                AI.SelectNextCard((int)CardId.Whiptail);
+                AI.SelectNextCard(CardId.Whiptail);
             return true;
         }
 
@@ -410,10 +410,10 @@ namespace WindBot.Game.AI.Decks
             AI.SelectPosition(CardPosition.FaceUpDefence);
             AI.SelectCard(new[]
                 {
-                    (int)CardId.Ratpier,
-                    (int)CardId.PhotonThrasher,
-                    (int)CardId.Whiptail,
-                    (int)CardId.AleisterTheInvoker
+                    CardId.Ratpier,
+                    CardId.PhotonThrasher,
+                    CardId.Whiptail,
+                    CardId.AleisterTheInvoker
                 });
             return true;
         }
@@ -422,17 +422,17 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.Broadbull,
-                    (int)CardId.Tigermortar,
-                    (int)CardId.Chakanine,
-                    (int)CardId.Thoroughblade
+                    CardId.Broadbull,
+                    CardId.Tigermortar,
+                    CardId.Chakanine,
+                    CardId.Thoroughblade
                 });
             return true;
         }
 
         private bool RatpierMaterialEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.Ratpier, 1))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.Ratpier, 1))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -450,7 +450,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.IsFaceup() && monster.Id == (int)CardId.Drident && !monster.HasXyzMaterial())
+                if (monster.IsFaceup() && monster.Id == CardId.Drident && !monster.HasXyzMaterial())
                 {
                     target = monster;
                     break;
@@ -460,7 +460,7 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.IsFaceup() && monster.Type == (int)CardType.Xyz && monster.Id != (int)CardId.DaigustoEmeral && !monster.HasXyzMaterial())
+                    if (monster.IsFaceup() && monster.Type == (int)CardType.Xyz && monster.Id != CardId.DaigustoEmeral && !monster.HasXyzMaterial())
                     {
                         target = monster;
                         break;
@@ -471,7 +471,7 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectCard(new[]
                     {
-                        (int)CardId.Drident
+                        CardId.Drident
                     });
             }
             WhiptailEffectCount++;
@@ -482,9 +482,9 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.ZoodiacCombo,
-                    (int)CardId.Thoroughblade,
-                    (int)CardId.ZoodiacBarrage
+                    CardId.ZoodiacCombo,
+                    CardId.Thoroughblade,
+                    CardId.ZoodiacBarrage
                 });
             return true;
         }
@@ -498,12 +498,12 @@ namespace WindBot.Game.AI.Decks
                 return false;
             AI.SelectCard(new[]
                 {
-                    (int)CardId.Broadbull,
-                    (int)CardId.Tigermortar,
-                    (int)CardId.Chakanine,
-                    (int)CardId.Thoroughblade,
-                    (int)CardId.Ratpier,
-                    (int)CardId.Whiptail
+                    CardId.Broadbull,
+                    CardId.Tigermortar,
+                    CardId.Chakanine,
+                    CardId.Thoroughblade,
+                    CardId.Ratpier,
+                    CardId.Whiptail
                 });
             AI.SelectNextCard(target);
             return true;
@@ -518,29 +518,29 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.Ratpier,
-                    (int)CardId.AleisterTheInvoker,
-                    (int)CardId.Whiptail
+                    CardId.Ratpier,
+                    CardId.AleisterTheInvoker,
+                    CardId.Whiptail
                 });
             AI.SelectNextCard(new[]
                 {
-                    (int)CardId.Ratpier,
-                    (int)CardId.DaigustoEmeral
+                    CardId.Ratpier,
+                    CardId.DaigustoEmeral
                 });
             return true;
         }
 
         private bool FireFormationTenkiEffect()
         {
-            if (Bot.HasInHand((int)CardId.ZoodiacBarrage)
-               || Bot.HasInSpellZone((int)CardId.ZoodiacBarrage)
-               || Bot.HasInHand((int)CardId.Ratpier))
+            if (Bot.HasInHand(CardId.ZoodiacBarrage)
+               || Bot.HasInSpellZone(CardId.ZoodiacBarrage)
+               || Bot.HasInHand(CardId.Ratpier))
             {
-                AI.SelectCard((int)CardId.Whiptail);
+                AI.SelectCard(CardId.Whiptail);
             }
             else
             {
-                AI.SelectCard((int)CardId.Ratpier);
+                AI.SelectCard(CardId.Ratpier);
             }
             AI.SelectYesNo(true);
             return true;
@@ -551,20 +551,20 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> spells = Bot.GetSpells();
             foreach (ClientCard spell in spells)
             {
-                if (spell.Id == (int)CardId.ZoodiacBarrage && !Card.Equals(spell))
+                if (spell.Id == CardId.ZoodiacBarrage && !Card.Equals(spell))
                     return false;
             }
             AI.SelectCard(new[]
                 {
-                    (int)CardId.FireFormationTenki,
-                    (int)CardId.MagicalMeltdown,
-                    (int)CardId.ZoodiacBarrage
+                    CardId.FireFormationTenki,
+                    CardId.MagicalMeltdown,
+                    CardId.ZoodiacBarrage
                 });
             AI.SelectNextCard(new[]
                 {
-                    (int)CardId.Ratpier,
-                    (int)CardId.Whiptail,
-                    (int)CardId.Thoroughblade
+                    CardId.Ratpier,
+                    CardId.Whiptail,
+                    CardId.Thoroughblade
                 });
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
@@ -576,12 +576,12 @@ namespace WindBot.Game.AI.Decks
                 return false;
             if (Card.Location != CardLocation.Grave)
             {
-                AI.SelectCard((int)CardId.Drident);
+                AI.SelectCard(CardId.Drident);
                 AI.SelectNextCard(new[]
                 {
-                    (int)CardId.Whiptail,
-                    (int)CardId.Ratpier,
-                    (int)CardId.Thoroughblade
+                    CardId.Whiptail,
+                    CardId.Ratpier,
+                    CardId.Thoroughblade
                 });
             }
             return true;
@@ -591,21 +591,21 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.Ratpier,
-                    (int)CardId.Whiptail,
-                    (int)CardId.InvokedMechaba,
-                    (int)CardId.JizukirutheStarDestroyingKaiju,
-                    (int)CardId.InvokedMagellanica,
-                    (int)CardId.Tigermortar,
-                    (int)CardId.Chakanine,
-                    (int)CardId.Broadbull
+                    CardId.Ratpier,
+                    CardId.Whiptail,
+                    CardId.InvokedMechaba,
+                    CardId.JizukirutheStarDestroyingKaiju,
+                    CardId.InvokedMagellanica,
+                    CardId.Tigermortar,
+                    CardId.Chakanine,
+                    CardId.Broadbull
                 });
             return true;
         }
 
         private bool MonsterRepos()
         {
-            if (Card.Id == (int)CardId.NumberS39UtopiatheLightning)
+            if (Card.Id == CardId.NumberS39UtopiatheLightning)
                 return false;
             return base.DefaultMonsterRepos();
         }

@@ -10,32 +10,32 @@ namespace WindBot.Game.AI.Decks
     [Deck("Gravekeeper", "AI_Gravekeeper", "NotFinished")]
     public class GravekeeperExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            GravekeepersOracle = 25524823,
-            MaleficStardustDragon = 36521459,
-            GravekeepersVisionary = 3825890,
-            GravekeepersChief = 62473983,
-            ThunderKingRaiOh = 71564252,
-            GravekeepersCommandant = 17393207,
-            GravekeepersAssailant = 25262697,
-            GravekeepersDescendant = 30213599,
-            GravekeepersSpy = 24317029,
-            GravekeepersRecruiter = 93023479,
-            AllureOfDarkness = 1475311,
-            DarkHole = 53129443,
-            RoyalTribute = 72405967,
-            GravekeepersStele = 99523325,
-            MysticalSpaceTyphoon = 5318639,
-            BookofMoon = 14087893,
-            HiddenTemplesOfNecrovalley = 70000776,
-            Necrovalley = 47355498,
-            BottomlessTrapHole = 29401950,
-            RiteOfSpirit = 30450531,
-            TorrentialTribute = 53582587,
-            DimensionalPrison = 70342110,
-            SolemnWarning = 84749824,
-            ImperialTombsOfNecrovalley = 90434657
+            public static int GravekeepersOracle = 25524823;
+            public static int MaleficStardustDragon = 36521459;
+            public static int GravekeepersVisionary = 3825890;
+            public static int GravekeepersChief = 62473983;
+            public static int ThunderKingRaiOh = 71564252;
+            public static int GravekeepersCommandant = 17393207;
+            public static int GravekeepersAssailant = 25262697;
+            public static int GravekeepersDescendant = 30213599;
+            public static int GravekeepersSpy = 24317029;
+            public static int GravekeepersRecruiter = 93023479;
+            public static int AllureOfDarkness = 1475311;
+            public static int DarkHole = 53129443;
+            public static int RoyalTribute = 72405967;
+            public static int GravekeepersStele = 99523325;
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int BookofMoon = 14087893;
+            public static int HiddenTemplesOfNecrovalley = 70000776;
+            public static int Necrovalley = 47355498;
+            public static int BottomlessTrapHole = 29401950;
+            public static int RiteOfSpirit = 30450531;
+            public static int TorrentialTribute = 53582587;
+            public static int DimensionalPrison = 70342110;
+            public static int SolemnWarning = 84749824;
+            public static int ImperialTombsOfNecrovalley = 90434657;
         }
 
         public GravekeeperExecutor(GameAI ai, Duel duel)
@@ -43,41 +43,41 @@ namespace WindBot.Game.AI.Decks
         {
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.AllureOfDarkness);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.RoyalTribute);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GravekeepersStele);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.BookofMoon, DefaultBookOfMoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.HiddenTemplesOfNecrovalley, HiddenTemplesOfNecrovalleyEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Necrovalley, NecrovalleyActivate);
+            AddExecutor(ExecutorType.Activate, CardId.AllureOfDarkness);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.RoyalTribute);
+            AddExecutor(ExecutorType.Activate, CardId.GravekeepersStele);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.BookofMoon, DefaultBookOfMoon);
+            AddExecutor(ExecutorType.Activate, CardId.HiddenTemplesOfNecrovalley, HiddenTemplesOfNecrovalleyEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Necrovalley, NecrovalleyActivate);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.BottomlessTrapHole, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SolemnWarning, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DimensionalPrison, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.RiteOfSpirit, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ImperialTombsOfNecrovalley, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TorrentialTribute, DefaultTorrentialTribute);
+            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, CardId.DimensionalPrison, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.RiteOfSpirit, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.ImperialTombsOfNecrovalley, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.GravekeepersOracle);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.MaleficStardustDragon, MaleficStardustDragonSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.GravekeepersVisionary);
-            AddExecutor(ExecutorType.Summon, (int)CardId.GravekeepersChief);
-            AddExecutor(ExecutorType.Summon, (int)CardId.ThunderKingRaiOh);
-            AddExecutor(ExecutorType.Summon, (int)CardId.GravekeepersCommandant, GravekeepersCommandantSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.GravekeepersAssailant);
-            AddExecutor(ExecutorType.Summon, (int)CardId.GravekeepersDescendant);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.GravekeepersSpy);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.GravekeepersRecruiter);
+            AddExecutor(ExecutorType.Summon, CardId.GravekeepersOracle);
+            AddExecutor(ExecutorType.SpSummon, CardId.MaleficStardustDragon, MaleficStardustDragonSummon);
+            AddExecutor(ExecutorType.Summon, CardId.GravekeepersVisionary);
+            AddExecutor(ExecutorType.Summon, CardId.GravekeepersChief);
+            AddExecutor(ExecutorType.Summon, CardId.ThunderKingRaiOh);
+            AddExecutor(ExecutorType.Summon, CardId.GravekeepersCommandant, GravekeepersCommandantSummon);
+            AddExecutor(ExecutorType.Summon, CardId.GravekeepersAssailant);
+            AddExecutor(ExecutorType.Summon, CardId.GravekeepersDescendant);
+            AddExecutor(ExecutorType.MonsterSet, CardId.GravekeepersSpy);
+            AddExecutor(ExecutorType.MonsterSet, CardId.GravekeepersRecruiter);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.GravekeepersOracle);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GravekeepersVisionary);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GravekeepersChief);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GravekeepersCommandant, GravekeepersCommandantEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GravekeepersAssailant, GravekeepersAssailantEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GravekeepersDescendant, GravekeepersDescendantEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GravekeepersSpy, SearchForDescendant);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GravekeepersRecruiter, SearchForDescendant);
+            AddExecutor(ExecutorType.Activate, CardId.GravekeepersOracle);
+            AddExecutor(ExecutorType.Activate, CardId.GravekeepersVisionary);
+            AddExecutor(ExecutorType.Activate, CardId.GravekeepersChief);
+            AddExecutor(ExecutorType.Activate, CardId.GravekeepersCommandant, GravekeepersCommandantEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GravekeepersAssailant, GravekeepersAssailantEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GravekeepersDescendant, GravekeepersDescendantEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GravekeepersSpy, SearchForDescendant);
+            AddExecutor(ExecutorType.Activate, CardId.GravekeepersRecruiter, SearchForDescendant);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -105,7 +105,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GravekeepersCommandantEffect()
         {
-            if (!Bot.HasInHand((int)CardId.Necrovalley) && !Bot.HasInSpellZone((int)CardId.Necrovalley))
+            if (!Bot.HasInHand(CardId.Necrovalley) && !Bot.HasInSpellZone(CardId.Necrovalley))
                 return true;
             return false;
         }
@@ -140,7 +140,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SearchForDescendant()
         {
-            AI.SelectCard((int)CardId.GravekeepersDescendant);
+            AI.SelectCard(CardId.GravekeepersDescendant);
             return true;
         }
     }

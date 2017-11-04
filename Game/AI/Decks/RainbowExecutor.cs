@@ -9,47 +9,47 @@ namespace WindBot.Game.AI.Decks
     [Deck("Rainbow", "AI_Rainbow")]
     class RainbowExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            MysteryShellDragon = 18108166,
-            PhantomGryphon = 74852097,
-            MasterPendulumTheDracoslayer = 75195825,
-            AngelTrumpeter = 87979586,
-            MetalfoesGoldriver = 33256280,
-            Kabazauls = 51934376,
-            RescueRabbit = 85138716,
+            public static int MysteryShellDragon = 18108166;
+            public static int PhantomGryphon = 74852097;
+            public static int MasterPendulumTheDracoslayer = 75195825;
+            public static int AngelTrumpeter = 87979586;
+            public static int MetalfoesGoldriver = 33256280;
+            public static int Kabazauls = 51934376;
+            public static int RescueRabbit = 85138716;
 
-            UnexpectedDai = 911883,
-            HarpiesFeatherDuster = 18144506,
-            PotOfDesires = 35261759,
-            MonsterReborn = 83764718,
-            SmashingGround = 97169186,
+            public static int UnexpectedDai = 911883;
+            public static int HarpiesFeatherDuster = 18144506;
+            public static int PotOfDesires = 35261759;
+            public static int MonsterReborn = 83764718;
+            public static int SmashingGround = 97169186;
 
-            QuakingMirrorForce = 40838625,
-            DrowningMirrorForce = 47475363,
-            BlazingMirrorForce = 75249652,
-            StormingMirrorForce = 5650082,
-            MirrorForce = 44095762,
-            DarkMirrorForce = 20522190,
-            BottomlessTrapHole = 29401950,
-            TraptrixTrapHoleNightmare = 29616929,
-            StarlightRoad = 58120309,
+            public static int QuakingMirrorForce = 40838625;
+            public static int DrowningMirrorForce = 47475363;
+            public static int BlazingMirrorForce = 75249652;
+            public static int StormingMirrorForce = 5650082;
+            public static int MirrorForce = 44095762;
+            public static int DarkMirrorForce = 20522190;
+            public static int BottomlessTrapHole = 29401950;
+            public static int TraptrixTrapHoleNightmare = 29616929;
+            public static int StarlightRoad = 58120309;
 
-            ScarlightRedDragonArchfiend = 80666118,
-            IgnisterProminenceTheBlastingDracoslayer = 18239909,
-            StardustDragon = 44508094,
-            NumberS39UtopiatheLightning = 56832966,
-            Number37HopeWovenDragonSpiderShark = 37279508,
-            Number39Utopia = 84013237,
-            EvolzarLaggia = 74294676,
-            Number59CrookedCook = 82697249,
-            CastelTheSkyblasterMusketeer = 82633039,
-            StarliegePaladynamo = 61344030,
-            LightningChidori = 22653490,
-            EvilswarmExcitonKnight = 46772449,
-            GagagaCowboy = 12014404,
-            EvilswarmNightmare = 359563,
-            TraptrixRafflesia = 6511113
+            public static int ScarlightRedDragonArchfiend = 80666118;
+            public static int IgnisterProminenceTheBlastingDracoslayer = 18239909;
+            public static int StardustDragon = 44508094;
+            public static int NumberS39UtopiatheLightning = 56832966;
+            public static int Number37HopeWovenDragonSpiderShark = 37279508;
+            public static int Number39Utopia = 84013237;
+            public static int EvolzarLaggia = 74294676;
+            public static int Number59CrookedCook = 82697249;
+            public static int CastelTheSkyblasterMusketeer = 82633039;
+            public static int StarliegePaladynamo = 61344030;
+            public static int LightningChidori = 22653490;
+            public static int EvilswarmExcitonKnight = 46772449;
+            public static int GagagaCowboy = 12014404;
+            public static int EvilswarmNightmare = 359563;
+            public static int TraptrixRafflesia = 6511113;
         }
 
         private bool NormalSummoned = false;
@@ -57,83 +57,83 @@ namespace WindBot.Game.AI.Decks
         public RainbowExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.UnexpectedDai, UnexpectedDaiEffect);
+            AddExecutor(ExecutorType.Activate, CardId.UnexpectedDai, UnexpectedDaiEffect);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.RescueRabbit);
-            AddExecutor(ExecutorType.Activate, (int)CardId.RescueRabbit, RescueRabbitEffect);
+            AddExecutor(ExecutorType.Summon, CardId.RescueRabbit);
+            AddExecutor(ExecutorType.Activate, CardId.RescueRabbit, RescueRabbitEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.PotOfDesires, DefaultPotOfDesires);
+            AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, DefaultPotOfDesires);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.AngelTrumpeter, AngelTrumpeterSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.Kabazauls, KabazaulsSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.MasterPendulumTheDracoslayer, MasterPendulumTheDracoslayerSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.MysteryShellDragon, MysteryShellDragonSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.PhantomGryphon, PhantomGryphonSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.MetalfoesGoldriver, MetalfoesGoldriverSummon);
+            AddExecutor(ExecutorType.Summon, CardId.AngelTrumpeter, AngelTrumpeterSummon);
+            AddExecutor(ExecutorType.Summon, CardId.Kabazauls, KabazaulsSummon);
+            AddExecutor(ExecutorType.Summon, CardId.MasterPendulumTheDracoslayer, MasterPendulumTheDracoslayerSummon);
+            AddExecutor(ExecutorType.Summon, CardId.MysteryShellDragon, MysteryShellDragonSummon);
+            AddExecutor(ExecutorType.Summon, CardId.PhantomGryphon, PhantomGryphonSummon);
+            AddExecutor(ExecutorType.Summon, CardId.MetalfoesGoldriver, MetalfoesGoldriverSummon);
 
             AddExecutor(ExecutorType.Summon, NormalSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerSummon);
+            AddExecutor(ExecutorType.Activate, CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GagagaCowboy, GagagaCowboySummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GagagaCowboy);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvolzarLaggia, EvolzarLaggiaSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.EvolzarLaggia, EvolzarLaggiaEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.EvilswarmNightmare, EvilswarmNightmareSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.EvilswarmNightmare);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.StarliegePaladynamo, StarliegePaladynamoSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.StarliegePaladynamo, StarliegePaladynamoEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.LightningChidori, LightningChidoriSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.LightningChidori, LightningChidoriEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number37HopeWovenDragonSpiderShark, Number37HopeWovenDragonSpiderSharkSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Number37HopeWovenDragonSpiderShark);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.TraptrixRafflesia, TraptrixRafflesiaSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TraptrixRafflesia);
+            AddExecutor(ExecutorType.SpSummon, CardId.GagagaCowboy, GagagaCowboySummon);
+            AddExecutor(ExecutorType.Activate, CardId.GagagaCowboy);
+            AddExecutor(ExecutorType.SpSummon, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.Activate, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.EvolzarLaggia, EvolzarLaggiaSummon);
+            AddExecutor(ExecutorType.Activate, CardId.EvolzarLaggia, EvolzarLaggiaEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.EvilswarmNightmare, EvilswarmNightmareSummon);
+            AddExecutor(ExecutorType.Activate, CardId.EvilswarmNightmare);
+            AddExecutor(ExecutorType.SpSummon, CardId.StarliegePaladynamo, StarliegePaladynamoSummon);
+            AddExecutor(ExecutorType.Activate, CardId.StarliegePaladynamo, StarliegePaladynamoEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.LightningChidori, LightningChidoriSummon);
+            AddExecutor(ExecutorType.Activate, CardId.LightningChidori, LightningChidoriEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number37HopeWovenDragonSpiderShark, Number37HopeWovenDragonSpiderSharkSummon);
+            AddExecutor(ExecutorType.Activate, CardId.Number37HopeWovenDragonSpiderShark);
+            AddExecutor(ExecutorType.SpSummon, CardId.TraptrixRafflesia, TraptrixRafflesiaSummon);
+            AddExecutor(ExecutorType.Activate, CardId.TraptrixRafflesia);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.SmashingGround, DefaultSmashingGround);
+            AddExecutor(ExecutorType.Activate, CardId.SmashingGround, DefaultSmashingGround);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.CastelTheSkyblasterMusketeer, DefaultCastelTheSkyblasterMusketeerSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CastelTheSkyblasterMusketeer, DefaultCastelTheSkyblasterMusketeerEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.CastelTheSkyblasterMusketeer, DefaultCastelTheSkyblasterMusketeerSummon);
+            AddExecutor(ExecutorType.Activate, CardId.CastelTheSkyblasterMusketeer, DefaultCastelTheSkyblasterMusketeerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerSummon);
+            AddExecutor(ExecutorType.Activate, CardId.IgnisterProminenceTheBlastingDracoslayer, IgnisterProminenceTheBlastingDracoslayerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendSummon);
+            AddExecutor(ExecutorType.Activate, CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.NumberS39UtopiatheLightning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.StardustDragon, DefaultStardustDragonSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.StardustDragon, DefaultStardustDragonEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.StardustDragon, DefaultStardustDragonSummon);
+            AddExecutor(ExecutorType.Activate, CardId.StardustDragon, DefaultStardustDragonEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number59CrookedCook, Number59CrookedCookSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Number59CrookedCook, Number59CrookedCookEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number59CrookedCook, Number59CrookedCookSummon);
+            AddExecutor(ExecutorType.Activate, CardId.Number59CrookedCook, Number59CrookedCookEffect);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.StarlightRoad, TrapSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.QuakingMirrorForce, TrapSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DrowningMirrorForce, TrapSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.BlazingMirrorForce, TrapSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.StormingMirrorForce, TrapSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.MirrorForce, TrapSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.DarkMirrorForce, TrapSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.BottomlessTrapHole, TrapSet);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.TraptrixTrapHoleNightmare, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.StarlightRoad, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.QuakingMirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.DrowningMirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.BlazingMirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.StormingMirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.MirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.DarkMirrorForce, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.BottomlessTrapHole, TrapSet);
+            AddExecutor(ExecutorType.SpellSet, CardId.TraptrixTrapHoleNightmare, TrapSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.StarlightRoad, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.QuakingMirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DrowningMirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.BlazingMirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.StormingMirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkMirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.BottomlessTrapHole, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TraptrixTrapHoleNightmare, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.StarlightRoad, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.QuakingMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.DrowningMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.BlazingMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.StormingMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.DarkMirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.TraptrixTrapHoleNightmare, DefaultUniqueTrap);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -155,11 +155,11 @@ namespace WindBot.Game.AI.Decks
                 if (defender.IsMonsterDangerous() || defender.IsDefense())
                     return false;
             }
-            if (!(defender.Id == (int)CardId.NumberS39UtopiatheLightning))
+            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
             {
-                if (attacker.Id == (int)CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.Number39Utopia))
+                if (attacker.Id == CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, CardId.Number39Utopia))
                     attacker.RealPower = 5000;
-                if (Bot.HasInMonstersZone((int)CardId.Number37HopeWovenDragonSpiderShark, true, true))
+                if (Bot.HasInMonstersZone(CardId.Number37HopeWovenDragonSpiderShark, true, true))
                     attacker.RealPower = attacker.RealPower + 1000;
             }
             return attacker.RealPower > defender.GetDefensePower();
@@ -167,34 +167,34 @@ namespace WindBot.Game.AI.Decks
 
         private bool UnexpectedDaiEffect()
         {
-            if (Bot.HasInHand((int)CardId.RescueRabbit) || NormalSummoned)
+            if (Bot.HasInHand(CardId.RescueRabbit) || NormalSummoned)
                 AI.SelectCard(new[]
                 {
-                    (int)CardId.MysteryShellDragon,
-                    (int)CardId.PhantomGryphon
+                    CardId.MysteryShellDragon,
+                    CardId.PhantomGryphon
                 });
             else if (AI.Utils.IsTurn1OrMain2())
             {
-                if (Bot.HasInHand((int)CardId.MysteryShellDragon))
-                    AI.SelectCard((int)CardId.MysteryShellDragon);
-                else if (Bot.HasInHand((int)CardId.Kabazauls))
-                    AI.SelectCard((int)CardId.Kabazauls);
-                else if (Bot.HasInHand((int)CardId.AngelTrumpeter))
-                    AI.SelectCard((int)CardId.AngelTrumpeter);
+                if (Bot.HasInHand(CardId.MysteryShellDragon))
+                    AI.SelectCard(CardId.MysteryShellDragon);
+                else if (Bot.HasInHand(CardId.Kabazauls))
+                    AI.SelectCard(CardId.Kabazauls);
+                else if (Bot.HasInHand(CardId.AngelTrumpeter))
+                    AI.SelectCard(CardId.AngelTrumpeter);
             }
             else
             {
-                if (Bot.HasInHand((int)CardId.Kabazauls))
-                    AI.SelectCard((int)CardId.Kabazauls);
-                else if (Bot.HasInHand((int)CardId.MasterPendulumTheDracoslayer))
-                    AI.SelectCard((int)CardId.MasterPendulumTheDracoslayer);
-                else if (Bot.HasInHand((int)CardId.PhantomGryphon))
-                    AI.SelectCard((int)CardId.PhantomGryphon);
-                else if (Bot.HasInHand((int)CardId.AngelTrumpeter))
+                if (Bot.HasInHand(CardId.Kabazauls))
+                    AI.SelectCard(CardId.Kabazauls);
+                else if (Bot.HasInHand(CardId.MasterPendulumTheDracoslayer))
+                    AI.SelectCard(CardId.MasterPendulumTheDracoslayer);
+                else if (Bot.HasInHand(CardId.PhantomGryphon))
+                    AI.SelectCard(CardId.PhantomGryphon);
+                else if (Bot.HasInHand(CardId.AngelTrumpeter))
                     AI.SelectCard(new[]
                     {
-                        (int)CardId.MetalfoesGoldriver,
-                        (int)CardId.MasterPendulumTheDracoslayer
+                        CardId.MetalfoesGoldriver,
+                        CardId.MasterPendulumTheDracoslayer
                     });
             }
             return true;
@@ -205,44 +205,44 @@ namespace WindBot.Game.AI.Decks
             if (AI.Utils.IsTurn1OrMain2())
                 AI.SelectCard(new[]
                     {
-                        (int)CardId.Kabazauls,
-                        (int)CardId.MysteryShellDragon
+                        CardId.Kabazauls,
+                        CardId.MysteryShellDragon
                     });
             else
                 AI.SelectCard(new[]
                     {
-                        (int)CardId.MasterPendulumTheDracoslayer,
-                        (int)CardId.PhantomGryphon,
-                        (int)CardId.Kabazauls,
-                        (int)CardId.MetalfoesGoldriver,
-                        (int)CardId.AngelTrumpeter
+                        CardId.MasterPendulumTheDracoslayer,
+                        CardId.PhantomGryphon,
+                        CardId.Kabazauls,
+                        CardId.MetalfoesGoldriver,
+                        CardId.AngelTrumpeter
                     });
             return true;
         }
 
         private bool MysteryShellDragonSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.MysteryShellDragon);
+            return Bot.HasInMonstersZone(CardId.MysteryShellDragon);
         }
         private bool PhantomGryphonSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.PhantomGryphon);
+            return Bot.HasInMonstersZone(CardId.PhantomGryphon);
         }
         private bool MasterPendulumTheDracoslayerSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.MasterPendulumTheDracoslayer);
+            return Bot.HasInMonstersZone(CardId.MasterPendulumTheDracoslayer);
         }
         private bool AngelTrumpeterSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.AngelTrumpeter);
+            return Bot.HasInMonstersZone(CardId.AngelTrumpeter);
         }
         private bool MetalfoesGoldriverSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.MetalfoesGoldriver);
+            return Bot.HasInMonstersZone(CardId.MetalfoesGoldriver);
         }
         private bool KabazaulsSummon()
         {
-            return Bot.HasInMonstersZone((int)CardId.Kabazauls);
+            return Bot.HasInMonstersZone(CardId.Kabazauls);
         }
         private bool NormalSummon()
         {
@@ -266,7 +266,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool IgnisterProminenceTheBlastingDracoslayerEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.IgnisterProminenceTheBlastingDracoslayer, 1))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.IgnisterProminenceTheBlastingDracoslayer, 1))
                 return true;
             ClientCard target1 = null;
             ClientCard target2 = AI.Utils.GetProblematicEnemyCard();
@@ -365,7 +365,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TraptrixRafflesiaSummon()
         {
-            if (AI.Utils.IsTurn1OrMain2() && (Bot.GetRemainingCount((int)CardId.BottomlessTrapHole, 1) + Bot.GetRemainingCount((int)CardId.TraptrixTrapHoleNightmare, 1)) > 0)
+            if (AI.Utils.IsTurn1OrMain2() && (Bot.GetRemainingCount(CardId.BottomlessTrapHole, 1) + Bot.GetRemainingCount(CardId.TraptrixTrapHoleNightmare, 1)) > 0)
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -417,7 +417,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TrapSet()
         {
-            return !Bot.HasInMonstersZone((int)CardId.Number59CrookedCook, true, true);
+            return !Bot.HasInMonstersZone(CardId.Number59CrookedCook, true, true);
         }
     }
 }

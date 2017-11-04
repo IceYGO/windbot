@@ -9,34 +9,34 @@ namespace WindBot.Game.AI.Decks
     [Deck("Rank V", "AI_Rank5")]
     public class Rank5Executor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            MistArchfiend = 28601770,
-            CyberDragon = 70095154,
-            ZWEagleClaw = 29353756,
-            SolarWindJammer = 33911264,
-            QuickdrawSynchron = 20932152,
-            WindUpSoldier = 12299841,
-            StarDrawing = 24610207,
-            ChronomalyGoldenJet = 88552992,
+            public static int MistArchfiend = 28601770;
+            public static int CyberDragon = 70095154;
+            public static int ZWEagleClaw = 29353756;
+            public static int SolarWindJammer = 33911264;
+            public static int QuickdrawSynchron = 20932152;
+            public static int WindUpSoldier = 12299841;
+            public static int StarDrawing = 24610207;
+            public static int ChronomalyGoldenJet = 88552992;
 
-            InstantFusion = 1845204,
-            DoubleSummon = 43422537,
-            MysticalSpaceTyphoon = 5318639,
-            BookOfMoon = 14087893,
-            XyzUnit = 13032689,
-            XyzReborn = 26708437,
-            MirrorForce = 44095762,
-            TorrentialTribute = 53582587,
-            XyzVeil = 96457619,
+            public static int InstantFusion = 1845204;
+            public static int DoubleSummon = 43422537;
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int BookOfMoon = 14087893;
+            public static int XyzUnit = 13032689;
+            public static int XyzReborn = 26708437;
+            public static int MirrorForce = 44095762;
+            public static int TorrentialTribute = 53582587;
+            public static int XyzVeil = 96457619;
 
-            PanzerDragon = 72959823,
-            GaiaDragonTheThunderCharger = 91949988,
-            CyberDragonInfinity = 10443957,
-            TirasKeeperOfGenesis = 31386180,
-            Number61Volcasaurus = 29669359,
-            SharkFortress = 50449881,
-            CyberDragonNova = 58069384
+            public static int PanzerDragon = 72959823;
+            public static int GaiaDragonTheThunderCharger = 91949988;
+            public static int CyberDragonInfinity = 10443957;
+            public static int TirasKeeperOfGenesis = 31386180;
+            public static int Number61Volcasaurus = 29669359;
+            public static int SharkFortress = 50449881;
+            public static int CyberDragonNova = 58069384;
         }
 
         private bool NormalSummoned = false;
@@ -49,49 +49,49 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             // Quick spells
-            AddExecutor(ExecutorType.Activate, (int)CardId.BookOfMoon, DefaultBookOfMoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.BookOfMoon, DefaultBookOfMoon);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
 
             // Cyber Dragon Infinity first
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberDragonNova, CyberDragonNovaSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CyberDragonNova, CyberDragonNovaEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberDragonInfinity, CyberDragonInfinitySummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.CyberDragonInfinity, CyberDragonInfinityEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.CyberDragonNova, CyberDragonNovaSummon);
+            AddExecutor(ExecutorType.Activate, CardId.CyberDragonNova, CyberDragonNovaEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.CyberDragonInfinity, CyberDragonInfinitySummon);
+            AddExecutor(ExecutorType.Activate, CardId.CyberDragonInfinity, CyberDragonInfinityEffect);
 
             // Level 5 monsters without side effects
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.CyberDragon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.SolarWindJammer, SolarWindJammerSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.ZWEagleClaw);
-            AddExecutor(ExecutorType.Summon, (int)CardId.ChronomalyGoldenJet, NormalSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.ChronomalyGoldenJet, ChronomalyGoldenJetEffect);
-            AddExecutor(ExecutorType.Summon, (int)CardId.StarDrawing, NormalSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.WindUpSoldier, NormalSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.WindUpSoldier, WindUpSoldierEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.CyberDragon);
+            AddExecutor(ExecutorType.SpSummon, CardId.SolarWindJammer, SolarWindJammerSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.ZWEagleClaw);
+            AddExecutor(ExecutorType.Summon, CardId.ChronomalyGoldenJet, NormalSummon);
+            AddExecutor(ExecutorType.Activate, CardId.ChronomalyGoldenJet, ChronomalyGoldenJetEffect);
+            AddExecutor(ExecutorType.Summon, CardId.StarDrawing, NormalSummon);
+            AddExecutor(ExecutorType.Summon, CardId.WindUpSoldier, NormalSummon);
+            AddExecutor(ExecutorType.Activate, CardId.WindUpSoldier, WindUpSoldierEffect);
 
             // XYZ Monsters: Summon
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Number61Volcasaurus, Number61VolcasaurusSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Number61Volcasaurus, Number61VolcasaurusEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.TirasKeeperOfGenesis);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TirasKeeperOfGenesis, TirasKeeperOfGenesisEffect);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.SharkFortress);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SharkFortress);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number61Volcasaurus, Number61VolcasaurusSummon);
+            AddExecutor(ExecutorType.Activate, CardId.Number61Volcasaurus, Number61VolcasaurusEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.TirasKeeperOfGenesis);
+            AddExecutor(ExecutorType.Activate, CardId.TirasKeeperOfGenesis, TirasKeeperOfGenesisEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.SharkFortress);
+            AddExecutor(ExecutorType.Activate, CardId.SharkFortress);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GaiaDragonTheThunderCharger, GaiaDragonTheThunderChargerSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GaiaDragonTheThunderCharger, GaiaDragonTheThunderChargerSummon);
 
 
             // Level 5 monsters with side effects
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.QuickdrawSynchron, QuickdrawSynchronSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.MistArchfiend, MistArchfiendSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.InstantFusion, InstantFusionEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.QuickdrawSynchron, QuickdrawSynchronSummon);
+            AddExecutor(ExecutorType.Summon, CardId.MistArchfiend, MistArchfiendSummon);
+            AddExecutor(ExecutorType.Activate, CardId.InstantFusion, InstantFusionEffect);
 
             // Useful spells
-            AddExecutor(ExecutorType.Activate, (int)CardId.DoubleSummon, DoubleSummonEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.XyzUnit, XyzUnitEffect);
+            AddExecutor(ExecutorType.Activate, CardId.DoubleSummon, DoubleSummonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.XyzUnit, XyzUnitEffect);
 
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.XyzReborn, XyzRebornEffect);
+            AddExecutor(ExecutorType.Activate, CardId.XyzReborn, XyzRebornEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.PanzerDragon, PanzerDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.PanzerDragon, PanzerDragonEffect);
 
             // Reposition
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
@@ -99,9 +99,9 @@ namespace WindBot.Game.AI.Decks
             // Set and activate traps
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.XyzVeil, XyzVeilEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TorrentialTribute, DefaultTorrentialTribute);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MirrorForce, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.XyzVeil, XyzVeilEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
+            AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultTrap);
         }
 
         public override bool OnSelectHand()
@@ -136,14 +136,14 @@ namespace WindBot.Game.AI.Decks
                 return false;
             AI.SelectCard(new[]
                 {
-                    (int)CardId.QuickdrawSynchron,
-                    (int)CardId.ZWEagleClaw,
-                    (int)CardId.SolarWindJammer,
-                    (int)CardId.CyberDragon,
-                    (int)CardId.MistArchfiend,
-                    (int)CardId.WindUpSoldier,
-                    (int)CardId.StarDrawing,
-                    (int)CardId.ChronomalyGoldenJet
+                    CardId.QuickdrawSynchron,
+                    CardId.ZWEagleClaw,
+                    CardId.SolarWindJammer,
+                    CardId.CyberDragon,
+                    CardId.MistArchfiend,
+                    CardId.WindUpSoldier,
+                    CardId.StarDrawing,
+                    CardId.ChronomalyGoldenJet
                 });
             return true;
         }
@@ -173,13 +173,13 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> hand = Bot.Hand;
             foreach (ClientCard card in hand)
             {
-                if (card.Id == (int)CardId.InstantFusion && !InstantFusionUsed)
+                if (card.Id == CardId.InstantFusion && !InstantFusionUsed)
                     ++lv5Count;
-                if (card.Id == (int)CardId.QuickdrawSynchron && Bot.Hand.ContainsMonsterWithLevel(4))
+                if (card.Id == CardId.QuickdrawSynchron && Bot.Hand.ContainsMonsterWithLevel(4))
                     ++lv5Count;
-                if (card.Id == (int)CardId.MistArchfiend && !NormalSummoned)
+                if (card.Id == CardId.MistArchfiend && !NormalSummoned)
                     ++lv5Count;
-                if (card.Id == (int)CardId.DoubleSummon && DoubleSummonEffect())
+                if (card.Id == CardId.DoubleSummon && DoubleSummonEffect())
                     ++lv5Count;
             }
             if (lv5Count >= 2)
@@ -204,10 +204,10 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> hand = Bot.Hand;
             foreach (ClientCard card in hand)
             {
-                if (card.Id == (int)CardId.MistArchfiend ||
-                    card.Id == (int)CardId.WindUpSoldier ||
-                    card.Id == (int)CardId.StarDrawing ||
-                    card.Id == (int)CardId.ChronomalyGoldenJet)
+                if (card.Id == CardId.MistArchfiend ||
+                    card.Id == CardId.WindUpSoldier ||
+                    card.Id == CardId.StarDrawing ||
+                    card.Id == CardId.ChronomalyGoldenJet)
                 {
                     NormalSummoned = false;
                     DoubleSummonUsed = true;
@@ -224,7 +224,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CyberDragonNovaEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.CyberDragonNova, 0))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.CyberDragonNova, 0))
             {
                 return true;
             }
@@ -279,7 +279,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard target = AI.Utils.GetProblematicEnemyMonster(2000);
             if (target != null)
             {
-                AI.SelectCard((int)CardId.CyberDragon);
+                AI.SelectCard(CardId.CyberDragon);
                 AI.SelectNextCard(target);
                 Number61VolcasaurusUsed = true;
                 return true;
@@ -299,9 +299,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool GaiaDragonTheThunderChargerSummon()
         {
-            if (Number61VolcasaurusUsed && Bot.HasInMonstersZone((int)CardId.Number61Volcasaurus))
+            if (Number61VolcasaurusUsed && Bot.HasInMonstersZone(CardId.Number61Volcasaurus))
             {
-                AI.SelectCard((int)CardId.Number61Volcasaurus);
+                AI.SelectCard(CardId.Number61Volcasaurus);
                 return true;
             }
             List<ClientCard> monsters = Bot.GetMonsters();
@@ -327,11 +327,11 @@ namespace WindBot.Game.AI.Decks
             }
             AI.SelectCard(new[]
                 {
-                    (int)CardId.CyberDragonInfinity,
-                    (int)CardId.CyberDragonNova,
-                    (int)CardId.TirasKeeperOfGenesis,
-                    (int)CardId.SharkFortress,
-                    (int)CardId.Number61Volcasaurus
+                    CardId.CyberDragonInfinity,
+                    CardId.CyberDragonNova,
+                    CardId.TirasKeeperOfGenesis,
+                    CardId.SharkFortress,
+                    CardId.Number61Volcasaurus
                 });
             return true;
         }
@@ -358,7 +358,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> spells = Bot.GetSpells();
             foreach (ClientCard spell in spells)
             {
-                if (spell.Id == (int)CardId.XyzVeil && !spell.IsFacedown())
+                if (spell.Id == CardId.XyzVeil && !spell.IsFacedown())
                     return false;
             }
             List<ClientCard> monsters = Bot.GetMonsters();
@@ -378,8 +378,8 @@ namespace WindBot.Game.AI.Decks
                 if (monster.HasType(CardType.Monster) &&
                     !monster.HasType(CardType.Xyz) &&
                     (monster.Level == 5
-                    || monster.Id == (int)CardId.StarDrawing
-                    || (monster.Id == (int)CardId.WindUpSoldier) && !monster.Equals(Card)))
+                    || monster.Id == CardId.StarDrawing
+                    || (monster.Id == CardId.WindUpSoldier) && !monster.Equals(Card)))
                     return true;
             }
             return false;
