@@ -62,32 +62,41 @@ namespace WindBot.Game.AI
                 return AI.ToMainPhase2();
 
             if (defenders.Count == 0)
-                return AI.Attack(attackers[0], null);
-
-            for (int i = defenders.Count - 1; i >= 0; --i)
             {
-                ClientCard defender = defenders[i];
-                for (int j = 0; j < attackers.Count; ++j)
+                for (int i = attackers.Count - 1; i >= 0; --i)
                 {
-                    ClientCard attacker = attackers[j];
-                    attacker.RealPower = attacker.Attack;
-                    defender.RealPower = defender.GetDefensePower();
-                    if (!OnPreBattleBetween(attacker, defender))
-                        continue;
-                    if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && j == attackers.Count - 1))
-                        return AI.Attack(attacker, defender);
+                    ClientCard attacker = attackers[i];
+                    if (attacker.Attack > 0)
+                        return AI.Attack(attacker, null);
+                }
+            }
+            else
+            {
+                for (int i = defenders.Count - 1; i >= 0; --i)
+                {
+                    ClientCard defender = defenders[i];
+                    for (int j = 0; j < attackers.Count; ++j)
+                    {
+                        ClientCard attacker = attackers[j];
+                        attacker.RealPower = attacker.Attack;
+                        defender.RealPower = defender.GetDefensePower();
+                        if (!OnPreBattleBetween(attacker, defender))
+                            continue;
+                        if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && j == attackers.Count - 1))
+                            return AI.Attack(attacker, defender);
+                    }
+                }
+
+                for (int i = attackers.Count - 1; i >= 0; --i)
+                {
+                    ClientCard attacker = attackers[i];
+                    if (attacker.CanDirectAttack)
+                        return AI.Attack(attacker, null);
                 }
             }
 
-            for (int i = attackers.Count - 1; i >= 0; --i)
-            {
-                ClientCard attacker = attackers[i];
-                if (attacker.CanDirectAttack)
-                    return AI.Attack(attacker, null);
-            }
-
             if (!Battle.CanMainPhaseTwo)
-                return AI.Attack(attackers[attackers.Count - 1], defenders[0]);
+                return AI.Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
 
             return AI.ToMainPhase2();
         }

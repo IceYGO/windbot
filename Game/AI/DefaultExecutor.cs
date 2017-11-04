@@ -50,6 +50,8 @@ namespace WindBot.Game.AI
         /// <returns>true if the attack can be done.</returns>
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
+            if (attacker.RealPower <= 0)
+                return false;
 
             if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
             {
