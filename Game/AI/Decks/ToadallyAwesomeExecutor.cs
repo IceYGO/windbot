@@ -40,8 +40,6 @@ namespace WindBot.Game.AI.Decks
             public static int BookOfMoon = 14087893;
             public static int CallOfTheHaunted = 97077563;
             public static int TorrentialTribute = 53582587;
-
-            public static int NumberS39UtopiatheLightning = 56832966;
         }
 
         public ToadallyAwesomeExecutor(GameAI ai, Duel duel)
@@ -116,17 +114,12 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
-            {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
-            }
-            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
+            if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
                 if (attacker.Id == CardId.SkyCavalryCentaurea && !attacker.IsDisabled() && attacker.HasXyzMaterial())
                     attacker.RealPower = Duel.LifePoints[0] + attacker.Attack;
             }
-            return attacker.RealPower >= defender.GetDefensePower();
+            return base.OnPreBattleBetween(attacker, defender);
         }
 
         private bool MedallionOfTheIceBarrierEffect()

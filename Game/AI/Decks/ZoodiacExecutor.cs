@@ -133,19 +133,12 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
+            if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
+                if (attacker.HasType(CardType.Fusion) && Bot.HasInHand(CardId.AleisterTheInvoker))
+                    attacker.RealPower = attacker.RealPower + 1000;
             }
-            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
-            {
-                //if (attacker.HasType(CardType.Fusion) && Bot.HasInHand(CardId.AleisterTheInvoker))
-                //    attacker.RealPower = attacker.RealPower + 1000;
-                if (attacker.Id == CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, CardId.Number39Utopia))
-                    attacker.RealPower = 5000;
-            }
-            return attacker.RealPower > defender.GetDefensePower();
+            return base.OnPreBattleBetween(attacker, defender);
         }
 
         private bool PhotonThrasherSummon()

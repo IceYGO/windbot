@@ -233,12 +233,7 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
-            {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
-            }
-            return attacker.Attack > 0;
+            return attacker.Attack > 0 && base.OnPreBattleBetween(attacker, defender);
         }
 
         private bool DragonShrineEffect()

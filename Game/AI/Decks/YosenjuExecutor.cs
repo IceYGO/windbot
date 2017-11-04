@@ -171,19 +171,12 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
-            {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
-            }
-            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
+            if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
                 if (attacker.Attribute == (int)CardAttribute.Wind && Bot.HasInHand(CardId.YosenjuTsujik))
                     attacker.RealPower = attacker.RealPower + 1000;
-                if (attacker.Id == CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, CardId.Number39Utopia))
-                    attacker.RealPower = 5000;
             }
-            return attacker.RealPower > defender.GetDefensePower();
+            return base.OnPreBattleBetween(attacker, defender);
         }
 
         private bool PotOfDualityEffect()

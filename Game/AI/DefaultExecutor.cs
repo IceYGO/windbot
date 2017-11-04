@@ -20,17 +20,69 @@ namespace WindBot.Game.AI
             public static int DogorantheMadFlameKaiju = 93332803;
             public static int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
 
+            public static int DupeFrog = 46239604;
+            public static int MaraudingCaptain = 2460565;
+
             public static int MysticalSpaceTyphoon = 5318639;
             public static int CosmicCyclone = 8267140;
             public static int ChickenGame = 67616300;
 
             public static int CastelTheSkyblasterMusketeer = 82633039;
+            public static int NumberS39UtopiaTheLightning = 56832966;
+            public static int Number39Utopia = 84013237;
+            public static int UltimayaTzolkin = 1686814;
+
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
             AddExecutor(ExecutorType.Activate, _CardId.ChickenGame, DefaultChickenGame);
+        }
+
+        /// <summary>
+        /// Decide whether to declare attack between attacker and defender.
+        /// Can be overrided to update the RealPower of attacker for cards like Honest.
+        /// </summary>
+        /// <param name="attacker">Card that attack.</param>
+        /// <param name="defender">Card that defend.</param>
+        /// <returns>true if the attack can be done.</returns>
+        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
+        {
+            if (defender.IsMonsterInvincible())
+            {
+                if (!attacker.IsMonsterHasPreventActivationEffectInBattle() && (defender.IsMonsterDangerous() || defender.IsDefense()))
+                    return false;
+            }
+            if (!defender.IsMonsterHasPreventActivationEffectInBattle())
+            {
+                if (attacker.Id == _CardId.NumberS39UtopiaTheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, _CardId.Number39Utopia))
+                    attacker.RealPower = 5000;
+            }
+
+            if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
+            {
+                if (defender.Id == _CardId.NumberS39UtopiaTheLightning && !defender.IsDisabled() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
+                    defender.RealPower = 5000;
+            }
+
+            if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && defender.Id != _CardId.DupeFrog)
+                return false;
+
+            if (Enemy.HasInMonstersZone(_CardId.MaraudingCaptain, true) && defender.Id != _CardId.MaraudingCaptain && defender.Race == (int)CardRace.Warrior)
+                return false;
+
+            if (defender.Id == _CardId.UltimayaTzolkin && !defender.IsDisabled())
+            {
+                List<ClientCard> monsters = Enemy.GetMonsters();
+                foreach (ClientCard monster in monsters)
+                {
+                    if (monster.HasType(CardType.Synchro))
+                        return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

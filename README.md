@@ -107,8 +107,6 @@ The parameters are same as commandlines, but low cased.
 
 ### Known issues
 
-* The bot will attack synchro monsters next to _Ultimaya Tzolkin_ because it don't know _Ultimaya Tzolkin_ can't be attacked.
-
 * The attack won't be canceled when battle replay happens.
 
 * If one chain includes two activation that use `AI.SelectCard`, the second one won't select correctly.

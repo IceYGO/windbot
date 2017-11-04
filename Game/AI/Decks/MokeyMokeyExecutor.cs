@@ -36,7 +36,7 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            return attacker.Attack > 0;
+            return attacker.Attack > 0 && base.OnPreBattleBetween(attacker, defender);
         }
     }
 }
