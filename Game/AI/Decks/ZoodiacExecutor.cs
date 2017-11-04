@@ -306,7 +306,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             if (Bot.HasInMonstersZone(CardId.Thoroughblade) && !TigermortarSpsummoned
-                && Bot.HasInGraveyard(new List<int>
+                && Bot.HasInGraveyard(new[]
                 {
                     CardId.Whiptail,
                     CardId.Ratpier

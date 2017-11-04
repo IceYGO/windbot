@@ -212,7 +212,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterRebornEffect()
         {
-            List<int> targets = new List<int> {
+            IList<int> targets = new[] {
                     CardId.DecodeTalker,
                     CardId.EncodeTalker,
                     CardId.TriGateWizard,
@@ -336,7 +336,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Removed)
                 return true;
-            bool hastarget = Bot.HasInHand(new List<int> {
+            bool hastarget = Bot.HasInHand(new[] {
                     CardId.Draconnet,
                     CardId.Kleinant,
                     CardId.BalancerLord,
@@ -354,7 +354,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ROMCloudiaSummon()
         {
-            return Bot.HasInGraveyard(new List<int> {
+            return Bot.HasInGraveyard(new[] {
                     CardId.BootStagguard,
                     CardId.BalancerLord,
                     CardId.Kleinant,

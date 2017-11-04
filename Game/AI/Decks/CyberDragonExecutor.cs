@@ -96,7 +96,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Capsule()
         {
-            List<int> SelectedCard = new List<int>();
+            IList<int> SelectedCard = new List<int>();
             SelectedCard.Add(CardId.PowerBond);
             SelectedCard.Add(CardId.DarkHole);
             SelectedCard.Add(CardId.Raigeki);

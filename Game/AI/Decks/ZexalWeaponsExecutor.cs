@@ -260,7 +260,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SolarWindJammer()
         {
-            if (!Bot.HasInHand(new List<int> {
+            if (!Bot.HasInHand(new[] {
                     CardId.StarDrawing,
                     CardId.InstantFusion
                 }))

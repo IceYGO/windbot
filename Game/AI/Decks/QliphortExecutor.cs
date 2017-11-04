@@ -33,12 +33,12 @@ namespace WindBot.Game.AI.Decks
 
         bool CardOfDemiseUsed = false;
 
-        List<int> LowScaleCards = new List<int>
+        IList<int> LowScaleCards = new[]
         {
             CardId.Stealth,
             CardId.Carrier
         };
-        List<int> HighScaleCards = new List<int>
+        IList<int> HighScaleCards = new[]
         {
             CardId.Scout,
             CardId.Shell,

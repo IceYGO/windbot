@@ -124,11 +124,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool MedallionOfTheIceBarrierEffect()
         {
-            if (Bot.HasInHand(new List<int>
+            if (Bot.HasInHand(new[]
                 {
                     CardId.CryomancerOfTheIceBarrier,
                     CardId.DewdarkOfTheIceBarrier
-                }) || Bot.HasInMonstersZone(new List<int>
+                }) || Bot.HasInMonstersZone(new[]
                 {
                     CardId.CryomancerOfTheIceBarrier,
                     CardId.DewdarkOfTheIceBarrier
@@ -308,7 +308,7 @@ namespace WindBot.Game.AI.Decks
             {
                 // negate effect, select a cost for it
                 List<ClientCard> monsters = Bot.GetMonsters();
-                List<int> suitableCost = new List<int> {
+                IList<int> suitableCost = new[] {
                     CardId.SwapFrog,
                     CardId.Ronintoadin,
                     CardId.GraydleSlimeJr,
@@ -420,7 +420,7 @@ namespace WindBot.Game.AI.Decks
         {
             bool should = Bot.HasInMonstersZone(CardId.ToadallyAwesome)
                         && ((AI.Utils.IsOneEnemyBetter(true)
-                            && !Bot.HasInMonstersZone(new List<int>
+                            && !Bot.HasInMonstersZone(new[]
                                 {
                                     CardId.CatShark,
                                     CardId.SkyCavalryCentaurea
@@ -481,7 +481,7 @@ namespace WindBot.Game.AI.Decks
             return AI.Utils.IsOneEnemyBetter(true)
                    && AI.Utils.GetBestAttack(Enemy) > 2200
                    && num < 4
-                   && !Bot.HasInMonstersZone(new List<int>
+                   && !Bot.HasInMonstersZone(new[]
                         {
                             CardId.SkyCavalryCentaurea
                         }, true, true);

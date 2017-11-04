@@ -351,7 +351,7 @@ namespace WindBot.Game.AI.Decks
                 // Let Azure-Eyes spsummon first
                 return false;
             }
-            List<int> targets = new List<int> {
+            IList<int> targets = new[] {
                     CardId.HopeHarbingerDragonTitanicGalaxy,
                     CardId.GalaxyEyesDarkMatterDragon,
                     CardId.AlternativeWhiteDragon,
@@ -391,7 +391,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SageWithEyesOfBlueSummon()
         {
-            return !Bot.HasInHand(new List<int>
+            return !Bot.HasInHand(new[]
                 {
                     CardId.WhiteStoneOfAncients,
                     CardId.WhiteStoneOfLegend
@@ -424,11 +424,11 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (!Bot.HasInMonstersZone(new List<int>
+            if (!Bot.HasInMonstersZone(new[]
                 {
                     CardId.WhiteStoneOfLegend,
                     CardId.WhiteStoneOfAncients
-                }) || Bot.HasInMonstersZone(new List<int>
+                }) || Bot.HasInMonstersZone(new[]
                 {
                     CardId.AlternativeWhiteDragon,
                     CardId.WhiteDragon,
@@ -568,7 +568,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool WhiteStoneSummon()
         {
-            return Bot.HasInMonstersZone(new List<int>
+            return Bot.HasInMonstersZone(new[]
                 {
                     CardId.SageWithEyesOfBlue,
                     CardId.WhiteStoneOfAncients,
@@ -865,7 +865,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return true;
             }
-            if (Duel.Phase == DuelPhase.Main1 && !Bot.HasInMonstersZone(new List<int>
+            if (Duel.Phase == DuelPhase.Main1 && !Bot.HasInMonstersZone(new[]
                 {
                     CardId.AlternativeWhiteDragon,
                     CardId.WhiteDragon,
@@ -978,7 +978,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanDealWithUsedAlternativeWhiteDragon()
         {
-            return Bot.HasInMonstersZone(new List<int>
+            return Bot.HasInMonstersZone(new[]
                 {
                     CardId.SageWithEyesOfBlue,
                     CardId.WhiteStoneOfAncients,
