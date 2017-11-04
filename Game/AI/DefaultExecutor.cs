@@ -9,28 +9,28 @@ namespace WindBot.Game.AI
 {
     public abstract class DefaultExecutor : Executor
     {
-        private enum CardId
+        protected class _CardId
         {
-            JizukirutheStarDestroyingKaiju = 63941210,
-            GadarlatheMysteryDustKaiju = 36956512,
-            GamecieltheSeaTurtleKaiju = 55063751,
-            RadiantheMultidimensionalKaiju = 28674152,
-            KumongoustheStickyStringKaiju = 29726552,
-            ThunderKingtheLightningstrikeKaiju = 48770333,
-            DogorantheMadFlameKaiju = 93332803,
-            SuperAntiKaijuWarMachineMechaDogoran = 84769941,
+            public static int JizukirutheStarDestroyingKaiju = 63941210;
+            public static int GadarlatheMysteryDustKaiju = 36956512;
+            public static int GamecieltheSeaTurtleKaiju = 55063751;
+            public static int RadiantheMultidimensionalKaiju = 28674152;
+            public static int KumongoustheStickyStringKaiju = 29726552;
+            public static int ThunderKingtheLightningstrikeKaiju = 48770333;
+            public static int DogorantheMadFlameKaiju = 93332803;
+            public static int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
 
-            MysticalSpaceTyphoon = 5318639,
-            CosmicCyclone = 8267140,
-            ChickenGame = 67616300,
+            public static int MysticalSpaceTyphoon = 5318639;
+            public static int CosmicCyclone = 8267140;
+            public static int ChickenGame = 67616300;
 
-            CastelTheSkyblasterMusketeer = 82633039
+            public static int CastelTheSkyblasterMusketeer = 82633039;
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.ChickenGame, DefaultChickenGame);
+            AddExecutor(ExecutorType.Activate, _CardId.ChickenGame, DefaultChickenGame);
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace WindBot.Game.AI
         protected bool DefaultMysticalSpaceTyphoon()
         {
             foreach (ClientCard card in CurrentChain)
-                if (card.Id == (int)CardId.MysticalSpaceTyphoon)
+                if (card.Id == _CardId.MysticalSpaceTyphoon)
                     return false;
 
             List<ClientCard> spells = Enemy.GetSpells();
@@ -72,7 +72,7 @@ namespace WindBot.Game.AI
         protected bool DefaultCosmicCyclone()
         {
             foreach (ClientCard card in CurrentChain)
-                if (card.Id == (int)CardId.CosmicCyclone)
+                if (card.Id == _CardId.CosmicCyclone)
                     return false;
             return (Duel.LifePoints[0] > 1000) && DefaultMysticalSpaceTyphoon();
         }
@@ -390,9 +390,9 @@ namespace WindBot.Game.AI
             }
             if (count > 1 || Duel.LifePoints[0] <= 1000)
                 return false;
-            if (Duel.LifePoints[0] <= Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId((int)CardId.ChickenGame, 0))
+            if (Duel.LifePoints[0] <= Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 0))
                 return true;
-            if (Duel.LifePoints[0] > Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId((int)CardId.ChickenGame, 1))
+            if (Duel.LifePoints[0] > Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 1))
                 return true;
             return false;
         }
@@ -493,26 +493,26 @@ namespace WindBot.Game.AI
             {
                 AI.SelectCard(new[]
                 {
-                    (int)CardId.GamecieltheSeaTurtleKaiju,
-                    (int)CardId.KumongoustheStickyStringKaiju,
-                    (int)CardId.RadiantheMultidimensionalKaiju,
-                    (int)CardId.GadarlatheMysteryDustKaiju
+                    _CardId.GamecieltheSeaTurtleKaiju,
+                    _CardId.KumongoustheStickyStringKaiju,
+                    _CardId.RadiantheMultidimensionalKaiju,
+                    _CardId.GadarlatheMysteryDustKaiju
                 });
                 return true;
             }
             AI.SelectCard(new[]
                 {
-                    (int)CardId.JizukirutheStarDestroyingKaiju,
-                    (int)CardId.RadiantheMultidimensionalKaiju,
-                    (int)CardId.GadarlatheMysteryDustKaiju,
-                    (int)CardId.KumongoustheStickyStringKaiju
+                    _CardId.JizukirutheStarDestroyingKaiju,
+                    _CardId.RadiantheMultidimensionalKaiju,
+                    _CardId.GadarlatheMysteryDustKaiju,
+                    _CardId.KumongoustheStickyStringKaiju
                 });
             AI.SelectNextCard(new[]
                 {
-                    (int)CardId.GamecieltheSeaTurtleKaiju,
-                    (int)CardId.KumongoustheStickyStringKaiju,
-                    (int)CardId.GadarlatheMysteryDustKaiju,
-                    (int)CardId.RadiantheMultidimensionalKaiju
+                    _CardId.GamecieltheSeaTurtleKaiju,
+                    _CardId.KumongoustheStickyStringKaiju,
+                    _CardId.GadarlatheMysteryDustKaiju,
+                    _CardId.RadiantheMultidimensionalKaiju
                 });
             return DefaultDarkHole();
         }
@@ -523,14 +523,14 @@ namespace WindBot.Game.AI
         protected bool DefaultKaijuSpsummon()
         {
             IList<int> kaijus = new[] {
-                (int)CardId.JizukirutheStarDestroyingKaiju,
-                (int)CardId.GadarlatheMysteryDustKaiju,
-                (int)CardId.GamecieltheSeaTurtleKaiju,
-                (int)CardId.RadiantheMultidimensionalKaiju,
-                (int)CardId.KumongoustheStickyStringKaiju,
-                (int)CardId.ThunderKingtheLightningstrikeKaiju,
-                (int)CardId.DogorantheMadFlameKaiju,
-                (int)CardId.SuperAntiKaijuWarMachineMechaDogoran
+                _CardId.JizukirutheStarDestroyingKaiju,
+                _CardId.GadarlatheMysteryDustKaiju,
+                _CardId.GamecieltheSeaTurtleKaiju,
+                _CardId.RadiantheMultidimensionalKaiju,
+                _CardId.KumongoustheStickyStringKaiju,
+                _CardId.ThunderKingtheLightningstrikeKaiju,
+                _CardId.DogorantheMadFlameKaiju,
+                _CardId.SuperAntiKaijuWarMachineMechaDogoran
             };
             foreach (ClientCard monster in Enemy.GetMonsters())
             {
@@ -612,7 +612,7 @@ namespace WindBot.Game.AI
 
         protected bool DefaultCastelTheSkyblasterMusketeerEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.CastelTheSkyblasterMusketeer, 0))
+            if (ActivateDescription == AI.Utils.GetStringId(_CardId.CastelTheSkyblasterMusketeer, 0))
                 return false;
             ClientCard target = AI.Utils.GetProblematicEnemyCard();
             if (target != null)

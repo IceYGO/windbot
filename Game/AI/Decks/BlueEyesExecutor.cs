@@ -9,37 +9,37 @@ namespace WindBot.Game.AI.Decks
     [Deck("Blue-Eyes", "AI_BlueEyes")]
     class BlueEyesExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            WhiteDragon = 89631139,
-            AlternativeWhiteDragon = 38517737,
-            DragonSpiritOfWhite = 45467446,
-            WhiteStoneOfAncients = 71039903,
-            WhiteStoneOfLegend = 79814787,
-            SageWithEyesOfBlue = 8240199,
-            EffectVeiler = 97268402,
-            GalaxyCyclone = 5133471,
-            HarpiesFeatherDuster = 18144506,
-            ReturnOfTheDragonLords = 6853254,
-            PotOfDesires = 35261759,
-            TradeIn = 38120068,
-            CardsOfConsonance = 39701395,
-            DragonShrine = 41620959,
-            MelodyOfAwakeningDragon = 48800175,
-            SoulCharge = 54447022,
-            MonsterReborn = 83764718,
-            SilversCry = 87025064,
+            public static int WhiteDragon = 89631139;
+            public static int AlternativeWhiteDragon = 38517737;
+            public static int DragonSpiritOfWhite = 45467446;
+            public static int WhiteStoneOfAncients = 71039903;
+            public static int WhiteStoneOfLegend = 79814787;
+            public static int SageWithEyesOfBlue = 8240199;
+            public static int EffectVeiler = 97268402;
+            public static int GalaxyCyclone = 5133471;
+            public static int HarpiesFeatherDuster = 18144506;
+            public static int ReturnOfTheDragonLords = 6853254;
+            public static int PotOfDesires = 35261759;
+            public static int TradeIn = 38120068;
+            public static int CardsOfConsonance = 39701395;
+            public static int DragonShrine = 41620959;
+            public static int MelodyOfAwakeningDragon = 48800175;
+            public static int SoulCharge = 54447022;
+            public static int MonsterReborn = 83764718;
+            public static int SilversCry = 87025064;
 
-            Giganticastle = 63422098,
-            AzureEyesSilverDragon = 40908371,
-            BlueEyesSpiritDragon = 59822133,
-            GalaxyEyesDarkMatterDragon = 58820923,
-            GalaxyEyesCipherBladeDragon = 2530830,
-            GalaxyEyesFullArmorPhotonDragon = 39030163,
-            GalaxyEyesPrimePhotonDragon = 31801517,
-            GalaxyEyesCipherDragon = 18963306,
-            HopeHarbingerDragonTitanicGalaxy = 63767246,
-            SylvanPrincessprite = 33909817
+            public static int Giganticastle = 63422098;
+            public static int AzureEyesSilverDragon = 40908371;
+            public static int BlueEyesSpiritDragon = 59822133;
+            public static int GalaxyEyesDarkMatterDragon = 58820923;
+            public static int GalaxyEyesCipherBladeDragon = 2530830;
+            public static int GalaxyEyesFullArmorPhotonDragon = 39030163;
+            public static int GalaxyEyesPrimePhotonDragon = 31801517;
+            public static int GalaxyEyesCipherDragon = 18963306;
+            public static int HopeHarbingerDragonTitanicGalaxy = 63767246;
+            public static int SylvanPrincessprite = 33909817;
         }
 
         private List<ClientCard> UsedAlternativeWhiteDragon = new List<ClientCard>();
@@ -51,74 +51,74 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             // destroy traps
-            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster, DefaultHarpiesFeatherDusterFirst);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GalaxyCyclone, DefaultGalaxyCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.HarpiesFeatherDuster);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyCyclone, DefaultGalaxyCyclone);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.DragonShrine, DragonShrineEffect);
+            AddExecutor(ExecutorType.Activate, CardId.DragonShrine, DragonShrineEffect);
 
             // Sage search
-            AddExecutor(ExecutorType.Summon, (int)CardId.SageWithEyesOfBlue, SageWithEyesOfBlueSummon);
+            AddExecutor(ExecutorType.Summon, CardId.SageWithEyesOfBlue, SageWithEyesOfBlueSummon);
 
             // search Alternative White Dragon
-            AddExecutor(ExecutorType.Activate, (int)CardId.MelodyOfAwakeningDragon, MelodyOfAwakeningDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MelodyOfAwakeningDragon, MelodyOfAwakeningDragonEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.CardsOfConsonance, CardsOfConsonanceEffect);
+            AddExecutor(ExecutorType.Activate, CardId.CardsOfConsonance, CardsOfConsonanceEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.TradeIn, TradeInEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TradeIn, TradeInEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.PotOfDesires, DefaultPotOfDesires);
+            AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, DefaultPotOfDesires);
 
             // spsummon Alternative White Dragon if possible
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.AlternativeWhiteDragon, AlternativeWhiteDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.AlternativeWhiteDragon, AlternativeWhiteDragonSummon);
 
             // reborn
-            AddExecutor(ExecutorType.Activate, (int)CardId.ReturnOfTheDragonLords, RebornEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SilversCry, RebornEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.MonsterReborn, RebornEffect);
+            AddExecutor(ExecutorType.Activate, CardId.ReturnOfTheDragonLords, RebornEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SilversCry, RebornEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, RebornEffect);
 
             // monster effects
-            AddExecutor(ExecutorType.Activate, (int)CardId.AlternativeWhiteDragon, AlternativeWhiteDragonEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SageWithEyesOfBlue, SageWithEyesOfBlueEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.WhiteStoneOfAncients, WhiteStoneOfAncientsEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DragonSpiritOfWhite, DragonSpiritOfWhiteEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.BlueEyesSpiritDragon, BlueEyesSpiritDragonEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.HopeHarbingerDragonTitanicGalaxy, HopeHarbingerDragonTitanicGalaxyEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GalaxyEyesCipherDragon, GalaxyEyesCipherDragonEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GalaxyEyesPrimePhotonDragon, GalaxyEyesPrimePhotonDragonEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GalaxyEyesFullArmorPhotonDragon, GalaxyEyesFullArmorPhotonDragonEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GalaxyEyesCipherBladeDragon, GalaxyEyesCipherBladeDragonEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GalaxyEyesDarkMatterDragon, GalaxyEyesDarkMatterDragonEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.AzureEyesSilverDragon, AzureEyesSilverDragonEffect);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SylvanPrincessprite, SylvanPrincesspriteEffect);
+            AddExecutor(ExecutorType.Activate, CardId.AlternativeWhiteDragon, AlternativeWhiteDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SageWithEyesOfBlue, SageWithEyesOfBlueEffect);
+            AddExecutor(ExecutorType.Activate, CardId.WhiteStoneOfAncients, WhiteStoneOfAncientsEffect);
+            AddExecutor(ExecutorType.Activate, CardId.DragonSpiritOfWhite, DragonSpiritOfWhiteEffect);
+            AddExecutor(ExecutorType.Activate, CardId.BlueEyesSpiritDragon, BlueEyesSpiritDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.HopeHarbingerDragonTitanicGalaxy, HopeHarbingerDragonTitanicGalaxyEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyEyesCipherDragon, GalaxyEyesCipherDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyEyesPrimePhotonDragon, GalaxyEyesPrimePhotonDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyEyesFullArmorPhotonDragon, GalaxyEyesFullArmorPhotonDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyEyesCipherBladeDragon, GalaxyEyesCipherBladeDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyEyesDarkMatterDragon, GalaxyEyesDarkMatterDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.AzureEyesSilverDragon, AzureEyesSilverDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SylvanPrincessprite, SylvanPrincesspriteEffect);
 
             // normal summon
-            AddExecutor(ExecutorType.Summon, (int)CardId.SageWithEyesOfBlue, WhiteStoneSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.WhiteStoneOfAncients, WhiteStoneSummon);
-            AddExecutor(ExecutorType.Summon, (int)CardId.WhiteStoneOfLegend, WhiteStoneSummon);
+            AddExecutor(ExecutorType.Summon, CardId.SageWithEyesOfBlue, WhiteStoneSummon);
+            AddExecutor(ExecutorType.Summon, CardId.WhiteStoneOfAncients, WhiteStoneSummon);
+            AddExecutor(ExecutorType.Summon, CardId.WhiteStoneOfLegend, WhiteStoneSummon);
 
             // special summon from extra
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesCipherDragon, GalaxyEyesCipherDragonSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesPrimePhotonDragon, GalaxyEyesPrimePhotonDragonSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesFullArmorPhotonDragon, GalaxyEyesFullArmorPhotonDragonSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesCipherBladeDragon, GalaxyEyesCipherBladeDragonSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.GalaxyEyesDarkMatterDragon, GalaxyEyesDarkMatterDragonSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.Giganticastle, GiganticastleSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.BlueEyesSpiritDragon, BlueEyesSpiritDragonSummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.HopeHarbingerDragonTitanicGalaxy, HopeHarbingerDragonTitanicGalaxySummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.SylvanPrincessprite, SylvanPrincesspriteSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GalaxyEyesCipherDragon, GalaxyEyesCipherDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GalaxyEyesPrimePhotonDragon, GalaxyEyesPrimePhotonDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GalaxyEyesFullArmorPhotonDragon, GalaxyEyesFullArmorPhotonDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GalaxyEyesCipherBladeDragon, GalaxyEyesCipherBladeDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GalaxyEyesDarkMatterDragon, GalaxyEyesDarkMatterDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Giganticastle, GiganticastleSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.BlueEyesSpiritDragon, BlueEyesSpiritDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.HopeHarbingerDragonTitanicGalaxy, HopeHarbingerDragonTitanicGalaxySummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.SylvanPrincessprite, SylvanPrincesspriteSummon);
 
             // if we don't have other things to do...
-            AddExecutor(ExecutorType.Activate, (int)CardId.SoulCharge, SoulChargeEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SoulCharge, SoulChargeEffect);
             AddExecutor(ExecutorType.Repos, Repos);
             // summon White Stone to use the hand effect of Sage
-            AddExecutor(ExecutorType.Summon, (int)CardId.WhiteStoneOfLegend, WhiteStoneSummonForSage);
-            AddExecutor(ExecutorType.Summon, (int)CardId.WhiteStoneOfAncients, WhiteStoneSummonForSage);
-            AddExecutor(ExecutorType.Summon, (int)CardId.SageWithEyesOfBlue, WhiteStoneSummonForSage);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SageWithEyesOfBlue, SageWithEyesOfBlueEffectInHand);
+            AddExecutor(ExecutorType.Summon, CardId.WhiteStoneOfLegend, WhiteStoneSummonForSage);
+            AddExecutor(ExecutorType.Summon, CardId.WhiteStoneOfAncients, WhiteStoneSummonForSage);
+            AddExecutor(ExecutorType.Summon, CardId.SageWithEyesOfBlue, WhiteStoneSummonForSage);
+            AddExecutor(ExecutorType.Activate, CardId.SageWithEyesOfBlue, SageWithEyesOfBlueEffectInHand);
             // set White Stone of Legend frist
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.WhiteStoneOfLegend);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.WhiteStoneOfAncients);
+            AddExecutor(ExecutorType.MonsterSet, CardId.WhiteStoneOfLegend);
+            AddExecutor(ExecutorType.MonsterSet, CardId.WhiteStoneOfAncients);
 
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
@@ -144,11 +144,11 @@ namespace WindBot.Game.AI.Decks
             {
                 Logger.DebugWriteLine("OnSelectCard MelodyOfAwakeningDragon");
                 IList<ClientCard> result = new List<ClientCard>();
-                if (!Bot.HasInHand((int)CardId.WhiteDragon))
+                if (!Bot.HasInHand(CardId.WhiteDragon))
                 {
                     foreach (ClientCard card in cards)
                     {
-                        if (card.Id == (int)CardId.WhiteDragon)
+                        if (card.Id == CardId.WhiteDragon)
                         {
                             result.Add(card);
                             break;
@@ -157,7 +157,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard card in cards)
                 {
-                    if (card.Id == (int)CardId.AlternativeWhiteDragon && result.Count < max)
+                    if (card.Id == CardId.AlternativeWhiteDragon && result.Count < max)
                     {
                         result.Add(card);
                     }
@@ -245,22 +245,22 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.DragonSpiritOfWhite,
-                    (int)CardId.WhiteDragon,
-                    (int)CardId.WhiteStoneOfAncients,
-                    (int)CardId.WhiteStoneOfLegend
+                    CardId.DragonSpiritOfWhite,
+                    CardId.WhiteDragon,
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend
                 });
-            if (!Bot.HasInHand((int)CardId.WhiteDragon))
+            if (!Bot.HasInHand(CardId.WhiteDragon))
             {
-                AI.SelectNextCard((int)CardId.WhiteStoneOfLegend);
+                AI.SelectNextCard(CardId.WhiteStoneOfLegend);
             }
             else
             {
                 AI.SelectNextCard(new[]
                 {
-                    (int)CardId.WhiteStoneOfAncients,
-                    (int)CardId.DragonSpiritOfWhite,
-                    (int)CardId.WhiteStoneOfLegend
+                    CardId.WhiteStoneOfAncients,
+                    CardId.DragonSpiritOfWhite,
+                    CardId.WhiteStoneOfLegend
                 });
             }
             return true;
@@ -270,57 +270,57 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.WhiteStoneOfAncients,
-                    (int)CardId.DragonSpiritOfWhite,
-                    (int)CardId.WhiteStoneOfLegend,
-                    (int)CardId.GalaxyCyclone,
-                    (int)CardId.EffectVeiler,
-                    (int)CardId.TradeIn,
-                    (int)CardId.SageWithEyesOfBlue
+                    CardId.WhiteStoneOfAncients,
+                    CardId.DragonSpiritOfWhite,
+                    CardId.WhiteStoneOfLegend,
+                    CardId.GalaxyCyclone,
+                    CardId.EffectVeiler,
+                    CardId.TradeIn,
+                    CardId.SageWithEyesOfBlue
                 });
             return true;
         }
 
         private bool CardsOfConsonanceEffect()
         {
-            if (!Bot.HasInHand((int)CardId.WhiteDragon))
+            if (!Bot.HasInHand(CardId.WhiteDragon))
             {
-                AI.SelectCard((int)CardId.WhiteStoneOfLegend);
+                AI.SelectCard(CardId.WhiteStoneOfLegend);
             }
-            else if (Bot.HasInHand((int)CardId.TradeIn))
+            else if (Bot.HasInHand(CardId.TradeIn))
             {
-                AI.SelectCard((int)CardId.WhiteStoneOfLegend);
+                AI.SelectCard(CardId.WhiteStoneOfLegend);
             }
             else
             {
-                AI.SelectCard((int)CardId.WhiteStoneOfAncients);
+                AI.SelectCard(CardId.WhiteStoneOfAncients);
             }
             return true;
         }
 
         private bool TradeInEffect()
         {
-            if (Bot.HasInHand((int)CardId.DragonSpiritOfWhite))
+            if (Bot.HasInHand(CardId.DragonSpiritOfWhite))
             {
-                AI.SelectCard((int)CardId.DragonSpiritOfWhite);
+                AI.SelectCard(CardId.DragonSpiritOfWhite);
                 return true;
             }
-            else if (HasTwoInHand((int)CardId.WhiteDragon))
+            else if (HasTwoInHand(CardId.WhiteDragon))
             {
-                AI.SelectCard((int)CardId.WhiteDragon);
+                AI.SelectCard(CardId.WhiteDragon);
                 return true;
             }
-            else if (HasTwoInHand((int)CardId.AlternativeWhiteDragon))
+            else if (HasTwoInHand(CardId.AlternativeWhiteDragon))
             {
-                AI.SelectCard((int)CardId.AlternativeWhiteDragon);
+                AI.SelectCard(CardId.AlternativeWhiteDragon);
                 return true;
             }
-            else if (!Bot.HasInHand((int)CardId.WhiteDragon) || !Bot.HasInHand((int)CardId.AlternativeWhiteDragon))
+            else if (!Bot.HasInHand(CardId.WhiteDragon) || !Bot.HasInHand(CardId.AlternativeWhiteDragon))
             {
                 AI.SelectCard(new[]
                 {
-                    (int)CardId.WhiteDragon,
-                    (int)CardId.AlternativeWhiteDragon
+                    CardId.WhiteDragon,
+                    CardId.AlternativeWhiteDragon
                 });
                 return true;
             }
@@ -362,22 +362,22 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
             List<int> targets = new List<int> {
-                    (int)CardId.HopeHarbingerDragonTitanicGalaxy,
-                    (int)CardId.GalaxyEyesDarkMatterDragon,
-                    (int)CardId.AlternativeWhiteDragon,
-                    (int)CardId.AzureEyesSilverDragon,
-                    (int)CardId.BlueEyesSpiritDragon,
-                    (int)CardId.WhiteDragon,
-                    (int)CardId.DragonSpiritOfWhite
+                    CardId.HopeHarbingerDragonTitanicGalaxy,
+                    CardId.GalaxyEyesDarkMatterDragon,
+                    CardId.AlternativeWhiteDragon,
+                    CardId.AzureEyesSilverDragon,
+                    CardId.BlueEyesSpiritDragon,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
                 };
             if (!Bot.HasInGraveyard(targets))
             {
                 return false;
             }
             ClientCard floodgate = Enemy.SpellZone.GetFloodgate();
-            if (floodgate != null && Bot.HasInGraveyard((int)CardId.DragonSpiritOfWhite))
+            if (floodgate != null && Bot.HasInGraveyard(CardId.DragonSpiritOfWhite))
             {
-                AI.SelectCard((int)CardId.DragonSpiritOfWhite);
+                AI.SelectCard(CardId.DragonSpiritOfWhite);
             }
             else
             {
@@ -390,11 +390,11 @@ namespace WindBot.Game.AI.Decks
         {
             if (Enemy.GetSpellCount() > 0)
             {
-                AI.SelectCard((int)CardId.DragonSpiritOfWhite);
+                AI.SelectCard(CardId.DragonSpiritOfWhite);
             }
             else
             {
-                AI.SelectCard((int)CardId.WhiteDragon);
+                AI.SelectCard(CardId.WhiteDragon);
             }
             return true;
         }
@@ -403,8 +403,8 @@ namespace WindBot.Game.AI.Decks
         {
             return !Bot.HasInHand(new List<int>
                 {
-                    (int)CardId.WhiteStoneOfAncients,
-                    (int)CardId.WhiteStoneOfLegend
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend
                 });
         }
 
@@ -416,16 +416,16 @@ namespace WindBot.Game.AI.Decks
             }
             AI.SelectCard(new[]
                 {
-                    (int)CardId.WhiteStoneOfAncients,
-                    (int)CardId.EffectVeiler,
-                    (int)CardId.WhiteStoneOfLegend
+                    CardId.WhiteStoneOfAncients,
+                    CardId.EffectVeiler,
+                    CardId.WhiteStoneOfLegend
                 });
             return true;
         }
 
         private bool WhiteStoneSummonForSage()
         {
-            return Bot.HasInHand((int)CardId.SageWithEyesOfBlue);
+            return Bot.HasInHand(CardId.SageWithEyesOfBlue);
         }
 
         private bool SageWithEyesOfBlueEffectInHand()
@@ -436,30 +436,30 @@ namespace WindBot.Game.AI.Decks
             }
             if (!Bot.HasInMonstersZone(new List<int>
                 {
-                    (int)CardId.WhiteStoneOfLegend,
-                    (int)CardId.WhiteStoneOfAncients
+                    CardId.WhiteStoneOfLegend,
+                    CardId.WhiteStoneOfAncients
                 }) || Bot.HasInMonstersZone(new List<int>
                 {
-                    (int)CardId.AlternativeWhiteDragon,
-                    (int)CardId.WhiteDragon,
-                    (int)CardId.DragonSpiritOfWhite
+                    CardId.AlternativeWhiteDragon,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
                 }))
             {
                 return false;
             }
             AI.SelectCard(new[]
                 {
-                    (int)CardId.WhiteStoneOfLegend,
-                    (int)CardId.WhiteStoneOfAncients
+                    CardId.WhiteStoneOfLegend,
+                    CardId.WhiteStoneOfAncients
                 });
             List<ClientCard> spells = Enemy.GetSpells();
             if (spells.Count == 0)
             {
-                AI.SelectNextCard((int)CardId.WhiteDragon);
+                AI.SelectNextCard(CardId.WhiteDragon);
             }
             else
             {
-                AI.SelectNextCard((int)CardId.DragonSpiritOfWhite);
+                AI.SelectNextCard(CardId.DragonSpiritOfWhite);
             }
             return true;
         }
@@ -481,9 +481,9 @@ namespace WindBot.Game.AI.Decks
                 if (Duel.Player == 1 && Duel.Phase == DuelPhase.End)
                 {
                     return HaveEnoughWhiteDragonInHand()
-                        && Bot.HasInMonstersZone((int)CardId.AzureEyesSilverDragon, true)
-                        && !Bot.HasInGraveyard((int)CardId.DragonSpiritOfWhite)
-                        && !Bot.HasInGraveyard((int)CardId.WhiteDragon);
+                        && Bot.HasInMonstersZone(CardId.AzureEyesSilverDragon, true)
+                        && !Bot.HasInGraveyard(CardId.DragonSpiritOfWhite)
+                        && !Bot.HasInGraveyard(CardId.WhiteDragon);
                 }
                 if (AI.Utils.IsChainTarget(Card))
                 {
@@ -495,20 +495,20 @@ namespace WindBot.Game.AI.Decks
 
         private bool BlueEyesSpiritDragonEffect()
         {
-            if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId((int)CardId.BlueEyesSpiritDragon, 0))
+            if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId(CardId.BlueEyesSpiritDragon, 0))
             {
                 return LastChainPlayer == 1;
             }
             else if (Duel.Player == 1 && (Duel.Phase == DuelPhase.BattleStart || Duel.Phase == DuelPhase.End))
             {
-                AI.SelectCard((int)CardId.AzureEyesSilverDragon);
+                AI.SelectCard(CardId.AzureEyesSilverDragon);
                 return true;
             }
             else
             {
                 if (AI.Utils.IsChainTarget(Card))
                 {
-                    AI.SelectCard((int)CardId.AzureEyesSilverDragon);
+                    AI.SelectCard(CardId.AzureEyesSilverDragon);
                     return true;
                 }
                 return false;
@@ -517,7 +517,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HopeHarbingerDragonTitanicGalaxyEffect()
         {
-            if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId((int)CardId.HopeHarbingerDragonTitanicGalaxy, 0))
+            if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId(CardId.HopeHarbingerDragonTitanicGalaxy, 0))
             {
                 return LastChainPlayer == 1;
             }
@@ -526,31 +526,31 @@ namespace WindBot.Game.AI.Decks
 
         private bool WhiteStoneOfAncientsEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.WhiteStoneOfAncients, 0))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.WhiteStoneOfAncients, 0))
             {
-                if (Bot.HasInHand((int)CardId.TradeIn)
-                    && !Bot.HasInHand((int)CardId.WhiteDragon)
-                    && !Bot.HasInHand((int)CardId.AlternativeWhiteDragon))
+                if (Bot.HasInHand(CardId.TradeIn)
+                    && !Bot.HasInHand(CardId.WhiteDragon)
+                    && !Bot.HasInHand(CardId.AlternativeWhiteDragon))
                 {
-                    AI.SelectCard((int)CardId.WhiteDragon);
+                    AI.SelectCard(CardId.WhiteDragon);
                     return true;
                 }
                 if (AlternativeWhiteDragonSummoned)
                 {
                     return false;
                 }
-                if (Bot.HasInHand((int)CardId.WhiteDragon)
-                    && !Bot.HasInHand((int)CardId.AlternativeWhiteDragon)
-                    && Bot.HasInGraveyard((int)CardId.AlternativeWhiteDragon))
+                if (Bot.HasInHand(CardId.WhiteDragon)
+                    && !Bot.HasInHand(CardId.AlternativeWhiteDragon)
+                    && Bot.HasInGraveyard(CardId.AlternativeWhiteDragon))
                 {
-                    AI.SelectCard((int)CardId.AlternativeWhiteDragon);
+                    AI.SelectCard(CardId.AlternativeWhiteDragon);
                     return true;
                 }
-                if (Bot.HasInHand((int)CardId.AlternativeWhiteDragon)
-                    && !Bot.HasInHand((int)CardId.WhiteDragon)
-                    && Bot.HasInGraveyard((int)CardId.WhiteDragon))
+                if (Bot.HasInHand(CardId.AlternativeWhiteDragon)
+                    && !Bot.HasInHand(CardId.WhiteDragon)
+                    && Bot.HasInGraveyard(CardId.WhiteDragon))
                 {
-                    AI.SelectCard((int)CardId.WhiteDragon);
+                    AI.SelectCard(CardId.WhiteDragon);
                     return true;
                 }
                 return false;
@@ -560,11 +560,11 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> spells = Enemy.GetSpells();
                 if (spells.Count == 0)
                 {
-                    AI.SelectCard((int)CardId.WhiteDragon);
+                    AI.SelectCard(CardId.WhiteDragon);
                 }
                 else
                 {
-                    AI.SelectCard((int)CardId.DragonSpiritOfWhite);
+                    AI.SelectCard(CardId.DragonSpiritOfWhite);
                 }
                 return true;
             }
@@ -580,12 +580,12 @@ namespace WindBot.Game.AI.Decks
         {
             return Bot.HasInMonstersZone(new List<int>
                 {
-                    (int)CardId.SageWithEyesOfBlue,
-                    (int)CardId.WhiteStoneOfAncients,
-                    (int)CardId.WhiteStoneOfLegend,
-                    (int)CardId.AlternativeWhiteDragon,
-                    (int)CardId.WhiteDragon,
-                    (int)CardId.DragonSpiritOfWhite
+                    CardId.SageWithEyesOfBlue,
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend,
+                    CardId.AlternativeWhiteDragon,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
                 });
         }
 
@@ -628,7 +628,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GalaxyEyesFullArmorPhotonDragonSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.GalaxyEyesCipherDragon))
+            if (Bot.HasInMonstersZone(CardId.GalaxyEyesCipherDragon))
             {
                 List<ClientCard> monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
@@ -641,11 +641,11 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
-            if (Bot.HasInMonstersZone((int)CardId.GalaxyEyesPrimePhotonDragon))
+            if (Bot.HasInMonstersZone(CardId.GalaxyEyesPrimePhotonDragon))
             {
                 if (!AI.Utils.IsOneEnemyBetterThanValue(4000, false))
                 {
-                    AI.SelectCard((int)CardId.GalaxyEyesPrimePhotonDragon);
+                    AI.SelectCard(CardId.GalaxyEyesPrimePhotonDragon);
                     return true;
                 }
             }
@@ -654,9 +654,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool GalaxyEyesCipherBladeDragonSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.GalaxyEyesFullArmorPhotonDragon) && AI.Utils.GetProblematicEnemyCard() != null)
+            if (Bot.HasInMonstersZone(CardId.GalaxyEyesFullArmorPhotonDragon) && AI.Utils.GetProblematicEnemyCard() != null)
             {
-                AI.SelectCard((int)CardId.GalaxyEyesFullArmorPhotonDragon);
+                AI.SelectCard(CardId.GalaxyEyesFullArmorPhotonDragon);
                 return true;
             }
             return false;
@@ -664,9 +664,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool GalaxyEyesDarkMatterDragonSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.GalaxyEyesFullArmorPhotonDragon))
+            if (Bot.HasInMonstersZone(CardId.GalaxyEyesFullArmorPhotonDragon))
             {
-                AI.SelectCard((int)CardId.GalaxyEyesFullArmorPhotonDragon);
+                AI.SelectCard(CardId.GalaxyEyesFullArmorPhotonDragon);
                 return true;
             }
             return false;
@@ -803,17 +803,17 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.WhiteStoneOfAncients,
-                    (int)CardId.WhiteStoneOfLegend,
-                    (int)CardId.DragonSpiritOfWhite,
-                    (int)CardId.WhiteDragon
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend,
+                    CardId.DragonSpiritOfWhite,
+                    CardId.WhiteDragon
                 });
             AI.SelectNextCard(new[]
                 {
-                    (int)CardId.WhiteStoneOfAncients,
-                    (int)CardId.WhiteStoneOfLegend,
-                    (int)CardId.DragonSpiritOfWhite,
-                    (int)CardId.WhiteDragon
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend,
+                    CardId.DragonSpiritOfWhite,
+                    CardId.WhiteDragon
                 });
             return true;
         }
@@ -877,9 +877,9 @@ namespace WindBot.Game.AI.Decks
             }
             if (Duel.Phase == DuelPhase.Main1 && !Bot.HasInMonstersZone(new List<int>
                 {
-                    (int)CardId.AlternativeWhiteDragon,
-                    (int)CardId.WhiteDragon,
-                    (int)CardId.DragonSpiritOfWhite
+                    CardId.AlternativeWhiteDragon,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
                 }))
             {
                 return true;
@@ -895,15 +895,15 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(new[]
                 {
-                    (int)CardId.WhiteStoneOfLegend,
-                    (int)CardId.WhiteStoneOfAncients
+                    CardId.WhiteStoneOfLegend,
+                    CardId.WhiteStoneOfAncients
                 });
             return true;
         }
 
         private bool SoulChargeEffect()
         {
-            if (Bot.HasInMonstersZone((int)CardId.BlueEyesSpiritDragon, true))
+            if (Bot.HasInMonstersZone(CardId.BlueEyesSpiritDragon, true))
                 return false;
             int count = Bot.GetGraveyardMonsters().Count;
             int space = 5 - Bot.GetMonsterCount();
@@ -933,14 +933,14 @@ namespace WindBot.Game.AI.Decks
             }
             AI.SelectCard(new[]
                 {
-                    (int)CardId.BlueEyesSpiritDragon,
-                    (int)CardId.HopeHarbingerDragonTitanicGalaxy,
-                    (int)CardId.AlternativeWhiteDragon,
-                    (int)CardId.WhiteDragon,
-                    (int)CardId.DragonSpiritOfWhite,
-                    (int)CardId.AzureEyesSilverDragon,
-                    (int)CardId.WhiteStoneOfAncients,
-                    (int)CardId.WhiteStoneOfLegend
+                    CardId.BlueEyesSpiritDragon,
+                    CardId.HopeHarbingerDragonTitanicGalaxy,
+                    CardId.AlternativeWhiteDragon,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite,
+                    CardId.AzureEyesSilverDragon,
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend
                 });
             SoulChargeUsed = true;
             return true;
@@ -957,14 +957,14 @@ namespace WindBot.Game.AI.Decks
             if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
                 return true;
             if (Card.IsDefense() && (
-                   Card.Id == (int)CardId.BlueEyesSpiritDragon
-                || Card.Id == (int)CardId.AzureEyesSilverDragon
+                   Card.Id == CardId.BlueEyesSpiritDragon
+                || Card.Id == CardId.AzureEyesSilverDragon
                 ))
                 return true;
             if (Card.IsAttack() && (
-                   Card.Id == (int)CardId.SageWithEyesOfBlue
-                || Card.Id == (int)CardId.WhiteStoneOfAncients
-                || Card.Id == (int)CardId.WhiteStoneOfLegend
+                   Card.Id == CardId.SageWithEyesOfBlue
+                || Card.Id == CardId.WhiteStoneOfAncients
+                || Card.Id == CardId.WhiteStoneOfLegend
                 ))
                 return true;
             return false;
@@ -972,7 +972,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SpellSet()
         {
-            return (Card.IsTrap() || (Card.Id==(int)CardId.SilversCry)) && Bot.GetSpellCountWithoutField() < 4;
+            return (Card.IsTrap() || (Card.Id==CardId.SilversCry)) && Bot.GetSpellCountWithoutField() < 4;
         }
 
         private bool HasTwoInHand(int id)
@@ -990,19 +990,19 @@ namespace WindBot.Game.AI.Decks
         {
             return Bot.HasInMonstersZone(new List<int>
                 {
-                    (int)CardId.SageWithEyesOfBlue,
-                    (int)CardId.WhiteStoneOfAncients,
-                    (int)CardId.WhiteStoneOfLegend,
-                    (int)CardId.WhiteDragon,
-                    (int)CardId.DragonSpiritOfWhite
-                }) || Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.AlternativeWhiteDragon)>=2 ;
+                    CardId.SageWithEyesOfBlue,
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
+                }) || Bot.GetCountCardInZone(Bot.MonsterZone, CardId.AlternativeWhiteDragon)>=2 ;
         }
 
         private bool HaveEnoughWhiteDragonInHand()
         {
-            return HasTwoInHand((int)CardId.WhiteDragon) || (
-                Bot.HasInGraveyard((int)CardId.WhiteDragon)
-                && Bot.HasInGraveyard((int)CardId.WhiteStoneOfAncients)
+            return HasTwoInHand(CardId.WhiteDragon) || (
+                Bot.HasInGraveyard(CardId.WhiteDragon)
+                && Bot.HasInGraveyard(CardId.WhiteStoneOfAncients)
                 );
         }
     }
