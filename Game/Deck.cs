@@ -63,7 +63,8 @@ namespace WindBot.Game
                         continue;
                     }
 
-                    if (!int.TryParse(line, out int id))
+                    int id;
+                    if (!int.TryParse(line, out id))
                         continue;
 
                     deck.AddNewCard(id, side);
