@@ -337,13 +337,13 @@ namespace WindBot.Game.AI.Decks
         {
             //if (AI.Utils.IsOneEnemyBetterThanValue(2500, true))
             //    return true;
-            ClientCard invincible = AI.Utils.GetProblematicEnemyCard();
+            ClientCard invincible = AI.Utils.GetProblematicEnemyCard(3000);
             return invincible != null;
         }
 
         private bool ScrapDragonEffect()
         {
-            ClientCard invincible = AI.Utils.GetProblematicEnemyCard();
+            ClientCard invincible = AI.Utils.GetProblematicEnemyCard(3000);
             if (invincible == null && !AI.Utils.IsOneEnemyBetterThanValue(2800 - 1, false))
                 return false;
 

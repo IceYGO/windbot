@@ -127,6 +127,8 @@ The parameters are same as commandlines, but low cased.
 
 * Get equip of card.
 
+* Get attack target.
+
 * Better new master rule support
 
 * Update the known card enums

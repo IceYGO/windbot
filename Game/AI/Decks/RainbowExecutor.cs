@@ -67,7 +67,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, DefaultPotOfDesires);
 
             AddExecutor(ExecutorType.Summon, CardId.AngelTrumpeter, AngelTrumpeterSummon);
-            AddExecutor(ExecutorType.Summon, CardId.MegalosmasherX, KabazaulsSummon);
+            AddExecutor(ExecutorType.Summon, CardId.MegalosmasherX, MegalosmasherXSummon);
             AddExecutor(ExecutorType.Summon, CardId.MasterPendulumTheDracoslayer, MasterPendulumTheDracoslayerSummon);
             AddExecutor(ExecutorType.Summon, CardId.MysteryShellDragon, MysteryShellDragonSummon);
             AddExecutor(ExecutorType.Summon, CardId.PhantomGryphon, PhantomGryphonSummon);
@@ -233,7 +233,7 @@ namespace WindBot.Game.AI.Decks
         {
             return Bot.HasInMonstersZone(CardId.MetalfoesGoldriver);
         }
-        private bool KabazaulsSummon()
+        private bool MegalosmasherXSummon()
         {
             return Bot.HasInMonstersZone(CardId.MegalosmasherX);
         }
