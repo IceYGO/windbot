@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game
@@ -15,17 +15,18 @@ namespace WindBot.Game
 
         public ClientField()
         {
+        }
+
+        public void Init(int deck, int extra)
+        {
             Hand = new List<ClientCard>();
-            MonsterZone = new ClientCard[5];
+            MonsterZone = new ClientCard[7];
             SpellZone = new ClientCard[8];
             Graveyard = new List<ClientCard>();
             Banished = new List<ClientCard>();
             Deck = new List<ClientCard>();
             ExtraDeck = new List<ClientCard>();
-        }
 
-        public void Init(int deck, int extra)
-        {
             for (int i = 0; i < deck; ++i)
                 Deck.Add(new ClientCard(0, CardLocation.Deck));
             for (int i = 0; i < extra; ++i)
@@ -40,6 +41,11 @@ namespace WindBot.Game
         public int GetSpellCount()
         {
             return GetCount(SpellZone);
+        }
+
+        public int GetHandCount()
+        {
+            return GetCount(Hand);
         }
 
         public int GetSpellCountWithoutField()
@@ -83,7 +89,33 @@ namespace WindBot.Game
             return GetCards(SpellZone);
         }
 
+        public List<ClientCard> GetMonstersInExtraZone()
+        {
+            List<ClientCard> cards = new List<ClientCard>();
+            if (MonsterZone[5] != null)
+                cards.Add(MonsterZone[5]);
+            if (MonsterZone[6] != null)
+                cards.Add(MonsterZone[6]);
+            return cards;
+        }
+
+        public List<ClientCard> GetMonstersInMainZone()
+        {
+            List<ClientCard> cards = new List<ClientCard>();
+            for (int i = 0; i < 5; i++)
+            {
+                if (MonsterZone[i] != null)
+                    cards.Add(MonsterZone[i]);
+            }
+            return cards;
+        }
+
         public bool HasInHand(int cardId)
+        {
+            return HasInCards(Hand, cardId);
+        }
+
+        public bool HasInHand(IList<int> cardId)
         {
             return HasInCards(Hand, cardId);
         }
@@ -91,6 +123,31 @@ namespace WindBot.Game
         public bool HasInGraveyard(int cardId)
         {
             return HasInCards(Graveyard, cardId);
+        }
+    
+        public bool HasInGraveyard(IList<int> cardId)
+        {
+            return HasInCards(Graveyard, cardId);
+        }
+
+        public bool HasInBanished(int cardId)
+        {
+            return HasInCards(Banished, cardId);
+        }
+
+        public bool HasInBanished(IList<int> cardId)
+        {
+            return HasInCards(Banished, cardId);
+        }
+
+        public bool HasInExtra(int cardId)
+        {
+            return HasInCards(ExtraDeck, cardId);
+        }
+
+        public bool HasInExtra(IList<int> cardId)
+        {
+            return HasInCards(ExtraDeck, cardId);
         }
 
         public bool HasAttackingMonster()
@@ -115,27 +172,40 @@ namespace WindBot.Game
             return false;
         }
 
-        public bool HasInMonstersZone(int cardId)
+        public bool HasInMonstersZone(int cardId, bool notDisabled = false, bool hasXyzMaterial = false)
         {
-            return HasInCards(MonsterZone, cardId);
+            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial);
         }
 
-        public bool HasInSpellZone(int cardId)
+        public bool HasInMonstersZone(IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
         {
-            return HasInCards(SpellZone, cardId);
+            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial);
+        }
+
+        public bool HasInSpellZone(int cardId, bool notDisabled = false)
+        {
+            return HasInCards(SpellZone, cardId, notDisabled);
+        }
+
+        public bool HasInSpellZone(IList<int> cardId, bool notDisabled = false)
+        {
+            return HasInCards(SpellZone, cardId, notDisabled);
         }
 
         public int GetRemainingCount(int cardId, int initialCount)
         {
             int remaining = initialCount;
             foreach (ClientCard card in Hand)
-                if (card.Id == cardId)
+                if (card != null && card.Id == cardId)
+                    remaining--;
+            foreach (ClientCard card in SpellZone)
+                if (card != null && card.Id == cardId)
                     remaining--;
             foreach (ClientCard card in Graveyard)
-                if (card.Id == cardId)
+                if (card != null && card.Id == cardId)
                     remaining--;
             foreach (ClientCard card in Banished)
-                if (card.Id == cardId)
+                if (card != null && card.Id == cardId)
                     remaining--;
             return (remaining < 0) ? 0 : remaining;
         }
@@ -146,6 +216,28 @@ namespace WindBot.Game
             foreach (ClientCard card in cards)
             {
                 if (card != null)
+                    count++;
+            }
+            return count;
+        }
+
+        public int GetCountCardInZone(IEnumerable<ClientCard> cards, int cardId)
+        {
+            int count = 0;
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && card.Id == cardId)
+                    count++;
+            }
+            return count;
+        }
+
+        public int GetCountCardInZone(IEnumerable<ClientCard> cards, List<int> cardId)
+        {
+            int count = 0;
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && cardId.Contains(card.Id))
                     count++;
             }
             return count;
@@ -173,11 +265,21 @@ namespace WindBot.Game
             return nCards;
         }
 
-        private static bool HasInCards(IEnumerable<ClientCard> cards, int cardId)
+        private static bool HasInCards(IEnumerable<ClientCard> cards, int cardId, bool notDisabled = false, bool hasXyzMaterial = false)
         {
             foreach (ClientCard card in cards)
             {
-                if (card != null && card.Id == cardId)
+                if (card != null && card.Id == cardId && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()))
+                    return true;
+            }
+            return false;
+        }
+
+        private static bool HasInCards(IEnumerable<ClientCard> cards, IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        {
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && cardId.Contains(card.Id) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()))
                     return true;
             }
             return false;

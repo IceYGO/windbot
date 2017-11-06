@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using YGOSharp.OCGWrapper.Enums;
+using WindBot;
+using WindBot.Game;
+using WindBot.Game.AI;
 
 namespace WindBot.Game.AI
 {
@@ -19,7 +22,10 @@ namespace WindBot.Game.AI
         protected int ActivateDescription { get; private set; }
 
         protected int LastChainPlayer { get; private set; }
-        protected IList<ClientCard> CurrentChain { get; private set; } 
+        protected IList<ClientCard> CurrentChain { get; private set; }
+
+        protected ClientField Bot { get; private set; }
+        protected ClientField Enemy { get; private set; }
 
         protected Executor(GameAI ai, Duel duel)
         {
@@ -29,48 +35,75 @@ namespace WindBot.Game.AI
 
             LastChainPlayer = -1;
             CurrentChain = new List<ClientCard>();
+
+            Bot = Duel.Fields[0];
+            Enemy = Duel.Fields[1];
+        }
+
+        public virtual int OnRockPaperScissors()
+        {
+            return Program.Rand.Next(1, 4);
         }
 
         public virtual bool OnSelectHand()
         {
-            return true; // I want to begin !
+            return Program.Rand.Next(2) > 0;
         }
 
+        /// <summary>
+        /// Called when the AI has to decide if it should attack
+        /// </summary>
+        /// <param name="attackers">List of monsters that can attcack.</param>
+        /// <param name="defenders">List of monsters of enemy.</param>
+        /// <returns>A new BattlePhaseAction containing the action to do.</returns>
         public virtual BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
             if (attackers.Count == 0)
                 return AI.ToMainPhase2();
 
             if (defenders.Count == 0)
-                return AI.Attack(attackers[0], null);
-
-            for (int i = defenders.Count - 1; i >= 0; --i)
             {
-                ClientCard defender = defenders[i];
-                int value = defender.GetDefensePower();
-                for (int j = 0; j < attackers.Count; ++j)
+                for (int i = attackers.Count - 1; i >= 0; --i)
                 {
-                    ClientCard attacker = attackers[j];
-                    if (!OnPreBattleBetween(attacker, defender))
-                        continue;
-                    if (attacker.Attack > value || (attacker.Attack >= value && j == attackers.Count - 1))
-                        return AI.Attack(attacker, defender);
+                    ClientCard attacker = attackers[i];
+                    if (attacker.Attack > 0)
+                        return AI.Attack(attacker, null);
+                }
+            }
+            else
+            {
+                for (int i = defenders.Count - 1; i >= 0; --i)
+                {
+                    ClientCard defender = defenders[i];
+                    for (int j = 0; j < attackers.Count; ++j)
+                    {
+                        ClientCard attacker = attackers[j];
+                        attacker.RealPower = attacker.Attack;
+                        defender.RealPower = defender.GetDefensePower();
+                        if (!OnPreBattleBetween(attacker, defender))
+                            continue;
+                        if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && j == attackers.Count - 1))
+                            return AI.Attack(attacker, defender);
+                    }
+                }
+
+                for (int i = attackers.Count - 1; i >= 0; --i)
+                {
+                    ClientCard attacker = attackers[i];
+                    if (attacker.CanDirectAttack)
+                        return AI.Attack(attacker, null);
                 }
             }
 
             if (!Battle.CanMainPhaseTwo)
-                return AI.Attack(attackers[attackers.Count - 1], defenders[0]);
+                return AI.Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
 
             return AI.ToMainPhase2();
         }
 
         public virtual bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
-            {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
-            }
+            // Overrided in DefalultExecutor
             return true;
         }
 
@@ -86,14 +119,31 @@ namespace WindBot.Game.AI
             CurrentChain.Clear();
         }
 
+        public virtual void OnNewTurn()
+        {
+            // Some AI need do something on new turn
+        }
+
         public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
         {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
+        {
+            // For overriding
             return null;
         }
 
         public virtual bool OnSelectYesNo(int desc)
         {
             return true;
+        }
+
+        public virtual int OnSelectOption(IList<int> options)
+        {
+            return -1;
         }
 
         public bool ChainContainsCard(int id)
@@ -144,6 +194,9 @@ namespace WindBot.Game.AI
             Battle = battle;
         }
 
+        /// <summary>
+        /// Set global variables Type, Card, ActivateDescription for Executor
+        /// </summary>
         public void SetCard(ExecutorType type, ClientCard card, int description)
         {
             Type = type;
@@ -151,21 +204,33 @@ namespace WindBot.Game.AI
             ActivateDescription = description;
         }
 
+        /// <summary>
+        /// Do the action for the card if func return true.
+        /// </summary>
         public void AddExecutor(ExecutorType type, int cardId, Func<bool> func)
         {
             Executors.Add(new CardExecutor(type, cardId, func));
         }
 
+        /// <summary>
+        /// Do the action for the card if available.
+        /// </summary>
         public void AddExecutor(ExecutorType type, int cardId)
         {
             Executors.Add(new CardExecutor(type, cardId, null));
         }
 
+        /// <summary>
+        /// Do the action for every card if func return true.
+        /// </summary>
         public void AddExecutor(ExecutorType type, Func<bool> func)
         {
             Executors.Add(new CardExecutor(type, -1, func));
         }
 
+        /// <summary>
+        /// Do the action for every card if no other Executor is added to it.
+        /// </summary>
         public void AddExecutor(ExecutorType type)
         {
             Executors.Add(new CardExecutor(type, -1, DefaultNoExecutor));

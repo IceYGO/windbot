@@ -12,20 +12,27 @@ namespace WindBot.Game
         public YGOClient Connection { get; private set; }
         public string Username;
         public string Deck;
+        public string Dialog;
+        public int Hand;
 
         private string _serverHost;
         private int _serverPort;
-        private string _roomInfos;
+        private short _proVersion;
+
+        private string _roomInfo;
 
         private GameBehavior _behavior;
 
-        public GameClient(string username, string deck, string serverHost, int serverPort, string roomInfos = "")
+        public GameClient(WindBotInfo Info)
         {
-            Username = username;
-            Deck = deck;
-            _serverHost = serverHost;
-            _serverPort = serverPort;
-            _roomInfos = roomInfos;
+            Username = Info.Name;
+            Deck = Info.Deck;
+            Dialog = Info.Dialog;
+            Hand = Info.Hand;
+            _serverHost = Info.Host;
+            _serverPort = Info.Port;
+            _roomInfo = Info.HostInfo;
+            _proVersion = (short)Info.Version;
         }
 
         public void Start()
@@ -42,14 +49,14 @@ namespace WindBot.Game
         private void OnConnected()
         {
             BinaryWriter packet = GamePacketFactory.Create(CtosMessage.PlayerInfo);
-            packet.WriteUnicode(Username, Program.PlayerNameSize);
+            packet.WriteUnicode(Username, 20);
             Connection.Send(packet);
 
             byte[] junk = { 0xCC, 0xCC, 0x00, 0x00, 0x00, 0x00 };
             packet = GamePacketFactory.Create(CtosMessage.JoinGame);
-            packet.Write(Program.ProVersion);
+            packet.Write(_proVersion);
             packet.Write(junk);
-            packet.WriteUnicode(_roomInfos, 30);
+            packet.WriteUnicode(_roomInfo, 30);
             Connection.Send(packet);
         }
 

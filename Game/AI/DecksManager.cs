@@ -10,11 +10,13 @@ namespace WindBot.Game.AI
         {
             public string Deck { get; private set; }
             public Type Type { get; private set; }
+            public string Level { get; private set; }
 
-            public DeckInstance(string deck, Type type)
+            public DeckInstance(string deck, Type type, string level)
             {
                 Deck = deck;
                 Type = type;
+                Level = level;
             }
         }
 
@@ -38,7 +40,7 @@ namespace WindBot.Game.AI
                 {
                     if (attribute is DeckAttribute deck)
                     {
-                        _decks.Add(deck.Name, new DeckInstance(deck.File, type));
+                        _decks.Add(deck.Name, new DeckInstance(deck.File, type, deck.Level));
                     }
                 }
             }
@@ -58,7 +60,13 @@ namespace WindBot.Game.AI
             if (deck != null && _decks.ContainsKey(deck))
                 infos = _decks[deck];
             else
-                infos = _list[_rand.Next(_list.Count)];
+            {
+                do
+                {
+                    infos = _list[_rand.Next(_list.Count)];
+                }
+                while (infos.Level != "Normal");
+            }
 
             Executor executor = (Executor)Activator.CreateInstance(infos.Type, ai, duel);
             executor.Deck = infos.Deck;

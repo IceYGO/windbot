@@ -1,16 +1,54 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.IO;
+using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
 
 namespace WindBot.Game.AI
 {
+    [DataContract]
+    public class DialogsData
+    {
+        [DataMember]
+        public string[] welcome { get; set; }
+        [DataMember]
+        public string[] deckerror { get; set; }
+        [DataMember]
+        public string[] duelstart { get; set; }
+        [DataMember]
+        public string[] newturn { get; set; }
+        [DataMember]
+        public string[] endturn { get; set; }
+        [DataMember]
+        public string[] directattack { get; set; }
+        [DataMember]
+        public string[] attack { get; set; }
+        [DataMember]
+        public string[] ondirectattack { get; set; }
+        [DataMember]
+        public string facedownmonstername { get; set; }
+        [DataMember]
+        public string[] activate { get; set; }
+        [DataMember]
+        public string[] summon { get; set; }
+        [DataMember]
+        public string[] setmonster { get; set; }
+        [DataMember]
+        public string[] chaining { get; set; }                                          
+    }
     public class Dialogs
     {
         private GameClient _game;
 
+        private string[] _welcome;
+        private string[] _deckerror;
         private string[] _duelstart;
         private string[] _newturn;
         private string[] _endturn;
         private string[] _directattack;
         private string[] _attack;
+        private string[] _ondirectattack;
+        private string _facedownmonstername;
         private string[] _activate;
         private string[] _summon;
         private string[] _setmonster;
@@ -19,75 +57,43 @@ namespace WindBot.Game.AI
         public Dialogs(GameClient game)
         {
             _game = game;
-            _duelstart = new[]
-                {
-                    "Good luck, have fun."
-                };
-            _newturn = new[]
-                {
-                    "It's my turn, draw.",
-                    "My turn, draw.",
-                    "I draw a card."
-                };
-            _endturn = new[]
-                {
-                    "I end my turn.",
-                    "My turn is over.",
-                    "Your turn."
-                };
-            _directattack = new[]
-                {
-                    "{0}, direct attack!",
-                    "{0}, attack him directly!",
-                    "{0}, he's defenseless, attack!",
-                    "{0}, attack his life points!",
-                    "{0}, attack his life points directly!",
-                    "{0}, attack him through a direct attack!",
-                    "{0}, attack him using a direct attack!",
-                    "{0}, unleash your power through a direct attack!",
-                    "My {0} is going to smash your life points!",
-                    "Show your power to my opponent, {0}!",
-                    "You can't stop me. {0}, attack!"
-                };
-            _attack = new[]
-                {
-                    "{0}, attack this {1}!",
-                    "{0}, destroy this {1}!",
-                    "{0}, charge the {1}!",
-                    "{0}, strike that {1}!",
-                    "{0}, unleash your power on this {1}!"
-                };
-            _activate = new[]
-                {
-                    "I'm activating {0}.",
-                    "I'm using the effect of {0}.",
-                    "I use the power of {0}."
-                };
-            _summon = new[]
-                {
-                    "I'm summoning {0}.",
-                    "Come on, {0}!",
-                    "Appear, {0}!",
-                    "I summon the powerful {0}.",
-                    "I call {0} to the battle!",
-                    "I'm calling {0}.",
-                    "Let's summon {0}."
-                };
-            _setmonster = new[]
-                {
-                    "I'm setting a monster.",
-                    "I set a face-down monster.",
-                    "I place a hidden monster."
-                };
-            _chaining = new[]
-                {
-                    "Look at that! I'm activating {0}.",
-                    "I use the power of {0}.",
-                    "Get ready! I use {0}.",
-                    "I don't think so. {0}, activation!",
-                    "Looks like you forgot my {0}.",
-                    "Did you consider the fact I have {0}?"
-                };
+            DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(DialogsData));
+            string dialogfilename = game.Dialog;
+            using (FileStream fs = File.OpenRead("Dialogs/" + dialogfilename + ".json"))
+            {
+                DialogsData data = (DialogsData)serializer.ReadObject(fs);
+                _welcome = data.welcome;
+                _deckerror = data.deckerror;
+                _duelstart = data.duelstart;
+                _newturn = data.newturn;
+                _endturn = data.endturn;
+                _directattack = data.directattack;
+                _attack = data.attack;
+                _ondirectattack = data.ondirectattack;
+                _facedownmonstername = data.facedownmonstername;
+                _activate = data.activate;
+                _summon = data.summon;
+                _setmonster = data.setmonster;
+                _chaining = data.chaining;
+            }
+        }
+
+        public void SendSorry()
+        {
+            InternalSendMessage(new[] { "Sorry, an error occurs." });
+        }
+
+        public void SendDeckSorry(string card)
+        {
+            if (card == "DECK")
+                InternalSendMessage(new[] { "Deck illegal. Please check the database of your YGOPro and WindBot." });
+            else
+                InternalSendMessage(_deckerror, card);
+        }
+
+        public void SendWelcome()
+        {
+            InternalSendMessage(_welcome);
         }
 
         public void SendDuelStart()
@@ -112,7 +118,24 @@ namespace WindBot.Game.AI
 
         public void SendAttack(string attacker, string defender)
         {
+            if (defender=="monster")
+            {
+                defender = _facedownmonstername;
+            }
             InternalSendMessage(_attack, attacker, defender);
+        }
+
+        public void SendOnDirectAttack(string attacker)
+        {
+            if (attacker == "" || attacker == null)
+            {
+                attacker = _facedownmonstername;
+            }
+            InternalSendMessage(_ondirectattack, attacker);
+        }
+        public void SendOnDirectAttack()
+        {
+            InternalSendMessage(_ondirectattack);
         }
 
         public void SendActivate(string spell)
@@ -138,7 +161,8 @@ namespace WindBot.Game.AI
         private void InternalSendMessage(IList<string> array, params object[] opts)
         {
             string message = string.Format(array[Program.Rand.Next(array.Count)], opts);
-            _game.Chat(message);
+            if (message != "")
+                _game.Chat(message);
         }
     }
 }

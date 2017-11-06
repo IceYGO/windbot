@@ -21,11 +21,21 @@ namespace WindBot.Game
         public int Race { get; private set; }
         public int Attack { get; private set; }
         public int Defense { get; private set; }
+        public int LScale { get; private set; }
+        public int RScale { get; private set; }
         public int BaseAttack { get; private set; }
         public int BaseDefense { get; private set; }
+        public int RealPower { get; set; }
         public List<int> Overlays { get; private set; }
         public int Owner { get; private set; }
         public int Controller { get; private set; }
+        public int Disabled { get; private set; }
+        public int SelectSeq { get; set; }
+        public int OpParam1 { get; set; }
+        public int OpParam2 { get; set; }
+        public bool CanDirectAttack { get; set; }
+        public bool ShouldDirectAttack { get; set; }
+        public bool Attacked { get; set; }
 
         public int[] ActionIndex { get; set; }
         public IDictionary<int, int> ActionActivateIndex { get; private set; }
@@ -114,13 +124,13 @@ namespace WindBot.Game
             if ((flag & (int)Query.Owner) != 0)
                 Owner = duel.GetLocalPlayer(packet.ReadInt32());
             if ((flag & (int)Query.IsDisabled) != 0)
-                packet.ReadInt32();
+                Disabled = packet.ReadInt32();
             if ((flag & (int)Query.IsPublic) != 0)
                 packet.ReadInt32();
             if ((flag & (int)Query.LScale) != 0)
-                packet.ReadInt32();
+                LScale = packet.ReadInt32();
             if ((flag & (int)Query.RScale) != 0)
-                packet.ReadInt32();
+                RScale = packet.ReadInt32();
         }
 
         public bool HasType(CardType type)
@@ -158,6 +168,11 @@ namespace WindBot.Game
             return (HasType(CardType.Fusion) || HasType(CardType.Synchro) || HasType(CardType.Xyz));
         }
 
+        public bool IsFaceup()
+        {
+            return HasPosition(CardPosition.FaceUp);
+        }
+
         public bool IsFacedown()
         {
             return HasPosition(CardPosition.FaceDown);
@@ -171,6 +186,26 @@ namespace WindBot.Game
         public bool IsDefense()
         {
             return HasPosition(CardPosition.Defence);
+        }
+
+        public bool IsDisabled()
+        {
+            return (Disabled != 0);
+        }
+
+        public bool HasXyzMaterial()
+        {
+            return Overlays.Count > 0;
+        }
+
+        public bool HasXyzMaterial(int count)
+        {
+            return Overlays.Count >= count;
+        }
+
+        public bool HasXyzMaterial(int count, int cardid)
+        {
+            return Overlays.Count >= count && Overlays.Contains(cardid);
         }
 
         public int GetDefensePower()

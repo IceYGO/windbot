@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using YGOSharp.OCGWrapper.Enums;
+using System.Linq;
 
 namespace WindBot.Game.AI
 {
@@ -11,7 +12,7 @@ namespace WindBot.Game.AI
             ClientCard selected = null;
             foreach (ClientCard card in cards)
             {
-                if (card == null || card.Data == null) continue;
+                if (card == null || card.Data == null || card.IsFacedown()) continue;
                 if (card.HasType(CardType.Monster) && card.Attack > highestAtk)
                 {
                     highestAtk = card.Attack;
@@ -27,7 +28,7 @@ namespace WindBot.Game.AI
             ClientCard selected = null;
             foreach (ClientCard card in cards)
             {
-                if (card == null || card.Data == null) continue;
+                if (card == null || card.Data == null || card.IsFacedown()) continue;
                 if (card.HasType(CardType.Monster) && card.Defense > highestDef)
                 {
                     highestDef = card.Defense;
@@ -43,7 +44,7 @@ namespace WindBot.Game.AI
             ClientCard selected = null;
             foreach (ClientCard card in cards)
             {
-                if (card == null || card.Data == null) continue;
+                if (card == null || card.Data == null || card.IsFacedown()) continue;
                 if (lowestAtk == 0 && card.HasType(CardType.Monster) ||
                     card.HasType(CardType.Monster) && card.Attack < lowestAtk)
                 {
@@ -60,7 +61,7 @@ namespace WindBot.Game.AI
             ClientCard selected = null;
             foreach (ClientCard card in cards)
             {
-                if (card == null || card.Data == null) continue;
+                if (card == null || card.Data == null || card.IsFacedown()) continue;
                 if (lowestDef == 0 && card.HasType(CardType.Monster) ||
                     card.HasType(CardType.Monster) && card.Defense < lowestDef)
                 {
@@ -120,9 +121,9 @@ namespace WindBot.Game.AI
             return count;
         }
 
-        public static IList<ClientCard> GetMonsters(this IEnumerable<ClientCard> cards)
+        public static List<ClientCard> GetMonsters(this IEnumerable<ClientCard> cards)
         {
-            IList<ClientCard> cardlist = new List<ClientCard>();
+            List<ClientCard> cardlist = new List<ClientCard>();
 
             foreach (ClientCard card in cards)
             {
@@ -130,7 +131,20 @@ namespace WindBot.Game.AI
                     continue;
                 if (card.HasType(CardType.Monster))
                     cardlist.Add(card);
+            }
+            return cardlist;
+        }
 
+        public static List<ClientCard> GetFaceupPendulumMonsters(this IEnumerable<ClientCard> cards)
+        {
+            List<ClientCard> cardlist = new List<ClientCard>();
+
+            foreach (ClientCard card in cards)
+            {
+                if (card == null)
+                    continue;
+                if (card.HasType(CardType.Monster) && card.IsFaceup() && card.HasType(CardType.Pendulum))
+                    cardlist.Add(card);
             }
             return cardlist;
         }
@@ -139,20 +153,37 @@ namespace WindBot.Game.AI
         {
             foreach (ClientCard card in cards)
             {
-                if (card != null && card.IsMonsterInvincible())
+                if (card != null && card.IsMonsterInvincible() && card.IsFaceup())
                     return card;
             }
             return null;
         }
 
-        public static ClientCard GetNegateAttackSpell(this IEnumerable<ClientCard> cards)
+        public static ClientCard GetDangerousMonster(this IEnumerable<ClientCard> cards)
         {
             foreach (ClientCard card in cards)
             {
-                if (card != null && card.IsSpellNegateAttack())
+                if (card != null && card.IsMonsterDangerous() && card.IsFaceup())
                     return card;
             }
             return null;
+        }
+
+        public static ClientCard GetFloodgate(this IEnumerable<ClientCard> cards)
+        {
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && card.IsFloodgate() && card.IsFaceup())
+                    return card;
+            }
+            return null;
+        }
+
+        public static IEnumerable<IEnumerable<T>> GetCombinations<T>(this IEnumerable<T> elements, int k)
+        {
+            return k == 0 ? new[] { new T[0] } :
+              elements.SelectMany((e, i) =>
+                elements.Skip(i + 1).GetCombinations(k - 1).Select(c => (new[] { e }).Concat(c)));
         }
     }
 }
