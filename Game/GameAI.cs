@@ -522,7 +522,7 @@ namespace WindBot.Game
         public bool OnSelectYesNo(int desc)
         {
             if (m_yesno != -1)
-                return m_yesno>0;
+                return m_yesno > 0;
             return Executor.OnSelectYesNo(desc);
         }
 
@@ -691,7 +691,7 @@ namespace WindBot.Game
 
         public void SelectYesNo(bool opt)
         {
-            m_yesno = opt?1:0;
+            m_yesno = opt ? 1 : 0;
         }
 
         /// <summary>

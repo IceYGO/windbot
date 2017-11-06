@@ -1,6 +1,6 @@
 # WindBot
 
-A C# bot for ygopro, compatible with the [YGOSharp](https://github.com/IceYGO/ygosharp) and [SRVPro](https://github.com/moecube/srvpro) server.
+A C# bot for YGOPro, compatible with the [YGOSharp](https://github.com/IceYGO/ygosharp) and [SRVPro](https://github.com/moecube/srvpro) server.
 
 ### How to use:
 

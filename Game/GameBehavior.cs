@@ -351,7 +351,6 @@ namespace WindBot.Game
         private void OnTagSwap(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            //Logger.DebugWriteLine("swap " + player);
             int mcount = packet.ReadByte();
             int ecount = packet.ReadByte();
             /*int pcount = */ packet.ReadByte();
@@ -768,7 +767,7 @@ namespace WindBot.Game
             }
 
             IList<int> used = _ai.OnSelectCounter(type, quantity, cards, counters);
-            byte[] result = new byte[used.Count*2];
+            byte[] result = new byte[used.Count * 2];
             for (int i = 0; i < used.Count; ++i)
             {
                 result[i * 2] = (byte)(used[i] & 0xff);
