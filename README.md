@@ -111,6 +111,39 @@ The parameters are same as commandlines, but low cased.
 
 * If one chain includes two activation that use `AI.SelectCard`, the second one won't select correctly.
 
+### Changelog
+
+#### v0x1340 (2017-11-06)
+
+ - Update YGOPro protrol to 0x1340
+ - Add support for the New Master Eule
+ - Decks update
+ - New commandline parameters
+ - Add support for Match and TAG duel
+ - Add server mode
+ - Bot dialogs now customable
+ - Only use normal deck when random picking decks
+ - Send sorry when the AI did something wrong that make the duel can't continue (for example, selected illegal card)
+ - Send info when the deck of the AI is illegal
+ - Fix the issue that the bot will attack Dupe Frog with low attack monster when there is monster next to Dupe Frog
+ - Fix `OnUpdateData` `OnSelectSum` (https://github.com/IceYGO/windbot/issues/7)
+ - New and updated `DefaultExecutor`s
+ - New and updated `AI.Utils`, `ClientCard`, `ClientField` functions
+ - Add `OnNewTurn`, `AI.SelectYesNo`, `AI.SelectThirdCard`, `Duel.ChainTargets`, `Duel.LastSummonPlayer`
+ - Shortcut `Bot` for `Duel.Fields[0]`, `Enemy` for `Duel.Fields[1]`
+ - `CardId` is now class instead of enum so `(int)` is no longer needed
+ - Update the known card enums, add `Floodgate`, `OneForXyz`, `FusionSpell`, `MonsterHasPreventActivationEffectInBattle`
+ - Update `OnPreBattleBetween` to calculate the ATK of cards like NumberS39UtopiaTheLightning
+ - Add desc parameter for `OnSelectEffectYn`
+ - Update direct attack handling
+
+#### v0x133D (2017-09-24)
+
+ - Update YGOPro protrol to 0x133D
+ - Use the latest YGOSharp.Network to improve performances
+ - Update the namespace of `YGOSharp.OCGWrapper`
+ - Fix the default trap cards not always activating
+
 ### TODO list
 
 * More decks
