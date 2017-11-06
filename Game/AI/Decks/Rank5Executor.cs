@@ -60,7 +60,6 @@ namespace WindBot.Game.AI.Decks
 
             // Level 5 monsters without side effects
             AddExecutor(ExecutorType.SpSummon, CardId.CyberDragon);
-            AddExecutor(ExecutorType.SpSummon, CardId.SolarWindJammer, SolarWindJammerSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.ZWEagleClaw);
             AddExecutor(ExecutorType.Summon, CardId.ChronomalyGoldenJet, NormalSummon);
             AddExecutor(ExecutorType.Activate, CardId.ChronomalyGoldenJet, ChronomalyGoldenJetEffect);
@@ -80,6 +79,7 @@ namespace WindBot.Game.AI.Decks
 
 
             // Level 5 monsters with side effects
+            AddExecutor(ExecutorType.SpSummon, CardId.SolarWindJammer, SolarWindJammerSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.QuickdrawSynchron, QuickdrawSynchronSummon);
             AddExecutor(ExecutorType.Summon, CardId.MistArchfiend, MistArchfiendSummon);
             AddExecutor(ExecutorType.Activate, CardId.InstantFusion, InstantFusionEffect);
@@ -126,13 +126,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool SolarWindJammerSummon()
         {
+            if (!NeedLV5())
+                return false;
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
 
         private bool QuickdrawSynchronSummon()
         {
-            if (!needLV5())
+            if (!NeedLV5())
                 return false;
             AI.SelectCard(new[]
                 {
@@ -150,7 +152,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MistArchfiendSummon()
         {
-            if (!needLV5())
+            if (!NeedLV5())
                 return false;
             AI.SelectOption(1);
             NormalSummoned = true;
@@ -159,20 +161,21 @@ namespace WindBot.Game.AI.Decks
 
         private bool InstantFusionEffect()
         {
-            if (!needLV5())
+            if (!NeedLV5())
                 return false;
             InstantFusionUsed = true;
             return true;
         }
 
-        private bool needLV5()
+        private bool NeedLV5()
         {
-            if (HaveLV5OnField())
+            if (HaveOtherLV5OnField())
                 return true;
             int lv5Count = 0;
-            IList<ClientCard> hand = Bot.Hand;
-            foreach (ClientCard card in hand)
+            foreach (ClientCard card in Bot.Hand)
             {
+                if (card.Id == CardId.SolarWindJammer && Bot.GetMonsterCount() == 0)
+                    ++lv5Count;
                 if (card.Id == CardId.InstantFusion && !InstantFusionUsed)
                     ++lv5Count;
                 if (card.Id == CardId.QuickdrawSynchron && Bot.Hand.ContainsMonsterWithLevel(4))
@@ -189,7 +192,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool WindUpSoldierEffect()
         {
-            return HaveLV5OnField();
+            return HaveOtherLV5OnField();
         }
 
         private bool ChronomalyGoldenJetEffect()
@@ -201,18 +204,17 @@ namespace WindBot.Game.AI.Decks
         {
             if (!NormalSummoned || DoubleSummonUsed)
                 return false;
-            IList<ClientCard> hand = Bot.Hand;
-            foreach (ClientCard card in hand)
-            {
-                if (card.Id == CardId.MistArchfiend ||
-                    card.Id == CardId.WindUpSoldier ||
-                    card.Id == CardId.StarDrawing ||
-                    card.Id == CardId.ChronomalyGoldenJet)
+            if (Bot.HasInHand(new[]
                 {
-                    NormalSummoned = false;
-                    DoubleSummonUsed = true;
-                    return true;
-                }
+                    CardId.MistArchfiend,
+                    CardId.WindUpSoldier,
+                    CardId.StarDrawing,
+                    CardId.ChronomalyGoldenJet
+                }))
+            {
+                NormalSummoned = false;
+                DoubleSummonUsed = true;
+                return true;
             }
             return false;
         }
@@ -253,9 +255,8 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                List<ClientCard> monsters = Enemy.GetMonsters();
                 ClientCard bestmonster = null;
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Enemy.GetMonsters())
                 {
                     if (monster.IsAttack() && (bestmonster == null || monster.Attack >= bestmonster.Attack))
                         bestmonster = monster;
@@ -290,6 +291,8 @@ namespace WindBot.Game.AI.Decks
         private bool TirasKeeperOfGenesisEffect()
         {
             ClientCard target = AI.Utils.GetProblematicEnemyCard();
+            if (target == null)
+                target = AI.Utils.GetBestEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -304,8 +307,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.Number61Volcasaurus);
                 return true;
             }
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 if (monster.HasType(CardType.Xyz) && !monster.HasXyzMaterial())
                 {
@@ -318,13 +320,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool XyzRebornEffect()
         {
-            foreach (ClientCard card in Bot.SpellZone)
-            {
-                if (card != null &&
-                    card.Id == Card.Id &&
-                    card.HasPosition(CardPosition.FaceUp))
-                    return false;
-            }
+            if (!UniqueFaceupSpell())
+                return false;
             AI.SelectCard(new[]
                 {
                     CardId.CyberDragonInfinity,
@@ -338,8 +335,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool XyzUnitEffect()
         {
-            List<ClientCard> monsters = Bot.GetMonsters();
-            return monsters.Exists(p => p.HasType(CardType.Xyz));
+            foreach (ClientCard monster in Bot.GetMonsters())
+            {
+                if (monster.HasType(CardType.Xyz))
+                {
+                    AI.SelectCard(monster);
+                    return true;
+                }
+            }
+            return false;
         }
 
         private bool PanzerDragonEffect()
@@ -355,14 +359,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool XyzVeilEffect()
         {
-            List<ClientCard> spells = Bot.GetSpells();
-            foreach (ClientCard spell in spells)
-            {
-                if (spell.Id == CardId.XyzVeil && !spell.IsFacedown())
-                    return false;
-            }
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            if (!UniqueFaceupSpell())
+                return false;
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 if (monster.HasType(CardType.Xyz))
                     return true;
@@ -370,10 +369,9 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool HaveLV5OnField()
+        private bool HaveOtherLV5OnField()
         {
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 if (monster.HasType(CardType.Monster) &&
                     !monster.HasType(CardType.Xyz) &&

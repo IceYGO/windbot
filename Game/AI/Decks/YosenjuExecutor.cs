@@ -233,9 +233,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool HaveAnotherYosenjuWithSameNameInHand()
         {
-            foreach (ClientCard card in Bot.Hand)
+            foreach (ClientCard card in Bot.Hand.GetMonsters())
             {
-                if (card != null && !card.Equals(Card) && card.Id == Card.Id)
+                if (!card.Equals(Card) && card.Id == Card.Id)
                     return true;
             }
             return false;
@@ -243,9 +243,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool TrapSetUnique()
         {
-            foreach (ClientCard card in Bot.SpellZone)
+            foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card != null && card.Id == Card.Id)
+                if (card.Id == Card.Id)
                     return false;
             }
             return TrapSetWhenZoneFree();
@@ -307,13 +307,6 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(target);
             }
             return true;
-        }
-
-        private bool NumberS39UtopiatheLightningSummon()
-        {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
-            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
-            return selfBestAttack <= oppoBestAttack;
         }
     }
 }

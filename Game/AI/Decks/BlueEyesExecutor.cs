@@ -123,11 +123,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
 
-        public override bool OnSelectHand()
-        {
-            return Program.Rand.Next(2) > 0;
-        }
-
         public override void OnNewTurn()
         {
             // reset
@@ -322,17 +317,17 @@ namespace WindBot.Game.AI.Decks
 
         private bool AlternativeWhiteDragonEffect()
         {
-            ClientCard card = AI.Utils.GetProblematicEnemyMonster(Card.GetDefensePower());
-            if (card != null)
+            ClientCard target = AI.Utils.GetProblematicEnemyMonster(Card.GetDefensePower());
+            if (target != null)
             {
-                AI.SelectCard(card);
+                AI.SelectCard(target);
                 UsedAlternativeWhiteDragon.Add(Card);
                 return true;
             }
             if (CanDealWithUsedAlternativeWhiteDragon())
             {
-                card = AI.Utils.GetBestEnemyMonster();
-                AI.SelectCard(card);
+                target = AI.Utils.GetBestEnemyMonster();
+                AI.SelectCard(target);
                 UsedAlternativeWhiteDragon.Add(Card);
                 return true;
             }
@@ -442,14 +437,13 @@ namespace WindBot.Game.AI.Decks
                     CardId.WhiteStoneOfLegend,
                     CardId.WhiteStoneOfAncients
                 });
-            List<ClientCard> spells = Enemy.GetSpells();
-            if (spells.Count == 0)
+            if (Enemy.GetSpellCount() > 0)
             {
-                AI.SelectNextCard(CardId.WhiteDragon);
+                AI.SelectNextCard(CardId.DragonSpiritOfWhite);
             }
             else
             {
-                AI.SelectNextCard(CardId.DragonSpiritOfWhite);
+                AI.SelectNextCard(CardId.WhiteDragon);
             }
             return true;
         }
@@ -462,25 +456,24 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(target);
                 return true;
             }
-            else
+            else if (HaveEnoughWhiteDragonInHand())
             {
                 if (Duel.Player == 0 && Duel.Phase == DuelPhase.BattleStart)
                 {
-                    return HaveEnoughWhiteDragonInHand() && Card.Attacked;
+                    return Card.Attacked;
                 }
                 if (Duel.Player == 1 && Duel.Phase == DuelPhase.End)
                 {
-                    return HaveEnoughWhiteDragonInHand()
-                        && Bot.HasInMonstersZone(CardId.AzureEyesSilverDragon, true)
+                    return Bot.HasInMonstersZone(CardId.AzureEyesSilverDragon, true)
                         && !Bot.HasInGraveyard(CardId.DragonSpiritOfWhite)
                         && !Bot.HasInGraveyard(CardId.WhiteDragon);
                 }
                 if (AI.Utils.IsChainTarget(Card))
                 {
-                    return HaveEnoughWhiteDragonInHand();
+                    return true;
                 }
-                return false;
             }
+            return false;
         }
 
         private bool BlueEyesSpiritDragonEffect()
@@ -547,14 +540,13 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                List<ClientCard> spells = Enemy.GetSpells();
-                if (spells.Count == 0)
+                if (Enemy.GetSpellCount() > 0)
                 {
-                    AI.SelectCard(CardId.WhiteDragon);
+                    AI.SelectCard(CardId.DragonSpiritOfWhite);
                 }
                 else
                 {
-                    AI.SelectCard(CardId.DragonSpiritOfWhite);
+                    AI.SelectCard(CardId.WhiteDragon);
                 }
                 return true;
             }
@@ -620,8 +612,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.HasInMonstersZone(CardId.GalaxyEyesCipherDragon))
             {
-                List<ClientCard> monsters = Bot.GetMonsters();
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Bot.GetMonsters())
                 {
                     if ((monster.IsDisabled() && monster.HasType(CardType.Xyz) && !monster.Equals(UsedGalaxyEyesCipherDragon))
                         || (Duel.Phase == DuelPhase.Main2 && monster.Equals(UsedGalaxyEyesCipherDragon)))
@@ -706,8 +697,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(target);
                 return true;
             }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
+            foreach (ClientCard spell in Enemy.GetSpells())
             {
                 if (spell.IsFaceup())
                 {
@@ -896,7 +886,7 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInMonstersZone(CardId.BlueEyesSpiritDragon, true))
                 return false;
             int count = Bot.GetGraveyardMonsters().Count;
-            int space = 5 - Bot.GetMonsterCount();
+            int space = 5 - Bot.GetMonstersInMainZone().Count;
             if (count < space)
                 count = space;
             if (count < 2 || Duel.LifePoints[0] < count*1000)
@@ -905,16 +895,14 @@ namespace WindBot.Game.AI.Decks
             {
                 int attack = 0;
                 int defence = 0;
-                List<ClientCard> monsters = Bot.GetMonsters();
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Bot.GetMonsters())
                 {
                     if (!monster.IsDefense())
                     {
                         attack += monster.Attack;
                     }
                 }
-                monsters = Enemy.GetMonsters();
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Enemy.GetMonsters())
                 {
                     defence += monster.GetDefensePower();
                 }

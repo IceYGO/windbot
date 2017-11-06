@@ -222,9 +222,7 @@ namespace WindBot.Game.AI.Decks
 
         private void SelectAleisterInGrave()
         {
-            IList<ClientCard> materials0 = Bot.Graveyard;
-            IList<ClientCard> materials1 = Enemy.Graveyard;
-            foreach (ClientCard card in materials1)
+            foreach (ClientCard card in Enemy.Graveyard)
             {
                 if (card.Id == CardId.AleisterTheInvoker)
                 {
@@ -232,7 +230,7 @@ namespace WindBot.Game.AI.Decks
                     return;
                 }
             }
-            foreach (ClientCard card in materials0)
+            foreach (ClientCard card in Bot.Graveyard)
             {
                 if (card.Id == CardId.AleisterTheInvoker)
                 {
@@ -541,8 +539,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ZoodiacBarrageEffect()
         {
-            IList<ClientCard> spells = Bot.GetSpells();
-            foreach (ClientCard spell in spells)
+            foreach (ClientCard spell in Bot.GetSpells())
             {
                 if (spell.Id == CardId.ZoodiacBarrage && !Card.Equals(spell))
                     return false;

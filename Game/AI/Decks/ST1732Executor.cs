@@ -237,8 +237,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MoonMirrorShieldEffect()
         {
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 AI.SelectCard(monster);
                 return true;
@@ -250,8 +249,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return DefaultField();
-            IList<ClientCard> cards = Enemy.Graveyard;
-            foreach (ClientCard card in cards)
+            foreach (ClientCard card in Enemy.Graveyard)
             {
                 if (card.IsMonster())
                 {
@@ -269,16 +267,10 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            foreach (ClientCard card in Bot.SpellZone)
-            {
-                if (card != null &&
-                    card.Id == Card.Id &&
-                    card.HasPosition(CardPosition.FaceUp))
-                    return false;
-            }
+            if (!UniqueFaceupSpell())
+                return false;
             bool selected = false;
-            List<ClientCard> monsters = Bot.GetMonstersInExtraZone();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonstersInExtraZone())
             {
                 if (monster.Attack > 1000)
                 {
@@ -289,7 +281,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (!selected)
             {
-                monsters = Bot.GetMonsters();
+                List<ClientCard> monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
                     if (monster.Id == CardId.BalancerLord)

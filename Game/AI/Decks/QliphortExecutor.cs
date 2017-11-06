@@ -16,11 +16,13 @@ namespace WindBot.Game.AI.Decks
             public const int Shell = 90885155;
             public const int Helix = 37991342;
             public const int Carrier = 91907707;
+
             public const int DarkHole = 53129443;
             public const int CardOfDemise = 59750328;
             public const int SummonersArt = 79816536;
             public const int PotOfDuality = 98645731;
             public const int Saqlifice = 17639150;
+
             public const int MirrorForce = 44095762;
             public const int TorrentialTribute = 53582587;
             public const int DimensionalBarrier = 83326048;
@@ -136,11 +138,18 @@ namespace WindBot.Game.AI.Decks
             {
                 return null;
             }
-            IList<ClientCard> selected = new List<ClientCard>();
 
-            // select the last cards
+            // pendulum summon, select the last cards
+
+            IList<ClientCard> selected = new List<ClientCard>();
             for (int i = 1; i <= max; ++i)
-                selected.Add(cards[cards.Count - i]);
+            {
+                ClientCard card = cards[cards.Count - i];
+                if (card.Id != CardId.Scout || (card.Location == CardLocation.Extra && !Duel.IsNewRule))
+                    selected.Add(card);
+            }
+            if (selected.Count == 0)
+                selected.Add(cards[cards.Count - 1]);
 
             return selected;
         }
@@ -189,9 +198,9 @@ namespace WindBot.Game.AI.Decks
         
         private bool TrapSetUnique()
         {
-            foreach (ClientCard card in Bot.SpellZone)
+            foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card != null && card.Id == Card.Id)
+                if (card.Id == Card.Id)
                     return false;
             }
             return TrapSetWhenZoneFree();

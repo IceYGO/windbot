@@ -174,10 +174,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.LifePoints[0] <= 1000)
                 return false;
-            List<ClientCard> monsters = Bot.GetMonsters();
             int count4 = 0;
             int count5 = 0;
-            foreach (ClientCard card in monsters)
+            foreach (ClientCard card in Bot.GetMonsters())
             {
                 if (card.Level == 5)
                     ++count5;
@@ -214,10 +213,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool GoblindberghFirst()
         {
-            IList<ClientCard> hand = Bot.Hand;
-            foreach (ClientCard card in hand)
+            foreach (ClientCard card in Bot.Hand.GetMonsters())
             {
-                if (card != Card && card.IsMonster() && card.Level == 4)
+                if (!card.Equals(Card) && card.Level == 4)
                     return true;
             }
             return false;
@@ -237,24 +235,26 @@ namespace WindBot.Game.AI.Decks
 
         private bool SummonerMonkEffect()
         {
-            if (Bot.HasInHand(CardId.InstantFusion) ||
-                Bot.HasInHand(CardId.MysticalSpaceTyphoon))
+            IList<int> costs = new[]
+                {
+                    CardId.XyzChangeTactics,
+                    CardId.DarkHole,
+                    CardId.MysticalSpaceTyphoon,
+                    CardId.InstantFusion
+                };
+            if (Bot.HasInHand(costs))
             {
-                AI.SelectCard(new[]
+                AI.SelectCard(costs);
+                AI.SelectNextCard(new[]
                     {
-                        CardId.InstantFusion,
-                        CardId.MysticalSpaceTyphoon
+                    CardId.SacredCrane,
+                    CardId.StarDrawing,
+                    CardId.Goblindbergh,
+                    CardId.TinGoldfish
                     });
+                AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
             }
-            AI.SelectNextCard(new[]
-                {
-                    CardId.Goblindbergh,
-                    CardId.TinGoldfish,
-                    CardId.StarDrawing,
-                    CardId.Kagetokage,
-                    CardId.SacredCrane
-                });
             return false;
         }
 

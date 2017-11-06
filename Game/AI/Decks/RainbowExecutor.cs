@@ -16,7 +16,7 @@ namespace WindBot.Game.AI.Decks
             public const int MasterPendulumTheDracoslayer = 75195825;
             public const int AngelTrumpeter = 87979586;
             public const int MetalfoesGoldriver = 33256280;
-            public const int Kabazauls = 51934376;
+            public const int MegalosmasherX = 81823360;
             public const int RescueRabbit = 85138716;
 
             public const int UnexpectedDai = 911883;
@@ -67,7 +67,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, DefaultPotOfDesires);
 
             AddExecutor(ExecutorType.Summon, CardId.AngelTrumpeter, AngelTrumpeterSummon);
-            AddExecutor(ExecutorType.Summon, CardId.Kabazauls, KabazaulsSummon);
+            AddExecutor(ExecutorType.Summon, CardId.MegalosmasherX, KabazaulsSummon);
             AddExecutor(ExecutorType.Summon, CardId.MasterPendulumTheDracoslayer, MasterPendulumTheDracoslayerSummon);
             AddExecutor(ExecutorType.Summon, CardId.MysteryShellDragon, MysteryShellDragonSummon);
             AddExecutor(ExecutorType.Summon, CardId.PhantomGryphon, PhantomGryphonSummon);
@@ -142,11 +142,6 @@ namespace WindBot.Game.AI.Decks
         {
             NormalSummoned = false;
         }
-        
-        public override bool OnSelectHand()
-        {
-            return Program.Rand.Next(2) > 0;
-        }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
@@ -164,21 +159,22 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(new[]
                 {
                     CardId.MysteryShellDragon,
-                    CardId.PhantomGryphon
+                    CardId.PhantomGryphon,
+                    CardId.MegalosmasherX
                 });
             else if (AI.Utils.IsTurn1OrMain2())
             {
                 if (Bot.HasInHand(CardId.MysteryShellDragon))
                     AI.SelectCard(CardId.MysteryShellDragon);
-                else if (Bot.HasInHand(CardId.Kabazauls))
-                    AI.SelectCard(CardId.Kabazauls);
+                else if (Bot.HasInHand(CardId.MegalosmasherX))
+                    AI.SelectCard(CardId.MegalosmasherX);
                 else if (Bot.HasInHand(CardId.AngelTrumpeter))
                     AI.SelectCard(CardId.AngelTrumpeter);
             }
             else
             {
-                if (Bot.HasInHand(CardId.Kabazauls))
-                    AI.SelectCard(CardId.Kabazauls);
+                if (Bot.HasInHand(CardId.MegalosmasherX))
+                    AI.SelectCard(CardId.MegalosmasherX);
                 else if (Bot.HasInHand(CardId.MasterPendulumTheDracoslayer))
                     AI.SelectCard(CardId.MasterPendulumTheDracoslayer);
                 else if (Bot.HasInHand(CardId.PhantomGryphon))
@@ -196,20 +192,24 @@ namespace WindBot.Game.AI.Decks
         private bool RescueRabbitEffect()
         {
             if (AI.Utils.IsTurn1OrMain2())
+            {
                 AI.SelectCard(new[]
                     {
-                        CardId.Kabazauls,
+                        CardId.MegalosmasherX,
                         CardId.MysteryShellDragon
                     });
+            }
             else
+            {
                 AI.SelectCard(new[]
                     {
                         CardId.MasterPendulumTheDracoslayer,
                         CardId.PhantomGryphon,
-                        CardId.Kabazauls,
+                        CardId.MegalosmasherX,
                         CardId.MetalfoesGoldriver,
                         CardId.AngelTrumpeter
                     });
+            }
             return true;
         }
 
@@ -235,7 +235,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool KabazaulsSummon()
         {
-            return Bot.HasInMonstersZone(CardId.Kabazauls);
+            return Bot.HasInMonstersZone(CardId.MegalosmasherX);
         }
         private bool NormalSummon()
         {
@@ -314,16 +314,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool LightningChidoriSummon()
         {
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Enemy.GetMonsters())
             {
                 if (monster.IsFacedown())
                 {
                     return true;
                 }
             }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
+            foreach (ClientCard spell in Enemy.GetSpells())
             {
                 if (spell.IsFacedown())
                 {
@@ -343,7 +341,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool EvolzarLaggiaSummon()
         {
-            return (AI.Utils.IsAllEnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
+            return (AI.Utils.IsAllEnemyBetterThanValue(2000, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
         }
 
         private bool EvilswarmNightmareSummon()

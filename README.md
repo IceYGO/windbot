@@ -123,6 +123,10 @@ The parameters are same as commandlines, but low cased.
 
 * `AI.SelectTribute`
 
+* Select cards to pendulum summon in executor.
+
+* Get equip of card.
+
 * Better new master rule support
 
 * Update the known card enums

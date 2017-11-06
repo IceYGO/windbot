@@ -99,6 +99,17 @@ namespace WindBot.Game
             return cards;
         }
 
+        public List<ClientCard> GetMonstersInMainZone()
+        {
+            List<ClientCard> cards = new List<ClientCard>();
+            for (int i = 0; i < 5; i++)
+            {
+                if (MonsterZone[i] != null)
+                    cards.Add(MonsterZone[i]);
+            }
+            return cards;
+        }
+
         public bool HasInHand(int cardId)
         {
             return HasInCards(Hand, cardId);

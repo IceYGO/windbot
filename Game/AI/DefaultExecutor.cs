@@ -47,7 +47,7 @@ namespace WindBot.Game.AI
         /// </summary>
         /// <param name="attacker">Card that attack.</param>
         /// <param name="defender">Card that defend.</param>
-        /// <returns>true if the attack can be done.</returns>
+        /// <returns>false if the attack can't be done.</returns>
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
             if (attacker.RealPower <= 0)
@@ -56,14 +56,10 @@ namespace WindBot.Game.AI
             if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
             {
                 if (defender.IsMonsterDangerous() || (defender.IsMonsterInvincible() && defender.IsDefense()))
-                {
                     return false;
-                }
 
                 if (defender.Id == _CardId.CrystalWingSynchroDragon && !defender.IsDisabled() && attacker.Level >= 5)
-                {
                     return false;
-                }
 
                 if (defender.Id == _CardId.NumberS39UtopiaTheLightning && !defender.IsDisabled() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
                     defender.RealPower = 5000;
@@ -358,13 +354,8 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTributeSummon()
         {
-            foreach (ClientCard card in Bot.MonsterZone)
-            {
-                if (card != null &&
-                    card.Id == Card.Id &&
-                    card.HasPosition(CardPosition.FaceUp))
-                    return false;
-            }
+            if (!UniqueFaceupMonster())
+                return false;
             int tributecount = (int)Math.Ceiling((Card.Level - 4.0d) / 2.0d);
             for (int j = 0; j < 7; ++j)
             {
@@ -414,14 +405,32 @@ namespace WindBot.Game.AI
             if (HasChainedTrap(0))
                 return false;
 
-            foreach (ClientCard card in Bot.SpellZone)
+            return UniqueFaceupSpell();
+        }
+
+        /// <summary>
+        /// Check no other our spell or trap card with same name face-up.
+        /// </summary>
+        protected bool UniqueFaceupSpell()
+        {
+            foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card != null &&
-                    card.Id == Card.Id &&
-                    card.HasPosition(CardPosition.FaceUp))
+                if (card.Id == Card.Id && card.IsFaceup())
                     return false;
             }
+            return true;
+        }
 
+        /// <summary>
+        /// Check no other our monster card with same name face-up.
+        /// </summary>
+        protected bool UniqueFaceupMonster()
+        {
+            foreach (ClientCard card in Bot.GetMonsters())
+            {
+                if (card.Id == Card.Id && card.IsFaceup())
+                    return false;
+            }
             return true;
         }
 

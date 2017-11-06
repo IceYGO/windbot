@@ -200,7 +200,7 @@ namespace WindBot.Game.AI.Decks
             else
                 option = 1;
 
-            if (ActivateDescription != CardId.DragonRavine*16 + option)
+            if (ActivateDescription != AI.Utils.GetStringId(CardId.DragonRavine, option))
                 return false;
 
             AI.SelectCard(tributeId);
@@ -243,20 +243,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool FoolishBurial()
         {
-            if (Bot.HasInGraveyard(CardId.DragunityPhalanx))
-                return false;
-            if (Bot.HasInHand(CardId.DragunityPhalanx))
-                return false;
-            int remaining = 3;
-            foreach (ClientCard card in Bot.Banished)
-                if (card.Id == CardId.DragunityPhalanx)
-                    remaining--;
-            if (remaining > 0)
+            AI.SelectCard(new[]
             {
-                AI.SelectCard(CardId.DragunityPhalanx);
-                return true;
-            }
-            return false;
+                CardId.DragunityPhalanx,
+                CardId.AssaultBeast,
+                CardId.StardustDragonAssaultMode
+            });
+            return true;
         }
 
         private bool MonsterReborn()

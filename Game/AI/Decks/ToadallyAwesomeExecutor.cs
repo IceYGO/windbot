@@ -173,7 +173,6 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-
         private bool FoolishBurialEffect()
         {
             if (Bot.HasInHand(CardId.GraydleSlimeJr) && !Bot.HasInGraveyard(CardId.GraydleSlimeJr))
@@ -281,8 +280,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool NormalSummon()
         {
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 if (monster.Level==2)
                 {
@@ -323,35 +321,41 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
-                bool haveAquariumStage = Bot.HasInSpellZone(CardId.AquariumStage, true);
-                foreach (ClientCard monster in monsters)
+                if (!Bot.HasInSpellZone(CardId.AquariumStage, true))
                 {
-                    if (monster.Id == CardId.DupeFrog && !haveAquariumStage)
+                    foreach (ClientCard monster in monsters)
                     {
-                        AI.SelectCard(monster);
-                        return true;
+                        if (monster.Id == CardId.DupeFrog)
+                        {
+                            AI.SelectCard(monster);
+                            return true;
+                        }
                     }
                 }
-                monsters = (List<ClientCard>)Bot.Hand;
-                bool HaveTwoGraydleSlimeJrInHand = Bot.GetCountCardInZone(Bot.Hand, CardId.GraydleSlimeJr) >= 2;
-                foreach (ClientCard monster in monsters)
+                List<ClientCard> hands = Bot.Hand.GetMonsters();
+                if (Bot.GetCountCardInZone(Bot.Hand, CardId.GraydleSlimeJr) >= 2)
                 {
-                    if (monster.Id == CardId.GraydleSlimeJr && HaveTwoGraydleSlimeJrInHand)
+                    foreach (ClientCard monster in hands)
                     {
-                        AI.SelectCard(monster);
-                        return true;
+                        if (monster.Id == CardId.GraydleSlimeJr)
+                        {
+                            AI.SelectCard(monster);
+                            return true;
+                        }
                     }
                 }
-                bool NeedDupeFrogInGrave = Bot.HasInGraveyard(CardId.Ronintoadin) && !Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.SwapFrog);
-                foreach (ClientCard monster in monsters)
+                if (Bot.HasInGraveyard(CardId.Ronintoadin) && !Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.SwapFrog))
                 {
-                    if (monster.Id == CardId.DupeFrog && NeedDupeFrogInGrave)
+                    foreach (ClientCard monster in hands)
                     {
-                        AI.SelectCard(monster);
-                        return true;
+                        if (monster.Id == CardId.DupeFrog)
+                        {
+                            AI.SelectCard(monster);
+                            return true;
+                        }
                     }
                 }
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in hands)
                 {
                     if (monster.Id == CardId.Ronintoadin || monster.Id == CardId.DupeFrog)
                     {
@@ -359,7 +363,7 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in hands)
                 {
                     AI.SelectCard(monster);
                     return true;
@@ -418,15 +422,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool CatSharkSummon()
         {
-            bool should = Bot.HasInMonstersZone(CardId.ToadallyAwesome)
-                        && ((AI.Utils.IsOneEnemyBetter(true)
-                            && !Bot.HasInMonstersZone(new[]
-                                {
-                                    CardId.CatShark,
-                                    CardId.SkyCavalryCentaurea
-                                }, true, true))
-                        || !Bot.HasInExtra(CardId.ToadallyAwesome));
-            if (should)
+            if (Bot.HasInMonstersZone(CardId.ToadallyAwesome)
+                && ((AI.Utils.IsOneEnemyBetter(true)
+                    && !Bot.HasInMonstersZone(new[]
+                        {
+                            CardId.CatShark,
+                            CardId.SkyCavalryCentaurea
+                        }, true, true))
+                    || !Bot.HasInExtra(CardId.ToadallyAwesome)))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -470,8 +473,7 @@ namespace WindBot.Game.AI.Decks
         private bool SkyCavalryCentaureaSummon()
         {
             int num = 0;
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 if (monster.Level ==2)
                 {
@@ -493,16 +495,14 @@ namespace WindBot.Game.AI.Decks
             {
                 int attack = 0;
                 int defence = 0;
-                List<ClientCard> monsters = Bot.GetMonsters();
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Bot.GetMonsters())
                 {
                     if (!monster.IsDefense())
                     {
                         attack += monster.Attack;
                     }
                 }
-                monsters = Enemy.GetMonsters();
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Enemy.GetMonsters())
                 {
                     defence += monster.GetDefensePower();
                 }
@@ -520,11 +520,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool Repos()
         {
-            bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
-
             if (Card.IsFacedown())
                 return true;
-            if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
+            if (Card.IsDefense() && !AI.Utils.IsAllEnemyBetter(true) && Card.Attack >= Card.Defense)
                 return true;
             return false;
         }
