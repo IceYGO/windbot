@@ -1,5 +1,8 @@
 ﻿namespace WindBot.Game.AI.Enums
 {
+    /// <summary>
+    /// Cards that are invincible to battle.
+    /// </summary>
     public enum InvincibleMonster
     {
         SpiritReaper = 23205979,
