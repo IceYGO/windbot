@@ -403,7 +403,7 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectYesNo(false);
             AI.SelectPosition(CardPosition.FaceUpDefence);
-            AI.SelectCard(new[]
+            AI.SelectMaterials(new[]
                 {
                     CardId.Ratpier,
                     CardId.PhotonThrasher,
@@ -415,7 +415,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DridentSummon()
         {
-            AI.SelectCard(new[]
+            AI.SelectMaterials(new[]
                 {
                     CardId.Broadbull,
                     CardId.Tigermortar,
@@ -506,6 +506,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool DaigustoEmeralSummon()
         {
+            AI.SelectMaterials(new[]
+                {
+                    CardId.PhotonThrasher,
+                    CardId.AleisterTheInvoker
+                });
             return Bot.GetGraveyardMonsters().Count >= 3;
         }
 
@@ -599,7 +604,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterRepos()
         {
-            if (Card.Id == CardId.NumberS39UtopiatheLightning)
+            if (Card.Id == CardId.NumberS39UtopiatheLightning && Card.IsAttack())
                 return false;
             return base.DefaultMonsterRepos();
         }

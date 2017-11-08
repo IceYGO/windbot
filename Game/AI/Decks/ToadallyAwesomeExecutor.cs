@@ -97,7 +97,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Repos, Repos);
 
-            // cards got by Toadall yAwesome
+            // cards got by Toadally Awesome
             AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
             AddExecutor(ExecutorType.Activate, CardId.BookOfMoon, DefaultBookOfMoon);
             AddExecutor(ExecutorType.Activate, CardId.CallOfTheHaunted, SurfaceEffect);
