@@ -168,6 +168,12 @@ namespace WindBot.Game.AI.Decks
                 return true;
             IList<ClientCard> materials0 = Bot.Graveyard;
             IList<ClientCard> materials1 = Enemy.Graveyard;
+            IList<ClientCard> mats = new List<ClientCard>();
+            ClientCard aleister = GetAleisterInGrave();
+            if (aleister != null)
+            {
+                mats.Add(aleister);
+            }
             ClientCard mat = null;
             foreach (ClientCard card in materials0)
             {
@@ -187,9 +193,9 @@ namespace WindBot.Game.AI.Decks
             }
             if (mat != null)
             {
+                mats.Add(mat);
                 AI.SelectCard(CardId.InvokedMechaba);
-                SelectAleisterInGrave();
-                AI.SelectThirdCard(mat);
+                AI.SelectMaterials(mats);
                 AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
             }
@@ -211,41 +217,39 @@ namespace WindBot.Game.AI.Decks
             }
             if (mat != null)
             {
+                mats.Add(mat);
                 AI.SelectCard(CardId.InvokedMagellanica);
-                SelectAleisterInGrave();
-                AI.SelectThirdCard(mat);
+                AI.SelectMaterials(mats);
                 AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
             }
             return false;
         }
 
-        private void SelectAleisterInGrave()
+        private ClientCard GetAleisterInGrave()
         {
             foreach (ClientCard card in Enemy.Graveyard)
             {
                 if (card.Id == CardId.AleisterTheInvoker)
                 {
-                    AI.SelectNextCard(card);
-                    return;
+                    return card;
                 }
             }
             foreach (ClientCard card in Bot.Graveyard)
             {
                 if (card.Id == CardId.AleisterTheInvoker)
                 {
-                    AI.SelectNextCard(card);
-                    return;
+                    return card;
                 }
             }
-            AI.SelectNextCard(CardId.AleisterTheInvoker);
+            return null;
         }
 
         private bool ChakanineSummon()
         {
             if (Bot.HasInMonstersZone(CardId.Ratpier) && !ChakanineSpsummoned)
             {
-                AI.SelectCard(CardId.Ratpier);
+                AI.SelectMaterials(CardId.Ratpier);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 ChakanineSpsummoned = true;
@@ -253,7 +257,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Bot.HasInMonstersZone(CardId.Broadbull) && !ChakanineSpsummoned)
             {
-                AI.SelectCard(CardId.Broadbull);
+                AI.SelectMaterials(CardId.Broadbull);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 ChakanineSpsummoned = true;
@@ -289,7 +293,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.HasInMonstersZone(CardId.Chakanine) && !TigermortarSpsummoned)
             {
-                AI.SelectCard(CardId.Chakanine);
+                AI.SelectMaterials(CardId.Chakanine);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 TigermortarSpsummoned = true;
@@ -297,7 +301,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Bot.HasInMonstersZone(CardId.Ratpier) && !TigermortarSpsummoned)
             {
-                AI.SelectCard(CardId.Ratpier);
+                AI.SelectMaterials(CardId.Ratpier);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 TigermortarSpsummoned = true;
@@ -310,7 +314,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.Ratpier
                 }))
             {
-                AI.SelectCard(CardId.Thoroughblade);
+                AI.SelectMaterials(CardId.Thoroughblade);
                 AI.SelectYesNo(true);
                 TigermortarSpsummoned = true;
                 return true;
@@ -318,7 +322,7 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInMonstersZone(CardId.Whiptail) && !TigermortarSpsummoned
                 && Bot.HasInGraveyard(CardId.Ratpier))
             {
-                AI.SelectCard(CardId.Whiptail);
+                AI.SelectMaterials(CardId.Whiptail);
                 AI.SelectYesNo(true);
                 TigermortarSpsummoned = true;
                 return true;
@@ -345,7 +349,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.HasInMonstersZone(CardId.Tigermortar) && !BroadbullSpsummoned)
             {
-                AI.SelectCard(CardId.Tigermortar);
+                AI.SelectMaterials(CardId.Tigermortar);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 BroadbullSpsummoned = true;
@@ -353,7 +357,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Bot.HasInMonstersZone(CardId.Chakanine) && !BroadbullSpsummoned)
             {
-                AI.SelectCard(CardId.Chakanine);
+                AI.SelectMaterials(CardId.Chakanine);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 BroadbullSpsummoned = true;
@@ -361,7 +365,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Bot.HasInMonstersZone(CardId.Ratpier) && !BroadbullSpsummoned)
             {
-                AI.SelectCard(CardId.Ratpier);
+                AI.SelectMaterials(CardId.Ratpier);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 BroadbullSpsummoned = true;
@@ -369,7 +373,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Bot.HasInMonstersZone(CardId.Thoroughblade) && !BroadbullSpsummoned)
             {
-                AI.SelectCard(CardId.Thoroughblade);
+                AI.SelectMaterials(CardId.Thoroughblade);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 BroadbullSpsummoned = true;

@@ -296,5 +296,25 @@ namespace WindBot.Game.AI
             return Duel.ChainTargets.Count == 1 && card.Equals(Duel.ChainTargets[0]);
         }
 
+        /// <summary>
+        /// Check and fix selected to make sure it meet the count requirement.
+        /// </summary>
+        public void CheckSelectCount(IList<ClientCard> selected, IList<ClientCard> cards, int min, int max)
+        {
+            if (selected.Count < min)
+            {
+                foreach (ClientCard card in cards)
+                {
+                    if (!selected.Contains(card))
+                        selected.Add(card);
+                    if (selected.Count >= max)
+                        break;
+                }
+            }
+            while (selected.Count > max)
+            {
+                selected.RemoveAt(selected.Count - 1);
+            }
+        }
     }
 }

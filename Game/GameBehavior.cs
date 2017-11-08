@@ -25,6 +25,7 @@ namespace WindBot.Game
         private Room _room;
         private Duel _duel;
         private int _hand;
+        private int _select_hint;
 
         public GameBehavior(GameClient game)
         {
@@ -42,6 +43,8 @@ namespace WindBot.Game
             _ai = new GameAI(Game, _duel);
             _ai.Executor = DecksManager.Instantiate(_ai, _duel);
             Deck = Deck.Load(_ai.Executor.Deck);
+
+            _select_hint = 0;
         }
 
         public int GetLocalPlayer(int player)
@@ -80,6 +83,7 @@ namespace WindBot.Game
 
             _messages.Add(GameMessage.Retry, OnRetry);
             _messages.Add(GameMessage.Start, OnStart);
+            _messages.Add(GameMessage.Hint, OnHint);
             _messages.Add(GameMessage.Win, OnWin);
             _messages.Add(GameMessage.Draw, OnDraw);
             _messages.Add(GameMessage.ShuffleDeck, OnShuffleDeck);
@@ -120,6 +124,9 @@ namespace WindBot.Game
             _messages.Add(GameMessage.AnnounceRace, OnAnnounceRace);
             _messages.Add(GameMessage.AnnounceCardFilter, OnAnnounceCard);
             _messages.Add(GameMessage.RockPaperScissors, OnRockPaperScissors);
+
+            _messages.Add(GameMessage.SpSummoning, OnSpSummon);
+            _messages.Add(GameMessage.SpSummoned, OnSpSummon);
         }
 
         private void OnJoinGame(BinaryReader packet)
@@ -293,6 +300,17 @@ namespace WindBot.Game
             _ai.OnRetry();
             Connection.Close();
             throw new Exception("Got MSG_RETRY.");
+        }
+
+        private void OnHint(BinaryReader packet)
+        {
+            int type = packet.ReadByte();
+            int player = packet.ReadByte();
+            int data = packet.ReadInt32();
+            if (type == 3) // HINT_SELECTMSG
+            {
+                _select_hint = data;
+            }
         }
 
         private void OnStart(BinaryReader packet)
@@ -643,7 +661,7 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, _ai.OnSelectBattleCmd(battle).ToValue());
         }
 
-        private void InternalOnSelectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, bool, IList<ClientCard>> func)
+        private void InternalOnSelectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func)
         {
             packet.ReadByte(); // player
             bool cancelable = packet.ReadByte() != 0;
@@ -670,7 +688,8 @@ namespace WindBot.Game
                 cards.Add(card);
             }
 
-            IList<ClientCard> selected = func(cards, min, max, cancelable);
+            IList<ClientCard> selected = func(cards, min, max, _select_hint, cancelable);
+            _select_hint = 0;
 
             if (selected.Count == 0 && cancelable)
             {
@@ -1027,7 +1046,8 @@ namespace WindBot.Game
                 sumval -= mandatoryCards[k].OpParam1;
             }
 
-            IList<ClientCard> selected = _ai.OnSelectSum(cards, sumval, min, max, mode);
+            IList<ClientCard> selected = _ai.OnSelectSum(cards, sumval, min, max, _select_hint, mode);
+            _select_hint = 0;
 
             byte[] result = new byte[mandatoryCards.Count + selected.Count + 1];
             int index = 0;
@@ -1124,6 +1144,11 @@ namespace WindBot.Game
             else
                 result = _ai.OnRockPaperScissors();
             Connection.Send(CtosMessage.Response, result);
+        }
+
+        private void OnSpSummon(BinaryReader packet)
+        {
+            _ai.CleanSelectMaterials();
         }
     }
 }

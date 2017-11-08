@@ -85,6 +85,8 @@ namespace WindBot.Game
         {
             m_selector = null;
             m_nextSelector = null;
+            m_thirdSelector = null;
+            m_materialSelector = null;
             m_option = -1;
             m_yesno = -1;
             m_position = CardPosition.FaceUpAttack;
@@ -158,17 +160,60 @@ namespace WindBot.Game
         /// <param name="cards">List of available cards.</param>
         /// <param name="min">Minimal quantity.</param>
         /// <param name="max">Maximal quantity.</param>
+        /// <param name="hint">The hint message of the select.</param>
         /// <param name="cancelable">True if you can return an empty list.</param>
         /// <returns>A new list containing the selected cards.</returns>
-        public IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+        public IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
+            const int HINTMSG_FMATERIAL = 511;
+            const int HINTMSG_SMATERIAL = 512;
+            const int HINTMSG_XMATERIAL = 513;
+            const int HINTMSG_LMATERIAL = 533;
+            const int HINTMSG_SPSUMMON = 509;
+
             // Check for the executor.
-            IList<ClientCard> result = Executor.OnSelectCard(cards, min, max, cancelable);
+            IList<ClientCard> result = Executor.OnSelectCard(cards, min, max, hint, cancelable);
             if (result != null)
                 return result;
 
-            // Update the next selector.
-            CardSelector selector = GetSelectedCards();
+            if (hint == HINTMSG_SPSUMMON && min == 1 && max > min) // pendulum summon
+            {
+                result = Executor.OnSelectPendulumSummon(cards, max);
+                if (result != null)
+                    return result;
+            }
+
+            CardSelector selector = null;
+            if (hint == HINTMSG_FMATERIAL || hint == HINTMSG_SMATERIAL || hint == HINTMSG_XMATERIAL || hint == HINTMSG_LMATERIAL)
+            {
+                if (m_materialSelector != null)
+                {
+                    //Logger.DebugWriteLine("m_materialSelector");
+                    selector = m_materialSelector;
+                }
+                else
+                {
+                    if (hint == HINTMSG_FMATERIAL)
+                        result = Executor.OnSelectFusionMaterial(cards, min, max);
+                    if (hint == HINTMSG_SMATERIAL)
+                        result = Executor.OnSelectSynchroMaterial(cards, 0, min, max);
+                    if (hint == HINTMSG_XMATERIAL)
+                        result = Executor.OnSelectXyzMaterial(cards, min, max);
+                    if (hint == HINTMSG_LMATERIAL)
+                        result = Executor.OnSelectLinkMaterial(cards, min, max);
+
+                    if (result != null)
+                        return result;
+
+                    // Update the next selector.
+                    selector = GetSelectedCards();
+                }
+            }
+            else
+            {
+                // Update the next selector.
+                selector = GetSelectedCards();
+            }
 
             // If we selected a card, use this card.
             if (selector != null)
@@ -373,12 +418,43 @@ namespace WindBot.Game
         /// <param name="max">Maximum cards.</param>
         /// <param name="mode">True for exact equal.</param>
         /// <returns></returns>
-        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
+        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, int hint, bool mode)
         {
-            IList<ClientCard> selected = Executor.OnSelectSum(cards, sum, min, max, mode);
+            const int HINTMSG_RELEASE = 500;
+            const int HINTMSG_SMATERIAL = 512;
+
+            IList<ClientCard> selected = Executor.OnSelectSum(cards, sum, min, max, hint, mode);
             if (selected != null)
             {
                 return selected;
+            }
+
+            if (hint == HINTMSG_RELEASE || hint == HINTMSG_SMATERIAL)
+            {
+                if (m_materialSelector != null)
+                {
+                    selected = m_materialSelector.Select(cards, min, max);
+                }
+                else
+                {
+                    if (hint == HINTMSG_SMATERIAL)
+                        selected = Executor.OnSelectSynchroMaterial(cards, sum, min, max);
+                    if (hint == HINTMSG_RELEASE)
+                        selected = Executor.OnSelectRitualTribute(cards, sum, min, max);
+                }
+                if (selected != null)
+                {
+                    int s1 = 0, s2 = 0;
+                    foreach (ClientCard card in selected)
+                    {
+                        s1 += card.OpParam1;
+                        s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
+                    }
+                    if ((mode && (s1 == sum || s2 == sum)) || (!mode && (s1 >= sum || s2 >= sum)))
+                    {
+                        return selected;
+                    }
+                }
             }
 
             if (mode)
@@ -497,9 +573,10 @@ namespace WindBot.Game
         /// <param name="cards">List of available cards.</param>
         /// <param name="min">Minimal quantity.</param>
         /// <param name="max">Maximal quantity.</param>
+        /// <param name="hint">The hint message of the select.</param>
         /// <param name="cancelable">True if you can return an empty list.</param>
         /// <returns>A new list containing the tributed cards.</returns>
-        public IList<ClientCard> OnSelectTribute(IList<ClientCard> cards, int min, int max, bool cancelable)
+        public IList<ClientCard> OnSelectTribute(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             // Always choose the minimum and lowest atk.
             List<ClientCard> sorted = new List<ClientCard>();
@@ -543,6 +620,7 @@ namespace WindBot.Game
         private CardSelector m_selector;
         private CardSelector m_nextSelector;
         private CardSelector m_thirdSelector;
+        private CardSelector m_materialSelector;
         private CardPosition m_position = CardPosition.FaceUpAttack;
         private int m_option;
         private int m_number;
@@ -624,6 +702,36 @@ namespace WindBot.Game
         public void SelectThirdCard(CardLocation loc)
         {
             m_thirdSelector = new CardSelector(loc);
+        }
+
+        public void SelectMaterials(ClientCard card)
+        {
+            m_materialSelector = new CardSelector(card);
+        }
+
+        public void SelectMaterials(IList<ClientCard> cards)
+        {
+            m_materialSelector = new CardSelector(cards);
+        }
+
+        public void SelectMaterials(int cardId)
+        {
+            m_materialSelector = new CardSelector(cardId);
+        }
+
+        public void SelectMaterials(IList<int> ids)
+        {
+            m_materialSelector = new CardSelector(ids);
+        }
+
+        public void SelectMaterials(CardLocation loc)
+        {
+            m_materialSelector = new CardSelector(loc);
+        }
+
+        public void CleanSelectMaterials()
+        {
+            m_materialSelector = null;
         }
 
         public CardSelector GetSelectedCards()
