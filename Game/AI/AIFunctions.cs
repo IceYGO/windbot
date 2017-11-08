@@ -247,7 +247,7 @@ namespace WindBot.Game.AI
 
             foreach (ClientCard ecard in spells)
             {
-                if (ecard.IsFaceup())
+                if (ecard.IsFaceup() && ecard.HasType(CardType.Continuous))
                     return ecard;
             }
 
