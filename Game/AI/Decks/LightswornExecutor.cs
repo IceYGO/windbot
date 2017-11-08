@@ -106,12 +106,6 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
             Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
-            IList<ClientCard> avail = new List<ClientCard>();
-            foreach (ClientCard card in cards)
-            {
-                // clone
-                avail.Add(card);
-            }
             IList<ClientCard> result = new List<ClientCard>();
             foreach (ClientCard card in cards)
             {

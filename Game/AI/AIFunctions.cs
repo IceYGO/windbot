@@ -297,6 +297,66 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Select cards listed in preferred.
+        /// </summary>
+        public void SelectPreferredCards(IList<ClientCard> selected, ClientCard preferred, IList<ClientCard> cards, int min, int max)
+        {
+            if (cards.IndexOf(preferred) > 0 && selected.Count < max)
+            {
+                selected.Add(preferred);
+            }
+        }
+
+        /// <summary>
+        /// Select cards listed in preferred.
+        /// </summary>
+        public void SelectPreferredCards(IList<ClientCard> selected, int preferred, IList<ClientCard> cards, int min, int max)
+        {
+            foreach (ClientCard card in cards)
+            {
+                if (card.Id== preferred && selected.Count < max)
+                    selected.Add(card);
+            }
+        }
+
+        /// <summary>
+        /// Select cards listed in preferred.
+        /// </summary>
+        public void SelectPreferredCards(IList<ClientCard> selected, IList<ClientCard> preferred, IList<ClientCard> cards, int min, int max)
+        {
+            IList<ClientCard> avail = new List<ClientCard>();
+            foreach (ClientCard card in cards)
+            {
+                // clone
+                avail.Add(card);
+            }
+            while (preferred.Count > 0 && avail.IndexOf(preferred[0]) > 0 && selected.Count < max)
+            {
+                ClientCard card = preferred[0];
+                preferred.Remove(card);
+                avail.Remove(card);
+                selected.Add(card);
+            }
+        }
+
+        /// <summary>
+        /// Select cards listed in preferred.
+        /// </summary>
+        public void SelectPreferredCards(IList<ClientCard> selected, IList<int> preferred, IList<ClientCard> cards, int min, int max)
+        {
+            for (int i = 0; i < preferred.Count; i++)
+            {
+                foreach (ClientCard card in cards)
+                {
+                    if (card.Id == preferred[i] && selected.Count < max && selected.IndexOf(card) <= 0)
+                        selected.Add(card);
+                }
+                if (selected.Count >= max)
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Check and fix selected to make sure it meet the count requirement.
         /// </summary>
         public void CheckSelectCount(IList<ClientCard> selected, IList<ClientCard> cards, int min, int max)

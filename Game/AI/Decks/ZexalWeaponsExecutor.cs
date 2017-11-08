@@ -136,6 +136,18 @@ namespace WindBot.Game.AI.Decks
             return base.OnPreBattleBetween(attacker, defender);
         }
 
+        public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            IList<ClientCard> result = new List<ClientCard>();
+            AI.Utils.SelectPreferredCards(result, new[] {
+                CardId.StarDrawing,
+                CardId.SolarWindJammer,
+                CardId.Goblindbergh
+            }, cards, min, max);
+            AI.Utils.CheckSelectCount(result, cards, min, max);
+            return result;
+        }
+
         private bool Number39Utopia()
         {
             if (!HasChainedTrap(0) && Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Card.HasXyzMaterial(2))

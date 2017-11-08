@@ -167,21 +167,8 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
             Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
-            IList<ClientCard> avail = new List<ClientCard>();
-            foreach (ClientCard card in cards)
-            {
-                // clone
-                avail.Add(card);
-            }
             IList<ClientCard> result = new List<ClientCard>();
-            while (UsedAlternativeWhiteDragon.Count > 0 && avail.IndexOf(UsedAlternativeWhiteDragon[0]) > 0)
-            {
-                Logger.DebugWriteLine("select UsedAlternativeWhiteDragon");
-                ClientCard card = UsedAlternativeWhiteDragon[0];
-                UsedAlternativeWhiteDragon.Remove(card);
-                avail.Remove(card);
-                result.Add(card);
-            }
+            AI.Utils.SelectPreferredCards(result, UsedAlternativeWhiteDragon, cards, min, max);
             AI.Utils.CheckSelectCount(result, cards, min, max);
             return result;
         }

@@ -179,6 +179,14 @@ namespace WindBot.Game.AI.Decks
             return base.OnPreBattleBetween(attacker, defender);
         }
 
+        public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            IList<ClientCard> result = new List<ClientCard>();
+            AI.Utils.SelectPreferredCards(result, CardId.YosenjuTsujik, cards, min, max);
+            AI.Utils.CheckSelectCount(result, cards, min, max);
+            return result;
+        }
+
         private bool PotOfDualityEffect()
         {
             if (CardOfDemiseUsed)
