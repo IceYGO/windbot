@@ -271,7 +271,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterRepos()
         {
-            if (Card.Id == CardId.NumberS39UtopiatheLightning)
+            if (Card.Id == CardId.NumberS39UtopiatheLightning && Card.IsAttack())
                 return false;
             return base.DefaultMonsterRepos();
         }
