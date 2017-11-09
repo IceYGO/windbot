@@ -11,32 +11,32 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int StardustDragonAssaultMode = 61257789;
-            public static int DragunityArmaMysletainn = 876330;
-            public static int AssaultBeast = 3431737;
-            public static int DragunityDux = 28183605;
-            public static int DragunityPhalanx = 59755122;
-            public static int AssaultTeleport = 29863101;
-            public static int CardsOfConsonance = 39701395;
-            public static int UpstartGoblin = 70368879;
-            public static int DragonsMirror = 71490127;
-            public static int Terraforming = 73628505;
-            public static int FoolishBurial = 81439173;
-            public static int MonsterReborn = 83764718;
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int FireFormationTenki = 57103969;
-            public static int DragunitySpearOfDestiny = 60004971;
-            public static int DragonRavine = 62265044;
-            public static int MirrorForce = 44095762;
-            public static int StarlightRoad = 58120309;
-            public static int DimensionalPrison = 70342110;
-            public static int AssaultModeActivate = 80280737;
-            public static int FiveHeadedDragon = 99267150;
-            public static int CrystalWingSynchroDragon = 50954680;
-            public static int ScrapDragon = 76774528;
-            public static int StardustDragon = 44508094;
-            public static int DragunityKnightGaeDearg = 34116027;
-            public static int DragunityKnightVajrayana = 21249921;
+            public const int StardustDragonAssaultMode = 61257789;
+            public const int DragunityArmaMysletainn = 876330;
+            public const int AssaultBeast = 3431737;
+            public const int DragunityDux = 28183605;
+            public const int DragunityPhalanx = 59755122;
+            public const int AssaultTeleport = 29863101;
+            public const int CardsOfConsonance = 39701395;
+            public const int UpstartGoblin = 70368879;
+            public const int DragonsMirror = 71490127;
+            public const int Terraforming = 73628505;
+            public const int FoolishBurial = 81439173;
+            public const int MonsterReborn = 83764718;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int FireFormationTenki = 57103969;
+            public const int DragunitySpearOfDestiny = 60004971;
+            public const int DragonRavine = 62265044;
+            public const int MirrorForce = 44095762;
+            public const int StarlightRoad = 58120309;
+            public const int DimensionalPrison = 70342110;
+            public const int AssaultModeActivate = 80280737;
+            public const int FiveHeadedDragon = 99267150;
+            public const int CrystalWingSynchroDragon = 50954680;
+            public const int ScrapDragon = 76774528;
+            public const int StardustDragon = 44508094;
+            public const int DragunityKnightGaeDearg = 34116027;
+            public const int DragunityKnightVajrayana = 21249921;
         }
 
         public DragunityExecutor(GameAI ai, Duel duel)
@@ -200,7 +200,7 @@ namespace WindBot.Game.AI.Decks
             else
                 option = 1;
 
-            if (ActivateDescription != CardId.DragonRavine*16 + option)
+            if (ActivateDescription != AI.Utils.GetStringId(CardId.DragonRavine, option))
                 return false;
 
             AI.SelectCard(tributeId);
@@ -243,20 +243,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool FoolishBurial()
         {
-            if (Bot.HasInGraveyard(CardId.DragunityPhalanx))
-                return false;
-            if (Bot.HasInHand(CardId.DragunityPhalanx))
-                return false;
-            int remaining = 3;
-            foreach (ClientCard card in Bot.Banished)
-                if (card.Id == CardId.DragunityPhalanx)
-                    remaining--;
-            if (remaining > 0)
+            AI.SelectCard(new[]
             {
-                AI.SelectCard(CardId.DragunityPhalanx);
-                return true;
-            }
-            return false;
+                CardId.DragunityPhalanx,
+                CardId.AssaultBeast,
+                CardId.StardustDragonAssaultMode
+            });
+            return true;
         }
 
         private bool MonsterReborn()
@@ -344,13 +337,13 @@ namespace WindBot.Game.AI.Decks
         {
             //if (AI.Utils.IsOneEnemyBetterThanValue(2500, true))
             //    return true;
-            ClientCard invincible = AI.Utils.GetProblematicEnemyCard();
+            ClientCard invincible = AI.Utils.GetProblematicEnemyCard(3000);
             return invincible != null;
         }
 
         private bool ScrapDragonEffect()
         {
-            ClientCard invincible = AI.Utils.GetProblematicEnemyCard();
+            ClientCard invincible = AI.Utils.GetProblematicEnemyCard(3000);
             if (invincible == null && !AI.Utils.IsOneEnemyBetterThanValue(2800 - 1, false))
                 return false;
 

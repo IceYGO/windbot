@@ -11,44 +11,44 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int Digitron = 32295838;
-            public static int Bitron = 36211150;
-            public static int DualAssembloom = 7445307;
-            public static int BootStagguard = 70950698;
-            public static int Linkslayer = 35595518;
-            public static int RAMClouder = 9190563;
-            public static int ROMCloudia = 44956694;
-            public static int BalancerLord = 8567955;
-            public static int Backlinker = 71172240;
-            public static int Kleinant = 45778242;
-            public static int Draconnet = 62706865;
-            public static int DotScaper = 18789533;
+            public const int Digitron = 32295838;
+            public const int Bitron = 36211150;
+            public const int DualAssembloom = 7445307;
+            public const int BootStagguard = 70950698;
+            public const int Linkslayer = 35595518;
+            public const int RAMClouder = 9190563;
+            public const int ROMCloudia = 44956694;
+            public const int BalancerLord = 8567955;
+            public const int Backlinker = 71172240;
+            public const int Kleinant = 45778242;
+            public const int Draconnet = 62706865;
+            public const int DotScaper = 18789533;
 
-            public static int MindControl = 37520316;
-            public static int DarkHole = 53129443;
-            public static int MonsterReborn = 83764718;
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int CosmicCyclone = 8267140;
-            public static int BookOfMoon = 14087893;
-            public static int CynetBackdoor = 43839002;
-            public static int MoonMirrorShield = 19508728;
-            public static int CynetUniverse = 61583217;
-            public static int BottomlessTrapHole = 29401950;
-            public static int MirrorForce = 44095762;
-            public static int TorrentialTribute = 53582587;
-            public static int RecodedAlive = 70238111;
-            public static int DimensionalBarrier = 83326048;
-            public static int CompulsoryEvacuationDevice = 94192409;
-            public static int SolemnStrike = 40605147;
+            public const int MindControl = 37520316;
+            public const int DarkHole = 53129443;
+            public const int MonsterReborn = 83764718;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int CosmicCyclone = 8267140;
+            public const int BookOfMoon = 14087893;
+            public const int CynetBackdoor = 43839002;
+            public const int MoonMirrorShield = 19508728;
+            public const int CynetUniverse = 61583217;
+            public const int BottomlessTrapHole = 29401950;
+            public const int MirrorForce = 44095762;
+            public const int TorrentialTribute = 53582587;
+            public const int RecodedAlive = 70238111;
+            public const int DimensionalBarrier = 83326048;
+            public const int CompulsoryEvacuationDevice = 94192409;
+            public const int SolemnStrike = 40605147;
 
-            public static int DecodeTalker = 1861629;
-            public static int EncodeTalker = 6622715;
-            public static int TriGateWizard = 32617464;
-            public static int Honeybot = 34472920;
-            public static int BinarySorceress = 79016563;
-            public static int LinkSpider = 98978921;
+            public const int DecodeTalker = 1861629;
+            public const int EncodeTalker = 6622715;
+            public const int TriGateWizard = 32617464;
+            public const int Honeybot = 34472920;
+            public const int BinarySorceress = 79016563;
+            public const int LinkSpider = 98978921;
 
-            public static int StagToken = 70950699;
+            public const int StagToken = 70950699;
         }
 
         bool BalancerLordUsed = false;
@@ -212,7 +212,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterRebornEffect()
         {
-            List<int> targets = new List<int> {
+            IList<int> targets = new[] {
                     CardId.DecodeTalker,
                     CardId.EncodeTalker,
                     CardId.TriGateWizard,
@@ -237,8 +237,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MoonMirrorShieldEffect()
         {
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 AI.SelectCard(monster);
                 return true;
@@ -250,8 +249,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return DefaultField();
-            IList<ClientCard> cards = Enemy.Graveyard;
-            foreach (ClientCard card in cards)
+            foreach (ClientCard card in Enemy.Graveyard)
             {
                 if (card.IsMonster())
                 {
@@ -269,16 +267,10 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            foreach (ClientCard card in Bot.SpellZone)
-            {
-                if (card != null &&
-                    card.Id == Card.Id &&
-                    card.HasPosition(CardPosition.FaceUp))
-                    return false;
-            }
+            if (!UniqueFaceupSpell())
+                return false;
             bool selected = false;
-            List<ClientCard> monsters = Bot.GetMonstersInExtraZone();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonstersInExtraZone())
             {
                 if (monster.Attack > 1000)
                 {
@@ -289,7 +281,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (!selected)
             {
-                monsters = Bot.GetMonsters();
+                List<ClientCard> monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
                     if (monster.Id == CardId.BalancerLord)
@@ -336,7 +328,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Removed)
                 return true;
-            bool hastarget = Bot.HasInHand(new List<int> {
+            bool hastarget = Bot.HasInHand(new[] {
                     CardId.Draconnet,
                     CardId.Kleinant,
                     CardId.BalancerLord,
@@ -354,7 +346,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ROMCloudiaSummon()
         {
-            return Bot.HasInGraveyard(new List<int> {
+            return Bot.HasInGraveyard(new[] {
                     CardId.BootStagguard,
                     CardId.BalancerLord,
                     CardId.Kleinant,

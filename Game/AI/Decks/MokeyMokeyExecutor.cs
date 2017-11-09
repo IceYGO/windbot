@@ -11,8 +11,8 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int LeoWizard = 4392470;
-            public static int Bunilla = 69380702;
+            public const int LeoWizard = 4392470;
+            public const int Bunilla = 69380702;
         }
 
         private int RockCount = 0;
@@ -32,11 +32,6 @@ namespace WindBot.Game.AI.Decks
                 return 2;
             else
                 return base.OnRockPaperScissors();
-        }
-
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
-        {
-            return attacker.Attack > 0;
         }
     }
 }

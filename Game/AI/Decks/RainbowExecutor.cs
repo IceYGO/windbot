@@ -11,45 +11,45 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int MysteryShellDragon = 18108166;
-            public static int PhantomGryphon = 74852097;
-            public static int MasterPendulumTheDracoslayer = 75195825;
-            public static int AngelTrumpeter = 87979586;
-            public static int MetalfoesGoldriver = 33256280;
-            public static int Kabazauls = 51934376;
-            public static int RescueRabbit = 85138716;
+            public const int MysteryShellDragon = 18108166;
+            public const int PhantomGryphon = 74852097;
+            public const int MasterPendulumTheDracoslayer = 75195825;
+            public const int AngelTrumpeter = 87979586;
+            public const int MetalfoesGoldriver = 33256280;
+            public const int MegalosmasherX = 81823360;
+            public const int RescueRabbit = 85138716;
 
-            public static int UnexpectedDai = 911883;
-            public static int HarpiesFeatherDuster = 18144506;
-            public static int PotOfDesires = 35261759;
-            public static int MonsterReborn = 83764718;
-            public static int SmashingGround = 97169186;
+            public const int UnexpectedDai = 911883;
+            public const int HarpiesFeatherDuster = 18144506;
+            public const int PotOfDesires = 35261759;
+            public const int MonsterReborn = 83764718;
+            public const int SmashingGround = 97169186;
 
-            public static int QuakingMirrorForce = 40838625;
-            public static int DrowningMirrorForce = 47475363;
-            public static int BlazingMirrorForce = 75249652;
-            public static int StormingMirrorForce = 5650082;
-            public static int MirrorForce = 44095762;
-            public static int DarkMirrorForce = 20522190;
-            public static int BottomlessTrapHole = 29401950;
-            public static int TraptrixTrapHoleNightmare = 29616929;
-            public static int StarlightRoad = 58120309;
+            public const int QuakingMirrorForce = 40838625;
+            public const int DrowningMirrorForce = 47475363;
+            public const int BlazingMirrorForce = 75249652;
+            public const int StormingMirrorForce = 5650082;
+            public const int MirrorForce = 44095762;
+            public const int DarkMirrorForce = 20522190;
+            public const int BottomlessTrapHole = 29401950;
+            public const int TraptrixTrapHoleNightmare = 29616929;
+            public const int StarlightRoad = 58120309;
 
-            public static int ScarlightRedDragonArchfiend = 80666118;
-            public static int IgnisterProminenceTheBlastingDracoslayer = 18239909;
-            public static int StardustDragon = 44508094;
-            public static int NumberS39UtopiatheLightning = 56832966;
-            public static int Number37HopeWovenDragonSpiderShark = 37279508;
-            public static int Number39Utopia = 84013237;
-            public static int EvolzarLaggia = 74294676;
-            public static int Number59CrookedCook = 82697249;
-            public static int CastelTheSkyblasterMusketeer = 82633039;
-            public static int StarliegePaladynamo = 61344030;
-            public static int LightningChidori = 22653490;
-            public static int EvilswarmExcitonKnight = 46772449;
-            public static int GagagaCowboy = 12014404;
-            public static int EvilswarmNightmare = 359563;
-            public static int TraptrixRafflesia = 6511113;
+            public const int ScarlightRedDragonArchfiend = 80666118;
+            public const int IgnisterProminenceTheBlastingDracoslayer = 18239909;
+            public const int StardustDragon = 44508094;
+            public const int NumberS39UtopiatheLightning = 56832966;
+            public const int Number37HopeWovenDragonSpiderShark = 37279508;
+            public const int Number39Utopia = 84013237;
+            public const int EvolzarLaggia = 74294676;
+            public const int Number59CrookedCook = 82697249;
+            public const int CastelTheSkyblasterMusketeer = 82633039;
+            public const int StarliegePaladynamo = 61344030;
+            public const int LightningChidori = 22653490;
+            public const int EvilswarmExcitonKnight = 46772449;
+            public const int GagagaCowboy = 12014404;
+            public const int EvilswarmNightmare = 359563;
+            public const int TraptrixRafflesia = 6511113;
         }
 
         private bool NormalSummoned = false;
@@ -67,7 +67,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, DefaultPotOfDesires);
 
             AddExecutor(ExecutorType.Summon, CardId.AngelTrumpeter, AngelTrumpeterSummon);
-            AddExecutor(ExecutorType.Summon, CardId.Kabazauls, KabazaulsSummon);
+            AddExecutor(ExecutorType.Summon, CardId.MegalosmasherX, MegalosmasherXSummon);
             AddExecutor(ExecutorType.Summon, CardId.MasterPendulumTheDracoslayer, MasterPendulumTheDracoslayerSummon);
             AddExecutor(ExecutorType.Summon, CardId.MysteryShellDragon, MysteryShellDragonSummon);
             AddExecutor(ExecutorType.Summon, CardId.PhantomGryphon, PhantomGryphonSummon);
@@ -142,27 +142,15 @@ namespace WindBot.Game.AI.Decks
         {
             NormalSummoned = false;
         }
-        
-        public override bool OnSelectHand()
-        {
-            return Program.Rand.Next(2) > 0;
-        }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
+            if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
-            }
-            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
-            {
-                if (attacker.Id == CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, CardId.Number39Utopia))
-                    attacker.RealPower = 5000;
                 if (Bot.HasInMonstersZone(CardId.Number37HopeWovenDragonSpiderShark, true, true))
                     attacker.RealPower = attacker.RealPower + 1000;
             }
-            return attacker.RealPower > defender.GetDefensePower();
+            return base.OnPreBattleBetween(attacker, defender);
         }
 
         private bool UnexpectedDaiEffect()
@@ -171,21 +159,22 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(new[]
                 {
                     CardId.MysteryShellDragon,
-                    CardId.PhantomGryphon
+                    CardId.PhantomGryphon,
+                    CardId.MegalosmasherX
                 });
             else if (AI.Utils.IsTurn1OrMain2())
             {
                 if (Bot.HasInHand(CardId.MysteryShellDragon))
                     AI.SelectCard(CardId.MysteryShellDragon);
-                else if (Bot.HasInHand(CardId.Kabazauls))
-                    AI.SelectCard(CardId.Kabazauls);
+                else if (Bot.HasInHand(CardId.MegalosmasherX))
+                    AI.SelectCard(CardId.MegalosmasherX);
                 else if (Bot.HasInHand(CardId.AngelTrumpeter))
                     AI.SelectCard(CardId.AngelTrumpeter);
             }
             else
             {
-                if (Bot.HasInHand(CardId.Kabazauls))
-                    AI.SelectCard(CardId.Kabazauls);
+                if (Bot.HasInHand(CardId.MegalosmasherX))
+                    AI.SelectCard(CardId.MegalosmasherX);
                 else if (Bot.HasInHand(CardId.MasterPendulumTheDracoslayer))
                     AI.SelectCard(CardId.MasterPendulumTheDracoslayer);
                 else if (Bot.HasInHand(CardId.PhantomGryphon))
@@ -203,20 +192,24 @@ namespace WindBot.Game.AI.Decks
         private bool RescueRabbitEffect()
         {
             if (AI.Utils.IsTurn1OrMain2())
+            {
                 AI.SelectCard(new[]
                     {
-                        CardId.Kabazauls,
+                        CardId.MegalosmasherX,
                         CardId.MysteryShellDragon
                     });
+            }
             else
+            {
                 AI.SelectCard(new[]
                     {
                         CardId.MasterPendulumTheDracoslayer,
                         CardId.PhantomGryphon,
-                        CardId.Kabazauls,
+                        CardId.MegalosmasherX,
                         CardId.MetalfoesGoldriver,
                         CardId.AngelTrumpeter
                     });
+            }
             return true;
         }
 
@@ -240,9 +233,9 @@ namespace WindBot.Game.AI.Decks
         {
             return Bot.HasInMonstersZone(CardId.MetalfoesGoldriver);
         }
-        private bool KabazaulsSummon()
+        private bool MegalosmasherXSummon()
         {
-            return Bot.HasInMonstersZone(CardId.Kabazauls);
+            return Bot.HasInMonstersZone(CardId.MegalosmasherX);
         }
         private bool NormalSummon()
         {
@@ -321,16 +314,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool LightningChidoriSummon()
         {
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Enemy.GetMonsters())
             {
                 if (monster.IsFacedown())
                 {
                     return true;
                 }
             }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
+            foreach (ClientCard spell in Enemy.GetSpells())
             {
                 if (spell.IsFacedown())
                 {
@@ -350,7 +341,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool EvolzarLaggiaSummon()
         {
-            return (AI.Utils.IsAllEnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
+            return (AI.Utils.IsAllEnemyBetterThanValue(2000, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
         }
 
         private bool EvilswarmNightmareSummon()

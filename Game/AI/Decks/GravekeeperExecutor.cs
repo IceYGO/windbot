@@ -12,30 +12,30 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int GravekeepersOracle = 25524823;
-            public static int MaleficStardustDragon = 36521459;
-            public static int GravekeepersVisionary = 3825890;
-            public static int GravekeepersChief = 62473983;
-            public static int ThunderKingRaiOh = 71564252;
-            public static int GravekeepersCommandant = 17393207;
-            public static int GravekeepersAssailant = 25262697;
-            public static int GravekeepersDescendant = 30213599;
-            public static int GravekeepersSpy = 24317029;
-            public static int GravekeepersRecruiter = 93023479;
-            public static int AllureOfDarkness = 1475311;
-            public static int DarkHole = 53129443;
-            public static int RoyalTribute = 72405967;
-            public static int GravekeepersStele = 99523325;
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int BookofMoon = 14087893;
-            public static int HiddenTemplesOfNecrovalley = 70000776;
-            public static int Necrovalley = 47355498;
-            public static int BottomlessTrapHole = 29401950;
-            public static int RiteOfSpirit = 30450531;
-            public static int TorrentialTribute = 53582587;
-            public static int DimensionalPrison = 70342110;
-            public static int SolemnWarning = 84749824;
-            public static int ImperialTombsOfNecrovalley = 90434657;
+            public const int GravekeepersOracle = 25524823;
+            public const int MaleficStardustDragon = 36521459;
+            public const int GravekeepersVisionary = 3825890;
+            public const int GravekeepersChief = 62473983;
+            public const int ThunderKingRaiOh = 71564252;
+            public const int GravekeepersCommandant = 17393207;
+            public const int GravekeepersAssailant = 25262697;
+            public const int GravekeepersDescendant = 30213599;
+            public const int GravekeepersSpy = 24317029;
+            public const int GravekeepersRecruiter = 93023479;
+            public const int AllureOfDarkness = 1475311;
+            public const int DarkHole = 53129443;
+            public const int RoyalTribute = 72405967;
+            public const int GravekeepersStele = 99523325;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int BookofMoon = 14087893;
+            public const int HiddenTemplesOfNecrovalley = 70000776;
+            public const int Necrovalley = 47355498;
+            public const int BottomlessTrapHole = 29401950;
+            public const int RiteOfSpirit = 30450531;
+            public const int TorrentialTribute = 53582587;
+            public const int DimensionalPrison = 70342110;
+            public const int SolemnWarning = 84749824;
+            public const int ImperialTombsOfNecrovalley = 90434657;
         }
 
         public GravekeeperExecutor(GameAI ai, Duel duel)

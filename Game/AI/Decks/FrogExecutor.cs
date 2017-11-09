@@ -11,25 +11,25 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int CryomancerOfTheIceBarrier = 23950192;
-            public static int DewdarkOfTheIceBarrier = 90311614;
-            public static int SubmarineFrog = 63948258;
-            public static int SwapFrog = 9126351;
-            public static int FlipFlopFrog = 81278754;
-            public static int Unifrog = 56052205;
-            public static int Ronintoadin = 1357146;
-            public static int DupeFrog = 46239604;
-            public static int Tradetoad = 23408872;
-            public static int TreebornFrog = 12538374;
-            public static int DarkHole = 53129443;
-            public static int Raigeki = 12580477;
-            public static int Terraforming = 73628505;
-            public static int PotOfDuality = 98645731;
-            public static int Solidarity = 86780027;
-            public static int Wetlands = 2084239;
-            public static int FroggyForcefield = 34351849;
-            public static int GravityBind = 85742772;
-            public static int TheHugeRevolutionIsOver = 99188141;
+            public const int CryomancerOfTheIceBarrier = 23950192;
+            public const int DewdarkOfTheIceBarrier = 90311614;
+            public const int SubmarineFrog = 63948258;
+            public const int SwapFrog = 9126351;
+            public const int FlipFlopFrog = 81278754;
+            public const int Unifrog = 56052205;
+            public const int Ronintoadin = 1357146;
+            public const int DupeFrog = 46239604;
+            public const int Tradetoad = 23408872;
+            public const int TreebornFrog = 12538374;
+            public const int DarkHole = 53129443;
+            public const int Raigeki = 12580477;
+            public const int Terraforming = 73628505;
+            public const int PotOfDuality = 98645731;
+            public const int Solidarity = 86780027;
+            public const int Wetlands = 2084239;
+            public const int FroggyForcefield = 34351849;
+            public const int GravityBind = 85742772;
+            public const int TheHugeRevolutionIsOver = 99188141;
         }
 
         public FrogExecutor(GameAI ai, Duel duel)
@@ -83,15 +83,6 @@ namespace WindBot.Game.AI.Decks
 
         private int m_swapFrogSummoned;
         private int m_flipFlopFrogSummoned;
-
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
-        {
-            if (attacker.Id == CardId.Unifrog || attacker.Id == CardId.DewdarkOfTheIceBarrier)
-                return true;
-            if (defender.IsMonsterInvincible() && !defender.IsMonsterDangerous() && attacker.Id == CardId.SubmarineFrog)
-                return true;
-            return base.OnPreBattleBetween(attacker, defender);
-        }
 
         private bool SwapFrogSummon()
         {

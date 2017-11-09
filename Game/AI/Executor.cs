@@ -62,50 +62,48 @@ namespace WindBot.Game.AI
                 return AI.ToMainPhase2();
 
             if (defenders.Count == 0)
-                return AI.Attack(attackers[0], null);
-
-            for (int i = defenders.Count - 1; i >= 0; --i)
             {
-                ClientCard defender = defenders[i];
-                int def = defender.GetDefensePower();
-                for (int j = 0; j < attackers.Count; ++j)
+                for (int i = attackers.Count - 1; i >= 0; --i)
                 {
-                    ClientCard attacker = attackers[j];
-                    attacker.RealPower = attacker.Attack;
-                    if (!OnPreBattleBetween(attacker, defender))
-                        continue;
-                    if (attacker.RealPower > def || (attacker.RealPower >= def && j == attackers.Count - 1))
-                        return AI.Attack(attacker, defender);
+                    ClientCard attacker = attackers[i];
+                    if (attacker.Attack > 0)
+                        return AI.Attack(attacker, null);
+                }
+            }
+            else
+            {
+                for (int i = defenders.Count - 1; i >= 0; --i)
+                {
+                    ClientCard defender = defenders[i];
+                    for (int j = 0; j < attackers.Count; ++j)
+                    {
+                        ClientCard attacker = attackers[j];
+                        attacker.RealPower = attacker.Attack;
+                        defender.RealPower = defender.GetDefensePower();
+                        if (!OnPreBattleBetween(attacker, defender))
+                            continue;
+                        if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && j == attackers.Count - 1))
+                            return AI.Attack(attacker, defender);
+                    }
+                }
+
+                for (int i = attackers.Count - 1; i >= 0; --i)
+                {
+                    ClientCard attacker = attackers[i];
+                    if (attacker.CanDirectAttack)
+                        return AI.Attack(attacker, null);
                 }
             }
 
-            for (int i = attackers.Count - 1; i >= 0; --i)
-            {
-                ClientCard attacker = attackers[i];
-                if (attacker.CanDirectAttack)
-                    return AI.Attack(attacker, null);
-            }
-
             if (!Battle.CanMainPhaseTwo)
-                return AI.Attack(attackers[attackers.Count - 1], defenders[0]);
+                return AI.Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
 
             return AI.ToMainPhase2();
         }
 
-        /// <summary>
-        /// Decide whether to declare attack between attacker and defender.
-        /// Can be overrided to update the RealPower of attacker for cards like Honest.
-        /// </summary>
-        /// <param name="attacker">Card that attack.</param>
-        /// <param name="defender">Card that defend.</param>
-        /// <returns>true if the attack can be done.</returns>
         public virtual bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
-            {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
-            }
+            // Overrided in DefalultExecutor
             return true;
         }
 

@@ -121,9 +121,9 @@ namespace WindBot.Game.AI
             return count;
         }
 
-        public static IList<ClientCard> GetMonsters(this IEnumerable<ClientCard> cards)
+        public static List<ClientCard> GetMonsters(this IEnumerable<ClientCard> cards)
         {
-            IList<ClientCard> cardlist = new List<ClientCard>();
+            List<ClientCard> cardlist = new List<ClientCard>();
 
             foreach (ClientCard card in cards)
             {
@@ -135,9 +135,9 @@ namespace WindBot.Game.AI
             return cardlist;
         }
 
-        public static IList<ClientCard> GetFaceupPendulumMonsters(this IEnumerable<ClientCard> cards)
+        public static List<ClientCard> GetFaceupPendulumMonsters(this IEnumerable<ClientCard> cards)
         {
-            IList<ClientCard> cardlist = new List<ClientCard>();
+            List<ClientCard> cardlist = new List<ClientCard>();
 
             foreach (ClientCard card in cards)
             {

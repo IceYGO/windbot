@@ -99,12 +99,23 @@ namespace WindBot.Game
             return cards;
         }
 
+        public List<ClientCard> GetMonstersInMainZone()
+        {
+            List<ClientCard> cards = new List<ClientCard>();
+            for (int i = 0; i < 5; i++)
+            {
+                if (MonsterZone[i] != null)
+                    cards.Add(MonsterZone[i]);
+            }
+            return cards;
+        }
+
         public bool HasInHand(int cardId)
         {
             return HasInCards(Hand, cardId);
         }
 
-        public bool HasInHand(List<int> cardId)
+        public bool HasInHand(IList<int> cardId)
         {
             return HasInCards(Hand, cardId);
         }
@@ -114,7 +125,7 @@ namespace WindBot.Game
             return HasInCards(Graveyard, cardId);
         }
     
-        public bool HasInGraveyard(List<int> cardId)
+        public bool HasInGraveyard(IList<int> cardId)
         {
             return HasInCards(Graveyard, cardId);
         }
@@ -124,7 +135,7 @@ namespace WindBot.Game
             return HasInCards(Banished, cardId);
         }
 
-        public bool HasInBanished(List<int> cardId)
+        public bool HasInBanished(IList<int> cardId)
         {
             return HasInCards(Banished, cardId);
         }
@@ -134,7 +145,7 @@ namespace WindBot.Game
             return HasInCards(ExtraDeck, cardId);
         }
 
-        public bool HasInExtra(List<int> cardId)
+        public bool HasInExtra(IList<int> cardId)
         {
             return HasInCards(ExtraDeck, cardId);
         }
@@ -166,7 +177,7 @@ namespace WindBot.Game
             return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial);
         }
 
-        public bool HasInMonstersZone(List<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        public bool HasInMonstersZone(IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
         {
             return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial);
         }
@@ -176,7 +187,7 @@ namespace WindBot.Game
             return HasInCards(SpellZone, cardId, notDisabled);
         }
 
-        public bool HasInSpellZone(List<int> cardId, bool notDisabled = false)
+        public bool HasInSpellZone(IList<int> cardId, bool notDisabled = false)
         {
             return HasInCards(SpellZone, cardId, notDisabled);
         }
@@ -264,7 +275,7 @@ namespace WindBot.Game
             return false;
         }
 
-        private static bool HasInCards(IEnumerable<ClientCard> cards, List<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        private static bool HasInCards(IEnumerable<ClientCard> cards, IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
         {
             foreach (ClientCard card in cards)
             {

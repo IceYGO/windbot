@@ -11,26 +11,83 @@ namespace WindBot.Game.AI
     {
         protected class _CardId
         {
-            public static int JizukirutheStarDestroyingKaiju = 63941210;
-            public static int GadarlatheMysteryDustKaiju = 36956512;
-            public static int GamecieltheSeaTurtleKaiju = 55063751;
-            public static int RadiantheMultidimensionalKaiju = 28674152;
-            public static int KumongoustheStickyStringKaiju = 29726552;
-            public static int ThunderKingtheLightningstrikeKaiju = 48770333;
-            public static int DogorantheMadFlameKaiju = 93332803;
-            public static int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
+            public const int JizukirutheStarDestroyingKaiju = 63941210;
+            public const int GadarlatheMysteryDustKaiju = 36956512;
+            public const int GamecieltheSeaTurtleKaiju = 55063751;
+            public const int RadiantheMultidimensionalKaiju = 28674152;
+            public const int KumongoustheStickyStringKaiju = 29726552;
+            public const int ThunderKingtheLightningstrikeKaiju = 48770333;
+            public const int DogorantheMadFlameKaiju = 93332803;
+            public const int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
 
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int CosmicCyclone = 8267140;
-            public static int ChickenGame = 67616300;
+            public const int DupeFrog = 46239604;
+            public const int MaraudingCaptain = 2460565;
 
-            public static int CastelTheSkyblasterMusketeer = 82633039;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int CosmicCyclone = 8267140;
+            public const int ChickenGame = 67616300;
+
+            public const int CastelTheSkyblasterMusketeer = 82633039;
+            public const int CrystalWingSynchroDragon = 50954680;
+            public const int NumberS39UtopiaTheLightning = 56832966;
+            public const int Number39Utopia = 84013237;
+            public const int UltimayaTzolkin = 1686814;
+
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
             AddExecutor(ExecutorType.Activate, _CardId.ChickenGame, DefaultChickenGame);
+        }
+
+        /// <summary>
+        /// Decide whether to declare attack between attacker and defender.
+        /// Can be overrided to update the RealPower of attacker for cards like Honest.
+        /// </summary>
+        /// <param name="attacker">Card that attack.</param>
+        /// <param name="defender">Card that defend.</param>
+        /// <returns>false if the attack can't be done.</returns>
+        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
+        {
+            if (attacker.RealPower <= 0)
+                return false;
+
+            if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
+            {
+                if (defender.IsMonsterDangerous() || (defender.IsMonsterInvincible() && defender.IsDefense()))
+                    return false;
+
+                if (defender.Id == _CardId.CrystalWingSynchroDragon && !defender.IsDisabled() && attacker.Level >= 5)
+                    return false;
+
+                if (defender.Id == _CardId.NumberS39UtopiaTheLightning && !defender.IsDisabled() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
+                    defender.RealPower = 5000;
+            }
+
+            if (!defender.IsMonsterHasPreventActivationEffectInBattle())
+            {
+                if (attacker.Id == _CardId.NumberS39UtopiaTheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, _CardId.Number39Utopia))
+                    attacker.RealPower = 5000;
+            }
+
+            if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && defender.Id != _CardId.DupeFrog)
+                return false;
+
+            if (Enemy.HasInMonstersZone(_CardId.MaraudingCaptain, true) && defender.Id != _CardId.MaraudingCaptain && defender.Race == (int)CardRace.Warrior)
+                return false;
+
+            if (defender.Id == _CardId.UltimayaTzolkin && !defender.IsDisabled())
+            {
+                List<ClientCard> monsters = Enemy.GetMonsters();
+                foreach (ClientCard monster in monsters)
+                {
+                    if (monster.HasType(CardType.Synchro))
+                        return false;
+                }
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -297,13 +354,8 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTributeSummon()
         {
-            foreach (ClientCard card in Bot.MonsterZone)
-            {
-                if (card != null &&
-                    card.Id == Card.Id &&
-                    card.HasPosition(CardPosition.FaceUp))
-                    return false;
-            }
+            if (!UniqueFaceupMonster())
+                return false;
             int tributecount = (int)Math.Ceiling((Card.Level - 4.0d) / 2.0d);
             for (int j = 0; j < 7; ++j)
             {
@@ -353,14 +405,32 @@ namespace WindBot.Game.AI
             if (HasChainedTrap(0))
                 return false;
 
-            foreach (ClientCard card in Bot.SpellZone)
+            return UniqueFaceupSpell();
+        }
+
+        /// <summary>
+        /// Check no other our spell or trap card with same name face-up.
+        /// </summary>
+        protected bool UniqueFaceupSpell()
+        {
+            foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card != null &&
-                    card.Id == Card.Id &&
-                    card.HasPosition(CardPosition.FaceUp))
+                if (card.Id == Card.Id && card.IsFaceup())
                     return false;
             }
+            return true;
+        }
 
+        /// <summary>
+        /// Check no other our monster card with same name face-up.
+        /// </summary>
+        protected bool UniqueFaceupMonster()
+        {
+            foreach (ClientCard card in Bot.GetMonsters())
+            {
+                if (card.Id == Card.Id && card.IsFaceup())
+                    return false;
+            }
             return true;
         }
 

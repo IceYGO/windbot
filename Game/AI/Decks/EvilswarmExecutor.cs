@@ -12,12 +12,12 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int DarkHole = 53129443;
-            public static int CosmicCyclone = 8267140;
-            public static int InfestationPandemic = 27541267;
-            public static int SolemnJudgment = 41420027;
-            public static int SolemnWarning = 84749824;
-            public static int SolemnStrike = 40605147;
+            public const int DarkHole = 53129443;
+            public const int CosmicCyclone = 8267140;
+            public const int InfestationPandemic = 27541267;
+            public const int SolemnJudgment = 41420027;
+            public const int SolemnWarning = 84749824;
+            public const int SolemnStrike = 40605147;
         }
 
         public EvilswarmExecutor(GameAI ai, Duel duel)

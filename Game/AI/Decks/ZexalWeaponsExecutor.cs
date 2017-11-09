@@ -11,42 +11,42 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int CyberDragon = 70095155;
-            public static int ZwTornadoBringer = 81471108;
-            public static int ZwLightningBlade = 45082499;
-            public static int ZwAsuraStrike = 40941889;
-            public static int SolarWindJammer = 33911264;
-            public static int PhotonTrasher = 65367484;
-            public static int StarDrawing = 24610207;
-            public static int SacredCrane = 30914564;
-            public static int Goblindbergh = 25259669;
-            public static int Honest = 37742478;
-            public static int Kagetokage = 94656263;
-            public static int HeroicChallengerExtraSword = 34143852;
-            public static int TinGoldfish = 18063928;
-            public static int SummonerMonk = 423585;
-            public static int InstantFusion = 1845204;
-            public static int Raigeki = 12580477;
-            public static int ReinforcementOfTheArmy = 32807846;
-            public static int DarkHole = 53129443;
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int BreakthroughSkill = 78474168;
-            public static int SolemnWarning = 84749824;
-            public static int SolemnStrike = 40605147;
-            public static int XyzChangeTactics = 11705261;
+            public const int CyberDragon = 70095155;
+            public const int ZwTornadoBringer = 81471108;
+            public const int ZwLightningBlade = 45082499;
+            public const int ZwAsuraStrike = 40941889;
+            public const int SolarWindJammer = 33911264;
+            public const int PhotonTrasher = 65367484;
+            public const int StarDrawing = 24610207;
+            public const int SacredCrane = 30914564;
+            public const int Goblindbergh = 25259669;
+            public const int Honest = 37742478;
+            public const int Kagetokage = 94656263;
+            public const int HeroicChallengerExtraSword = 34143852;
+            public const int TinGoldfish = 18063928;
+            public const int SummonerMonk = 423585;
+            public const int InstantFusion = 1845204;
+            public const int Raigeki = 12580477;
+            public const int ReinforcementOfTheArmy = 32807846;
+            public const int DarkHole = 53129443;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int BreakthroughSkill = 78474168;
+            public const int SolemnWarning = 84749824;
+            public const int SolemnStrike = 40605147;
+            public const int XyzChangeTactics = 11705261;
 
-            public static int FlameSwordsman = 45231177;
-            public static int DarkfireDragon = 17881964;
-            public static int GaiaDragonTheThunderCharger = 91949988;
-            public static int ZwLionArms = 60992364;
-            public static int AdreusKeeperOfArmageddon = 94119480;
-            public static int Number61Volcasaurus = 29669359;
-            public static int GemKnightPearl = 71594310;
-            public static int Number39Utopia = 84013237;
-            public static int NumberS39UtopiaOne = 86532744;
-            public static int NumberS39UtopiatheLightning = 56832966;
-            public static int MaestrokeTheSymphonyDjinn = 25341652;
-            public static int GagagaCowboy = 12014404;
+            public const int FlameSwordsman = 45231177;
+            public const int DarkfireDragon = 17881964;
+            public const int GaiaDragonTheThunderCharger = 91949988;
+            public const int ZwLionArms = 60992364;
+            public const int AdreusKeeperOfArmageddon = 94119480;
+            public const int Number61Volcasaurus = 29669359;
+            public const int GemKnightPearl = 71594310;
+            public const int Number39Utopia = 84013237;
+            public const int NumberS39UtopiaOne = 86532744;
+            public const int NumberS39UtopiatheLightning = 56832966;
+            public const int MaestrokeTheSymphonyDjinn = 25341652;
+            public const int GagagaCowboy = 12014404;
         }
 
         public ZexalWeaponsExecutor(GameAI ai, Duel duel)
@@ -128,19 +128,12 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
-            {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
-            }
-            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
+            if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
                 if (attacker.Attribute == (int)CardAttribute.Light && Bot.HasInHand(CardId.Honest))
                     attacker.RealPower = attacker.RealPower + defender.Attack;
-                if (attacker.Id == CardId.NumberS39UtopiatheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, CardId.Number39Utopia))
-                    attacker.RealPower = 5000;
             }
-            return attacker.RealPower > defender.GetDefensePower();
+            return base.OnPreBattleBetween(attacker, defender);
         }
 
         private bool Number39Utopia()
@@ -181,10 +174,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.LifePoints[0] <= 1000)
                 return false;
-            List<ClientCard> monsters = Bot.GetMonsters();
             int count4 = 0;
             int count5 = 0;
-            foreach (ClientCard card in monsters)
+            foreach (ClientCard card in Bot.GetMonsters())
             {
                 if (card.Level == 5)
                     ++count5;
@@ -221,10 +213,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool GoblindberghFirst()
         {
-            IList<ClientCard> hand = Bot.Hand;
-            foreach (ClientCard card in hand)
+            foreach (ClientCard card in Bot.Hand.GetMonsters())
             {
-                if (card != Card && card.IsMonster() && card.Level == 4)
+                if (!card.Equals(Card) && card.Level == 4)
                     return true;
             }
             return false;
@@ -244,30 +235,32 @@ namespace WindBot.Game.AI.Decks
 
         private bool SummonerMonkEffect()
         {
-            if (Bot.HasInHand(CardId.InstantFusion) ||
-                Bot.HasInHand(CardId.MysticalSpaceTyphoon))
+            IList<int> costs = new[]
+                {
+                    CardId.XyzChangeTactics,
+                    CardId.DarkHole,
+                    CardId.MysticalSpaceTyphoon,
+                    CardId.InstantFusion
+                };
+            if (Bot.HasInHand(costs))
             {
-                AI.SelectCard(new[]
+                AI.SelectCard(costs);
+                AI.SelectNextCard(new[]
                     {
-                        CardId.InstantFusion,
-                        CardId.MysticalSpaceTyphoon
+                    CardId.SacredCrane,
+                    CardId.StarDrawing,
+                    CardId.Goblindbergh,
+                    CardId.TinGoldfish
                     });
+                AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
             }
-            AI.SelectNextCard(new[]
-                {
-                    CardId.Goblindbergh,
-                    CardId.TinGoldfish,
-                    CardId.StarDrawing,
-                    CardId.Kagetokage,
-                    CardId.SacredCrane
-                });
             return false;
         }
 
         private bool SolarWindJammer()
         {
-            if (!Bot.HasInHand(new List<int> {
+            if (!Bot.HasInHand(new[] {
                     CardId.StarDrawing,
                     CardId.InstantFusion
                 }))

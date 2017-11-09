@@ -11,26 +11,26 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int AncientGearGolem = 83104731;
-            public static int Frostosaurus = 6631034;
-            public static int AlexandriteDragon = 43096270;
-            public static int GeneWarpedWarwolf = 69247929;
-            public static int GearGolemTheMovingFortress = 30190809;
-            public static int EvilswarmHeliotrope = 77542832;
-            public static int LusterDragon = 11091375;
-            public static int InsectKnight = 35052053;
-            public static int ArchfiendSoldier = 49881766;
+            public const int AncientGearGolem = 83104731;
+            public const int Frostosaurus = 6631034;
+            public const int AlexandriteDragon = 43096270;
+            public const int GeneWarpedWarwolf = 69247929;
+            public const int GearGolemTheMovingFortress = 30190809;
+            public const int EvilswarmHeliotrope = 77542832;
+            public const int LusterDragon = 11091375;
+            public const int InsectKnight = 35052053;
+            public const int ArchfiendSoldier = 49881766;
 
-            public static int HeavyStorm = 19613556;
-            public static int DarkHole = 53129443;
-            public static int Raigeki = 12580477;
-            public static int HammerShot = 26412047;
-            public static int Fissure = 66788016;
-            public static int SwordsOfRevealingLight = 72302403;
-            public static int DoubleSummon = 43422537;
+            public const int HeavyStorm = 19613556;
+            public const int DarkHole = 53129443;
+            public const int Raigeki = 12580477;
+            public const int HammerShot = 26412047;
+            public const int Fissure = 66788016;
+            public const int SwordsOfRevealingLight = 72302403;
+            public const int DoubleSummon = 43422537;
 
-            public static int MirrorForce = 44095762;
-            public static int DimensionalPrison = 70342110;
+            public const int MirrorForce = 44095762;
+            public const int DimensionalPrison = 70342110;
 
         }
 
@@ -63,13 +63,6 @@ namespace WindBot.Game.AI.Decks
         }
 
         private int _lastDoubleSummon;
-
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
-        {
-            if (defender.IsMonsterInvincible() && !defender.IsMonsterDangerous() && attacker.Id == CardId.AncientGearGolem)
-                return true;
-            return base.OnPreBattleBetween(attacker, defender);
-        }
 
         private bool DoubleSummon()
         {

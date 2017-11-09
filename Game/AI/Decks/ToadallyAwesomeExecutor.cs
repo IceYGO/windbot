@@ -11,37 +11,35 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public static int CryomancerOfTheIceBarrier = 23950192;
-            public static int DewdarkOfTheIceBarrier = 90311614;
-            public static int SwapFrog = 9126351;
-            public static int PriorOfTheIceBarrier = 50088247;
-            public static int Ronintoadin = 1357146;
-            public static int DupeFrog = 46239604;
-            public static int GraydleSlimeJr = 80250319;
+            public const int CryomancerOfTheIceBarrier = 23950192;
+            public const int DewdarkOfTheIceBarrier = 90311614;
+            public const int SwapFrog = 9126351;
+            public const int PriorOfTheIceBarrier = 50088247;
+            public const int Ronintoadin = 1357146;
+            public const int DupeFrog = 46239604;
+            public const int GraydleSlimeJr = 80250319;
 
-            public static int GalaxyCyclone = 5133471;
-            public static int HarpiesFeatherDuster = 18144506;
-            public static int Surface = 33057951;
-            public static int DarkHole = 53129443;
-            public static int CardDestruction = 72892473;
-            public static int FoolishBurial = 81439173;
-            public static int MonsterReborn = 83764718;
-            public static int MedallionOfTheIceBarrier = 84206435;
-            public static int Salvage = 96947648;
-            public static int AquariumStage = 29047353;
+            public const int GalaxyCyclone = 5133471;
+            public const int HarpiesFeatherDuster = 18144506;
+            public const int Surface = 33057951;
+            public const int DarkHole = 53129443;
+            public const int CardDestruction = 72892473;
+            public const int FoolishBurial = 81439173;
+            public const int MonsterReborn = 83764718;
+            public const int MedallionOfTheIceBarrier = 84206435;
+            public const int Salvage = 96947648;
+            public const int AquariumStage = 29047353;
 
-            public static int HeraldOfTheArcLight = 79606837;
-            public static int ToadallyAwesome = 90809975;
-            public static int SkyCavalryCentaurea = 36776089;
-            public static int DaigustoPhoenix = 2766877;
-            public static int CatShark = 84224627;
+            public const int HeraldOfTheArcLight = 79606837;
+            public const int ToadallyAwesome = 90809975;
+            public const int SkyCavalryCentaurea = 36776089;
+            public const int DaigustoPhoenix = 2766877;
+            public const int CatShark = 84224627;
 
-            public static int MysticalSpaceTyphoon = 5318639;
-            public static int BookOfMoon = 14087893;
-            public static int CallOfTheHaunted = 97077563;
-            public static int TorrentialTribute = 53582587;
-
-            public static int NumberS39UtopiatheLightning = 56832966;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int BookOfMoon = 14087893;
+            public const int CallOfTheHaunted = 97077563;
+            public const int TorrentialTribute = 53582587;
         }
 
         public ToadallyAwesomeExecutor(GameAI ai, Duel duel)
@@ -116,26 +114,21 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
-            {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
-            }
-            if (!(defender.Id == CardId.NumberS39UtopiatheLightning))
+            if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
                 if (attacker.Id == CardId.SkyCavalryCentaurea && !attacker.IsDisabled() && attacker.HasXyzMaterial())
                     attacker.RealPower = Duel.LifePoints[0] + attacker.Attack;
             }
-            return attacker.RealPower >= defender.GetDefensePower();
+            return base.OnPreBattleBetween(attacker, defender);
         }
 
         private bool MedallionOfTheIceBarrierEffect()
         {
-            if (Bot.HasInHand(new List<int>
+            if (Bot.HasInHand(new[]
                 {
                     CardId.CryomancerOfTheIceBarrier,
                     CardId.DewdarkOfTheIceBarrier
-                }) || Bot.HasInMonstersZone(new List<int>
+                }) || Bot.HasInMonstersZone(new[]
                 {
                     CardId.CryomancerOfTheIceBarrier,
                     CardId.DewdarkOfTheIceBarrier
@@ -179,7 +172,6 @@ namespace WindBot.Game.AI.Decks
             }
             return true;
         }
-
 
         private bool FoolishBurialEffect()
         {
@@ -288,8 +280,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool NormalSummon()
         {
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 if (monster.Level==2)
                 {
@@ -315,7 +306,7 @@ namespace WindBot.Game.AI.Decks
             {
                 // negate effect, select a cost for it
                 List<ClientCard> monsters = Bot.GetMonsters();
-                List<int> suitableCost = new List<int> {
+                IList<int> suitableCost = new[] {
                     CardId.SwapFrog,
                     CardId.Ronintoadin,
                     CardId.GraydleSlimeJr,
@@ -330,35 +321,41 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
-                bool haveAquariumStage = Bot.HasInSpellZone(CardId.AquariumStage, true);
-                foreach (ClientCard monster in monsters)
+                if (!Bot.HasInSpellZone(CardId.AquariumStage, true))
                 {
-                    if (monster.Id == CardId.DupeFrog && !haveAquariumStage)
+                    foreach (ClientCard monster in monsters)
                     {
-                        AI.SelectCard(monster);
-                        return true;
+                        if (monster.Id == CardId.DupeFrog)
+                        {
+                            AI.SelectCard(monster);
+                            return true;
+                        }
                     }
                 }
-                monsters = (List<ClientCard>)Bot.Hand;
-                bool HaveTwoGraydleSlimeJrInHand = Bot.GetCountCardInZone(Bot.Hand, CardId.GraydleSlimeJr) >= 2;
-                foreach (ClientCard monster in monsters)
+                List<ClientCard> hands = Bot.Hand.GetMonsters();
+                if (Bot.GetCountCardInZone(Bot.Hand, CardId.GraydleSlimeJr) >= 2)
                 {
-                    if (monster.Id == CardId.GraydleSlimeJr && HaveTwoGraydleSlimeJrInHand)
+                    foreach (ClientCard monster in hands)
                     {
-                        AI.SelectCard(monster);
-                        return true;
+                        if (monster.Id == CardId.GraydleSlimeJr)
+                        {
+                            AI.SelectCard(monster);
+                            return true;
+                        }
                     }
                 }
-                bool NeedDupeFrogInGrave = Bot.HasInGraveyard(CardId.Ronintoadin) && !Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.SwapFrog);
-                foreach (ClientCard monster in monsters)
+                if (Bot.HasInGraveyard(CardId.Ronintoadin) && !Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.SwapFrog))
                 {
-                    if (monster.Id == CardId.DupeFrog && NeedDupeFrogInGrave)
+                    foreach (ClientCard monster in hands)
                     {
-                        AI.SelectCard(monster);
-                        return true;
+                        if (monster.Id == CardId.DupeFrog)
+                        {
+                            AI.SelectCard(monster);
+                            return true;
+                        }
                     }
                 }
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in hands)
                 {
                     if (monster.Id == CardId.Ronintoadin || monster.Id == CardId.DupeFrog)
                     {
@@ -366,7 +363,7 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in hands)
                 {
                     AI.SelectCard(monster);
                     return true;
@@ -425,15 +422,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool CatSharkSummon()
         {
-            bool should = Bot.HasInMonstersZone(CardId.ToadallyAwesome)
-                        && ((AI.Utils.IsOneEnemyBetter(true)
-                            && !Bot.HasInMonstersZone(new List<int>
-                                {
-                                    CardId.CatShark,
-                                    CardId.SkyCavalryCentaurea
-                                }, true, true))
-                        || !Bot.HasInExtra(CardId.ToadallyAwesome));
-            if (should)
+            if (Bot.HasInMonstersZone(CardId.ToadallyAwesome)
+                && ((AI.Utils.IsOneEnemyBetter(true)
+                    && !Bot.HasInMonstersZone(new[]
+                        {
+                            CardId.CatShark,
+                            CardId.SkyCavalryCentaurea
+                        }, true, true))
+                    || !Bot.HasInExtra(CardId.ToadallyAwesome)))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -477,8 +473,7 @@ namespace WindBot.Game.AI.Decks
         private bool SkyCavalryCentaureaSummon()
         {
             int num = 0;
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 if (monster.Level ==2)
                 {
@@ -488,7 +483,7 @@ namespace WindBot.Game.AI.Decks
             return AI.Utils.IsOneEnemyBetter(true)
                    && AI.Utils.GetBestAttack(Enemy) > 2200
                    && num < 4
-                   && !Bot.HasInMonstersZone(new List<int>
+                   && !Bot.HasInMonstersZone(new[]
                         {
                             CardId.SkyCavalryCentaurea
                         }, true, true);
@@ -500,16 +495,14 @@ namespace WindBot.Game.AI.Decks
             {
                 int attack = 0;
                 int defence = 0;
-                List<ClientCard> monsters = Bot.GetMonsters();
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Bot.GetMonsters())
                 {
                     if (!monster.IsDefense())
                     {
                         attack += monster.Attack;
                     }
                 }
-                monsters = Enemy.GetMonsters();
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Enemy.GetMonsters())
                 {
                     defence += monster.GetDefensePower();
                 }
@@ -527,11 +520,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool Repos()
         {
-            bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
-
             if (Card.IsFacedown())
                 return true;
-            if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
+            if (Card.IsDefense() && !AI.Utils.IsAllEnemyBetter(true) && Card.Attack >= Card.Defense)
                 return true;
             return false;
         }

@@ -10,7 +10,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public static bool IsMonsterInvincible(this ClientCard card)
         {
-            return Enum.IsDefined(typeof(InvincibleMonster), card.Id);
+            return !card.IsDisabled() && Enum.IsDefined(typeof(InvincibleMonster), card.Id);
         }
 
         /// <summary>
@@ -18,7 +18,15 @@ namespace WindBot.Game.AI
         /// </summary>
         public static bool IsMonsterDangerous(this ClientCard card)
         {
-            return Enum.IsDefined(typeof(DangerousMonster), card.Id);
+            return !card.IsDisabled() && Enum.IsDefined(typeof(DangerousMonster), card.Id);
+        }
+
+        /// <summary>
+        /// Do this monster prevents activation of opponent's effect monsters in battle?
+        /// </summary>
+        public static bool IsMonsterHasPreventActivationEffectInBattle(this ClientCard card)
+        {
+            return !card.IsDisabled() && Enum.IsDefined(typeof(PreventActivationEffectInBattle), card.Id);
         }
 
         public static bool IsFloodgate(this ClientCard card)
