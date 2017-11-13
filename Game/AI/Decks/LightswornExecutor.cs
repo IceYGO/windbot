@@ -103,39 +103,19 @@ namespace WindBot.Game.AI.Decks
             return base.OnPreBattleBetween(attacker, defender);
         }
 
-        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+        public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            if (max == 2 && min == 2 && cards[0].Location == CardLocation.MonsterZone)
+            Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
+            IList<ClientCard> result = new List<ClientCard>();
+            foreach (ClientCard card in cards)
             {
-                Logger.DebugWriteLine("OnSelectCard XYZ");
-                IList<ClientCard> avail = new List<ClientCard>();
-                foreach (ClientCard card in cards)
-                {
-                    // clone
-                    avail.Add(card);
-                }
-                IList<ClientCard> result = new List<ClientCard>();
-                foreach (ClientCard card in cards)
-                {
-                    if (!result.Contains(card) && (!ClownUsed || card.Id != CardId.PerformageTrickClown))
-                        result.Add(card);
-                    if (result.Count >= 2)
-                        break;
-                }
-                if (result.Count < 2)
-                {
-                    foreach (ClientCard card in cards)
-                    {
-                        if (!result.Contains(card))
-                            result.Add(card);
-                        if (result.Count >= 2)
-                            break;
-                    }
-                }
-                return result;
+                if (!result.Contains(card) && (!ClownUsed || card.Id != CardId.PerformageTrickClown))
+                    result.Add(card);
+                if (result.Count >= max)
+                    break;
             }
-            Logger.DebugWriteLine("Use default.");
-            return null;
+            AI.Utils.CheckSelectCount(result, cards, min, max);
+            return result;
         }
 
         private bool ReinforcementOfTheArmyEffect()

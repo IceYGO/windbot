@@ -132,7 +132,7 @@ namespace WindBot.Game.AI.Decks
             SoulChargeUsed = false;
         }
 
-        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             Logger.DebugWriteLine("OnSelectCard " + cards.Count + " " + min + " " + max);
             if (max == 2 && cards[0].Location == CardLocation.Deck)
@@ -157,60 +157,26 @@ namespace WindBot.Game.AI.Decks
                         result.Add(card);
                     }
                 }
-                if (result.Count < min)
-                {
-                    foreach (ClientCard card in cards)
-                    {
-                        if (!result.Contains(card))
-                            result.Add(card);
-                        if (result.Count >= min)
-                            break;
-                    }
-                }
-                while (result.Count > max)
-                {
-                    result.RemoveAt(result.Count - 1);
-                }
-                return result;
-            }
-            if (max == 2 && min == 2 && cards[0].Location == CardLocation.MonsterZone)
-            {
-                Logger.DebugWriteLine("OnSelectCard XYZ");
-                IList<ClientCard> avail = new List<ClientCard>();
-                foreach (ClientCard card in cards)
-                {
-                    // clone
-                    avail.Add(card);
-                }
-                IList<ClientCard> result = new List<ClientCard>();
-                while (UsedAlternativeWhiteDragon.Count > 0 && avail.IndexOf(UsedAlternativeWhiteDragon[0]) > 0)
-                {
-                    Logger.DebugWriteLine("select UsedAlternativeWhiteDragon");
-                    ClientCard card = UsedAlternativeWhiteDragon[0];
-                    UsedAlternativeWhiteDragon.Remove(card);
-                    avail.Remove(card);
-                    result.Add(card);
-                }
-                if (result.Count < 2)
-                {
-                    foreach (ClientCard card in cards)
-                    {
-                        if (!result.Contains(card))
-                            result.Add(card);
-                        if (result.Count >= 2)
-                            break;
-                    }
-                }
+                AI.Utils.CheckSelectCount(result, cards, min, max);
                 return result;
             }
             Logger.DebugWriteLine("Use default.");
             return null;
         }
 
-        public override IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
+        public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            Logger.DebugWriteLine("OnSelectSum " + cards.Count + " " + sum + " " + min + " " + max);
-            if (sum != 8 || !mode)
+            Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
+            IList<ClientCard> result = new List<ClientCard>();
+            AI.Utils.SelectPreferredCards(result, UsedAlternativeWhiteDragon, cards, min, max);
+            AI.Utils.CheckSelectCount(result, cards, min, max);
+            return result;
+        }
+
+        public override IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)
+        {
+            Logger.DebugWriteLine("OnSelectSynchroMaterial " + cards.Count + " " + sum + " " + min + " " + max);
+            if (sum != 8)
                 return null;
 
             foreach (ClientCard AlternativeWhiteDragon in UsedAlternativeWhiteDragon)
