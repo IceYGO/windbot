@@ -132,14 +132,10 @@ namespace WindBot.Game.AI.Decks
             CardOfDemiseUsed = false;
         }
 
-        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+        public override IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int max)
         {
-            if (max <= min)
-            {
-                return null;
-            }
-
-            // pendulum summon, select the last cards
+            Logger.DebugWriteLine("OnSelectPendulumSummon");
+            // select the last cards
 
             IList<ClientCard> selected = new List<ClientCard>();
             for (int i = 1; i <= max; ++i)

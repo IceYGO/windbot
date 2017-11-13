@@ -58,10 +58,10 @@ namespace WindBot.Game.AI
                 if (defender.IsMonsterDangerous() || (defender.IsMonsterInvincible() && defender.IsDefense()))
                     return false;
 
-                if (defender.Id == _CardId.CrystalWingSynchroDragon && !defender.IsDisabled() && attacker.Level >= 5)
+                if (defender.Id == _CardId.CrystalWingSynchroDragon && defender.IsAttack() && !defender.IsDisabled() && attacker.Level >= 5)
                     return false;
 
-                if (defender.Id == _CardId.NumberS39UtopiaTheLightning && !defender.IsDisabled() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
+                if (defender.Id == _CardId.NumberS39UtopiaTheLightning && defender.IsAttack() && !defender.IsDisabled() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
                     defender.RealPower = 5000;
             }
 

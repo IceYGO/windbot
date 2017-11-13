@@ -124,13 +124,49 @@ namespace WindBot.Game.AI
             // Some AI need do something on new turn
         }
 
-        public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+        public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             // For overriding
             return null;
         }
 
-        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
+        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, int hint, bool mode)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectFusionMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectLinkMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectRitualTribute(IList<ClientCard> cards, int sum, int min, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int max)
         {
             // For overriding
             return null;

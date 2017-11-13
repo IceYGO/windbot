@@ -153,6 +153,29 @@ namespace WindBot.Game.AI.Decks
             return base.OnPreBattleBetween(attacker, defender);
         }
 
+        public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            // select cards with same name (summoned by rescue rabbit)
+            Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
+            IList<ClientCard> result = new List<ClientCard>();
+            foreach (ClientCard card1 in cards)
+            {
+                foreach (ClientCard card2 in cards)
+                {
+                    if (card1.Id == card2.Id && !card1.Equals(card2))
+                    {
+                        result.Add(card1);
+                        result.Add(card2);
+                        break;
+                    }
+                }
+                if (result.Count > 0)
+                    break;
+            }
+            AI.Utils.CheckSelectCount(result, cards, min, max);
+            return result;
+        }
+
         private bool UnexpectedDaiEffect()
         {
             if (Bot.HasInHand(CardId.RescueRabbit) || NormalSummoned)
