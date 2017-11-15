@@ -2,18 +2,19 @@ version: '{build}'
 skip_tags: true
 
 install:
+- mkdir WindBot
   
 configuration: Release
 
 build: 
     project: Windbot.sln
     parallel: true
+    output: ./WindBot
 
 after_build:
   - git config --global user.name "Smile-DK"
   - git config --global user.email "2236141431@qq.com"
   
-  - mkdir WindBot
   - cp -rf bin/x86/Release/* WindBot
   - git clone https://github.com/moecube/ygopro-database
   - cp -rf ygopro-database/locales/zh-CN/cards.cdb WindBot
