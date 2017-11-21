@@ -1,15 +1,12 @@
 version: '{build}'
-skip_tags: true
 
 install:
-- mkdir WindBot
+- mkdir Windbot
   
 configuration: Release
 
-build: 
-    project: Windbot.sln
-    parallel: true
-    output: ./WindBot
+build_script: 
+  - msbuild /property:Configuration=Release /property:OutDir=./Windbot
 
 after_build:
   - git config --global user.name "Smile-DK"
