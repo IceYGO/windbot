@@ -1,0 +1,34 @@
+version: '{build}'
+skip_tags: true
+
+environment:
+  access_token:
+    secure: DOOS4g7CT8ctOgiMr62K56qQ1FO6s2ESpqNZlhf8F4nomemvvwxV/pRj9nbKmtjR
+  
+configuration: Release
+
+build: 
+    project: WindBot.sln
+    parallel: true
+
+after_build:
+  - mv bin\x96\Release WindBot
+  - mv BotWrapper\bin\Release\Bot.exe .
+  - mv BotWrapper\bin\Release\bot.conf .
+  - 7z a WindBot.7z WindBot Bot.exe bot.conf
+
+test: off
+
+artifacts:
+  - path: WindBot.7z
+    name: WindBot
+
+deploy:
+    release: latest
+    description: 'Automatic build by Appveyor.\nUpdated on $(APPVEYOR_REPO_COMMIT_TIMESTAMP).'
+    provider: GitHub
+    auth_token: $(access_token)
+    force_update: true
+    on:
+        branch: master
+
