@@ -1,12 +1,14 @@
 version: '{build}'
+
 install:
 - mkdir Windbot
 
 platform: x86
 configuration: Release
 
-build_script: 
-  - msbuild /property:Configuration=Release /property:OutDir=./Windbot
+build: 
+    project: WindBot.sln
+    parallel: true
 
 after_build:
   - mv bin\Release WindBot
@@ -15,8 +17,10 @@ after_build:
   - mv BotWrapper\bin\Release\bot.conf .
   - git clone https://github.com/moecube/ygopro-database
   - cp -rf ygopro-database/locales/zh-CN/cards.cdb WindBot
+
 test: off
 
 artifacts:
   - path: Windbot.7z
     name: Windbot
+
