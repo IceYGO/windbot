@@ -16,7 +16,10 @@ namespace WindBot
         }
         public static void WriteErrorLine(string message)
         {
+            Console.BackgroundColor = ConsoleColor.Red;
+            Console.ForegroundColor = ConsoleColor.White;
             Console.Error.WriteLine("[" + DateTime.Now.ToString("yy-MM-dd HH:mm:ss") + "] " + message);
+            Console.ResetColor();
         }
     }
 }
