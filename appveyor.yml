@@ -1,34 +1,22 @@
 version: '{build}'
-
 install:
 - mkdir Windbot
-  
+
+platform: x86
 configuration: Release
 
 build_script: 
   - msbuild /property:Configuration=Release /property:OutDir=./Windbot
 
 after_build:
-  - git config --global user.name "Smile-DK"
-  - git config --global user.email "2236141431@qq.com"
-  
+  - mv bin\Release WindBot
+  - rm WindBot\WindBot.exe.config
+  - mv BotWrapper\bin\Release\Bot.exe .
+  - mv BotWrapper\bin\Release\bot.conf .
   - git clone https://github.com/moecube/ygopro-database
   - cp -rf ygopro-database/locales/zh-CN/cards.cdb WindBot
-  - git clone https://github.com/Smile-DK/ygopro-svrelease
-  - cd ygopro-svrelease
-  - rm -rf WindBot Windbot
-  - cp -rf ../Windbot .
-  - git add . -A
-  - git commit -m "Windbot pushed by Appveyor"
-  - git push %Smile%Smile-DK/ygopro-svrelease master
-  - cd ..
-  - 7z a -mx9 Windbot.7z WindBot
 test: off
 
 artifacts:
   - path: Windbot.7z
     name: Windbot
-branches:
-  only:
-    - master
-
