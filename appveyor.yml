@@ -31,4 +31,5 @@ deploy:
         appveyor_repo_tag: true
 
 branches:
-  only: master
+    only: 
+        - master
