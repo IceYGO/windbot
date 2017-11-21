@@ -36,7 +36,7 @@ namespace WindBot
                 // Join the host specified on the command line.
                 if (args.Length == 0)
                 {
-                    Logger.WriteLine("=== WARN ===");
+                    Logger.WriteErrorLine("=== WARN ===");
                     Logger.WriteLine("No input found, tring to connect to localhost YGOPro host.");
                     Logger.WriteLine("If it fail, the program will quit sliently.");
                 }
@@ -53,7 +53,13 @@ namespace WindBot
                 // In case windbot is placed in a folder under ygopro folder
                 absolutePath = Path.GetFullPath("../" + databasePath);
             if (!File.Exists(absolutePath))
-                Logger.WriteErrorLine("Can't find cards database file. Please place cards.cdb next to WindBot.exe .");
+            {
+                Logger.WriteErrorLine("Can't find cards database file.");
+                Logger.WriteErrorLine("Please place cards.cdb next to WindBot.exe or Bot.exe .");
+                Logger.WriteLine("Press any key to quit...");
+                Console.ReadKey();
+                System.Environment.Exit(1);
+            }
             NamedCardsManager.Init(absolutePath);
         }
 
