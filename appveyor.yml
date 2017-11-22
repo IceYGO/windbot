@@ -1,7 +1,7 @@
 version: '{build}'
 
 install:
-- mkdir Windbot
+- mkdir WindBot
 
 platform: x86
 configuration: Release
@@ -11,10 +11,10 @@ build:
     parallel: true
 
 after_build:
-  - mv bin\Release WindBot
-  - rm WindBot\WindBot.exe.config
-  - mv BotWrapper\bin\Release\Bot.exe .
-  - mv BotWrapper\bin\Release\bot.conf .
+  - mv -f bin\Release WindBot
+  - rm -rf WindBot\WindBot.exe.config
+  - mv -f BotWrapper\bin\Release\Bot.exe .
+  - mv -f BotWrapper\bin\Release\bot.conf .
   - git clone https://github.com/moecube/ygopro-database
   - cp -rf ygopro-database/locales/zh-CN/cards.cdb WindBot
 
