@@ -1,8 +1,5 @@
 version: '{build}'
 
-install:
-- mkdir WindBot
-
 platform: x86
 configuration: Release
 
