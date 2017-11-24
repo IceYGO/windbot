@@ -147,18 +147,7 @@ namespace WindBot.Game.AI
 
             if (Card.Location == CardLocation.Grave)
             {
-                selected = Enemy.SpellZone.GetFloodgate();
-                if (selected == null)
-                {
-                    foreach (ClientCard card in spells)
-                    {
-                        if (!card.IsFacedown())
-                        {
-                            selected = card;
-                            break;
-                        }
-                    }
-                }
+                selected = AI.Utils.GetBestEnemySpell(true);
             }
             else
             {
@@ -187,7 +176,7 @@ namespace WindBot.Game.AI
             if (AI.Utils.IsAllEnemyBetter(true))
             {
                 ClientCard monster = Enemy.GetMonsters().GetHighestAttackMonster();
-                if (monster != null && monster.HasType(CardType.Effect) && (monster.HasType(CardType.Xyz) || monster.Level > 4))
+                if (monster != null && monster.HasType(CardType.Effect) && !monster.HasType(CardType.Link) && (monster.HasType(CardType.Xyz) || monster.Level > 4))
                 {
                     AI.SelectCard(monster);
                     return true;
