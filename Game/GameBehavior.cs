@@ -281,16 +281,21 @@ namespace WindBot.Game
             packet.ReadByte();
             packet.ReadByte();
             packet.ReadByte();
-            int code = packet.ReadInt32();
+            int pcode = packet.ReadInt32();
             if (msg == 2) //ERRMSG_DECKERROR
             {
-                NamedCard card = NamedCard.Get(code);
-                if (card != null)
-                    _ai.OnDeckError(card.Name);
-                else if (code == 1)
-                    _ai.OnDeckError("DECK");
+                int code = pcode & 0xFFFFFFF;
+                int flag = pcode >> 28;
+                if (flag <= 5) //DECKERROR_CARDCOUNT
+                {
+                    NamedCard card = NamedCard.Get(code);
+                    if (card != null)
+                        _ai.OnDeckError(card.Name);
+                    else
+                        _ai.OnDeckError("Unknown Card");
+                }
                 else
-                    _ai.OnDeckError("Unknown Card");
+                    _ai.OnDeckError("DECK");
             }
             //Connection.Close();
         }
