@@ -71,7 +71,7 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * ST1732
 
-* Toadally Awesome (old lflist)
+* Toadally Awesome (old lflist, master rule 3 only)
 
 * Yosenju
 
@@ -99,7 +99,7 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 WindBot can run as a "server", provide a http interface to create bot.
 
-eg. `http://127.0.0.1:2399/?name=%E2%91%A8&deck=Blue-Eyes&host=127.0.0.1&port=7911&dialog=cirno.zh-CN&version=4928`
+eg. `http://127.0.0.1:2399/?name=%E2%91%A8&deck=Blue-Eyes&host=127.0.0.1&port=7911&dialog=cirno.zh-CN`
 
 In this situation, it will be multi-threaded. This can be useful for servers, since it don't use large amount memory.
 
@@ -112,6 +112,17 @@ The parameters are same as commandlines, but low cased.
 * If one chain includes two activation that use `AI.SelectCard`, the second one won't select correctly.
 
 ### Changelog
+
+#### v0x1341 (2017-11-27)
+
+ - Update YGOPro protrol to 0x1341
+ - Change the program to x86 only
+ - Add BotWrapper for YGOPro bot mode
+ - Add `AI.SelectMaterials`, `OnSelectFusionMaterial`, `OnSelectPendulumSummon`, `AI.Utils.SelectPreferredCards` etc.
+ - Fix `AI.Utils.GetBestEnemySpell` to not return normal spell currently activating
+ - Fix AI don't attack defense Crystal Wing or S39
+ - Fix ZexalWeapons AI don't change defense S39 back
+ - Minor updates
 
 #### v0x1340 (2017-11-06)
 
@@ -153,11 +164,7 @@ The parameters are same as commandlines, but low cased.
 
 * `AI.SelectZone`
 
-* `AI.SelectMaterials` which select a set of cards for F/S/X/L summon
-
 * `AI.SelectTribute`
-
-* Select cards to pendulum summon in executor.
 
 * Get equip of card.
 
