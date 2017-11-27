@@ -120,11 +120,17 @@ namespace WindBot.Game.AI.Decks
 
         private bool ReinforcementOfTheArmyEffect()
         {
-            if (!Bot.HasInHand(CardId.Goblindbergh))
-                AI.SelectCard(CardId.Goblindbergh);
-            else if (!Bot.HasInHand(CardId.Raiden))
+            if (!Bot.HasInHand(CardId.Raiden))
+            {
                 AI.SelectCard(CardId.Raiden);
-            return true;
+                return true;
+            }
+            else if (!Bot.HasInHand(CardId.Goblindbergh))
+            {
+                AI.SelectCard(CardId.Goblindbergh);
+                return true;
+            }
+            return false;
         }
 
         private bool ChargeOfTheLightBrigadeEffect()
@@ -157,9 +163,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool GoblindberghSummon()
         {
-            foreach (ClientCard card in Bot.Hand)
+            foreach (ClientCard card in Bot.Hand.GetMonsters())
             {
-                if (card != Card && card.IsMonster() && card.Level == 4)
+                if (!card.Equals(Card) && card.Level == 4)
                     return true;
             }
             return false;
@@ -178,6 +184,32 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
+        private bool LuminaEffect()
+        {
+            if (!Bot.HasInGraveyard(CardId.Raiden) && Bot.HasInHand(CardId.Raiden))
+            {
+                AI.SelectCard(CardId.Raiden);
+            }
+            else if (!ClownUsed && Bot.HasInHand(CardId.PerformageTrickClown))
+            {
+                AI.SelectCard(CardId.PerformageTrickClown);
+            }
+            else
+            {
+                AI.SelectCard(new[] {
+                    CardId.Wulf,
+                    CardId.Felis,
+                    CardId.Minerva,
+                    CardId.ThousandBlades
+                });
+            }
+            AI.SelectNextCard(new[] {
+                    CardId.Raiden,
+                    CardId.Felis
+                });
+            return true;
+        }
+
         private bool PerformageTrickClownEffect()
         {
             ClownUsed = true;
@@ -185,9 +217,48 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
+        private bool MinervaTheExaltedEffect()
+        {
+            if (Card.Location == CardLocation.MonsterZone)
+            {
+                return true;
+            }
+            else
+            {
+                IList<ClientCard> targets = new List<ClientCard>();
+
+                ClientCard target1 = AI.Utils.GetBestEnemyMonster();
+                if (target1 != null)
+                    targets.Add(target1);
+                ClientCard target2 = AI.Utils.GetBestEnemySpell();
+                if (target2 != null)
+                    targets.Add(target2);
+
+                foreach (ClientCard target in Enemy.GetMonsters())
+                {
+                    if (targets.Count >= 3)
+                        break;
+                    if (!targets.Contains(target))
+                        targets.Add(target);
+                }
+                foreach (ClientCard target in Enemy.GetSpells())
+                {
+                    if (targets.Count >= 3)
+                        break;
+                    if (!targets.Contains(target))
+                        targets.Add(target);
+                }
+                if (targets.Count == 0)
+                    return false;
+
+                AI.SelectNextCard(targets);
+                return true;
+            }
+        }
         private bool HonestEffect()
         {
             return Duel.Phase != DuelPhase.Main1;
         }
+
     }
 }
