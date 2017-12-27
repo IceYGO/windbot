@@ -88,6 +88,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.Draw, OnDraw);
             _messages.Add(GameMessage.ShuffleDeck, OnShuffleDeck);
             _messages.Add(GameMessage.ShuffleHand, OnShuffleHand);
+            _messages.Add(GameMessage.ShuffleExtra, OnShuffleExtra);
             _messages.Add(GameMessage.TagSwap, OnTagSwap);
             _messages.Add(GameMessage.NewTurn, OnNewTurn);
             _messages.Add(GameMessage.NewPhase, OnNewPhase);
@@ -372,6 +373,17 @@ namespace WindBot.Game
             packet.ReadByte();
             foreach (ClientCard card in _duel.Fields[player].Hand)
                 card.SetId(packet.ReadInt32());
+        }
+
+        private void OnShuffleExtra(BinaryReader packet)
+        {
+            int player = GetLocalPlayer(packet.ReadByte());
+            packet.ReadByte();
+            foreach (ClientCard card in _duel.Fields[player].ExtraDeck)
+            {
+                if (!card.IsFaceup())
+                    card.SetId(packet.ReadInt32());
+            }
         }
 
         private void OnTagSwap(BinaryReader packet)

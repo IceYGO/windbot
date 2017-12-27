@@ -113,6 +113,11 @@ The parameters are same as commandlines, but low cased.
 
 ### Changelog
 
+#### v0x1342 (2017-12-26)
+
+ - Update YGOPro protrol to 0x1342
+ - Add Linux BotWrapper (a simple bash script)
+
 #### v0x1341 (2017-11-27)
 
  - Update YGOPro protrol to 0x1341
