@@ -3,7 +3,9 @@
 
 #WindBot
 /WindBot.exe
-/WindBot.exe.config
+/WindBot.exe.*
+/WindBot.vshost.exe
+/WindBot.vshost.exe.*
 /cards.cdb
 
 # User-specific files
