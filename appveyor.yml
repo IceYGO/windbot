@@ -12,8 +12,6 @@ after_build:
   - rm -rf WindBot\WindBot.exe.config
   - mv -f BotWrapper\bin\Release\Bot.exe .
   - mv -f BotWrapper\bin\Release\bot.conf .
-  - bash -c "curl --retry 5 --connect-timeout 30 --location --remote-header-name --remote-name https://github.com/purerosefallen/ygopro-7210srv/raw/master/cards.cdb ; exit 0"
-  - mv -f cards.cdb WindBot
   - 7z a -mx9 WindBot.7z WindBot Bot.exe bot.conf
 test: off
 
