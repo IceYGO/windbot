@@ -323,6 +323,7 @@ namespace WindBot.Game
         {
             int type = packet.ReadByte();
             _duel.IsFirst = (type & 0xF) == 0;
+            _duel.Turn = 0;
             _duel.LifePoints[GetLocalPlayer(0)] = packet.ReadInt32();
             _duel.LifePoints[GetLocalPlayer(1)] = packet.ReadInt32();
             int deck = packet.ReadInt16();
