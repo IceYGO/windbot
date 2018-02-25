@@ -82,7 +82,7 @@ namespace WindBot
             using (HttpListener MainServer = new HttpListener())
             {
                 MainServer.AuthenticationSchemes = AuthenticationSchemes.Anonymous;
-                MainServer.Prefixes.Add("http://127.0.0.1:" + ServerPort + "/");
+                MainServer.Prefixes.Add("http://+:" + ServerPort + "/");
                 MainServer.Start();
                 Logger.WriteLine("WindBot server start successed.");
                 Logger.WriteLine("HTTP GET http://127.0.0.1:" + ServerPort + "/?name=WindBot&host=127.0.0.1&port=7911 to call the bot.");
