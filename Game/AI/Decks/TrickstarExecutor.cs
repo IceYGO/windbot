@@ -64,6 +64,7 @@ namespace WindBot.Game.AI.Decks
         bool snake_four_s = false;
         bool tuner_eff_used = false;
         bool crystal_eff_used = false;
+        int red_ss_count = 0;
 
         public TrickstarExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -480,43 +481,35 @@ namespace WindBot.Game.AI.Decks
 
         public bool Red_ss()
         {
-            if (Duel.Player == 0)
+            if (red_ss_count >= 9) return false;
+            if (LastChainPlayer == 0 && GetLastChainCard().Id == CardId.Red)
             {
-                if (LastChainPlayer == 0 && GetLastChainCard().Id == CardId.Red)
+                foreach (ClientCard m in Bot.GetMonsters())
                 {
-                    foreach(ClientCard m in Bot.GetMonsters())
+                    if (AI.Utils.IsChainTarget(m))
                     {
-                        if (AI.Utils.IsChainTarget(m))
-                        {
-                            AI.SelectCard(m);
-                            return true;
-                        }
+                        red_ss_count += 1;
+                        AI.SelectCard(m);
+                        return true;
                     }
                 }
-                if (LastChainPlayer == 1) return true;
+            }
+            if (LastChainPlayer == 1) return true;
+            if (Duel.Player == 0)
+            {
                 if (AI.Utils.IsTurn1OrMain2()) return false;
                 if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
                 {
-                    if (Duel.Player == 1)
-                    {
-                        if (!Bot.HasInHand(CardId.White) && AI.Utils.IsOneEnemyBetterThanValue(1600, true))
-                        {
-                            AI.SelectPosition(CardPosition.FaceUpDefence);
-                        }
-                        else if (Bot.HasInHand(CardId.White) && AI.Utils.IsOneEnemyBetterThanValue(3200, true))
-                        {
-                            AI.SelectPosition(CardPosition.FaceUpDefence);
-                        }
-                    }
                     List<ClientCard> self_m = Bot.GetMonsters();
                     ClientCard tosolve_enemy = AI.Utils.GetOneEnemyBetterThanMyBest();
                     foreach (ClientCard c in self_m)
                     {
-                        if (c.Id == CardId.Yellow || c.Id == CardId.Pink || c.Id == CardId.White)
+                        if (IsTrickstar(c.Id))
                         {
                             if (c.Attacked)
                             {
                                 AI.SelectCard(c);
+                                red_ss_count += 1;
                                 return true;
                             }
                             if (tosolve_enemy != null)
@@ -524,11 +517,19 @@ namespace WindBot.Game.AI.Decks
                                 if (Bot.HasInHand(CardId.White) && c.Attack * 2 < tosolve_enemy.Attack)
                                 {
                                     AI.SelectCard(c);
+                                    red_ss_count += 1;
+                                    return true;
+                                }
+                                if (!Bot.HasInHand(CardId.White) && tosolve_enemy.Attack <= 3200 && c.Id == CardId.White)
+                                {
+                                    AI.SelectCard(c);
+                                    red_ss_count += 1;
                                     return true;
                                 }
                                 if (!Bot.HasInHand(CardId.White) && c.Attack < tosolve_enemy.Attack)
                                 {
                                     AI.SelectCard(c);
+                                    red_ss_count += 1;
                                     return true;
                                 }
                             }
@@ -537,11 +538,19 @@ namespace WindBot.Game.AI.Decks
                 }
             } else
             {
-                if (LastChainPlayer == 1) return true;
                 if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
                 {
+                    if (!Bot.HasInHand(CardId.White) && AI.Utils.IsOneEnemyBetterThanValue(1600, true))
+                    {
+                        AI.SelectPosition(CardPosition.FaceUpDefence);
+                    }
+                    else if (Bot.HasInHand(CardId.White) && AI.Utils.IsOneEnemyBetterThanValue(3200, true))
+                    {
+                        AI.SelectPosition(CardPosition.FaceUpDefence);
+                    }
                     if (AI.Utils.GetOneEnemyBetterThanMyBest() != null)
                     {
+                        red_ss_count += 1;
                         return true;
                     }
                 }
@@ -916,7 +925,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard m = AI.Utils.GetProblematicEnemyMonster();
             if (m == null)
             {
-                return (Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 1100);
+                return (Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 1100 && Duel.Phase < DuelPhase.Battle);
             }
             ClientCard ex_1 = Bot.MonsterZone[5];
             ClientCard ex_2 = Bot.MonsterZone[6];
@@ -1067,6 +1076,7 @@ namespace WindBot.Game.AI.Decks
         public bool MonsterRepos()
         {
             if (Card.Id == CardId.Eater) return false;
+            if (Card.Id == CardId.Sheep + 1) return false;
             bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
 
             if (Card.IsAttack() && enemyBetter)
@@ -1089,6 +1099,7 @@ namespace WindBot.Game.AI.Decks
             pink_ss = false;
             snake_four_s = false;
             crystal_eff_used = false;
+            red_ss_count = 0;
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
