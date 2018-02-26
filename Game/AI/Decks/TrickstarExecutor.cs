@@ -122,9 +122,9 @@ namespace WindBot.Game.AI.Decks
 
             // normal
             AddExecutor(ExecutorType.SpSummon, CardId.Eater, Eater_ss);
+            AddExecutor(ExecutorType.Summon, CardId.Tuner, Tuner_ns);
             AddExecutor(ExecutorType.Summon, CardId.Urara,Tuner_ns);
             AddExecutor(ExecutorType.Summon, CardId.Ghost, Tuner_ns);
-            AddExecutor(ExecutorType.Summon, CardId.Tuner, Tuner_ns);
             AddExecutor(ExecutorType.Activate, CardId.Pot, Pot_Act);
             AddExecutor(ExecutorType.Repos, MonsterRepos);
             AddExecutor(ExecutorType.SummonOrSet, CardId.Red);
