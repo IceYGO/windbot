@@ -57,7 +57,12 @@
       },
       {
         "name": "尼亚",
-        "deck": "Qliphort",
+        "deck": "Trickstar",
+        "dialog": "near.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Trickstar",
         "dialog": "near.zh-CN"
       },
       {
