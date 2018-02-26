@@ -1,4 +1,4 @@
-﻿using YGOSharp.OCGWrapper.Enums;
+using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
@@ -62,6 +62,8 @@ namespace WindBot.Game.AI.Decks
         ClientCard stage_locked = null;
         bool pink_ss = false;
         bool snake_four_s = false;
+        bool tuner_eff_used = false;
+        bool crystal_eff_used = false;
 
         public TrickstarExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -70,8 +72,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.MG, G_act);
             AddExecutor(ExecutorType.Activate, CardId.Strike, DefaultSolemnStrike);
             AddExecutor(ExecutorType.Activate, CardId.Warn, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, CardId.Urara, hand_act_kind);
-            AddExecutor(ExecutorType.Activate, CardId.Ghost, hand_act_kind);
+            AddExecutor(ExecutorType.Activate, CardId.Urara, Hand_act_eff);
+            AddExecutor(ExecutorType.Activate, CardId.Ghost, Hand_act_eff);
             AddExecutor(ExecutorType.Activate, CardId.Ring, DefaultCompulsoryEvacuationDevice);
 
             // spell clean
@@ -81,23 +83,22 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.TG, TG_eff);
 
             // ex_monster act
-            AddExecutor(ExecutorType.Activate, CardId.Crystal, crystal_eff);
+            AddExecutor(ExecutorType.Activate, CardId.Crystal, Crystal_eff);
             AddExecutor(ExecutorType.Activate, CardId.SafeDra, DefaultCompulsoryEvacuationDevice);
-            AddExecutor(ExecutorType.Activate, CardId.Linkuri, linkuri_eff);
-            AddExecutor(ExecutorType.Activate, CardId.phoneix);
-            AddExecutor(ExecutorType.Activate, CardId.unicorn, unicorn_eff);
-            AddExecutor(ExecutorType.Activate, CardId.snake, snake_eff);
+            AddExecutor(ExecutorType.Activate, CardId.Linkuri, Linkuri_eff);
+            AddExecutor(ExecutorType.Activate, CardId.phoneix, Phoneix_eff);
+            AddExecutor(ExecutorType.Activate, CardId.unicorn, Unicorn_eff);
+            AddExecutor(ExecutorType.Activate, CardId.snake, Snake_eff);
 
-            AddExecutor(ExecutorType.Activate, CardId.Tuner);
+            AddExecutor(ExecutorType.Activate, CardId.Tuner,Tuner_eff);
 
             // ex ss
-            AddExecutor(ExecutorType.SpSummon, CardId.snake, snake_ss);
-            AddExecutor(ExecutorType.SpSummon, CardId.borrel, borrel_ss);
-            AddExecutor(ExecutorType.SpSummon, CardId.phoneix, phoneix_ss);
-            AddExecutor(ExecutorType.SpSummon, CardId.unicorn, unicorn_ss);
-            AddExecutor(ExecutorType.SpSummon, CardId.Crystal, crystal_ss);
-            AddExecutor(ExecutorType.SpSummon, CardId.SafeDra, safedragon_ss);
-            AddExecutor(ExecutorType.SpSummon, CardId.Linkuri, linkuri_ss);
+            AddExecutor(ExecutorType.SpSummon, CardId.snake, Snake_ss);
+            AddExecutor(ExecutorType.SpSummon, CardId.phoneix, Phoneix_ss);
+            AddExecutor(ExecutorType.SpSummon, CardId.unicorn, Unicorn_ss);
+            AddExecutor(ExecutorType.SpSummon, CardId.Crystal, Crystal_ss);
+            AddExecutor(ExecutorType.SpSummon, CardId.SafeDra, Safedragon_ss);
+            AddExecutor(ExecutorType.SpSummon, CardId.Linkuri, Linkuri_ss);
             AddExecutor(ExecutorType.SpSummon, CardId.Linkspi);
 
             // normal act
@@ -109,26 +110,64 @@ namespace WindBot.Game.AI.Decks
 
             // ts
             AddExecutor(ExecutorType.Activate, CardId.Stage, Stage_act);
-            AddExecutor(ExecutorType.Activate, CardId.Pink, pink_p);
-            AddExecutor(ExecutorType.Activate, CardId.Red, red_ss);
-            AddExecutor(ExecutorType.Activate, CardId.Yellow, yellow_p);
-            AddExecutor(ExecutorType.Activate, CardId.White, white_p);
+            AddExecutor(ExecutorType.Activate, CardId.Pink, Pink_eff);
+            AddExecutor(ExecutorType.Activate, CardId.Red, Red_ss);
+            AddExecutor(ExecutorType.Activate, CardId.Yellow, Yellow_eff);
+            AddExecutor(ExecutorType.Activate, CardId.White, White_eff);
             AddExecutor(ExecutorType.Activate, CardId.Re, Reincarnation);
-            AddExecutor(ExecutorType.Summon, CardId.Yellow, yellow_sum);
-            AddExecutor(ExecutorType.Summon, CardId.Red, red_sum);
-            AddExecutor(ExecutorType.Summon, CardId.Pink, pink_sum);
+            AddExecutor(ExecutorType.Summon, CardId.Yellow, Yellow_sum);
+            AddExecutor(ExecutorType.Summon, CardId.Red, Red_sum);
+            AddExecutor(ExecutorType.Summon, CardId.Pink, Pink_sum);
 
             // normal
-            AddExecutor(ExecutorType.SpSummon, CardId.Eater, eater_ss);
-            AddExecutor(ExecutorType.Summon, CardId.Urara,tuner_ns);
-            AddExecutor(ExecutorType.Summon, CardId.Ghost, tuner_ns);
-            AddExecutor(ExecutorType.Summon, CardId.Tuner, tuner_ns);
+            AddExecutor(ExecutorType.SpSummon, CardId.Eater, Eater_ss);
+            AddExecutor(ExecutorType.Summon, CardId.Urara,Tuner_ns);
+            AddExecutor(ExecutorType.Summon, CardId.Ghost, Tuner_ns);
+            AddExecutor(ExecutorType.Summon, CardId.Tuner, Tuner_ns);
             AddExecutor(ExecutorType.Activate, CardId.Pot, Pot_Act);
             AddExecutor(ExecutorType.Repos, MonsterRepos);
             AddExecutor(ExecutorType.SummonOrSet, CardId.Red);
             AddExecutor(ExecutorType.SummonOrSet, CardId.Pink);
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
             
+        }
+
+        public bool Has_down_arrow(int id)
+        {
+            return (id == CardId.Linkuri || id == CardId.Linkspi || id == CardId.unicorn);
+        }
+
+        public bool IsTrickstar(int id)
+        {
+            return (id == CardId.Yellow || id == CardId.Red || id == CardId.Pink || id == CardId.White || id == CardId.Stage || id == CardId.Re || id == CardId.Crown);
+        }
+
+        public int[] Useless_List()
+        {
+            return new[]
+            {
+                CardId.Crown,
+                CardId.Tuner,
+                CardId.Pink,
+                CardId.Pot,
+                CardId.BF,
+                CardId.White,
+                CardId.Trans,
+                CardId.Galaxy,
+                CardId.Feather,
+                CardId.Sheep,
+                CardId.Re,
+                CardId.Red,
+                CardId.Yellow,
+                CardId.Eater,
+                CardId.MG,
+                CardId.Ghost,
+                CardId.Urara,
+                CardId.Stage,
+                CardId.Ring,
+                CardId.Warn,
+                CardId.Strike
+            };
         }
 
         public bool Stage_Lock()
@@ -178,7 +217,6 @@ namespace WindBot.Game.AI.Decks
 
         public bool BF_pos()
         {
-            AI.SelectPosition(CardPosition.FaceUpDefence);
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
@@ -355,8 +393,9 @@ namespace WindBot.Game.AI.Decks
             return Bot.Deck.Count > 15;
         }
 
-        public bool hand_act_kind()
+        public bool Hand_act_eff()
         {
+            if (Card.Id == CardId.Ghost && Card.Location == CardLocation.Hand && Bot.HasInMonstersZone(CardId.Ghost)) return false;
             return (LastChainPlayer == 1);
         }
 
@@ -365,7 +404,7 @@ namespace WindBot.Game.AI.Decks
             return (Duel.Player == 1);
         }
 
-        public bool pink_p()
+        public bool Pink_eff()
         {
             if (Card.Location == CardLocation.Hand)
             {
@@ -406,7 +445,7 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        public bool eater_ss()
+        public bool Eater_ss()
         {
             if (AI.Utils.IsTurn1OrMain2()) return false;
             IList<ClientCard> targets = new List<ClientCard>();
@@ -439,7 +478,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool red_ss()
+        public bool Red_ss()
         {
             if (Duel.Player == 0)
             {
@@ -458,6 +497,17 @@ namespace WindBot.Game.AI.Decks
                 if (AI.Utils.IsTurn1OrMain2()) return false;
                 if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
                 {
+                    if (Duel.Player == 1)
+                    {
+                        if (!Bot.HasInHand(CardId.White) && AI.Utils.IsOneEnemyBetterThanValue(1600, true))
+                        {
+                            AI.SelectPosition(CardPosition.FaceUpDefence);
+                        }
+                        else if (Bot.HasInHand(CardId.White) && AI.Utils.IsOneEnemyBetterThanValue(3200, true))
+                        {
+                            AI.SelectPosition(CardPosition.FaceUpDefence);
+                        }
+                    }
                     List<ClientCard> self_m = Bot.GetMonsters();
                     ClientCard tosolve_enemy = AI.Utils.GetOneEnemyBetterThanMyBest();
                     foreach (ClientCard c in self_m)
@@ -499,7 +549,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool yellow_p()
+        public bool Yellow_eff()
         {
             if (!Bot.HasInHand(CardId.Stage) && !Bot.HasInSpellZone(CardId.Stage) && Bot.GetRemainingCount(CardId.Stage,3) > 0)
             {
@@ -630,7 +680,7 @@ namespace WindBot.Game.AI.Decks
             }
         }
 
-        public bool white_p()
+        public bool White_eff()
         {
             if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
             {
@@ -650,8 +700,24 @@ namespace WindBot.Game.AI.Decks
                 if (Enemy.GetMonsterCount() == 0 && !AI.Utils.IsTurn1OrMain2()) return true;
                 else if (Enemy.GetMonsterCount() != 0)
                 {
-                    return (Enemy.GetMonsters().GetLowestAttackMonster().Attack < 2000 ||
-                        Enemy.GetMonsters().GetLowestDefenseMonster().Defense < 2000);
+                    ClientCard tosolve = AI.Utils.GetBestEnemyMonster(true);
+                    ClientCard self_card = Bot.GetMonsters().GetHighestAttackMonster();
+                    if (tosolve == null || self_card == null || (tosolve != null && self_card != null && !IsTrickstar(self_card.Id)))
+                    {
+                        return (Enemy.GetMonsters().GetLowestAttackMonster() == null ||
+                            Enemy.GetMonsters().GetLowestDefenseMonster() == null ||
+                            Enemy.GetMonsters().GetLowestAttackMonster().Attack < 2000 ||
+                            Enemy.GetMonsters().GetLowestDefenseMonster().Defense < 2000);
+                    }
+                    if (tosolve != null && self_card != null && IsTrickstar(self_card.Id))
+                    {
+                        int attacker_atk = self_card.Attack;
+                        int defender_power = tosolve.GetDefensePower();
+                        if (attacker_atk <= defender_power && attacker_atk * 2 >= defender_power)
+                        {
+                            return false;
+                        }
+                    }
                 }
                 return false;
             }
@@ -659,11 +725,11 @@ namespace WindBot.Game.AI.Decks
 
         public bool Reincarnation()
         {
-            if (Card.Location == CardLocation.Grave) return ts_reborn();
+            if (Card.Location == CardLocation.Grave) return Ts_reborn();
             return true;
         }
 
-        public bool ts_reborn()
+        public bool Ts_reborn()
         {
             bool can_summon = (Duel.Player == 0 && NormalSummoned);
             if (can_summon)
@@ -698,13 +764,13 @@ namespace WindBot.Game.AI.Decks
             }
         }
 
-        public bool yellow_sum()
+        public bool Yellow_sum()
         {
             NormalSummoned = true;
             return true;
         }
 
-        public bool red_sum()
+        public bool Red_sum()
         {
             if ((Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 1800) || (Duel.Turn == 1 && Bot.HasInHand(CardId.Re)))
             {
@@ -714,7 +780,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool pink_sum()
+        public bool Pink_sum()
         {
             if (Duel.LifePoints[1] <= 1000)
             {
@@ -729,9 +795,9 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool tuner_ns()
+        public bool Tuner_ns()
         {
-            if (tuner_ss())
+            if ((Card.Id == CardId.Tuner && Bot.HasInExtra(CardId.Crystal) && !tuner_eff_used) || Tuner_ss())
             {
                 NormalSummoned = true;
                 return true;
@@ -739,8 +805,9 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool tuner_ss()
+        public bool Tuner_ss()
         {
+            if (crystal_eff_used) return false;
             if (Bot.GetMonsterCount() == 0 || !Bot.HasInExtra(CardId.Crystal)) return false;
             int count = 0;
             if (Card.Id != CardId.Urara) count += 1;
@@ -752,7 +819,14 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool linkuri_ss()
+        public bool Tuner_eff()
+        {
+            tuner_eff_used = true;
+            AI.SelectPosition(CardPosition.FaceUpDefence);
+            return true;
+        }
+
+        public bool Linkuri_ss()
         {
             foreach(ClientCard c in Bot.GetMonsters())
             {
@@ -765,15 +839,16 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool linkuri_eff()
+        public bool Linkuri_eff()
         {
             if (LastChainPlayer == 0 && GetLastChainCard().Id == CardId.Linkuri) return false;
             AI.SelectCard(new[] { CardId.Tuner, CardId.BF + 1 });
             return true;
         }
 
-        public bool crystal_ss()
+        public bool Crystal_ss()
         {
+            if (crystal_eff_used) return false;
             if (Bot.HasInMonstersZone(CardId.BF) && Bot.HasInMonstersZone(CardId.BF + 1))
             {
                 AI.SelectCard(new[]
@@ -794,24 +869,37 @@ namespace WindBot.Game.AI.Decks
             if (targets.Count == 0) return false;
             foreach(ClientCard e_check in Bot.GetMonsters())
             {
-                if (targets[0] != e_check && getLinkMarker(e_check.Id) <= 2 && e_check.Id != CardId.Eater)
+                if (targets[0] != e_check && getLinkMarker(e_check.Id) <= 2 && e_check.Id != CardId.Eater && e_check.Id != CardId.Crystal)
                 {
                     targets.Add(e_check);
                     break;
                 }
             }
             if (targets.Count <= 1) return false;
-            return false;
+            AI.SelectCard(targets);
+            return true;
         }
 
-        public bool crystal_eff()
+        public bool Crystal_eff()
         {
             if (Duel.Player == 0)
             {
+                crystal_eff_used = true;
                 AI.SelectCard(new[] { CardId.Tuner, CardId.Ghost , CardId.Urara});
                 return true;
             }
             else if (AI.Utils.IsChainTarget(Card) || AI.Utils.GetProblematicEnemySpell() != null) return true;
+            else if (Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && AI.Utils.IsOneEnemyBetterThanValue(1500,true)) {
+                if (AI.Utils.IsOneEnemyBetterThanValue(1900, true))
+                {
+                    AI.SelectPosition(CardPosition.FaceUpDefence);
+                }
+                else
+                {
+                    AI.SelectPosition(CardPosition.FaceUpAttack);
+                }
+                return true;
+            }
             return false;
         }
 
@@ -823,7 +911,7 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        public bool safedragon_ss()
+        public bool Safedragon_ss()
         {
             ClientCard m = AI.Utils.GetProblematicEnemyMonster();
             if (m == null)
@@ -832,7 +920,11 @@ namespace WindBot.Game.AI.Decks
             }
             ClientCard ex_1 = Bot.MonsterZone[5];
             ClientCard ex_2 = Bot.MonsterZone[6];
-            if (!((ex_2 != null && ex_2.Controller == 0) || (ex_1 != null && ex_1.Controller == 0))) return false;
+            ClientCard ex = null;
+            if (ex_1 != null && ex_1.Controller == 0) ex = ex_1;
+            if (ex_2 != null && ex_2.Controller == 0) ex = ex_2;
+            if (ex == null) return false;
+            if (!Has_down_arrow(ex.Id)) return false;
             IList<ClientCard> targets = new List<ClientCard>();
             foreach (ClientCard s_m in Bot.GetMonsters())
             {
@@ -847,7 +939,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool phoneix_ss()
+        public bool Phoneix_ss()
         {
             ClientCard m = AI.Utils.GetProblematicEnemySpell();
             if (m == null)
@@ -865,14 +957,9 @@ namespace WindBot.Game.AI.Decks
                 }
                 else
                 {
-                    if (s_m.Id != CardId.Eater)
+                    if (s_m.Id != CardId.Eater && !targets.ContainsCardWithId(s_m.Id))
                     {
-                        bool same = false;
-                        foreach(ClientCard checkcard in targets)
-                        {
-                            if (checkcard.Id == s_m.Id) same = true;break;
-                        }
-                        if (!same) targets.Add(s_m);
+                        targets.Add(s_m);
                     };
                 };
                 if (targets.Count >= 2) break;
@@ -885,7 +972,13 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        public bool unicorn_ss() {
+        public bool Phoneix_eff()
+        {
+            AI.SelectCard(Useless_List());
+            return true;
+        }
+
+        public bool Unicorn_ss() {
             ClientCard m = AI.Utils.GetProblematicEnemyCard();
             if (m == null)
             {
@@ -898,12 +991,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (s_m.Id != CardId.Eater && getLinkMarker(s_m.Id) <= 2)
                 {
-                    bool same = false;
-                    foreach (ClientCard checkcard in targets)
-                    {
-                        if (checkcard.Id == s_m.Id) same = true; break;
-                    }
-                    if (!same)
+                    if (!targets.ContainsCardWithId(s_m.Id))
                     {
                         targets.Add(s_m);
                         link_count += getLinkMarker(s_m.Id);
@@ -916,23 +1004,21 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        public bool unicorn_eff()
+        public bool Unicorn_eff()
         {
             ClientCard m = AI.Utils.GetProblematicEnemyCard();
-            Logger.DebugWriteLine("独角兽的效果对象：");
-            Logger.DebugWriteLine(m.Name);
             if (m == null) return false;
-            AI.SelectCard(Bot.Hand[0]);
+            AI.SelectCard(Useless_List());
             AI.SelectNextCard(m);
             return true;
         }
 
-        public bool snake_ss()
+        public bool Snake_ss()
         {
             IList<ClientCard> targets = new List<ClientCard>();
             foreach (ClientCard m in Bot.GetMonsters())
             {
-                if (m.Attack < 1900)
+                if (m.Attack < 1900 && !targets.ContainsCardWithId(m.Id))
                 {
                     targets.Add(m);
                 }
@@ -947,14 +1033,12 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool snake_eff()
+        public bool Snake_eff()
         {
-            Logger.DebugWriteLine("锁龙蛇记录：");
-            Logger.DebugWriteLine(ActivateDescription.ToString());
-            Logger.DebugWriteLine(AI.Utils.GetStringId(CardId.snake, 2).ToString());
             if (snake_four_s)
             {
                 snake_four_s = false;
+                AI.SelectCard(Useless_List());
                 return true;
             }
             //if (ActivateDescription == AI.Utils.GetStringId(CardId.snake, 2)) return true;
@@ -969,7 +1053,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     if (hand.Id == CardId.Urara || hand.Id == CardId.Ghost)
                     {
-                        if (tuner_ss())
+                        if (Tuner_ss())
                         {
                             AI.SelectCard(hand);
                             return true;
@@ -977,11 +1061,6 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
-            return false;
-        }
-
-        public bool borrel_ss()
-        {
             return false;
         }
 
@@ -1009,6 +1088,7 @@ namespace WindBot.Game.AI.Decks
             stage_locked = null;
             pink_ss = false;
             snake_four_s = false;
+            crystal_eff_used = false;
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
