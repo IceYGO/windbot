@@ -369,6 +369,9 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultMonsterRepos()
         {
+            if (Card.IsFaceup() && Card.IsDefense() && Card.Attack == 0)
+                return false;
+
             bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
 
             if (Card.IsAttack() && enemyBetter)
