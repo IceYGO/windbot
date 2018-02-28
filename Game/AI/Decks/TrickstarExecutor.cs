@@ -50,6 +50,7 @@ namespace WindBot.Game.AI.Decks
             public const int Beelze = 34408491;
             public const int Abyss = 9753964;
             public const int Exterio = 99916754;
+            public const int Ultimate = 86221741;
 
             public const int Missus = 3987233;
         }
@@ -57,6 +58,7 @@ namespace WindBot.Game.AI.Decks
         public int getLinkMarker(int id)
         {
             if (id == CardId.borrel || id == CardId.snake) return 4;
+            else if (id == CardId.Abyss || id == CardId.Beelze || id == CardId.Exterio || id == CardId.Ultimate) return 5;
             else if (id == CardId.unicorn) return 3;
             else if (id == CardId.Crystal || id == CardId.phoneix || id == CardId.SafeDra || id == CardId.Missus) return 2;
             return 1;
@@ -71,6 +73,7 @@ namespace WindBot.Game.AI.Decks
         int red_ss_count = 0;
         bool white_eff_used = false;
         bool lockbird_useful = false;
+        bool lockbird_used = false;
 
         public TrickstarExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -82,7 +85,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Grass, Grass_ss);
             AddExecutor(ExecutorType.Activate, CardId.Urara, Hand_act_eff);
             AddExecutor(ExecutorType.Activate, CardId.Ghost, Hand_act_eff);
-            AddExecutor(ExecutorType.Activate, CardId.Ring, DefaultCompulsoryEvacuationDevice);
+            AddExecutor(ExecutorType.Activate, CardId.Ring, Ring_act);
             AddExecutor(ExecutorType.Activate, CardId.Abyss, Abyss_eff);
             AddExecutor(ExecutorType.Activate, CardId.Exterio, Exterio_counter);
 
@@ -106,9 +109,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Tuner,Tuner_eff);
 
             // ex ss
+            AddExecutor(ExecutorType.SpSummon, CardId.borrel, Borrel_ss);
             AddExecutor(ExecutorType.SpSummon, CardId.snake, Snake_ss);
             AddExecutor(ExecutorType.SpSummon, CardId.Missus, Missus_ss);
-            AddExecutor(ExecutorType.SpSummon, CardId.borrel, Borrel_ss);
             AddExecutor(ExecutorType.SpSummon, CardId.phoneix, Phoneix_ss);
             AddExecutor(ExecutorType.SpSummon, CardId.unicorn, Unicorn_ss);
             AddExecutor(ExecutorType.SpSummon, CardId.Crystal, Crystal_ss);
@@ -235,6 +238,14 @@ namespace WindBot.Game.AI.Decks
             if (!Enemy.HasInMonstersZone(CardId.Ghost) || Enemy.GetHandCount() <= 1)
             {
                 ClientCard tosolve = AI.Utils.GetProblematicEnemyCard();
+                if (tosolve == null)
+                {
+                    if (LastChainPlayer == 1 && GetLastChainCard() != null)
+                    {
+                        ClientCard target = GetLastChainCard();
+                        if (target.HasPosition(CardPosition.FaceUp) && (target.Location == CardLocation.MonsterZone || target.Location == CardLocation.SpellZone)) tosolve = target;
+                    }
+                }
                 if (tosolve != null)
                 {
                     AI.SelectCard(tosolve);
@@ -349,7 +360,7 @@ namespace WindBot.Game.AI.Decks
                     stage_locked = null;
                     return true;
                 }
-                else if (Duel.LifePoints[1] <= 1000 && !pink_ss)
+                else if (Duel.LifePoints[1] <= 1000 && Bot.GetRemainingCount(CardId.Pink,1) > 0)
                 {
                     AI.SelectCard(new[]
                     {
@@ -403,6 +414,18 @@ namespace WindBot.Game.AI.Decks
 
             if (NormalSummoned)
             {
+                if (Duel.LifePoints[1] <= 1000 && !pink_ss && Bot.GetRemainingCount(CardId.Pink,1) > 0)
+                {
+                    AI.SelectCard(new[]
+                    {
+                        CardId.Pink,
+                        CardId.Yellow,
+                        CardId.Red,
+                        CardId.White
+                    });
+                    stage_locked = null;
+                    return true;
+                }
                 if (Bot.HasInMonstersZone(CardId.Yellow) && !Bot.HasInHand(CardId.Red))
                 {
                     AI.SelectCard(new[]
@@ -415,19 +438,7 @@ namespace WindBot.Game.AI.Decks
                     stage_locked = null;
                     return true;
                 }
-                else if (Duel.LifePoints[1] <= 1000 && !pink_ss)
-                {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Pink,
-                        CardId.Yellow,
-                        CardId.Red,
-                        CardId.White
-                    });
-                    stage_locked = null;
-                    return true;
-                }
-                else if (Enemy.GetMonsterCount() > 0 && AI.Utils.GetBestEnemyMonster().Attack >= AI.Utils.GetBestAttack(Bot))
+                if (Enemy.GetMonsterCount() > 0 && AI.Utils.GetBestEnemyMonster().Attack >= AI.Utils.GetBestAttack(Bot))
                 {
                     AI.SelectCard(new[]
                     {
@@ -439,18 +450,15 @@ namespace WindBot.Game.AI.Decks
                     stage_locked = null;
                     return true;
                 }
-                else if (!Bot.HasInSpellZone(CardId.Stage))
+                AI.SelectCard(new[]
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Yellow,
-                        CardId.Pink,
-                        CardId.Red,
-                        CardId.White
-                    });
-                    stage_locked = null;
-                    return true;
-                }
+                    CardId.Yellow,
+                    CardId.Pink,
+                    CardId.Red,
+                    CardId.White
+                });
+                stage_locked = null;
+                return true;
             }
             stage_locked = null;
             return false;
@@ -526,6 +534,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Eater_ss()
         {
+            if (AI.Utils.GetProblematicEnemyMonster() == null && Bot.ExtraDeck.Count < 5) return false;
             if (AI.Utils.IsTurn1OrMain2()) return false;
             IList<ClientCard> targets = new List<ClientCard>();
             if (Bot.SpellZone[5] != null && Bot.SpellZone[5].IsFacedown())
@@ -541,15 +550,17 @@ namespace WindBot.Game.AI.Decks
                 targets.Add(e_c);
                 if (targets.Count >= 5)
                 {
+                    AI.SelectPosition(CardPosition.FaceUpAttack);
                     AI.SelectCard(targets);
                     return true;
                 }
             }
-            foreach (ClientCard s_c in Bot.SpellZone)
+            foreach (ClientCard s_c in Bot.GetSpells())
             {
                 targets.Add(s_c);
                 if (targets.Count >= 5)
                 {
+                    AI.SelectPosition(CardPosition.FaceUpAttack);
                     AI.SelectCard(targets);
                     return true;
                 }
@@ -659,12 +670,12 @@ namespace WindBot.Game.AI.Decks
                     CardId.White,
                     CardId.Pink,
                     CardId.Re,
-                    CardId.Ring,
+                    CardId.Crown,
                     CardId.Yellow
                 });
                 return true;
             }
-            else if (Enemy.GetMonsterCount() == 0 && !AI.Utils.IsTurn1OrMain2())
+            if (Enemy.GetMonsterCount() == 0 && !AI.Utils.IsTurn1OrMain2())
             {
                 if (Bot.HasInGraveyard(CardId.Red) && Bot.GetRemainingCount(CardId.Pink, 1) > 0 && !pink_ss)
                 {
@@ -675,7 +686,7 @@ namespace WindBot.Game.AI.Decks
                         CardId.White,
                         CardId.Re,
                         CardId.Stage,
-                        CardId.Ring,
+                        CardId.Crown,
                         CardId.Yellow
                     });
                 }
@@ -683,7 +694,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     AI.SelectCard(new[]
                     {
-                        CardId.Ring,
+                        CardId.Crown,
                         CardId.Red,
                         CardId.White,
                         CardId.Re,
@@ -701,15 +712,15 @@ namespace WindBot.Game.AI.Decks
                         CardId.Pink,
                         CardId.Re,
                         CardId.Stage,
-                        CardId.Ring,
+                        CardId.Crown,
                         CardId.Yellow
                     });
                 }
-                else if (Bot.HasInGraveyard(CardId.White) && Bot.GetRemainingCount(CardId.Ring, 1) > 0)
+                else if (Bot.HasInGraveyard(CardId.White) && Bot.GetRemainingCount(CardId.Crown, 1) > 0)
                 {
                     AI.SelectCard(new[]
                     {
-                        CardId.Ring,
+                        CardId.Crown,
                         CardId.Red,
                         CardId.Pink,
                         CardId.Re,
@@ -725,7 +736,7 @@ namespace WindBot.Game.AI.Decks
                         CardId.Red,
                         CardId.Pink,
                         CardId.Re,
-                        CardId.Ring,
+                        CardId.Crown,
                         CardId.Stage,
                         CardId.White,
                         CardId.Yellow
@@ -733,7 +744,37 @@ namespace WindBot.Game.AI.Decks
                 }
                 return true;
             }
-            else if (AI.Utils.GetProblematicEnemyMonster() != null)
+            if (Duel.LifePoints[1] <= 1000)
+            {
+                if (Bot.GetRemainingCount(CardId.Pink,1) > 0 && !pink_ss)
+                {
+                    AI.SelectCard(new[]
+                    {
+                        CardId.Pink,
+                        CardId.Stage,
+                        CardId.Red,
+                        CardId.White,
+                        CardId.Re,
+                        CardId.Crown,
+                        CardId.Yellow
+                    });
+                    return true;
+                } else if (Bot.HasInGraveyard(CardId.Pink) && Bot.GetRemainingCount(CardId.Crown,1) > 0)
+                {
+                    AI.SelectCard(new[]
+                    {
+                        CardId.Crown,
+                        CardId.Pink,
+                        CardId.Re,
+                        CardId.Stage,
+                        CardId.Red,
+                        CardId.White,
+                        CardId.Yellow
+                    });
+                    return true;
+                }
+            }
+            if (AI.Utils.GetProblematicEnemyMonster() != null)
             {
                 int atk = AI.Utils.GetProblematicEnemyMonster().Attack;
                 if (atk >= 1800 && atk <= 3600 && Bot.GetRemainingCount(CardId.White, 2) > 0)
@@ -745,7 +786,7 @@ namespace WindBot.Game.AI.Decks
                         CardId.Pink,
                         CardId.Re,
                         CardId.Stage,
-                        CardId.Ring,
+                        CardId.Crown,
                         CardId.Yellow
                     });
                 }
@@ -756,39 +797,38 @@ namespace WindBot.Game.AI.Decks
                         CardId.Red,
                         CardId.Pink,
                         CardId.Re,
-                        CardId.Ring,
+                        CardId.Crown,
                         CardId.Stage,
                         CardId.White,
                         CardId.Yellow
                     });
                 }
                 return true;
-            } else if ((Bot.HasInHand(CardId.Red) || Bot.HasInHand(CardId.Stage)) && Bot.GetRemainingCount(CardId.Re,1) > 0 && Bot.HasInHand(CardId.LockBird)) {
+            }
+            if ((Bot.HasInHand(CardId.Red) || Bot.HasInHand(CardId.Stage)) && Bot.GetRemainingCount(CardId.Re,1) > 0 && Bot.HasInHand(CardId.LockBird)) {
                 AI.SelectCard(new[]
                 {
                     CardId.Re,
                     CardId.Red,
                     CardId.White,
-                    CardId.Ring,
+                    CardId.Crown,
                     CardId.Pink,
                     CardId.Stage,
-                    CardId.Yellow
-                });
-                return true;
-            } else
-            {
-                AI.SelectCard(new[]
-                {
-                    CardId.Red,
-                    CardId.Pink,
-                    CardId.Re,
-                    CardId.Ring,
-                    CardId.Stage,
-                    CardId.White,
                     CardId.Yellow
                 });
                 return true;
             }
+            AI.SelectCard(new[]
+            {
+                CardId.Red,
+                CardId.Pink,
+                CardId.Re,
+                CardId.Crown,
+                CardId.Stage,
+                CardId.White,
+                CardId.Yellow
+            });
+            return true;
         }
 
         public bool White_eff()
@@ -850,9 +890,14 @@ namespace WindBot.Game.AI.Decks
 
         public bool LockBird_act()
         {
-            if (Duel.Player == 0) return false;
+            if (Duel.Player == 0 || lockbird_used) return false;
             lockbird_useful = true;
-            if (Bot.HasInSpellZone(CardId.Re)) return ChainContainsCard(CardId.Re);
+            if (Bot.HasInSpellZone(CardId.Re))
+            {
+                if (ChainContainsCard(CardId.Re)) lockbird_used = true;
+                return ChainContainsCard(CardId.Re);
+            }
+            lockbird_used = true;
             return true;
         }
 
@@ -897,6 +942,11 @@ namespace WindBot.Game.AI.Decks
 
         public bool Ts_reborn()
         {
+            if (Duel.Player == 0 && Duel.LifePoints[1] <= 1000)
+            {
+                AI.SelectCard(CardId.Pink);
+                return true;
+            }
             bool can_summon = (Duel.Player == 0 && NormalSummoned);
             if (can_summon)
             {
@@ -919,6 +969,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                
                 AI.SelectCard(new[]
                     {
                         CardId.Red,
@@ -975,6 +1026,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (crystal_eff_used) return false;
             if (Bot.GetMonsterCount() == 0 || !Bot.HasInExtra(CardId.Crystal)) return false;
+            if (Card.Id == CardId.Ghost && Bot.GetRemainingCount(CardId.Ghost, 2) <= 0) return false;
             int count = 0;
             if (Card.Id != CardId.Urara) count += 1;
             foreach(ClientCard hand in Bot.Hand)
@@ -994,6 +1046,12 @@ namespace WindBot.Game.AI.Decks
             tuner_eff_used = true;
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
+        }
+
+        public bool Ring_act()
+        {
+            if (LastChainPlayer == 0 && GetLastChainCard() != null && GetLastChainCard().Id == CardId.Ghost) return false;
+            return DefaultCompulsoryEvacuationDevice();
         }
 
         public bool Linkuri_ss()
@@ -1027,9 +1085,14 @@ namespace WindBot.Game.AI.Decks
                     });
                 return true;
             }
+            foreach(ClientCard extra_card in Bot.GetMonstersInExtraZone())
+            {
+                if (getLinkMarker(extra_card.Id) >= 5) return false;
+            }
             IList<ClientCard> targets = new List<ClientCard>();
             foreach(ClientCard t_check in Bot.GetMonsters())
             {
+                if (t_check.IsFacedown()) continue;
                 if (t_check.Id == CardId.BF || t_check.Id == CardId.Tuner || t_check.Id == CardId.Urara || t_check.Id == CardId.Ghost)
                 {
                     targets.Add(t_check);
@@ -1039,6 +1102,7 @@ namespace WindBot.Game.AI.Decks
             if (targets.Count == 0) return false;
             foreach(ClientCard e_check in Bot.GetMonsters())
             {
+                if (e_check.IsFacedown()) continue;
                 if (targets[0] != e_check && getLinkMarker(e_check.Id) <= 2 && e_check.Id != CardId.Eater && e_check.Id != CardId.Crystal)
                 {
                     targets.Add(e_check);
@@ -1046,7 +1110,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             if (targets.Count <= 1) return false;
-            AI.SelectCard(targets);
+            AI.SelectMaterials(targets);
             return true;
         }
 
@@ -1077,16 +1141,26 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location != CardLocation.MonsterZone) return true;
             ClientCard target = AI.Utils.GetProblematicEnemySpell();
-            if (target != null) AI.SelectCard(target);
+            IList<ClientCard> list = new List<ClientCard>();
+            if (target != null) list.Add(target);
+            foreach(ClientCard spells in Enemy.GetSpells())
+            {
+                if (spells != null && !list.Contains(spells)) list.Add(spells);
+            }
+            AI.SelectCard(list);
             return true;
         }
 
         public bool Safedragon_ss()
         {
             ClientCard m = AI.Utils.GetProblematicEnemyMonster();
+            foreach(ClientCard ex_m in Bot.GetMonstersInExtraZone())
+            {
+                if (getLinkMarker(ex_m.Id) >= 4) return false;
+            }
             if (m == null)
             {
-                if (Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 1100 && Duel.Phase < DuelPhase.Battle)
+                if (Enemy.GetMonsterCount() == 0 && Duel.Phase < DuelPhase.Battle)
                 {
                     IList<ClientCard> list = new List<ClientCard>();
                     foreach(ClientCard monster in Bot.GetMonsters())
@@ -1094,7 +1168,12 @@ namespace WindBot.Game.AI.Decks
                         if (getLinkMarker(monster.Id) <= 2) list.Add(monster);
                         if (list.Count >= 2) break;
                     }
-                    return (list.Count >= 2 && GetTotalATK(list) <= 1100);
+                    if (list.Count >= 2 && GetTotalATK(list) <= 1100)
+                    {
+                        AI.SelectMaterials(list);
+                        return true;
+                    }
+                    return false;
                 }
             }
             ClientCard ex_1 = Bot.MonsterZone[5];
@@ -1112,7 +1191,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (targets.Count >= 2)
             {
-                AI.SelectCard(targets);
+                AI.SelectMaterials(targets);
                 return true;
             }
             return false;
@@ -1128,10 +1207,14 @@ namespace WindBot.Game.AI.Decks
                     IList<ClientCard> m_list = new List<ClientCard>();
                     foreach(ClientCard monster in Bot.GetMonsters())
                     {
-                        if (getLinkMarker(monster.Id) == 1) m_list.Add(monster);
+                        if (getLinkMarker(monster.Id) == 1 && monster.IsFaceup()) m_list.Add(monster);
                         if (m_list.Count == 2) break;
                     }
-                    return (m_list.Count == 2 && GetTotalATK(m_list) <= 1900);
+                    if (m_list.Count == 2 && GetTotalATK(m_list) <= 1900)
+                    {
+                        AI.SelectMaterials(m_list);
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -1140,6 +1223,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard ex_zone = null;
             foreach (ClientCard s_m in Bot.GetMonsters())
             {
+                if (s_m.IsFacedown()) continue;
                 if (s_m == Bot.MonsterZone[5] && s_m != Bot.MonsterZone[6])
                 {
                     ex_zone = s_m;
@@ -1181,14 +1265,18 @@ namespace WindBot.Game.AI.Decks
                         {
                             link_count += 2;
                             m_list.Add(monster);
-                        } else if (getLinkMarker(monster.Id) == 1)
+                        } else if (getLinkMarker(monster.Id) == 1 && monster.IsFaceup())
                         {
                             link_count += 1;
                             m_list.Add(monster);
                         }
                         if (link_count >= 3) break;
                     }
-                    return (link_count >= 3 && GetTotalATK(m_list) <= 2200);
+                    if (link_count >= 3 && GetTotalATK(m_list) <= 2200)
+                    {
+                        AI.SelectMaterials(m_list);
+                        return true;
+                    }
                 }
                 return false;
             }
@@ -1196,7 +1284,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> targets = new List<ClientCard>();
             foreach (ClientCard s_m in Bot.GetMonsters())
             {
-                if (s_m.Id != CardId.Eater && getLinkMarker(s_m.Id) <= 2)
+                if (s_m.Id != CardId.Eater && getLinkMarker(s_m.Id) <= 2 && s_m.IsFaceup())
                 {
                     if (!targets.ContainsCardWithId(s_m.Id))
                     {
@@ -1215,8 +1303,23 @@ namespace WindBot.Game.AI.Decks
         {
             ClientCard m = AI.Utils.GetProblematicEnemyCard();
             if (m == null) return false;
+            // avoid cards that cannot target.
             AI.SelectCard(Useless_List());
-            AI.SelectNextCard(m);
+            IList<ClientCard> enemy_list = new List<ClientCard>();
+            enemy_list.Add(m);
+            foreach(ClientCard enemy in Enemy.GetMonstersInExtraZone())
+            {
+                if (enemy != null && !enemy_list.Contains(enemy)) enemy_list.Add(enemy);
+            }
+            foreach (ClientCard enemy in Enemy.GetMonstersInMainZone())
+            {
+                if (enemy != null && !enemy_list.Contains(enemy)) enemy_list.Add(enemy);
+            }
+            foreach (ClientCard enemy in Enemy.GetSpells())
+            {
+                if (enemy != null && !enemy_list.Contains(enemy)) enemy_list.Add(enemy);
+            }
+            AI.SelectNextCard(enemy_list);
             return true;
         }
 
@@ -1226,14 +1329,14 @@ namespace WindBot.Game.AI.Decks
             // exzone fo first
             foreach (ClientCard e_m in Bot.GetMonstersInExtraZone())
             {
-                if (e_m.Attack < 1900 && !targets.ContainsCardWithId(e_m.Id))
+                if (e_m.Attack < 1900 && !targets.ContainsCardWithId(e_m.Id) && e_m.IsFaceup())
                 {
                     targets.Add(e_m);
                 }
             }
             foreach (ClientCard m in Bot.GetMonstersInMainZone())
             {
-                if (m.Attack < 1900 && !targets.ContainsCardWithId(m.Id))
+                if (m.Attack < 1900 && !targets.ContainsCardWithId(m.Id) && m.IsFaceup())
                 {
                     targets.Add(m);
                 }
@@ -1288,7 +1391,7 @@ namespace WindBot.Game.AI.Decks
                 if (monster.HasAttribute(CardAttribute.Earth) && getLinkMarker(monster.Id) == 1) material_list.Add(monster);
             }
             if (material_list.Count < 2) return false;
-            if (Enemy.GetMonsterCount() == 0)
+            if (Enemy.GetMonsterCount() == 0 || AI.Utils.GetProblematicEnemyMonster(2000) == null)
             {
                 AI.SelectMaterials(material_list);
                 return true;
@@ -1315,6 +1418,8 @@ namespace WindBot.Game.AI.Decks
         {
             bool already_link2 = false;
             IList<ClientCard> material_list = new List<ClientCard>();
+            if (AI.Utils.GetProblematicEnemyMonster(2000) == null) Logger.DebugWriteLine("borrel:null");
+            else Logger.DebugWriteLine("borrel:" + (AI.Utils.GetProblematicEnemyMonster(2000).Name==null ? "unknown" : AI.Utils.GetProblematicEnemyMonster(2000).Name));
             if (AI.Utils.GetProblematicEnemyMonster(2000) != null || (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Duel.LifePoints[1] <= 3000))
             {
                 foreach(ClientCard e_m in Bot.GetMonstersInExtraZone())
@@ -1372,6 +1477,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Id == CardId.Eater && Card.IsAttack()) return false;
 
+            if (IsTrickstar(Card.Id) && !white_eff_used && Bot.HasInHand(CardId.White) && Card.IsAttack() && Duel.Phase == DuelPhase.Main1) return false;
+
             if (Card.IsFaceup() && Card.IsDefense() && Card.Attack == 0)
                 return false;
             bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
@@ -1399,6 +1506,7 @@ namespace WindBot.Game.AI.Decks
             red_ss_count = 0;
             white_eff_used = false;
             lockbird_useful = false;
+            lockbird_used = false;
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
@@ -1407,7 +1515,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (IsTrickstar(attacker.Id) && Bot.HasInHand(CardId.White) && !white_eff_used)
                     attacker.RealPower = attacker.RealPower * 2;
-                else if (attacker.Id == CardId.Eater)
+                else if (attacker.Id == CardId.Eater && !defender.HasType(CardType.Token))
                     attacker.RealPower = 99999;
             }
             return base.OnPreBattleBetween(attacker, defender);
