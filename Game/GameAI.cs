@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Collections.Generic;
 using WindBot.Game.AI;
 using YGOSharp.OCGWrapper.Enums;
@@ -90,6 +90,8 @@ namespace WindBot.Game
             m_option = -1;
             m_yesno = -1;
             m_position = CardPosition.FaceUpAttack;
+            m_attacker = null;
+            m_defender = null;
             Duel.LastSummonPlayer = -1;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
@@ -626,8 +628,26 @@ namespace WindBot.Game
         private int m_number;
         private int m_announce;
         private int m_yesno;
+        private ClientCard m_attacker;
+        private ClientCard m_defender;
         private IList<CardAttribute> m_attributes = new List<CardAttribute>();
         private IList<CardRace> m_races = new List<CardRace>();
+
+        public void SendBattleMsg(ClientCard attackcard, ClientCard defendcard)
+        {
+            m_attacker = attackcard;
+            m_defender = defendcard;
+        }
+
+        public ClientCard GetAttacker()
+        {
+            return m_attacker;
+        }
+
+        public ClientCard GetDefender()
+        {
+            return m_defender;
+        }
 
         public void SelectCard(ClientCard card)
         {
