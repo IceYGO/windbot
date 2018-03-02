@@ -1601,13 +1601,12 @@ namespace WindBot.Game.AI.Decks
                         ClientCard attacker = attackers[j];
                         attacker.RealPower = attacker.Attack;
                         defender.RealPower = defender.GetDefensePower();
-                        if (!OnPreBattleBetween(attacker, defender))
-                            continue;
-                        // add
                         if (!defender.IsMonsterHasPreventActivationEffectInBattle() && !attacker.IsDisabled())
                         {
                             if ((attacker.Id == CardId.Eater && !defender.HasType(CardType.Token)) || attacker.Id == CardId.borrel) return AI.Attack(attacker, defender);
                         }
+                        if (!OnPreBattleBetween(attacker, defender))
+                            continue;
 
                         if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && j == attackers.Count - 1))
                             return AI.Attack(attacker, defender);
