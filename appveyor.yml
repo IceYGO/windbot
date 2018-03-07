@@ -27,5 +27,5 @@ deploy:
   auth_token:
     secure: EQ9miMjfX/QAoBvgc6D+JLmHatLyxOEKZ/uo68QijxWW5Gp4MzB/pOH9+u2GlDVO
   on:
-    branch: masterr
+    branch: master
 
