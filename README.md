@@ -180,3 +180,8 @@ The parameters are same as commandlines, but low cased.
 * Update the known card enums
 
 * More default common cards executor
+
+### Features in this branch
+
+* Added support for Group.SelectUnselect. This is mainly to support KoishiPro or EdoPro.
+
