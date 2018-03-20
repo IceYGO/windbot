@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using YGOSharp.OCGWrapper.Enums;
 using WindBot;
@@ -33,6 +33,9 @@ namespace WindBot.Game.AI
             public const int Number39Utopia = 84013237;
             public const int UltimayaTzolkin = 1686814;
 
+            public const int VampireFräulein = 6039967;
+            public const int InjectionFairyLily = 79575620;
+
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
@@ -63,6 +66,12 @@ namespace WindBot.Game.AI
 
                 if (defender.Id == _CardId.NumberS39UtopiaTheLightning && defender.IsAttack() && !defender.IsDisabled() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
                     defender.RealPower = 5000;
+                
+                if (defender.Id == _CardId.VampireFräulein && !defender.IsDisabled())
+                    defender.RealPower += (Duel.LifePoints[defender.Controller] > 3000) ? 3000 : (Duel.LifePoints[defender.Controller] - 100);
+
+                if (defender.Id == _CardId.InjectionFairyLily && !defender.IsDisabled() && Duel.LifePoints[defender.Controller] > 2000)
+                    defender.RealPower += 3000;
             }
 
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
