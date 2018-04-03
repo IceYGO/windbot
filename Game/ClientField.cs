@@ -33,6 +33,15 @@ namespace WindBot.Game
                 ExtraDeck.Add(new ClientCard(0, CardLocation.Extra));
         }
 
+        public int GetMonstersExtraZoneCount()
+        {
+            int count = 0;
+            if (MonsterZone[5] != null)
+                count++;
+            if (MonsterZone[6] != null)
+                count++;
+            return count;
+        }
         public int GetMonsterCount()
         {
             return GetCount(MonsterZone);
@@ -68,6 +77,7 @@ namespace WindBot.Game
         {
             return GetCards(MonsterZone);
         }
+        
 
         public List<ClientCard> GetGraveyardMonsters()
         {
