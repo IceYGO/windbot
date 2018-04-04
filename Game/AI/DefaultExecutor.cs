@@ -68,9 +68,9 @@ namespace WindBot.Game.AI
                     defender.RealPower = 5000;
                 
                 if (defender.Id == _CardId.VampireFräulein && !defender.IsDisabled())
-                    defender.RealPower += (Duel.LifePoints[defender.Controller] > 3000) ? 3000 : (Duel.LifePoints[defender.Controller] - 100);
+                    defender.RealPower += (Enemy.LifePoints > 3000) ? 3000 : (Enemy.LifePoints - 100);
 
-                if (defender.Id == _CardId.InjectionFairyLily && !defender.IsDisabled() && Duel.LifePoints[defender.Controller] > 2000)
+                if (defender.Id == _CardId.InjectionFairyLily && !defender.IsDisabled() && Enemy.LifePoints > 2000)
                     defender.RealPower += 3000;
             }
 
