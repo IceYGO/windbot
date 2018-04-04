@@ -494,7 +494,7 @@ namespace WindBot.Game
             int la = packet.ReadByte();
             int sa = packet.ReadByte();
             packet.ReadByte(); //
-            int cd = packet.ReadByte();
+            int cd = GetLocalPlayer(packet.ReadByte());
             int ld = packet.ReadByte();
             int sd = packet.ReadByte();
             packet.ReadByte(); //
