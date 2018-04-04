@@ -162,7 +162,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HorusTheBlackFlameDragonLv8()
         {
-            return LastChainPlayer == 1;
+            return Duel.LastChainPlayer == 1;
         }
 
         private bool DragonsRebirth()

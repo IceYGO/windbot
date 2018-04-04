@@ -302,7 +302,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ToadallyAwesomeEffect()
         {
-            if (CurrentChain.Count > 0)
+            if (Duel.CurrentChain.Count > 0)
             {
                 // negate effect, select a cost for it
                 List<ClientCard> monsters = Bot.GetMonsters();

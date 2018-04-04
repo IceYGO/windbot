@@ -302,7 +302,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RebornEffect()
         {
-            if (Duel.Player == 0 && CurrentChain.Count > 0)
+            if (Duel.Player == 0 && Duel.CurrentChain.Count > 0)
             {
                 // Silver's Cry spsummon Dragon Spirit at chain 2 will miss the timing
                 return false;
@@ -446,7 +446,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId(CardId.BlueEyesSpiritDragon, 0))
             {
-                return LastChainPlayer == 1;
+                return Duel.LastChainPlayer == 1;
             }
             else if (Duel.Player == 1 && (Duel.Phase == DuelPhase.BattleStart || Duel.Phase == DuelPhase.End))
             {
@@ -468,7 +468,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId(CardId.HopeHarbingerDragonTitanicGalaxy, 0))
             {
-                return LastChainPlayer == 1;
+                return Duel.LastChainPlayer == 1;
             }
             return true;
         }

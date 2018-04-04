@@ -21,9 +21,6 @@ namespace WindBot.Game.AI
         protected ClientCard Card { get; private set; }
         protected int ActivateDescription { get; private set; }
 
-        protected int LastChainPlayer { get; private set; }
-        protected IList<ClientCard> CurrentChain { get; private set; }
-
         protected ClientField Bot { get; private set; }
         protected ClientField Enemy { get; private set; }
 
@@ -32,9 +29,6 @@ namespace WindBot.Game.AI
             Duel = duel;
             AI = ai;
             Executors = new List<CardExecutor>();
-
-            LastChainPlayer = -1;
-            CurrentChain = new List<ClientCard>();
 
             Bot = Duel.Fields[0];
             Enemy = Duel.Fields[1];
@@ -109,14 +103,12 @@ namespace WindBot.Game.AI
 
         public virtual void OnChaining(int player, ClientCard card)
         {
-            CurrentChain.Add(card);
-            LastChainPlayer = player;
+            
         }
 
         public virtual void OnChainEnd()
         {
-            LastChainPlayer = -1;
-            CurrentChain.Clear();
+            
         }
 
         public virtual void OnNewTurn()
@@ -184,7 +176,7 @@ namespace WindBot.Game.AI
 
         public bool ChainContainsCard(int id)
         {
-            foreach (ClientCard card in CurrentChain)
+            foreach (ClientCard card in Duel.CurrentChain)
             {
                 if (card.Id == id)
                     return true;
@@ -195,7 +187,7 @@ namespace WindBot.Game.AI
         public int ChainCountPlayer(int player)
         {
             int count = 0;
-            foreach (ClientCard card in CurrentChain)
+            foreach (ClientCard card in Duel.CurrentChain)
             {
                 if (card.Controller == player)
                     count++;
@@ -205,7 +197,7 @@ namespace WindBot.Game.AI
 
         public bool HasChainedTrap(int player)
         {
-            foreach (ClientCard card in CurrentChain)
+            foreach (ClientCard card in Duel.CurrentChain)
             {
                 if (card.Controller == player && card.HasType(CardType.Trap))
                     return true;
@@ -215,8 +207,8 @@ namespace WindBot.Game.AI
 
         public ClientCard GetLastChainCard()
         {
-            if (CurrentChain.Count > 0)
-                return CurrentChain[CurrentChain.Count - 1];
+            if (Duel.CurrentChain.Count > 0)
+                return Duel.CurrentChain[Duel.CurrentChain.Count - 1];
             return null;
         }
 

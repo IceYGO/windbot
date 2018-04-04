@@ -486,7 +486,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DridentEffect()
         {
-            if (LastChainPlayer == 0)
+            if (Duel.LastChainPlayer == 0)
                 return false;
             ClientCard target = AI.Utils.GetBestEnemyCard(true);
             if (target == null)
@@ -571,7 +571,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ZoodiacComboEffect()
         {
-            if (CurrentChain.Count > 0)
+            if (Duel.CurrentChain.Count > 0)
                 return false;
             if (Card.Location != CardLocation.Grave)
             {

@@ -262,9 +262,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool CyberDragonInfinityEffect()
         {
-            if (CurrentChain.Count > 0)
+            if (Duel.CurrentChain.Count > 0)
             {
-                return LastChainPlayer == 1;
+                return Duel.LastChainPlayer == 1;
             }
             else
             {

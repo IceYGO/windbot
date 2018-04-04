@@ -95,7 +95,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultMysticalSpaceTyphoon()
         {
-            foreach (ClientCard card in CurrentChain)
+            foreach (ClientCard card in Duel.CurrentChain)
                 if (card.Id == _CardId.MysticalSpaceTyphoon)
                     return false;
 
@@ -128,7 +128,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultCosmicCyclone()
         {
-            foreach (ClientCard card in CurrentChain)
+            foreach (ClientCard card in Duel.CurrentChain)
                 if (card.Id == _CardId.CosmicCyclone)
                     return false;
             return (Bot.LifePoints > 1000) && DefaultMysticalSpaceTyphoon();
@@ -247,7 +247,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnJudgment()
         {
-            return !AI.Utils.IsChainTargetOnly(Card) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+            return !AI.Utils.IsChainTargetOnly(Card) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnWarning()
         {
-            return (Bot.LifePoints > 2000) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+            return (Bot.LifePoints > 2000) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnStrike()
         {
-            return (Bot.LifePoints > 1500) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+            return (Bot.LifePoints > 1500) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -386,7 +386,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTrap()
         {
-            return (LastChainPlayer == -1 && Duel.LastSummonPlayer != 0) || LastChainPlayer == 1;
+            return (Duel.LastChainPlayer == -1 && Duel.LastSummonPlayer != 0) || Duel.LastChainPlayer == 1;
         }
 
         /// <summary>
@@ -436,7 +436,7 @@ namespace WindBot.Game.AI
                 if (exec.Type == Type && exec.CardId == Card.Id)
                     return false;
             }
-            return LastChainPlayer != 0;
+            return Duel.LastChainPlayer != 0;
         }
 
         /// <summary>
@@ -510,7 +510,7 @@ namespace WindBot.Game.AI
                 }
             }
             ClientCard lastchaincard = GetLastChainCard();
-            if (LastChainPlayer == 1 && lastchaincard != null && !lastchaincard.IsDisabled())
+            if (Duel.LastChainPlayer == 1 && lastchaincard != null && !lastchaincard.IsDisabled())
             {
                 if (lastchaincard.HasType(CardType.Ritual))
                 {
@@ -690,7 +690,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultStardustDragonEffect()
         {
-            return (Card.Location == CardLocation.Grave) || LastChainPlayer == 1;
+            return (Card.Location == CardLocation.Grave) || Duel.LastChainPlayer == 1;
         }
 
         /// <summary>

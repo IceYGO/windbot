@@ -421,6 +421,9 @@ namespace WindBot.Game
         private void OnNewPhase(BinaryReader packet)
         {
             _duel.Phase = (DuelPhase)packet.ReadInt16();
+            _duel.LastSummonPlayer = -1;
+            _duel.Fields[0].BattlingMonster = null;
+            _duel.Fields[1].BattlingMonster = null;
             _ai.OnNewPhase();
         }
 
@@ -534,11 +537,17 @@ namespace WindBot.Game
             int cc = GetLocalPlayer(packet.ReadByte());
             _ai.OnChaining(card, cc);
             _duel.ChainTargets.Clear();
+            _duel.LastSummonPlayer = -1;
+            _duel.CurrentChain.Add(card);
+            _duel.LastChainPlayer = cc;
+
         }
 
         private void OnChainEnd(BinaryReader packet)
         {
             _ai.OnChainEnd();
+            _duel.LastChainPlayer = -1;
+            _duel.CurrentChain.Clear();
             //_duel.ChainTargets.Clear();
         }
 
