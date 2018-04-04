@@ -72,7 +72,7 @@ namespace WindBot.Game.AI.Decks
             // XYZ effects
             AddExecutor(ExecutorType.Activate, CardId.Number39Utopia, Number39Utopia);
             AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiaOne);
-            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning, NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning, DefaultNumberS39UtopiaTheLightningEffect);
             AddExecutor(ExecutorType.Activate, CardId.ZwLionArms, ZwLionArms);
             AddExecutor(ExecutorType.Activate, CardId.AdreusKeeperOfArmageddon);
             AddExecutor(ExecutorType.Activate, CardId.Number61Volcasaurus);
@@ -211,11 +211,6 @@ namespace WindBot.Game.AI.Decks
         private bool XyzChangeTactics()
         {
             return Bot.LifePoints > 500;
-        }
-
-        private bool NumberS39UtopiatheLightning()
-        {
-            return Card.Attack < 5000;
         }
 
         private bool Honest()

@@ -630,6 +630,14 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Activate if the card is attack pos, and its attack is below 5000, when the enemy monster is attack pos or not useless faceup defense pos
+        /// </summary>
+        protected bool DefaultNumberS39UtopiaTheLightningEffect()
+        {
+            return Card.IsAttack() && Card.Attack < 5000 && (Enemy.BattlingMonster.IsAttack() || Enemy.BattlingMonster.IsFacedown() || Enemy.BattlingMonster.GetDefensePower() >= Card.Attack);
+        }
+
+        /// <summary>
         /// Summon when it can and should use effect.
         /// </summary>
         protected bool DefaultEvilswarmExcitonKnightSummon()

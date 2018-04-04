@@ -107,7 +107,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
-            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning, DefaultNumberS39UtopiaTheLightningEffect);
 
             AddExecutor(ExecutorType.SpSummon, CardId.StardustDragon, DefaultStardustDragonSummon);
             AddExecutor(ExecutorType.Activate, CardId.StardustDragon, DefaultStardustDragonEffect);
