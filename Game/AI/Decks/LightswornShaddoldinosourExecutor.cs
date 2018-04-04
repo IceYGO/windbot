@@ -523,7 +523,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool infiniteTransience()
         {
-            return LastChainPlayer == 1;
+            return Duel.LastChainPlayer == 1;
         }
         private bool MaxxC()
         {
@@ -637,7 +637,7 @@ namespace WindBot.Game.AI.Decks
         {
             //if (Card.Id == CardId.Urara && Bot.HasInHand(CardId.LockBird) && Bot.HasInSpellZone(CardId.Re)) return false;
             if (Card.Id == CardId.GhostOgre && Card.Location == CardLocation.Hand && Bot.HasInMonstersZone(CardId.GhostOgre)) return false;
-            return (LastChainPlayer == 1);
+            return (Duel.LastChainPlayer == 1);
         }
         private bool MinervaTheExaltedEffect()
         {
