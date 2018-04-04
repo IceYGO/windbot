@@ -703,7 +703,7 @@ namespace WindBot.Game
         {
             m_thirdSelector = new CardSelector(loc);
         }
-
+        
         public void SelectMaterials(ClientCard card)
         {
             m_materialSelector = new CardSelector(card);
