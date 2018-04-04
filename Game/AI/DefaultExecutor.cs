@@ -104,7 +104,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultMysticalSpaceTyphoon()
         {
-            foreach (ClientCard card in CurrentChain)
+            foreach (ClientCard card in Duel.CurrentChain)
                 if (card.Id == _CardId.MysticalSpaceTyphoon)
                     return false;
 
@@ -137,10 +137,10 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultCosmicCyclone()
         {
-            foreach (ClientCard card in CurrentChain)
+            foreach (ClientCard card in Duel.CurrentChain)
                 if (card.Id == _CardId.CosmicCyclone)
                     return false;
-            return (Duel.LifePoints[0] > 1000) && DefaultMysticalSpaceTyphoon();
+            return (Bot.LifePoints > 1000) && DefaultMysticalSpaceTyphoon();
         }
 
         /// <summary>
@@ -243,11 +243,12 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultBreakthroughSkill()
         {
-            ClientCard LastChainCard = GetLastChainCard();
+            ClientCard LastChainCard = AI.Utils.GetLastChainCard();
 
             if (LastChainCard == null)
                 return false;
 
+            AI.SelectCard(LastChainCard);
             return LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone && DefaultUniqueTrap();
         }
 
@@ -256,7 +257,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnJudgment()
         {
-            return !AI.Utils.IsChainTargetOnly(Card) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+            return !AI.Utils.IsChainTargetOnly(Card) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -264,7 +265,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnWarning()
         {
-            return (Duel.LifePoints[0] > 2000) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+            return (Bot.LifePoints > 2000) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -272,7 +273,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnStrike()
         {
-            return (Duel.LifePoints[0] > 1500) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+            return (Bot.LifePoints > 1500) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -280,7 +281,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTorrentialTribute()
         {
-            return !HasChainedTrap(0) && AI.Utils.IsAllEnemyBetter(true);
+            return !AI.Utils.HasChainedTrap(0) && AI.Utils.IsAllEnemyBetter(true);
         }
 
         /// <summary>
@@ -395,7 +396,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTrap()
         {
-            return (LastChainPlayer == -1 && Duel.LastSummonPlayer != 0) || LastChainPlayer == 1;
+            return (Duel.LastChainPlayer == -1 && Duel.LastSummonPlayer != 0) || Duel.LastChainPlayer == 1;
         }
 
         /// <summary>
@@ -403,7 +404,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultUniqueTrap()
         {
-            if (HasChainedTrap(0))
+            if (AI.Utils.HasChainedTrap(0))
                 return false;
 
             return UniqueFaceupSpell();
@@ -445,7 +446,7 @@ namespace WindBot.Game.AI
                 if (exec.Type == Type && exec.CardId == Card.Id)
                     return false;
             }
-            return LastChainPlayer != 0;
+            return Duel.LastChainPlayer != 0;
         }
 
         /// <summary>
@@ -459,11 +460,11 @@ namespace WindBot.Game.AI
                 if (exec.Type == Type && exec.CardId == Card.Id)
                     count++;
             }
-            if (count > 1 || Duel.LifePoints[0] <= 1000)
+            if (count > 1 || Bot.LifePoints <= 1000)
                 return false;
-            if (Duel.LifePoints[0] <= Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 0))
+            if (Bot.LifePoints <= Enemy.LifePoints && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 0))
                 return true;
-            if (Duel.LifePoints[0] > Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 1))
+            if (Bot.LifePoints > Enemy.LifePoints && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 1))
                 return true;
             return false;
         }
@@ -518,8 +519,8 @@ namespace WindBot.Game.AI
                     return true;
                 }
             }
-            ClientCard lastchaincard = GetLastChainCard();
-            if (LastChainPlayer == 1 && lastchaincard != null && !lastchaincard.IsDisabled())
+            ClientCard lastchaincard = AI.Utils.GetLastChainCard();
+            if (Duel.LastChainPlayer == 1 && lastchaincard != null && !lastchaincard.IsDisabled())
             {
                 if (lastchaincard.HasType(CardType.Ritual))
                 {
@@ -639,6 +640,14 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Activate if the card is attack pos, and its attack is below 5000, when the enemy monster is attack pos or not useless faceup defense pos
+        /// </summary>
+        protected bool DefaultNumberS39UtopiaTheLightningEffect()
+        {
+            return Card.IsAttack() && Card.Attack < 5000 && (Enemy.BattlingMonster.IsAttack() || Enemy.BattlingMonster.IsFacedown() || Enemy.BattlingMonster.GetDefensePower() >= Card.Attack);
+        }
+
+        /// <summary>
         /// Summon when it can and should use effect.
         /// </summary>
         protected bool DefaultEvilswarmExcitonKnightSummon()
@@ -691,7 +700,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultStardustDragonEffect()
         {
-            return (Card.Location == CardLocation.Grave) || LastChainPlayer == 1;
+            return (Card.Location == CardLocation.Grave) || Duel.LastChainPlayer == 1;
         }
 
         /// <summary>
@@ -752,6 +761,21 @@ namespace WindBot.Game.AI
 
             return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount >= 3;
         }
+
+        /// <summary>
+        /// Clever enough.
+        /// </summary>
+        protected bool DefaultHonestEffect()
+        {
+            if (Card.Location == CardLocation.Hand)
+            {
+                return Bot.BattlingMonster.IsAttack() &&
+                    (((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Attack) || Bot.BattlingMonster.Attack >= Enemy.LifePoints)
+                    || ((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Defense) && (Bot.BattlingMonster.Attack + Enemy.BattlingMonster.Attack > Enemy.BattlingMonster.Defense)));
+            }
+            else return AI.Utils.IsTurn1OrMain2();
+        }
+
 
     }
 }

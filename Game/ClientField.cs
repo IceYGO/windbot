@@ -13,6 +13,9 @@ namespace WindBot.Game
         public IList<ClientCard> Deck { get; private set; }
         public IList<ClientCard> ExtraDeck { get; private set; }
 
+        public int LifePoints;
+        public ClientCard BattlingMonster;
+
         public ClientField()
         {
         }
@@ -33,6 +36,15 @@ namespace WindBot.Game
                 ExtraDeck.Add(new ClientCard(0, CardLocation.Extra));
         }
 
+        public int GetMonstersExtraZoneCount()
+        {
+            int count = 0;
+            if (MonsterZone[5] != null)
+                count++;
+            if (MonsterZone[6] != null)
+                count++;
+            return count;
+        }
         public int GetMonsterCount()
         {
             return GetCount(MonsterZone);
@@ -68,6 +80,7 @@ namespace WindBot.Game
         {
             return GetCards(MonsterZone);
         }
+        
 
         public List<ClientCard> GetGraveyardMonsters()
         {

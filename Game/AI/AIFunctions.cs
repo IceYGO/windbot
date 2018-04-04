@@ -296,6 +296,44 @@ namespace WindBot.Game.AI
             return Duel.ChainTargets.Count == 1 && card.Equals(Duel.ChainTargets[0]);
         }
 
+        public bool ChainContainsCard(int id)
+        {
+            foreach (ClientCard card in Duel.CurrentChain)
+            {
+                if (card.Id == id)
+                    return true;
+            }
+            return false;
+        }
+
+        public int ChainCountPlayer(int player)
+        {
+            int count = 0;
+            foreach (ClientCard card in Duel.CurrentChain)
+            {
+                if (card.Controller == player)
+                    count++;
+            }
+            return count;
+        }
+
+        public bool HasChainedTrap(int player)
+        {
+            foreach (ClientCard card in Duel.CurrentChain)
+            {
+                if (card.Controller == player && card.HasType(CardType.Trap))
+                    return true;
+            }
+            return false;
+        }
+
+        public ClientCard GetLastChainCard()
+        {
+            if (Duel.CurrentChain.Count > 0)
+                return Duel.CurrentChain[Duel.CurrentChain.Count - 1];
+            return null;
+        }
+
         /// <summary>
         /// Select cards listed in preferred.
         /// </summary>

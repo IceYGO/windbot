@@ -79,11 +79,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.ScarlightRedDragonArchfiend, DefaultScarlightRedDragonArchfiendEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
-            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning, DefaultNumberS39UtopiaTheLightningEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.PerformageTrickClown, PerformageTrickClownEffect);
             AddExecutor(ExecutorType.Activate, CardId.ThousandBlades);
-            AddExecutor(ExecutorType.Activate, CardId.Honest, HonestEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Honest, DefaultHonestEffect);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -254,10 +254,6 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(targets);
                 return true;
             }
-        }
-        private bool HonestEffect()
-        {
-            return Duel.Phase != DuelPhase.Main1;
         }
 
     }

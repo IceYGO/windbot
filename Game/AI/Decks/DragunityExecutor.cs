@@ -399,7 +399,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CrystalWingSynchroDragonEffect()
         {
-            return LastChainPlayer != 0;
+            return Duel.LastChainPlayer != 0;
         }
 
         private bool DragunityPhalanxSummon()

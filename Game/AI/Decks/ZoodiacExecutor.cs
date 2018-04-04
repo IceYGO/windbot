@@ -73,7 +73,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
-            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning, DefaultNumberS39UtopiaTheLightningEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.InvokedMechaba, DefaultTrap);
 
@@ -486,7 +486,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DridentEffect()
         {
-            if (LastChainPlayer == 0)
+            if (Duel.LastChainPlayer == 0)
                 return false;
             ClientCard target = AI.Utils.GetBestEnemyCard(true);
             if (target == null)
@@ -571,7 +571,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ZoodiacComboEffect()
         {
-            if (CurrentChain.Count > 0)
+            if (Duel.CurrentChain.Count > 0)
                 return false;
             if (Card.Location != CardLocation.Grave)
             {
