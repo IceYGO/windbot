@@ -234,7 +234,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultBreakthroughSkill()
         {
-            ClientCard LastChainCard = GetLastChainCard();
+            ClientCard LastChainCard = AI.Utils.GetLastChainCard();
 
             if (LastChainCard == null)
                 return false;
@@ -271,7 +271,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTorrentialTribute()
         {
-            return !HasChainedTrap(0) && AI.Utils.IsAllEnemyBetter(true);
+            return !AI.Utils.HasChainedTrap(0) && AI.Utils.IsAllEnemyBetter(true);
         }
 
         /// <summary>
@@ -394,7 +394,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultUniqueTrap()
         {
-            if (HasChainedTrap(0))
+            if (AI.Utils.HasChainedTrap(0))
                 return false;
 
             return UniqueFaceupSpell();
@@ -509,7 +509,7 @@ namespace WindBot.Game.AI
                     return true;
                 }
             }
-            ClientCard lastchaincard = GetLastChainCard();
+            ClientCard lastchaincard = AI.Utils.GetLastChainCard();
             if (Duel.LastChainPlayer == 1 && lastchaincard != null && !lastchaincard.IsDisabled())
             {
                 if (lastchaincard.HasType(CardType.Ritual))

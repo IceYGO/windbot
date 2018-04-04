@@ -150,7 +150,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Number39Utopia()
         {
-            if (!HasChainedTrap(0) && Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Card.HasXyzMaterial(2))
+            if (!AI.Utils.HasChainedTrap(0) && Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Card.HasXyzMaterial(2))
                 return true;
             return false;
         }
