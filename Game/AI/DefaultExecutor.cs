@@ -752,5 +752,20 @@ namespace WindBot.Game.AI
             return (oppoCount > 0 && selfCount <= oppoCount) || oppoCount >= 3;
         }
 
+        /// <summary>
+        /// Clever enough.
+        /// </summary>
+        protected bool DefaultHonestEffect()
+        {
+            if (Card.Location == CardLocation.Hand)
+            {
+                return Bot.BattlingMonster.IsAttack() &&
+                    (((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Attack) || Bot.BattlingMonster.Attack >= Enemy.LifePoints)
+                    || ((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Defense) && (Bot.BattlingMonster.Attack + Enemy.BattlingMonster.Attack > Enemy.BattlingMonster.Defense)));
+            }
+            else return AI.Utils.IsTurn1OrMain2();
+        }
+
+
     }
 }

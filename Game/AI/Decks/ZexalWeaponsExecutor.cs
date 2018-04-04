@@ -105,7 +105,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.TinGoldfish, GoblindberghEffect);
             AddExecutor(ExecutorType.Activate, CardId.Kagetokage);
             AddExecutor(ExecutorType.Activate, CardId.SummonerMonk, SummonerMonkEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Honest, Honest);
+            AddExecutor(ExecutorType.Activate, CardId.Honest, DefaultHonestEffect);
 
             // Reposition
             AddExecutor(ExecutorType.Repos, MonsterRepos);
@@ -211,11 +211,6 @@ namespace WindBot.Game.AI.Decks
         private bool XyzChangeTactics()
         {
             return Bot.LifePoints > 500;
-        }
-
-        private bool Honest()
-        {
-            return Duel.Phase != DuelPhase.Main1 || Duel.Turn == 1;
         }
 
         private bool GoblindberghFirst()

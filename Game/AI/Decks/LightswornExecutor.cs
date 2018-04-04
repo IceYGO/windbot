@@ -83,7 +83,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.PerformageTrickClown, PerformageTrickClownEffect);
             AddExecutor(ExecutorType.Activate, CardId.ThousandBlades);
-            AddExecutor(ExecutorType.Activate, CardId.Honest, HonestEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Honest, DefaultHonestEffect);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -254,10 +254,6 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(targets);
                 return true;
             }
-        }
-        private bool HonestEffect()
-        {
-            return Duel.Phase != DuelPhase.Main1;
         }
 
     }
