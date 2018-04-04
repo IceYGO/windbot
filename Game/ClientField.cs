@@ -14,6 +14,7 @@ namespace WindBot.Game
         public IList<ClientCard> ExtraDeck { get; private set; }
 
         public int LifePoints;
+        public ClientCard BattlingMonster;
 
         public ClientField()
         {

@@ -91,6 +91,8 @@ namespace WindBot.Game
             m_yesno = -1;
             m_position = CardPosition.FaceUpAttack;
             Duel.LastSummonPlayer = -1;
+            Duel.Fields[0].BattlingMonster = null;
+            Duel.Fields[1].BattlingMonster = null;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
                 _dialogs.SendNewTurn();

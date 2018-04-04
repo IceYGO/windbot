@@ -494,12 +494,16 @@ namespace WindBot.Game
             int la = packet.ReadByte();
             int sa = packet.ReadByte();
             packet.ReadByte(); //
-            packet.ReadByte(); // cd
+            int cd = packet.ReadByte();
             int ld = packet.ReadByte();
-            packet.ReadByte(); // sd
+            int sd = packet.ReadByte();
             packet.ReadByte(); //
 
             ClientCard attackcard = _duel.GetCard(ca, (CardLocation)la, sa);
+            ClientCard defendcard = _duel.GetCard(cd, (CardLocation)ld, sd);
+            _duel.Fields[attackcard.Controller].BattlingMonster = attackcard;
+            _duel.Fields[1 - attackcard.Controller].BattlingMonster = defendcard;
+
             if (ld == 0 && (attackcard != null) && (ca != 0))
             {
                 _ai.OnDirectAttack(attackcard);
