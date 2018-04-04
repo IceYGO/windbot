@@ -90,7 +90,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SupremacyBerry()
         {
-            return Duel.LifePoints[0] < Duel.LifePoints[1];
+            return Bot.LifePoints < Enemy.LifePoints;
         }
 
         private bool PoisonOfTheOldMan()

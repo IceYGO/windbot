@@ -267,7 +267,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GagagaCowboySummon()
         {
-            if (Duel.LifePoints[1] <= 800)
+            if (Enemy.LifePoints <= 800)
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;

@@ -326,7 +326,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (m.IsAttack() && !m.Attacked) total_atk += m.Attack;
                 }
-                if (total_atk >= Duel.LifePoints[0]) return true;
+                if (total_atk >= Bot.LifePoints) return true;
             }
             return false;
         }
@@ -349,7 +349,7 @@ namespace WindBot.Game.AI.Decks
                     stage_locked = null;
                     return true;
                 }
-                else if (Duel.LifePoints[1] <= 1000 && !pink_ss)
+                else if (Enemy.LifePoints <= 1000 && !pink_ss)
                 {
                     AI.SelectCard(new[]
                     {
@@ -415,7 +415,7 @@ namespace WindBot.Game.AI.Decks
                     stage_locked = null;
                     return true;
                 }
-                else if (Duel.LifePoints[1] <= 1000 && !pink_ss)
+                else if (Enemy.LifePoints <= 1000 && !pink_ss)
                 {
                     AI.SelectCard(new[]
                     {
@@ -487,15 +487,15 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if ((Duel.LifePoints[1] <= 1000 && Bot.HasInSpellZone(CardId.Stage))
-                || Duel.LifePoints[1] <= 800
+                if ((Enemy.LifePoints <= 1000 && Bot.HasInSpellZone(CardId.Stage))
+                || Enemy.LifePoints <= 800
                 || (!NormalSummoned && Bot.HasInGraveyard(CardId.Red))
                 )
                 {
                     pink_ss = true;
                     return true;
                 }
-                else if (Enemy.GetMonsterCount() > 0 && (AI.Utils.GetBestEnemyMonster().Attack - 800 >= Duel.LifePoints[0])) return false;
+                else if (Enemy.GetMonsterCount() > 0 && (AI.Utils.GetBestEnemyMonster().Attack - 800 >= Bot.LifePoints)) return false;
                 pink_ss = true;
                 return true;
             }
@@ -692,7 +692,7 @@ namespace WindBot.Game.AI.Decks
                         CardId.Yellow
                     });
                 }
-                else if (Bot.GetRemainingCount(CardId.White, 2) > 0 && Duel.LifePoints[1] <= 4000)
+                else if (Bot.GetRemainingCount(CardId.White, 2) > 0 && Enemy.LifePoints <= 4000)
                 {
                     AI.SelectCard(new[]
                     {
@@ -884,7 +884,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (hand.IsMonster() && IsTrickstar(hand.Id))
                     {
-                        if (hand.Attack >= Duel.LifePoints[1]) return true;
+                        if (hand.Attack >= Enemy.LifePoints) return true;
                         if (hand.Id != CardId.Yellow)
                         {
                             if (AI.Utils.GetOneEnemyBetterThanValue(hand.Attack, false) == null) return true;
@@ -938,7 +938,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Red_sum()
         {
-            if ((Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 1800) || (Duel.Turn == 1 && Bot.HasInHand(CardId.Re)))
+            if ((Enemy.GetMonsterCount() == 0 && Enemy.LifePoints <= 1800) || (Duel.Turn == 1 && Bot.HasInHand(CardId.Re)))
             {
                 NormalSummoned = true;
                 return true;
@@ -948,7 +948,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Pink_sum()
         {
-            if (Duel.LifePoints[1] <= 1000)
+            if (Enemy.LifePoints <= 1000)
             {
                 NormalSummoned = true;
                 return true;
@@ -1086,7 +1086,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard m = AI.Utils.GetProblematicEnemyMonster();
             if (m == null)
             {
-                if (Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 1100 && Duel.Phase < DuelPhase.Battle)
+                if (Enemy.GetMonsterCount() == 0 && Enemy.LifePoints <= 1100 && Duel.Phase < DuelPhase.Battle)
                 {
                     IList<ClientCard> list = new List<ClientCard>();
                     foreach(ClientCard monster in Bot.GetMonsters())
@@ -1123,7 +1123,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard m = AI.Utils.GetProblematicEnemySpell();
             if (m == null)
             {
-                if (Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 1900 && Duel.Phase == DuelPhase.Main1) 
+                if (Enemy.GetMonsterCount() == 0 && Enemy.LifePoints <= 1900 && Duel.Phase == DuelPhase.Main1) 
                 {
                     IList<ClientCard> m_list = new List<ClientCard>();
                     foreach(ClientCard monster in Bot.GetMonsters())
@@ -1172,7 +1172,7 @@ namespace WindBot.Game.AI.Decks
             int link_count = 0;
             if (m == null)
             {
-                if (Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 2200 && Duel.Phase == DuelPhase.Main1)
+                if (Enemy.GetMonsterCount() == 0 && Enemy.LifePoints <= 2200 && Duel.Phase == DuelPhase.Main1)
                 {
                     IList<ClientCard> m_list = new List<ClientCard>();
                     foreach(ClientCard monster in Bot.GetMonsters())
@@ -1239,7 +1239,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (targets.Count >= 4)
                 {
-                    if (Duel.LifePoints[1] <= GetTotalATK(targets) && Enemy.GetMonsterCount() == 0) return false;
+                    if (Enemy.LifePoints <= GetTotalATK(targets) && Enemy.GetMonsterCount() == 0) return false;
                     AI.SelectMaterials(targets);
                     AI.SelectYesNo(true);
                     snake_four_s = true;
@@ -1315,7 +1315,7 @@ namespace WindBot.Game.AI.Decks
         {
             bool already_link2 = false;
             IList<ClientCard> material_list = new List<ClientCard>();
-            if (AI.Utils.GetProblematicEnemyMonster(2000) != null || (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Duel.LifePoints[1] <= 3000))
+            if (AI.Utils.GetProblematicEnemyMonster(2000) != null || (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Enemy.LifePoints <= 3000))
             {
                 foreach(ClientCard e_m in Bot.GetMonstersInExtraZone())
                 {
@@ -1342,7 +1342,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if ((already_link2 && material_list.Count == 3) || (!already_link2 && material_list.Count == 4))
                 {
-                    if (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Duel.LifePoints[1] <= 3000)
+                    if (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Enemy.LifePoints <= 3000)
                     {
                         if (GetTotalATK(material_list) >= 3000) return false;
                     }

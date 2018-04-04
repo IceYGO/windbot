@@ -131,7 +131,7 @@ namespace WindBot.Game.AI
             foreach (ClientCard card in CurrentChain)
                 if (card.Id == _CardId.CosmicCyclone)
                     return false;
-            return (Duel.LifePoints[0] > 1000) && DefaultMysticalSpaceTyphoon();
+            return (Bot.LifePoints > 1000) && DefaultMysticalSpaceTyphoon();
         }
 
         /// <summary>
@@ -255,7 +255,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnWarning()
         {
-            return (Duel.LifePoints[0] > 2000) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+            return (Bot.LifePoints > 2000) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnStrike()
         {
-            return (Duel.LifePoints[0] > 1500) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
+            return (Bot.LifePoints > 1500) && !(Duel.Player == 0 && LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -450,11 +450,11 @@ namespace WindBot.Game.AI
                 if (exec.Type == Type && exec.CardId == Card.Id)
                     count++;
             }
-            if (count > 1 || Duel.LifePoints[0] <= 1000)
+            if (count > 1 || Bot.LifePoints <= 1000)
                 return false;
-            if (Duel.LifePoints[0] <= Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 0))
+            if (Bot.LifePoints <= Enemy.LifePoints && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 0))
                 return true;
-            if (Duel.LifePoints[0] > Duel.LifePoints[1] && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 1))
+            if (Bot.LifePoints > Enemy.LifePoints && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 1))
                 return true;
             return false;
         }

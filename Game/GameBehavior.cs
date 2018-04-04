@@ -324,8 +324,8 @@ namespace WindBot.Game
             int type = packet.ReadByte();
             _duel.IsFirst = (type & 0xF) == 0;
             _duel.Turn = 0;
-            _duel.LifePoints[GetLocalPlayer(0)] = packet.ReadInt32();
-            _duel.LifePoints[GetLocalPlayer(1)] = packet.ReadInt32();
+            _duel.Fields[GetLocalPlayer(0)].LifePoints = packet.ReadInt32();
+            _duel.Fields[GetLocalPlayer(1)].LifePoints = packet.ReadInt32();
             int deck = packet.ReadInt16();
             int extra = packet.ReadInt16();
             _duel.Fields[GetLocalPlayer(0)].Init(deck, extra);
@@ -427,21 +427,21 @@ namespace WindBot.Game
         private void OnDamage(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            int final = _duel.LifePoints[player] - packet.ReadInt32();
+            int final = _duel.Fields[player].LifePoints - packet.ReadInt32();
             if (final < 0) final = 0;
-            _duel.LifePoints[player] = final;
+            _duel.Fields[player].LifePoints = final;
         }
 
         private void OnRecover(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            _duel.LifePoints[player] += packet.ReadInt32();
+            _duel.Fields[player].LifePoints += packet.ReadInt32();
         }
 
         private void OnLpUpdate(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            _duel.LifePoints[player] = packet.ReadInt32();
+            _duel.Fields[player].LifePoints = packet.ReadInt32();
         }
 
         private void OnMove(BinaryReader packet)

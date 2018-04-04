@@ -184,7 +184,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool InstantFusion()
         {
-            if (Duel.LifePoints[0] <= 1000)
+            if (Bot.LifePoints <= 1000)
                 return false;
             int count4 = 0;
             int count5 = 0;
@@ -210,7 +210,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool XyzChangeTactics()
         {
-            return Duel.LifePoints[0] > 500;
+            return Bot.LifePoints > 500;
         }
 
         private bool NumberS39UtopiatheLightning()

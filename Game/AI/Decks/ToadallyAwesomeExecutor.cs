@@ -117,7 +117,7 @@ namespace WindBot.Game.AI.Decks
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
                 if (attacker.Id == CardId.SkyCavalryCentaurea && !attacker.IsDisabled() && attacker.HasXyzMaterial())
-                    attacker.RealPower = Duel.LifePoints[0] + attacker.Attack;
+                    attacker.RealPower = Bot.LifePoints + attacker.Attack;
             }
             return base.OnPreBattleBetween(attacker, defender);
         }
@@ -506,7 +506,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     defence += monster.GetDefensePower();
                 }
-                if (attack - 2000 - defence > Duel.LifePoints[1] && !AI.Utils.IsOneEnemyBetter(true))
+                if (attack - 2000 - defence > Enemy.LifePoints && !AI.Utils.IsOneEnemyBetter(true))
                     return true;
             }
             return false;

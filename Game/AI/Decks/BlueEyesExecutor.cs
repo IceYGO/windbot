@@ -855,7 +855,7 @@ namespace WindBot.Game.AI.Decks
             int space = 5 - Bot.GetMonstersInMainZone().Count;
             if (count < space)
                 count = space;
-            if (count < 2 || Duel.LifePoints[0] < count*1000)
+            if (count < 2 || Bot.LifePoints < count*1000)
                 return false;
             if (Duel.Turn != 1)
             {
@@ -872,7 +872,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     defence += monster.GetDefensePower();
                 }
-                if (attack - defence > Duel.LifePoints[1])
+                if (attack - defence > Enemy.LifePoints)
                     return false;
             }
             AI.SelectCard(new[]
