@@ -115,7 +115,7 @@ namespace WindBot.Game.AI.Decks
             //Sp Summon
             AddExecutor(ExecutorType.SpSummon, CardId.UltimateConductorTytanno, UltimateConductorTytannosp);
             AddExecutor(ExecutorType.Activate, CardId.UltimateConductorTytanno, UltimateConductorTytannoeff);
-            AddExecutor(ExecutorType.Activate, CardId.DoubleEvolutionPill, DoubleEvolutionPill);
+            AddExecutor(ExecutorType.Activate, CardId.DoubleEvolutionPill, DoubleEvolutionPilleff);
             AddExecutor(ExecutorType.SpSummon, CardId.MinervaTheExalte);
             AddExecutor(ExecutorType.Activate, CardId.MinervaTheExalte, MinervaTheExaltedEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragonesp);
@@ -348,7 +348,7 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool DoubleEvolutionPill()
+        private bool DoubleEvolutionPilleff()
         {
             if (Pillused == true) return false;
             Pillused = true;
@@ -385,8 +385,19 @@ namespace WindBot.Game.AI.Decks
                     CardId.UltimateConductorTytanno,
                 });
             }
-            AI.SelectNextCard(new[] {
-                    CardId.ShaddollBeast,               
+            IList<int> targets2 = new[] {
+                    CardId.GiantRex,
+                    CardId.DogorantheMadFlameKaiju,
+                    CardId.GamecieltheSeaTurtleKaiju,
+                    CardId.RadiantheMultidimensionalKaiju,
+                    CardId.OvertexCoatls,
+                    CardId.SouleatingOviraptor,
+                    CardId.UltimateConductorTytanno,
+                };
+            if (Bot.HasInGraveyard(targets))
+            {
+                AI.SelectNextCard(new[] {
+                    CardId.ShaddollBeast,
                     CardId.ShaddollDragon,
                     CardId.KeeperOfDragonicMagic,
                     CardId.ShaddollSquamata,
@@ -400,7 +411,26 @@ namespace WindBot.Game.AI.Decks
                     CardId.MaxxC,
                     CardId.PlaguespreaderZombie,
                     CardId.GlowUpBulb,
-                    CardId.FairyTailSnow,                    
+                    CardId.FairyTailSnow,
+                });
+            }
+            else
+                AI.SelectNextCard(new[] {
+                    CardId.ShaddollBeast,
+                    CardId.ShaddollDragon,
+                    CardId.KeeperOfDragonicMagic,
+                    CardId.ShaddollSquamata,
+                    CardId.SouleatingOviraptor,
+                    CardId.Raiden,
+                    CardId.Lumina,
+                    CardId.ShaddollHedgehog,
+                    CardId.AshBlossom,
+                    CardId.GhostOgre,
+                    CardId.ShaddollFalco,
+                    CardId.MaxxC,
+                    CardId.PlaguespreaderZombie,
+                    CardId.GlowUpBulb,
+                    CardId.FairyTailSnow,
                 });
 
             AI.SelectThirdCard(new[] {
