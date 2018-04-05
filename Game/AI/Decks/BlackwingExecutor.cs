@@ -43,7 +43,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
             AddExecutor(ExecutorType.Activate, CardId.Raigeki, DefaultRaigeki);
             AddExecutor(ExecutorType.Activate, CardId.BlackWhirlwind, BlackWhirlwindEffect);
-            
+
             AddExecutor(ExecutorType.SpSummon, CardId.KrisTheCrackOfDawn);
             AddExecutor(ExecutorType.SummonOrSet, CardId.KrisTheCrackOfDawn);
             AddExecutor(ExecutorType.Summon, CardId.SiroccoTheDawn, SiroccoTheDawnSummon);

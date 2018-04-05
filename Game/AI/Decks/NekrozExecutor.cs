@@ -9,7 +9,7 @@ namespace WindBot.Game.AI.Decks
     // NOT FINISHED YET
     [Deck("Nekroz", "AI_Nekroz", "NotFinished")]
     public class NekrozExecutor : DefaultExecutor
-    {  
+    {
         public class CardId
         {
             public const int DancePrincess = 52738610;
@@ -45,7 +45,7 @@ namespace WindBot.Game.AI.Decks
         public NekrozExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            NekrozRituelCard.Add(CardId.Clausolas); 
+            NekrozRituelCard.Add(CardId.Clausolas);
             NekrozRituelCard.Add(CardId.Unicore);
             NekrozRituelCard.Add(CardId.DecisiveArmor);
             NekrozRituelCard.Add(CardId.Brionac);
@@ -103,7 +103,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ThousandHandsSummon()
         {
-            if (!Bot.HasInHand(NekrozRituelCard) || Bot.HasInHand(CardId.Shurit) || !Bot.HasInHand(NekrozSpellCard))  
+            if (!Bot.HasInHand(NekrozRituelCard) || Bot.HasInHand(CardId.Shurit) || !Bot.HasInHand(NekrozSpellCard))
                 return true;
             foreach (ClientCard Card in Bot.Hand)
                 if (Card != null && Card.Id == CardId.Kaleidoscope && !Bot.HasInHand(CardId.Unicore))
@@ -175,7 +175,7 @@ namespace WindBot.Game.AI.Decks
         }
 
         private bool GungnirEffect()
-        {           
+        {
             if (AI.Utils.IsOneEnemyBetter(true) && Duel.Phase == DuelPhase.Main1)
             {
                 AI.SelectCard(Enemy.GetMonsters().GetHighestAttackMonster());
