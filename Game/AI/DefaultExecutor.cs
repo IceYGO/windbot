@@ -589,7 +589,6 @@ namespace WindBot.Game.AI
             {
                 AI.SelectCard(new[]
                 {
-                    _CardId.SuperAntiKaijuWarMachineMechaDogoran,
                     _CardId.GamecieltheSeaTurtleKaiju,
                     _CardId.KumongoustheStickyStringKaiju,
                     _CardId.GadarlatheMysteryDustKaiju,
