@@ -79,7 +79,7 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             //counter
-           
+            AddExecutor(ExecutorType.SpSummon, CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragonesp);
             AddExecutor(ExecutorType.Activate, CardId.GhostOgre, Hand_act_eff);
             AddExecutor(ExecutorType.Activate, CardId.AshBlossom, Hand_act_eff);
             AddExecutor(ExecutorType.Activate, CardId.MaxxC,MaxxC);
@@ -117,8 +117,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.UltimateConductorTytanno, UltimateConductorTytannoeff);
             AddExecutor(ExecutorType.Activate, CardId.DoubleEvolutionPill, DoubleEvolutionPilleff);
             AddExecutor(ExecutorType.SpSummon, CardId.MinervaTheExalte);
-            AddExecutor(ExecutorType.Activate, CardId.MinervaTheExalte, MinervaTheExaltedEffect);
-            AddExecutor(ExecutorType.SpSummon, CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragonesp);
+            AddExecutor(ExecutorType.Activate, CardId.MinervaTheExalte, MinervaTheExaltedEffect);            
             AddExecutor(ExecutorType.SpSummon, CardId.GamecieltheSeaTurtleKaiju, DefaultKaijuSpsummon);
             
             
@@ -230,11 +229,18 @@ namespace WindBot.Game.AI.Decks
         public bool CrystalWingSynchroDragonesp()
         {
             if (CrystalWingSynchroDragoneff_used) return false;
-            if (Bot.HasInMonstersZone(CardId.Raiden) && Bot.HasInMonstersZone(CardId.Lumina))
+            if (Bot.HasInMonstersZone(CardId.FairyTailSnow) ||
+                Bot.HasInMonstersZone(CardId.Lumina) ||
+                Bot.HasInMonstersZone(CardId.KeeperOfDragonicMagic)||
+                Bot.HasInMonstersZone(CardId.SouleatingOviraptor)
+                )
             {
                 AI.SelectCard(new[]
-                    {CardId.Lumina,
-                    CardId.Raiden,
+                    {
+                    CardId.KeeperOfDragonicMagic,
+                    CardId.Lumina,
+                    CardId.FairyTailSnow,
+                    CardId.SouleatingOviraptor,
                     });
                 return true;
             }
@@ -483,7 +489,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool GlowUpBulbeff()
         {
-            if(Bot.HasInMonstersZone(CardId.Lumina)||Bot.HasInMonstersZone(CardId.Raiden))
+            if(Bot.HasInMonstersZone(CardId.Lumina)||
+               Bot.HasInMonstersZone(CardId.FairyTailSnow)||
+               Bot.HasInMonstersZone(CardId.KeeperOfDragonicMagic)||
+               Bot.HasInMonstersZone(CardId.SouleatingOviraptor)
+               )
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }

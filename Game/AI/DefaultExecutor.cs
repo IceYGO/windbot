@@ -250,7 +250,7 @@ namespace WindBot.Game.AI
                 return false;
 
             AI.SelectCard(LastChainCard);
-            return LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone && DefaultUniqueTrap();
+            return (LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone && DefaultUniqueTrap());
         }
 
         /// <summary>
