@@ -12,13 +12,14 @@ namespace WindBot.Game.AI
         protected class _CardId
         {
             public const int JizukirutheStarDestroyingKaiju = 63941210;
-            public const int GadarlatheMysteryDustKaiju = 36956512;
-            public const int GamecieltheSeaTurtleKaiju = 55063751;
-            public const int RadiantheMultidimensionalKaiju = 28674152;
-            public const int KumongoustheStickyStringKaiju = 29726552;
             public const int ThunderKingtheLightningstrikeKaiju = 48770333;
             public const int DogorantheMadFlameKaiju = 93332803;
+            public const int RadiantheMultidimensionalKaiju = 28674152;
+            public const int GadarlatheMysteryDustKaiju = 36956512;
+            public const int KumongoustheStickyStringKaiju = 29726552;
+            public const int GamecieltheSeaTurtleKaiju = 55063751;
             public const int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
+
 
             public const int DupeFrog = 46239604;
             public const int MaraudingCaptain = 2460565;
@@ -470,6 +471,29 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Draw when we have Dark monster in hand,and banish random one. Can be overrided.
+        /// </summary>
+        protected bool DefaultAllureofDarkness()
+        {
+            IList<ClientCard> condition = Bot.Hand;
+            IList<ClientCard> check = new List<ClientCard>();
+            ClientCard con = null;
+            foreach (ClientCard card in condition)
+            {
+                if (card.HasAttribute(CardAttribute.Dark))
+                {
+                    con = card;
+                    break;
+                }
+            }
+            if (con != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Clever enough.
         /// </summary>
         protected bool DefaultDimensionalBarrier()
@@ -557,7 +581,7 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// Clever enough.
+        /// Clever enough
         /// </summary>
         protected bool DefaultInterruptedKaijuSlumber()
         {
@@ -565,26 +589,37 @@ namespace WindBot.Game.AI
             {
                 AI.SelectCard(new[]
                 {
+                    _CardId.SuperAntiKaijuWarMachineMechaDogoran,
                     _CardId.GamecieltheSeaTurtleKaiju,
                     _CardId.KumongoustheStickyStringKaiju,
+                    _CardId.GadarlatheMysteryDustKaiju,
                     _CardId.RadiantheMultidimensionalKaiju,
-                    _CardId.GadarlatheMysteryDustKaiju
+                    _CardId.DogorantheMadFlameKaiju,
+                    _CardId.ThunderKingtheLightningstrikeKaiju,
+                    _CardId.JizukirutheStarDestroyingKaiju,
                 });
                 return true;
             }
             AI.SelectCard(new[]
                 {
                     _CardId.JizukirutheStarDestroyingKaiju,
+                    _CardId.ThunderKingtheLightningstrikeKaiju,
+                    _CardId.DogorantheMadFlameKaiju,
                     _CardId.RadiantheMultidimensionalKaiju,
                     _CardId.GadarlatheMysteryDustKaiju,
-                    _CardId.KumongoustheStickyStringKaiju
+                    _CardId.KumongoustheStickyStringKaiju,
+                    _CardId.GamecieltheSeaTurtleKaiju,
                 });
             AI.SelectNextCard(new[]
                 {
+                    _CardId.SuperAntiKaijuWarMachineMechaDogoran,
                     _CardId.GamecieltheSeaTurtleKaiju,
                     _CardId.KumongoustheStickyStringKaiju,
                     _CardId.GadarlatheMysteryDustKaiju,
-                    _CardId.RadiantheMultidimensionalKaiju
+                    _CardId.RadiantheMultidimensionalKaiju,
+                    _CardId.DogorantheMadFlameKaiju,
+                    _CardId.ThunderKingtheLightningstrikeKaiju,
+                    
                 });
             return DefaultDarkHole();
         }
