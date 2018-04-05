@@ -468,8 +468,16 @@ namespace WindBot.Game.AI.Decks
 
         private bool SouleatingOviraptoreff()
         {
-            AI.SelectCard(CardId.OvertexCoatls);
-            AI.SelectYesNo(false);
+            if (!OvertexCoatlseff_used)
+            {
+                AI.SelectCard(CardId.OvertexCoatls);
+                AI.SelectYesNo(false);
+            }
+            else
+            {
+                AI.SelectCard(CardId.UltimateConductorTytanno);
+                AI.SelectYesNo(true);
+            }
             return true;
         }
 
@@ -594,18 +602,14 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SinisterShadowGames()
         {
-            if (Card.Location != CardLocation.MonsterZone)
-                return true;
-            else
-            {
-                AI.SelectCard(new[]
+
+            AI.SelectCard(new[]
             {
                 CardId.ShaddollBeast,
-                
-            }
 
-                );
-            }
+            });
+
+        
             return true;
         }
 
@@ -615,7 +619,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             else
             {
-                if(DefaultBreakthroughSkill())
+                if(Duel.LastChainPlayer==1)
                 {
                     AI.SelectCard(new[]
                     {
