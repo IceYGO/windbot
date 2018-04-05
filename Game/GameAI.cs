@@ -220,9 +220,11 @@ namespace WindBot.Game
             // Always select the first available cards and choose the minimum.
             IList<ClientCard> selected = new List<ClientCard>();
 
-            for (int i = 0; i < min; ++i)
-                selected.Add(cards[i]);
-
+            if (cards.Count >= min)
+            {
+                for (int i = 0; i < min; ++i)
+                    selected.Add(cards[i]);
+            }
             return selected;
         }
 
