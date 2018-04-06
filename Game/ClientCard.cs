@@ -36,6 +36,7 @@ namespace WindBot.Game
         public bool CanDirectAttack { get; set; }
         public bool ShouldDirectAttack { get; set; }
         public bool Attacked { get; set; }
+        public bool IsLastAttacker { get; set; }
 
         public int[] ActionIndex { get; set; }
         public IDictionary<int, int> ActionActivateIndex { get; private set; }

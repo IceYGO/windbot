@@ -1180,7 +1180,12 @@ namespace WindBot.Game
         private void OnSelectYesNo(BinaryReader packet)
         {
             packet.ReadByte(); // player
-            int reply = _ai.OnSelectYesNo(packet.ReadInt32()) ? (1) : (0);
+            int desc = packet.ReadInt32();
+            int reply;
+            if (desc == 30)
+                reply = _ai.OnSelectBattleReplay() ? 1 : 0;
+            else
+                reply = _ai.OnSelectYesNo(desc) ? 1 : 0;
             Connection.Send(CtosMessage.Response, reply);
         }
 
