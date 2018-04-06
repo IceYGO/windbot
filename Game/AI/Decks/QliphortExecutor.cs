@@ -191,7 +191,7 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
-        
+
         private bool TrapSetUnique()
         {
             foreach (ClientCard card in Bot.GetSpells())

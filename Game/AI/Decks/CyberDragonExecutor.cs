@@ -129,7 +129,7 @@ namespace WindBot.Game.AI.Decks
             if (bestMy == null || !AI.Utils.IsOneEnemyBetterThanValue(bestMy.Attack, false))
                 return false;
             else
-                AI.SelectCard(Enemy.MonsterZone.GetHighestAttackMonster());     
+                AI.SelectCard(Enemy.MonsterZone.GetHighestAttackMonster());
             return true;
         }
 

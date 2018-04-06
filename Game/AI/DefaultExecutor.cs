@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using YGOSharp.OCGWrapper.Enums;
 using WindBot;
@@ -12,13 +12,14 @@ namespace WindBot.Game.AI
         protected class _CardId
         {
             public const int JizukirutheStarDestroyingKaiju = 63941210;
-            public const int GadarlatheMysteryDustKaiju = 36956512;
-            public const int GamecieltheSeaTurtleKaiju = 55063751;
-            public const int RadiantheMultidimensionalKaiju = 28674152;
-            public const int KumongoustheStickyStringKaiju = 29726552;
             public const int ThunderKingtheLightningstrikeKaiju = 48770333;
             public const int DogorantheMadFlameKaiju = 93332803;
+            public const int RadiantheMultidimensionalKaiju = 28674152;
+            public const int GadarlatheMysteryDustKaiju = 36956512;
+            public const int KumongoustheStickyStringKaiju = 29726552;
+            public const int GamecieltheSeaTurtleKaiju = 55063751;
             public const int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
+
 
             public const int DupeFrog = 46239604;
             public const int MaraudingCaptain = 2460565;
@@ -45,12 +46,39 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Decide which card should the attacker attack.
+        /// </summary>
+        /// <param name="attacker">Card that attack.</param>
+        /// <param name="defenders">Cards that defend.</param>
+        /// <returns>BattlePhaseAction including the target, or null (in this situation, GameAI will check the next attacker)</returns>
+        public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
+        {
+            for (int i = 0; i < defenders.Count; ++i)
+            {
+                ClientCard defender = defenders[i];
+
+                attacker.RealPower = attacker.Attack;
+                defender.RealPower = defender.GetDefensePower();
+                if (!OnPreBattleBetween(attacker, defender))
+                    continue;
+
+                if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && attacker.IsLastAttacker))
+                    return AI.Attack(attacker, defender);
+            }
+
+            if (attacker.CanDirectAttack)
+                return AI.Attack(attacker, null);
+
+            return null;
+        }
+
+        /// <summary>
         /// Decide whether to declare attack between attacker and defender.
         /// Can be overrided to update the RealPower of attacker for cards like Honest.
         /// </summary>
         /// <param name="attacker">Card that attack.</param>
         /// <param name="defender">Card that defend.</param>
-        /// <returns>false if the attack can't be done.</returns>
+        /// <returns>false if the attack shouldn't be done.</returns>
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
             if (attacker.RealPower <= 0)
@@ -68,9 +96,9 @@ namespace WindBot.Game.AI
                     defender.RealPower = 5000;
                 
                 if (defender.Id == _CardId.VampireFräulein && !defender.IsDisabled())
-                    defender.RealPower += (Duel.LifePoints[defender.Controller] > 3000) ? 3000 : (Duel.LifePoints[defender.Controller] - 100);
+                    defender.RealPower += (Enemy.LifePoints > 3000) ? 3000 : (Enemy.LifePoints - 100);
 
-                if (defender.Id == _CardId.InjectionFairyLily && !defender.IsDisabled() && Duel.LifePoints[defender.Controller] > 2000)
+                if (defender.Id == _CardId.InjectionFairyLily && !defender.IsDisabled() && Enemy.LifePoints > 2000)
                     defender.RealPower += 3000;
             }
 
@@ -97,6 +125,21 @@ namespace WindBot.Game.AI
             }
 
             return true;
+        }
+
+        public override bool OnSelectBattleReplay()
+        {
+            if (Bot.BattlingMonster == null)
+                return false;
+            List<ClientCard> defenders = new List<ClientCard>(Duel.Fields[1].GetMonsters());
+            defenders.Sort(AIFunctions.CompareDefensePower);
+            defenders.Reverse();
+            BattlePhaseAction result = OnSelectAttackTarget(Bot.BattlingMonster, defenders);
+            if (result != null && result.Action == BattlePhaseAction.BattleAction.Attack)
+            {
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -470,6 +513,29 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Draw when we have Dark monster in hand,and banish random one. Can be overrided.
+        /// </summary>
+        protected bool DefaultAllureofDarkness()
+        {
+            IList<ClientCard> condition = Bot.Hand;
+            IList<ClientCard> check = new List<ClientCard>();
+            ClientCard con = null;
+            foreach (ClientCard card in condition)
+            {
+                if (card.HasAttribute(CardAttribute.Dark))
+                {
+                    con = card;
+                    break;
+                }
+            }
+            if (con != null)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Clever enough.
         /// </summary>
         protected bool DefaultDimensionalBarrier()
@@ -557,7 +623,7 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// Clever enough.
+        /// Clever enough
         /// </summary>
         protected bool DefaultInterruptedKaijuSlumber()
         {
@@ -567,24 +633,34 @@ namespace WindBot.Game.AI
                 {
                     _CardId.GamecieltheSeaTurtleKaiju,
                     _CardId.KumongoustheStickyStringKaiju,
+                    _CardId.GadarlatheMysteryDustKaiju,
                     _CardId.RadiantheMultidimensionalKaiju,
-                    _CardId.GadarlatheMysteryDustKaiju
+                    _CardId.DogorantheMadFlameKaiju,
+                    _CardId.ThunderKingtheLightningstrikeKaiju,
+                    _CardId.JizukirutheStarDestroyingKaiju,
                 });
                 return true;
             }
             AI.SelectCard(new[]
                 {
                     _CardId.JizukirutheStarDestroyingKaiju,
+                    _CardId.ThunderKingtheLightningstrikeKaiju,
+                    _CardId.DogorantheMadFlameKaiju,
                     _CardId.RadiantheMultidimensionalKaiju,
                     _CardId.GadarlatheMysteryDustKaiju,
-                    _CardId.KumongoustheStickyStringKaiju
+                    _CardId.KumongoustheStickyStringKaiju,
+                    _CardId.GamecieltheSeaTurtleKaiju,
                 });
             AI.SelectNextCard(new[]
                 {
+                    _CardId.SuperAntiKaijuWarMachineMechaDogoran,
                     _CardId.GamecieltheSeaTurtleKaiju,
                     _CardId.KumongoustheStickyStringKaiju,
                     _CardId.GadarlatheMysteryDustKaiju,
-                    _CardId.RadiantheMultidimensionalKaiju
+                    _CardId.RadiantheMultidimensionalKaiju,
+                    _CardId.DogorantheMadFlameKaiju,
+                    _CardId.ThunderKingtheLightningstrikeKaiju,
+                    
                 });
             return DefaultDarkHole();
         }
