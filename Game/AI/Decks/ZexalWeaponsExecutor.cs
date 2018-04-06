@@ -72,7 +72,7 @@ namespace WindBot.Game.AI.Decks
             // XYZ effects
             AddExecutor(ExecutorType.Activate, CardId.Number39Utopia, Number39Utopia);
             AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiaOne);
-            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning, NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning, DefaultNumberS39UtopiaTheLightningEffect);
             AddExecutor(ExecutorType.Activate, CardId.ZwLionArms, ZwLionArms);
             AddExecutor(ExecutorType.Activate, CardId.AdreusKeeperOfArmageddon);
             AddExecutor(ExecutorType.Activate, CardId.Number61Volcasaurus);
@@ -105,7 +105,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.TinGoldfish, GoblindberghEffect);
             AddExecutor(ExecutorType.Activate, CardId.Kagetokage);
             AddExecutor(ExecutorType.Activate, CardId.SummonerMonk, SummonerMonkEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Honest, Honest);
+            AddExecutor(ExecutorType.Activate, CardId.Honest, DefaultHonestEffect);
 
             // Reposition
             AddExecutor(ExecutorType.Repos, MonsterRepos);
@@ -150,7 +150,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Number39Utopia()
         {
-            if (!HasChainedTrap(0) && Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Card.HasXyzMaterial(2))
+            if (!AI.Utils.HasChainedTrap(0) && Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Card.HasXyzMaterial(2))
                 return true;
             return false;
         }
@@ -184,7 +184,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool InstantFusion()
         {
-            if (Duel.LifePoints[0] <= 1000)
+            if (Bot.LifePoints <= 1000)
                 return false;
             int count4 = 0;
             int count5 = 0;
@@ -210,17 +210,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool XyzChangeTactics()
         {
-            return Duel.LifePoints[0] > 500;
-        }
-
-        private bool NumberS39UtopiatheLightning()
-        {
-            return Card.Attack < 5000;
-        }
-
-        private bool Honest()
-        {
-            return Duel.Phase != DuelPhase.Main1 || Duel.Turn == 1;
+            return Bot.LifePoints > 500;
         }
 
         private bool GoblindberghFirst()

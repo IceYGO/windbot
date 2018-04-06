@@ -14,6 +14,7 @@
         MetaionTheTimelord = 74530899,
         KamionTheTimelord = 91712985,
         LazionTheTimelord = 92435533,
-        EaterOfMillions = 63845230
-    }
+        EaterOfMillions = 63845230,
+        ElShaddollConstruct = 20366274,
+}
 }

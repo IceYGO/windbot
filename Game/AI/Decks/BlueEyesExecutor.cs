@@ -302,7 +302,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RebornEffect()
         {
-            if (Duel.Player == 0 && CurrentChain.Count > 0)
+            if (Duel.Player == 0 && Duel.CurrentChain.Count > 0)
             {
                 // Silver's Cry spsummon Dragon Spirit at chain 2 will miss the timing
                 return false;
@@ -446,7 +446,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId(CardId.BlueEyesSpiritDragon, 0))
             {
-                return LastChainPlayer == 1;
+                return Duel.LastChainPlayer == 1;
             }
             else if (Duel.Player == 1 && (Duel.Phase == DuelPhase.BattleStart || Duel.Phase == DuelPhase.End))
             {
@@ -468,7 +468,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId(CardId.HopeHarbingerDragonTitanicGalaxy, 0))
             {
-                return LastChainPlayer == 1;
+                return Duel.LastChainPlayer == 1;
             }
             return true;
         }
@@ -855,7 +855,7 @@ namespace WindBot.Game.AI.Decks
             int space = 5 - Bot.GetMonstersInMainZone().Count;
             if (count < space)
                 count = space;
-            if (count < 2 || Duel.LifePoints[0] < count*1000)
+            if (count < 2 || Bot.LifePoints < count*1000)
                 return false;
             if (Duel.Turn != 1)
             {
@@ -872,7 +872,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     defence += monster.GetDefensePower();
                 }
-                if (attack - defence > Duel.LifePoints[1])
+                if (attack - defence > Enemy.LifePoints)
                     return false;
             }
             AI.SelectCard(new[]

@@ -129,7 +129,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiaOne);
             AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
-            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning, DefaultNumberS39UtopiaTheLightningEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.StardustDragon, DefaultStardustDragonEffect);
 
@@ -291,7 +291,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GagagaCowboySummon()
         {
-            if (Duel.LifePoints[1] <= 800 || (Bot.GetMonsterCount()>=4 && Duel.LifePoints[1] <= 1600))
+            if (Enemy.LifePoints <= 800 || (Bot.GetMonsterCount()>=4 && Enemy.LifePoints <= 1600))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;

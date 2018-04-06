@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using WindBot.Game.AI;
 using YGOSharp.OCGWrapper.Enums;
@@ -90,9 +90,6 @@ namespace WindBot.Game
             m_option = -1;
             m_yesno = -1;
             m_position = CardPosition.FaceUpAttack;
-            m_attacker = null;
-            m_defender = null;
-            Duel.LastSummonPlayer = -1;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
                 _dialogs.SendNewTurn();
@@ -114,7 +111,6 @@ namespace WindBot.Game
         /// <param name="player">Player who is currently chaining.</param>
         public void OnChaining(ClientCard card, int player)
         {
-            Duel.LastSummonPlayer = -1;
             Executor.OnChaining(player,card);
         }
         
@@ -147,13 +143,57 @@ namespace WindBot.Game
                 }
             }
 
+            // Sort the attackers and defenders, make monster with higher attack go first.
             List<ClientCard> attackers = new List<ClientCard>(battle.AttackableCards);
             attackers.Sort(AIFunctions.CompareCardAttack);
+            attackers.Reverse();
 
             List<ClientCard> defenders = new List<ClientCard>(Duel.Fields[1].GetMonsters());
             defenders.Sort(AIFunctions.CompareDefensePower);
+            defenders.Reverse();
 
-            return Executor.OnBattle(attackers, defenders);
+            // Let executor decide which card should attack first.
+            ClientCard selected = Executor.OnSelectAttacker(attackers, defenders);
+            if (selected != null && attackers.Contains(selected))
+            {
+                attackers.Remove(selected);
+                attackers.Insert(0, selected);
+            }
+
+            // Check for the executor.
+            BattlePhaseAction result = Executor.OnBattle(attackers, defenders);
+            if (result != null)
+                return result;
+
+            if (attackers.Count == 0)
+                return ToMainPhase2();
+
+            if (defenders.Count == 0)
+            {
+                // Attack with the monster with the lowest attack first
+                for (int i = attackers.Count - 1; i >= 0; --i)
+                {
+                    ClientCard attacker = attackers[i];
+                    if (attacker.Attack > 0)
+                        return Attack(attacker, null);
+                }
+            }
+            else
+            {
+                for (int k = 0; k < attackers.Count; ++k)
+                {
+                    ClientCard attacker = attackers[k];
+                    attacker.IsLastAttacker = (k == attackers.Count - 1);
+                    result = Executor.OnSelectAttackTarget(attacker, defenders);
+                    if (result != null)
+                        return result;
+                }
+            }
+
+            if (!battle.CanMainPhaseTwo)
+                return Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
+
+            return ToMainPhase2();
         }
 
         /// <summary>
@@ -608,6 +648,15 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when the AI has to select if to continue attacking when replay.
+        /// </summary>
+        /// <returns>True for yes, false for no.</returns>
+        public bool OnSelectBattleReplay()
+        {
+            return Executor.OnSelectBattleReplay();
+        }
+
+        /// <summary>
         /// Called when the AI has to declare a card.
         /// </summary>
         /// <returns>Id of the selected card.</returns>
@@ -630,26 +679,8 @@ namespace WindBot.Game
         private int m_number;
         private int m_announce;
         private int m_yesno;
-        private ClientCard m_attacker;
-        private ClientCard m_defender;
         private IList<CardAttribute> m_attributes = new List<CardAttribute>();
         private IList<CardRace> m_races = new List<CardRace>();
-
-        public void SendBattleMsg(ClientCard attackcard, ClientCard defendcard)
-        {
-            m_attacker = attackcard;
-            m_defender = defendcard;
-        }
-
-        public ClientCard GetAttacker()
-        {
-            return m_attacker;
-        }
-
-        public ClientCard GetDefender()
-        {
-            return m_defender;
-        }
 
         public void SelectCard(ClientCard card)
         {

@@ -249,9 +249,9 @@ namespace WindBot.Game.AI.Decks
                 ClientCard tosolve = AI.Utils.GetProblematicEnemyCard();
                 if (tosolve == null)
                 {
-                    if (LastChainPlayer == 1 && GetLastChainCard() != null)
+                    if (Duel.LastChainPlayer == 1 && AI.Utils.GetLastChainCard() != null)
                     {
-                        ClientCard target = GetLastChainCard();
+                        ClientCard target = AI.Utils.GetLastChainCard();
                         if (target.HasPosition(CardPosition.FaceUp) && (target.Location == CardLocation.MonsterZone || target.Location == CardLocation.SpellZone)) tosolve = target;
                     }
                 }
@@ -337,7 +337,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Player == 0) return false;
             if (Duel.Phase == DuelPhase.End) return true;
-            if (LastChainPlayer == 1 && (AI.Utils.IsChainTarget(Card) || (GetLastChainCard().Id == CardId.Feather && !Bot.HasInSpellZone(CardId.Grass)))) return true;
+            if (Duel.LastChainPlayer == 1 && (AI.Utils.IsChainTarget(Card) || (AI.Utils.GetLastChainCard().Id == CardId.Feather && !Bot.HasInSpellZone(CardId.Grass)))) return true;
             if (Duel.Phase == DuelPhase.BattleStart)
             {
                 int total_atk = 0;
@@ -346,7 +346,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (m.IsAttack() && !m.Attacked) total_atk += m.Attack;
                 }
-                if (total_atk >= Duel.LifePoints[0]) return true;
+                if (total_atk >= Bot.LifePoints) return true;
             }
             return false;
         }
@@ -369,7 +369,7 @@ namespace WindBot.Game.AI.Decks
                     stage_locked = null;
                     return true;
                 }
-                else if (Duel.LifePoints[1] <= 1000 && Bot.GetRemainingCount(CardId.Pink,1) > 0)
+                else if (Enemy.LifePoints <= 1000 && Bot.GetRemainingCount(CardId.Pink,1) > 0)
                 {
                     AI.SelectCard(new[]
                     {
@@ -423,7 +423,7 @@ namespace WindBot.Game.AI.Decks
 
             if (NormalSummoned)
             {
-                if (Duel.LifePoints[1] <= 1000 && !pink_ss && Bot.GetRemainingCount(CardId.Pink,1) > 0)
+                if (Enemy.LifePoints <= 1000 && !pink_ss && Bot.GetRemainingCount(CardId.Pink,1) > 0)
                 {
                     AI.SelectCard(new[]
                     {
@@ -483,12 +483,12 @@ namespace WindBot.Game.AI.Decks
             if (GraveCall_count > 0 && GraveCall_id == Card.Id) return false;
             if (Card.Id == CardId.Urara && Bot.HasInHand(CardId.LockBird) && Bot.HasInSpellZone(CardId.Re)) return false;
             if (Card.Id == CardId.Ghost && Card.Location == CardLocation.Hand && Bot.HasInMonstersZone(CardId.Ghost)) return false;
-            return (LastChainPlayer == 1);
+            return (Duel.LastChainPlayer == 1);
         }
 
         public bool Exterio_counter()
         {
-            if (LastChainPlayer == 1)
+            if (Duel.LastChainPlayer == 1)
             {
                 AI.SelectCard(Useless_List());
                 return true;
@@ -505,15 +505,15 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if ((Duel.LifePoints[1] <= 1000 && Bot.HasInSpellZone(CardId.Stage))
-                || Duel.LifePoints[1] <= 800
+                if ((Enemy.LifePoints <= 1000 && Bot.HasInSpellZone(CardId.Stage))
+                || Enemy.LifePoints <= 800
                 || (!NormalSummoned && Bot.HasInGraveyard(CardId.Red))
                 )
                 {
                     pink_ss = true;
                     return true;
                 }
-                else if (Enemy.GetMonsterCount() > 0 && (AI.Utils.GetBestEnemyMonster().Attack - 800 >= Duel.LifePoints[0])) return false;
+                else if (Enemy.GetMonsterCount() > 0 && (AI.Utils.GetBestEnemyMonster().Attack - 800 >= Bot.LifePoints)) return false;
                 pink_ss = true;
                 return true;
             }
@@ -580,19 +580,15 @@ namespace WindBot.Game.AI.Decks
 
         public bool Eater_eff()
         {
-            ClientCard self_card = (Duel.Player == 0) ? AI.GetAttacker() : AI.GetDefender();
-            ClientCard enemy_card = (Duel.Player == 1) ? AI.GetAttacker() : AI.GetDefender();
-            if (self_card == null || enemy_card == null) return false;
-            if (enemy_card.HasPosition(CardPosition.FaceDown)) return true;
-            if (enemy_card.HasPosition(CardPosition.Attack) && (self_card.Attack - enemy_card.GetDefensePower() >= Duel.LifePoints[1])) return true;
-            return (self_card.Attack <= (enemy_card.GetDefensePower() * 2));
+            if (Enemy.BattlingMonster.HasPosition(CardPosition.Attack) && (Bot.BattlingMonster.Attack - Enemy.BattlingMonster.GetDefensePower() >= Enemy.LifePoints)) return false;
+            return true;
         }
 
         public bool Red_ss()
         {
             if (red_ss_count >= 6) return false;
-            if ((ChainContainsCard(CardId.DarkHole) || ChainContainsCard(99330325) || ChainContainsCard(53582587)) && ChainContainsCard(CardId.Red)) return false;
-            if (LastChainPlayer == 0 && GetLastChainCard().Id == CardId.Red)
+            if ((AI.Utils.ChainContainsCard(CardId.DarkHole) || AI.Utils.ChainContainsCard(99330325) || AI.Utils.ChainContainsCard(53582587)) && AI.Utils.ChainContainsCard(CardId.Red)) return false;
+            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().Id == CardId.Red)
             {
                 foreach (ClientCard m in Bot.GetMonsters())
                 {
@@ -604,7 +600,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
-            if (LastChainPlayer == 1) return true;
+            if (Duel.LastChainPlayer == 1) return true;
             if (Duel.Player == 0)
             {
                 if (AI.Utils.IsTurn1OrMain2()) return false;
@@ -695,7 +691,7 @@ namespace WindBot.Game.AI.Decks
                 });
                 return true;
             }
-            if (Duel.LifePoints[1] <= 1000)
+            if (Enemy.LifePoints <= 1000)
             {
                 if (Bot.GetRemainingCount(CardId.Pink, 1) > 0 && !pink_ss)
                 {
@@ -754,7 +750,7 @@ namespace WindBot.Game.AI.Decks
                         CardId.Yellow
                     });
                 }
-                else if (Bot.GetRemainingCount(CardId.White, 2) > 0 && Duel.LifePoints[1] <= 4000)
+                else if (Bot.GetRemainingCount(CardId.White, 2) > 0 && Enemy.LifePoints <= 4000)
                 {
                     AI.SelectCard(new[]
                     {
@@ -875,10 +871,8 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
                 */
-                ClientCard self_monster = (Duel.Player == 0) ? AI.GetAttacker() : AI.GetDefender();
-                ClientCard enemy_monster = (Duel.Player == 1) ? AI.GetAttacker() : AI.GetDefender();
-                if (self_monster == null || enemy_monster == null || !IsTrickstar(self_monster.Id) || self_monster.HasPosition(CardPosition.Defence)) return false;
-                if (self_monster.Attack <= enemy_monster.RealPower && self_monster.Attack + self_monster.BaseAttack >= enemy_monster.RealPower)
+                if (Bot.BattlingMonster == null || Enemy.BattlingMonster == null || !IsTrickstar(Bot.BattlingMonster.Id) || Bot.BattlingMonster.HasPosition(CardPosition.Defence)) return false;
+                if (Bot.BattlingMonster.Attack <= Enemy.BattlingMonster.RealPower && Bot.BattlingMonster.Attack + Bot.BattlingMonster.BaseAttack >= Enemy.BattlingMonster.RealPower)
                 {
                     white_eff_used = true;
                     return true;
@@ -934,8 +928,8 @@ namespace WindBot.Game.AI.Decks
             lockbird_useful = true;
             if (Bot.HasInSpellZone(CardId.Re))
             {
-                if (ChainContainsCard(CardId.Re)) lockbird_used = true;
-                return ChainContainsCard(CardId.Re);
+                if (AI.Utils.ChainContainsCard(CardId.Re)) lockbird_used = true;
+                return AI.Utils.ChainContainsCard(CardId.Re);
             }
             lockbird_used = true;
             return true;
@@ -946,7 +940,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Grave) return Ts_reborn();
             if (Bot.HasInHand(CardId.LockBird))
             {
-                if (lockbird_useful || AI.Utils.IsChainTarget(Card) || (Duel.Player == 1 && ChainContainsCard(CardId.Feather))) {
+                if (lockbird_useful || AI.Utils.IsChainTarget(Card) || (Duel.Player == 1 && AI.Utils.ChainContainsCard(CardId.Feather))) {
                     lockbird_useful = false;
                     return true;
                 }
@@ -973,7 +967,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (hand.IsMonster() && IsTrickstar(hand.Id))
                     {
-                        if (hand.Attack >= Duel.LifePoints[1]) return true;
+                        if (hand.Attack >= Enemy.LifePoints) return true;
                         if (hand.Id != CardId.Yellow)
                         {
                             if (AI.Utils.GetOneEnemyBetterThanValue(hand.Attack, false) == null) return true;
@@ -986,7 +980,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Ts_reborn()
         {
-            if (Duel.Player == 0 && Duel.LifePoints[1] <= 1000)
+            if (Duel.Player == 0 && Enemy.LifePoints <= 1000)
             {
                 AI.SelectCard(CardId.Pink);
                 return true;
@@ -1033,7 +1027,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Red_sum()
         {
-            if ((Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 1800) || (Duel.Turn == 1 && Bot.HasInHand(CardId.Re)))
+            if ((Enemy.GetMonsterCount() == 0 && Enemy.LifePoints <= 1800) || (Duel.Turn == 1 && Bot.HasInHand(CardId.Re)))
             {
                 NormalSummoned = true;
                 return true;
@@ -1043,7 +1037,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Pink_sum()
         {
-            if (Duel.LifePoints[1] <= 1000)
+            if (Enemy.LifePoints <= 1000)
             {
                 NormalSummoned = true;
                 return true;
@@ -1094,7 +1088,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Ring_act()
         {
-            if (LastChainPlayer == 0 && GetLastChainCard() != null && GetLastChainCard().Id == CardId.Ghost) return false;
+            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == CardId.Ghost) return false;
             ClientCard target = AI.Utils.GetProblematicEnemyMonster();
             if (target == null && AI.Utils.IsChainTarget(Card))
             {
@@ -1102,7 +1096,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (target != null)
             {
-                if (Duel.LifePoints[0] <= target.Attack) return false;
+                if (Bot.LifePoints <= target.Attack) return false;
                 AI.SelectCard(target);
                 return true;
             }
@@ -1124,7 +1118,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Linkuri_eff()
         {
-            if (LastChainPlayer == 0 && GetLastChainCard().Id == CardId.Linkuri) return false;
+            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().Id == CardId.Linkuri) return false;
             AI.SelectCard(new[] { CardId.Tuner, CardId.BF + 1 });
             return true;
         }
@@ -1216,7 +1210,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (getLinkMarker(ex_m.Id) >= 4) return false;
             }
-            if ((m == null || m.HasPosition(CardPosition.FaceDown)) && Duel.LifePoints[1] <= 1100)
+            if ((m == null || m.HasPosition(CardPosition.FaceDown)) && Enemy.LifePoints <= 1100)
             {
                 if (Enemy.GetMonsterCount() == 0 && Duel.Phase < DuelPhase.Battle)
                 {
@@ -1261,7 +1255,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard m = AI.Utils.GetProblematicEnemySpell();
             if (m == null)
             {
-                if (Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 1900 && Duel.Phase == DuelPhase.Main1) 
+                if (Enemy.GetMonsterCount() == 0 && Enemy.LifePoints <= 1900 && Duel.Phase == DuelPhase.Main1) 
                 {
                     IList<ClientCard> m_list = new List<ClientCard>();
                     List<ClientCard> list = new List<ClientCard>(Bot.GetMonsters());
@@ -1320,7 +1314,7 @@ namespace WindBot.Game.AI.Decks
             int link_count = 0;
             if (m == null)
             {
-                if (Enemy.GetMonsterCount() == 0 && Duel.LifePoints[1] <= 2200 && Duel.Phase == DuelPhase.Main1)
+                if (Enemy.GetMonsterCount() == 0 && Enemy.LifePoints <= 2200 && Duel.Phase == DuelPhase.Main1)
                 {
                     IList<ClientCard> m_list = new List<ClientCard>();
                     List<ClientCard> _sort_list = new List<ClientCard>(Bot.GetMonsters());
@@ -1412,7 +1406,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (targets.Count >= 4)
                 {
-                    if (Duel.LifePoints[1] <= GetTotalATK(targets) && Enemy.GetMonsterCount() == 0) return false;
+                    if (Enemy.LifePoints <= GetTotalATK(targets) && Enemy.GetMonsterCount() == 0) return false;
                     AI.SelectMaterials(targets);
                     AI.SelectYesNo(true);
                     snake_four_s = true;
@@ -1491,7 +1485,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             if (AI.Utils.GetProblematicEnemyMonster(2000) == null) Logger.DebugWriteLine("***borrel:null");
             else Logger.DebugWriteLine("***borrel:" + (AI.Utils.GetProblematicEnemyMonster(2000).Name ?? "unknown"));
-            if (AI.Utils.GetProblematicEnemyMonster(2000) != null || (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Duel.LifePoints[1] <= 3000))
+            if (AI.Utils.GetProblematicEnemyMonster(2000) != null || (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Enemy.LifePoints <= 3000))
             {
                 foreach(ClientCard e_m in Bot.GetMonstersInExtraZone())
                 {
@@ -1521,7 +1515,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if ((already_link2 && material_list.Count == 3) || (!already_link2 && material_list.Count == 4))
                 {
-                    if (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Duel.LifePoints[1] <= 3000)
+                    if (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Enemy.LifePoints <= 3000)
                     {
                         if (GetTotalATK(material_list) >= 3000) return false;
                     }
@@ -1552,14 +1546,14 @@ namespace WindBot.Game.AI.Decks
 
         public bool GraveCall_eff()
         {
-            if (LastChainPlayer == 1)
+            if (Duel.LastChainPlayer == 1)
             {
-                Logger.DebugWriteLine(GetLastChainCard().Name.ToString());
-                Logger.DebugWriteLine(GetLastChainCard().IsMonster().ToString());
-                Logger.DebugWriteLine(Enemy.HasInGraveyard(GetLastChainCard().Id).ToString());
-                if (GetLastChainCard().IsMonster() && Enemy.HasInGraveyard(GetLastChainCard().Id))
+                Logger.DebugWriteLine(AI.Utils.GetLastChainCard().Name.ToString());
+                Logger.DebugWriteLine(AI.Utils.GetLastChainCard().IsMonster().ToString());
+                Logger.DebugWriteLine(Enemy.HasInGraveyard(AI.Utils.GetLastChainCard().Id).ToString());
+                if (AI.Utils.GetLastChainCard().IsMonster() && Enemy.HasInGraveyard(AI.Utils.GetLastChainCard().Id))
                 {
-                    GraveCall_id = GetLastChainCard().Id;
+                    GraveCall_id = AI.Utils.GetLastChainCard().Id;
                     GraveCall_count = 2;
                     AI.SelectCard(GraveCall_id);
                     return true;

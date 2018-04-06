@@ -161,7 +161,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SkillDrainEffect()
         {
-            return (Duel.LifePoints[0] > 1000) && DefaultUniqueTrap();
+            return (Bot.LifePoints > 1000) && DefaultUniqueTrap();
         }
 
         private bool PotOfDualityEffect()
@@ -191,7 +191,7 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
-        
+
         private bool TrapSetUnique()
         {
             foreach (ClientCard card in Bot.GetSpells())
@@ -315,7 +315,7 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectCard(HighScaleCards);
             }
-            return Duel.LifePoints[0] > 800;
+            return Bot.LifePoints > 800;
         }
 
         private bool StealthEffect()
