@@ -46,12 +46,39 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Decide which card should the attacker attack.
+        /// </summary>
+        /// <param name="attacker">Card that attack.</param>
+        /// <param name="defenders">Cards that defend.</param>
+        /// <returns>BattlePhaseAction including the target, or null (in this situation, GameAI will check the next attacker)</returns>
+        public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
+        {
+            for (int i = 0; i < defenders.Count; ++i)
+            {
+                ClientCard defender = defenders[i];
+
+                attacker.RealPower = attacker.Attack;
+                defender.RealPower = defender.GetDefensePower();
+                if (!OnPreBattleBetween(attacker, defender))
+                    continue;
+
+                if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && attacker.IsLastAttacker))
+                    return AI.Attack(attacker, defender);
+            }
+
+            if (attacker.CanDirectAttack)
+                return AI.Attack(attacker, null);
+
+            return null;
+        }
+
+        /// <summary>
         /// Decide whether to declare attack between attacker and defender.
         /// Can be overrided to update the RealPower of attacker for cards like Honest.
         /// </summary>
         /// <param name="attacker">Card that attack.</param>
         /// <param name="defender">Card that defend.</param>
-        /// <returns>false if the attack can't be done.</returns>
+        /// <returns>false if the attack shouldn't be done.</returns>
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
             if (attacker.RealPower <= 0)
