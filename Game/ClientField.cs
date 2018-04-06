@@ -70,6 +70,19 @@ namespace WindBot.Game
             }
             return count;
         }
+                
+
+        public int GetFieldCount()
+        {
+            return GetSpellCount() + GetMonsterCount();
+        }
+
+
+        public int GetFieldHandCount()
+        {
+            return GetSpellCount() + GetMonsterCount() + GetHandCount();
+        }
+
 
         public bool IsFieldEmpty()
         {
