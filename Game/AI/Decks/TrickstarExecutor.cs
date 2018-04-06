@@ -580,9 +580,8 @@ namespace WindBot.Game.AI.Decks
 
         public bool Eater_eff()
         {
-            if (Enemy.BattlingMonster.HasPosition(CardPosition.FaceDown)) return true;
-            if (Enemy.BattlingMonster.HasPosition(CardPosition.Attack) && (Bot.BattlingMonster.Attack - Enemy.BattlingMonster.GetDefensePower() >= Enemy.LifePoints)) return true;
-            return (Bot.BattlingMonster.Attack <= (Enemy.BattlingMonster.GetDefensePower() * 2));
+            if (Enemy.BattlingMonster.HasPosition(CardPosition.Attack) && (Bot.BattlingMonster.Attack - Enemy.BattlingMonster.GetDefensePower() >= Enemy.LifePoints)) return false;
+            return true;
         }
 
         public bool Red_ss()
