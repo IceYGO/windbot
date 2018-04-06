@@ -108,7 +108,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.BecomeTarget, OnBecomeTarget);
             _messages.Add(GameMessage.SelectBattleCmd, OnSelectBattleCmd);
             _messages.Add(GameMessage.SelectCard, OnSelectCard);
-            //_messages.Add(GameMessage.SelectUnselectCard, OnSelectUnselectCard);
+            _messages.Add(GameMessage.SelectUnselectCard, OnSelectUnselectCard);
             _messages.Add(GameMessage.SelectChain, OnSelectChain);
             _messages.Add(GameMessage.SelectCounter, OnSelectCounter);
             _messages.Add(GameMessage.SelectDisfield, OnSelectDisfield);
