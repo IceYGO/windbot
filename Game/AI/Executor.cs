@@ -153,6 +153,12 @@ namespace WindBot.Game.AI
             return -1;
         }
 
+        public virtual bool OnSelectBattleReplay()
+        {
+            // Overrided in DefalultExecutor
+            return false;
+        }
+
         public void SetMain(MainPhase main)
         {
             Main = main;

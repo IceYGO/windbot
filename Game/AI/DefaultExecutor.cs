@@ -127,6 +127,21 @@ namespace WindBot.Game.AI
             return true;
         }
 
+        public override bool OnSelectBattleReplay()
+        {
+            if (Bot.BattlingMonster == null)
+                return false;
+            List<ClientCard> defenders = new List<ClientCard>(Duel.Fields[1].GetMonsters());
+            defenders.Sort(AIFunctions.CompareDefensePower);
+            defenders.Reverse();
+            BattlePhaseAction result = OnSelectAttackTarget(Bot.BattlingMonster, defenders);
+            if (result != null && result.Action == BattlePhaseAction.BattleAction.Attack)
+            {
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// Destroy face-down cards first, in our turn.
         /// </summary>

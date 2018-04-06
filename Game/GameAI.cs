@@ -648,6 +648,15 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when the AI has to select if to continue attacking when replay.
+        /// </summary>
+        /// <returns>True for yes, false for no.</returns>
+        public bool OnSelectBattleReplay()
+        {
+            return Executor.OnSelectBattleReplay();
+        }
+
+        /// <summary>
         /// Called when the AI has to declare a card.
         /// </summary>
         /// <returns>Id of the selected card.</returns>
