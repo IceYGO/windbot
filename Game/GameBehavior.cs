@@ -130,8 +130,6 @@ namespace WindBot.Game
             _messages.Add(GameMessage.SpSummoning, OnSpSummon);
             _messages.Add(GameMessage.SpSummoned, OnSpSummon);
 
-            _messages.Add((GameMessage)26, OnSelectUnselectCard);
-
         }
 
         private void OnJoinGame(BinaryReader packet)
