@@ -52,47 +52,26 @@ namespace WindBot.Game.AI
         /// <returns>A new BattlePhaseAction containing the action to do.</returns>
         public virtual BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
-            if (attackers.Count == 0)
-                return AI.ToMainPhase2();
+            // For overriding
+            return null;
+        }
 
-            if (defenders.Count == 0)
-            {
-                for (int i = attackers.Count - 1; i >= 0; --i)
-                {
-                    ClientCard attacker = attackers[i];
-                    if (attacker.Attack > 0)
-                        return AI.Attack(attacker, null);
-                }
-            }
-            else
-            {
-                for (int i = defenders.Count - 1; i >= 0; --i)
-                {
-                    ClientCard defender = defenders[i];
-                    for (int j = 0; j < attackers.Count; ++j)
-                    {
-                        ClientCard attacker = attackers[j];
-                        attacker.RealPower = attacker.Attack;
-                        defender.RealPower = defender.GetDefensePower();
-                        if (!OnPreBattleBetween(attacker, defender))
-                            continue;
-                        if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && j == attackers.Count - 1))
-                            return AI.Attack(attacker, defender);
-                    }
-                }
+        /// <summary>
+        /// Called when the AI has to decide which card to attack first
+        /// </summary>
+        /// <param name="attackers">List of monsters that can attcack.</param>
+        /// <param name="defenders">List of monsters of enemy.</param>
+        /// <returns>The card to attack first.</returns>
+        public virtual ClientCard OnSelectAttacker(IList<ClientCard> attackers, IList<ClientCard> defenders)
+        {
+            // For overriding
+            return null;
+        }
 
-                for (int i = attackers.Count - 1; i >= 0; --i)
-                {
-                    ClientCard attacker = attackers[i];
-                    if (attacker.CanDirectAttack)
-                        return AI.Attack(attacker, null);
-                }
-            }
-
-            if (!Battle.CanMainPhaseTwo)
-                return AI.Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
-
-            return AI.ToMainPhase2();
+        public virtual BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
+        {
+            // Overrided in DefalultExecutor
+            return null;
         }
 
         public virtual bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
@@ -172,6 +151,12 @@ namespace WindBot.Game.AI
         public virtual int OnSelectOption(IList<int> options)
         {
             return -1;
+        }
+
+        public virtual bool OnSelectBattleReplay()
+        {
+            // Overrided in DefalultExecutor
+            return false;
         }
 
         public void SetMain(MainPhase main)

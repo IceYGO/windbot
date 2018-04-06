@@ -34,7 +34,7 @@ namespace WindBot.Game.AI.Decks
             public const int MaxxC = 23434538;
             public const int PlaguespreaderZombie = 33420078;
             public const int GlowUpBulb = 67441435;
-            
+
             //spell
             public const int AllureofDarkness = 1475311;
             public const int ThatGrassLooksgreener = 11110587;
@@ -53,7 +53,7 @@ namespace WindBot.Game.AI.Decks
             public const int LostWind = 74003290;
             public const int SinisterShadowGames = 77505534;
             public const int ShaddollCore = 4904633;
-            
+
             //extra
             public const int ElShaddollShekhinaga = 74822425;
             public const int ElShaddollConstruct = 20366274;
@@ -88,7 +88,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.infiniteTransience, DefaultBreakthroughSkill);
             AddExecutor(ExecutorType.Activate, CardId.ThatGrassLooksgreener);
             AddExecutor(ExecutorType.Summon, CardId.SouleatingOviraptor);
-            AddExecutor(ExecutorType.Activate, CardId.SouleatingOviraptor, SouleatingOviraptoreff);            
+            AddExecutor(ExecutorType.Activate, CardId.SouleatingOviraptor, SouleatingOviraptoreff);
             AddExecutor(ExecutorType.Activate, CardId.AllureofDarkness, DefaultAllureofDarkness);
             AddExecutor(ExecutorType.Activate, CardId.PotOfAvarice, PotofAvarice);
             // AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
@@ -101,9 +101,9 @@ namespace WindBot.Game.AI.Decks
             //Normal Summon
             AddExecutor(ExecutorType.Summon, CardId.Raiden);
             AddExecutor(ExecutorType.Activate, CardId.Raiden);
-            
+
             AddExecutor(ExecutorType.Summon , CardId.KeeperOfDragonicMagic);
-            AddExecutor(ExecutorType.Activate, CardId.KeeperOfDragonicMagic, KeeperOfDragonicMagic);            
+            AddExecutor(ExecutorType.Activate, CardId.KeeperOfDragonicMagic, KeeperOfDragonicMagic);
             AddExecutor(ExecutorType.MonsterSet, CardId.ShaddollSquamata);
             AddExecutor(ExecutorType.MonsterSet, CardId.GlowUpBulb);
             AddExecutor(ExecutorType.MonsterSet, CardId.ShaddollHedgehog);
@@ -117,14 +117,14 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.UltimateConductorTytanno, UltimateConductorTytannoeff);
             AddExecutor(ExecutorType.Activate, CardId.DoubleEvolutionPill, DoubleEvolutionPilleff);
             AddExecutor(ExecutorType.SpSummon, CardId.MinervaTheExalte);
-            AddExecutor(ExecutorType.Activate, CardId.MinervaTheExalte, MinervaTheExaltedEffect);            
+            AddExecutor(ExecutorType.Activate, CardId.MinervaTheExalte, MinervaTheExaltedEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.GamecieltheSeaTurtleKaiju, DefaultKaijuSpsummon);
-            
-            
-            
+
+
+
             //activate
             AddExecutor(ExecutorType.SpSummon , CardId.GlowUpBulb,GlowUpBulbeff);
-            
+
             //activate chain
             AddExecutor(ExecutorType.Activate, CardId.OvertexCoatls, OvertexCoatlseff);
             AddExecutor(ExecutorType.Activate, CardId.ShaddollBeast);
@@ -146,7 +146,7 @@ namespace WindBot.Game.AI.Decks
             //trap
             AddExecutor(ExecutorType.SpellSet, CardId.LostWind, TrapSetWhenZoneFree);
             AddExecutor(ExecutorType.SpellSet, CardId.SinisterShadowGames, TrapSetWhenZoneFree);
-            AddExecutor(ExecutorType.SpellSet, CardId.ShaddollCore);         
+            AddExecutor(ExecutorType.SpellSet, CardId.ShaddollCore);
             AddExecutor(ExecutorType.SpellSet, CardId.infiniteTransience, SetIsFieldEmpty);
             //trap activate
             AddExecutor(ExecutorType.Activate, CardId.LostWind, DefaultBreakthroughSkill);
@@ -210,12 +210,12 @@ namespace WindBot.Game.AI.Decks
                 CardId.ChargeOfTheLightBrigade,
                 CardId.FoolishBurial,
                 CardId.HarpiesFeatherDuster,
-                CardId.ThatGrassLooksgreener,                
+                CardId.ThatGrassLooksgreener,
                 CardId.FairyTailSnow,
                 CardId.GiantRex,
                 CardId.Lumina,
                 CardId.OvertexCoatls,
-                
+
             };
         }
 
@@ -275,7 +275,7 @@ namespace WindBot.Game.AI.Decks
         private bool UltimateConductorTytannoeff()
         {
 
-            
+
             if (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2)
             {
                 IList<int> targets = new[] {
@@ -335,8 +335,8 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(Useless_List());
                 return true;
             }
-            
-            
+
+
             return true;
         }
 
@@ -346,7 +346,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             return base.DefaultMonsterRepos();
         }
-        
+
         private bool OvertexCoatlseff()
         {
             if (OvertexCoatlseff_used == true)
@@ -359,11 +359,11 @@ namespace WindBot.Game.AI.Decks
             if (Pillused == true) return false;
             Pillused = true;
             IList<int> targets = new[] {
-                    CardId.GiantRex,                    
+                    CardId.GiantRex,
                     CardId.DogorantheMadFlameKaiju,
                     CardId.GamecieltheSeaTurtleKaiju,
                     CardId.RadiantheMultidimensionalKaiju,
-                    CardId.OvertexCoatls,                                       
+                    CardId.OvertexCoatls,
                     CardId.SouleatingOviraptor,
                     CardId.UltimateConductorTytanno,
                 };
@@ -374,7 +374,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.DogorantheMadFlameKaiju,
                     CardId.OvertexCoatls,
                     CardId.GamecieltheSeaTurtleKaiju,
-                    CardId.RadiantheMultidimensionalKaiju,                   
+                    CardId.RadiantheMultidimensionalKaiju,
                     CardId.SouleatingOviraptor,
                     CardId.UltimateConductorTytanno,
                 });
@@ -456,7 +456,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectPosition(CardPosition.FaceUpDefence);
                     return true;
                 }
-                
+
                 return false;
             }
             return true;
@@ -464,7 +464,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FairyTailSnow()
         {
-            
+
             if (Card.Location == CardLocation.MonsterZone)
             {
                 return true;
@@ -500,14 +500,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShaddollFusioneff()
         {
-            
+
             if (Enemy.GetMonstersExtraZoneCount() != 0)
             {
 
-                
+
                 AI.SelectCard(new[]
                 {
-                    CardId.ElShaddollConstruct, 
+                    CardId.ElShaddollConstruct,
                     CardId.ElShaddollShekhinaga,
                     CardId.ElShaddollGrysra,
                     CardId.ElShaddollWinda
@@ -521,7 +521,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.ShaddollFalco,
 
                 });
-                AI.SelectPosition(CardPosition.FaceUpAttack);            
+                AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
             }
             else
@@ -534,7 +534,7 @@ namespace WindBot.Game.AI.Decks
             return true;
 
         }
-              
+
         private bool ShaddollCore()
         {
             return Bot.HasInGraveyard(CardId.ShaddollFusion);
@@ -556,7 +556,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return true;
             }
-            return false; 
+            return false;
         }
         private bool spellset()
         {
@@ -564,13 +564,13 @@ namespace WindBot.Game.AI.Decks
         }
         private bool RebornEffect()
         {
-            
+
             IList<int> targets = new[] {
                     CardId.UltimateConductorTytanno,
                     CardId.ElShaddollConstruct,
                     CardId.DogorantheMadFlameKaiju,
                     CardId.GamecieltheSeaTurtleKaiju,
-                    CardId.SouleatingOviraptor,                   
+                    CardId.SouleatingOviraptor,
                 };
             if (!Bot.HasInGraveyard(targets))
             {
@@ -581,10 +581,10 @@ namespace WindBot.Game.AI.Decks
         }
         private bool PotofAvarice()
         {
-            
+
             return true;
         }
-        
+
         private bool MaxxC()
         {
             return Duel.Player == 1;
@@ -604,9 +604,9 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.Raiden);
             else
                 AI.SelectCard(new[]
-                {                 
+                {
                     CardId.Lumina,
-                 
+
                 });
             return true;
         }
@@ -619,7 +619,7 @@ namespace WindBot.Game.AI.Decks
 
             });
 
-        
+
             return true;
         }
 
@@ -660,7 +660,7 @@ namespace WindBot.Game.AI.Decks
                 CardId.ShaddollSquamata,
                 }
                 );
-               
+
             }
             return true;
         }
@@ -702,12 +702,12 @@ namespace WindBot.Game.AI.Decks
                 {
                 CardId.ShaddollBeast,
                 });
-            }                
+            }
             else
             {
                 ClientCard target = AI.Utils.GetBestEnemyMonster();
                 AI.SelectCard(target);
-                
+
             }
             return true;
         }
@@ -733,14 +733,14 @@ namespace WindBot.Game.AI.Decks
                         CardId.ShaddollSquamata,
                         CardId.FairyTailSnow,
                     });
-                
+
             }
 
             return true;
         }
-            
-        
-        
+
+
+
 
         private bool GoblindberghSummon()
         {
@@ -752,9 +752,9 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-       
 
-      
+
+
         private bool PerformageTrickClownEffect()
         {
             AI.SelectPosition(CardPosition.FaceUpDefence);
