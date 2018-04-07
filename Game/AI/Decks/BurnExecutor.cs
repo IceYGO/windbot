@@ -352,8 +352,8 @@ namespace WindBot.Game.AI.Decks
         private bool MagicCylindereff()
         {
             if (prevent_used) return false;
-            if (Bot.LifePoints <= Enemy.BattlingMonster.Attack) return true;
-            if(Enemy.BattlingMonster.Attack>1800) return true;
+            if (Bot.LifePoints <= Enemy.BattlingMonster.Attack) return DefaultUniqueTrap();
+            if(Enemy.BattlingMonster.Attack>1800) return DefaultUniqueTrap();
             return false;
         }
         public bool Ring_act()
