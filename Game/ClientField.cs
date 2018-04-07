@@ -115,7 +115,6 @@ namespace WindBot.Game
             return GetCards(SpellZone);
         }
 
-        
         public List<ClientCard> GetMonstersInExtraZone()
         {
             List<ClientCard> cards = new List<ClientCard>();

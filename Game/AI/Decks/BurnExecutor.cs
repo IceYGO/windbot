@@ -6,495 +6,132 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Burn", "AI_Burn", "Normal")]
+    [Deck("Burn", "AI_Burn", "Easy")]
     public class BurnExecutor : DefaultExecutor
     {
         public class CardId
         {
-            public const int SandaionTheTimloard = 100227025;
-            public const int Mathematician = 41386308;
-            public const int DiceJar = 3549275;
-            public const int CardcarD = 45812361;
-            public const int BattleFader = 19665973;
-            public const int AbouluteKingBackJack = 60990740;
-
-            public const int PotOfDesires = 35261759;
-            public const int CardOfDemise = 59750328;
-            public const int PotOfDuality = 98645731;
-            public const int ChainStrike = 91623717;
-
-            public const int Waboku = 12607053;
-            public const int SecretBlast = 18252559;
-            public const int JustDesserts = 24068492;
-            public const int SectetBarrel = 27053506;
+            public const int LavaGolem = 102380;
+            public const int ReflectBounder = 2851070;
+            public const int FencingFireFerret = 97396380;
+            public const int BlastSphere = 26302522;
+            public const int Marshmallon = 31305911;
+            public const int SpiritReaper = 23205979;
+            public const int NaturiaBeans = 44789585;
+            public const int ThunderShort = 20264508;
+            public const int Ookazi = 19523799;
+            public const int GoblinThief = 45311864;
+            public const int TremendousFire = 46918794;
+            public const int SwordsOfRevealingLight = 72302403;
+            public const int SupremacyBerry = 98380593;
+            public const int ChainEnergy = 79323590;
+            public const int DarkRoomofNightmare = 85562745;
+            public const int PoisonOfTheOldMan = 8842266;
             public const int OjamaTrio = 29843091;
-            public const int ThreateningRoar = 36361633;
             public const int Ceasefire = 36468556;
-            public const int RecklessGreed = 37576645;
             public const int MagicCylinder = 62279055;
-            public const int BalanceOfJudgment = 67443336;
-            public const int BlazingMirrorForce = 75249652;
-            public const int RingOfDestruction = 83555666;
-            public const int AccuulatedFortune = 98444741;
-
-            public const int Linkuriboh = 41999284;
-            public const int HarpiesFeatherDuster = 18144506;
+            public const int MinorGoblinOfficial = 1918087;
+            public const int ChainBurst = 48276469;
+            public const int SkullInvitation = 98139712;
         }
 
         public BurnExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            //first add
-            AddExecutor(ExecutorType.Activate, CardId.PotOfDesires);
-            AddExecutor(ExecutorType.Activate, CardId.PotOfDuality, PotOfDualityeff);
-            //normal summon
-            AddExecutor(ExecutorType.Summon, CardId.Mathematician);
-            AddExecutor(ExecutorType.Activate, CardId.Mathematician, Mathematicianeff);
-            AddExecutor(ExecutorType.MonsterSet, CardId.DiceJar);
-            AddExecutor(ExecutorType.Activate, CardId.DiceJar);
-            AddExecutor(ExecutorType.Summon, CardId.AbouluteKingBackJack, AbouluteKingBackJacksummon);
-            AddExecutor(ExecutorType.MonsterSet, CardId.AbouluteKingBackJack);
-            AddExecutor(ExecutorType.Activate, CardId.AbouluteKingBackJack, AbouluteKingBackJackeff);
-            AddExecutor(ExecutorType.Summon, CardId.CardcarD);
-            AddExecutor(ExecutorType.Summon, CardId.SandaionTheTimloard, SandaionTheTimloard_summon);
-            AddExecutor(ExecutorType.Activate, CardId.SandaionTheTimloard, SandaionTheTimloardeff);
             // Set traps
-            AddExecutor(ExecutorType.SpellSet, CardId.Waboku);
-            AddExecutor(ExecutorType.SpellSet, CardId.ThreateningRoar);
-            AddExecutor(ExecutorType.SpellSet, CardId.BlazingMirrorForce);
-            AddExecutor(ExecutorType.SpellSet, BrunSpellSet);
-            //afer set
-            AddExecutor(ExecutorType.Activate, CardId.CardcarD);
-            AddExecutor(ExecutorType.Activate, CardId.CardOfDemise, CardOfDemiseeff);
-            //activate trap
-            AddExecutor(ExecutorType.Activate, CardId.BalanceOfJudgment, BalanceOfJudgmenteff);
-            AddExecutor(ExecutorType.Activate, CardId.AccuulatedFortune);
-            AddExecutor(ExecutorType.Activate, CardId.ChainStrike, ChainStrikeeff);
-            //battle 
+            AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, CardId.ThreateningRoar, ThreateningRoareff);
-            AddExecutor(ExecutorType.Activate, CardId.Waboku, Wabokueff);
-            AddExecutor(ExecutorType.Activate, CardId.BattleFader, BattleFadereff);
-            AddExecutor(ExecutorType.Activate, CardId.MagicCylinder, MagicCylindereff);
-            AddExecutor(ExecutorType.Activate, CardId.BlazingMirrorForce, BlazingMirrorForceeff);
-            AddExecutor(ExecutorType.Activate, CardId.RingOfDestruction, Ring_act);
-            //chain
-            AddExecutor(ExecutorType.Activate, CardId.JustDesserts, JustDessertseff);
-            AddExecutor(ExecutorType.Activate, CardId.OjamaTrio, OjamaTrioeff);
-            AddExecutor(ExecutorType.Activate, CardId.Ceasefire, Ceasefireeff);
-            AddExecutor(ExecutorType.Activate, CardId.SecretBlast, SecretBlasteff);
-            AddExecutor(ExecutorType.Activate, CardId.SectetBarrel, SectetBarreleff);
-            AddExecutor(ExecutorType.Activate, CardId.RecklessGreed, RecklessGreedeff);
+            // Activate Spells
+            AddExecutor(ExecutorType.Activate, CardId.DarkRoomofNightmare);
+            AddExecutor(ExecutorType.Activate, CardId.Ookazi);
+            AddExecutor(ExecutorType.Activate, CardId.GoblinThief);
+            AddExecutor(ExecutorType.Activate, CardId.TremendousFire);
+            AddExecutor(ExecutorType.Activate, CardId.SwordsOfRevealingLight, SwordsOfRevealingLight);
+            AddExecutor(ExecutorType.Activate, CardId.SupremacyBerry, SupremacyBerry);
+            AddExecutor(ExecutorType.Activate, CardId.PoisonOfTheOldMan, PoisonOfTheOldMan);
+            AddExecutor(ExecutorType.Activate, CardId.ThunderShort, ThunderShort);
 
-            //sp
-            AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh);
-            AddExecutor(ExecutorType.Activate, CardId.Linkuriboh, Linkuriboheff);
+            // Hello, my name is Lava Golem
+            AddExecutor(ExecutorType.SpSummon, CardId.LavaGolem, LavaGolem);
 
-        }
-        public int[] all_List()
-        {
-            return new[]
-            {
-                CardId.SandaionTheTimloard,
-                CardId.Mathematician,
-                CardId.DiceJar,
-                CardId.CardcarD,
-                CardId.BattleFader,
-                CardId.AbouluteKingBackJack,
+            // Set an invincible monster
+            AddExecutor(ExecutorType.MonsterSet, CardId.Marshmallon, SetInvincibleMonster);
+            AddExecutor(ExecutorType.MonsterSet, CardId.SpiritReaper, SetInvincibleMonster);
+            AddExecutor(ExecutorType.MonsterSet, CardId.BlastSphere);
 
-                CardId.PotOfDesires,
-                CardId.CardOfDemise,
-                CardId.PotOfDuality,
-                CardId.ChainStrike,
+            // Set other monsters
+            AddExecutor(ExecutorType.SummonOrSet, CardId.FencingFireFerret);
+            AddExecutor(ExecutorType.Summon, CardId.ReflectBounder);
+            AddExecutor(ExecutorType.MonsterSet, CardId.NaturiaBeans);
 
-                CardId.Waboku,
-                CardId.SecretBlast,
-                CardId.JustDesserts,
-                CardId.OjamaTrio,
-                CardId.SectetBarrel,
-                CardId.ThreateningRoar,
-                CardId.Ceasefire,
-                CardId.RecklessGreed,
-                CardId.MagicCylinder,
-                CardId.BalanceOfJudgment,
-                CardId.BlazingMirrorForce,
-                CardId.RingOfDestruction,
-                CardId.AccuulatedFortune,
-    };
-        }
-        public int[] AbouluteKingBackJack_List_1()
-        {
-            return new[] {
-            CardId.BlazingMirrorForce,
-            CardId.Waboku,
-            CardId.ThreateningRoar,
-            CardId.MagicCylinder,
-            CardId.RingOfDestruction,            
-            CardId.RecklessGreed,
-            CardId.SecretBlast,
-            CardId.JustDesserts,
-            CardId.OjamaTrio,                
-            CardId.SectetBarrel,                
-            CardId.Ceasefire,            
-            CardId.BalanceOfJudgment,                      
-            CardId.AccuulatedFortune,   
-        };
-    }
-        public int[] AbouluteKingBackJack_List_2()
-        {
-            return new[] {
-            CardId.SandaionTheTimloard,
-            CardId.PotOfDesires,
-            CardId.Mathematician,
-            CardId.DiceJar,
-            CardId.CardcarD,
-            CardId.BattleFader,        
-            CardId.BlazingMirrorForce,
-            CardId.Waboku,
-            CardId.ThreateningRoar,
-            CardId.MagicCylinder,
-            CardId.RingOfDestruction,
-            CardId.RecklessGreed,
-            CardId.SecretBlast,
-            CardId.JustDesserts,
-            CardId.OjamaTrio,
-            CardId.SectetBarrel,
-            CardId.Ceasefire,
-            CardId.BalanceOfJudgment,
-            CardId.AccuulatedFortune,
-        };
-        }
-        public int[] now_List()
-        {
-            return new[]
-            {
-                
-                CardId.Waboku,
-                CardId.SecretBlast,
-                CardId.JustDesserts,
-                CardId.SectetBarrel,
-                CardId.ThreateningRoar,
-                CardId.Ceasefire,
-                CardId.RecklessGreed,
-                CardId.RingOfDestruction,
-              
+            // We're a coward
+            AddExecutor(ExecutorType.Repos, ReposEverything);
 
-    };
+            // Chain traps
+            AddExecutor(ExecutorType.Activate, CardId.MagicCylinder, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.Ceasefire, Ceasefire);
+            AddExecutor(ExecutorType.Activate, CardId.OjamaTrio);
+            AddExecutor(ExecutorType.Activate, CardId.MinorGoblinOfficial);
+            AddExecutor(ExecutorType.Activate, CardId.ChainBurst);
+            AddExecutor(ExecutorType.Activate, CardId.SkullInvitation);
+            AddExecutor(ExecutorType.Activate, CardId.ChainEnergy);
         }
-        public int[] prevent_list()
-        {
-            return new[]
-            {
-                CardId.SandaionTheTimloard,
-                CardId.BattleFader,
 
-                CardId.Waboku,
-                CardId.ThreateningRoar,
-                CardId.MagicCylinder,
-                CardId.BlazingMirrorForce,
-                CardId.RingOfDestruction,
-    };
-        }
-        public int GetTotalATK(IList<ClientCard> list)
-        {
-            int atk = 0;
-            foreach (ClientCard c in list)
-            {
-                if (c == null) continue;
-                atk += c.Attack;
-            }
-            return atk;
-        }
-        public bool Has_prevent_list(int id)
-        {
-            return (id == CardId.SandaionTheTimloard ||
-                    id == CardId.BattleFader ||
-                    id == CardId.Waboku ||
-                    id == CardId.ThreateningRoar||
-                    id == CardId.MagicCylinder||
-                    id == CardId.BlazingMirrorForce||
-                    id == CardId.RingOfDestruction
-                   );
-        }
-        bool pot_used = false;
-        int expected_blood = 0;
-        bool prevent_used = false; 
-        int preventcount = 0;        
-        bool battleprevent = false;
-        bool OjamaTrioused = false;
-        bool HasAccuulatedFortune = false;
         public override bool OnSelectHand()
         {
             return true;
         }
 
-        public override void OnNewTurn()
-        {
-            pot_used = false;
-            prevent_used = false;
-            battleprevent = false;
-            OjamaTrioused = false;
-        }
-        public override void OnNewPhase()
-        {
-            preventcount = 0;
-            battleprevent = false;
-            HasAccuulatedFortune = false;
-            IList<ClientCard> trap = Bot.SpellZone;
-            IList<ClientCard> monster = Bot.MonsterZone;
-            foreach(ClientCard card in trap)
-            {
-                if (card.Id == CardId.AccuulatedFortune) HasAccuulatedFortune = true;
-            }
-            foreach (ClientCard card in trap)
-            {
-                if (Has_prevent_list(card.Id))
-                    {
-                    preventcount++;
-                    battleprevent = true;
-                }
-
-            }
-            foreach (ClientCard card in monster)
-            {
-                if (Has_prevent_list(card.Id))
-                {
-                    preventcount++;
-                    battleprevent = true;
-                }
-
-            }
-        }
-        
-        
-        private bool must_chain()
-        {
-            if (AI.Utils.IsChainTarget(Card)) return true;
-            foreach (ClientCard card in Enemy.GetSpells())
-            {
-                if (card.Id == CardId.HarpiesFeatherDuster&&card.IsFaceup())
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        private bool BrunSpellSet()
-        {
-            return (Card.IsTrap() || Card.HasType(CardType.QuickPlay)) && Bot.GetSpellCountWithoutField() < 5;
-        }
-        private bool SandaionTheTimloard_summon()
-        {
-            if (!battleprevent)
-                return true;
-            return false;
-        }
-        private bool AbouluteKingBackJacksummon()
-        {
-            return !pot_used;
-        }
-        private bool AbouluteKingBackJackeff()
-        {
-            if (ActivateDescription == -1)
-            {
-
-                AI.SelectCard(AbouluteKingBackJack_List_1());
-                AI.SelectNextCard(AbouluteKingBackJack_List_2());
-            }
-                
-            return true;
-            
-        }
-        private bool PotOfDualityeff()
-        {
-            pot_used = true;
-            AI.SelectCard(prevent_list());
-            return true;
-        }
-        private bool BlazingMirrorForceeff()
-        {
-            if (prevent_used) return false;
-            IList<ClientCard> list = new List<ClientCard>();
-            foreach (ClientCard monster in Enemy.GetMonsters())
-            {
-                list.Add(monster);
-            }
-            if (GetTotalATK(list) <= 3000) return false;           
-            return Enemy.HasAttackingMonster() && DefaultUniqueTrap();
-        }
-        private bool ThreateningRoareff()
-        {
-            
-            if (must_chain()) return true;
-            if (prevent_used||Duel.Phase==DuelPhase.End||Duel.Phase==DuelPhase.Main2) return false;
-            prevent_used = true;
-            return DefaultUniqueTrap();
-        }
-        private bool SandaionTheTimloardeff()
-        {
-            prevent_used = true;
-            return true;
-        }
-        private bool Wabokueff()
-        {
-            if (must_chain()) return true;
-            if (prevent_used||Duel.Player == 0||Duel.Phase!=DuelPhase.BattleStart) return false;
-            prevent_used = true;
-            return DefaultUniqueTrap();
-        }
-        private bool BattleFadereff()
-        {
-            if (prevent_used || Duel.Player == 0) return false;
-            AI.SelectPosition(CardPosition.FaceUpDefence);
-            prevent_used = true;
-            return true;
-        }
-        private bool MagicCylindereff()
-        {
-            if (prevent_used) return false;
-            if (Bot.LifePoints <= Enemy.BattlingMonster.Attack) return DefaultUniqueTrap();
-            if(Enemy.BattlingMonster.Attack>1800) return DefaultUniqueTrap();
-            return false;
-        }
-        public bool Ring_act()
-        {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard() != null ) return false;
-            ClientCard target = AI.Utils.GetProblematicEnemyMonster();
-            if (target == null && AI.Utils.IsChainTarget(Card))
-            {
-                target = AI.Utils.GetBestEnemyMonster();
-            }
-            if (target != null)
-            {
-                if (Bot.LifePoints <= target.Attack) return false;
-                AI.SelectCard(target);
-                return true;
-            }
-            return false;
-        }
-        private bool RecklessGreedeff()
-        {
-            if (Bot.LifePoints <= 2000) return true;
-            if (Bot.GetHandCount() <1 && Duel.Player==0 && Duel.Phase!=DuelPhase.Standby) return true;
-            return false;
-        }
-        private bool SectetBarreleff()
-        {
-            if (must_chain()) return true;
-            int count = Enemy.GetFieldHandCount();
-            if (Enemy.LifePoints < count * 200) return true;
-            if (count >= 8) return true;
-            return false;
-        }
-        private bool SecretBlasteff()
-        {
-            if (must_chain()) return true;
-            int count = Enemy.GetFieldCount();
-            if (Enemy.LifePoints < count * 300) return true;
-            if (count >= 5) return true;
-            return false;
-            
-        }
-        private bool OjamaTrioeff()
-        {
-            return OjamaTrioused;
-        }
-        private bool JustDessertseff()
-        {
-            if (must_chain()) return true;
-            int count = Enemy.GetMonsterCount();
-            if (Enemy.LifePoints <= count * 500) return true;
-            if (Bot.HasInSpellZone(CardId.OjamaTrio) && count <= 2 && count >= 1)
-            {
-                OjamaTrioused = true;
-                return true;
-            }
-            if (count >= 4) return true;
-            return false;
-        }
-        private bool ChainStrikeeff()
-        {
-            if (must_chain()) return true;
-            int chain = Duel.CurrentChain.Count;
-            if (Enemy.LifePoints <= (chain + 1) * 400) return true;
-            if (Duel.CurrentChain.Count == 4) return true;
-            return false;
-        }
-        private bool Ceasefireeff()
-        {
-            if (must_chain()) return true;
-            int count = Bot.GetMonsterCount() + Enemy.GetMonsterCount();
-            if (Enemy.LifePoints <= count * 500) return true;
-            if (count >= 3) return true;
-            return false;
-        }
-        
-        private bool BalanceOfJudgmenteff()
-        {
-            if (must_chain()) return true;
-            int count = (Enemy.GetFieldCount() - Bot.GetFieldHandCount());
-            if ( count>= 2)return true;
-            return false;
-        }
-        private bool CardOfDemiseeff()
-        {
-            if (Bot.GetHandCount() == 1 && Bot.GetSpellCountWithoutField() <= 3)
-                return true;
-            return false;
-        }
-        private bool Mathematicianeff()
-        {
-            if (Card.Location == CardLocation.MonsterZone)
-            {
-                AI.SelectCard(CardId.AbouluteKingBackJack);
-                return true;
-            }
-            return true;
-                
-        }
-        private bool DiceJarfacedown()
-        {
-
-            IList<ClientCard> check = Bot.MonsterZone;
-            foreach (ClientCard card in check)
-            {
-                if (card.Id == CardId.DiceJar && card.IsFacedown())
-                    return true;
-            }
-            return false;
-        }
-        private bool Ceasefire()
-        {
-            if (Bot.GetMonsterCount() >= 3) return true;
-            if (DiceJarfacedown()) return false;
-            if ((Bot.GetMonsterCount() + Enemy.GetMonsterCount()) >= 4) return true;
-            return false;
-        }
-        private bool Linkuriboheff()
-        {
-            return true;
-        }
-        /*private bool SwordsOfRevealingLight()
+        private bool SwordsOfRevealingLight()
         {
             int count = Bot.SpellZone.GetCardCount(CardId.SwordsOfRevealingLight);
             return count == 0;
-        }*/
+        }
 
-        /*
-         private bool SetInvincibleMonster()
-         {
-             foreach (ClientCard card in Bot.GetMonsters())
-             {
-                 if (card.Id == CardId.Marshmallon || card.Id == CardId.SpiritReaper)
-                 {
-                     return false;
-                 }
-             }
-             return true;
-         }*/
+        private bool SupremacyBerry()
+        {
+            return Bot.LifePoints < Enemy.LifePoints;
+        }
 
+        private bool PoisonOfTheOldMan()
+        {
+            AI.SelectOption(1);
+            return true;
+        }
 
-        /*
+        private bool ThunderShort()
+        {
+            return Enemy.GetMonsterCount() >= 3;
+        }
+
+        private bool SetInvincibleMonster()
+        {
+            foreach (ClientCard card in Bot.GetMonsters())
+            {
+                if (card.Id == CardId.Marshmallon || card.Id == CardId.SpiritReaper)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool LavaGolem()
+        {
+            bool found = false;
+            foreach (ClientCard card in Enemy.GetMonsters())
+            {
+                if (card.Attack > 2000)
+                    found = true;
+            }
+            return found;
+        }
+
+        private bool Ceasefire()
+        {
+            return Bot.GetMonsterCount() + Enemy.GetMonsterCount() >= 3;
+        }
+
         private bool ReposEverything()
         {
             if (Card.Id == CardId.ReflectBounder)
@@ -504,6 +141,6 @@ namespace WindBot.Game.AI.Decks
             if (Card.IsAttack())
                 return true;
             return false;
-        }*/
+        }
     }
 }
