@@ -136,8 +136,11 @@ namespace WindBot.Game.AI
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
             YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
-            if (cardData.Attack == 0)
-                return CardPosition.FaceUpDefence;
+            if (cardData != null)
+            {
+                if (cardData.Attack == 0)
+                    return CardPosition.FaceUpDefence;
+            }
             return 0;
         }
 
