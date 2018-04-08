@@ -338,7 +338,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player == 0) return false;
             if (Duel.Phase == DuelPhase.End) return true;
             if (Duel.LastChainPlayer == 1 && (AI.Utils.IsChainTarget(Card) || (AI.Utils.GetLastChainCard().Id == CardId.Feather && !Bot.HasInSpellZone(CardId.Grass)))) return true;
-            if (Duel.Phase == DuelPhase.BattleStart)
+            if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
             {
                 int total_atk = 0;
                 List<ClientCard> enemy_monster = Enemy.GetMonsters();
@@ -618,6 +618,7 @@ namespace WindBot.Game.AI.Decks
                                 red_ss_count += 1;
                                 return true;
                             }
+                            if (c.Id == CardId.Pink) return false;
                             if (tosolve_enemy != null)
                             {
                                 if (Bot.HasInHand(CardId.White) && c.Attack + c.BaseAttack < tosolve_enemy.Attack)
@@ -793,8 +794,8 @@ namespace WindBot.Game.AI.Decks
             }
             if (AI.Utils.GetProblematicEnemyMonster() != null)
             {
-                int atk = AI.Utils.GetProblematicEnemyMonster().Attack;
-                if (atk >= 1800 && atk <= 3600 && Bot.GetRemainingCount(CardId.White, 2) > 0 && !Bot.HasInHand(CardId.White))
+                int power = AI.Utils.GetProblematicEnemyMonster().GetDefensePower();
+                if (power >= 1800 && power <= 3600 && Bot.GetRemainingCount(CardId.White, 2) > 0 && !Bot.HasInHand(CardId.White))
                 {
                     AI.SelectCard(new[]
                     {
@@ -823,7 +824,6 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             if ((Bot.HasInHand(CardId.Red) || Bot.HasInHand(CardId.Stage) || Bot.HasInHand(CardId.Yellow)) && Bot.GetRemainingCount(CardId.Re,1) > 0) {
-                Logger.DebugWriteLine("to search reincarnation");
                 AI.SelectCard(new[]
                 {
                     CardId.Re,
@@ -851,26 +851,9 @@ namespace WindBot.Game.AI.Decks
 
         public bool White_eff()
         {
+            if (Duel.Phase >= DuelPhase.Main2) return false;
             if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
             {
-                // from blackwing
-                /*
-                ClientCard bestMy = Bot.GetMonsters().GetHighestAttackMonster();
-                ClientCard bestEnemyATK = Enemy.GetMonsters().GetHighestAttackMonster();
-                ClientCard bestEnemyDEF = Enemy.GetMonsters().GetHighestDefenseMonster();
-                if (bestMy == null || (bestEnemyATK == null && bestEnemyDEF == null))
-                    return false;
-                if (bestEnemyATK != null && bestMy.Attack <= bestEnemyATK.Attack && bestMy.Attack * 2 >= bestEnemyATK.Attack)
-                {
-                    white_eff_used = true;
-                    return true;
-                }
-                if (bestEnemyDEF != null && bestMy.Attack <= bestEnemyDEF.Defense && bestMy.Attack * 2 >= bestEnemyDEF.Defense)
-                {
-                    white_eff_used = true;
-                    return true;
-                }
-                */
                 if (Bot.BattlingMonster == null || Enemy.BattlingMonster == null || !IsTrickstar(Bot.BattlingMonster.Id) || Bot.BattlingMonster.HasPosition(CardPosition.Defence)) return false;
                 if (Bot.BattlingMonster.Attack <= Enemy.BattlingMonster.RealPower && Bot.BattlingMonster.Attack + Bot.BattlingMonster.BaseAttack >= Enemy.BattlingMonster.RealPower)
                 {
@@ -980,6 +963,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Ts_reborn()
         {
+            if (AI.Utils.IsTurn1OrMain2()) return false;
             if (Duel.Player == 0 && Enemy.LifePoints <= 1000)
             {
                 AI.SelectCard(CardId.Pink);
@@ -1529,8 +1513,12 @@ namespace WindBot.Game.AI.Decks
         public bool Borrel_eff()
         {
             if (ActivateDescription == -1) {
-                Logger.DebugWriteLine("borrel's ntr effect");
-                return true;
+                ClientCard enemy_monster = Enemy.BattlingMonster;
+                if (enemy_monster != null && enemy_monster.HasPosition(CardPosition.Attack))
+                {
+                    return (Card.Attack - enemy_monster.Attack < Enemy.LifePoints);
+                }
+                else return false;
             };
             ClientCard BestEnemy = AI.Utils.GetBestEnemyMonster(true);
             ClientCard WorstBot = Bot.GetMonsters().GetLowestAttackMonster();
@@ -1548,9 +1536,6 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.LastChainPlayer == 1)
             {
-                Logger.DebugWriteLine(AI.Utils.GetLastChainCard().Name.ToString());
-                Logger.DebugWriteLine(AI.Utils.GetLastChainCard().IsMonster().ToString());
-                Logger.DebugWriteLine(Enemy.HasInGraveyard(AI.Utils.GetLastChainCard().Id).ToString());
                 if (AI.Utils.GetLastChainCard().IsMonster() && Enemy.HasInGraveyard(AI.Utils.GetLastChainCard().Id))
                 {
                     GraveCall_id = AI.Utils.GetLastChainCard().Id;
@@ -1626,50 +1611,48 @@ namespace WindBot.Game.AI.Decks
             }
         }
 
-        public override BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
+        public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
         {
-            if (attackers.Count == 0)
-                return AI.ToMainPhase2();
-            if (defenders.Count == 0)
+            ClientCard lowestattack = null;
+            for (int i = defenders.Count - 1; i >= 0; --i)
             {
-                for (int i = attackers.Count - 1; i >= 0; --i)
-                {
-                    ClientCard attacker = attackers[i];
-                    if (attacker.Attack > 0)
-                        return AI.Attack(attacker, null);
-                }
+                ClientCard defender = defenders[i];
+                if (defender.HasPosition(CardPosition.Attack) && !defender.IsMonsterDangerous() && (lowestattack == null || defender.Attack < lowestattack.Attack)) lowestattack = defender;
             }
-            else
+            if (lowestattack != null && attacker.Attack - lowestattack.Attack >= Enemy.LifePoints) return AI.Attack(attacker, lowestattack);
+            for (int i = 0; i < defenders.Count; ++i)
             {
-                for (int i = defenders.Count - 1; i >= 0; --i)
-                {
-                    ClientCard defender = defenders[i];
-                    for (int j = 0; j < attackers.Count; ++j)
-                    {
-                        ClientCard attacker = attackers[j];
-                        attacker.RealPower = attacker.Attack;
-                        defender.RealPower = defender.GetDefensePower();
-                        if (!defender.IsMonsterHasPreventActivationEffectInBattle() && !attacker.IsDisabled())
-                        {
-                            if ((attacker.Id == CardId.Eater && !defender.HasType(CardType.Token) && GraveCall_id != CardId.Eater) || attacker.Id == CardId.borrel) return AI.Attack(attacker, defender);
-                        }
-                        if (!OnPreBattleBetween(attacker, defender))
-                            continue;
+                ClientCard defender = defenders[i];
 
-                        if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && j == attackers.Count - 1))
-                            return AI.Attack(attacker, defender);
-                    }
-                }
-                for (int i = attackers.Count - 1; i >= 0; --i)
+                attacker.RealPower = attacker.Attack;
+                defender.RealPower = defender.GetDefensePower();
+
+                if (!defender.IsMonsterHasPreventActivationEffectInBattle() && !attacker.IsDisabled())
                 {
-                    ClientCard attacker = attackers[i];
-                    if (attacker.CanDirectAttack)
-                        return AI.Attack(attacker, null);
+                    if ((attacker.Id == CardId.Eater && !defender.HasType(CardType.Token) && GraveCall_id != CardId.Eater) || attacker.Id == CardId.borrel) return AI.Attack(attacker, defender);
                 }
+
+                if (!OnPreBattleBetween(attacker, defender))
+                    continue;
+
+                if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && attacker.IsLastAttacker && defender.IsAttack()))
+                    return AI.Attack(attacker, defender);
             }
-            if (!Battle.CanMainPhaseTwo)
-                return AI.Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
-            return AI.ToMainPhase2();
+
+            if (attacker.CanDirectAttack)
+                return AI.Attack(attacker, null);
+
+            return null;
+        }
+
+        public override ClientCard OnSelectAttacker(IList<ClientCard> attackers, IList<ClientCard> defenders)
+        {
+            for (int i = 0; i < attackers.Count; ++i)
+            {
+                ClientCard attacker = attackers[i];
+                if (attacker.Id == CardId.borrel || attacker.Id == CardId.Eater) return attacker;
+            }
+            return null;
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
@@ -1677,7 +1660,7 @@ namespace WindBot.Game.AI.Decks
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
                 if (IsTrickstar(attacker.Id) && Bot.HasInHand(CardId.White) && !white_eff_used)
-                    attacker.RealPower = attacker.RealPower * 2;
+                    attacker.RealPower = attacker.RealPower + attacker.Attack;
             }
             return base.OnPreBattleBetween(attacker, defender);
         }

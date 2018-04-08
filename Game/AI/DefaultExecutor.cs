@@ -62,7 +62,7 @@ namespace WindBot.Game.AI
                 if (!OnPreBattleBetween(attacker, defender))
                     continue;
 
-                if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && attacker.IsLastAttacker))
+                if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && attacker.IsLastAttacker && defender.IsAttack()))
                     return AI.Attack(attacker, defender);
             }
 

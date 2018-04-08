@@ -89,7 +89,10 @@ namespace WindBot.Game.AI
         {
             
         }
-
+        public virtual void OnNewPhase()
+        {
+            // Some AI need do something on new phase
+        }
         public virtual void OnNewTurn()
         {
             // Some AI need do something on new turn

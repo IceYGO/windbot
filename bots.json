@@ -109,6 +109,26 @@
         "name": "永远之魂",
         "deck": "Horus",
         "dialog": "soul.zh-CN"
-      }
+      },
+      {
+        "name": "奇異果",
+        "deck": "LightswornShaddoldinosour",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "奇異果",
+        "deck": "LightswornShaddoldinosour",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "燃血鬥士",
+        "deck": "ChainBurn",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "燃血鬥士",
+        "deck": "ChainBurn",
+        "dialog": "kiwi.zh-TW"
+      }  
     ]
 }
