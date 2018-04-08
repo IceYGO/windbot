@@ -549,7 +549,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (!Bot.IsFieldEmpty()) return false;
 
-           // List<ClientCard> material_0= Bot.GetHand();
+          
             foreach (ClientCard monster in Bot.Hand)
             {
                 if (monster.HasAttribute(CardAttribute.Light))
