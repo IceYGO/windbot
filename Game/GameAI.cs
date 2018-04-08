@@ -443,13 +443,17 @@ namespace WindBot.Game
         /// <returns>Selected position.</returns>
         public CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
+            CardPosition selector_selected = m_position;
+            m_position = CardPosition.FaceUpAttack;
+
+            CardPosition executor_selected = Executor.OnSelectPosition(cardId, positions);
+
             // Selects the selected position if available, the first available otherwise.
-            if (positions.Contains(m_position))
-            {
-                CardPosition old = m_position;
-                m_position = CardPosition.FaceUpAttack;
-                return old;
-            }
+            if (positions.Contains(executor_selected))
+                return executor_selected;
+            if (positions.Contains(selector_selected))
+                return selector_selected;
+
             return positions[0];
         }
 
