@@ -247,11 +247,12 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(ex_best);
                 }
             }
-            if (!judge || Duel.CurrentChain.GetCardCount(CardId.Grass) > 1)
+            if (!judge || AI.Utils.ChainContainsCard(CardId.Grass))
             {
-                // cannot ss from exdeck
+                // cannot ss from exdeck or have more than 1 grass in chain
                 int[] secondselect = new[]
                 {
+                    CardId.borrel,
                     CardId.Ultimate,
                     CardId.Abyss,
                     CardId.Cardian,
@@ -261,13 +262,20 @@ namespace WindBot.Game.AI.Decks
                     CardId.Yellow,
                     CardId.Pink
                 };
-                if (!judge && Duel.CurrentChain.GetCardCount(CardId.Grass) == 1 && Bot.GetRemainingCount(CardId.Ghost, 2) > 0)
+                if (!AI.Utils.ChainContainsCard(CardId.Grass))
                 {
-                    AI.SelectCard(CardId.Ghost);
-                    AI.SelectPosition(CardPosition.FaceUpDefence);
+                    if (!judge && Bot.GetRemainingCount(CardId.Ghost, 2) > 0)
+                    {
+                        AI.SelectCard(CardId.Ghost);
+                        AI.SelectPosition(CardPosition.FaceUpDefence);
+                    }
+                    else
+                        AI.SelectCard(secondselect);
                 }
                 else
                 {
+                    if (!judge)
+                        AI.SelectCard(secondselect);
                     AI.SelectNextCard(secondselect);
                     AI.SelectThirdCard(secondselect);
                 }
