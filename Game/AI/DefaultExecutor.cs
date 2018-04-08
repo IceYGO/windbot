@@ -138,7 +138,7 @@ namespace WindBot.Game.AI
             YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
             if (cardData.Attack == 0)
                 return CardPosition.FaceUpDefence;
-            return base.OnSelectPosition(cardId, positions);
+            return 0;
         }
 
         public override bool OnSelectBattleReplay()
