@@ -471,8 +471,8 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
         private bool Linkuriboheff()
-        {
-            return true;
+        {           
+            return DefaultDontChainMyself();
         }
         /*private bool SwordsOfRevealingLight()
         {
