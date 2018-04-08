@@ -245,23 +245,33 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (ex_best != null) {
                     AI.SelectCard(ex_best);
-                    return true;
                 }
             }
-            // cannot ss from exdeck
-            if (Bot.GetRemainingCount(CardId.Ghost,2) > 0)
+            if (!judge || Duel.CurrentChain.GetCardCount(CardId.Grass) > 1)
             {
-                AI.SelectCard(CardId.Ghost);
-                AI.SelectPosition(CardPosition.FaceUpDefence);
-                return true;
+                // cannot ss from exdeck
+                int[] secondselect = new[]
+                {
+                    CardId.Ultimate,
+                    CardId.Abyss,
+                    CardId.Cardian,
+                    CardId.Ghost,
+                    CardId.White,
+                    CardId.Red,
+                    CardId.Yellow,
+                    CardId.Pink
+                };
+                if (!judge && Duel.CurrentChain.GetCardCount(CardId.Grass) == 1 && Bot.GetRemainingCount(CardId.Ghost, 2) > 0)
+                {
+                    AI.SelectCard(CardId.Ghost);
+                    AI.SelectPosition(CardPosition.FaceUpDefence);
+                }
+                else
+                {
+                    AI.SelectNextCard(secondselect);
+                    AI.SelectThirdCard(secondselect);
+                }
             }
-            AI.SelectCard(new[]
-            {
-                CardId.White,
-                CardId.Red,
-                CardId.Yellow,
-                CardId.Pink
-            });
             return true;
         }
 
