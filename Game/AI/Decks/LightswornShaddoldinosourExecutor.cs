@@ -111,7 +111,7 @@ namespace WindBot.Game.AI.Decks
             //activate
             AddExecutor(ExecutorType.Activate, CardId.GlowUpBulb, GlowUpBulbeff);
             //Sp Summon
-            AddExecutor(ExecutorType.SpSummon, CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragonesp);
+            AddExecutor(ExecutorType.SpSummon, CardId.CrystronNeedlefiber, CrystronNeedlefiberesp);
             AddExecutor(ExecutorType.SpSummon, CardId.UltimateConductorTytanno, UltimateConductorTytannosp);
             AddExecutor(ExecutorType.Activate, CardId.UltimateConductorTytanno, UltimateConductorTytannoeff);
             AddExecutor(ExecutorType.Activate, CardId.DoubleEvolutionPill, DoubleEvolutionPilleff);
@@ -131,7 +131,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.ElShaddollGrysra);
             AddExecutor(ExecutorType.Activate, CardId.ElShaddollShekhinaga, ElShaddollShekhinagaeff);
             AddExecutor(ExecutorType.Activate, CardId.ElShaddollWinda);
-            AddExecutor(ExecutorType.Activate, CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragoneff);
+            AddExecutor(ExecutorType.Activate, CardId.CrystronNeedlefiber, CrystronNeedlefibereff);
             AddExecutor(ExecutorType.Activate, CardId.TG_WonderMagician);
             //spellset
             AddExecutor(ExecutorType.SpellSet, CardId.MonsterReborn, spellset);
@@ -214,27 +214,20 @@ namespace WindBot.Game.AI.Decks
         }
         int Ultimate_ss = 0;
         bool Pillused = false;
-        bool CrystalWingSynchroDragoneff_used = false;
+        bool CrystronNeedlefibereff_used = false;
         bool OvertexCoatlseff_used = false;
 
         public override void OnNewTurn()
         {
             Pillused = false;
             OvertexCoatlseff_used = false;
-            CrystalWingSynchroDragoneff_used = false;
+            CrystronNeedlefibereff_used = false;
         }
 
-        public bool CrystalWingSynchroDragonesp()
+        public bool CrystronNeedlefiberesp()
         {
-            if (CrystalWingSynchroDragoneff_used) return false;
-            if (Bot.HasInMonstersZone(CardId.FairyTailSnow) ||
-                Bot.HasInMonstersZone(CardId.Lumina) ||
-                Bot.HasInMonstersZone(CardId.KeeperOfDragonicMagic)||
-                Bot.HasInMonstersZone(CardId.SouleatingOviraptor)||
-                Bot.HasInMonstersZone(CardId.Raiden)
-                )
-            {
-                AI.SelectCard(new[]
+            if (CrystronNeedlefibereff_used) return false;
+            int[] materials = new[]
                     {
                     CardId.KeeperOfDragonicMagic,
                     CardId.Lumina,
@@ -242,18 +235,22 @@ namespace WindBot.Game.AI.Decks
                     CardId.SouleatingOviraptor,
                     CardId.Raiden,
                     CardId.GiantRex,
-                    });
-                AI.SelectNextCard(CardId.GlowUpBulb);                
+                    };
+            if (Bot.HasInMonstersZone(materials))
+            {
+                AI.SelectCard(materials);
+                AI.SelectNextCard(CardId.GlowUpBulb);
+                return true;
             }
-            return true;
+            return false;
         }
 
-            public bool CrystalWingSynchroDragoneff()
+            public bool CrystronNeedlefibereff()
         {
             if (Duel.Player == 0)
             {
 
-                CrystalWingSynchroDragoneff_used = true;
+                CrystronNeedlefibereff_used = true;
                 AI.SelectCard(new[] { CardId.GhostOgre, CardId.GlowUpBulb, CardId.PlaguespreaderZombie, CardId.ShaddollFalco });
                 return true;
             }
@@ -850,50 +847,12 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (attacker.RealPower <= 0)
-                return false;
-            if (attacker.Id == CardId.UltimateConductorTytanno) return true;
-            if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
-            {
-                if (defender.IsMonsterDangerous() || (defender.IsMonsterInvincible() && defender.IsDefense()))
-                    return false;
-
-                if (defender.Id == _CardId.CrystalWingSynchroDragon && defender.IsAttack() && !defender.IsDisabled() && attacker.Level >= 5)
-                    return false;
-
-                if (defender.Id == _CardId.NumberS39UtopiaTheLightning && defender.IsAttack() && !defender.IsDisabled() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
-                    defender.RealPower = 5000;
-
-                if (defender.Id == _CardId.VampireFräulein && !defender.IsDisabled())
-                    defender.RealPower += (Enemy.LifePoints > 3000) ? 3000 : (Enemy.LifePoints - 100);
-
-                if (defender.Id == _CardId.InjectionFairyLily && !defender.IsDisabled() && Enemy.LifePoints > 2000)
-                    defender.RealPower += 3000;
-            }
-
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (attacker.Id == _CardId.NumberS39UtopiaTheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, _CardId.Number39Utopia))
-                    attacker.RealPower = 5000;
+                if (attacker.Id == CardId.UltimateConductorTytanno && !attacker.IsDisabled() && defender.IsDefense())
+                    attacker.RealPower = 9999;
             }
-
-            if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && defender.Id != _CardId.DupeFrog)
-                return false;
-
-            if (Enemy.HasInMonstersZone(_CardId.MaraudingCaptain, true) && defender.Id != _CardId.MaraudingCaptain && defender.Race == (int)CardRace.Warrior)
-                return false;
-
-            if (defender.Id == _CardId.UltimayaTzolkin && !defender.IsDisabled())
-            {
-                List<ClientCard> monsters = Enemy.GetMonsters();
-                foreach (ClientCard monster in monsters)
-                {
-                    if (monster.HasType(CardType.Synchro))
-                        return false;
-                }
-            }
-
-            return true;
+            return base.OnPreBattleBetween(attacker, defender);
         }
 
         public override bool OnSelectHand()
