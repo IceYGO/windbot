@@ -94,11 +94,7 @@ namespace WindBot.Game
             return GetCards(MonsterZone);
         }
 
-        public List<ClientCard> GetHand()
-        {
-            return GetCards(Hand);
-        }
-
+        
         public List<ClientCard> GetGraveyardMonsters()
         {
             return GetCards(Graveyard, CardType.Monster);

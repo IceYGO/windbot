@@ -464,7 +464,7 @@ namespace WindBot.Game.AI.Decks
             if (must_chain()) return true;
             int chain = Duel.CurrentChain.Count;
             if (Enemy.LifePoints <= (chain + 1) * 400) return true;
-            if (Duel.CurrentChain.Count == 3) return true;
+            if (Duel.CurrentChain.Count >= 3) return true;
             return false;
         }
         
