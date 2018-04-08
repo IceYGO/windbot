@@ -156,6 +156,12 @@ namespace WindBot.Game.AI
             return -1;
         }
 
+        public virtual CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
+        {
+            // Overrided in DefalultExecutor
+            return 0;
+        }
+
         public virtual bool OnSelectBattleReplay()
         {
             // Overrided in DefalultExecutor
