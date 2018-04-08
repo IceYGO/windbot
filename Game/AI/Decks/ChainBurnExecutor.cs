@@ -217,12 +217,16 @@ namespace WindBot.Game.AI.Decks
                    );
         }
         bool pot_used = false;
+        bool one_turn_kill = false;
         int expected_blood = 0;
         bool prevent_used = false; 
         int preventcount = 0;        
         bool battleprevent = false;
         bool OjamaTrioused = false;
         bool HasAccuulatedFortune = false;
+        int blast_count = 0;
+        int barrel_count = 0;
+        int just_count = 0;
         public override bool OnSelectHand()
         {
             return true;
@@ -230,10 +234,13 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnNewTurn()
         {
+            
+            
             pot_used = false;
             prevent_used = false;
             battleprevent = false;
             OjamaTrioused = false;
+          
         }
         public override void OnNewPhase()
         {
@@ -264,6 +271,33 @@ namespace WindBot.Game.AI.Decks
                 }
 
             }
+            expected_blood = 0;
+            one_turn_kill = false;
+            blast_count = 0;
+            barrel_count = 0;
+            just_count = 0;
+            IList<ClientCard> check = Bot.SpellZone;
+            foreach (ClientCard card in check)
+            {
+                if (card.Id == CardId.SecretBlast)
+                    blast_count++;
+                break;
+            }
+            foreach (ClientCard card in check)
+            {
+                if (card.Id == CardId.SectetBarrel)
+                    barrel_count++;
+                break;
+            }
+            foreach (ClientCard card in check)
+            {
+                if (card.Id == CardId.JustDesserts)
+                    just_count++;
+                break;
+            }
+            expected_blood = (Enemy.GetMonsterCount() * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count);
+            if (Enemy.LifePoints <= expected_blood)
+                one_turn_kill = true;
         }
         
         
@@ -319,7 +353,8 @@ namespace WindBot.Game.AI.Decks
             {
                 list.Add(monster);
             }
-            if (GetTotalATK(list) <= 3000) return false;           
+            //if (GetTotalATK(list) / 2 >= Bot.LifePoints) return false;
+            if (GetTotalATK(list) < 3000) return false;           
             return Enemy.HasAttackingMonster() && DefaultUniqueTrap();
         }
         private bool ThreateningRoareff()
@@ -374,12 +409,22 @@ namespace WindBot.Game.AI.Decks
         }
         private bool RecklessGreedeff()
         {
+            int count = 0;
+            IList<ClientCard> check = Bot.SpellZone;
+            foreach (ClientCard card in check)
+            {
+                if (card.Id == CardId.RecklessGreed)
+                    count++;
+                break;
+            }
+            if (count > 1) return true;
             if (Bot.LifePoints <= 2000) return true;
             if (Bot.GetHandCount() <1 && Duel.Player==0 && Duel.Phase!=DuelPhase.Standby) return true;
             return false;
         }
         private bool SectetBarreleff()
         {
+            if (one_turn_kill) return true;
             if (must_chain()) return true;
             int count = Enemy.GetFieldHandCount();
             if (Enemy.LifePoints < count * 200) return true;
@@ -388,6 +433,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SecretBlasteff()
         {
+            if (one_turn_kill) return true;
             if (must_chain()) return true;
             int count = Enemy.GetFieldCount();
             if (Enemy.LifePoints < count * 300) return true;
@@ -401,6 +447,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool JustDessertseff()
         {
+            if (one_turn_kill) return true;
             if (must_chain()) return true;
             int count = Enemy.GetMonsterCount();
             if (Enemy.LifePoints <= count * 500) return true;
@@ -417,15 +464,7 @@ namespace WindBot.Game.AI.Decks
             if (must_chain()) return true;
             int chain = Duel.CurrentChain.Count;
             if (Enemy.LifePoints <= (chain + 1) * 400) return true;
-            if (Duel.CurrentChain.Count == 4) return true;
-            return false;
-        }
-        private bool Ceasefireeff()
-        {
-            if (must_chain()) return true;
-            int count = Bot.GetMonsterCount() + Enemy.GetMonsterCount();
-            if (Enemy.LifePoints <= count * 500) return true;
-            if (count >= 3) return true;
+            if (Duel.CurrentChain.Count >= 3) return true;
             return false;
         }
         
@@ -460,19 +499,20 @@ namespace WindBot.Game.AI.Decks
             {
                 if (card.Id == CardId.DiceJar && card.IsFacedown())
                     return true;
+                break;
             }
             return false;
         }
-        private bool Ceasefire()
+        private bool Ceasefireeff()
         {
-            if (Bot.GetMonsterCount() >= 3) return true;
+            if (Enemy.GetMonsterCount() >= 3) return true;
             if (DiceJarfacedown()) return false;
             if ((Bot.GetMonsterCount() + Enemy.GetMonsterCount()) >= 4) return true;
             return false;
         }
         private bool Linkuriboheff()
-        {
-            return true;
+        {           
+            return DefaultDontChainMyself();
         }
         /*private bool SwordsOfRevealingLight()
         {
