@@ -217,7 +217,7 @@ namespace WindBot.Game.AI.Decks
                     id == CardId.RingOfDestruction
                    );
         }
-        bool pot_used = false;
+        bool no_sp = false;
         bool one_turn_kill = false;
         int expected_blood = 0;
         bool prevent_used = false; 
@@ -237,7 +237,7 @@ namespace WindBot.Game.AI.Decks
         {
             
             
-            pot_used = false;
+            no_sp = false;
             prevent_used = false;
             battleprevent = false;
             OjamaTrioused = false;
@@ -326,7 +326,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool AbouluteKingBackJacksummon()
         {
-            return !pot_used;
+            return !no_sp;
         }
         private bool AbouluteKingBackJackeff()
         {
@@ -342,7 +342,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool PotOfDualityeff()
         {
-            pot_used = true;
+            no_sp = true;
             AI.SelectCard(prevent_list());
             return true;
         }
@@ -483,7 +483,10 @@ namespace WindBot.Game.AI.Decks
         private bool CardOfDemiseeff()
         {
             if (Bot.GetHandCount() == 1 && Bot.GetSpellCountWithoutField() <= 3)
+            {
+                no_sp = true;
                 return true;
+            }
             return false;
         }
         private bool Mathematicianeff()
