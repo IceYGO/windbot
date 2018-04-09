@@ -219,12 +219,15 @@ namespace WindBot.Game.AI.Decks
         }
         bool no_sp = false;
         bool one_turn_kill = false;
+        bool one_turn_kill_1 = false;
         int expected_blood = 0;
         bool prevent_used = false; 
         int preventcount = 0;        
         bool battleprevent = false;
         bool OjamaTrioused = false;
         bool HasAccuulatedFortune = false;
+        int strike_count = 0;
+        int greed_count = 0;
         int blast_count = 0;
         int barrel_count = 0;
         int just_count = 0;
@@ -274,9 +277,14 @@ namespace WindBot.Game.AI.Decks
             }
             expected_blood = 0;
             one_turn_kill = false;
+            one_turn_kill_1 = false;
+            strike_count = 0;
+            greed_count = 0;
             blast_count = 0;
             barrel_count = 0;
             just_count = 0;
+          
+            
             IList<ClientCard> check = Bot.SpellZone;
             foreach (ClientCard card in check)
             {
@@ -296,9 +304,27 @@ namespace WindBot.Game.AI.Decks
                     just_count++;
                 break;
             }
+            foreach (ClientCard card in check)
+            {
+                if (card.Id == CardId.ChainStrike)
+                    strike_count++;
+                break;
+            }
+            foreach (ClientCard card in Bot.GetSpells())
+            {
+                if (card.Id == CardId.RecklessGreed)
+                    greed_count++;
+                break;
+            }
             expected_blood = (Enemy.GetMonsterCount() * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count);
-            if (Enemy.LifePoints <= expected_blood)
-                one_turn_kill = true;
+            if (Enemy.LifePoints <= expected_blood) one_turn_kill = true;
+            expected_blood = 0;
+            if (blast_count >= 2) blast_count = 1;
+            if (just_count >= 2) just_count = 1;
+            if (barrel_count >= 2) barrel_count = 1;
+            int currentchain = Duel.CurrentChain.Count+ blast_count + just_count+barrel_count;
+            expected_blood = (Enemy.GetMonsterCount() * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count+(currentchain+1)*400);
+            if (Enemy.LifePoints <= expected_blood) one_turn_kill_1 = true;
         }
         
         
@@ -410,20 +436,15 @@ namespace WindBot.Game.AI.Decks
         }
         private bool RecklessGreedeff()
         {
-            int count = 0;            
-            foreach (ClientCard card in Bot.GetSpells())
-            {
-                if (card.Id == CardId.RecklessGreed)
-                    count++;
-                break;
-            }
-            if (count > 1) return true;
+            
+            if (greed_count > 1) return true;
             if (Bot.LifePoints <= 2000) return true;
             if (Bot.GetHandCount() <1 && Duel.Player==0 && Duel.Phase!=DuelPhase.Standby) return true;
             return false;
         }
         private bool SectetBarreleff()
         {
+            if (one_turn_kill_1) return DefaultUniqueTrap();
             if (one_turn_kill) return true;
             if (must_chain()) return true;
             int count = Enemy.GetFieldHandCount();
@@ -433,6 +454,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SecretBlasteff()
         {
+            if (one_turn_kill_1) return DefaultUniqueTrap();
             if (one_turn_kill) return true;
             if (must_chain()) return true;
             int count = Enemy.GetFieldCount();
@@ -452,6 +474,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool JustDessertseff()
         {
+            if (one_turn_kill_1) return DefaultUniqueTrap();
             if (one_turn_kill) return true;
             if (must_chain()) return true;
             int count = Enemy.GetMonsterCount();
@@ -468,6 +491,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (must_chain()) return true;
             int chain = Duel.CurrentChain.Count;
+            if (strike_count >= 2 && chain >= 2) return true;
             if (Enemy.LifePoints <= (chain + 1) * 400) return true;
             if (Duel.CurrentChain.Count >= 3) return true;
             return false;
