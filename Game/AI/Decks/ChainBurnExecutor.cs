@@ -411,7 +411,7 @@ namespace WindBot.Game.AI.Decks
         private bool RecklessGreedeff()
         {
             int count = 0;            
-            foreach (ClientCard card in Bot.SpellZone)
+            foreach (ClientCard card in Bot.GetSpells())
             {
                 if (card.Id == CardId.RecklessGreed)
                     count++;
@@ -498,9 +498,9 @@ namespace WindBot.Game.AI.Decks
         }
         private bool DiceJarfacedown()
         {
-
-            IList<ClientCard> check = Bot.MonsterZone;
-            foreach (ClientCard card in check)
+            
+            foreach (ClientCard card in Bot.GetMonsters())          
+          
             {
                 if (card.Id == CardId.DiceJar && card.IsFacedown())
                     return true;
@@ -518,6 +518,7 @@ namespace WindBot.Game.AI.Decks
         private bool Linkuriboheff()
         {
             ClientCard lastchaincard = AI.Utils.GetLastChainCard();
+            if (lastchaincard == null) return true;
             if (lastchaincard.Id == CardId.Linkuriboh) return false;
             return true;
         }

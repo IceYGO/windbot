@@ -469,7 +469,7 @@ namespace WindBot.Game.AI.Decks
         private bool AllureofDarkness()
         {
             IList<ClientCard> materials = Bot.Hand;
-            IList<ClientCard> check = new List<ClientCard>();
+           // IList<ClientCard> check = new List<ClientCard>();
             ClientCard mat = null;
             foreach (ClientCard card in materials)
             {
