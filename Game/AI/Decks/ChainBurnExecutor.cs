@@ -436,7 +436,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool RecklessGreedeff()
         {
-            
+            if (must_chain() && greed_count > 1) return true;
             if (greed_count > 1) return true;
             if (Bot.LifePoints <= 2000) return true;
             if (Bot.GetHandCount() <1 && Duel.Player==0 && Duel.Phase!=DuelPhase.Standby) return true;
