@@ -549,6 +549,12 @@ namespace WindBot.Game.AI.Decks
             if (lastchaincard.Id == CardId.Linkuriboh) return false;
             return true;
         }
+
+        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
+        {
+            if (attacker.Id == CardId.Linkuriboh && defender.IsFacedown()) return false;
+            return base.OnPreBattleBetween(attacker,defender);
+        }
         /*private bool SwordsOfRevealingLight()
         {
             int count = Bot.SpellZone.GetCardCount(CardId.SwordsOfRevealingLight);
