@@ -428,7 +428,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (drawfirst) return true;
             if (must_chain()) return true;
-            if (prevent_used||Duel.Phase!=DuelPhase.Main1) return false;
+            if (prevent_used || Duel.Phase != DuelPhase.BattleStart) return false;
             prevent_used = true;
             return DefaultUniqueTrap();
         }
