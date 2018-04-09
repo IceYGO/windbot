@@ -58,10 +58,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.CardcarD);
             AddExecutor(ExecutorType.Summon, CardId.SandaionTheTimloard, SandaionTheTimloard_summon);
             AddExecutor(ExecutorType.Activate, CardId.SandaionTheTimloard, SandaionTheTimloardeff);
-            // Set traps
+            // Set traps           
             AddExecutor(ExecutorType.SpellSet, CardId.Waboku);
             AddExecutor(ExecutorType.SpellSet, CardId.ThreateningRoar);
             AddExecutor(ExecutorType.SpellSet, CardId.BlazingMirrorForce);
+            AddExecutor(ExecutorType.SpellSet, CardId.OjamaTrio, OjamaTrioset);
             AddExecutor(ExecutorType.SpellSet, BrunSpellSet);
             //afer set
             AddExecutor(ExecutorType.Activate, CardId.CardcarD);
@@ -243,7 +244,7 @@ namespace WindBot.Game.AI.Decks
           
         }
         public override void OnNewPhase()
-        {
+        {            
             preventcount = 0;
             battleprevent = false;
             HasAccuulatedFortune = false;
@@ -361,7 +362,7 @@ namespace WindBot.Game.AI.Decks
         {
             
             if (must_chain()) return true;
-            if (prevent_used||Duel.Phase==DuelPhase.End||Duel.Phase==DuelPhase.Main2) return false;
+            if (prevent_used||Duel.Phase!=DuelPhase.Main1) return false;
             prevent_used = true;
             return DefaultUniqueTrap();
         }
@@ -409,9 +410,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool RecklessGreedeff()
         {
-            int count = 0;
-            IList<ClientCard> check = Bot.SpellZone;
-            foreach (ClientCard card in check)
+            int count = 0;            
+            foreach (ClientCard card in Bot.SpellZone)
             {
                 if (card.Id == CardId.RecklessGreed)
                     count++;
@@ -440,6 +440,11 @@ namespace WindBot.Game.AI.Decks
             if (count >= 5) return true;
             return false;
             
+        }
+        private bool OjamaTrioset()
+        {
+            if (Bot.HasInSpellZone(CardId.OjamaTrio)) return false;
+            return true;
         }
         private bool OjamaTrioeff()
         {
@@ -511,8 +516,10 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
         private bool Linkuriboheff()
-        {           
-            return DefaultDontChainMyself();
+        {
+            ClientCard lastchaincard = AI.Utils.GetLastChainCard();
+            if (lastchaincard.Id == CardId.Linkuriboh) return false;
+            return true;
         }
         /*private bool SwordsOfRevealingLight()
         {
