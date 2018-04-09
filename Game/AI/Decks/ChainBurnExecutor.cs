@@ -58,6 +58,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.CardcarD);
             AddExecutor(ExecutorType.Summon, CardId.SandaionTheTimloard, SandaionTheTimloard_summon);
             AddExecutor(ExecutorType.Activate, CardId.SandaionTheTimloard, SandaionTheTimloardeff);
+            AddExecutor(ExecutorType.Repos, CardId.CardcarD);
             // Set traps
             AddExecutor(ExecutorType.SpellSet, CardId.Waboku);
             AddExecutor(ExecutorType.SpellSet, CardId.ThreateningRoar);
@@ -69,8 +70,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.CardOfDemise, CardOfDemiseeff);
             //activate trap
             AddExecutor(ExecutorType.Activate, CardId.BalanceOfJudgment, BalanceOfJudgmenteff);
-            AddExecutor(ExecutorType.Activate, CardId.AccuulatedFortune);
-            AddExecutor(ExecutorType.Activate, CardId.ChainStrike, ChainStrikeeff);
+            AddExecutor(ExecutorType.Activate, CardId.AccuulatedFortune);            
             //battle 
 
             AddExecutor(ExecutorType.Activate, CardId.ThreateningRoar, ThreateningRoareff);
@@ -86,7 +86,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.SecretBlast, SecretBlasteff);
             AddExecutor(ExecutorType.Activate, CardId.SectetBarrel, SectetBarreleff);
             AddExecutor(ExecutorType.Activate, CardId.RecklessGreed, RecklessGreedeff);
-
+            AddExecutor(ExecutorType.Activate, CardId.ChainStrike, ChainStrikeeff);
             //sp
             AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh);
             AddExecutor(ExecutorType.Activate, CardId.Linkuriboh, Linkuriboheff);
