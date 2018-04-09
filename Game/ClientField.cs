@@ -93,8 +93,8 @@ namespace WindBot.Game
         {
             return GetCards(MonsterZone);
         }
-
         
+
         public List<ClientCard> GetGraveyardMonsters()
         {
             return GetCards(Graveyard, CardType.Monster);

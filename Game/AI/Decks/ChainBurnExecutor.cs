@@ -58,7 +58,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.CardcarD);
             AddExecutor(ExecutorType.Summon, CardId.SandaionTheTimloard, SandaionTheTimloard_summon);
             AddExecutor(ExecutorType.Activate, CardId.SandaionTheTimloard, SandaionTheTimloardeff);
-            // Set traps           
+            // Set traps
             AddExecutor(ExecutorType.SpellSet, CardId.Waboku);
             AddExecutor(ExecutorType.SpellSet, CardId.ThreateningRoar);
             AddExecutor(ExecutorType.SpellSet, CardId.BlazingMirrorForce);
@@ -244,7 +244,7 @@ namespace WindBot.Game.AI.Decks
           
         }
         public override void OnNewPhase()
-        {            
+        {
             preventcount = 0;
             battleprevent = false;
             HasAccuulatedFortune = false;

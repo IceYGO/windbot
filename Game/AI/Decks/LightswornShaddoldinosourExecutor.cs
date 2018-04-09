@@ -986,11 +986,13 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (attacker.RealPower <= 0)
-                return false;
-            if (attacker.Id == CardId.ElShaddollConstruct) return true;
-            if (attacker.Id == CardId.UltimateConductorTytanno&&defender.IsDefense()) return true;
-            
+            if (!defender.IsMonsterHasPreventActivationEffectInBattle())
+            {
+                if (attacker.Id == CardId.ElShaddollConstruct && !attacker.IsDisabled()) // TODO: && defender.IsSpecialSummoned
+                    attacker.RealPower = 9999;
+                if (attacker.Id == CardId.UltimateConductorTytanno && !attacker.IsDisabled() && defender.IsDefense())
+                    attacker.RealPower = 9999;
+            }            
             return base.OnPreBattleBetween(attacker, defender);
         }
 
@@ -1012,4 +1014,3 @@ namespace WindBot.Game.AI.Decks
 
     }
 }
-        
