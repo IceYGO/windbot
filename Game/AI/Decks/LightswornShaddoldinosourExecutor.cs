@@ -262,12 +262,12 @@ namespace WindBot.Game.AI.Decks
                 CardId.GhostOgre,
                 CardId.MaxxC,
                 };
-                if (Bot.HasInHand(targets)|| Bot.HasInMonstersZone(targets))
-                {
-                    AI.SelectCard(targets);
-                    return true;
+                if (!Bot.HasInHand(targets)|| !Bot.HasInMonstersZone(targets))
+                {                    
+                    return false;
                 }
-               
+                AI.SelectCard(targets);
+                return true;
             }
             if (Duel.Phase == DuelPhase.BattleStart)
             {
