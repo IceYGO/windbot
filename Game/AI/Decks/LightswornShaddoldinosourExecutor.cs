@@ -150,7 +150,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, CardId.ShaddollCore);
             AddExecutor(ExecutorType.SpellSet, CardId.infiniteTransience, SetIsFieldEmpty);
             //trap activate
-            AddExecutor(ExecutorType.Activate, CardId.LostWind, DefaultBreakthroughSkill);
+            AddExecutor(ExecutorType.Activate, CardId.LostWind, LostWindeff);
             AddExecutor(ExecutorType.Activate, CardId.SinisterShadowGames, SinisterShadowGameseff);
             AddExecutor(ExecutorType.Activate, CardId.ShaddollCore, ShaddollCoreeff);
             AddExecutor(ExecutorType.Repos, MonsterRepos);
@@ -761,6 +761,15 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
+        private bool LostWindeff()
+        {
+            List<ClientCard> check = Enemy.GetMonsters();
+            foreach (ClientCard m in check)
+            {
+                if (m.Attack>=2000) return DefaultBreakthroughSkill();
+            }
+            return false;            
+        }
 
         private bool FoolishBurialEffect()
         {
