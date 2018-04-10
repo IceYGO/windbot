@@ -498,8 +498,14 @@ namespace WindBot.Game.AI.Decks
                     count++;
 
             }
+            ClientCard lastchaincard = AI.Utils.GetLastChainCard();        
+            
             if (drawfirst) return DefaultUniqueTrap();
             if (must_chain() && count > 1) return true;
+            if(lastchaincard!=null)
+            {
+                if (lastchaincard.Id == CardId.CardOfDemise) return false;
+            }            
             if (count > 1) return true;
             if (Bot.LifePoints <= 2000) return true;
             if (Bot.GetHandCount() <1 && Duel.Player==0 && Duel.Phase!=DuelPhase.Standby) return true;
