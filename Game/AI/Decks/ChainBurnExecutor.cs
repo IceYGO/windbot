@@ -181,10 +181,11 @@ namespace WindBot.Game.AI.Decks
 
     };
         }
-        public int[] prevent_list()
+        public int[] pot_list()
         {
             return new[]
             {
+                CardId.PotOfDesires,
                 CardId.SandaionTheTimloard,
                 CardId.BattleFader,
 
@@ -205,15 +206,20 @@ namespace WindBot.Game.AI.Decks
             }
             return atk;
         }
-        public bool Has_prevent_list(int id)
+        public bool Has_prevent_list_0(int id)
         {
-            return (id == CardId.SandaionTheTimloard ||
-                    id == CardId.BattleFader ||
+            return (
                     id == CardId.Waboku ||
                     id == CardId.ThreateningRoar||
                     id == CardId.MagicCylinder||
                     id == CardId.BlazingMirrorForce||
                     id == CardId.RingOfDestruction
+                   );
+        }
+        public bool Has_prevent_list_1(int id)
+        {
+            return (id == CardId.SandaionTheTimloard ||
+                    id == CardId.BattleFader                  
                    );
         }
         bool no_sp = false;
@@ -223,7 +229,7 @@ namespace WindBot.Game.AI.Decks
         bool prevent_used = false;
         int preventcount = 0;
         bool battleprevent = false;
-        bool OjamaTrioused = false;
+        bool OjamaTrioused = false;        
         bool OjamaTrioused_draw = false;
         bool drawfirst = false;
         int Waboku_count = 0;
@@ -243,10 +249,9 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
 
-
+            
             no_sp = false;
-            prevent_used = false;
-            battleprevent = false;
+            prevent_used = false;           
 
 
         }
@@ -260,7 +265,7 @@ namespace WindBot.Game.AI.Decks
 
             foreach (ClientCard card in trap)
             {
-                if (Has_prevent_list(card.Id))
+                if (Has_prevent_list_0(card.Id))
                     {
                     preventcount++;
                     battleprevent = true;
@@ -269,7 +274,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard card in monster)
             {
-                if (Has_prevent_list(card.Id))
+                if (Has_prevent_list_1(card.Id))
                 {
                     preventcount++;
                     battleprevent = true;
@@ -380,8 +385,14 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+        private bool OjamaTrioset()
+        {
+            if (Bot.HasInSpellZone(CardId.OjamaTrio)) return false;           
+            return true;
+        }
         private bool BrunSpellSet()
         {
+            if (Card.Id == CardId.OjamaTrio && Bot.HasInSpellZone(CardId.OjamaTrio))return false;
             return (Card.IsTrap() || Card.HasType(CardType.QuickPlay)) && Bot.GetSpellCountWithoutField() < 5;
         }
         private bool SandaionTheTimloard_summon()
@@ -409,7 +420,8 @@ namespace WindBot.Game.AI.Decks
         private bool PotOfDualityeff()
         {
             no_sp = true;
-            AI.SelectCard(prevent_list());
+            
+            AI.SelectCard(pot_list());
             return true;
         }
         private bool BlazingMirrorForceeff()
@@ -479,9 +491,16 @@ namespace WindBot.Game.AI.Decks
         }
         private bool RecklessGreedeff()
         {
+            int count=0;
+            foreach (ClientCard card in Bot.GetSpells())
+            {
+                if (card.Id == CardId.RecklessGreed)
+                    count++;
+
+            }
             if (drawfirst) return DefaultUniqueTrap();
-            if (must_chain() && greed_count > 1) return true;
-            if (greed_count > 1) return true;
+            if (must_chain() && count > 1) return true;
+            if (count > 1) return true;
             if (Bot.LifePoints <= 2000) return true;
             if (Bot.GetHandCount() <1 && Duel.Player==0 && Duel.Phase!=DuelPhase.Standby) return true;
             return false;
@@ -509,18 +528,14 @@ namespace WindBot.Game.AI.Decks
             return false;
 
         }
-        private bool OjamaTrioset()
-        {
-
-            if (Bot.HasInSpellZone(CardId.OjamaTrio)) return false;
-            return true;
-        }
+        
         private bool OjamaTrioeff()
         {
             return OjamaTrioused||OjamaTrioused_draw;
         }
         private bool JustDessertseff()
         {
+            if (Duel.Player == 0) return false;
             if (drawfirst) return DefaultUniqueTrap();
             if (one_turn_kill_1) return DefaultUniqueTrap();
             if (one_turn_kill) return DefaultUniqueTrap();
@@ -537,6 +552,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ChainStrikeeff()
         {
+
             if (drawfirst) return true;
             if (must_chain()) return true;
             int chain = Duel.CurrentChain.Count;
@@ -593,7 +609,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Linkuriboheff()
         {
-            ClientCard lastchaincard = AI.Utils.GetLastChainCard();
+            ClientCard lastchaincard = AI.Utils.GetLastChainCard();           
             if (lastchaincard == null) return true;
             if (lastchaincard.Id == CardId.Linkuriboh) return false;
             return true;
