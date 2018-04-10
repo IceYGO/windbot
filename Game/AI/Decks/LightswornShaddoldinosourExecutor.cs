@@ -144,7 +144,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, CardId.MonsterReborn, spellset);
             AddExecutor(ExecutorType.SpellSet, CardId.PotOfAvarice, spellset);
             AddExecutor(ExecutorType.SpellSet, CardId.ThatGrassLooksgreener, spellset);
-            //trap
+            //trapset
             AddExecutor(ExecutorType.SpellSet, CardId.LostWind, TrapSetWhenZoneFree);
             AddExecutor(ExecutorType.SpellSet, CardId.SinisterShadowGames, TrapSetWhenZoneFree);
             AddExecutor(ExecutorType.SpellSet, CardId.ShaddollCore);
@@ -313,6 +313,7 @@ namespace WindBot.Game.AI.Decks
         private bool OvertexCoatlseff()
         {
             if (Card.Location == CardLocation.MonsterZone) return false;
+            OvertexCoatlseff_used = true;
             return true;
         }
 
@@ -485,10 +486,14 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+
+
         private bool spellset()
         {
             return Bot.Hand.Count > 6;
         }
+
+
         private bool RebornEffect()
         {
             if(Bot.HasInGraveyard(CardId.UltimateConductorTytanno)&&Ultimate_ss>0)
@@ -509,6 +514,8 @@ namespace WindBot.Game.AI.Decks
             AI.SelectCard(targets);
             return true;
         }
+
+
         private bool PotofAvariceeff()
         {
             return true;
@@ -518,10 +525,14 @@ namespace WindBot.Game.AI.Decks
         {
             return Duel.Player == 1;
         }
+
+
         private bool SetIsFieldEmpty()
         {
             return !Bot.IsFieldEmpty();
         }
+
+
         private bool TrapSetWhenZoneFree()
         {
             return Bot.GetSpellCountWithoutField() < 4;
@@ -553,6 +564,8 @@ namespace WindBot.Game.AI.Decks
             }
             return true;
         }
+
+
         private bool ElShaddollShekhinagaeff()
         {
             if (Card.Location != CardLocation.MonsterZone)
@@ -576,6 +589,8 @@ namespace WindBot.Game.AI.Decks
             }
             return true;
         }
+
+
         private bool ElShaddollGrysraeff()
         {
             if (Card.Location != CardLocation.MonsterZone)
@@ -690,6 +705,8 @@ namespace WindBot.Game.AI.Decks
             }
             return true;
         }
+
+
         private bool ShaddollHedgehogeff()
         {
             if (Card.Location != CardLocation.MonsterZone)
@@ -705,6 +722,8 @@ namespace WindBot.Game.AI.Decks
             }
             return true;
         }
+
+
         private bool ShaddollDragoneff()
         {
             if (Card.Location == CardLocation.MonsterZone)
@@ -720,6 +739,8 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
         }
+
+
         private bool ShaddollSquamataeff()
         {
             if (Card.Location != CardLocation.MonsterZone)
@@ -739,6 +760,8 @@ namespace WindBot.Game.AI.Decks
             }
             return true;
         }
+
+
         private bool FoolishBurialEffect()
         {
             if (Bot.GetRemainingCount(CardId.DoubleEvolutionPill, 3) > 0)
@@ -752,7 +775,6 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
                 return false;
-
             }
             else
             {
@@ -761,12 +783,9 @@ namespace WindBot.Game.AI.Decks
                         CardId.ShaddollSquamata,
                         CardId.FairyTailSnow,
                     });
-
             }
-
             return true;
-        }
-        
+        }      
        
        
         public bool Hand_act_eff()
@@ -823,6 +842,8 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
         }
+
+
         public bool CrystronNeedlefibersp()
         {
             if (Bot.HasInMonstersZone(CardId.ElShaddollConstruct) ||
@@ -879,6 +900,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
+
         private bool ScarlightRedDragoneff()
         {
             IList<ClientCard> targets = new List<ClientCard>();
@@ -891,6 +913,8 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+
+
         private bool CrystalWingSynchroDragoneff()
         {
             return Duel.LastChainPlayer != 0;
@@ -926,7 +950,6 @@ namespace WindBot.Game.AI.Decks
             }*/
             return false;
         }
-
       
         private bool BlackRoseMoonlightDragoneff()
         {
@@ -941,6 +964,8 @@ namespace WindBot.Game.AI.Decks
             return false;
 
         }
+
+
         private bool RedWyverneff()
         {
             IList<ClientCard> check = Enemy.MonsterZone;
@@ -956,8 +981,6 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
-
-
 
         private bool CoralDragoneff()
         {
