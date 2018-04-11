@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -265,6 +265,7 @@ namespace WindBot.Game
         private void OnDuelEnd(BinaryReader packet)
         {
             Connection.Close();
+            Logger.DebugWriteLine("********************* Duel end *********************");
         }
 
         private void OnChat(BinaryReader packet)
@@ -352,6 +353,7 @@ namespace WindBot.Game
         {
             int player = GetLocalPlayer(packet.ReadByte());
             int count = packet.ReadByte();
+            Logger.DebugWriteLine("(" + player.ToString() + "抽了" + count.ToString() + "张卡)");
 
             for (int i = 0; i < count; ++i)
             {
@@ -423,6 +425,7 @@ namespace WindBot.Game
         private void OnNewPhase(BinaryReader packet)
         {
             _duel.Phase = (DuelPhase)packet.ReadInt16();
+            Logger.DebugWriteLine("(进入" + (_duel.Phase.ToString()) + ")");
             _duel.LastSummonPlayer = -1;
             _duel.Fields[0].BattlingMonster = null;
             _duel.Fields[1].BattlingMonster = null;
@@ -434,6 +437,7 @@ namespace WindBot.Game
             int player = GetLocalPlayer(packet.ReadByte());
             int final = _duel.Fields[player].LifePoints - packet.ReadInt32();
             if (final < 0) final = 0;
+            Logger.DebugWriteLine("(" + player.ToString() + "受到了伤害，当前为" + final.ToString() + ")");
             _duel.Fields[player].LifePoints = final;
         }
 
@@ -463,6 +467,7 @@ namespace WindBot.Game
             packet.ReadInt32(); // reason
 
             ClientCard card = _duel.GetCard(pc, (CardLocation)pl, ps);
+            if (card != null) Logger.DebugWriteLine("(" + pc.ToString() + "的" + (card.Name ?? "未知卡片") + "从" + (CardLocation)pl + "移动到了" + (CardLocation)cl + ")");
 
             if ((pl & (int)CardLocation.Overlay) != 0)
             {
@@ -506,6 +511,8 @@ namespace WindBot.Game
 
             ClientCard attackcard = _duel.GetCard(ca, (CardLocation)la, sa);
             ClientCard defendcard = _duel.GetCard(cd, (CardLocation)ld, sd);
+            if (defendcard == null) Logger.DebugWriteLine("(" + (attackcard.Name ?? "未知卡片") + "直接攻击)");
+            else Logger.DebugWriteLine("(" + ca.ToString() + "的" + (attackcard.Name ?? "未知卡片") + "攻击了" + cd.ToString() + "的" + (defendcard.Name ?? "未知卡片") + ")");
             _duel.Fields[attackcard.Controller].BattlingMonster = attackcard;
             _duel.Fields[1 - attackcard.Controller].BattlingMonster = defendcard;
 
@@ -525,7 +532,10 @@ namespace WindBot.Game
             int cp = packet.ReadSByte();
             ClientCard card = _duel.GetCard(pc, (CardLocation)pl, ps);
             if (card != null)
+            {
                 card.Position = cp;
+                Logger.DebugWriteLine("(" + (card.Name ?? "未知卡片") + "改变了表示形式为" + (CardPosition)cp + ")");
+            }
         }
 
         private void OnChaining(BinaryReader packet)
@@ -537,12 +547,12 @@ namespace WindBot.Game
             int subs = packet.ReadSByte();
             ClientCard card = _duel.GetCard(pcc, pcl, pcs, subs);
             int cc = GetLocalPlayer(packet.ReadByte());
+            if (card != null) Logger.DebugWriteLine("(" + cc.ToString() + "的" + (card.Name ?? "未知卡片") + "发动了效果)");
             _ai.OnChaining(card, cc);
             _duel.ChainTargets.Clear();
             _duel.LastSummonPlayer = -1;
             _duel.CurrentChain.Add(card);
             _duel.LastChainPlayer = cc;
-
         }
 
         private void OnChainEnd(BinaryReader packet)
@@ -632,6 +642,7 @@ namespace WindBot.Game
                 /*int sseq = */packet.ReadByte();
                 ClientCard card = _duel.GetCard(player, (CardLocation)loc, seq);
                 if (card == null) continue;
+                Logger.DebugWriteLine("(" + (CardLocation)loc + "的" + (card.Name ?? "未知卡片") + "成为了对象)");
                 _duel.ChainTargets.Add(card);
             }
         }

@@ -127,6 +127,23 @@ namespace WindBot.Game.AI
             return true;
         }
 
+        /// <summary>
+        /// Called when the AI has to select a card position.
+        /// </summary>
+        /// <param name="cardId">Id of the card to position on the field.</param>
+        /// <param name="positions">List of available positions.</param>
+        /// <returns>Selected position, or 0 if no position is set for this card.</returns>
+        public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
+        {
+            YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
+            if (cardData != null)
+            {
+                if (cardData.Attack == 0)
+                    return CardPosition.FaceUpDefence;
+            }
+            return 0;
+        }
+
         public override bool OnSelectBattleReplay()
         {
             if (Bot.BattlingMonster == null)
@@ -290,9 +307,10 @@ namespace WindBot.Game.AI
 
             if (LastChainCard == null)
                 return false;
-
+            if (LastChainCard.Controller != 1 || LastChainCard.Location != CardLocation.MonsterZone || !DefaultUniqueTrap())
+                return false;
             AI.SelectCard(LastChainCard);
-            return LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone && DefaultUniqueTrap();
+            return true;
         }
 
         /// <summary>
