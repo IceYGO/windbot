@@ -600,6 +600,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShaddollFusioneff()
         {
+            if (Bot.HasInMonstersZone(CardId.ElShaddollConstruct) ||
+               Bot.HasInMonstersZone(CardId.ElShaddollGrysra) ||
+               Bot.HasInMonstersZone(CardId.ElShaddollShekhinaga) ||
+               Bot.HasInMonstersZone(CardId.ElShaddollWinda ))
+                return false;
+
             bool deck_check = false;
             List<ClientCard> monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
