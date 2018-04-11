@@ -73,6 +73,8 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * Toadally Awesome (old lflist, master rule 3 only)
 
+* Trickstar
+
 * Yosenju
 
 * Zexal Weapons
@@ -83,6 +85,8 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * Blackwing
 
+* ChainBurn
+
 * CyberDragon
 
 * Evilswarm
@@ -92,6 +96,8 @@ WindBot can run as a "server", provide a http interface to create bot.
 * Graydle
 
 * Lightsworn
+
+* LightswornShaddoldinosour
 
 * Nekroz
 
@@ -107,11 +113,23 @@ The parameters are same as commandlines, but low cased.
 
 ### Known issues
 
-* The attack won't be canceled when battle replay happens.
-
 * If one chain includes two activation that use `AI.SelectCard`, the second one won't select correctly.
 
 ### Changelog
+
+#### v0x1343 (2018-04-11)
+
+ - Update YGOPro protrol to 0x1343
+ - New decks: Trickstar, LightswornShaddoldinosour, ChainBurn
+ - Update `OnBattle`, add `Executor.OnSelectAttacker` and `Executor.OnSelectAttackTarget`
+ - Add `Executor.OnSelectPosition`, `Executor.OnSelectBattleReplay`
+ - Add `Bot.BattlingMonster`
+ - Add and update some default executors
+ - Change `Duel.LifePoints[0]` to `Bot.LifePoints`
+ - Change `LastChainPlayer` and `CurrentChain` to `Duel` class
+ - Change `ChainContainsCard` and `GetLastChainCard` etc. to `AI.Utils` class
+ - Fix turn count in match duel
+ - Fix don't turn 0 atk monster to atk pos
 
 #### v0x1342 (2017-12-26)
 
@@ -172,8 +190,6 @@ The parameters are same as commandlines, but low cased.
 * `AI.SelectTribute`
 
 * Get equip of card.
-
-* Get attack target.
 
 * Better new master rule support
 
