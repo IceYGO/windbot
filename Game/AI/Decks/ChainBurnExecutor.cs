@@ -232,6 +232,7 @@ namespace WindBot.Game.AI.Decks
         bool OjamaTrioused = false;        
         bool OjamaTrioused_draw = false;
         bool drawfirst = false;
+        bool Linkuribohused = true;
         int Waboku_count = 0;
         int Roar_count = 0;
         int strike_count = 0;
@@ -251,8 +252,8 @@ namespace WindBot.Game.AI.Decks
 
             
             no_sp = false;
-            prevent_used = false;           
-
+            prevent_used = false;
+            Linkuribohused = true;
 
         }
         public override void OnNewPhase()
@@ -260,8 +261,9 @@ namespace WindBot.Game.AI.Decks
             preventcount = 0;
             battleprevent = false;
             OjamaTrioused = false;
-            IList<ClientCard> trap = Bot.SpellZone;
-            IList<ClientCard> monster = Bot.MonsterZone;
+           
+            IList<ClientCard> trap = Bot.GetSpells();
+            IList<ClientCard> monster = Bot.GetMonsters();
 
             foreach (ClientCard card in trap)
             {
@@ -297,7 +299,7 @@ namespace WindBot.Game.AI.Decks
             Roar_count = 0;
             Ojama_count = 0;
 
-            IList<ClientCard> check = Bot.SpellZone;
+            IList<ClientCard> check = Bot.GetSpells();
             foreach (ClientCard card in check)
             {
                 if (card.Id == CardId.AccuulatedFortune)
@@ -352,7 +354,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             expected_blood = (Enemy.GetMonsterCount() * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count);
-            if (Enemy.LifePoints <= expected_blood) one_turn_kill = true;
+            //if (Enemy.LifePoints <= expected_blood && Duel.Player == 1) one_turn_kill = true;
             if (greed_count >= 2) greed_count = 1;
             if (blast_count >= 2) blast_count = 1;
             if (just_count >= 2) just_count = 1;
@@ -365,10 +367,10 @@ namespace WindBot.Game.AI.Decks
                 currentchain = Duel.CurrentChain.Count + blast_count + just_count + barrel_count + Waboku_count + Waboku_count + Roar_count + greed_count + strike_count + Ojama_count;
             else
                 currentchain = Duel.CurrentChain.Count + blast_count + just_count + barrel_count + Waboku_count + Waboku_count + greed_count + Roar_count + strike_count;
-            if (currentchain >= 3) drawfirst = true;
+            //if (currentchain >= 3 && Duel.Player == 1) drawfirst = true;
             currentchain = Duel.CurrentChain.Count+ blast_count + just_count+barrel_count;
             expected_blood = (Enemy.GetMonsterCount() * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count+(currentchain+1)*400);
-            if (Enemy.LifePoints <= expected_blood) one_turn_kill_1 = true;
+            //if (Enemy.LifePoints <= expected_blood && Duel.Player==1) one_turn_kill_1 = true;
 
         }
 
@@ -439,7 +441,7 @@ namespace WindBot.Game.AI.Decks
         private bool ThreateningRoareff()
         {
             if (drawfirst) return true;
-            if (must_chain()) return true;
+            if (must_chain()) return DefaultUniqueTrap();
             if (prevent_used || Duel.Phase != DuelPhase.BattleStart) return false;
             prevent_used = true;
             return DefaultUniqueTrap();
@@ -452,11 +454,19 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Wabokueff()
         {
-            if (drawfirst) return true;
-            if (must_chain()) return true;
-            if (drawfirst) return true;
+            if (drawfirst)
+            {
+                Linkuribohused = false;
+                return true;
+            }                
+            if (must_chain())
+            {
+                Linkuribohused = false;
+                return DefaultUniqueTrap();
+            }            
             if (prevent_used||Duel.Player == 0||Duel.Phase!=DuelPhase.BattleStart) return false;
             prevent_used = true;
+            Linkuribohused = false;
             return DefaultUniqueTrap();
         }
         private bool BattleFadereff()
@@ -610,10 +620,18 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
         private bool Linkuriboheff()
-        {
-            ClientCard lastchaincard = AI.Utils.GetLastChainCard();           
-            if (lastchaincard == null) return true;
-            if (lastchaincard.Id == CardId.Linkuriboh) return false;
+        {           
+           
+            IList<ClientCard> newlist = new List<ClientCard>();
+            foreach (ClientCard newmonster in Enemy.GetMonsters())
+            {
+                newlist.Add(newmonster);
+            }
+            if (!Linkuribohused) return false;
+            if (Enemy.BattlingMonster.Attack > 1800 && Bot.HasInSpellZone(CardId.MagicCylinder)) return false;
+            if (GetTotalATK(newlist) >= 3000 && Bot.HasInSpellZone(CardId.BlazingMirrorForce)) return false;           
+            if (AI.Utils.GetLastChainCard() == null) return true;            
+            if (AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh)return false;
             return true;
         }
 

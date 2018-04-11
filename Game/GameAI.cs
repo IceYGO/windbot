@@ -94,6 +94,7 @@ namespace WindBot.Game
             {
                 _dialogs.SendNewTurn();
             }
+            Executor.OnNewPhase();
         }
 
         /// <summary>
