@@ -628,7 +628,10 @@ namespace WindBot.Game.AI.Decks
                 newlist.Add(newmonster);
             }
             if (!Linkuribohused) return false;
-            if (Enemy.BattlingMonster.Attack > 1800 && Bot.HasInSpellZone(CardId.MagicCylinder)) return false;
+            if(newlist!=null)
+            {
+                if (Enemy.BattlingMonster.Attack > 1800 && Bot.HasInSpellZone(CardId.MagicCylinder)) return false;
+            }            
             if (GetTotalATK(newlist) >= 3000 && Bot.HasInSpellZone(CardId.BlazingMirrorForce)) return false;           
             if (AI.Utils.GetLastChainCard() == null) return true;            
             if (AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh)return false;
