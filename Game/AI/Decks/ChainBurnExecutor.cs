@@ -628,7 +628,7 @@ namespace WindBot.Game.AI.Decks
                 newlist.Add(newmonster);
             }
             if (!Linkuribohused) return false;
-            if(newlist!=null)
+            if(Enemy.BattlingMonster!=null)
             {
                 if (Enemy.BattlingMonster.Attack > 1800 && Bot.HasInSpellZone(CardId.MagicCylinder)) return false;
             }            
