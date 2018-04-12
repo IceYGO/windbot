@@ -140,11 +140,12 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.RadiantheMultidimensionalKaiju, RadiantheMultidimensionalKaijusp);            
             //activate chain
             AddExecutor(ExecutorType.Activate, CardId.OvertexCoatls, OvertexCoatlseff);
-            AddExecutor(ExecutorType.Activate, CardId.ShaddollBeast);
-            AddExecutor(ExecutorType.Activate, CardId.ShaddollFalco, ShaddollFalcoeff);
-            AddExecutor(ExecutorType.Activate, CardId.ShaddollSquamata, ShaddollSquamataeff);
+            AddExecutor(ExecutorType.Activate, CardId.ShaddollCore, ShaddollCoreeff);
+            AddExecutor(ExecutorType.Activate, CardId.ShaddollBeast, ShaddollBeasteff);            
+            AddExecutor(ExecutorType.Activate, CardId.ShaddollFalco, ShaddollFalcoeff);            
             AddExecutor(ExecutorType.Activate, CardId.ShaddollDragon, ShaddollDragoneff);
             AddExecutor(ExecutorType.Activate, CardId.ShaddollHedgehog, ShaddollHedgehogeff);
+            AddExecutor(ExecutorType.Activate, CardId.ShaddollSquamata, ShaddollSquamataeff);
             AddExecutor(ExecutorType.Activate, CardId.GiantRex);
             AddExecutor(ExecutorType.Activate, CardId.ElShaddollConstruct, ElShaddollConstructeff);
             AddExecutor(ExecutorType.Activate, CardId.ElShaddollGrysra, ElShaddollGrysraeff);
@@ -161,7 +162,7 @@ namespace WindBot.Game.AI.Decks
             //trap activate
             AddExecutor(ExecutorType.Activate, CardId.LostWind, LostWindeff);
             AddExecutor(ExecutorType.Activate, CardId.SinisterShadowGames, SinisterShadowGameseff);
-            AddExecutor(ExecutorType.Activate, CardId.ShaddollCore, ShaddollCoreeff);
+            
             AddExecutor(ExecutorType.Repos, MonsterRepos);
         }
         public int[] all_List()
@@ -231,12 +232,21 @@ namespace WindBot.Game.AI.Decks
         bool Pillused = false;
         bool CrystronNeedlefibereff_used = false;
         bool OvertexCoatlseff_used = false;
-
+        bool ShaddollBeast_used = false;
+        bool ShaddollFalco_used = false;
+        bool ShaddollSquamata_used = false;
+        bool ShaddollDragon_used = false;
+        bool ShaddollHedgehog_used = false;
         public override void OnNewTurn()
         {
             Pillused = false;
             OvertexCoatlseff_used = false;
             CrystronNeedlefibereff_used = false;
+            ShaddollBeast_used = false;
+            ShaddollFalco_used = false;
+            ShaddollSquamata_used = false;
+            ShaddollDragon_used = false;
+            ShaddollHedgehog_used = false;
         }
 
         private bool Luminaeff()
@@ -606,19 +616,138 @@ namespace WindBot.Game.AI.Decks
 
 
         // all Shaddoll 
-        private bool ElShaddollConstructeff()
+        private bool SinisterShadowGameseff()
         {
-           /* if (Duel.Phase == DuelPhase.Battle)
-                if (Enemy.BattlingMonster.Attack < 2800)
-                    return false;*/
-            if(ActivateDescription==-1)
+            if (Bot.HasInGraveyard(CardId.ShaddollFusion))
+                AI.SelectCard(CardId.ShaddollCore);
+            else
+                AI.SelectCard(new[]
+                {
+                    CardId.ShaddollBeast,
+                });
+            return true;
+        }
+
+
+        private bool ShaddollCoreeff()
+        {
+            if (Card.Location == CardLocation.SpellZone)
             {
-                AI.SelectCard(CardId.ShaddollSquamata);
+                if (Enemy.HasAttackingMonster() && Duel.Player == 1 && Duel.Phase == DuelPhase.Battle && Bot.BattlingMonster == null)
+                {
+                    AI.SelectPosition(CardPosition.FaceUpDefence);
+                    return true;
+                }
+                return false;
             }
             return true;
         }
 
 
+        private bool ShaddollFusioneff()
+        {
+            List<ClientCard> extra_zone_check = Bot.GetMonstersInExtraZone();
+            foreach (ClientCard extra_monster in extra_zone_check)
+                if (extra_monster.HasType(CardType.Xyz) || extra_monster.HasType(CardType.Fusion)) return false;
+
+            bool deck_check = false;
+            List<ClientCard> monsters = Enemy.GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                if (monster.HasType(CardType.Synchro) || monster.HasType(CardType.Fusion) || monster.HasType(CardType.Xyz))
+                    deck_check = true;
+            }
+
+            if (deck_check)
+            {
+                AI.SelectCard(new[]
+                {
+                    CardId.ElShaddollConstruct,
+                    CardId.ElShaddollShekhinaga,
+                    CardId.ElShaddollGrysra,
+                    CardId.ElShaddollWinda
+                });
+                AI.SelectNextCard(new[]
+                      {
+                    CardId.ShaddollSquamata,
+                    CardId.ShaddollBeast,
+
+                    CardId.ShaddollHedgehog,
+                    CardId.ShaddollDragon,
+                    CardId.ShaddollFalco,
+
+                });
+                AI.SelectPosition(CardPosition.FaceUpAttack);
+                return true;
+            }
+
+            if (Enemy.GetMonsterCount() == 0)
+            {
+                int dark_count = 0;
+                IList<ClientCard> m0 = Bot.Hand;
+                IList<ClientCard> m1 = Bot.MonsterZone;
+                IList<ClientCard> all = new List<ClientCard>();
+                foreach (ClientCard monster in m0)
+                {
+                    if (dark_count == 2) break;
+                    if (monster.HasAttribute(CardAttribute.Dark))
+                    {
+                        dark_count++;
+                        all.Add(monster);
+                    }
+                }
+                foreach (ClientCard monster in m1)
+                {
+                    if (dark_count == 2) break;
+                    if (monster != null)
+                    {
+                        if (monster.HasAttribute(CardAttribute.Dark))
+                        {
+                            dark_count++;
+                            all.Add(monster);
+                        }
+                    }
+
+
+                }
+                if (dark_count == 2)
+                {
+                    AI.SelectCard(CardId.ElShaddollWinda);
+                    AI.SelectMaterials(all);
+                    AI.SelectPosition(CardPosition.FaceUpAttack);
+                    return true;
+                }
+            }
+            if (!AI.Utils.IsOneEnemyBetter()) return false;
+
+
+            foreach (ClientCard monster in Bot.Hand)
+            {
+                if (monster.HasAttribute(CardAttribute.Light))
+                {
+                    AI.SelectCard(CardId.ElShaddollConstruct);
+                    AI.SelectPosition(CardPosition.FaceUpAttack);
+                    return true;
+                }
+
+            }
+            List<ClientCard> material_1 = Bot.GetMonsters();
+            foreach (ClientCard monster in material_1)
+            {
+                if (monster == null) break;
+                if (monster.HasAttribute(CardAttribute.Light))
+                {
+                    AI.SelectCard(CardId.ElShaddollConstruct);
+                    AI.SelectPosition(CardPosition.FaceUpAttack);
+                    return true;
+                }
+
+            }
+            return false;
+
+        }
+
+        
         private bool ElShaddollShekhinagaeff()
         {
             if (Card.Location != CardLocation.MonsterZone)
@@ -651,137 +780,64 @@ namespace WindBot.Game.AI.Decks
         return true;
         }
 
-        private bool ShaddollFusioneff()
-        {           
-            List<ClientCard> extra_zone_check = Bot.GetMonstersInExtraZone();
-            foreach (ClientCard extra_monster in extra_zone_check)
-                if (extra_monster.HasType(CardType.Xyz) || extra_monster.HasType(CardType.Fusion)) return false;
 
-            bool deck_check = false;
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                if (monster.HasType(CardType.Synchro) || monster.HasType(CardType.Fusion) || monster.HasType(CardType.Xyz))
-                    deck_check = true;
-            }
-
-            if (deck_check)
-            {
-                AI.SelectCard(new[]
-                {
-                    CardId.ElShaddollConstruct,
-                    CardId.ElShaddollShekhinaga,
-                    CardId.ElShaddollGrysra,
-                    CardId.ElShaddollWinda
-                });
-                AI.SelectNextCard(new[]
-                      {
-                    CardId.ShaddollBeast,
-                    CardId.ShaddollSquamata,
-                    CardId.ShaddollHedgehog,
-                    CardId.ShaddollDragon,
-                    CardId.ShaddollFalco,
-
-                });
-                AI.SelectPosition(CardPosition.FaceUpAttack);
-                return true;
-            }
-           
-            if (Enemy.GetMonsterCount() == 0)
-            {
-                int dark_count = 0;
-                IList<ClientCard> m0 = Bot.Hand;
-                IList<ClientCard> m1 = Bot.MonsterZone;
-                IList<ClientCard> all = new List<ClientCard>();
-                foreach (ClientCard monster in m0)
-                {
-                    if (dark_count == 2) break;
-                    if (monster.HasAttribute(CardAttribute.Dark))
-                    {
-                        dark_count++;
-                        all.Add(monster);
-                    }
-                }
-                foreach (ClientCard monster in m1)
-                {
-                    if (dark_count == 2) break;
-                    if(monster!= null)
-                    {
-                        if (monster.HasAttribute(CardAttribute.Dark))
-                        {
-                            dark_count++;
-                            all.Add(monster);
-                        }
-                    }
-                    
-
-                }
-                if(dark_count==2)
-                {
-                    AI.SelectCard(CardId.ElShaddollWinda);
-                    AI.SelectMaterials(all);
-                    AI.SelectPosition(CardPosition.FaceUpAttack);
-                    return true; 
-                }
-            }
-            if (!AI.Utils.IsOneEnemyBetter()) return false;         
-
-
-            foreach (ClientCard monster in Bot.Hand)
-            {
-                if (monster.HasAttribute(CardAttribute.Light))
-                {
-                    AI.SelectCard(CardId.ElShaddollConstruct);
-                    AI.SelectPosition(CardPosition.FaceUpAttack);
-                    return true;
-                }
-
-            }
-            List<ClientCard> material_1 = Bot.GetMonsters();
-            foreach (ClientCard monster in material_1)
-            {
-                if (monster == null) break;
-                if (monster.HasAttribute(CardAttribute.Light))
-                {
-                    AI.SelectCard(CardId.ElShaddollConstruct);
-                    AI.SelectPosition(CardPosition.FaceUpAttack);
-                    return true;
-                }
-
-            }
-            return false;
-
-        }
-
-        private bool SinisterShadowGameseff()
+        private bool ElShaddollConstructeff()
         {
-            if (Bot.HasInGraveyard(CardId.ShaddollFusion))
-                AI.SelectCard(CardId.ShaddollCore);
+
+            if (!ShaddollBeast_used)
+                AI.SelectCard(CardId.ShaddollBeast);
             else
-                AI.SelectCard(new[]
-                {
-                    CardId.ShaddollBeast,
-                });
+                AI.SelectCard(CardId.ShaddollFalco);
+
             return true;
         }
 
-        private bool ShaddollCoreeff()
+
+        private bool ShaddollSquamataeff()
         {
-            if (Card.Location == CardLocation.SpellZone)
+            ShaddollSquamata_used = true;
+            if (Card.Location != CardLocation.MonsterZone)
             {
-                if (Enemy.HasAttackingMonster() && Duel.Player == 1 && Duel.Phase == DuelPhase.Battle && Bot.BattlingMonster==null)
+                if(AI.Utils.ChainContainsCard(CardId.ElShaddollConstruct))
                 {
-                    AI.SelectPosition(CardPosition.FaceUpDefence);
-                    return true;
+                    if (!Bot.HasInHand(CardId.ShaddollFusion) && Bot.HasInGraveyard(CardId.ShaddollFusion))
+                    AI.SelectNextCard(CardId.ShaddollCore);
+                    if (!ShaddollBeast_used) AI.SelectNextCard(CardId.ShaddollBeast);
+                    else if (!ShaddollFalco_used) AI.SelectNextCard(CardId.ShaddollFalco);
+                    else  if(!ShaddollHedgehog_used) AI.SelectNextCard(CardId.ShaddollHedgehog);                    
                 }
-                return false;
+                else
+                {
+                    if (!Bot.HasInHand(CardId.ShaddollFusion) && Bot.HasInGraveyard(CardId.ShaddollFusion))
+                        AI.SelectCard(CardId.ShaddollCore);
+                    if (!ShaddollBeast_used) AI.SelectCard(CardId.ShaddollBeast);
+                    else if (!ShaddollFalco_used) AI.SelectCard(CardId.ShaddollFalco);
+                    else if (!ShaddollHedgehog_used) AI.SelectCard(CardId.ShaddollHedgehog);
+                }
+
             }
+            else
+            {
+                ClientCard target = AI.Utils.GetBestEnemyMonster();
+                AI.SelectCard(target);
+                if (Enemy.GetMonsterCount() == 0)
+                    return false;
+
+            }
+            return true;
+        }
+        
+
+        private bool ShaddollBeasteff()
+        {
+            ShaddollBeast_used = true;
             return true;
         }
 
 
         private bool ShaddollFalcoeff()
         {
+            ShaddollFalco_used = true;
             if (Card.Location != CardLocation.MonsterZone)
                 return true;
             else
@@ -803,13 +859,26 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShaddollHedgehogeff()
         {
+            ShaddollHedgehog_used = true;
             if (Card.Location != CardLocation.MonsterZone)
             {
-                AI.SelectCard(new[]
+                if (AI.Utils.ChainContainsCard(CardId.ElShaddollConstruct))
                 {
-                CardId.ShaddollSquamata,
-                CardId.ShaddollDragon,
-                });
+                    AI.SelectNextCard(new[]{
+                       CardId.ShaddollFalco,
+                       CardId.ShaddollSquamata,
+                       CardId.ShaddollDragon,
+                    });
+
+                }
+                else
+                {
+                    AI.SelectCard(new[]{                      
+                       CardId.ShaddollSquamata,
+                       CardId.ShaddollDragon,
+                    });
+                }
+
             }
             else
             {
@@ -821,6 +890,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShaddollDragoneff()
         {
+            ShaddollDragon_used = true;
             if (Card.Location == CardLocation.MonsterZone)
             {
                 ClientCard target = AI.Utils.GetBestEnemyCard();
@@ -834,30 +904,8 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
         }
-
-
-        private bool ShaddollSquamataeff()
-        {
-            if (Card.Location != CardLocation.MonsterZone)
-            {
-                if (!Bot.HasInHand(CardId.ShaddollFusion) && Bot.HasInGraveyard(CardId.ShaddollFusion))
-                    AI.SelectCard(CardId.ShaddollCore);
-                AI.SelectCard(new[]
-                {
-                CardId.ShaddollBeast,
-                });
-            }
-            else
-            {
-                ClientCard target = AI.Utils.GetBestEnemyMonster();
-                AI.SelectCard(target);
-                if (Enemy.GetMonsterCount() == 0)
-                    return false;
-
-            }
-            return true;
-        }
-
+        
+        
         private bool LostWindeff()
         {
             List<ClientCard> check = Enemy.GetMonsters();
