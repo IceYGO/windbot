@@ -58,14 +58,23 @@
         DNASurgery = 74701381,
         NaturiaExterio = 99916754,
         TheLastWarriorfromAnotherPlanet = 86099788,
-        ThousandEyesRestrict = 63519819,
-        ElShaddollWinda = 94977269,
+        ThousandEyesRestrict = 63519819,        
         MaskedHERODarkLaw = 58481572,
         NaturiaBeast = 33198837,
         NaturiaBarkion = 2956282,
         EvilswarmOphion = 91279700,
         MermailAbyssgaios = 74371660,
         AbyssDweller = 21044178,
-        ZoodiacDrident = 48905153
+        ZoodiacDrident = 48905153,
+        InvokedMechaba = 75286621,
+        ElShaddollShekhinaga = 74822425,
+        ElShaddollConstruct = 20366274,
+        ElShaddollGrysra = 48424886,
+        ElShaddollWinda = 94977269,
+        UltimateConductorTytanno = 18940556,
+        OvertexCoatls = 41782653,
+        TrickstarLightStage = 35371948,
+
+
     }
 }
