@@ -135,9 +135,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.MinervaTheExalte);
             AddExecutor(ExecutorType.Activate, CardId.MinervaTheExalte, MinervaTheExaltedEffect);
             //Kaiju
-            AddExecutor(ExecutorType.SpSummon, CardId.GamecieltheSeaTurtleKaiju, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GamecieltheSeaTurtleKaiju, DefaultKaijuSpsummon);            
+            AddExecutor(ExecutorType.SpSummon, CardId.RadiantheMultidimensionalKaiju, RadiantheMultidimensionalKaijusp);
             AddExecutor(ExecutorType.SpSummon, CardId.DogorantheMadFlameKaiju, DogorantheMadFlameKaijusp);
-            AddExecutor(ExecutorType.SpSummon, CardId.RadiantheMultidimensionalKaiju, RadiantheMultidimensionalKaijusp);            
             //activate chain
             AddExecutor(ExecutorType.Activate, CardId.OvertexCoatls, OvertexCoatlseff);
             AddExecutor(ExecutorType.Activate, CardId.ShaddollCore, ShaddollCoreeff);
@@ -317,7 +317,7 @@ namespace WindBot.Game.AI.Decks
         private bool DogorantheMadFlameKaijusp()
         {
             if (Enemy.HasInMonstersZone(CardId.GamecieltheSeaTurtleKaiju)) return true;
-            if (Bot.HasInHand(CardId.RadiantheMultidimensionalKaiju)) return true;
+            if (Enemy.HasInMonstersZone(CardId.RadiantheMultidimensionalKaiju)) return true;
             return false;
         }
 
@@ -478,6 +478,7 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.Location == CardLocation.MonsterZone)
             {
+                AI.SelectCard(AI.Utils.GetBestEnemyMonster());
                 return true;
             }
             else
