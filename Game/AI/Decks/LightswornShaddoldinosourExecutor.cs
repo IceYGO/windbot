@@ -309,6 +309,7 @@ namespace WindBot.Game.AI.Decks
         private bool RadiantheMultidimensionalKaijusp()
         {
             if (Enemy.HasInMonstersZone(CardId.GamecieltheSeaTurtleKaiju)) return true;
+            if (Bot.HasInHand(CardId.DogorantheMadFlameKaiju)) return DefaultKaijuSpsummon();
             return false;
         }
 
@@ -316,6 +317,7 @@ namespace WindBot.Game.AI.Decks
         private bool DogorantheMadFlameKaijusp()
         {
             if (Enemy.HasInMonstersZone(CardId.GamecieltheSeaTurtleKaiju)) return true;
+            if (Bot.HasInHand(CardId.RadiantheMultidimensionalKaiju)) return true;
             return false;
         }
 
