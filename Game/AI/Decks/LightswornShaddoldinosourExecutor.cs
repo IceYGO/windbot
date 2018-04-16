@@ -706,7 +706,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.SpellZone)
             {
                 
-                if (Duel.Player == 1 && Bot.BattlingMonster == null && Duel.Phase==DuelPhase.BattleStart|| DefaultSpellMustChain())
+                if (Duel.Player == 1 && Bot.BattlingMonster == null && Duel.Phase==DuelPhase.BattleStart|| DefaultOnBecomeTarget())
                 {
                     Logger.DebugWriteLine("+++++++++++ShaddollCoreeffdododoo++++++++++");
                     AI.SelectPosition(CardPosition.FaceUpDefence);

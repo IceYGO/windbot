@@ -24,6 +24,7 @@ namespace WindBot.Game.AI
             public const int DupeFrog = 46239604;
             public const int MaraudingCaptain = 2460565;
 
+            public const int HarpiesFeatherDuster = 18144506;
             public const int MysticalSpaceTyphoon = 5318639;
             public const int CosmicCyclone = 8267140;
             public const int ChickenGame = 67616300;
@@ -455,16 +456,10 @@ namespace WindBot.Game.AI
         /// <summary>
         /// if spell/trap is the target or enermy activate HarpiesFeatherDuster
         /// </summary>
-        protected bool DefaultSpellMustChain()
+        protected bool DefaultOnBecomeTarget()
         {
             if (AI.Utils.IsChainTarget(Card)) return true;
-            foreach (ClientCard card in Enemy.GetSpells())
-            {
-                if (card.Id == 18144506 && card.IsFaceup())
-                {
-                    return true;
-                }
-            }
+            if (Enemy.HasInSpellZone(_CardId.HarpiesFeatherDuster, true)) return true;
             return false;
         }
         /// <summary>

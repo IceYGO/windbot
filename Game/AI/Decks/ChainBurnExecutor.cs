@@ -449,7 +449,7 @@ namespace WindBot.Game.AI.Decks
         private bool ThreateningRoareff()
         {
             if (drawfirst) return true;
-            if (DefaultSpellMustChain()) return DefaultUniqueTrap();
+            if (DefaultOnBecomeTarget()) return DefaultUniqueTrap();
             if (prevent_used || Duel.Phase != DuelPhase.BattleStart) return false;
             prevent_used = true;
             return DefaultUniqueTrap();
@@ -467,7 +467,7 @@ namespace WindBot.Game.AI.Decks
                 Linkuribohused = false;
                 return true;
             }                
-            if (DefaultSpellMustChain())
+            if (DefaultOnBecomeTarget())
             {
                 Linkuribohused = false;
                 return DefaultUniqueTrap();
@@ -518,7 +518,7 @@ namespace WindBot.Game.AI.Decks
             }           
             bool Demiseused = AI.Utils.ChainContainsCard(CardId.CardOfDemise);
             if (drawfirst) return DefaultUniqueTrap();
-            if (DefaultSpellMustChain() && count > 1) return true;
+            if (DefaultOnBecomeTarget() && count > 1) return true;
             if (Demiseused) return false;             
             if (count > 1) return true;
             if (Bot.LifePoints <= 2000) return true;
@@ -530,7 +530,7 @@ namespace WindBot.Game.AI.Decks
             if (drawfirst) return DefaultUniqueTrap();
             if (one_turn_kill_1) return DefaultUniqueTrap();
             if (one_turn_kill) return DefaultUniqueTrap();
-            if (DefaultSpellMustChain()) return true;
+            if (DefaultOnBecomeTarget()) return true;
             int count = Enemy.GetFieldHandCount();
             if (Enemy.LifePoints < count * 200) return true;
             if (count >= 8) return true;
@@ -541,7 +541,7 @@ namespace WindBot.Game.AI.Decks
             if (drawfirst) return DefaultUniqueTrap();
             if (one_turn_kill_1) return DefaultUniqueTrap();
             if (one_turn_kill) return DefaultUniqueTrap();
-            if (DefaultSpellMustChain()) return true;
+            if (DefaultOnBecomeTarget()) return true;
             int count = Enemy.GetFieldCount();
             if (Enemy.LifePoints < count * 300) return true;
             if (count >= 5) return true;
@@ -559,7 +559,7 @@ namespace WindBot.Game.AI.Decks
             if (drawfirst) return DefaultUniqueTrap();
             if (one_turn_kill_1) return DefaultUniqueTrap();
             if (one_turn_kill) return DefaultUniqueTrap();
-            if (DefaultSpellMustChain()) return true;
+            if (DefaultOnBecomeTarget()) return true;
             int count = Enemy.GetMonsterCount();
             if (Enemy.LifePoints <= count * 500) return true;
             if (Bot.HasInSpellZone(CardId.OjamaTrio) && count <= 2 && count >= 1)
@@ -574,7 +574,7 @@ namespace WindBot.Game.AI.Decks
         {
 
             if (drawfirst) return true;
-            if (DefaultSpellMustChain()) return true;
+            if (DefaultOnBecomeTarget()) return true;
             int chain = Duel.CurrentChain.Count;
             if (strike_count >= 2 && chain >= 2) return true;
             if (Enemy.LifePoints <= (chain + 1) * 400) return true;
@@ -584,7 +584,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool BalanceOfJudgmenteff()
         {
-            if (DefaultSpellMustChain()) return true;
+            if (DefaultOnBecomeTarget()) return true;
             int count = (Enemy.GetFieldCount() - Bot.GetFieldHandCount());
             if ( count>= 2)return true;
             return false;
