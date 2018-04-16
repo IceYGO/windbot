@@ -518,9 +518,13 @@ namespace WindBot.Game.AI.Decks
         
         private bool FairyTailSnowsummon()
         {
-
-            
-            return Enemy.GetMonsterCount()>=2;
+            IList<ClientCard> list = Enemy.GetMonsters();
+            if(list!=null)
+            {
+                if(list.GetHighestAttackMonster().IsFaceup())
+                return true;
+            }            
+            return false;
         }
 
 
