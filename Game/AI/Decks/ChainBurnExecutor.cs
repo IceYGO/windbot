@@ -353,8 +353,13 @@ namespace WindBot.Game.AI.Decks
                 if (HasAccuulatedFortune>0) OjamaTrioused_draw = true;
             }
 
-            expected_blood = (Enemy.GetMonsterCount() * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count);
-            //if (Enemy.LifePoints <= expected_blood && Duel.Player == 1) one_turn_kill = true;
+            expected_blood = (Enemy.GetMonsterCount() * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count);           
+            if (Enemy.LifePoints <= expected_blood && Duel.Player == 1)
+            {
+                Logger.DebugWriteLine(" one_turn_kill");
+                one_turn_kill = true;
+            }
+            expected_blood = 0;
             if (greed_count >= 2) greed_count = 1;
             if (blast_count >= 2) blast_count = 1;
             if (just_count >= 2) just_count = 1;
@@ -370,8 +375,12 @@ namespace WindBot.Game.AI.Decks
             //if (currentchain >= 3 && Duel.Player == 1) drawfirst = true;
             currentchain = Duel.CurrentChain.Count+ blast_count + just_count+barrel_count;
             expected_blood = (Enemy.GetMonsterCount() * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count+(currentchain+1)*400);
-            //if (Enemy.LifePoints <= expected_blood && Duel.Player==1) one_turn_kill_1 = true;
-
+            
+            /*if (!one_turn_kill && Enemy.LifePoints <= expected_blood && Duel.Player == 1)
+            {
+                Logger.DebugWriteLine(" one_turn_kill_1");
+                one_turn_kill_1 = true;
+            }*/
         }
 
 
@@ -410,8 +419,7 @@ namespace WindBot.Game.AI.Decks
         private bool AbouluteKingBackJackeff()
         {
             if (ActivateDescription == -1)
-            {
-
+            {                
                 AI.SelectCard(AbouluteKingBackJack_List_1());
                 AI.SelectNextCard(AbouluteKingBackJack_List_2());
             }
@@ -441,7 +449,7 @@ namespace WindBot.Game.AI.Decks
         private bool ThreateningRoareff()
         {
             if (drawfirst) return true;
-            if (must_chain()) return DefaultUniqueTrap();
+            if (DefaultOnBecomeTarget()) return DefaultUniqueTrap();
             if (prevent_used || Duel.Phase != DuelPhase.BattleStart) return false;
             prevent_used = true;
             return DefaultUniqueTrap();
@@ -459,7 +467,7 @@ namespace WindBot.Game.AI.Decks
                 Linkuribohused = false;
                 return true;
             }                
-            if (must_chain())
+            if (DefaultOnBecomeTarget())
             {
                 Linkuribohused = false;
                 return DefaultUniqueTrap();
@@ -510,7 +518,7 @@ namespace WindBot.Game.AI.Decks
             }           
             bool Demiseused = AI.Utils.ChainContainsCard(CardId.CardOfDemise);
             if (drawfirst) return DefaultUniqueTrap();
-            if (must_chain() && count > 1) return true;
+            if (DefaultOnBecomeTarget() && count > 1) return true;
             if (Demiseused) return false;             
             if (count > 1) return true;
             if (Bot.LifePoints <= 2000) return true;
@@ -522,7 +530,7 @@ namespace WindBot.Game.AI.Decks
             if (drawfirst) return DefaultUniqueTrap();
             if (one_turn_kill_1) return DefaultUniqueTrap();
             if (one_turn_kill) return DefaultUniqueTrap();
-            if (must_chain()) return true;
+            if (DefaultOnBecomeTarget()) return true;
             int count = Enemy.GetFieldHandCount();
             if (Enemy.LifePoints < count * 200) return true;
             if (count >= 8) return true;
@@ -533,7 +541,7 @@ namespace WindBot.Game.AI.Decks
             if (drawfirst) return DefaultUniqueTrap();
             if (one_turn_kill_1) return DefaultUniqueTrap();
             if (one_turn_kill) return DefaultUniqueTrap();
-            if (must_chain()) return true;
+            if (DefaultOnBecomeTarget()) return true;
             int count = Enemy.GetFieldCount();
             if (Enemy.LifePoints < count * 300) return true;
             if (count >= 5) return true;
@@ -551,7 +559,7 @@ namespace WindBot.Game.AI.Decks
             if (drawfirst) return DefaultUniqueTrap();
             if (one_turn_kill_1) return DefaultUniqueTrap();
             if (one_turn_kill) return DefaultUniqueTrap();
-            if (must_chain()) return true;
+            if (DefaultOnBecomeTarget()) return true;
             int count = Enemy.GetMonsterCount();
             if (Enemy.LifePoints <= count * 500) return true;
             if (Bot.HasInSpellZone(CardId.OjamaTrio) && count <= 2 && count >= 1)
@@ -566,7 +574,7 @@ namespace WindBot.Game.AI.Decks
         {
 
             if (drawfirst) return true;
-            if (must_chain()) return true;
+            if (DefaultOnBecomeTarget()) return true;
             int chain = Duel.CurrentChain.Count;
             if (strike_count >= 2 && chain >= 2) return true;
             if (Enemy.LifePoints <= (chain + 1) * 400) return true;
@@ -576,7 +584,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool BalanceOfJudgmenteff()
         {
-            if (must_chain()) return true;
+            if (DefaultOnBecomeTarget()) return true;
             int count = (Enemy.GetFieldCount() - Bot.GetFieldHandCount());
             if ( count>= 2)return true;
             return false;
@@ -628,7 +636,10 @@ namespace WindBot.Game.AI.Decks
                 newlist.Add(newmonster);
             }
             if (!Linkuribohused) return false;
-            if (Enemy.BattlingMonster.Attack > 1800 && Bot.HasInSpellZone(CardId.MagicCylinder)) return false;
+            if(Enemy.BattlingMonster!=null)
+            {
+                if (Enemy.BattlingMonster.Attack > 1800 && Bot.HasInSpellZone(CardId.MagicCylinder)) return false;
+            }            
             if (GetTotalATK(newlist) >= 3000 && Bot.HasInSpellZone(CardId.BlazingMirrorForce)) return false;           
             if (AI.Utils.GetLastChainCard() == null) return true;            
             if (AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh)return false;
