@@ -453,6 +453,21 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// if spell/trap is the target or enermy activate HarpiesFeatherDuster
+        /// </summary>
+        protected bool DefaultSpellMustChain()
+        {
+            if (AI.Utils.IsChainTarget(Card)) return true;
+            foreach (ClientCard card in Enemy.GetSpells())
+            {
+                if (card.Id == 18144506 && card.IsFaceup())
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        /// <summary>
         /// Chain enemy activation or summon.
         /// </summary>
         protected bool DefaultTrap()
