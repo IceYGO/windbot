@@ -270,9 +270,8 @@ namespace WindBot.Game
         {
             int player = packet.ReadInt16();
             string message = packet.ReadUnicode(256);
-            string player_id = player.ToString();
-            string myName = player_id != "0" ? _room.Names[1] : _room.Names[0];
-            string otherName = player_id == "0" ? _room.Names[1] : _room.Names[0];
+            string myName = (player != 0) ? _room.Names[1] : _room.Names[0];
+            string otherName = (player == 0) ? _room.Names[1] : _room.Names[0];
             if (player < 4)
                 Logger.DebugWriteLine(otherName + " say to " + myName + ": " + message);
         }
