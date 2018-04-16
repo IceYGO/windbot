@@ -20,6 +20,7 @@ namespace WindBot.Game.AI
             public const int GamecieltheSeaTurtleKaiju = 55063751;
             public const int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
 
+            public const int UltimateConductorTytanno = 18940556;
 
             public const int DupeFrog = 46239604;
             public const int MaraudingCaptain = 2460565;
@@ -87,8 +88,17 @@ namespace WindBot.Game.AI
 
             if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (defender.IsMonsterDangerous() || (defender.IsMonsterInvincible() && defender.IsDefense()))
+                if (defender.IsMonsterInvincible() && defender.IsDefense())
                     return false;
+
+                if (defender.IsMonsterDangerous())
+                {
+                    bool canignoreit = false;
+                    if (attacker.Id == _CardId.UltimateConductorTytanno && !attacker.IsDisabled() && defender.IsDefense())
+                        canignoreit = true;
+                    if (!canignoreit)
+                        return false;
+                }
 
                 if (defender.Id == _CardId.CrystalWingSynchroDragon && defender.IsAttack() && !defender.IsDisabled() && attacker.Level >= 5)
                     return false;
