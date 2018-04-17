@@ -518,10 +518,9 @@ namespace WindBot.Game.AI.Decks
         
         private bool FairyTailSnowsummon()
         {
-            IList<ClientCard> list = Enemy.GetMonsters();
-            if(list!=null)
+            ClientCard target = AI.Utils.GetBestEnemyMonster(true);
+            if(target != null)
             {
-                if(list.GetHighestAttackMonster().IsFaceup())
                 return true;
             }            
             return false;
@@ -533,7 +532,7 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.Location == CardLocation.MonsterZone)
             {
-                AI.SelectCard(AI.Utils.GetBestEnemyMonster());
+                AI.SelectCard(AI.Utils.GetBestEnemyMonster(true));
                 return true;
             }
             else
