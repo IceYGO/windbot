@@ -765,8 +765,8 @@ namespace WindBot.Game
         private void InternalOnSelectUnselectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func)
         {
             packet.ReadByte(); // player
-            bool buttonok = packet.ReadByte() != 0;
-            bool cancelable = packet.ReadByte() != 0 || buttonok;
+            bool finishable = packet.ReadByte() != 0;
+            bool cancelable = packet.ReadByte() != 0 || finishable;
             int min = packet.ReadByte();
             int max = packet.ReadByte();
 
@@ -799,7 +799,7 @@ namespace WindBot.Game
                 packet.ReadByte(); // pos
             }
 
-            IList<ClientCard> selected = func(cards, (cancelable && count2 > 0 ? 0 : 1), 1, _select_hint, cancelable);
+            IList<ClientCard> selected = func(cards, (finishable ? 0 : 1), 1, _select_hint, cancelable);
             _select_hint = 0;
 
             if (selected.Count == 0 && cancelable)
