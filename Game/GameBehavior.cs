@@ -272,8 +272,8 @@ namespace WindBot.Game
         {
             int player = packet.ReadInt16();
             string message = packet.ReadUnicode(256);
-            string myName = _room.Position == 0 ? _room.Names[0] : _room.Names[1];
-            string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
+            string myName = (player != 0) ? _room.Names[1] : _room.Names[0];
+            string otherName = (player == 0) ? _room.Names[1] : _room.Names[0];
             if (player < 4)
                 Logger.DebugWriteLine(otherName + " say to " + myName + ": " + message);
         }
@@ -766,8 +766,8 @@ namespace WindBot.Game
         private void InternalOnSelectUnselectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func)
         {
             packet.ReadByte(); // player
-            packet.ReadByte(); // buttonok
-            bool cancelable = packet.ReadByte() != 0;
+            bool finishable = packet.ReadByte() != 0;
+            bool cancelable = packet.ReadByte() != 0 || finishable;
             int min = packet.ReadByte();
             int max = packet.ReadByte();
 
@@ -800,7 +800,7 @@ namespace WindBot.Game
                 packet.ReadByte(); // pos
             }
 
-            IList<ClientCard> selected = func(cards, min, max, _select_hint, cancelable);
+            IList<ClientCard> selected = func(cards, (finishable ? 0 : 1), 1, _select_hint, cancelable);
             _select_hint = 0;
 
             if (selected.Count == 0 && cancelable)
