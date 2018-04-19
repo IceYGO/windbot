@@ -910,6 +910,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                if (Enemy.GetMonsterCount() == 0) return false;
                 ClientCard target = AI.Utils.GetBestEnemyMonster();
                 AI.SelectCard(target);
                 if (Enemy.GetMonsterCount() == 0)
@@ -991,6 +992,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                if (Enemy.GetSpellCount() == 0) return false;
                 ClientCard target = AI.Utils.GetBestEnemySpell();
                 AI.SelectCard(target);
                 return true;
