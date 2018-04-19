@@ -93,7 +93,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.InterruptedKaijuSlumber, InterruptedKaijuSlumbereff);
             AddExecutor(ExecutorType.Activate, CardId.ShaddollFusion, ShaddollFusioneff);
             //Normal Summon            
-            AddExecutor(ExecutorType.Summon, CardId.Raiden);
+            AddExecutor(ExecutorType.Summon, CardId.Raiden, Raidensummon);
             AddExecutor(ExecutorType.Activate, CardId.Raiden);            
             AddExecutor(ExecutorType.Summon , CardId.KeeperOfDragonicMagic);
             AddExecutor(ExecutorType.Activate, CardId.KeeperOfDragonicMagic, KeeperOfDragonicMagiceff);
@@ -165,6 +165,10 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.SinisterShadowGames, SinisterShadowGameseff);
             
             AddExecutor(ExecutorType.Repos, MonsterRepos);
+        }
+        private bool Raidensummon()
+        {           
+            return true;
         }
         public int[] all_List()
         {
@@ -405,6 +409,7 @@ namespace WindBot.Game.AI.Decks
         private bool MonsterRepos()
         {            
             if (Card.Id == CardId.ElShaddollConstruct && Card.IsAttack()) return false;
+            if (Card.Id == CardId.GlowUpBulb && Card.IsDefense()) return false;
             if (Card.Id == CardId.ShaddollDragon && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
             if (Card.Id == CardId.ShaddollSquamata && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
             return base.DefaultMonsterRepos();
@@ -543,6 +548,13 @@ namespace WindBot.Game.AI.Decks
                 IList<ClientCard> grave = Bot.Graveyard;               
                 IList<ClientCard> all = new List<ClientCard>();
                 foreach (ClientCard check in grave)
+                {
+                    if (check.Id==CardId.GiantRex)
+                    {
+                        all.Add(check);
+                    }
+                }
+                foreach (ClientCard check in grave)
                     {
                         if(check.HasType(CardType.Spell)||check.HasType(CardType.Trap))
                         {
@@ -557,10 +569,7 @@ namespace WindBot.Game.AI.Decks
                         all.Add(check);
                     }
                 }
-                if (AI.Utils.GetLastChainCard()!=null)
-                {
-                    if (AI.Utils.GetLastChainCard().Id == CardId.FairyTailSnow) return false;
-                }
+                if (AI.Utils.ChainContainsCard(CardId.FairyTailSnow)) return false;
                 
 
                 if ( Duel.Player == 1  && Duel.Phase == DuelPhase.BattleStart && Bot.BattlingMonster == null && Enemy_atk >=Bot.LifePoints ||
@@ -580,8 +589,16 @@ namespace WindBot.Game.AI.Decks
         {
             if (!OvertexCoatlseff_used)
             {
-                AI.SelectCard(CardId.OvertexCoatls);
-                AI.SelectYesNo(false);
+                if(Bot.GetRemainingCount(CardId.OvertexCoatls,3)==0)
+                {
+                    AI.SelectCard(CardId.OvertexCoatls);
+                    AI.SelectYesNo(false);
+                }
+                else
+                {
+                    AI.SelectCard(CardId.UltimateConductorTytanno);
+                    AI.SelectYesNo(true);
+                }
             }
             else
             {
@@ -728,7 +745,8 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.HasType(CardType.Synchro) || monster.HasType(CardType.Fusion) || monster.HasType(CardType.Xyz))
+                if (monster.HasType(CardType.Synchro) || monster.HasType(CardType.Fusion) ||
+                    monster.HasType(CardType.Xyz) || monster.HasType(CardType.Link))
                     deck_check = true;
             }
 
@@ -1158,6 +1176,7 @@ namespace WindBot.Game.AI.Decks
                 
             else if (Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && AI.Utils.IsOneEnemyBetterThanValue(1500, true))
             {
+               
                 AI.SelectCard(CardId.TG_WonderMagician);
                 if (AI.Utils.IsOneEnemyBetterThanValue(1900, true))
                 {
