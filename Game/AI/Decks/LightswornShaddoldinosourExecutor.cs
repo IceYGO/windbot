@@ -69,7 +69,8 @@ namespace WindBot.Game.AI.Decks
             public const int MinervaTheExalte = 30100551;
             public const int Sdulldeat = 74997493;
             public const int CrystronNeedlefiber = 50588353;
-        }
+            public const int MoonMirrorShield = 19508728;
+        }  
 
         
 
@@ -233,6 +234,7 @@ namespace WindBot.Game.AI.Decks
                 CardId.FoolishBurial,
             };
         }
+        ClientCard ShieldTarget=null;
         int Ultimate_ss = 0;
         int Enemy_atk = 0;
         bool Pillused = false;
@@ -340,6 +342,7 @@ namespace WindBot.Game.AI.Decks
                     foreach (ClientCard monster in check)
                         if (monster.Attack > 2500 || monster == Enemy.MonsterZone.GetDangerousMonster())
                             count++;
+                    if (Enemy.HasInSpellZone(CardId.MoonMirrorShield)) return true;
                     if(count==0)return false;
                 }               
                 if (!Bot.HasInHand(targets))
@@ -1002,10 +1005,14 @@ namespace WindBot.Game.AI.Decks
         
         private bool LostWindeff()
         {
+            if (Card.Location == CardLocation.Grave)
+                return true;
             List<ClientCard> check = Enemy.GetMonsters();
             foreach (ClientCard m in check)
             {
-                if (m.Attack>=2000) return DefaultBreakthroughSkill();
+                if (m.HasType(CardType.Synchro) || m.HasType(CardType.Fusion)||
+                    m.HasType(CardType.Link) || m.HasType(CardType.Xyz) ||
+                    m.Level>=5)return DefaultBreakthroughSkill();
             }
             return false;            
         }
@@ -1307,16 +1314,48 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+        public override void OnChaining(int player, ClientCard card)
+        {
+            if(ShieldTarget==null)
+            {
+                if (Enemy.HasInSpellZone(CardId.MoonMirrorShield))
+                {
+                    ShieldTarget = AI.Utils.GetChainTarget();
+                    
+                }
+                else
+                    ShieldTarget = null;
+            }          
+        
+        }
+        /* public override MainPhaseAction OnSelectIdleCmd(MainPhase main)
+         {
+
+             
+             return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase);
+         }*/
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
+            if (!Enemy.HasInSpellZone(CardId.MoonMirrorShield))
+            {
+                ShieldTarget = null;
+            }
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (attacker.Id == CardId.ElShaddollConstruct && !attacker.IsDisabled()) // TODO: && defender.IsSpecialSummoned
-                    attacker.RealPower = 9999;
+                if (Enemy.HasInSpellZone(CardId.MoonMirrorShield))
+                {
+                    if (defender == ShieldTarget && defender.IsAttack())
+                        return false;
+                }
                 if (attacker.Id == CardId.UltimateConductorTytanno && !attacker.IsDisabled() && defender.IsDefense())
-                    attacker.RealPower = 9999;
+                    return true;
+                if (attacker.Id == CardId.ElShaddollConstruct && !attacker.IsDisabled()) // TODO: && defender.IsSpecialSummoned
+                    return true;       
+
             }
+           
+            
             return base.OnPreBattleBetween(attacker, defender);
         }
 

@@ -280,6 +280,14 @@ namespace WindBot.Game.AI
             return Duel.Turn == 1 || Duel.Phase == DuelPhase.Main2;
         }
 
+        public ClientCard GetChainTarget()
+        {
+            if (Duel.ChainTargets.Count>0)
+            return Duel.ChainTargets[0];           
+            return null;
+        }
+
+
         public bool IsChainTarget(ClientCard card)
         {
             foreach (ClientCard target in Duel.ChainTargets)
