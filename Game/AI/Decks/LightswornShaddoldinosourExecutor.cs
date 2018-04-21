@@ -69,7 +69,8 @@ namespace WindBot.Game.AI.Decks
             public const int MinervaTheExalte = 30100551;
             public const int Sdulldeat = 74997493;
             public const int CrystronNeedlefiber = 50588353;
-        }
+            public const int MoonMirrorShield = 19508728;
+        }  
 
         
 
@@ -93,7 +94,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.InterruptedKaijuSlumber, InterruptedKaijuSlumbereff);
             AddExecutor(ExecutorType.Activate, CardId.ShaddollFusion, ShaddollFusioneff);
             //Normal Summon            
-            AddExecutor(ExecutorType.Summon, CardId.Raiden);
+            AddExecutor(ExecutorType.Summon, CardId.Raiden, Raidensummon);
             AddExecutor(ExecutorType.Activate, CardId.Raiden);            
             AddExecutor(ExecutorType.Summon , CardId.KeeperOfDragonicMagic);
             AddExecutor(ExecutorType.Activate, CardId.KeeperOfDragonicMagic, KeeperOfDragonicMagiceff);
@@ -166,6 +167,10 @@ namespace WindBot.Game.AI.Decks
             
             AddExecutor(ExecutorType.Repos, MonsterRepos);
         }
+        private bool Raidensummon()
+        {           
+            return true;
+        }
         public int[] all_List()
         {
             return new[]
@@ -229,6 +234,7 @@ namespace WindBot.Game.AI.Decks
                 CardId.FoolishBurial,
             };
         }
+        ClientCard ShieldTarget=null;
         int Ultimate_ss = 0;
         int Enemy_atk = 0;
         bool Pillused = false;
@@ -336,6 +342,7 @@ namespace WindBot.Game.AI.Decks
                     foreach (ClientCard monster in check)
                         if (monster.Attack > 2500 || monster == Enemy.MonsterZone.GetDangerousMonster())
                             count++;
+                    if (Enemy.HasInSpellZone(CardId.MoonMirrorShield)) return true;
                     if(count==0)return false;
                 }               
                 if (!Bot.HasInHand(targets))
@@ -405,6 +412,7 @@ namespace WindBot.Game.AI.Decks
         private bool MonsterRepos()
         {            
             if (Card.Id == CardId.ElShaddollConstruct && Card.IsAttack()) return false;
+            if (Card.Id == CardId.GlowUpBulb && Card.IsDefense()) return false;
             if (Card.Id == CardId.ShaddollDragon && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
             if (Card.Id == CardId.ShaddollSquamata && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
             return base.DefaultMonsterRepos();
@@ -542,6 +550,13 @@ namespace WindBot.Game.AI.Decks
                 IList<ClientCard> grave = Bot.Graveyard;               
                 IList<ClientCard> all = new List<ClientCard>();
                 foreach (ClientCard check in grave)
+                {
+                    if (check.Id==CardId.GiantRex)
+                    {
+                        all.Add(check);
+                    }
+                }
+                foreach (ClientCard check in grave)
                     {
                         if(check.HasType(CardType.Spell)||check.HasType(CardType.Trap))
                         {
@@ -556,10 +571,7 @@ namespace WindBot.Game.AI.Decks
                         all.Add(check);
                     }
                 }
-                if (AI.Utils.GetLastChainCard()!=null)
-                {
-                    if (AI.Utils.GetLastChainCard().Id == CardId.FairyTailSnow) return false;
-                }
+                if (AI.Utils.ChainContainsCard(CardId.FairyTailSnow)) return false;
                 
 
                 if ( Duel.Player == 1  && Duel.Phase == DuelPhase.BattleStart && Bot.BattlingMonster == null && Enemy_atk >=Bot.LifePoints ||
@@ -579,8 +591,16 @@ namespace WindBot.Game.AI.Decks
         {
             if (!OvertexCoatlseff_used)
             {
-                AI.SelectCard(CardId.OvertexCoatls);
-                AI.SelectYesNo(false);
+                if(Bot.GetRemainingCount(CardId.OvertexCoatls,3)==0)
+                {
+                    AI.SelectCard(CardId.OvertexCoatls);
+                    AI.SelectYesNo(false);
+                }
+                else
+                {
+                    AI.SelectCard(CardId.UltimateConductorTytanno);
+                    AI.SelectYesNo(true);
+                }
             }
             else
             {
@@ -727,7 +747,8 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.HasType(CardType.Synchro) || monster.HasType(CardType.Fusion) || monster.HasType(CardType.Xyz))
+                if (monster.HasType(CardType.Synchro) || monster.HasType(CardType.Fusion) ||
+                    monster.HasType(CardType.Xyz) || monster.HasType(CardType.Link))
                     deck_check = true;
             }
 
@@ -891,6 +912,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                if (Enemy.GetMonsterCount() == 0) return false;
                 ClientCard target = AI.Utils.GetBestEnemyMonster();
                 AI.SelectCard(target);
                 if (Enemy.GetMonsterCount() == 0)
@@ -972,6 +994,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                if (Enemy.GetSpellCount() == 0) return false;
                 ClientCard target = AI.Utils.GetBestEnemySpell();
                 AI.SelectCard(target);
                 return true;
@@ -981,10 +1004,14 @@ namespace WindBot.Game.AI.Decks
         
         private bool LostWindeff()
         {
+            if (Card.Location == CardLocation.Grave)
+                return true;
             List<ClientCard> check = Enemy.GetMonsters();
             foreach (ClientCard m in check)
             {
-                if (m.Attack>=2000) return DefaultBreakthroughSkill();
+                if (m.HasType(CardType.Synchro) || m.HasType(CardType.Fusion)||
+                    m.HasType(CardType.Link) || m.HasType(CardType.Xyz) ||
+                    m.Level>=5)return DefaultBreakthroughSkill();
             }
             return false;            
         }
@@ -1157,6 +1184,7 @@ namespace WindBot.Game.AI.Decks
                 
             else if (Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && AI.Utils.IsOneEnemyBetterThanValue(1500, true))
             {
+               
                 AI.SelectCard(CardId.TG_WonderMagician);
                 if (AI.Utils.IsOneEnemyBetterThanValue(1900, true))
                 {
@@ -1285,16 +1313,48 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+        public override void OnChaining(int player, ClientCard card)
+        {
+            if(ShieldTarget==null)
+            {
+                if (Enemy.HasInSpellZone(CardId.MoonMirrorShield))
+                {
+                    ShieldTarget = AI.Utils.GetChainTarget();
+                    
+                }
+                else
+                    ShieldTarget = null;
+            }          
+        
+        }
+        /* public override MainPhaseAction OnSelectIdleCmd(MainPhase main)
+         {
+
+             
+             return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase);
+         }*/
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
+            if (!Enemy.HasInSpellZone(CardId.MoonMirrorShield))
+            {
+                ShieldTarget = null;
+            }
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (attacker.Id == CardId.ElShaddollConstruct && !attacker.IsDisabled()) // TODO: && defender.IsSpecialSummoned
-                    attacker.RealPower = 9999;
+                if (Enemy.HasInSpellZone(CardId.MoonMirrorShield))
+                {
+                    if (defender == ShieldTarget && defender.IsAttack())
+                        return false;
+                }
                 if (attacker.Id == CardId.UltimateConductorTytanno && !attacker.IsDisabled() && defender.IsDefense())
-                    attacker.RealPower = 9999;
+                    return true;
+                if (attacker.Id == CardId.ElShaddollConstruct && !attacker.IsDisabled()) // TODO: && defender.IsSpecialSummoned
+                    return true;       
+
             }
+           
+            
             return base.OnPreBattleBetween(attacker, defender);
         }
 
