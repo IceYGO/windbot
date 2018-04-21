@@ -135,7 +135,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.MinervaTheExalte, MinervaTheExaltedEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.CrystronNeedlefiber, CrystronNeedlefibersp);
             //Kaiju
-            AddExecutor(ExecutorType.SpSummon, CardId.GamecieltheSeaTurtleKaiju, DefaultKaijuSpsummon);            
+            AddExecutor(ExecutorType.SpSummon, CardId.GamecieltheSeaTurtleKaiju, GamecieltheSeaTurtleKaijusp);            
             AddExecutor(ExecutorType.SpSummon, CardId.RadiantheMultidimensionalKaiju, RadiantheMultidimensionalKaijusp);
             AddExecutor(ExecutorType.SpSummon, CardId.DogorantheMadFlameKaiju, DogorantheMadFlameKaijusp);
             //Reborn
@@ -362,11 +362,18 @@ namespace WindBot.Game.AI.Decks
             
         }
 
+        private bool GamecieltheSeaTurtleKaijusp()
+        {
+            if(!Bot.HasInMonstersZone(CardId.UltimateConductorTytanno))
+                return DefaultKaijuSpsummon();
+            return false;
+        }
 
         private bool RadiantheMultidimensionalKaijusp()
         {
             if (Enemy.HasInMonstersZone(CardId.GamecieltheSeaTurtleKaiju)) return true;
-            if (Bot.HasInHand(CardId.DogorantheMadFlameKaiju)) return DefaultKaijuSpsummon();
+            if (Bot.HasInHand(CardId.DogorantheMadFlameKaiju) && !Bot.HasInMonstersZone(CardId.UltimateConductorTytanno))
+                return DefaultKaijuSpsummon();
             return false;
         }
 
@@ -410,7 +417,9 @@ namespace WindBot.Game.AI.Decks
         }
 
         private bool MonsterRepos()
-        {            
+        {
+            if (Card.Id == CardId.UltimateConductorTytanno && Card.IsFacedown()) return true;
+            if (Card.Id == CardId.ElShaddollConstruct && Card.IsFacedown()) return true; 
             if (Card.Id == CardId.ElShaddollConstruct && Card.IsAttack()) return false;
             if (Card.Id == CardId.GlowUpBulb && Card.IsDefense()) return false;
             if (Card.Id == CardId.ShaddollDragon && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
@@ -526,12 +535,13 @@ namespace WindBot.Game.AI.Decks
         
         private bool FairyTailSnowsummon()
         {
-            IList<ClientCard> list = Enemy.GetMonsters();
-            if(list!=null)
+            IList<ClientCard> list = new List<ClientCard>();
+            foreach (ClientCard monster in Enemy.GetMonsters())
             {
-                if(list.GetHighestAttackMonster().IsFaceup())
-                return true;
-            }            
+                if (monster.IsAttack())
+                    list.Add(monster);
+            }
+            if (list != null) return true;
             return false;
         }
 
@@ -592,7 +602,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!OvertexCoatlseff_used)
             {
-                if(Bot.GetRemainingCount(CardId.OvertexCoatls,3)==0)
+                if(Bot.GetRemainingCount(CardId.OvertexCoatls,3)>0)
                 {
                     AI.SelectCard(CardId.OvertexCoatls);
                     AI.SelectYesNo(false);
@@ -739,10 +749,12 @@ namespace WindBot.Game.AI.Decks
 
 
         private bool ShaddollFusioneff()
-        {
+        {            
             List<ClientCard> extra_zone_check = Bot.GetMonstersInExtraZone();
             foreach (ClientCard extra_monster in extra_zone_check)
-                if (extra_monster.HasType(CardType.Xyz) || extra_monster.HasType(CardType.Fusion)) return false;
+                if (extra_monster.HasType(CardType.Xyz) || extra_monster.HasType(CardType.Fusion) ||
+                    extra_monster.HasType(CardType.Synchro)
+                    ) return false;
 
             bool deck_check = false;
             List<ClientCard> monsters = Enemy.GetMonsters();
@@ -766,12 +778,11 @@ namespace WindBot.Game.AI.Decks
                       {
                     CardId.ShaddollSquamata,
                     CardId.ShaddollBeast,
-
                     CardId.ShaddollHedgehog,
                     CardId.ShaddollDragon,
                     CardId.ShaddollFalco,
-
-                });
+                    CardId.FairyTailSnow,
+                });               
                 AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
             }
@@ -1316,6 +1327,8 @@ namespace WindBot.Game.AI.Decks
         }
         public override void OnChaining(int player, ClientCard card)
         {
+           // Logger.DebugWriteLine("current chain = " + Duel.CurrentChain.Count);
+           
             if(ShieldTarget==null)
             {
                 if (Enemy.HasInSpellZone(CardId.MoonMirrorShield))
@@ -1349,9 +1362,15 @@ namespace WindBot.Game.AI.Decks
                         return false;
                 }
                 if (attacker.Id == CardId.UltimateConductorTytanno && !attacker.IsDisabled() && defender.IsDefense())
+                {
+                    attacker.RealPower = 9999;
                     return true;
+                }                    
                 if (attacker.Id == CardId.ElShaddollConstruct && !attacker.IsDisabled()) // TODO: && defender.IsSpecialSummoned
-                    return true;       
+                {
+                    attacker.RealPower = 9999;
+                    return true;
+                }
 
             }
            
