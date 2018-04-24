@@ -261,7 +261,7 @@ namespace WindBot.Game.AI
         /// </summary>       
         public ClientCard GetBestEnemyCardSkipUneffect(bool onlyFaceup = false)
         {
-            ClientCard card = GetBestEnemyMonster(onlyFaceup);
+            ClientCard card = GetBestEnemyMonsterSkipUneffect(onlyFaceup);
             if (card != null)
                 return card;
 
