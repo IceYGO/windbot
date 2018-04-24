@@ -88,9 +88,6 @@ namespace WindBot.Game.AI
 
             if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (defender.IsMonsterInvincible() && defender.IsDefense())
-                    return false;
-
                 if (defender.IsMonsterDangerous())
                 {
                     bool canignoreit = false;
@@ -99,6 +96,8 @@ namespace WindBot.Game.AI
                     if (!canignoreit)
                         return false;
                 }
+                if (defender.IsMonsterInvincible() && defender.IsDefense())
+                    return false;               
 
                 if (defender.Id == _CardId.CrystalWingSynchroDragon && defender.IsAttack() && !defender.IsDisabled() && attacker.Level >= 5)
                     return false;
