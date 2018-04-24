@@ -88,17 +88,11 @@ namespace WindBot.Game.AI
 
             if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (defender.IsMonsterDangerous())
-                {
-                    bool canignoreit = false;
-                    if (attacker.Id == _CardId.UltimateConductorTytanno && !attacker.IsDisabled() && defender.IsDefense())
-                        canignoreit = true;
-                    if (!canignoreit)
-                        return false;
-                }
+                
                 if (defender.IsMonsterInvincible() && defender.IsDefense())
-                    return false;               
-
+                    return false;
+                if (defender.IsMonsterDangerous())
+                    return false;
                 if (defender.Id == _CardId.CrystalWingSynchroDragon && defender.IsAttack() && !defender.IsDisabled() && attacker.Level >= 5)
                     return false;
 

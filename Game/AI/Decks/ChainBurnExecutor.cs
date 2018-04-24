@@ -591,6 +591,11 @@ namespace WindBot.Game.AI.Decks
         }
         private bool CardOfDemiseeff()
         {
+            foreach (ClientCard card in Bot.GetMonsters())
+            {
+                if (card.Id == CardId.CardcarD && card.IsFaceup())
+                    return false;
+            }
             if (Bot.GetHandCount() == 1 && Bot.GetSpellCountWithoutField() <= 3)
             {
                 no_sp = true;
