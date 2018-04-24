@@ -37,13 +37,28 @@
       },
       {
         "name": "复制植物",
-        "deck": "Zoodiac",
+        "deck": "Blue-Eyes",
         "dialog": "copy.zh-CN"
       },
       {
         "name": "复制植物",
         "deck": "Blue-Eyes",
         "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "复制梁龙",
+        "deck": "SkyStriker",
+        "dialog": "anothercopy.zh-CN"
+      },
+      {
+        "name": "复制梁龙",
+        "deck": "SkyStriker",
+        "dialog": "anothercopy.zh-CN"
+      },
+      {
+        "name": "复制梁龙",
+        "deck": "SkyStriker",
+        "dialog": "anothercopy.zh-CN"
       },
       {
         "name": "尼亚",
@@ -53,11 +68,6 @@
       {
         "name": "尼亚",
         "deck": "Qliphort",
-        "dialog": "near.zh-CN"
-      },
-      {
-        "name": "尼亚",
-        "deck": "Trickstar",
         "dialog": "near.zh-CN"
       },
       {
