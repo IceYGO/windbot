@@ -205,6 +205,9 @@ namespace WindBot.Game.AI
             return card;
         }
 
+        /// <summary>
+        /// GetBestEnemyCard except UltimateFalcon
+        /// </summary>       
         public ClientCard GetBestEnemyCard(bool onlyFaceup = false)
         {
             ClientCard card = GetBestEnemyMonster(onlyFaceup);
@@ -218,14 +221,17 @@ namespace WindBot.Game.AI
             return null;
         }
 
+        /// <summary>
+        /// GetBestEnemyMonster except UltimateFalcon
+        /// </summary>       
         public ClientCard GetBestEnemyMonster(bool onlyFaceup = false)
         {
             ClientCard card = GetProblematicEnemyMonster();
-            if (card != null)
+            if (card != null && card.Id!= 86221741)
                 return card;
 
             card = Enemy.MonsterZone.GetHighestAttackMonster();
-            if (card != null)
+            if (card != null && card.Id != 86221741)
                 return card;
 
             List<ClientCard> monsters = Enemy.GetMonsters();
