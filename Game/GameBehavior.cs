@@ -1016,60 +1016,63 @@ namespace WindBot.Game
 
             bool pendulumZone = false;
 
+            byte LOCATION_MZONE = 0x4;
+            byte LOCATION_SZONE = 0x8;
+
             int filter;
             if ((field & 0x7f) != 0)
             {
                 resp[0] = (byte)GetLocalPlayer(0);
-                resp[1] = 0x4;
-                filter = field & 0x7f;
+                resp[1] = LOCATION_MZONE;
+                filter = field & (int)Zones.MonsterZones;
             }
             else if ((field & 0x1f00) != 0)
             {
                 resp[0] = (byte)GetLocalPlayer(0);
-                resp[1] = 0x8;
-                filter = (field >> 8) & 0x1f;
+                resp[1] = LOCATION_SZONE;
+                filter = (field >> 8) & (int)Zones.SpellZones;
             }
             else if ((field & 0xc000) != 0)
             {
                 resp[0] = (byte)GetLocalPlayer(0);
-                resp[1] = 0x8;
-                filter = (field >> 14) & 0x3;
+                resp[1] = LOCATION_SZONE;
+                filter = (field >> 14) & (int)Zones.PendulumZones;
                 pendulumZone = true;
             }
             else if ((field & 0x7f0000) != 0)
             {
                 resp[0] = (byte)GetLocalPlayer(1);
-                resp[1] = 0x4;
-                filter = (field >> 16) & 0x7f;
+                resp[1] = LOCATION_MZONE;
+                filter = (field >> 16) & (int)Zones.MonsterZones;
             }
             else if ((field & 0x1f000000) != 0)
             {
                 resp[0] = (byte) GetLocalPlayer(1);
-                resp[1] = 0x8;
-                filter = (field >> 24) & 0x1f;
+                resp[1] = LOCATION_SZONE;
+                filter = (field >> 24) & (int)Zones.SpellZones;
             }
             else
             {
                 resp[0] = (byte) GetLocalPlayer(1);
-                resp[1] = 0x8;
-                filter = (field >> 30) & 0x3;
+                resp[1] = LOCATION_SZONE;
+                filter = (field >> 30) & (int)Zones.PendulumZones;
                 pendulumZone = true;
             }
 
             if (!pendulumZone)
             {
-                if ((filter & 0x40) != 0) resp[2] = 6;
-                else if ((filter & 0x20) != 0) resp[2] = 5;
-                else if ((filter & 0x4) != 0) resp[2] = 2;
-                else if ((filter & 0x2) != 0) resp[2] = 1;
-                else if ((filter & 0x8) != 0) resp[2] = 3;
-                else if ((filter & 0x1) != 0) resp[2] = 0;
-                else if ((filter & 0x10) != 0) resp[2] = 4;
+                if ((filter & (int)Zones.z6) != 0) resp[2] = 6;
+                else if ((filter & (int)Zones.z5) != 0) resp[2] = 5;
+                else if ((filter & (int)Zones.z2) != 0) resp[2] = 2;
+                else if ((filter & (int)Zones.z1) != 0) resp[2] = 1;
+                else if ((filter & (int)Zones.z3) != 0) resp[2] = 3;
+                else if ((filter & (int)Zones.z0) != 0) resp[2] = 0;
+                else if ((filter & (int)Zones.z4) != 0) resp[2] = 4;
             }
             else
             {
-                if ((filter & 0x1) != 0) resp[2] = 6;
-                if ((filter & 0x2) != 0) resp[2] = 7;
+                if ((filter & (int)Zones.z0) != 0) resp[2] = 6;
+                if ((filter & (int)Zones.z1) != 0) resp[2] = 7;
             }
 
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);

@@ -103,6 +103,7 @@
     <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
     <Compile Include="Game\AI\Enums\Floodgate.cs" />
     <Compile Include="Game\AI\Executor.cs" />
+    <Compile Include="Game\AI\Zones.cs" />
     <Compile Include="Game\AI\ExecutorType.cs" />
     <Compile Include="Game\BattlePhase.cs" />
     <Compile Include="Game\BattlePhaseAction.cs" />
