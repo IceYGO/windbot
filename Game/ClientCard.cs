@@ -154,6 +154,11 @@ namespace WindBot.Game
             return HasType(CardType.Monster);
         }
 
+        public bool IsTuner()
+        {
+            return HasType(CardType.Tuner);
+        }
+
         public bool IsSpell()
         {
             return HasType(CardType.Spell);

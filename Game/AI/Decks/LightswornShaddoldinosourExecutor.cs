@@ -134,7 +134,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.MinervaTheExalte, MinervaTheExaltedEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.CrystronNeedlefiber, CrystronNeedlefibersp);
             //Kaiju
-            AddExecutor(ExecutorType.SpSummon, CardId.GamecieltheSeaTurtleKaiju, DefaultKaijuSpsummon);            
+            AddExecutor(ExecutorType.SpSummon, CardId.GamecieltheSeaTurtleKaiju, GamecieltheSeaTurtleKaijusp);            
             AddExecutor(ExecutorType.SpSummon, CardId.RadiantheMultidimensionalKaiju, RadiantheMultidimensionalKaijusp);
             AddExecutor(ExecutorType.SpSummon, CardId.DogorantheMadFlameKaiju, DogorantheMadFlameKaijusp);
             //Reborn
@@ -355,11 +355,17 @@ namespace WindBot.Game.AI.Decks
             
         }
 
+        private bool GamecieltheSeaTurtleKaijusp()
+        {
+            if (!Bot.HasInMonstersZone(CardId.UltimateConductorTytanno))
+                return DefaultKaijuSpsummon();
+            return false;
+        }
 
         private bool RadiantheMultidimensionalKaijusp()
         {
             if (Enemy.HasInMonstersZone(CardId.GamecieltheSeaTurtleKaiju)) return true;
-            if (Bot.HasInHand(CardId.DogorantheMadFlameKaiju)) return DefaultKaijuSpsummon();
+            if (Bot.HasInHand(CardId.DogorantheMadFlameKaiju) && !Bot.HasInMonstersZone(CardId.UltimateConductorTytanno)) return DefaultKaijuSpsummon();
             return false;
         }
 
@@ -403,8 +409,11 @@ namespace WindBot.Game.AI.Decks
         }
 
         private bool MonsterRepos()
-        {            
+        {
+            if (Card.Id == CardId.UltimateConductorTytanno && Card.IsFacedown()) return true;
+            if (Card.Id == CardId.ElShaddollConstruct && Card.IsFacedown()) return true;
             if (Card.Id == CardId.ElShaddollConstruct && Card.IsAttack()) return false;
+            if (Card.Id == CardId.GlowUpBulb && Card.IsDefense()) return false;
             if (Card.Id == CardId.ShaddollDragon && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
             if (Card.Id == CardId.ShaddollSquamata && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
             return base.DefaultMonsterRepos();
@@ -542,6 +551,13 @@ namespace WindBot.Game.AI.Decks
                 IList<ClientCard> grave = Bot.Graveyard;               
                 IList<ClientCard> all = new List<ClientCard>();
                 foreach (ClientCard check in grave)
+                {
+                    if (check.Id == CardId.GiantRex)
+                    {
+                        all.Add(check);
+                    }
+                }
+                foreach (ClientCard check in grave)
                     {
                         if(check.HasType(CardType.Spell)||check.HasType(CardType.Trap))
                         {
@@ -556,11 +572,7 @@ namespace WindBot.Game.AI.Decks
                         all.Add(check);
                     }
                 }
-                if (AI.Utils.GetLastChainCard()!=null)
-                {
-                    if (AI.Utils.GetLastChainCard().Id == CardId.FairyTailSnow) return false;
-                }
-                
+                if (AI.Utils.ChainContainsCard(CardId.FairyTailSnow)) return false;
 
                 if ( Duel.Player == 1  && Duel.Phase == DuelPhase.BattleStart && Bot.BattlingMonster == null && Enemy_atk >=Bot.LifePoints ||
                     Duel.Player == 0 && Duel.Phase==DuelPhase.BattleStart && Enemy.BattlingMonster == null && Enemy.LifePoints<=1850
@@ -577,7 +589,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SouleatingOviraptoreff()
         {
-            if (!OvertexCoatlseff_used)
+            if (!OvertexCoatlseff_used && Bot.GetRemainingCount(CardId.OvertexCoatls, 3) > 0)
             {
                 AI.SelectCard(CardId.OvertexCoatls);
                 AI.SelectYesNo(false);
@@ -721,13 +733,13 @@ namespace WindBot.Game.AI.Decks
         {
             List<ClientCard> extra_zone_check = Bot.GetMonstersInExtraZone();
             foreach (ClientCard extra_monster in extra_zone_check)
-                if (extra_monster.HasType(CardType.Xyz) || extra_monster.HasType(CardType.Fusion)) return false;
+                if (extra_monster.HasType(CardType.Xyz) || extra_monster.HasType(CardType.Fusion) || extra_monster.HasType(CardType.Synchro)) return false;
 
             bool deck_check = false;
             List<ClientCard> monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.HasType(CardType.Synchro) || monster.HasType(CardType.Fusion) || monster.HasType(CardType.Xyz))
+                if (monster.HasType(CardType.Synchro) || monster.HasType(CardType.Fusion) || monster.HasType(CardType.Xyz) || monster.HasType(CardType.Link))
                     deck_check = true;
             }
 
@@ -748,7 +760,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.ShaddollHedgehog,
                     CardId.ShaddollDragon,
                     CardId.ShaddollFalco,
-
+                    CardId.FairyTailSnow,
                 });
                 AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
@@ -891,11 +903,9 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                if (Enemy.GetMonsterCount() == 0) return false;
                 ClientCard target = AI.Utils.GetBestEnemyMonster();
                 AI.SelectCard(target);
-                if (Enemy.GetMonsterCount() == 0)
-                    return false;
-
             }
             return true;
         }
@@ -972,6 +982,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                if (Enemy.GetSpellCount() == 0) return false;
                 ClientCard target = AI.Utils.GetBestEnemySpell();
                 AI.SelectCard(target);
                 return true;
@@ -981,6 +992,8 @@ namespace WindBot.Game.AI.Decks
         
         private bool LostWindeff()
         {
+            if (Card.Location == CardLocation.Grave)
+                return true;
             List<ClientCard> check = Enemy.GetMonsters();
             foreach (ClientCard m in check)
             {
