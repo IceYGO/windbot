@@ -224,6 +224,7 @@ namespace WindBot.Game.AI
             return card;
         }
 
+
         public ClientCard GetBestEnemyCard(bool onlyFaceup = false)
         {
             ClientCard card = GetBestEnemyMonster(onlyFaceup);
@@ -245,6 +246,43 @@ namespace WindBot.Game.AI
 
             card = Enemy.MonsterZone.GetHighestAttackMonster();
             if (card != null)
+                return card;
+
+            List<ClientCard> monsters = Enemy.GetMonsters();
+
+            // after GetHighestAttackMonster, the left monsters must be face-down.
+            if (monsters.Count > 0 && !onlyFaceup)
+                return monsters[0];
+
+            return null;
+        }
+        /// <summary>
+        /// GetBestEnemyCard except UltimateFalcon,BorreloadDragon
+        /// </summary>       
+        public ClientCard GetBestEnemyCardSkipUneffect(bool onlyFaceup = false)
+        {
+            ClientCard card = GetBestEnemyMonsterSkipUneffect(onlyFaceup);
+            if (card != null)
+                return card;
+
+            card = GetBestEnemySpell(onlyFaceup);
+            if (card != null)
+                return card;
+
+            return null;
+        }
+
+        /// <summary>
+        /// GetBestEnemyMonster except UltimateFalcon,BorreloadDragon
+        /// </summary>       
+        public ClientCard GetBestEnemyMonsterSkipUneffect(bool onlyFaceup = false)
+        {
+            ClientCard card = GetProblematicEnemyMonster();
+            if (card != null && card.Id!= 86221741 && card.Id != 31833038)
+                return card;
+
+            card = Enemy.MonsterZone.GetHighestAttackMonster();
+            if (card != null && card.Id != 86221741 && card.Id != 31833038)
                 return card;
 
             List<ClientCard> monsters = Enemy.GetMonsters();
@@ -298,6 +336,14 @@ namespace WindBot.Game.AI
         {
             return Duel.Turn == 1 || Duel.Phase == DuelPhase.Main2;
         }
+
+        public ClientCard GetChainTarget()
+        {
+            if (Duel.ChainTargets.Count>0)
+            return Duel.ChainTargets[0];           
+            return null;
+        }
+
 
         public bool IsChainTarget(ClientCard card)
         {
