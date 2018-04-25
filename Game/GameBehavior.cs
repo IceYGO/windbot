@@ -1012,67 +1012,79 @@ namespace WindBot.Game
             packet.ReadByte(); // min
             int field = ~packet.ReadInt32();
 
-            byte[] resp = new byte[3];
+            const int LOCATION_MZONE = 0x4;
+            const int LOCATION_SZONE = 0x8;
+            const int LOCATION_PZONE = 0x200;
 
-            bool pendulumZone = false;
-
-            byte LOCATION_MZONE = 0x4;
-            byte LOCATION_SZONE = 0x8;
-
+            int player;
+            int location;
             int filter;
+
             if ((field & 0x7f) != 0)
             {
-                resp[0] = (byte)GetLocalPlayer(0);
-                resp[1] = LOCATION_MZONE;
-                filter = field & (int)Zones.MonsterZones;
+                player = 0;
+                location = LOCATION_MZONE;
+                filter = field & Zones.MonsterZones;
             }
             else if ((field & 0x1f00) != 0)
             {
-                resp[0] = (byte)GetLocalPlayer(0);
-                resp[1] = LOCATION_SZONE;
-                filter = (field >> 8) & (int)Zones.SpellZones;
+                player = 0;
+                location = LOCATION_SZONE;
+                filter = (field >> 8) & Zones.SpellZones;
             }
             else if ((field & 0xc000) != 0)
             {
-                resp[0] = (byte)GetLocalPlayer(0);
-                resp[1] = LOCATION_SZONE;
-                filter = (field >> 14) & (int)Zones.PendulumZones;
-                pendulumZone = true;
+                player = 0;
+                location = LOCATION_PZONE;
+                filter = (field >> 14) & Zones.PendulumZones;
             }
             else if ((field & 0x7f0000) != 0)
             {
-                resp[0] = (byte)GetLocalPlayer(1);
-                resp[1] = LOCATION_MZONE;
-                filter = (field >> 16) & (int)Zones.MonsterZones;
+                player = 1;
+                location = LOCATION_MZONE;
+                filter = (field >> 16) & Zones.MonsterZones;
             }
             else if ((field & 0x1f000000) != 0)
             {
-                resp[0] = (byte) GetLocalPlayer(1);
-                resp[1] = LOCATION_SZONE;
-                filter = (field >> 24) & (int)Zones.SpellZones;
+                player = 1;
+                location = LOCATION_SZONE;
+                filter = (field >> 24) & Zones.SpellZones;
             }
             else
             {
-                resp[0] = (byte) GetLocalPlayer(1);
-                resp[1] = LOCATION_SZONE;
-                filter = (field >> 30) & (int)Zones.PendulumZones;
-                pendulumZone = true;
+                player = 1;
+                location = LOCATION_PZONE;
+                filter = (field >> 30) & Zones.PendulumZones;
             }
 
-            if (!pendulumZone)
+            int selected = _ai.OnSelectPlace(_select_hint, player, location, filter);
+            _select_hint = 0;
+
+            byte[] resp = new byte[3];
+            resp[0] = (byte)GetLocalPlayer(player);
+
+            if (location != LOCATION_PZONE)
             {
-                if ((filter & (int)Zones.z6) != 0) resp[2] = 6;
-                else if ((filter & (int)Zones.z5) != 0) resp[2] = 5;
-                else if ((filter & (int)Zones.z2) != 0) resp[2] = 2;
-                else if ((filter & (int)Zones.z1) != 0) resp[2] = 1;
-                else if ((filter & (int)Zones.z3) != 0) resp[2] = 3;
-                else if ((filter & (int)Zones.z0) != 0) resp[2] = 0;
-                else if ((filter & (int)Zones.z4) != 0) resp[2] = 4;
+                resp[1] = (byte)location;
+                if ((selected & filter) > 0)
+                    filter &= selected;
+
+                if ((filter & Zones.z6) != 0) resp[2] = 6;
+                else if ((filter & Zones.z5) != 0) resp[2] = 5;
+                else if ((filter & Zones.z2) != 0) resp[2] = 2;
+                else if ((filter & Zones.z1) != 0) resp[2] = 1;
+                else if ((filter & Zones.z3) != 0) resp[2] = 3;
+                else if ((filter & Zones.z0) != 0) resp[2] = 0;
+                else if ((filter & Zones.z4) != 0) resp[2] = 4;
             }
             else
             {
-                if ((filter & (int)Zones.z0) != 0) resp[2] = 6;
-                if ((filter & (int)Zones.z1) != 0) resp[2] = 7;
+                resp[1] = (byte)LOCATION_SZONE;
+                if ((selected & filter) > 0)
+                    filter &= selected;
+
+                if ((filter & Zones.z0) != 0) resp[2] = 6;
+                if ((filter & Zones.z1) != 0) resp[2] = 7;
             }
 
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);

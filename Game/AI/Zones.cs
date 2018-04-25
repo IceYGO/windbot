@@ -1,8 +1,8 @@
 ﻿namespace WindBot.Game.AI
 {
-    public enum Zones
+    public static class Zones
     {
-        z0 = 0x1,
+        public const int z0 = 0x1,
         z1 = 0x2,
         z2 = 0x4,
         z3 = 0x8,
@@ -19,6 +19,6 @@
         PendulumZones = 0x3,
 
         LinkedZones = 0x10000,
-        NotLinkedZones = 0x20000
+        NotLinkedZones = 0x20000;
     }
 }
