@@ -292,7 +292,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (CanDealWithUsedAlternativeWhiteDragon())
             {
-                target = AI.Utils.GetBestEnemyMonster();
+                target = AI.Utils.GetBestEnemyMonster(false, true);
                 AI.SelectCard(target);
                 UsedAlternativeWhiteDragon.Add(Card);
                 return true;

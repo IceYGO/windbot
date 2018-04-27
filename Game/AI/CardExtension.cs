@@ -29,6 +29,38 @@ namespace WindBot.Game.AI
             return !card.IsDisabled() && Enum.IsDefined(typeof(PreventActivationEffectInBattle), card.Id);
         }
 
+        /// <summary>
+        /// Is this card shouldn't be tried to be selected as target?
+        /// </summary>
+        public static bool IsShouldNotBeTarget(this ClientCard card)
+        {
+            return !card.IsDisabled() && Enum.IsDefined(typeof(ShouldNotBeTarget), card.Id);
+        }
+
+        /// <summary>
+        /// Is this card shouldn't be tried to be selected as target of monster?
+        /// </summary>
+        public static bool IsShouldNotBeMonsterTarget(this ClientCard card)
+        {
+            return !card.IsDisabled() && Enum.IsDefined(typeof(ShouldNotBeMonsterTarget), card.Id);
+        }
+
+        /// <summary>
+        /// Is this card shouldn't be tried to be selected as target of spell & trap?
+        /// </summary>
+        public static bool IsShouldNotBeSpellTrapTarget(this ClientCard card)
+        {
+            return !card.IsDisabled() && Enum.IsDefined(typeof(ShouldNotBeSpellTrapTarget), card.Id);
+        }
+
+        /// <summary>
+        /// Is this monster should be disabled (with Breakthrough Skill) before it use effect and release or banish itself?
+        /// </summary>
+        public static bool IsMonsterShouldBeDisabledBeforeItUseEffect(this ClientCard card)
+        {
+            return !card.IsDisabled() && Enum.IsDefined(typeof(ShouldBeDisabledBeforeItUseEffectMonster), card.Id);
+        }
+
         public static bool IsFloodgate(this ClientCard card)
         {
             return Enum.IsDefined(typeof(Floodgate), card.Id);
