@@ -1,0 +1,53 @@
+﻿namespace WindBot.Game.AI.Enums
+{
+    /// <summary>
+    /// Link Monster that has up link marker
+    /// </summary>
+    public enum HasUpLinkMonster
+    {
+        TopologicBomberDragon = 5821478,
+        BorrelswordDragon = 85289965,
+        TopologicBambleDragon = 100227043,
+        BorrelguardDragon = 100227044,
+        GoukiTheMasterOgre = 30286474,
+        TrickstarBellaMadonna = 41302052,
+        SkulldeatTheChainedDracoserpent = 74997493,
+        FirewallDragon = 5043010,
+        TroymareGryphon = 65330383,
+        ArcanaExtraJoker = 64454614,
+        NingirsuTheWorldChaliceWarrior = 3019452,
+        TopologicTrisbaena = 72529749,
+        VectorSquareArchfiend = 13452889,
+        ThreeBurstBlasetDragon = 49725936,
+        SummonSorceress = 616665245,
+        CuriousTheLightswornDominion = 98095162,
+        DecideTalker = 1861629,
+        EncodeTalker = 6622715,
+        ExcodeTalker = 40669071,
+        TranscodeTalder = 46947713,
+        TrickstarDelfiendium = 3792766,
+        GoukiThunderOgre = 30010480,
+        TriGateWizard = 32619464,
+        TrickstarFoxywith = 86750474,
+        ArchlordPalladion = 45002991,
+        VLANHtdran = 13536606,
+        TindangleAcuteCerberus = 75119040,
+        SteelswarmOrigin = 61888819,
+        XtraHeroWonderDriver = 1948619,
+        TroymarePhoenix = 2859636,
+        AkashicMagician = 28776350,
+        Pentestag = 72336818,
+        TronmareCerberus = 75452921,
+        DoubleByteDragon = 23971061,
+        LinkBumper = 67231737,
+        GodeTaker = 53413628,
+        SpaceInSulator = 4914353,
+        SecurityDragon = 99111753,
+        RegulexPalladion = 9617996,
+        GoukiShadowOgre = 10552026,
+        Riplodocus = 34989413,
+        ImdukTheWorldChaliceDragon = 31226177,
+        LinkDevotee = 48068378,
+        VentriloquistsClaraAndLucika = 1482001,
+    }
+}
