@@ -98,6 +98,14 @@
     <Compile Include="Game\AI\Dialogs.cs" />
     <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
     <Compile Include="Game\AI\Enums\FusionSpell.cs" />
+    <Compile Include="Game\AI\Enums\HasDownLinkMonster.cs" />
+    <Compile Include="Game\AI\Enums\HasLeftDownLinkMonster.cs" />
+    <Compile Include="Game\AI\Enums\HasLeftLinkMonster.cs" />
+    <Compile Include="Game\AI\Enums\HasLeftUpLinkMonster.cs" />
+    <Compile Include="Game\AI\Enums\HasRightDownLinkMonster.cs" />
+    <Compile Include="Game\AI\Enums\HasRightLinkMonster.cs" />
+    <Compile Include="Game\AI\Enums\HasRightUpLinkMonster.cs" />
+    <Compile Include="Game\AI\Enums\HasUpLinkMonster.cs" />
     <Compile Include="Game\AI\Enums\ShouldBeDisabledBeforeItUseEffectMonster.cs" />
     <Compile Include="Game\AI\Enums\ShouldNotBeSpellTarget.cs" />
     <Compile Include="Game\AI\Enums\ShouldNotBeMonsterTarget.cs" />
