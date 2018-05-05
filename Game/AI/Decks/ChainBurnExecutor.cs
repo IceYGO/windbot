@@ -363,8 +363,44 @@ namespace WindBot.Game.AI.Decks
             {
                 Logger.DebugWriteLine(" one_turn_kill");
                 one_turn_kill = true;
-            }            
-        }
+            }
+            expected_blood = 0;
+            if (greed_count >= 2) greed_count = 1;
+            if (blast_count >= 2) blast_count = 1;
+            if (just_count >= 2) just_count = 1;
+            if (barrel_count >= 2) barrel_count = 1;
+            if (Waboku_count >= 2) Waboku_count = 1;
+            if (Roar_count >= 2) Roar_count = 1;
+            int currentchain = 0;
+            if (OjamaTrioused_do)
+                currentchain = Duel.CurrentChain.Count + blast_count + just_count + barrel_count + Waboku_count + Waboku_count + Roar_count + greed_count + Ojama_count;
+            else
+                currentchain = Duel.CurrentChain.Count + blast_count + just_count + barrel_count + Waboku_count + Waboku_count + greed_count + Roar_count;
+            //if (currentchain >= 3 && Duel.Player == 1) drawfirst = true;
+            if (Bot.HasInSpellZone(CardId.ChainStrike))
+            {
+                if (strike_count == 1)
+                {
+                    if (OjamaTrioused_do)
+                        expected_blood = ((Enemy.GetMonsterCount() + 3) * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count + (currentchain + 1) * 400);
+                    else
+                        expected_blood = (Enemy.GetMonsterCount() * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count + (currentchain + 1) * 400);
+                }
+                else
+                {
+                    if (OjamaTrioused_do)
+                        expected_blood = ((Enemy.GetMonsterCount() + 3) * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count + (currentchain + 1 + currentchain + 2) * 400);
+                    else
+                        expected_blood = (Enemy.GetMonsterCount() * 500 * just_count + Enemy.GetFieldHandCount() * 200 * barrel_count + Enemy.GetFieldCount() * 300 * blast_count + (currentchain + 1 + currentchain + 2) * 400);
+                }
+                if (!one_turn_kill && Enemy.LifePoints <= expected_blood && Duel.Player == 1)
+                {
+                    Logger.DebugWriteLine(" %%%%%%%%%%%%%%%%%one_turn_kill_1");
+                    one_turn_kill_1 = true;
+                    OjamaTrioused = true;
+                }
+            }
+            }
 
 
         private bool must_chain()
@@ -434,7 +470,11 @@ namespace WindBot.Game.AI.Decks
         {
             if (one_turn_kill_1) return UniqueFaceupSpell();
             if (drawfirst) return true;
-            if (DefaultOnBecomeTarget()) return DefaultUniqueTrap();
+            if (DefaultOnBecomeTarget())
+            {
+                prevent_used = true;
+                return true;
+            }
             if (prevent_used || Duel.Phase != DuelPhase.BattleStart) return false;
             prevent_used = true;
             return DefaultUniqueTrap();
@@ -455,7 +495,8 @@ namespace WindBot.Game.AI.Decks
             if (DefaultOnBecomeTarget())
             {
                 Linkuribohused = false;
-                return DefaultUniqueTrap();
+                prevent_used = true;
+                return true;
             }            
             if (prevent_used||Duel.Player == 0||Duel.Phase!=DuelPhase.BattleStart) return false;
             prevent_used = true;
