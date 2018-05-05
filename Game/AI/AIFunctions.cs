@@ -224,10 +224,10 @@ namespace WindBot.Game.AI
             return card;
         }
 
-        public ClientCard GetBestEnemyCard(bool onlyFaceup = false, bool canBeTarget = false,int ExceptId =0)
+        public ClientCard GetBestEnemyCard(bool onlyFaceup = false, bool canBeTarget = false)
         {
-            ClientCard card = GetBestEnemyMonster(onlyFaceup, canBeTarget, ExceptId);
-            if (card != null && card.Id != ExceptId)
+            ClientCard card = GetBestEnemyMonster(onlyFaceup, canBeTarget);
+            if (card != null)
                 return card;
 
             card = GetBestEnemySpell(onlyFaceup);
@@ -237,14 +237,14 @@ namespace WindBot.Game.AI
             return null;
         }
 
-        public ClientCard GetBestEnemyMonster(bool onlyFaceup = false, bool canBeTarget = false,int ExceptId=0)
+        public ClientCard GetBestEnemyMonster(bool onlyFaceup = false, bool canBeTarget = false)
         {
             ClientCard card = GetProblematicEnemyMonster(0, canBeTarget);
-            if (card != null && card.Id!=ExceptId)
+            if (card != null)
                 return card;
 
             card = Enemy.MonsterZone.GetHighestAttackMonster(canBeTarget);
-            if (card != null && card.Id != ExceptId)
+            if (card != null)
                 return card;
 
             List<ClientCard> monsters = Enemy.GetMonsters();

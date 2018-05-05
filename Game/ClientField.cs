@@ -141,6 +141,40 @@ namespace WindBot.Game
             return HasInCards(Hand, cardId);
         }
 
+        public bool HasInHandOrInSpellZone(int cardId)
+        {
+            return HasInCards(Hand, cardId) || HasInCards(SpellZone, cardId);
+        }
+
+        public bool HasInHandOrHasInMonstersZone(int cardId)
+        {
+            return HasInCards(Hand, cardId) || HasInCards(MonsterZone, cardId);
+        }
+
+        public bool HasInHandOrInGraveyard(int cardId)
+        {
+            return HasInCards(Hand, cardId) || HasInCards(Graveyard, cardId);
+        }
+
+        public bool HasInMonstersZoneOrInGraveyard(int cardId)
+        {
+            return HasInCards(MonsterZone, cardId) || HasInCards(Graveyard, cardId);
+        }
+
+        public bool HasInSpellZoneOrInGraveyard(int cardId)
+        {
+            return HasInCards(SpellZone, cardId) || HasInCards(Graveyard, cardId);
+        }
+
+        public bool HasInHandOrInMonstersZoneOrInGraveyard(int cardId)
+        {
+            return HasInCards(Hand, cardId) || HasInCards(MonsterZone, cardId) || HasInCards(Graveyard, cardId);
+        }
+
+        public bool HasInHandOrInSpellZoneOrInGraveyard(int cardId)
+        {
+            return HasInCards(Hand, cardId) || HasInCards(SpellZone, cardId) || HasInCards(Graveyard, cardId);
+        }
         public bool HasInHand(IList<int> cardId)
         {
             return HasInCards(Hand, cardId);
