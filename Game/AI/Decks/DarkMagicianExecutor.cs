@@ -60,6 +60,7 @@ namespace WindBot.Game.AI.Decks
             public const int LockBird = 94145021;
             public const int Ghost = 59438930;
             public const int GiantRex = 80280944;
+            public const int UltimateConductorTytanno = 18940556;
         }
 
         public DarkMagicianExecutor(GameAI ai, Duel duel)
@@ -386,7 +387,7 @@ namespace WindBot.Game.AI.Decks
         public bool Scapegoateff()
         {
             if (Duel.Player == 0) return false;           
-            if (DefaultOnBecomeTarget())
+            if (DefaultOnBecomeTarget() && !Enemy.HasInMonstersZone(CardId.UltimateConductorTytanno))
             {
                 Logger.DebugWriteLine("*************************sheepeff");
                 return true;
@@ -406,7 +407,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (m.IsAttack() && !m.Attacked) total_atk += m.Attack;
                 }
-                if (total_atk >= Bot.LifePoints) return true;
+                if (total_atk >= Bot.LifePoints && !Enemy.HasInMonstersZone(CardId.UltimateConductorTytanno)) return true;
             }
             return false;
         }
@@ -468,20 +469,14 @@ namespace WindBot.Game.AI.Decks
                 ClientCard enemy_monster = Enemy.BattlingMonster;
                 if (enemy_monster != null && enemy_monster.HasPosition(CardPosition.Attack))
                 {
-                    return (Card.Attack - enemy_monster.Attack < Enemy.LifePoints);
+                    return enemy_monster.Attack > 2000;
                 }
                 return true;
             };
-            ClientCard BestEnemy = AI.Utils.GetBestEnemyMonster(true,true);
-            ClientCard WorstBot = Bot.GetMonsters().GetLowestAttackMonster();
+            ClientCard BestEnemy = AI.Utils.GetBestEnemyMonster(true,true);            
             if (BestEnemy == null || BestEnemy.HasPosition(CardPosition.FaceDown)) return false;
-            if (WorstBot == null || WorstBot.HasPosition(CardPosition.FaceDown)) return false;
-            if (BestEnemy.Attack >= WorstBot.RealPower)
-            {
-                AI.SelectCard(BestEnemy);
-                return true;
-            }
-            return false;
+            AI.SelectCard(BestEnemy);
+            return true;  
         }
         private bool EternalSoulset()
         {
@@ -979,7 +974,8 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.MonsterZone)
             {
                 if(Bot.HasInSpellZone(CardId.EternalSoul)&&Bot.HasInSpellZone(CardId.DarkMagicalCircle))
-                    if(!Bot.HasInHand(CardId.DarkMagician)&&!Bot.HasInGraveyard(CardId.DarkMagician))
+                    if(!Bot.HasInHand(CardId.DarkMagician)&&!Bot.HasInGraveyard(CardId.DarkMagician)&&
+                        !Bot.HasInMonstersZone(CardId.DarkMagician) && Bot.GetRemainingCount(CardId.LllusionMagic, 1) == 1)
                     {
                         AI.SelectCard(CardId.LllusionMagic);
                         return true;
@@ -987,7 +983,8 @@ namespace WindBot.Game.AI.Decks
                 
                 if ((Bot.HasInHand(CardId.MagicianNavigation) || Bot.HasInSpellZone(CardId.MagicianNavigation)||
                     Bot.HasInSpellZone(CardId.EternalSoul))
-                    && !(Bot.HasInHand(CardId.DarkMagician) || Bot.HasInGraveyard(CardId.DarkMagician)))
+                    && !(Bot.HasInHand(CardId.DarkMagician) || Bot.HasInGraveyard(CardId.DarkMagician))
+                    &&Bot.GetRemainingCount(CardId.LllusionMagic,1)==1)
                 {
                     AI.SelectCard(CardId.LllusionMagic);
                     return true;
@@ -1065,7 +1062,13 @@ namespace WindBot.Game.AI.Decks
         }
 
         public override void OnChainEnd()
-        {            
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                if (Enemy.MonsterZone[i] != null)
+                    Logger.DebugWriteLine("++++++++MONSTER ZONE[" + i + "]= " + Enemy.MonsterZone[i].Id);
+            }
+               
             if (Duel.CurrentChain.Count==1 &&  AI.Utils.GetLastChainCard().Id==0)
              {
                 Logger.DebugWriteLine("current chain = " + Duel.CurrentChain.Count);
