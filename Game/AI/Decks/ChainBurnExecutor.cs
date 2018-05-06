@@ -80,13 +80,13 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Waboku, Wabokueff);
             AddExecutor(ExecutorType.Activate, CardId.BattleFader, BattleFadereff);                      
             AddExecutor(ExecutorType.Activate, CardId.RingOfDestruction, Ring_act);
-            //chain
-            AddExecutor(ExecutorType.Activate, CardId.JustDesserts, JustDessertseff);
-            AddExecutor(ExecutorType.Activate, CardId.OjamaTrio, OjamaTrioeff);
+            //chain            
+            AddExecutor(ExecutorType.Activate, CardId.JustDesserts, JustDessertseff);            
             AddExecutor(ExecutorType.Activate, CardId.Ceasefire, Ceasefireeff);
             AddExecutor(ExecutorType.Activate, CardId.SecretBlast, SecretBlasteff);
             AddExecutor(ExecutorType.Activate, CardId.SectetBarrel, SectetBarreleff);
             AddExecutor(ExecutorType.Activate, CardId.RecklessGreed, RecklessGreedeff);
+            AddExecutor(ExecutorType.Activate, CardId.OjamaTrio, OjamaTrioeff);
             AddExecutor(ExecutorType.Activate, CardId.ChainStrike, ChainStrikeeff);
             //sp
             AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh);
@@ -525,7 +525,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (GetTotalATK(list) / 2 >= Bot.LifePoints) return false;
             Logger.DebugWriteLine("!!!!!!!!BlazingMirrorForceeff" + GetTotalATK(list) / 2);
-            if (GetTotalATK(list) / 2 >= Enemy.LifePoints) return true;
+            if (GetTotalATK(list) / 2 >= Enemy.LifePoints) return DefaultUniqueTrap();
             if (GetTotalATK(list) < 3000) return false;
             return Enemy.HasAttackingMonster() && DefaultUniqueTrap();
         }
