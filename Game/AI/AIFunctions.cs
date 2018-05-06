@@ -150,7 +150,24 @@ namespace WindBot.Game.AI
             }
             return bestMonster;
         }
-
+        public ClientCard GetWorstBotMonster(bool onlyATK = false)
+        {
+            int WorstPower = -1;
+            ClientCard WorstMonster = null;
+            for (int i = 0; i < 7; ++i)
+            {
+                ClientCard card = Bot.MonsterZone[i];
+                if (card == null || card.Data == null) continue;
+                if (onlyATK && card.IsDefense()) continue;
+                int newPower = card.GetDefensePower();
+                if (newPower < WorstPower)
+                {
+                    WorstPower = newPower;
+                    WorstMonster = card;
+                }
+            }
+            return WorstMonster;
+        }
         public ClientCard GetOneEnemyBetterThanValue(int value, bool onlyATK = false, bool canBeTarget = false)
         {
             ClientCard bestCard = null;
@@ -250,7 +267,7 @@ namespace WindBot.Game.AI
             List<ClientCard> monsters = Enemy.GetMonsters();
 
             // after GetHighestAttackMonster, the left monsters must be face-down.
-            if (monsters.Count > 0 && !onlyFaceup && (!canBeTarget || !card.IsShouldNotBeTarget()))
+            if (monsters.Count > 0 && !onlyFaceup)
                 return monsters[0];
 
             return null;
