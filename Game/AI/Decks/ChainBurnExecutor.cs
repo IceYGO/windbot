@@ -11,7 +11,8 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public const int SandaionTheTimloard = 100227025;
+            public const int SandaionTheTimelord = 100227025;
+            public const int MichionTimelord = 100227021;
             public const int Mathematician = 41386308;
             public const int DiceJar = 3549275;
             public const int CardcarD = 45812361;
@@ -48,7 +49,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires);
             AddExecutor(ExecutorType.Activate, CardId.PotOfDuality, PotOfDualityeff);
             //normal summon
-            AddExecutor(ExecutorType.Summon, CardId.SandaionTheTimloard, SandaionTheTimloard_summon);
+            AddExecutor(ExecutorType.Summon, CardId.MichionTimelord, MichionTimelordsummon);
+            AddExecutor(ExecutorType.Summon, CardId.SandaionTheTimelord, SandaionTheTimelord_summon);            
             AddExecutor(ExecutorType.Summon, CardId.Mathematician);
             AddExecutor(ExecutorType.Activate, CardId.Mathematician, Mathematicianeff);
             AddExecutor(ExecutorType.MonsterSet, CardId.DiceJar);
@@ -56,8 +58,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.CardcarD);
             AddExecutor(ExecutorType.Summon, CardId.AbouluteKingBackJack, AbouluteKingBackJacksummon);
             AddExecutor(ExecutorType.MonsterSet, CardId.AbouluteKingBackJack);
-            AddExecutor(ExecutorType.Activate, CardId.AbouluteKingBackJack, AbouluteKingBackJackeff);                        
-            AddExecutor(ExecutorType.Activate, CardId.SandaionTheTimloard, SandaionTheTimloardeff);
+            AddExecutor(ExecutorType.Activate, CardId.AbouluteKingBackJack, AbouluteKingBackJackeff);
+            AddExecutor(ExecutorType.Activate, CardId.MichionTimelord);
+            AddExecutor(ExecutorType.Activate, CardId.SandaionTheTimelord, SandaionTheTimelordeff);
             // Set traps
             AddExecutor(ExecutorType.SpellSet, CardId.Waboku);
             AddExecutor(ExecutorType.SpellSet, CardId.ThreateningRoar);
@@ -88,13 +91,15 @@ namespace WindBot.Game.AI.Decks
             //sp
             AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh);
             AddExecutor(ExecutorType.Activate, CardId.Linkuriboh, Linkuriboheff);
+            AddExecutor(ExecutorType.Repos, MonsterRepos);
 
         }
         public int[] all_List()
         {
             return new[]
             {
-                CardId.SandaionTheTimloard,
+                CardId.SandaionTheTimelord,
+                CardId.MichionTimelord,
                 CardId.Mathematician,
                 CardId.DiceJar,
                 CardId.CardcarD,
@@ -142,7 +147,8 @@ namespace WindBot.Game.AI.Decks
         public int[] AbouluteKingBackJack_List_2()
         {
             return new[] {
-            CardId.SandaionTheTimloard,
+            CardId.MichionTimelord,
+            CardId.SandaionTheTimelord,
             CardId.PotOfDesires,
             CardId.Mathematician,
             CardId.DiceJar,
@@ -184,8 +190,9 @@ namespace WindBot.Game.AI.Decks
         {
             return new[]
             {
-                CardId.PotOfDesires,
-                CardId.SandaionTheTimloard,
+                CardId.PotOfDesires,                
+                CardId.MichionTimelord,
+                CardId.SandaionTheTimelord,
                 CardId.BattleFader,
 
                 CardId.Waboku,
@@ -217,8 +224,9 @@ namespace WindBot.Game.AI.Decks
         }
         public bool Has_prevent_list_1(int id)
         {
-            return (id == CardId.SandaionTheTimloard ||
-                    id == CardId.BattleFader                  
+            return (id == CardId.SandaionTheTimelord ||
+                    id == CardId.BattleFader ||
+                    id ==CardId.MichionTimelord
                    );
         }
         bool no_sp = false;
@@ -232,7 +240,7 @@ namespace WindBot.Game.AI.Decks
         bool OjamaTrioused_do = false;
         bool drawfirst = false;
         bool Linkuribohused = true;
-        bool SandaionTheTimloard_check = false;
+        bool Timelord_check = false;
         int Waboku_count = 0;
         int Roar_count = 0;
         int strike_count = 0;        
@@ -250,12 +258,12 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnNewTurn()
         {
-            if (Bot.HasInHand(CardId.SandaionTheTimloard))
-                Logger.DebugWriteLine("2222222222222222SandaionTheTimloard");
+            if (Bot.HasInHand(CardId.SandaionTheTimelord) ||Bot.HasInHand(CardId.MichionTimelord))
+                Logger.DebugWriteLine("2222222222222222SandaionTheTimelord");
             no_sp = false;
             prevent_used = false;
             Linkuribohused = true;
-            SandaionTheTimloard_check = false;
+            Timelord_check = false;
         }
         public override void OnNewPhase()
         {
@@ -281,15 +289,17 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard card in monster)
             {
-                if (Bot.HasInMonstersZone(CardId.SandaionTheTimloard))
+                if (Bot.HasInMonstersZone(CardId.SandaionTheTimelord) ||
+                    Bot.HasInMonstersZone(CardId.MichionTimelord))
                 {
                     prevent_used = true;
-                    SandaionTheTimloard_check = true;
+                    Timelord_check = true;
                 }
             }
-            if(prevent_used && SandaionTheTimloard_check)
+            if(prevent_used && Timelord_check)
             {
-                if (!Bot.HasInMonstersZone(CardId.SandaionTheTimloard))
+                if (!Bot.HasInMonstersZone(CardId.SandaionTheTimelord) ||
+                    !Bot.HasInMonstersZone(CardId.MichionTimelord))
                     prevent_used = false;
             }
             expected_blood = 0;
@@ -424,9 +434,16 @@ namespace WindBot.Game.AI.Decks
             if (Card.Id == CardId.OjamaTrio && Bot.HasInSpellZone(CardId.OjamaTrio))return false;
             return (Card.IsTrap() || Card.HasType(CardType.QuickPlay)) && Bot.GetSpellCountWithoutField() < 5;
         }
-        private bool SandaionTheTimloard_summon()
+        private bool MichionTimelordsummon()
         {
-            Logger.DebugWriteLine("&&&&&&&&&SandaionTheTimloard_summon");
+            if (Duel.Turn == 1)
+                return false;
+            return true;
+        }
+
+        private bool SandaionTheTimelord_summon()
+        {
+            Logger.DebugWriteLine("&&&&&&&&&SandaionTheTimelord_summon");
             return true;            
         }
         private bool AbouluteKingBackJacksummon()
@@ -451,20 +468,7 @@ namespace WindBot.Game.AI.Decks
             AI.SelectCard(pot_list());
             return true;
         }
-        private bool BlazingMirrorForceeff()
-        {            
-            if (prevent_used) return false;
-            IList<ClientCard> list = new List<ClientCard>();
-            foreach (ClientCard monster in Enemy.GetMonsters())
-            {
-                if(monster.IsAttack())
-                list.Add(monster);
-            }
-            if (GetTotalATK(list)/2 >= Bot.LifePoints) return false;
-            Logger.DebugWriteLine("!!!!!!!!BlazingMirrorForceeff" + GetTotalATK(list) / 2);
-            if (GetTotalATK(list) < 3000) return false;
-            return Enemy.HasAttackingMonster() && DefaultUniqueTrap();
-        }
+        
         private bool ThreateningRoareff()
         {
             if (one_turn_kill_1) return UniqueFaceupSpell();
@@ -478,9 +482,9 @@ namespace WindBot.Game.AI.Decks
             prevent_used = true;
             return DefaultUniqueTrap();
         }
-        private bool SandaionTheTimloardeff()
+        private bool SandaionTheTimelordeff()
         {
-            Logger.DebugWriteLine("***********SandaionTheTimloardeff");
+            Logger.DebugWriteLine("***********SandaionTheTimelordeff");
             return true;
         }
         private bool Wabokueff()
@@ -509,11 +513,29 @@ namespace WindBot.Game.AI.Decks
             prevent_used = true;
             return true;
         }
+
+        private bool BlazingMirrorForceeff()
+        {
+            if (prevent_used) return false;
+            IList<ClientCard> list = new List<ClientCard>();
+            foreach (ClientCard monster in Enemy.GetMonsters())
+            {
+                if (monster.IsAttack())
+                    list.Add(monster);
+            }
+            if (GetTotalATK(list) / 2 >= Bot.LifePoints) return false;
+            Logger.DebugWriteLine("!!!!!!!!BlazingMirrorForceeff" + GetTotalATK(list) / 2);
+            if (GetTotalATK(list) / 2 >= Enemy.LifePoints) return true;
+            if (GetTotalATK(list) < 3000) return false;
+            return Enemy.HasAttackingMonster() && DefaultUniqueTrap();
+        }
+
         private bool MagicCylindereff()
         {
             if (prevent_used) return false;
             if (Bot.LifePoints <= Enemy.BattlingMonster.Attack) return DefaultUniqueTrap();
-            if(Enemy.BattlingMonster.Attack>1800) return DefaultUniqueTrap();
+            if (Enemy.LifePoints <= Enemy.BattlingMonster.Attack) return DefaultUniqueTrap();
+            if (Enemy.BattlingMonster.Attack>1800) return DefaultUniqueTrap();
             return false;
         }
         public bool Ring_act()
@@ -553,6 +575,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SectetBarreleff()
         {
+            if (DefaultOnBecomeTarget()) return true;
+            if (Duel.Player == 0) return false;
             if (drawfirst) return true;
             if (one_turn_kill_1) return UniqueFaceupSpell();
             if (one_turn_kill) return true;
@@ -573,14 +597,15 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SecretBlasteff()
         {
+            if (DefaultOnBecomeTarget()) return true;
+            if (Duel.Player == 0) return false;
             if (drawfirst) return UniqueFaceupSpell();
             if (one_turn_kill_1) return UniqueFaceupSpell();
-            if (one_turn_kill) return true;
-            if (DefaultOnBecomeTarget()) return true;
+            if (one_turn_kill) return true;            
             int count = Enemy.GetFieldCount();
             int monster_count = Enemy.GetMonsterCount() - Enemy.GetMonstersExtraZoneCount();
             if (Enemy.LifePoints < count * 300) return true;
-            if(Bot.HasInSpellZone(CardId.OjamaTrio) && monster_count <= 2 && monster_count >= 1)
+            if(Bot.HasInSpellZone(CardId.OjamaTrio) && monster_count <= 2 && monster_count >= 1 )
             {
                 if(count+3>=5)
                 {
@@ -599,11 +624,11 @@ namespace WindBot.Game.AI.Decks
         }
         private bool JustDessertseff()
         {
+            if (DefaultOnBecomeTarget()) return true;
             if (Duel.Player == 0) return false;
             if (drawfirst) return UniqueFaceupSpell();
             if (one_turn_kill_1) return UniqueFaceupSpell();
-            if (one_turn_kill) return true;
-            if (DefaultOnBecomeTarget()) return true;
+            if (one_turn_kill) return true;            
             int count = Enemy.GetMonsterCount()-Enemy.GetMonstersExtraZoneCount();
             if (Enemy.LifePoints <= count * 500) return true;
             if (Bot.HasInSpellZone(CardId.OjamaTrio) && count <= 2 && count >= 1)
@@ -695,10 +720,20 @@ namespace WindBot.Game.AI.Decks
             if (AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh) return false;
             return true;
         }
-
+        public bool MonsterRepos()
+        {
+            if (Card.IsFacedown() && Card.Id!=CardId.DiceJar)
+                return true;
+            return base.DefaultMonsterRepos();
+        }
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
             if (attacker.Id == CardId.Linkuriboh && defender.IsFacedown()) return false;
+            if (attacker.Id == CardId.MichionTimelord || attacker.Id == CardId.SandaionTheTimelord)
+            {
+                attacker.RealPower = 9999;
+                return true;
+            }                
             return base.OnPreBattleBetween(attacker,defender);
         }
 
