@@ -53,10 +53,10 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Mathematician, Mathematicianeff);
             AddExecutor(ExecutorType.MonsterSet, CardId.DiceJar);
             AddExecutor(ExecutorType.Activate, CardId.DiceJar);
+            AddExecutor(ExecutorType.Summon, CardId.CardcarD);
             AddExecutor(ExecutorType.Summon, CardId.AbouluteKingBackJack, AbouluteKingBackJacksummon);
             AddExecutor(ExecutorType.MonsterSet, CardId.AbouluteKingBackJack);
-            AddExecutor(ExecutorType.Activate, CardId.AbouluteKingBackJack, AbouluteKingBackJackeff);
-            AddExecutor(ExecutorType.Summon, CardId.CardcarD);            
+            AddExecutor(ExecutorType.Activate, CardId.AbouluteKingBackJack, AbouluteKingBackJackeff);                        
             AddExecutor(ExecutorType.Activate, CardId.SandaionTheTimloard, SandaionTheTimloardeff);
             // Set traps
             AddExecutor(ExecutorType.SpellSet, CardId.Waboku);
@@ -71,12 +71,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.BalanceOfJudgment, BalanceOfJudgmenteff);
             AddExecutor(ExecutorType.Activate, CardId.AccuulatedFortune);
             //battle
-
+            AddExecutor(ExecutorType.Activate, CardId.BlazingMirrorForce, BlazingMirrorForceeff);
+            AddExecutor(ExecutorType.Activate, CardId.MagicCylinder, MagicCylindereff);
             AddExecutor(ExecutorType.Activate, CardId.ThreateningRoar, ThreateningRoareff);
             AddExecutor(ExecutorType.Activate, CardId.Waboku, Wabokueff);
-            AddExecutor(ExecutorType.Activate, CardId.BattleFader, BattleFadereff);
-            AddExecutor(ExecutorType.Activate, CardId.MagicCylinder, MagicCylindereff);
-            AddExecutor(ExecutorType.Activate, CardId.BlazingMirrorForce, BlazingMirrorForceeff);
+            AddExecutor(ExecutorType.Activate, CardId.BattleFader, BattleFadereff);                      
             AddExecutor(ExecutorType.Activate, CardId.RingOfDestruction, Ring_act);
             //chain
             AddExecutor(ExecutorType.Activate, CardId.JustDesserts, JustDessertseff);
@@ -559,7 +558,16 @@ namespace WindBot.Game.AI.Decks
             if (one_turn_kill) return true;
             if (DefaultOnBecomeTarget()) return true;
             int count = Enemy.GetFieldHandCount();
+            int monster_count = Enemy.GetMonsterCount() - Enemy.GetMonstersExtraZoneCount();
             if (Enemy.LifePoints < count * 200) return true;
+            if (Bot.HasInSpellZone(CardId.OjamaTrio) && monster_count <= 2 && monster_count >= 1)
+            {
+                if (count + 3 >= 8)
+                {
+                    OjamaTrioused = true;
+                    return true;
+                }
+            }
             if (count >= 8) return true;
             return false;
         }
@@ -570,7 +578,16 @@ namespace WindBot.Game.AI.Decks
             if (one_turn_kill) return true;
             if (DefaultOnBecomeTarget()) return true;
             int count = Enemy.GetFieldCount();
+            int monster_count = Enemy.GetMonsterCount() - Enemy.GetMonstersExtraZoneCount();
             if (Enemy.LifePoints < count * 300) return true;
+            if(Bot.HasInSpellZone(CardId.OjamaTrio) && monster_count <= 2 && monster_count >= 1)
+            {
+                if(count+3>=5)
+                {
+                    OjamaTrioused = true;
+                    return true;
+                }
+            }
             if (count >= 5) return true;
             return false;
 
@@ -587,7 +604,7 @@ namespace WindBot.Game.AI.Decks
             if (one_turn_kill_1) return UniqueFaceupSpell();
             if (one_turn_kill) return true;
             if (DefaultOnBecomeTarget()) return true;
-            int count = Enemy.GetMonsterCount();
+            int count = Enemy.GetMonsterCount()-Enemy.GetMonstersExtraZoneCount();
             if (Enemy.LifePoints <= count * 500) return true;
             if (Bot.HasInSpellZone(CardId.OjamaTrio) && count <= 2 && count >= 1)
             {
@@ -756,7 +773,8 @@ namespace WindBot.Game.AI.Decks
             {
                 if (HasAccuulatedFortune > 0) OjamaTrioused_draw = true;
             }*/
-            if (Bot.HasInSpellZone(CardId.OjamaTrio) && Enemy.GetMonsterCount() <= 2 && Enemy.GetMonsterCount() >= 1)
+            if (Bot.HasInSpellZone(CardId.OjamaTrio) && (Enemy.GetMonsterCount() - Enemy.GetMonstersExtraZoneCount()) <= 2 && 
+                (Enemy.GetMonsterCount() - Enemy.GetMonstersExtraZoneCount()) >= 1)
             {
                  OjamaTrioused_do = true;
             }
