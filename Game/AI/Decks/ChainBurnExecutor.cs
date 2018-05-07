@@ -58,7 +58,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.CardcarD);
             AddExecutor(ExecutorType.Summon, CardId.AbouluteKingBackJack, AbouluteKingBackJacksummon);
             AddExecutor(ExecutorType.MonsterSet, CardId.AbouluteKingBackJack);
-            AddExecutor(ExecutorType.Activate, CardId.AbouluteKingBackJack, AbouluteKingBackJackeff);
+            
             AddExecutor(ExecutorType.Activate, CardId.MichionTimelord);
             AddExecutor(ExecutorType.Activate, CardId.SandaionTheTimelord, SandaionTheTimelordeff);
             // Set traps
@@ -87,6 +87,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.SectetBarrel, SectetBarreleff);
             AddExecutor(ExecutorType.Activate, CardId.RecklessGreed, RecklessGreedeff);
             AddExecutor(ExecutorType.Activate, CardId.OjamaTrio, OjamaTrioeff);
+            AddExecutor(ExecutorType.Activate, CardId.AbouluteKingBackJack, AbouluteKingBackJackeff);
             AddExecutor(ExecutorType.Activate, CardId.ChainStrike, ChainStrikeeff);
             //sp
             AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh);
@@ -508,6 +509,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BattleFadereff()
         {
+            if (AI.Utils.ChainContainsCard(CardId.BlazingMirrorForce) || AI.Utils.ChainContainsCard(CardId.MagicCylinder))
+                return false;
             if (prevent_used || Duel.Player == 0) return false;
             AI.SelectPosition(CardPosition.FaceUpDefence);
             prevent_used = true;
@@ -526,8 +529,10 @@ namespace WindBot.Game.AI.Decks
             if (GetTotalATK(list) / 2 >= Bot.LifePoints) return false;
             Logger.DebugWriteLine("!!!!!!!!BlazingMirrorForceeff" + GetTotalATK(list) / 2);
             if (GetTotalATK(list) / 2 >= Enemy.LifePoints) return DefaultUniqueTrap();
-            if (GetTotalATK(list) < 3000) return false;
-            return Enemy.HasAttackingMonster() && DefaultUniqueTrap();
+            if (GetTotalATK(list) < 3000) return false;  
+            prevent_used = true;
+            return DefaultUniqueTrap();
+                        
         }
 
         private bool MagicCylindereff()
@@ -703,20 +708,23 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
         private bool Linkuriboheff()
-        {           
-           
+        {
             IList<ClientCard> newlist = new List<ClientCard>();
             foreach (ClientCard newmonster in Enemy.GetMonsters())
             {
-                newlist.Add(newmonster);
+                if (newmonster.IsAttack())
+                    newlist.Add(newmonster);
             }
             if (!Linkuribohused) return false;
             if(Enemy.BattlingMonster!=null)
             {
                 if (Enemy.BattlingMonster.Attack > 1800 && Bot.HasInSpellZone(CardId.MagicCylinder)) return false;
-            }        
+            }
+            if (GetTotalATK(newlist) / 2 >= Bot.LifePoints && Bot.HasInSpellZone(CardId.BlazingMirrorForce))
+                return true;
+            if (GetTotalATK(newlist) / 2 >= Enemy.LifePoints && Bot.HasInSpellZone(CardId.BlazingMirrorForce))
+                return false;
             if (AI.Utils.GetLastChainCard() == null) return true;
-            if (AI.Utils.GetLastChainCard().Id == CardId.BlazingMirrorForce) return false;
             if (AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh) return false;
             return true;
         }
@@ -729,11 +737,16 @@ namespace WindBot.Game.AI.Decks
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
             if (attacker.Id == CardId.Linkuriboh && defender.IsFacedown()) return false;
-            if (attacker.Id == CardId.MichionTimelord || attacker.Id == CardId.SandaionTheTimelord)
+            if (attacker.Id == CardId.SandaionTheTimelord && !attacker.IsDisabled())
             {
                 attacker.RealPower = 9999;
                 return true;
-            }                
+            }
+            if(attacker.Id==CardId.MichionTimelord && !attacker.IsDisabled())
+            {
+                attacker.RealPower = 9999;
+                return true;
+            }
             return base.OnPreBattleBetween(attacker,defender);
         }
 

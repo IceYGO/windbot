@@ -70,6 +70,30 @@ namespace WindBot.Game
             }
             return count;
         }
+
+        /// <summary>
+        /// Count Column
+        /// </summary>
+        /// <param zone>range of zone 0-4</param>
+        public int GetColumnCount(int zone, bool IncludeExtraMonsterZone = true)
+        {
+            int count = 0;
+            if (SpellZone[zone] != null)
+                count++;
+            if (MonsterZone[zone] != null)
+                count++;
+            if(zone == 1 && IncludeExtraMonsterZone)
+            {
+                if (MonsterZone[5] != null)
+                    count++;
+            }
+            if (zone == 3 && IncludeExtraMonsterZone)
+            {
+                if (MonsterZone[6] != null)
+                    count++;
+            }
+            return count;
+        }
                 
 
         public int GetFieldCount()
