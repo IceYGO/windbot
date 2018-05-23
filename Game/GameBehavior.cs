@@ -451,44 +451,41 @@ namespace WindBot.Game
         private void OnMove(BinaryReader packet)
         {
             int cardId = packet.ReadInt32();
-            int pc = GetLocalPlayer(packet.ReadByte());
-            int pl = packet.ReadByte();
-            int ps = packet.ReadSByte();
-            packet.ReadSByte(); // pp
-            int cc = GetLocalPlayer(packet.ReadByte());
-            int cl = packet.ReadByte();
-            int cs = packet.ReadSByte();
-            int cp = packet.ReadSByte();
+            int previousControler = GetLocalPlayer(packet.ReadByte());
+            int previousLocation = packet.ReadByte();
+            int previousSequence = packet.ReadSByte();
+            /*int previousPosotion = */packet.ReadSByte();
+            int currentControler = GetLocalPlayer(packet.ReadByte());
+            int currentLocation = packet.ReadByte();
+            int currentSequence = packet.ReadSByte();
+            int currentPosition = packet.ReadSByte();
             packet.ReadInt32(); // reason
 
-            ClientCard card = _duel.GetCard(pc, (CardLocation)pl, ps);
+            ClientCard card = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
 
-            if ((pl & (int)CardLocation.Overlay) != 0)
+            if ((previousLocation & (int)CardLocation.Overlay) != 0)
             {
-                pl = pl & 0x7f;
-                card = _duel.GetCard(pc, (CardLocation)pl, ps);
+                previousLocation = previousLocation & 0x7f;
+                card = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
                 if (card != null)
                     card.Overlays.Remove(cardId);
             }
             else
-                _duel.RemoveCard((CardLocation)pl, card, pc, ps);
+                _duel.RemoveCard((CardLocation)previousLocation, card, previousControler, previousSequence);
 
-            if ((cl & (int)CardLocation.Overlay) != 0)
+            if ((currentLocation & (int)CardLocation.Overlay) != 0)
             {
-                cl = cl & 0x7f;
-                card = _duel.GetCard(cc, (CardLocation)cl, cs);
+                currentLocation = currentLocation & 0x7f;
+                card = _duel.GetCard(currentControler, (CardLocation)currentLocation, currentSequence);
                 if (card != null)
                     card.Overlays.Add(cardId);
             }
             else
             {
-                _duel.AddCard((CardLocation)cl, cardId, cc, cs, cp);
-                if ((pl & (int)CardLocation.Overlay) == 0 && card != null)
-                {
-                    ClientCard newcard = _duel.GetCard(cc, (CardLocation)cl, cs);
-                    if (newcard != null)
-                        newcard.Overlays.AddRange(card.Overlays);
-                }
+                if (previousLocation == 0)
+                    _duel.AddCard((CardLocation)currentLocation, cardId, currentControler, currentSequence, currentPosition);
+                else
+                    _duel.AddCard((CardLocation)currentLocation, card, currentControler, currentSequence, currentPosition);
             }
         }
 
