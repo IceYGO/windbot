@@ -310,15 +310,31 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// Chain the enemy monster.
+        /// Chain the enemy monster, or disable monster like Rescue Rabbit.
         /// </summary>
         protected bool DefaultBreakthroughSkill()
         {
+            if (!DefaultUniqueTrap())
+                return false;
+
+            if (Duel.Player == 1)
+            {
+                foreach (ClientCard target in Enemy.GetMonsters())
+                {
+                    if (target.IsMonsterShouldBeDisabledBeforeItUseEffect())
+                    {
+                        AI.SelectCard(target);
+                        return true;
+                    }
+                }
+            }
+
             ClientCard LastChainCard = AI.Utils.GetLastChainCard();
 
             if (LastChainCard == null)
                 return false;
-            if (LastChainCard.Controller != 1 || LastChainCard.Location != CardLocation.MonsterZone || !DefaultUniqueTrap())
+            if (LastChainCard.Controller != 1 || LastChainCard.Location != CardLocation.MonsterZone
+                || LastChainCard.IsDisabled() || LastChainCard.IsShouldNotBeTarget() || LastChainCard.IsShouldNotBeSpellTrapTarget())
                 return false;
             AI.SelectCard(LastChainCard);
             return true;

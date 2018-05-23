@@ -456,45 +456,41 @@ namespace WindBot.Game
         private void OnMove(BinaryReader packet)
         {
             int cardId = packet.ReadInt32();
-            int pc = GetLocalPlayer(packet.ReadByte());
-            int pl = packet.ReadByte();
-            int ps = packet.ReadSByte();
-            packet.ReadSByte(); // pp
-            int cc = GetLocalPlayer(packet.ReadByte());
-            int cl = packet.ReadByte();
-            int cs = packet.ReadSByte();
-            int cp = packet.ReadSByte();
+            int previousControler = GetLocalPlayer(packet.ReadByte());
+            int previousLocation = packet.ReadByte();
+            int previousSequence = packet.ReadSByte();
+            /*int previousPosotion = */packet.ReadSByte();
+            int currentControler = GetLocalPlayer(packet.ReadByte());
+            int currentLocation = packet.ReadByte();
+            int currentSequence = packet.ReadSByte();
+            int currentPosition = packet.ReadSByte();
             packet.ReadInt32(); // reason
 
-            ClientCard card = _duel.GetCard(pc, (CardLocation)pl, ps);
-            if (card != null) Logger.DebugWriteLine("(" + pc.ToString() + "的" + (card.Name ?? "未知卡片") + "从" + (CardLocation)pl + "移动到了" + (CardLocation)cl + ")");
+            ClientCard card = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
 
-            if ((pl & (int)CardLocation.Overlay) != 0)
+            if ((previousLocation & (int)CardLocation.Overlay) != 0)
             {
-                pl = pl & 0x7f;
-                card = _duel.GetCard(pc, (CardLocation)pl, ps);
+                previousLocation = previousLocation & 0x7f;
+                card = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
                 if (card != null)
                     card.Overlays.Remove(cardId);
             }
             else
-                _duel.RemoveCard((CardLocation)pl, card, pc, ps);
+                _duel.RemoveCard((CardLocation)previousLocation, card, previousControler, previousSequence);
 
-            if ((cl & (int)CardLocation.Overlay) != 0)
+            if ((currentLocation & (int)CardLocation.Overlay) != 0)
             {
-                cl = cl & 0x7f;
-                card = _duel.GetCard(cc, (CardLocation)cl, cs);
+                currentLocation = currentLocation & 0x7f;
+                card = _duel.GetCard(currentControler, (CardLocation)currentLocation, currentSequence);
                 if (card != null)
                     card.Overlays.Add(cardId);
             }
             else
             {
-                _duel.AddCard((CardLocation)cl, cardId, cc, cs, cp);
-                if ((pl & (int)CardLocation.Overlay) == 0 && card != null)
-                {
-                    ClientCard newcard = _duel.GetCard(cc, (CardLocation)cl, cs);
-                    if (newcard != null)
-                        newcard.Overlays.AddRange(card.Overlays);
-                }
+                if (previousLocation == 0)
+                    _duel.AddCard((CardLocation)currentLocation, cardId, currentControler, currentSequence, currentPosition);
+                else
+                    _duel.AddCard((CardLocation)currentLocation, card, currentControler, currentSequence, currentPosition);
             }
         }
 
@@ -1024,64 +1020,79 @@ namespace WindBot.Game
             packet.ReadByte(); // min
             int field = ~packet.ReadInt32();
 
-            byte[] resp = new byte[3];
+            const int LOCATION_MZONE = 0x4;
+            const int LOCATION_SZONE = 0x8;
+            const int LOCATION_PZONE = 0x200;
 
-            bool pendulumZone = false;
-
+            int player;
+            int location;
             int filter;
+
             if ((field & 0x7f) != 0)
             {
-                resp[0] = (byte)GetLocalPlayer(0);
-                resp[1] = 0x4;
-                filter = field & 0x7f;
+                player = 0;
+                location = LOCATION_MZONE;
+                filter = field & Zones.MonsterZones;
             }
             else if ((field & 0x1f00) != 0)
             {
-                resp[0] = (byte)GetLocalPlayer(0);
-                resp[1] = 0x8;
-                filter = (field >> 8) & 0x1f;
+                player = 0;
+                location = LOCATION_SZONE;
+                filter = (field >> 8) & Zones.SpellZones;
             }
             else if ((field & 0xc000) != 0)
             {
-                resp[0] = (byte)GetLocalPlayer(0);
-                resp[1] = 0x8;
-                filter = (field >> 14) & 0x3;
-                pendulumZone = true;
+                player = 0;
+                location = LOCATION_PZONE;
+                filter = (field >> 14) & Zones.PendulumZones;
             }
             else if ((field & 0x7f0000) != 0)
             {
-                resp[0] = (byte)GetLocalPlayer(1);
-                resp[1] = 0x4;
-                filter = (field >> 16) & 0x7f;
+                player = 1;
+                location = LOCATION_MZONE;
+                filter = (field >> 16) & Zones.MonsterZones;
             }
             else if ((field & 0x1f000000) != 0)
             {
-                resp[0] = (byte) GetLocalPlayer(1);
-                resp[1] = 0x8;
-                filter = (field >> 24) & 0x1f;
+                player = 1;
+                location = LOCATION_SZONE;
+                filter = (field >> 24) & Zones.SpellZones;
             }
             else
             {
-                resp[0] = (byte) GetLocalPlayer(1);
-                resp[1] = 0x8;
-                filter = (field >> 30) & 0x3;
-                pendulumZone = true;
+                player = 1;
+                location = LOCATION_PZONE;
+                filter = (field >> 30) & Zones.PendulumZones;
             }
 
-            if (!pendulumZone)
+            int selected = _ai.OnSelectPlace(_select_hint, player, location, filter);
+            _select_hint = 0;
+
+            byte[] resp = new byte[3];
+            resp[0] = (byte)GetLocalPlayer(player);
+
+            if (location != LOCATION_PZONE)
             {
-                if ((filter & 0x40) != 0) resp[2] = 6;
-                else if ((filter & 0x20) != 0) resp[2] = 5;
-                else if ((filter & 0x4) != 0) resp[2] = 2;
-                else if ((filter & 0x2) != 0) resp[2] = 1;
-                else if ((filter & 0x8) != 0) resp[2] = 3;
-                else if ((filter & 0x1) != 0) resp[2] = 0;
-                else if ((filter & 0x10) != 0) resp[2] = 4;
+                resp[1] = (byte)location;
+                if ((selected & filter) > 0)
+                    filter &= selected;
+
+                if ((filter & Zones.z6) != 0) resp[2] = 6;
+                else if ((filter & Zones.z5) != 0) resp[2] = 5;
+                else if ((filter & Zones.z2) != 0) resp[2] = 2;
+                else if ((filter & Zones.z1) != 0) resp[2] = 1;
+                else if ((filter & Zones.z3) != 0) resp[2] = 3;
+                else if ((filter & Zones.z0) != 0) resp[2] = 0;
+                else if ((filter & Zones.z4) != 0) resp[2] = 4;
             }
             else
             {
-                if ((filter & 0x1) != 0) resp[2] = 6;
-                if ((filter & 0x2) != 0) resp[2] = 7;
+                resp[1] = (byte)LOCATION_SZONE;
+                if ((selected & filter) > 0)
+                    filter &= selected;
+
+                if ((filter & Zones.z0) != 0) resp[2] = 6;
+                if ((filter & Zones.z1) != 0) resp[2] = 7;
             }
 
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);

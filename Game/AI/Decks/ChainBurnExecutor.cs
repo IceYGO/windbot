@@ -497,7 +497,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard target = AI.Utils.GetProblematicEnemyMonster();
             if (target == null && AI.Utils.IsChainTarget(Card))
             {
-                target = AI.Utils.GetBestEnemyMonster();
+                target = AI.Utils.GetBestEnemyMonster(true, true);
             }
             if (target != null)
             {
