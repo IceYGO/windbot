@@ -146,6 +146,12 @@ namespace WindBot.Game.AI
             return null;
         }
 
+        public virtual IList<ClientCard> OnCardSorting(IList<ClientCard> cards)
+        {
+            // For overriding
+            return null;
+        }
+
         public virtual bool OnSelectYesNo(int desc)
         {
             return true;

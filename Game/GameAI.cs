@@ -330,6 +330,26 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when the AI has to sort cards.
+        /// </summary>
+        /// <param name="cards">Cards to sort.</param>
+        /// <returns>List of sorted cards.</returns>
+        public IList<ClientCard> OnCardSorting(IList<ClientCard> cards)
+        {
+
+            IList<ClientCard> result = Executor.OnCardSorting(cards);
+            if (result != null)
+                return result;
+            result = new List<ClientCard>();
+            // TODO: use selector
+            for (int i = 0; i < cards.Count; i++)
+            {
+                result.Add(cards[i]);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Called when the AI has to choose to activate or not an effect.
         /// </summary>
         /// <param name="card">Card to activate.</param>

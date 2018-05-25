@@ -552,8 +552,48 @@ namespace WindBot.Game
 
         private void OnCardSorting(BinaryReader packet)
         {
-            /*BinaryWriter writer =*/ GamePacketFactory.Create(CtosMessage.Response);
-            Connection.Send(CtosMessage.Response, -1);
+            /*int player =*/ GetLocalPlayer(packet.ReadByte());
+            IList<ClientCard> originalCards = new List<ClientCard>();
+            IList<ClientCard> cards = new List<ClientCard>();
+            int count = packet.ReadByte();
+            for (int i = 0; i < count; ++i)
+            {
+                int id = packet.ReadInt32();
+                int controler = GetLocalPlayer(packet.ReadByte());
+                CardLocation loc = (CardLocation)packet.ReadByte();
+                int seq = packet.ReadByte();
+                ClientCard card;
+                if (((int)loc & (int)CardLocation.Overlay) != 0)
+                    card = new ClientCard(id, CardLocation.Overlay);
+                else
+                    card = _duel.GetCard(controler, loc, seq);
+                if (card == null) continue;
+                if (id != 0)
+                    card.SetId(id);
+                originalCards.Add(card);
+                cards.Add(card);
+            }
+
+            IList<ClientCard> selected = _ai.OnCardSorting(cards);
+            byte[] result = new byte[count];
+            for (int i = 0; i < count; ++i)
+            {
+                int id = 0;
+                for (int j = 0; j < count; ++j)
+                {
+                    if (selected[j] == null) continue;
+                    if (selected[j].Equals(originalCards[i]))
+                    {
+                        id = j;
+                        break;
+                    }
+                }
+                result[i] = (byte)id;
+            }
+
+            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
+            reply.Write(result);
+            Connection.Send(reply);
         }
 
         private void OnChainSorting(BinaryReader packet)
