@@ -115,6 +115,36 @@ namespace WindBot.Game
             }
         }
 
+        public void AddCard(CardLocation loc, ClientCard card, int player, int zone, int pos)
+        {
+            card.Location = loc;
+            card.Position = pos;
+            switch (loc)
+            {
+                case CardLocation.Hand:
+                    Fields[player].Hand.Add(card);
+                    break;
+                case CardLocation.Grave:
+                    Fields[player].Graveyard.Add(card);
+                    break;
+                case CardLocation.Removed:
+                    Fields[player].Banished.Add(card);
+                    break;
+                case CardLocation.MonsterZone:
+                    Fields[player].MonsterZone[zone] = card;
+                    break;
+                case CardLocation.SpellZone:
+                    Fields[player].SpellZone[zone] = card;
+                    break;
+                case CardLocation.Deck:
+                    Fields[player].Deck.Add(card);
+                    break;
+                case CardLocation.Extra:
+                    Fields[player].ExtraDeck.Add(card);
+                    break;
+            }
+        }
+
         public void RemoveCard(CardLocation loc, ClientCard card, int player, int zone)
         {
             switch (loc)
@@ -146,6 +176,14 @@ namespace WindBot.Game
         public int GetLocalPlayer(int player)
         {
             return IsFirst ? player : 1 - player;
+        }
+
+        public class Global
+        {
+            public static int m_type;
+            public static int m_zone;
+            public static int intial_zone;
+            public static int InfiniteTransience_zone;
         }
     }
 }

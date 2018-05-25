@@ -389,6 +389,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Feather_Act()
         {
+            AI.SelectPlace(Zones.z2, 2);
             if (AI.Utils.GetProblematicEnemySpell() != null)
             {
                 List<ClientCard> grave = Bot.GetGraveyardSpells();
@@ -577,6 +578,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
+                AI.SelectPlace(Zones.z2, 1);
                 if ((Enemy.LifePoints <= 1000 && Bot.HasInSpellZone(CardId.Stage))
                 || Enemy.LifePoints <= 800
                 || (!NormalSummoned && Bot.HasInGraveyard(CardId.Red))
@@ -616,6 +618,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Eater_ss()
         {
+            AI.SelectPlace(Zones.z2, 1);
             if (AI.Utils.GetProblematicEnemyMonster() == null && Bot.ExtraDeck.Count < 5) return false;
             if (Bot.GetMonstersInMainZone().Count >= 5) return false;
             if (AI.Utils.IsTurn1OrMain2()) return false;
@@ -682,6 +685,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Red_ss()
         {
+            AI.SelectPlace(Zones.z2, 1);
             if (red_ss_count >= 6) return false;
             if ((AI.Utils.ChainContainsCard(CardId.DarkHole) || AI.Utils.ChainContainsCard(99330325) || AI.Utils.ChainContainsCard(53582587)) && AI.Utils.ChainContainsCard(CardId.Red)) return false;
             if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().Id == CardId.Red)
@@ -1108,6 +1112,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Yellow_sum()
         {
+            AI.SelectPlace(Zones.z2, 1);
             NormalSummoned = true;
             return true;
         }
@@ -1116,6 +1121,7 @@ namespace WindBot.Game.AI.Decks
         {
             if ((Enemy.GetMonsterCount() == 0 && Enemy.LifePoints <= 1800) || (Duel.Turn == 1 && Bot.HasInHand(CardId.Re)))
             {
+                AI.SelectPlace(Zones.z2, 1);
                 NormalSummoned = true;
                 return true;
             }
@@ -1124,6 +1130,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Pink_sum()
         {
+            AI.SelectPlace(Zones.z2, 1);
             if (Enemy.LifePoints <= 1000)
             {
                 NormalSummoned = true;
@@ -1213,6 +1220,7 @@ namespace WindBot.Game.AI.Decks
         public bool Crystal_ss()
         {
             if (crystal_eff_used) return false;
+            AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
             if (Bot.HasInMonstersZone(CardId.BF) && Bot.HasInMonstersZone(CardId.BF + 1))
             {
                 AI.SelectCard(new[]
@@ -1568,6 +1576,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Borrel_ss()
         {
+            AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
             bool already_link2 = false;
             IList<ClientCard> material_list = new List<ClientCard>();
             if (AI.Utils.GetProblematicEnemyMonster(2000) == null) Logger.DebugWriteLine("***borrel:null");
@@ -1654,7 +1663,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.GetMonsterCount() == 0)
             {
-                
+             
                 int bestPower = -1;
                 foreach (ClientCard hand in Bot.Hand)
                 {
@@ -1663,6 +1672,7 @@ namespace WindBot.Game.AI.Decks
                 int bestenemy = -1;
                 foreach (ClientCard enemy in Enemy.GetMonsters())
                 {
+                    AI.SelectPlace(Zones.z2, 2);
                     if (enemy.IsMonsterDangerous()) return true;
                     if (enemy.IsFaceup() && (enemy.GetDefensePower() > bestenemy)) bestenemy = enemy.GetDefensePower();
                 }

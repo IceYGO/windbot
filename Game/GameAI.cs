@@ -90,7 +90,7 @@ namespace WindBot.Game
             m_option = -1;
             m_yesno = -1;
             m_position = CardPosition.FaceUpAttack;
-            m_place = 0;
+            m_place = 0;            
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
                 _dialogs.SendNewTurn();
@@ -108,7 +108,7 @@ namespace WindBot.Game
 
         /// <summary>
         /// Called when a chain is executed.
-        /// </summary>
+        /// </summary>f
         /// <param name="card">Card who is chained.</param>
         /// <param name="player">Player who is currently chaining.</param>
         public void OnChaining(ClientCard card, int player)
@@ -440,8 +440,7 @@ namespace WindBot.Game
         public int OnSelectPlace(int cardId, int player, int location, int available)
         {
             int selector_selected = m_place;
-            m_place = 0;
-
+            m_place = 0;            
             int executor_selected = Executor.OnSelectPlace(cardId, player, location, available);
 
             if ((executor_selected & available) > 0)
@@ -698,7 +697,7 @@ namespace WindBot.Game
         private CardSelector m_thirdSelector;
         private CardSelector m_materialSelector;
         private CardPosition m_position = CardPosition.FaceUpAttack;
-        private int m_place;
+        private int m_place;        
         private int m_option;
         private int m_number;
         private int m_announce;
@@ -832,10 +831,17 @@ namespace WindBot.Game
         {
             m_position = pos;
         }
-
-        public void SelectPlace(int zones)
-        {
+        /// <summary>
+        /// parameter type:avoid choosing the place with column negate
+        /// </summary>
+        /// <param name="type">Use CardType or  Zones(single way:1 for MainMonsterZone;2 for spell;4 for trap;3 for ExtraMonsterZone)</param>        
+        public void SelectPlace(int zones,int type = 0)
+        {            
             m_place = zones;
+            Duel.Global.intial_zone = Zones.z2;
+            Duel.Global.intial_zone = zones;
+            Duel.Global.m_type = 0;
+            Duel.Global.m_type = type;          
         }
 
         public void SelectOption(int opt)
