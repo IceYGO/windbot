@@ -108,7 +108,7 @@ namespace WindBot.Game
 
         /// <summary>
         /// Called when a chain is executed.
-        /// </summary>f
+        /// </summary>
         /// <param name="card">Card who is chained.</param>
         /// <param name="player">Player who is currently chaining.</param>
         public void OnChaining(ClientCard card, int player)
