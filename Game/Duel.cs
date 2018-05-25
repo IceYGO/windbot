@@ -115,10 +115,11 @@ namespace WindBot.Game
             }
         }
 
-        public void AddCard(CardLocation loc, ClientCard card, int player, int zone, int pos)
+        public void AddCard(CardLocation loc, ClientCard card, int player, int zone, int pos, int id)
         {
             card.Location = loc;
             card.Position = pos;
+            card.SetId(id);
             switch (loc)
             {
                 case CardLocation.Hand:
