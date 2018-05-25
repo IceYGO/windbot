@@ -469,6 +469,7 @@ namespace WindBot.Game
                 card = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
                 if (card != null)
                     card.Overlays.Remove(cardId);
+                previousLocation = 0; // the card is removed when it go to overlay, so here we treat it as a new card
             }
             else
                 _duel.RemoveCard((CardLocation)previousLocation, card, previousControler, previousSequence);
@@ -485,7 +486,9 @@ namespace WindBot.Game
                 if (previousLocation == 0)
                     _duel.AddCard((CardLocation)currentLocation, cardId, currentControler, currentSequence, currentPosition);
                 else
-                    _duel.AddCard((CardLocation)currentLocation, card, currentControler, currentSequence, currentPosition);
+                {
+                    _duel.AddCard((CardLocation)currentLocation, card, currentControler, currentSequence, currentPosition, cardId);
+                }
             }
         }
 
