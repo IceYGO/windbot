@@ -525,6 +525,20 @@ namespace WindBot.Game.AI
             return false;
         }
 
+        public override void OnChaining(int player, ClientCard card)
+        {
+            Duel.Global.InfiniteTransience_zone = -1;
+            if (Enemy.HasInSpellZone(_CardId.InfiniteTransience))
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    if (Enemy.SpellZone[i] != null && Enemy.SpellZone[i].Id == _CardId.InfiniteTransience)
+                        Duel.Global.InfiniteTransience_zone = i;
+                }
+                Logger.DebugWriteLine("*******HasInfiniteTransience*************");
+            }
+        }
+
         public override void OnChainEnd()
         {
             

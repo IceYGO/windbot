@@ -234,6 +234,9 @@ namespace WindBot.Game.AI.Decks
         bool CrystalWingSynchroDragon_used = false;
         public override void OnNewPhase()
         {
+            //AI.Utils.UpdateLinkedZone();
+            //Logger.DebugWriteLine("Zones.CheckLinkedPointZones= " + Zones.CheckLinkedPointZones);
+            //Logger.DebugWriteLine("Zones.CheckMutualEnemyZoneCount= " + Zones.CheckMutualEnemyZoneCount);
             plan_C = false;
             ApprenticeLllusionMagician_count = 0;
             foreach (ClientCard count in Bot.GetMonsters())
@@ -1671,16 +1674,7 @@ namespace WindBot.Game.AI.Decks
         }
         public override void OnChaining(int player, ClientCard card)
         {
-            Duel.Global.InfiniteTransience_zone = -1;
-            if (Enemy.HasInSpellZone(_CardId.InfiniteTransience))
-            {
-                for (int i = 0; i < 4; i++)
-                {
-                    if (Enemy.SpellZone[i] != null && Enemy.SpellZone[i].Id == _CardId.InfiniteTransience)
-                        Duel.Global.InfiniteTransience_zone = i;
-                }
-                Logger.DebugWriteLine("*******HasInfiniteTransience*************");
-            }
+            base.OnChaining(player, card);
         }
 
 
@@ -1789,6 +1783,7 @@ namespace WindBot.Game.AI.Decks
                     count++;
             }
             ghost_done = count;
+            base.OnChainEnd();
         }
 
 
