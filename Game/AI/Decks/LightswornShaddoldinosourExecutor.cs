@@ -1315,17 +1315,7 @@ namespace WindBot.Game.AI.Decks
         {
             return true;
         }
-        /*
-        private bool GoblindberghSummon()
-        {
-            foreach (ClientCard card in Bot.Hand.GetMonsters())
-            {
-                if (!card.Equals(Card) && card.Level == 4)
-                    return true;
-            }
-            return false;
-        }*/
-
+        
 
     }
 }

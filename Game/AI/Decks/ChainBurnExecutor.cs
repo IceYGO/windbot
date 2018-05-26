@@ -868,10 +868,7 @@ namespace WindBot.Game.AI.Decks
                     OjamaTrioused = true;
                 }
             }
-            
-
-
-            
+            base.OnChaining(player, card);           
         }
     }
 }
