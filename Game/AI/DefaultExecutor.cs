@@ -528,19 +528,7 @@ namespace WindBot.Game.AI
 
         public override void OnNewPhase()
         {
-            if(Duel.Global.debug)
-            {
-                if (Duel.Phase == DuelPhase.Standby)
-                {
-                    Logger.DebugWriteLine("*********Bot Hand*********");
-                    foreach (ClientCard card in Bot.Hand)
-                    {
-                        Logger.DebugWriteLine(card.Name);
-                    }
-                    Logger.DebugWriteLine("*********Bot Hand*********");
-                }
-            }            
-            base.OnNewPhase();
+            
         }
 
         public override void OnChaining(int player, ClientCard card)

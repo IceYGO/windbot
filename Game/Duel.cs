@@ -185,7 +185,7 @@ namespace WindBot.Game
             public static int m_zone;
             public static int intial_zone;
             public static int InfiniteTransience_zone;
-            public static bool debug = false;
+            
         }
     }
 }

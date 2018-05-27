@@ -74,6 +74,8 @@ namespace WindBot
             Info.HostInfo = Config.GetString("HostInfo", Info.HostInfo);
             Info.Version = Config.GetInt("Version", Info.Version);
             Info.Hand = Config.GetInt("Hand", Info.Hand);
+            Info.Debug = Config.GetBool("Debug", Info.Debug);
+            Info.DialogOpen = Config.GetInt("DialogOpen", Info.DialogOpen);
             Run(Info);
         }
 
@@ -114,6 +116,13 @@ namespace WindBot
                     string hand = HttpUtility.ParseQueryString(RawUrl).Get("hand");
                     if (hand != null)
                         Info.Hand = Int32.Parse(hand);
+                    string dialogopen = HttpUtility.ParseQueryString(RawUrl).Get("dialogopen");
+                    if (dialogopen != null)
+                        Info.DialogOpen = Int32.Parse(dialogopen);
+                    string debug = HttpUtility.ParseQueryString(RawUrl).Get("debug");
+                    if(debug!=null)
+                        Info.Debug= bool.Parse(debug);
+                    
 
                     if (Info.Name == null || Info.Host == null || port == null)
                     {
