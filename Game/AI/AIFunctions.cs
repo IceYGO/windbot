@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using YGOSharp.OCGWrapper.Enums;
-
 namespace WindBot.Game.AI
 {
     public class AIFunctions
@@ -8,7 +7,26 @@ namespace WindBot.Game.AI
         public Duel Duel { get; private set; }
         public ClientField Bot { get; private set; }
         public ClientField Enemy { get; private set; }
-
+        private static int bot_0_co_count;
+        private static int bot_1_co_count;
+        private static int bot_2_co_count;
+        private static int bot_3_co_count;
+        private static int bot_4_co_count;
+        private static int bot_5_co_count;
+        private static int bot_6_co_count;
+        private static int enemy_0_co_count;
+        private static int enemy_1_co_count;
+        private static int enemy_2_co_count;
+        private static int enemy_3_co_count;
+        private static int enemy_4_co_count;
+        private static int enemy_5_co_count;
+        private static int enemy_6_co_count;
+        private class __CardId
+        {
+            public const int DarkMagician = 46986414;
+            public const int DarkMagicianTheDragonKnight = 41721210;
+            public const int EternalSoul = 48680970;
+        }
         public AIFunctions(Duel duel)
         {
             Duel = duel;
@@ -175,7 +193,10 @@ namespace WindBot.Game.AI
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Enemy.MonsterZone[i];
-                if (card == null || card.Data == null || (canBeTarget && card.IsShouldNotBeTarget())) continue;
+                if (card == null || card.Data == null || 
+                    (canBeTarget && card.IsShouldNotBeTarget()) ||
+                    card == IsUnffectCardWithCondition(canBeTarget)
+                    ) continue;
                 if (onlyATK && card.IsDefense()) continue;
                 int enemyValue = card.GetDefensePower();
                 if (enemyValue >= bestValue)
@@ -187,6 +208,27 @@ namespace WindBot.Game.AI
             return bestCard;
         }
 
+        
+
+            public ClientCard IsUnffectCardWithCondition(bool canBeTarget)
+        {
+            if (!canBeTarget) return null;
+            ClientCard card = null;
+            if(Enemy.HasInSpellZone(__CardId.EternalSoul))
+            {
+                foreach (ClientCard check in Enemy.GetMonsters())
+                {
+                    if (check.Id == __CardId.DarkMagician)
+                        card = check;
+                    if (check.Id == __CardId.DarkMagicianTheDragonKnight)
+                        card = check;
+
+                }
+            }
+            return card;
+        }
+
+
         public ClientCard GetOneEnemyBetterThanMyBest(bool onlyATK = false, bool canBeTarget = false)
         {
             int bestBotPower = GetBestPower(Bot, onlyATK);
@@ -196,19 +238,19 @@ namespace WindBot.Game.AI
         public ClientCard GetProblematicEnemyCard(int attack = 0, bool canBeTarget = false)
         {
             ClientCard card = Enemy.MonsterZone.GetFloodgate(canBeTarget);
-            if (card != null)
+            if (card != null && card!=IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             card = Enemy.SpellZone.GetFloodgate(canBeTarget);
-            if (card != null)
+            if (card != null && card != IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             card = Enemy.MonsterZone.GetDangerousMonster(canBeTarget);
-            if (card != null)
+            if (card != null && card != IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             card = Enemy.MonsterZone.GetInvincibleMonster(canBeTarget);
-            if (card != null)
+            if (card != null && card != IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             if (attack == 0)
@@ -219,15 +261,15 @@ namespace WindBot.Game.AI
         public ClientCard GetProblematicEnemyMonster(int attack = 0, bool canBeTarget = false)
         {
             ClientCard card = Enemy.MonsterZone.GetFloodgate(canBeTarget);
-            if (card != null)
+            if (card != null && card != IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             card = Enemy.MonsterZone.GetDangerousMonster(canBeTarget);
-            if (card != null)
+            if (card != null && card != IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             card = Enemy.MonsterZone.GetInvincibleMonster(canBeTarget);
-            if (card != null)
+            if (card != null && card != IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             if (attack == 0)
@@ -244,11 +286,11 @@ namespace WindBot.Game.AI
         public ClientCard GetBestEnemyCard(bool onlyFaceup = false, bool canBeTarget = false)
         {
             ClientCard card = GetBestEnemyMonster(onlyFaceup, canBeTarget);
-            if (card != null)
+            if (card != null && card != IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             card = GetBestEnemySpell(onlyFaceup);
-            if (card != null)
+            if (card != null && card != IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             return null;
@@ -257,11 +299,11 @@ namespace WindBot.Game.AI
         public ClientCard GetBestEnemyMonster(bool onlyFaceup = false, bool canBeTarget = false)
         {
             ClientCard card = GetProblematicEnemyMonster(0, canBeTarget);
-            if (card != null)
+            if (card != null && card != IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             card = Enemy.MonsterZone.GetHighestAttackMonster(canBeTarget);
-            if (card != null)
+            if (card != null && card != IsUnffectCardWithCondition(canBeTarget))
                 return card;
 
             List<ClientCard> monsters = Enemy.GetMonsters();
@@ -311,6 +353,423 @@ namespace WindBot.Game.AI
                 return spells[0];
 
             return null;
+        }
+
+        private int Math_Pow(int num,int n)
+        {
+            int result = num;
+            for (int i = 0; i < n-1; i++)
+                result *= result;
+            return result;
+        }
+
+        private void UpdateMutualZoneCount()
+        {
+            int temp = Zones.CheckMutualBotZoneCount;
+            temp |= bot_6_co_count;
+            temp |= (bot_5_co_count << 3);
+            temp |= (bot_4_co_count << 6);
+            temp |= (bot_3_co_count << 9);
+            temp |= (bot_2_co_count << 12);
+            temp |= (bot_1_co_count << 15);
+            temp |= (bot_0_co_count << 18);
+            Zones.CheckMutualBotZoneCount = temp;
+            temp = Zones.CheckMutualEnemyZoneCount;
+            temp |= enemy_6_co_count;
+            temp |= (enemy_5_co_count << 3);
+            temp |= (enemy_4_co_count << 6);
+            temp |= (enemy_3_co_count << 9);
+            temp |= (enemy_2_co_count << 12);
+            temp |= (enemy_1_co_count << 15);
+            temp |= (enemy_0_co_count << 18);
+            Zones.CheckMutualEnemyZoneCount = temp;
+        }
+
+        private void UpdateColinkZone(int zone,int player)
+        {
+            if(player==1)
+            {
+                if (zone == 0)
+                    enemy_0_co_count++;
+                if (zone == 1)
+                    enemy_1_co_count++;
+                if (zone == 2)
+                    enemy_2_co_count++;
+                if (zone == 3)
+                    enemy_3_co_count++;
+                if (zone == 4)
+                    enemy_4_co_count++;
+                if (zone == 5)
+                    enemy_5_co_count++;
+                if (zone == 6)
+                    enemy_6_co_count++;
+            }
+            if(player==0)
+            {
+                if (zone == 0)
+                    bot_0_co_count++;
+                if (zone == 1)
+                    bot_1_co_count++;
+                if (zone == 2)
+                    bot_2_co_count++;
+                if (zone == 3)
+                    bot_3_co_count++;
+                if (zone == 4)
+                    bot_4_co_count++;
+                if (zone == 5)
+                    bot_5_co_count++;
+                if (zone == 6)
+                    bot_6_co_count++;
+            }
+        }
+        public void UpdateLinkedZone()
+        {
+            int temp = Zones.CheckLinkedPointZones;
+            int temp_1 = Zones.CheckMutualBotZoneCount;
+            int temp_2 = Zones.CheckMutualEnemyZoneCount;
+            bot_0_co_count = 0;
+            bot_1_co_count = 0;
+            bot_2_co_count = 0;
+            bot_3_co_count = 0;
+            bot_4_co_count = 0;
+            bot_5_co_count = 0;
+            bot_6_co_count = 0;
+            enemy_0_co_count = 0;
+            enemy_1_co_count = 0;
+            enemy_2_co_count = 0;
+            enemy_3_co_count = 0;
+            enemy_4_co_count = 0;
+            enemy_5_co_count = 0;
+            enemy_6_co_count = 0;
+            for (int i=0;i<7;i++)
+            {
+                if(Enemy.MonsterZone[i]!=null && Enemy.MonsterZone[i].HasType(CardType.Link))
+                {                    
+                    ClientCard card = Enemy.MonsterZone[i];
+                    if (i > 0 && i <= 4 && card.HasLinkMarker((int)LinkMarker.Left))
+                    {
+                        temp |= Math_Pow(2, i - 1);
+                        if (Enemy.MonsterZone[i - 1]!=null &&
+                            Enemy.MonsterZone[i - 1].HasLinkMarker((int)LinkMarker.Right))
+                            UpdateColinkZone(i, 1);
+                    }  
+                    
+                    if (i <= 3 && card.HasLinkMarker((int)LinkMarker.Right))
+                    {
+                        temp |= Math_Pow(2, i + 1);
+                        if (Enemy.MonsterZone[i + 1]!=null &&
+                            Enemy.MonsterZone[i + 1].HasLinkMarker((int)LinkMarker.Right))
+                            UpdateColinkZone(i, 1);
+                    }
+
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.Bottom))
+                    {
+                        temp |= Math_Pow(2, 1);
+                        if (Enemy.MonsterZone[1]!=null &&
+                            Enemy.MonsterZone[1].HasLinkMarker((int)LinkMarker.Top))
+                            UpdateColinkZone(i, 1);
+                    }                     
+
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.Bottom))
+                    {
+                        temp |= Math_Pow(2, 3);
+                        if (Enemy.MonsterZone[3] != null &&
+                            Enemy.MonsterZone[3].HasLinkMarker((int)LinkMarker.Top))
+                            UpdateColinkZone(i, 1);
+                    }                      
+
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.BottomLeft))
+                    {
+                        temp |= Math_Pow(2, 0);
+                        if (Enemy.MonsterZone[0] != null &&
+                            Enemy.MonsterZone[0].HasLinkMarker((int)LinkMarker.TopRight))
+                            UpdateColinkZone(i, 1);
+                    }
+                        
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.BottomLeft))
+                    {
+                        temp |= Math_Pow(2, 4);
+                        if (Enemy.MonsterZone[4] != null &&
+                            Enemy.MonsterZone[4].HasLinkMarker((int)LinkMarker.TopRight))
+                            UpdateColinkZone(i, 1);
+                    }
+                        
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.BottomRight))
+                    {
+                        temp |= Math_Pow(2, 2);
+                        if (Enemy.MonsterZone[2] != null &&
+                            Enemy.MonsterZone[2].HasLinkMarker((int)LinkMarker.TopLeft))
+                            UpdateColinkZone(i, 1);
+                    }
+                        
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.BottomRight))
+                    {
+                        temp |= Math_Pow(2, 4);
+                        if (Enemy.MonsterZone[4] != null &&
+                            Enemy.MonsterZone[4].HasLinkMarker((int)LinkMarker.TopLeft))
+                            UpdateColinkZone(i, 1);
+                    }
+                        
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.Top))
+                    {
+                        temp |= (Math_Pow(2, 3) << 8);
+                        if (Bot.MonsterZone[3] != null &&
+                            Bot.MonsterZone[3].HasLinkMarker((int)LinkMarker.Top))
+                            UpdateColinkZone(i, 0);
+                    }
+                        
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.Top))
+                    {
+                        temp |= (Math_Pow(2, 1) << 8);
+                        if (Bot.MonsterZone[1] != null &&
+                            Bot.MonsterZone[1].HasLinkMarker((int)LinkMarker.Top))
+                            UpdateColinkZone(i, 0);
+                    }
+                        
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.TopLeft))
+                    {
+                        temp |= (Math_Pow(2, 4) << 8);
+                        if (Bot.MonsterZone[4] != null &&
+                            Bot.MonsterZone[4].HasLinkMarker((int)LinkMarker.TopLeft))
+                            UpdateColinkZone(i, 0);
+                    }
+                        
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.TopLeft))
+                    {
+                        temp |= (Math_Pow(2, 2) << 8);
+                        if (Bot.MonsterZone[2] != null &&
+                            Bot.MonsterZone[2].HasLinkMarker((int)LinkMarker.TopLeft))
+                            UpdateColinkZone(i, 0);
+                    }
+                        
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.TopRight))
+                    {
+                        temp |= (Math_Pow(2, 2) << 8);
+                        if (Bot.MonsterZone[2] != null &&
+                            Bot.MonsterZone[2].HasLinkMarker((int)LinkMarker.TopRight))
+                            UpdateColinkZone(i, 0);
+                    }
+                        
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.TopRight))
+                    {
+                        temp |= (Math_Pow(2, 0) << 8);
+                        if (Bot.MonsterZone[0] != null &&
+                            Bot.MonsterZone[0].HasLinkMarker((int)LinkMarker.TopRight))
+                            UpdateColinkZone(i, 0);
+                    }
+                        
+                }
+                if (Bot.MonsterZone[i] != null && Bot.MonsterZone[i].HasType(CardType.Link))
+                {                   
+
+                    ClientCard card = Bot.MonsterZone[i];
+                    if (i > 0 && i <= 4 && card.HasLinkMarker((int)LinkMarker.Left))
+                    {
+                        temp |= (Math_Pow(2, i - 1) << 8);
+                        if(Bot.MonsterZone[i-1] != null &&
+                            Bot.MonsterZone[i-1].HasLinkMarker((int)LinkMarker.Right))
+                        UpdateColinkZone(i, 0);
+                    }
+                        
+                    if (i <= 3 && card.HasLinkMarker((int)LinkMarker.Right))
+                    {
+                        temp |= (Math_Pow(2, i + 1) << 8);
+                        if(Bot.MonsterZone[i+1] != null &&
+                            Bot.MonsterZone[i+1].HasLinkMarker((int)LinkMarker.Left))
+                        UpdateColinkZone(i, 0);
+                    }                        
+
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.Bottom))
+                    {
+                        temp |= (Math_Pow(2, 1) << 8);
+                        if (Bot.MonsterZone[1] != null &&
+                            Bot.MonsterZone[1].HasLinkMarker((int)LinkMarker.Top))
+                            UpdateColinkZone(i, 0);
+                    }
+                        
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.Bottom))
+                    {
+                        temp |= (Math_Pow(2, 3) << 8);
+                        if (Bot.MonsterZone[3] != null &&
+                            Bot.MonsterZone[3].HasLinkMarker((int)LinkMarker.Top))
+                            UpdateColinkZone(i, 0);
+                    }
+                       
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.BottomLeft))
+                    {
+                        temp |= (Math_Pow(2, 0) << 8);
+                        if (Bot.MonsterZone[0] != null &&
+                            Bot.MonsterZone[0].HasLinkMarker((int)LinkMarker.TopRight))
+                            UpdateColinkZone(i, 0);
+                    }
+                        
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.BottomLeft))
+                    {
+                        temp |= (Math_Pow(2, 4) << 8);
+                        if (Bot.MonsterZone[4] != null &&
+                            Bot.MonsterZone[4].HasLinkMarker((int)LinkMarker.TopRight))
+                            UpdateColinkZone(i, 0);
+                    }
+                       
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.BottomRight))
+                    {
+                        temp |= (Math_Pow(2, 2) << 8);
+                        if (Bot.MonsterZone[2] != null &&
+                            Bot.MonsterZone[2].HasLinkMarker((int)LinkMarker.TopLeft))
+                            UpdateColinkZone(i, 0);
+                    }
+                        
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.BottomRight))
+                    {
+                        temp |= (Math_Pow(2, 4) << 8);
+                        if (Bot.MonsterZone[4] != null &&
+                            Bot.MonsterZone[4].HasLinkMarker((int)LinkMarker.TopLeft))
+                            UpdateColinkZone(i, 0);
+                    }
+                        
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.Top))
+                    {
+                        temp |= Math_Pow(2, 3);
+                        if (Enemy.MonsterZone[4] != null &&
+                            Enemy.MonsterZone[4].HasLinkMarker((int)LinkMarker.Top))
+                            UpdateColinkZone(i, 1);
+                    }
+                        
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.Top))
+                    {
+                        temp |= Math_Pow(2, 1);
+                        if (Enemy.MonsterZone[3] != null &&
+                            Enemy.MonsterZone[1].HasLinkMarker((int)LinkMarker.Top))
+                            UpdateColinkZone(i, 1);
+                    }
+                        
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.TopLeft))
+                    {
+                        temp |= Math_Pow(2, 4);
+                        if (Enemy.MonsterZone[4] != null &&
+                            Enemy.MonsterZone[4].HasLinkMarker((int)LinkMarker.TopLeft))
+                            UpdateColinkZone(i, 1);
+                    }
+                        
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.TopLeft))
+                    {
+                        temp |= Math_Pow(2, 2);
+                        if (Enemy.MonsterZone[2] != null &&
+                            Enemy.MonsterZone[2].HasLinkMarker((int)LinkMarker.TopLeft))
+                            UpdateColinkZone(i, 1);
+                    }
+                        
+                    if (i == 5 && card.HasLinkMarker((int)LinkMarker.TopRight))
+                    {
+                        temp |= Math_Pow(2, 2);
+                        if (Enemy.MonsterZone[2] != null &&
+                            Enemy.MonsterZone[2].HasLinkMarker((int)LinkMarker.TopRight))
+                            UpdateColinkZone(i, 1);
+                    }
+                       
+                    if (i == 6 && card.HasLinkMarker((int)LinkMarker.TopRight))
+                    {
+                        temp |= Math_Pow(2, 0);
+                        if (Enemy.MonsterZone[0] != null &&
+                            Enemy.MonsterZone[0].HasLinkMarker((int)LinkMarker.TopRight))
+                            UpdateColinkZone(i, 1);
+                    }
+                        
+                }
+            }
+            //Logger.DebugWriteLine("temp= "+temp);
+            Zones.CheckLinkedPointZones = temp;
+            UpdateMutualZoneCount();
+        }
+
+        public int GetCoLinkCount(ClientCard card, int player,int zone=-1)
+        {
+            if (!card.HasType(CardType.Link))
+                return 0;           
+            UpdateLinkedZone();
+            int count = 0;
+            int checkzone = -1;
+            if(player==1)
+            {
+                if(zone==-1)
+                {
+                    for (int i = 0; i < 7; i++)
+                    {
+                        if (Enemy.MonsterZone[i] == card)
+                        {
+                            checkzone = i;
+                            break;
+                        }
+                    }
+                }
+                Logger.DebugWriteLine("checkzone= " + checkzone);                
+                if (checkzone == 6)
+                {
+                    /*count = Zones.CheckMutualEnemyZoneCount << 19;
+                    Logger.DebugWriteLine("count= "+count);
+                    count = count >> 19;*/
+                    count = enemy_6_co_count;
+                }
+                if (checkzone == 0)
+                {                    
+                    count = (Zones.CheckMutualEnemyZoneCount) >> 19;
+                    count = enemy_0_co_count;
+                }
+                if (checkzone == 1)
+                    count = enemy_1_co_count;
+                if (checkzone == 2)
+                    count = enemy_2_co_count;
+                if (checkzone == 3)
+                    count = enemy_3_co_count;
+                if (checkzone == 4)
+                    count = enemy_4_co_count;
+                if (checkzone == 5)
+                    count = enemy_5_co_count;
+                    
+               /* else
+                {
+                    Logger.DebugWriteLine("count= " + Zones.CheckMutualEnemyZoneCount);
+                    count = Zones.CheckMutualEnemyZoneCount >> 1;
+                    Logger.DebugWriteLine("count= " + count);
+                    count <<= 2;
+                    Logger.DebugWriteLine("count= " + count);
+                    count >>= 1;
+                    Logger.DebugWriteLine("count= " + count);
+                    count = Zones.CheckMutualEnemyZoneCount << checkzone * 3 + 1;
+                    Logger.DebugWriteLine("count= " + count);
+                    count = count >> 19;
+                }*/ 
+            }
+            if (player == 0)
+            {
+                if (zone == -1)
+                {
+                    for (int i = 0; i < 7; i++)
+                    {
+                        if (Bot.MonsterZone[i] == card)
+                        {
+                            checkzone = i;
+                            break;
+                        }
+                    }
+                }
+                if (checkzone == 6)
+                {
+                    count = Zones.CheckMutualBotZoneCount << 19;
+                    Logger.DebugWriteLine("count= " + count);
+                    count = count >> 19;
+                }
+                if (checkzone == 0)
+                    count = Zones.CheckMutualBotZoneCount >> 19;
+                else
+                {
+                    count = Zones.CheckMutualBotZoneCount << checkzone * 3;
+                    Logger.DebugWriteLine("count= " + count);
+                    count = count >> 19;
+                }
+            }
+            Logger.DebugWriteLine("count= " + count);
+            return (int)count;
         }
 
         public ClientCard GetPZone(int player, int id)
