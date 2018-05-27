@@ -262,7 +262,8 @@ namespace WindBot.Game
         }
         
         private void OnDuelEnd(BinaryReader packet)
-        {
+        {            
+            Logger.DebugWriteLine("********************* Duel end *********************");
             Connection.Close();
         }
 
@@ -351,12 +352,15 @@ namespace WindBot.Game
         {
             int player = GetLocalPlayer(packet.ReadByte());
             int count = packet.ReadByte();
+            if (Duel.Global.debug)
+                Logger.DebugWriteLine("(" + player.ToString() + " draw " + count.ToString() + " card)");
 
             for (int i = 0; i < count; ++i)
             {
                 _duel.Fields[player].Deck.RemoveAt(_duel.Fields[player].Deck.Count - 1);
                 _duel.Fields[player].Hand.Add(new ClientCard(0, CardLocation.Hand));
             }
+            _ai.OnDraw(player);
         }
 
         private void OnShuffleDeck(BinaryReader packet)
@@ -422,6 +426,8 @@ namespace WindBot.Game
         private void OnNewPhase(BinaryReader packet)
         {
             _duel.Phase = (DuelPhase)packet.ReadInt16();
+            if (Duel.Global.debug)
+                Logger.DebugWriteLine("(Go to " + (_duel.Phase.ToString()) + ")");
             _duel.LastSummonPlayer = -1;
             _duel.Fields[0].BattlingMonster = null;
             _duel.Fields[1].BattlingMonster = null;
@@ -433,6 +439,8 @@ namespace WindBot.Game
             int player = GetLocalPlayer(packet.ReadByte());
             int final = _duel.Fields[player].LifePoints - packet.ReadInt32();
             if (final < 0) final = 0;
+            if(Duel.Global.debug)
+                Logger.DebugWriteLine("(" + player.ToString() + " got damaged , LifePoint left= " + final.ToString() + ")");
             _duel.Fields[player].LifePoints = final;
         }
 
@@ -462,7 +470,13 @@ namespace WindBot.Game
             packet.ReadInt32(); // reason
 
             ClientCard card = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
-
+            if(Duel.Global.debug)
+            {
+                if (card != null)
+                    Logger.DebugWriteLine("(" + previousControler.ToString() + " 的 " + (card.Name ?? "UnKnowCard")
+                        + " from " +
+                        (CardLocation)previousLocation + " move to " + (CardLocation)currentLocation + ")");
+            }            
             if ((previousLocation & (int)CardLocation.Overlay) != 0)
             {
                 previousLocation = previousLocation & 0x7f;
@@ -503,6 +517,11 @@ namespace WindBot.Game
 
             ClientCard attackcard = _duel.GetCard(ca, (CardLocation)la, sa);
             ClientCard defendcard = _duel.GetCard(cd, (CardLocation)ld, sd);
+            if (Duel.Global.debug)
+            {
+                if (defendcard == null) Logger.DebugWriteLine("(" + (attackcard.Name ?? "UnKnowCard") + " direct attack!!)");
+                else Logger.DebugWriteLine("(" + ca.ToString() + " 的 " + (attackcard.Name ?? "UnKnowCard") + " attack  " + cd.ToString() + "的" + (defendcard.Name ?? "UnKnowCard") + ")");
+            }                
             _duel.Fields[attackcard.Controller].BattlingMonster = attackcard;
             _duel.Fields[1 - attackcard.Controller].BattlingMonster = defendcard;
 
@@ -522,7 +541,11 @@ namespace WindBot.Game
             int cp = packet.ReadSByte();
             ClientCard card = _duel.GetCard(pc, (CardLocation)pl, ps);
             if (card != null)
+            {
                 card.Position = cp;
+                if (Duel.Global.debug)
+                    Logger.DebugWriteLine("(" + (card.Name ?? "UnKnowCard") + " change position to " + (CardPosition)cp + ")");
+            }
         }
 
         private void OnChaining(BinaryReader packet)
@@ -534,6 +557,8 @@ namespace WindBot.Game
             int subs = packet.ReadSByte();
             ClientCard card = _duel.GetCard(pcc, pcl, pcs, subs);
             int cc = GetLocalPlayer(packet.ReadByte());
+            if (Duel.Global.debug)
+                if (card != null) Logger.DebugWriteLine("(" + cc.ToString() + " 的 " + (card.Name ?? "UnKnowCard") + " activate effect)");
             _ai.OnChaining(card, cc);
             _duel.ChainTargets.Clear();
             _duel.LastSummonPlayer = -1;
@@ -669,6 +694,8 @@ namespace WindBot.Game
                 /*int sseq = */packet.ReadByte();
                 ClientCard card = _duel.GetCard(player, (CardLocation)loc, seq);
                 if (card == null) continue;
+                if (Duel.Global.debug)
+                    Logger.DebugWriteLine("(" + (CardLocation)loc + " 的 " + (card.Name ?? "UnKnowCard") + " become target)");
                 _duel.ChainTargets.Add(card);
             }
         }
