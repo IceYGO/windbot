@@ -70,6 +70,11 @@ namespace WindBot.Game
             return Executor.OnSelectHand();
         }
 
+        public void OnDraw(int player)
+        {
+            Executor.OnDraw(player);
+        }
+
         /// <summary>
         /// Called when it's a new turn.
         /// </summary>
