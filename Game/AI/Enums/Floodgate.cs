@@ -73,7 +73,6 @@
         ElShaddollWinda = 94977269,
         UltimateConductorTytanno = 18940556,
         OvertexCoatls = 41782653,
-        FirePrison = 269510,
-
+        FirePrison = 269510
     }
 }

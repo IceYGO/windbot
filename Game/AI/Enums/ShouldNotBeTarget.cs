@@ -44,6 +44,6 @@
         YaziEviloftheYangZing = 43202238,
         RaidraptorUltimateFalcon = 86221741,
         DisdainfulBirdofParadise = 27240101,
-        DarkestDiabolosLordOfTheLair = 50383626,
+        DarkestDiabolosLordOfTheLair = 50383626
     }
 }
