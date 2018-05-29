@@ -70,6 +70,30 @@ namespace WindBot.Game
             }
             return count;
         }
+
+        /// <summary>
+        /// Count Column
+        /// </summary>
+        /// <param zone>range of zone 0-4</param>
+        public int GetColumnCount(int zone, bool IncludeExtraMonsterZone = true)
+        {
+            int count = 0;
+            if (SpellZone[zone] != null)
+                count++;
+            if (MonsterZone[zone] != null)
+                count++;
+            if(zone == 1 && IncludeExtraMonsterZone)
+            {
+                if (MonsterZone[5] != null)
+                    count++;
+            }
+            if (zone == 3 && IncludeExtraMonsterZone)
+            {
+                if (MonsterZone[6] != null)
+                    count++;
+            }
+            return count;
+        }
                 
 
         public int GetFieldCount()
@@ -216,6 +240,76 @@ namespace WindBot.Game
         public bool HasInSpellZone(IList<int> cardId, bool notDisabled = false)
         {
             return HasInCards(SpellZone, cardId, notDisabled);
+        }
+
+        public bool HasInHandOrInSpellZone(int cardId)
+        {
+            return HasInHand(cardId) || HasInSpellZone(cardId);
+        }
+
+        public bool HasInHandOrHasInMonstersZone(int cardId)
+        {
+            return HasInHand(cardId) || HasInMonstersZone(cardId);
+        }
+
+        public bool HasInHandOrInGraveyard(int cardId)
+        {
+            return HasInHand(cardId) || HasInGraveyard(cardId);
+        }
+
+        public bool HasInMonstersZoneOrInGraveyard(int cardId)
+        {
+            return HasInMonstersZone(cardId) || HasInGraveyard(cardId);
+        }
+
+        public bool HasInSpellZoneOrInGraveyard(int cardId)
+        {
+            return HasInSpellZone(cardId) || HasInGraveyard(cardId);
+        }
+
+        public bool HasInHandOrInMonstersZoneOrInGraveyard(int cardId)
+        {
+            return HasInHand(cardId) || HasInMonstersZone(cardId) || HasInGraveyard(cardId);
+        }
+
+        public bool HasInHandOrInSpellZoneOrInGraveyard(int cardId)
+        {
+            return HasInHand(cardId) || HasInSpellZone(cardId) || HasInGraveyard(cardId);
+        }
+
+        public bool HasInHandOrInSpellZone(IList<int> cardId)
+        {
+            return HasInHand(cardId) || HasInSpellZone(cardId);
+        }
+
+        public bool HasInHandOrHasInMonstersZone(IList<int> cardId)
+        {
+            return HasInHand(cardId) || HasInMonstersZone(cardId);
+        }
+
+        public bool HasInHandOrInGraveyard(IList<int> cardId)
+        {
+            return HasInHand(cardId) || HasInGraveyard(cardId);
+        }
+
+        public bool HasInMonstersZoneOrInGraveyard(IList<int> cardId)
+        {
+            return HasInMonstersZone(cardId) || HasInGraveyard(cardId);
+        }
+
+        public bool HasInSpellZoneOrInGraveyard(IList<int> cardId)
+        {
+            return HasInSpellZone(cardId) || HasInGraveyard(cardId);
+        }
+
+        public bool HasInHandOrInMonstersZoneOrInGraveyard(IList<int> cardId)
+        {
+            return HasInHand(cardId) || HasInMonstersZone(cardId) || HasInGraveyard(cardId);
+        }
+
+        public bool HasInHandOrInSpellZoneOrInGraveyard(IList<int> cardId)
+        {
+            return HasInHand(cardId) || HasInSpellZone(cardId) || HasInGraveyard(cardId);
         }
 
         public int GetRemainingCount(int cardId, int initialCount)

@@ -97,6 +97,11 @@ namespace WindBot.Game.AI
         {
             // Some AI need do something on new turn
         }
+		
+        public virtual void OnDraw(int player)
+        {
+            // Some AI need do something on draw
+        }
 
         public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
@@ -146,6 +151,12 @@ namespace WindBot.Game.AI
             return null;
         }
 
+        public virtual IList<ClientCard> OnCardSorting(IList<ClientCard> cards)
+        {
+            // For overriding
+            return null;
+        }
+
         public virtual bool OnSelectYesNo(int desc)
         {
             return true;
@@ -154,6 +165,12 @@ namespace WindBot.Game.AI
         public virtual int OnSelectOption(IList<int> options)
         {
             return -1;
+        }
+
+        public virtual int OnSelectPlace(int cardId, int player, int location, int available)
+        {
+            // For overriding
+            return 0;
         }
 
         public virtual CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)

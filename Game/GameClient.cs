@@ -14,7 +14,8 @@ namespace WindBot.Game
         public string Deck;
         public string Dialog;
         public int Hand;
-
+        public bool Debug;
+        public bool _chat;
         private string _serverHost;
         private int _serverPort;
         private short _proVersion;
@@ -29,6 +30,8 @@ namespace WindBot.Game
             Deck = Info.Deck;
             Dialog = Info.Dialog;
             Hand = Info.Hand;
+            Debug = Info.Debug;
+            _chat = Info.Chat;
             _serverHost = Info.Host;
             _serverPort = Info.Port;
             _roomInfo = Info.HostInfo;

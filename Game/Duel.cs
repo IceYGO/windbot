@@ -115,6 +115,37 @@ namespace WindBot.Game
             }
         }
 
+        public void AddCard(CardLocation loc, ClientCard card, int player, int zone, int pos, int id)
+        {
+            card.Location = loc;
+            card.Position = pos;
+            card.SetId(id);
+            switch (loc)
+            {
+                case CardLocation.Hand:
+                    Fields[player].Hand.Add(card);
+                    break;
+                case CardLocation.Grave:
+                    Fields[player].Graveyard.Add(card);
+                    break;
+                case CardLocation.Removed:
+                    Fields[player].Banished.Add(card);
+                    break;
+                case CardLocation.MonsterZone:
+                    Fields[player].MonsterZone[zone] = card;
+                    break;
+                case CardLocation.SpellZone:
+                    Fields[player].SpellZone[zone] = card;
+                    break;
+                case CardLocation.Deck:
+                    Fields[player].Deck.Add(card);
+                    break;
+                case CardLocation.Extra:
+                    Fields[player].ExtraDeck.Add(card);
+                    break;
+            }
+        }
+
         public void RemoveCard(CardLocation loc, ClientCard card, int player, int zone)
         {
             switch (loc)

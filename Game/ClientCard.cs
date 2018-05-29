@@ -23,6 +23,8 @@ namespace WindBot.Game
         public int Defense { get; private set; }
         public int LScale { get; private set; }
         public int RScale { get; private set; }
+        public int LinkCount { get; private set; }
+        public int LinkMarker { get; private set; }
         public int BaseAttack { get; private set; }
         public int BaseDefense { get; private set; }
         public int RealPower { get; set; }
@@ -132,6 +134,21 @@ namespace WindBot.Game
                 LScale = packet.ReadInt32();
             if ((flag & (int)Query.RScale) != 0)
                 RScale = packet.ReadInt32();
+            if ((flag & (int)Query.Link) != 0)
+            {
+                LinkCount = packet.ReadInt32();
+                LinkMarker = packet.ReadInt32();
+            }
+        }
+
+        public bool HasLinkMarker(int dir)
+        {
+            return ((LinkMarker & dir) != 0);
+        }
+
+        public bool HasLinkMarker(LinkMarker dir)
+        {
+            return ((LinkMarker & (int)dir) != 0);
         }
 
         public bool HasType(CardType type)

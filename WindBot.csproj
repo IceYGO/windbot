@@ -68,6 +68,7 @@
     <Compile Include="Game\AI\DecksManager.cs" />
     <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
     <Compile Include="Game\AI\Decks\CyberDragonExecutor.cs" />
+    <Compile Include="Game\AI\Decks\DarkMagicianExecutor.cs" />
     <Compile Include="Game\AI\Decks\SkyStrikerExecutor.cs" />
     <Compile Include="Game\AI\Decks\MokeyMokeyKingExecutor.cs" />
     <Compile Include="Game\AI\Decks\MokeyMokeyExecutor.cs" />
@@ -98,11 +99,16 @@
     <Compile Include="Game\AI\Dialogs.cs" />
     <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
     <Compile Include="Game\AI\Enums\FusionSpell.cs" />
+    <Compile Include="Game\AI\Enums\ShouldBeDisabledBeforeItUseEffectMonster.cs" />
+    <Compile Include="Game\AI\Enums\ShouldNotBeSpellTarget.cs" />
+    <Compile Include="Game\AI\Enums\ShouldNotBeMonsterTarget.cs" />
+    <Compile Include="Game\AI\Enums\ShouldNotBeTarget.cs" />
     <Compile Include="Game\AI\Enums\PreventActivationEffectInBattle.cs" />
     <Compile Include="Game\AI\Enums\OneForXyz.cs" />
     <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
     <Compile Include="Game\AI\Enums\Floodgate.cs" />
     <Compile Include="Game\AI\Executor.cs" />
+    <Compile Include="Game\AI\Zones.cs" />
     <Compile Include="Game\AI\ExecutorType.cs" />
     <Compile Include="Game\BattlePhase.cs" />
     <Compile Include="Game\BattlePhaseAction.cs" />

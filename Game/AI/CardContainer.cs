@@ -6,13 +6,13 @@ namespace WindBot.Game.AI
 {
     public static class CardContainer
     {
-        public static ClientCard GetHighestAttackMonster(this IEnumerable<ClientCard> cards)
+        public static ClientCard GetHighestAttackMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
             int highestAtk = 0;
             ClientCard selected = null;
             foreach (ClientCard card in cards)
             {
-                if (card == null || card.Data == null || card.IsFacedown()) continue;
+                if (card == null || card.Data == null || card.IsFacedown() || (canBeTarget && card.IsShouldNotBeTarget())) continue;
                 if (card.HasType(CardType.Monster) && card.Attack > highestAtk)
                 {
                     highestAtk = card.Attack;
@@ -22,13 +22,13 @@ namespace WindBot.Game.AI
             return selected;
         }
 
-        public static ClientCard GetHighestDefenseMonster(this IEnumerable<ClientCard> cards)
+        public static ClientCard GetHighestDefenseMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
             int highestDef = 0;
             ClientCard selected = null;
             foreach (ClientCard card in cards)
             {
-                if (card == null || card.Data == null || card.IsFacedown()) continue;
+                if (card == null || card.Data == null || card.IsFacedown() || (canBeTarget && card.IsShouldNotBeTarget())) continue;
                 if (card.HasType(CardType.Monster) && card.Defense > highestDef)
                 {
                     highestDef = card.Defense;
@@ -38,13 +38,13 @@ namespace WindBot.Game.AI
             return selected;
         }
 
-        public static ClientCard GetLowestAttackMonster(this IEnumerable<ClientCard> cards)
+        public static ClientCard GetLowestAttackMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
             int lowestAtk = 0;
             ClientCard selected = null;
             foreach (ClientCard card in cards)
             {
-                if (card == null || card.Data == null || card.IsFacedown()) continue;
+                if (card == null || card.Data == null || card.IsFacedown() || (canBeTarget && card.IsShouldNotBeTarget())) continue;
                 if (lowestAtk == 0 && card.HasType(CardType.Monster) ||
                     card.HasType(CardType.Monster) && card.Attack < lowestAtk)
                 {
@@ -55,13 +55,13 @@ namespace WindBot.Game.AI
             return selected;
         }
 
-        public static ClientCard GetLowestDefenseMonster(this IEnumerable<ClientCard> cards)
+        public static ClientCard GetLowestDefenseMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
             int lowestDef = 0;
             ClientCard selected = null;
             foreach (ClientCard card in cards)
             {
-                if (card == null || card.Data == null || card.IsFacedown()) continue;
+                if (card == null || card.Data == null || card.IsFacedown() || (canBeTarget && card.IsShouldNotBeTarget())) continue;
                 if (lowestDef == 0 && card.HasType(CardType.Monster) ||
                     card.HasType(CardType.Monster) && card.Defense < lowestDef)
                 {
@@ -149,31 +149,31 @@ namespace WindBot.Game.AI
             return cardlist;
         }
 
-        public static ClientCard GetInvincibleMonster(this IEnumerable<ClientCard> cards)
+        public static ClientCard GetInvincibleMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
             foreach (ClientCard card in cards)
             {
-                if (card != null && card.IsMonsterInvincible() && card.IsFaceup())
+                if (card != null && card.IsMonsterInvincible() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()))
                     return card;
             }
             return null;
         }
 
-        public static ClientCard GetDangerousMonster(this IEnumerable<ClientCard> cards)
+        public static ClientCard GetDangerousMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
             foreach (ClientCard card in cards)
             {
-                if (card != null && card.IsMonsterDangerous() && card.IsFaceup())
+                if (card != null && card.IsMonsterDangerous() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()))
                     return card;
             }
             return null;
         }
 
-        public static ClientCard GetFloodgate(this IEnumerable<ClientCard> cards)
+        public static ClientCard GetFloodgate(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
             foreach (ClientCard card in cards)
             {
-                if (card != null && card.IsFloodgate() && card.IsFaceup())
+                if (card != null && card.IsFloodgate() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()))
                     return card;
             }
             return null;

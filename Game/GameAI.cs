@@ -71,6 +71,14 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when any player draw card.
+        /// </summary>
+        public void OnDraw(int player)
+        {
+            Executor.OnDraw(player);
+        }
+
+        /// <summary>
         /// Called when it's a new turn.
         /// </summary>
         public void OnNewTurn()
@@ -90,6 +98,7 @@ namespace WindBot.Game
             m_option = -1;
             m_yesno = -1;
             m_position = CardPosition.FaceUpAttack;
+            m_place = 0;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
                 _dialogs.SendNewTurn();
@@ -329,6 +338,26 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when the AI has to sort cards.
+        /// </summary>
+        /// <param name="cards">Cards to sort.</param>
+        /// <returns>List of sorted cards.</returns>
+        public IList<ClientCard> OnCardSorting(IList<ClientCard> cards)
+        {
+
+            IList<ClientCard> result = Executor.OnCardSorting(cards);
+            if (result != null)
+                return result;
+            result = new List<ClientCard>();
+            // TODO: use selector
+            for (int i = 0; i < cards.Count; i++)
+            {
+                result.Add(cards[i]);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Called when the AI has to choose to activate or not an effect.
         /// </summary>
         /// <param name="card">Card to activate.</param>
@@ -434,6 +463,23 @@ namespace WindBot.Game
                 return result;
 
             return 0; // Always select the first option.
+        }
+
+        public int OnSelectPlace(int cardId, int player, int location, int available)
+        {
+            int selector_selected = m_place;
+            m_place = 0;
+
+            int executor_selected = Executor.OnSelectPlace(cardId, player, location, available);
+
+            if ((executor_selected & available) > 0)
+                return executor_selected & available;
+            if ((selector_selected & available) > 0)
+                return selector_selected & available;
+
+            // TODO: LinkedZones
+
+            return 0;
         }
 
         /// <summary>
@@ -680,6 +726,7 @@ namespace WindBot.Game
         private CardSelector m_thirdSelector;
         private CardSelector m_materialSelector;
         private CardPosition m_position = CardPosition.FaceUpAttack;
+        private int m_place;
         private int m_option;
         private int m_number;
         private int m_announce;
@@ -812,6 +859,11 @@ namespace WindBot.Game
         public void SelectPosition(CardPosition pos)
         {
             m_position = pos;
+        }
+
+        public void SelectPlace(int zones)
+        {
+            m_place = zones;
         }
 
         public void SelectOption(int opt)

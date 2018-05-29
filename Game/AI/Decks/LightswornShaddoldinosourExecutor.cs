@@ -527,7 +527,7 @@ namespace WindBot.Game.AI.Decks
         
         private bool FairyTailSnowsummon()
         {
-            ClientCard target = AI.Utils.GetBestEnemyMonster(true);
+            ClientCard target = AI.Utils.GetBestEnemyMonster(true, true);
             if(target != null)
             {
                 return true;
@@ -541,7 +541,7 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.Location == CardLocation.MonsterZone)
             {
-                AI.SelectCard(AI.Utils.GetBestEnemyMonster(true));
+                AI.SelectCard(AI.Utils.GetBestEnemyMonster(true, true));
                 return true;
             }
             else
@@ -1052,7 +1052,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Grave)
                 return true;
             if (Bot.LifePoints <= 1000) return false;
-            ClientCard select = AI.Utils.GetBestEnemyMonster();
+            ClientCard select = AI.Utils.GetBestEnemyCard();
             if (select == null) return false;
             if(select!=null)
             {
