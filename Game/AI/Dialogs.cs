@@ -80,15 +80,15 @@ namespace WindBot.Game.AI
 
         public void SendSorry()
         {
-            InternalSendMessage(new[] { "Sorry, an error occurs." });
+            InternalSendMessageForced(new[] { "Sorry, an error occurs." });
         }
 
         public void SendDeckSorry(string card)
         {
             if (card == "DECK")
-                InternalSendMessage(new[] { "Deck illegal. Please check the database of your YGOPro and WindBot." });
+                InternalSendMessageForced(new[] { "Deck illegal. Please check the database of your YGOPro and WindBot." });
             else
-                InternalSendMessage(_deckerror, card);
+                InternalSendMessageForced(_deckerror, card);
         }
 
         public void SendWelcome()
@@ -159,6 +159,15 @@ namespace WindBot.Game.AI
         }
 
         private void InternalSendMessage(IList<string> array, params object[] opts)
+        {
+            if (!_game._chat)
+                return;
+            string message = string.Format(array[Program.Rand.Next(array.Count)], opts);
+            if (message != "")
+                _game.Chat(message);
+        }
+
+        private void InternalSendMessageForced(IList<string> array, params object[] opts)
         {
             string message = string.Format(array[Program.Rand.Next(array.Count)], opts);
             if (message != "")
