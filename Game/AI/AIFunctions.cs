@@ -168,6 +168,7 @@ namespace WindBot.Game.AI
             }
             return bestMonster;
         }
+		
         public ClientCard GetWorstBotMonster(bool onlyATK = false)
         {
             int WorstPower = -1;
@@ -186,6 +187,7 @@ namespace WindBot.Game.AI
             }
             return WorstMonster;
         }
+		
         public ClientCard GetOneEnemyBetterThanValue(int value, bool onlyATK = false, bool canBeTarget = false)
         {
             ClientCard bestCard = null;
