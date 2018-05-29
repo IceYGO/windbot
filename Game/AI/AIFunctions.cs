@@ -212,7 +212,7 @@ namespace WindBot.Game.AI
 
         
 
-            public ClientCard IsUnffectCardWithCondition(bool canBeTarget)
+        public ClientCard IsUnffectCardWithCondition(bool canBeTarget)
         {
             if (!canBeTarget) return null;
             ClientCard card = null;
