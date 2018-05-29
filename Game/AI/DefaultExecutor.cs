@@ -25,7 +25,9 @@ namespace WindBot.Game.AI
             public const int DupeFrog = 46239604;
             public const int MaraudingCaptain = 2460565;
 
+            public const int EvilswarmExcitonKnight = 46772449;
             public const int HarpiesFeatherDuster = 18144506;
+            public const int DarkMagicAttack = 2314238;
             public const int MysticalSpaceTyphoon = 5318639;
             public const int CosmicCyclone = 8267140;
             public const int ChickenGame = 67616300;
@@ -492,7 +494,9 @@ namespace WindBot.Game.AI
         protected bool DefaultOnBecomeTarget()
         {
             if (AI.Utils.IsChainTarget(Card)) return true;
+            if (AI.Utils.ChainContainsCard(_CardId.EvilswarmExcitonKnight)) return true;
             if (Enemy.HasInSpellZone(_CardId.HarpiesFeatherDuster, true)) return true;
+            if (Enemy.HasInSpellZone(_CardId.DarkMagicAttack, true)) return true;
             return false;
         }
         /// <summary>
