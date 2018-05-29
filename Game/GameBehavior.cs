@@ -264,7 +264,6 @@ namespace WindBot.Game
         
         private void OnDuelEnd(BinaryReader packet)
         {
-            Logger.DebugWriteLine("********************* Duel end *********************");
             Connection.Close();
         }
 

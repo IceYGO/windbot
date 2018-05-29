@@ -25,7 +25,7 @@ namespace WindBot.Game.AI
             public const int DupeFrog = 46239604;
             public const int MaraudingCaptain = 2460565;
 
-            public const int ExcitionKnight = 46772449;
+            public const int EvilswarmExcitonKnight = 46772449;
             public const int HarpiesFeatherDuster = 18144506;
             public const int DarkMagicAttack = 2314238;
             public const int MysticalSpaceTyphoon = 5318639;
@@ -848,7 +848,7 @@ namespace WindBot.Game.AI
         protected bool DefaultMonsterRepos()
         {
             if (Card.IsFaceup() && Card.IsDefense() && Card.Attack == 0)
-                return false;          
+                return false;
             if (Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon) &&
                 Card.IsAttack() && (4000-Card.Defense)*2>(4000 - Card.Attack))
                 return false;
@@ -871,8 +871,7 @@ namespace WindBot.Game.AI
         protected bool DefaultOnBecomeTarget()
         {
             if (AI.Utils.IsChainTarget(Card)) return true;
-            if (Duel.LastChainPlayer == 1 && AI.Utils.ChainContainsCard(_CardId.ExcitionKnight) &&
-                Enemy.HasInMonstersZone(_CardId.ExcitionKnight, true)) return true;
+            if (AI.Utils.ChainContainsCard(_CardId.EvilswarmExcitonKnight)) return true;
             if (Enemy.HasInSpellZone(_CardId.HarpiesFeatherDuster, true)) return true;
             if (Enemy.HasInSpellZone(_CardId.DarkMagicAttack, true)) return true;
             return false;
