@@ -13,7 +13,7 @@ namespace WindBot
         public int Version { get; set; }
         public int Hand { get; set; }
         public bool Debug { get; set; }
-        public int DialogOpen { get; set; }
+        public bool Chat { get; set; }
         public WindBotInfo()
         {
             Name = "WindBot";
@@ -25,7 +25,7 @@ namespace WindBot
             Version = 0x1343;
             Hand = 0;
             Debug = false;
-            DialogOpen = 1;
+            Chat = true;
         }
     }
 }

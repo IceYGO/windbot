@@ -13,15 +13,14 @@ namespace WindBot.Game
         public AIFunctions Utils { get; private set; }
 
         private Dialogs _dialogs;
-        private int dialogs_open;
+
         public GameAI(GameClient game, Duel duel)
         {
             Game = game;
             Duel = duel;
             Utils = new AIFunctions(duel);
-            dialogs_open = game.DialogOpen;            
+
             _dialogs = new Dialogs(game);
-            
         }
 
         /// <summary>
@@ -96,10 +95,9 @@ namespace WindBot.Game
             m_option = -1;
             m_yesno = -1;
             m_position = CardPosition.FaceUpAttack;
-            m_place = 0;            
+            m_place = 0;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
-                if(dialogs_open==1)
                 _dialogs.SendNewTurn();
             }
             Executor.OnNewPhase();
@@ -110,8 +108,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnDirectAttack(ClientCard card)
         {
-            if (dialogs_open==1)
-                _dialogs.SendOnDirectAttack(card.Name);
+            _dialogs.SendOnDirectAttack(card.Name);
         }
 
         /// <summary>
@@ -147,8 +144,7 @@ namespace WindBot.Game
                     ClientCard card = battle.ActivableCards[i];
                     if (ShouldExecute(exec, card, ExecutorType.Activate, battle.ActivableDescs[i]))
                     {
-                        if (dialogs_open==1)
-                            _dialogs.SendChaining(card.Name);
+                        _dialogs.SendChaining(card.Name);
                         return new BattlePhaseAction(BattlePhaseAction.BattleAction.Activate, card.ActionIndex);
                     }
                 }
@@ -299,8 +295,7 @@ namespace WindBot.Game
                     ClientCard card = cards[i];
                     if (ShouldExecute(exec, card, ExecutorType.Activate, descs[i]))
                     {
-                        if (dialogs_open==1)
-                            _dialogs.SendChaining(card.Name);
+                        _dialogs.SendChaining(card.Name);
                         return i;
                     }
                 }
@@ -389,8 +384,7 @@ namespace WindBot.Game
                     ClientCard card = main.ActivableCards[i];
                     if (ShouldExecute(exec, card, ExecutorType.Activate, main.ActivableDescs[i]))
                     {
-                        if (dialogs_open==1)
-                            _dialogs.SendActivate(card.Name);
+                        _dialogs.SendActivate(card.Name);
                         return new MainPhaseAction(MainPhaseAction.MainAction.Activate, card.ActionActivateIndex[main.ActivableDescs[i]]);
                     }
                 }
@@ -398,8 +392,7 @@ namespace WindBot.Game
                 {
                     if (ShouldExecute(exec, card, ExecutorType.MonsterSet))
                     {
-                        if (dialogs_open==1)
-                            _dialogs.SendSetMonster();
+                        _dialogs.SendSetMonster();
                         return new MainPhaseAction(MainPhaseAction.MainAction.SetMonster, card.ActionIndex);
                     }
                 }
@@ -412,8 +405,7 @@ namespace WindBot.Game
                 {
                     if (ShouldExecute(exec, card, ExecutorType.SpSummon))
                     {
-                        if (dialogs_open==1)
-                            _dialogs.SendSummon(card.Name);
+                        _dialogs.SendSummon(card.Name);
                         Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.SpSummon, card.ActionIndex);
                     }
@@ -422,8 +414,7 @@ namespace WindBot.Game
                 {
                     if (ShouldExecute(exec, card, ExecutorType.Summon))
                     {
-                        if (dialogs_open==1)
-                            _dialogs.SendSummon(card.Name);
+                        _dialogs.SendSummon(card.Name);
                         Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
@@ -432,12 +423,10 @@ namespace WindBot.Game
                         if (Utils.IsAllEnemyBetter(true) && Utils.IsAllEnemyBetterThanValue(card.Attack + 300, false) &&
                             main.MonsterSetableCards.Contains(card))
                         {
-                            if (dialogs_open==1)
-                                _dialogs.SendSetMonster();
+                            _dialogs.SendSetMonster();
                             return new MainPhaseAction(MainPhaseAction.MainAction.SetMonster, card.ActionIndex);
                         }
-                        if (dialogs_open==1)
-                            _dialogs.SendSummon(card.Name);
+                        _dialogs.SendSummon(card.Name);
                         Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
@@ -452,8 +441,7 @@ namespace WindBot.Game
             if (main.CanBattlePhase && Duel.Fields[0].HasAttackingMonster())
                 return new MainPhaseAction(MainPhaseAction.MainAction.ToBattlePhase);
 
-            if (dialogs_open==1)
-                _dialogs.SendEndTurn();
+            _dialogs.SendEndTurn();
             return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase); 
         }
 
@@ -477,7 +465,8 @@ namespace WindBot.Game
         public int OnSelectPlace(int cardId, int player, int location, int available)
         {
             int selector_selected = m_place;
-            m_place = 0;            
+            m_place = 0;
+
             int executor_selected = Executor.OnSelectPlace(cardId, player, location, available);
 
             if ((executor_selected & available) > 0)
@@ -734,7 +723,7 @@ namespace WindBot.Game
         private CardSelector m_thirdSelector;
         private CardSelector m_materialSelector;
         private CardPosition m_position = CardPosition.FaceUpAttack;
-        private int m_place;        
+        private int m_place;
         private int m_option;
         private int m_number;
         private int m_announce;
@@ -987,23 +976,20 @@ namespace WindBot.Game
             {
                 string cardName = defender.Name ?? "monster";
                 attacker.ShouldDirectAttack = false;
-                if (dialogs_open==1)
-                    _dialogs.SendAttack(attacker.Name, cardName);
+                _dialogs.SendAttack(attacker.Name, cardName);
                 SelectCard(defender);
             }
             else
             {
                 attacker.ShouldDirectAttack = true;
-                if (dialogs_open==1)
-                    _dialogs.SendDirectAttack(attacker.Name);
+                _dialogs.SendDirectAttack(attacker.Name);
             }
             return new BattlePhaseAction(BattlePhaseAction.BattleAction.Attack, attacker.ActionIndex);
         }
 
         public BattlePhaseAction ToEndPhase()
         {
-            if (dialogs_open==1)
-                _dialogs.SendEndTurn();
+            _dialogs.SendEndTurn();
             return new BattlePhaseAction(BattlePhaseAction.BattleAction.ToEndPhase);
         }
         public BattlePhaseAction ToMainPhase2()

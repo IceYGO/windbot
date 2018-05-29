@@ -15,7 +15,7 @@ namespace WindBot.Game
         public string Dialog;
         public int Hand;
         public bool Debug;
-        public int DialogOpen;
+        public bool _chat;
         private string _serverHost;
         private int _serverPort;
         private short _proVersion;
@@ -31,7 +31,7 @@ namespace WindBot.Game
             Dialog = Info.Dialog;
             Hand = Info.Hand;
             Debug = Info.Debug;
-            DialogOpen = Info.DialogOpen;
+            _chat = Info.Chat;
             _serverHost = Info.Host;
             _serverPort = Info.Port;
             _roomInfo = Info.HostInfo;
