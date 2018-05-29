@@ -70,6 +70,9 @@ namespace WindBot.Game
             return Executor.OnSelectHand();
         }
 
+        /// <summary>
+        /// Called when any player draw card.
+        /// </summary>
         public void OnDraw(int player)
         {
             Executor.OnDraw(player);

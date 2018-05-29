@@ -97,6 +97,7 @@ namespace WindBot.Game.AI
         {
             // Some AI need do something on new turn
         }
+		
         public virtual void OnDraw(int player)
         {
             // Some AI need do something on draw
