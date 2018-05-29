@@ -20,5 +20,9 @@
 
         LinkedZones = 0x10000,
         NotLinkedZones = 0x20000;
+
+        public static int CheckLinkedPointZones = 0;
+        public static int CheckMutualBotZoneCount = 0;
+        public static int CheckMutualEnemyZoneCount = 0;
     }
 }
