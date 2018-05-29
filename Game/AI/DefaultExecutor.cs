@@ -39,6 +39,7 @@ namespace WindBot.Game.AI
             public const int VampireFräulein = 6039967;
             public const int InjectionFairyLily = 79575620;
 
+            public const int BlueEyesChaosMAXDragon = 55410871;
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
@@ -469,7 +470,13 @@ namespace WindBot.Game.AI
         {
             if (Card.IsFaceup() && Card.IsDefense() && Card.Attack == 0)
                 return false;
-
+            if (Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon) &&
+                Card.IsAttack() && (4000-Card.Defense)*2>(4000 - Card.Attack))
+                return false;
+            if (Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon) &&
+                Card.IsDefense() && Card.IsFaceup() &&
+               (4000 - Card.Defense) * 2 > (4000 - Card.Attack))
+                return true;
             bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
 
             if (Card.IsAttack() && enemyBetter)
