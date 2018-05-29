@@ -12,7 +12,7 @@ namespace WindBot
         public string HostInfo { get; set; }
         public int Version { get; set; }
         public int Hand { get; set; }
-
+        public bool Debug { get; set; }
         public bool Chat { get; set; }
         public WindBotInfo()
         {
@@ -24,6 +24,7 @@ namespace WindBot
             HostInfo = "";
             Version = 0x1343;
             Hand = 0;
+            Debug = false;
             Chat = true;
         }
     }
