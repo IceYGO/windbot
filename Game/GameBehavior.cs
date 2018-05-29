@@ -360,6 +360,7 @@ namespace WindBot.Game
                 _duel.Fields[player].Deck.RemoveAt(_duel.Fields[player].Deck.Count - 1);
                 _duel.Fields[player].Hand.Add(new ClientCard(0, CardLocation.Hand));
             }
+            _ai.OnDraw(player);
         }
 
         private void OnShuffleDeck(BinaryReader packet)

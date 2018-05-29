@@ -71,6 +71,14 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when any player draw card.
+        /// </summary>
+        public void OnDraw(int player)
+        {
+            Executor.OnDraw(player);
+        }
+
+        /// <summary>
         /// Called when it's a new turn.
         /// </summary>
         public void OnNewTurn()
