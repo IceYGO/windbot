@@ -437,7 +437,7 @@ namespace WindBot.Game
             }            
             if (_debug)
                 Logger.WriteLine("(Go to " + (_duel.Phase.ToString()) + ")");
-            _duel.LastSummonPlayer = -1;
+           
             _duel.Fields[0].BattlingMonster = null;
             _duel.Fields[1].BattlingMonster = null;
             _ai.OnNewPhase();
@@ -477,7 +477,8 @@ namespace WindBot.Game
             int currentSequence = packet.ReadSByte();
             int currentPosition = packet.ReadSByte();
             packet.ReadInt32(); // reason
-
+            _duel.LastSummonPlayer = -1;
+            _duel.LastSummonMonster = null;
             ClientCard card = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
             if ((previousLocation & (int)CardLocation.Overlay) != 0)
             {
@@ -660,6 +661,11 @@ namespace WindBot.Game
             if (card == null) return;
 
             card.Update(packet, _duel);
+            if (card.IsMonster() && card.Location == CardLocation.MonsterZone)
+            {
+                _duel.LastSummonPlayer = player;
+                _duel.LastSummonMonster = card;
+            }
         }
 
         private void OnUpdateData(BinaryReader packet)

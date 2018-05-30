@@ -61,6 +61,13 @@ namespace WindBot.Game.AI
             return bestPower;
         }
 
+        public ClientCard GetLastSummonMonster()
+        {
+            if (Duel.LastSummonPlayer != -1)
+                return Duel.LastSummonMonster;
+            return null;
+        }
+
         public int GetBestAttack(ClientField field)
         {
             return GetBestPower(field, true);
