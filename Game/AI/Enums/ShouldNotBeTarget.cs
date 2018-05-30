@@ -43,6 +43,7 @@
         FlowerCardianLightshower = 42291297,
         YaziEviloftheYangZing = 43202238,
         RaidraptorUltimateFalcon = 86221741,
-        DisdainfulBirdofParadise = 27240101
+        DisdainfulBirdofParadise = 27240101,
+        DarkestDiabolosLordOfTheLair = 50383626
     }
 }

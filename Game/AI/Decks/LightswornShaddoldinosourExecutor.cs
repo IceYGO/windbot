@@ -1052,7 +1052,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Grave)
                 return true;
             if (Bot.LifePoints <= 1000) return false;
-            ClientCard select = AI.Utils.GetBestEnemyMonster();
+            ClientCard select = AI.Utils.GetBestEnemyCard();
             if (select == null) return false;
             if(select!=null)
             {

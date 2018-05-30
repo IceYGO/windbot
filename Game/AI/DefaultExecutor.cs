@@ -25,7 +25,9 @@ namespace WindBot.Game.AI
             public const int DupeFrog = 46239604;
             public const int MaraudingCaptain = 2460565;
 
+            public const int EvilswarmExcitonKnight = 46772449;
             public const int HarpiesFeatherDuster = 18144506;
+            public const int DarkMagicAttack = 2314238;
             public const int MysticalSpaceTyphoon = 5318639;
             public const int CosmicCyclone = 8267140;
             public const int ChickenGame = 67616300;
@@ -39,6 +41,7 @@ namespace WindBot.Game.AI
             public const int VampireFräulein = 6039967;
             public const int InjectionFairyLily = 79575620;
 
+            public const int BlueEyesChaosMAXDragon = 55410871;
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
@@ -469,7 +472,13 @@ namespace WindBot.Game.AI
         {
             if (Card.IsFaceup() && Card.IsDefense() && Card.Attack == 0)
                 return false;
-
+            if (Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon) &&
+                Card.IsAttack() && (4000-Card.Defense)*2>(4000 - Card.Attack))
+                return false;
+            if (Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon) &&
+                Card.IsDefense() && Card.IsFaceup() &&
+               (4000 - Card.Defense) * 2 > (4000 - Card.Attack))
+                return true;
             bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
 
             if (Card.IsAttack() && enemyBetter)
@@ -485,7 +494,9 @@ namespace WindBot.Game.AI
         protected bool DefaultOnBecomeTarget()
         {
             if (AI.Utils.IsChainTarget(Card)) return true;
+            if (AI.Utils.ChainContainsCard(_CardId.EvilswarmExcitonKnight)) return true;
             if (Enemy.HasInSpellZone(_CardId.HarpiesFeatherDuster, true)) return true;
+            if (Enemy.HasInSpellZone(_CardId.DarkMagicAttack, true)) return true;
             return false;
         }
         /// <summary>
