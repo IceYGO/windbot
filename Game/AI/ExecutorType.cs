@@ -8,6 +8,8 @@
         MonsterSet,
         SpellSet,
         Activate,
-        SummonOrSet
+        SummonOrSet,
+        ToBP,
+        ToEP
     }
 }

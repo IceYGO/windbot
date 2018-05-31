@@ -382,6 +382,18 @@ namespace WindBot.Game
             Executor.SetMain(main);
             foreach (CardExecutor exec in Executor.Executors)
             {
+            	if (exec.Type == ExecutorType.ToEP && exec.Func()) //check if should enter end phase
+                {
+                    _dialogs.SendEndTurn();
+                    return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase);
+                }
+                else if (exec.Type==ExecutorType.ToBP && main.CanBattlePhase && Duel.Fields[0].HasAttackingMonster() && exec.Func()) //check if should enter battle phase
+                {
+                    return new MainPhaseAction(MainPhaseAction.MainAction.ToBattlePhase);
+                }
+                // NOTICE: ToBP and ToEP has no "card" can be accessed to ShouldExecute(), so instead use exec.Func() to check ...
+                // enter end phase and enter battle pahse is in higher priority. 
+
                 for (int i = 0; i < main.ActivableCards.Count; ++i)
                 {
                     ClientCard card = main.ActivableCards[i];
