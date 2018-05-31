@@ -178,5 +178,14 @@ namespace WindBot.Game
         {
             return IsFirst ? player : 1 - player;
         }
+
+        public class Global
+        {
+            public static int m_type;
+            public static int m_zone;
+            public static int intial_zone;
+            public static int InfiniteTransience_zone;
+            public static bool ToBattlePhase = false;
+        }
     }
 }
