@@ -91,6 +91,11 @@
         "dialog": "sanae.zh-CN"
       },
       {
+        "name": "早苗",
+        "deck": "Old School",
+        "dialog": "sanae.zh-CN"
+      },
+      {
         "name": "彩音",
         "deck": "SkyStriker",
         "dialog": "ayane.zh-CN"
@@ -99,11 +104,6 @@
         "name": "彩音",
         "deck": "DarkMagician",
         "dialog": "ayane.zh-CN"
-      },
-      {
-        "name": "早苗",
-        "deck": "Old School",
-        "dialog": "sanae.zh-CN"
       },
       {
         "name": "永远之魂",
