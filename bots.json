@@ -96,6 +96,11 @@
         "dialog": "ayane.zh-CN"
       },
       {
+        "name": "彩音",
+        "deck": "DarkMagician",
+        "dialog": "ayane.zh-CN"
+      },
+      {
         "name": "早苗",
         "deck": "Old School",
         "dialog": "sanae.zh-CN"
