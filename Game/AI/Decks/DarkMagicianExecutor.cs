@@ -162,7 +162,6 @@ namespace WindBot.Game.AI.Decks
         private void EternalSoulSelect()
         {
             AI.SelectPosition(CardPosition.FaceUpAttack);
-            /*
             if (Enemy.HasInMonstersZone(CardId.MekkKnightMorningStar))
             {
                 int MekkKnightZone = 0;
@@ -210,7 +209,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
-            */
+
         }
         int attackerzone = -1;
         int defenderzone = -1;
@@ -336,7 +335,7 @@ namespace WindBot.Game.AI.Decks
             if (Enemy.HasInMonstersZone(CardId.ElShaddollWinda)) return false;
             if (maxxc_used) return false;
             if (WindwitchGlassBelleff_used) return false;
-            //AI.SelectPlace(Zones.z2, 1);
+            AI.SelectPlace(Zones.z2, 1);
             if (Bot.GetRemainingCount(CardId.WindwitchGlassBell, 2) >= 1)
                 AI.SelectCard(CardId.WindwitchGlassBell);
             else if (Bot.HasInHand(CardId.WindwitchGlassBell))
@@ -384,7 +383,7 @@ namespace WindBot.Game.AI.Decks
                  Bot.HasInMonstersZone(CardId.WindwitchGlassBell) &&
                  Bot.HasInMonstersZone(CardId.WindwitchSnowBell))
             {
-                //AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
+                AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
                 AI.SelectCard(new[] { CardId.WindwitchIceBell, CardId.WindwitchGlassBell });
                 AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
@@ -426,7 +425,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.HasInMonstersZone(CardId.WindwitchSnowBell) && Bot.HasInMonstersZone(CardId.WindwitchWinterBell))
             {
-                //AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
+                AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
                 plan_A = true;
                 return true;
             }
@@ -905,7 +904,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                //AI.SelectPlace(Zones.z2, 2);
+                AI.SelectPlace(Zones.z2, 2);
                 if (Bot.LifePoints <= 4000)
                     return true;
                 return UniqueFaceupSpell();
@@ -937,7 +936,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.LastChainPlayer == 0) return false;
             ClientCard target = null;
             bool soul_exist = false;
-            //AI.SelectPlace(Zones.z2, 2);
+            AI.SelectPlace(Zones.z2, 2);
             foreach (ClientCard m in Bot.GetSpells())
             {
                 if (m.Id == CardId.EternalSoul && m.IsFaceup())
@@ -1051,19 +1050,19 @@ namespace WindBot.Game.AI.Decks
 
         private bool TheEyeOfTimaeuseff()
         {
-            //AI.SelectPlace(Zones.z2, 2);
+            AI.SelectPlace(Zones.z2, 2);
             return true;
         }
 
         private bool UpstartGoblineff()
         {
-            //AI.SelectPlace(Zones.z2, 2);
+            AI.SelectPlace(Zones.z2, 2);
             return true;
         }
         private bool SpellbookOfSecreteff()
         {
             if (lockbird_used) return false;
-            //AI.SelectPlace(Zones.z2, 2);
+            AI.SelectPlace(Zones.z2, 2);
             Secret_used = true;
             if (Bot.HasInHand(CardId.SpellbookMagicianOfProphecy))
                 AI.SelectCard(CardId.SpellbookOfKnowledge);
@@ -1084,7 +1083,7 @@ namespace WindBot.Game.AI.Decks
             if (lockbird_used) return false;
             if (Bot.HasInSpellZone(CardId.LllusionMagic) && count < 2)
                 return false;
-            //AI.SelectPlace(Zones.z2, 2);
+            AI.SelectPlace(Zones.z2, 2);
             if (Bot.HasInMonstersZone(CardId.SpellbookMagicianOfProphecy) ||
                 Bot.HasInMonstersZone(CardId.MagiciansRod) ||
                 Bot.HasInMonstersZone(CardId.WindwitchGlassBell) ||
@@ -1126,7 +1125,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.HasInSpellZone(CardId.LllusionMagic) && count < 2)
                     return false;
-                //AI.SelectPlace(Zones.z2, 2);
+                AI.SelectPlace(Zones.z2, 2);
                 if (Bot.HasInMonstersZone(CardId.SpellbookMagicianOfProphecy) ||
                 Bot.HasInMonstersZone(CardId.MagiciansRod) ||
                 Bot.HasInMonstersZone(CardId.WindwitchGlassBell) ||
@@ -1181,7 +1180,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ApprenticeLllusionMagiciansp()
         {
-            //AI.SelectPlace(Zones.z2, 1);
+            AI.SelectPlace(Zones.z2, 1);
             if (Bot.HasInHand(CardId.DarkMagician) && !Bot.HasInSpellZone(CardId.MagicianNavigation))
             {
                 if (Bot.GetRemainingCount(CardId.DarkMagician, 3) > 0)
@@ -1289,7 +1288,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SpellbookMagicianOfProphecysummon()
         {
-            //AI.SelectPlace(Zones.z2, 1);
+            AI.SelectPlace(Zones.z2, 1);
             if (lockbird_used) return false;
             if (Spellbook_summon)
             {
@@ -1304,14 +1303,14 @@ namespace WindBot.Game.AI.Decks
         private bool MagiciansRodsummon()
         {
             if (lockbird_used) return false;
-            //AI.SelectPlace(Zones.z2, 1);
+            AI.SelectPlace(Zones.z2, 1);
             if (Rod_summon) return true;
             return true;
         }
 
         private bool DarkMagicAttackeff()
         {
-            //AI.SelectPlace(Zones.z1, 2);
+            AI.SelectPlace(Zones.z1, 2);
             return DefaultHarpiesFeatherDusterFirst();
         }
         private bool DarkMagicInheritanceeff()
@@ -1330,7 +1329,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (count >= 2)
             {
-                //AI.SelectPlace(Zones.z2, 2);
+                AI.SelectPlace(Zones.z2, 2);
                 AI.SelectCard(spell);
                 if (Bot.HasInHandOrInSpellZone(CardId.EternalSoul) && Bot.HasInHandOrInSpellZone(CardId.DarkMagicalCircle))
                     if (Bot.GetRemainingCount(CardId.DarkMagician, 3) >= 2 && !Bot.HasInHandOrInSpellZoneOrInGraveyard(CardId.LllusionMagic))
@@ -1550,7 +1549,7 @@ namespace WindBot.Game.AI.Decks
             if (lockbird_used) return false;
             if (!plan_A && (Bot.HasInGraveyard(CardId.WindwitchGlassBell) || Bot.HasInMonstersZone(CardId.WindwitchGlassBell)))
                 return false;
-            //AI.SelectPlace(Zones.z2, 1);
+            AI.SelectPlace(Zones.z2, 1);
             if (GlassBell_summon && Bot.HasInMonstersZone(CardId.WindwitchIceBell) &&
                 !Bot.HasInMonstersZone(CardId.WindwitchGlassBell))
                 return true;
@@ -1564,7 +1563,7 @@ namespace WindBot.Game.AI.Decks
             if (AI.Utils.IsOneEnemyBetterThanValue(2500, false) &&
                 !Bot.HasInHandOrHasInMonstersZone(CardId.ApprenticeLllusionMagician))
             {
-                //AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
+                AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
                 AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
             }
@@ -1589,7 +1588,7 @@ namespace WindBot.Game.AI.Decks
             if (AI.Utils.IsOneEnemyBetterThanValue(2500, false) &&
                 !Bot.HasInHandOrHasInMonstersZone(CardId.ApprenticeLllusionMagician))
             {
-                //AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
+                AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
                 AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
             }
@@ -1790,7 +1789,6 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            /*
             if (Enemy.HasInMonstersZone(CardId.MekkKnightMorningStar))
             {
                 attackerzone = -1;
@@ -1813,7 +1811,6 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 }
             }
-            */
             //Logger.DebugWriteLine("@@@@@@@@@@@@@@@@@@@ApprenticeLllusionMagician= " + ApprenticeLllusionMagician_count);            
             if (Bot.HasInSpellZone(CardId.OddEyesWingDragon))
                 big_attack = true;
@@ -1860,7 +1857,6 @@ namespace WindBot.Game.AI.Decks
                 return true;
             return base.OnPreBattleBetween(attacker, defender);
         }
-        /*
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
         {
             for (int i = 0; i < defenders.Count; ++i)
@@ -1888,8 +1884,6 @@ namespace WindBot.Game.AI.Decks
             defenderzone = -1;
             return base.OnSelectAttackTarget(attacker,defenders);
         }
-        */
-        /*
         public override ClientCard OnSelectAttacker(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {            
             for (int i = 0; i < attackers.Count; ++i)
@@ -1924,7 +1918,6 @@ namespace WindBot.Game.AI.Decks
             }
             return base.OnSelectAttacker(attackers,defenders);
         }
-        */
         public bool MonsterRepos()
         {
             if (Bot.HasInMonstersZone(CardId.OddEyesWingDragon) || 

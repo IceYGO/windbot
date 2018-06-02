@@ -16,9 +16,11 @@
 
         SpellZones = 0x1f,
 
-        PendulumZones = 0x3,
+        PendulumZones = 0x3;
 
-        LinkedZones = 0x10000,
-        NotLinkedZones = 0x20000;
+        public static int CheckLinkedPointZones = 0x8000,//save 0-6 from right to left
+        CheckMutualBotZoneCount= 0x200000,//save 0-6 from left to right
+        CheckMutualEnemyZoneCount= 0x200000;
+        
     }
 }
