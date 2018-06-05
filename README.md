@@ -38,6 +38,12 @@ The version of YGOPro.
 `Hand`  
 If you are testing deck, you may want to make sure the bot go first or second. `Hand=1` will make the bot always show Scissors, 2 for Rock, 3 for Paper.
 
+`Chat`
+False to turn the chat of bot off.
+
+`Debug`
+Print verbose log of card movement info. False at default. (May be updated in future)
+
 `ServerMode` and `ServerPort`  
 WindBot can run as a "server", provide a http interface to create bot.
 
@@ -61,6 +67,10 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * Blue-Eyes
 
+* ChainBurn
+
+* DarkMagician
+
 * Dragunity
 
 * Qliphort
@@ -68,6 +78,8 @@ WindBot can run as a "server", provide a http interface to create bot.
 * Rainbow
 
 * Rank V
+
+* SkyStriker
 
 * ST1732
 
@@ -84,8 +96,6 @@ WindBot can run as a "server", provide a http interface to create bot.
 ### Unfinished decks
 
 * Blackwing
-
-* ChainBurn
 
 * CyberDragon
 
@@ -116,6 +126,23 @@ The parameters are same as commandlines, but low cased.
 * If one chain includes two activation that use `AI.SelectCard`, the second one won't select correctly.
 
 ### Changelog
+
+#### v0x1344 (2018-06-05)
+
+ - Update YGOPro protrol to 0x1344
+ - New decks: DarkMagician, SkyStriker
+ - Add param to turn chat off
+ - Add param to print verbose log
+ - Add part of `Zones` enum and `AI.SelectPlace`
+ - Add `ClientCard.IsTuner`, `ClientCard.LinkMarker`, `ClientCard.HasLinkMarker`
+ - Add `ShouldNotBeTarget` and `ShouldBeDisabledBeforeItUseEffectMonster` enum
+ - Add `AI.Utils.GetBestBotMonster`, `AI.Utils.GetWorstBotMonster` and `AI.Utils.ChainContainPlayer`
+ - Add `Executor.OnCardSorting` and `Executor.OnDraw`
+ - Add `ClientField.GetColumnCount` and `ClientField.HasInHandOrInSpellZone` etc.
+ - Misc updates to LightswornShaddoldinosour and ChainBurn deck
+ - Misc updates to default executors
+ - Fix OnSelectUnselectCard
+ - Fix OnMove to keep card data when moving
 
 #### v0x1343 (2018-04-11)
 
@@ -185,7 +212,7 @@ The parameters are same as commandlines, but low cased.
 
 * Documents for creating AI
 
-* `AI.SelectZone`
+* `AI.SelectPlace` for linked zones or not linked zones
 
 * `AI.SelectTribute`
 
