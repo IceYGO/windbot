@@ -1,0 +1,2 @@
+ *.csproj filter=_config
+git config --global filter._config.clean 'sed "s/<OutputPath>C:\Users\User\Desktop\YGOPro\WindBot\</OutputPath>/<OutputPath>bin\Debug\</OutputPath>/g"'
