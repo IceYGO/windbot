@@ -275,8 +275,12 @@ namespace WindBot.Game
             string message = packet.ReadUnicode(256);
             string myName = (player != 0) ? _room.Names[1] : _room.Names[0];
             string otherName = (player == 0) ? _room.Names[1] : _room.Names[0];
-            if (player < 4)
-                Logger.DebugWriteLine(otherName + " say to " + myName + ": " + message);
+			if (_debug) {
+				if (player < 4)
+					Logger.WriteLine(otherName + " say to " + myName + ": " + message);
+				else
+					Logger.WriteLine("Server say to " + myName + ": " + message);
+			}
         }
 
         private void OnErrorMsg(BinaryReader packet)
