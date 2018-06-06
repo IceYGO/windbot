@@ -80,6 +80,13 @@ namespace WindBot.Game.AI
             return bestPower;
         }
 
+        public ClientCard GetLastSummonMonster()
+        {
+            if (Duel.LastSummonPlayer != -1)
+                return Duel.LastSummonMonster;
+            return null;
+        }
+
         public int GetBestAttack(ClientField field)
         {
             return GetBestPower(field, true);
@@ -148,6 +155,13 @@ namespace WindBot.Game.AI
         {
             int bestBotPower = GetBestPower(Bot, onlyATK);
             return IsAllEnemyBetterThanValue(bestBotPower, onlyATK);
+        }
+
+        public ClientCard GetEquipedMonster(int Id)
+        {
+
+            ClientCard card = null;
+            return card;
         }
 
         public ClientCard GetBestBotMonster(bool onlyATK = false)

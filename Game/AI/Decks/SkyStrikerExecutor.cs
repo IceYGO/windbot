@@ -11,18 +11,18 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public const int Rei = 26077387;
+            public const int Raye = 26077387;
             public const int Kagari = 63288573;
             public const int Shizuku = 90673288;
             public const int Hayate = 8491308;
             public const int Token = 52340445;
 
             public const int Engage = 63166095;
-            public const int HornetBit = 52340444;
+            public const int HornetDrones = 52340444;
             public const int WidowAnchor = 98338152;
-            public const int Afterburner = 99550630;
+            public const int Afterburners = 99550630;
             public const int JammingWave = 25955749;
-            public const int MultiRoll = 24010609;
+            public const int Multirole = 24010609;
             public const int HerculesBase = 97616504;
             public const int AreaZero = 50005218;
 
@@ -73,22 +73,22 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.TwinTwisters, TwinTwistersEffect);
 
             //
-            AddExecutor(ExecutorType.Activate, CardId.MultiRoll, MultiRollHandEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Multirole, MultiroleHandEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.WidowAnchor, WidowAnchorEffectFirst);
 
-            AddExecutor(ExecutorType.Activate, CardId.Afterburner, AfterburnerEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Afterburners, AfterburnersEffect);
             AddExecutor(ExecutorType.Activate, CardId.JammingWave, JammingWaveEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.Engage, EngageEffectFirst);
 
-            AddExecutor(ExecutorType.Activate, CardId.HornetBit, HornetBitEffect);
+            AddExecutor(ExecutorType.Activate, CardId.HornetDrones, HornetDronesEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.WidowAnchor, WidowAnchorEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.HerculesBase, HerculesBaseEffect);
             AddExecutor(ExecutorType.Activate, CardId.AreaZero, AreaZeroEffect);
-            AddExecutor(ExecutorType.Activate, CardId.MultiRoll, MultiRollEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Multirole, MultiroleEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.Engage, EngageEffect);
 
@@ -98,7 +98,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.GhostRabbit, TunerSummon);
             AddExecutor(ExecutorType.Summon, CardId.AshBlossom, TunerSummon);
 
-            AddExecutor(ExecutorType.Activate, CardId.Rei, ReiEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Raye, RayeEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.Kagari, KagariSummon);
             AddExecutor(ExecutorType.Activate, CardId.Kagari, KagariEffect);
 
@@ -116,7 +116,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpSummon, CardId.TopologicBomberDragon, AI.Utils.IsTurn1OrMain2);
 
-            AddExecutor(ExecutorType.Summon, CardId.Rei, ReiSummon);
+            AddExecutor(ExecutorType.Summon, CardId.Raye, RayeSummon);
 
             //
             AddExecutor(ExecutorType.SpellSet, CardId.SolemnJudgment);
@@ -125,11 +125,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, CardId.HerculesBase);
 
             AddExecutor(ExecutorType.SpellSet, CardId.TwinTwisters, HandFull);
-            AddExecutor(ExecutorType.SpellSet, CardId.HornetBit, HandFull);
+            AddExecutor(ExecutorType.SpellSet, CardId.HornetDrones, HandFull);
 
             //
             AddExecutor(ExecutorType.Activate, CardId.MetalfoesFusion);
-            AddExecutor(ExecutorType.Activate, CardId.MultiRoll, MultiRollEPEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Multirole, MultiroleEPEffect);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -177,7 +177,7 @@ namespace WindBot.Game.AI.Decks
                 else
                     return false;
             }
-            if (desc == AI.Utils.GetStringId(CardId.Afterburner, 0)) // destroy spell & trap?
+            if (desc == AI.Utils.GetStringId(CardId.Afterburners, 0)) // destroy spell & trap?
             {
                 ClientCard target = AI.Utils.GetBestEnemySpell();
                 if (target != null)
@@ -233,24 +233,24 @@ namespace WindBot.Game.AI.Decks
                 CardId.MetalfoesFusion,
                 CardId.WidowAnchor,
                 CardId.Engage,
-                CardId.HornetBit
+                CardId.HornetDrones
             });
             return true;
         }
 
-        private bool MultiRollHandEffect()
+        private bool MultiroleHandEffect()
         {
             return Card.Location == CardLocation.Hand;
         }
 
-        private bool MultiRollEPEffect()
+        private bool MultiroleEPEffect()
         {
             if (Duel.Phase != DuelPhase.End)
                 return false;
 
             IList<int> targets = new[] {
                 CardId.Engage,
-                CardId.HornetBit,
+                CardId.HornetDrones,
                 CardId.WidowAnchor
             };
             AI.SelectCard(targets);
@@ -259,7 +259,7 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool AfterburnerEffect()
+        private bool AfterburnersEffect()
         {
             ClientCard target = AI.Utils.GetBestEnemyMonster(true);
             if (target != null)
@@ -291,6 +291,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool WidowAnchorEffectFirst()
         {
+            if (AI.Utils.ChainContainsCard(CardId.WidowAnchor))
+                return false;
             ClientCard target = AI.Utils.GetProblematicEnemyMonster();
             if (target != null)
             {
@@ -311,11 +313,11 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(target);
             else
                 AI.SelectCard(new[] {
-                    CardId.MultiRoll,
+                    CardId.Multirole,
                     CardId.AreaZero,
-                    CardId.Afterburner,
+                    CardId.Afterburners,
                     CardId.JammingWave,
-                    CardId.Rei
+                    CardId.Raye
                 });
 
             return true;
@@ -329,17 +331,17 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(target);
             else
                 AI.SelectCard(new[] {
-                    CardId.MultiRoll,
+                    CardId.Multirole,
                     CardId.AreaZero,
-                    CardId.Afterburner,
+                    CardId.Afterburners,
                     CardId.JammingWave,
-                    CardId.Rei
+                    CardId.Raye
                 });
 
             return true;
         }
 
-        private bool HornetBitEffect()
+        private bool HornetDronesEffect()
         {
             if (Duel.Player == 1)
             {
@@ -449,7 +451,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard target in Bot.GetMonsters())
             {
-                if (target.Id == CardId.Rei && Bot.GetMonstersExtraZoneCount() == 0)
+                if (target.Id == CardId.Raye && Bot.GetMonstersExtraZoneCount() == 0)
                 {
                     AI.SelectCard(target);
                     return true;
@@ -457,7 +459,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard target in Bot.GetSpells())
             {
-                if (target.Id != CardId.AreaZero && target.Id != CardId.MultiRoll && target.Id != CardId.WidowAnchor && target.IsSpell())
+                if (target.Id != CardId.AreaZero && target.Id != CardId.Multirole && target.Id != CardId.WidowAnchor && target.IsSpell())
                 {
                     AI.SelectCard(target);
                     return true;
@@ -466,7 +468,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool MultiRollEffect()
+        private bool MultiroleEffect()
         {
             if (Card.Location == CardLocation.SpellZone)
             {
@@ -480,7 +482,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard target in Bot.GetMonsters())
                 {
-                    if (target.Id == CardId.Rei && Bot.GetMonstersExtraZoneCount() == 0)
+                    if (target.Id == CardId.Raye && Bot.GetMonstersExtraZoneCount() == 0)
                     {
                         AI.SelectCard(target);
                         return true;
@@ -496,7 +498,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard target in Bot.GetSpells())
                 {
-                    if (target.Id != CardId.MultiRoll && target.Id != CardId.WidowAnchor && target.IsSpell())
+                    if (target.Id != CardId.Multirole && target.Id != CardId.WidowAnchor && target.IsSpell())
                     {
                         AI.SelectCard(target);
                         return true;
@@ -506,7 +508,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool ReiSummon()
+        private bool RayeSummon()
         {
             if (Bot.GetMonstersExtraZoneCount() == 0)
             {
@@ -515,7 +517,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool ReiEffect()
+        private bool RayeEffect()
         {
             if (Card.Location == CardLocation.Grave)
             {
@@ -527,32 +529,32 @@ namespace WindBot.Game.AI.Decks
             }
             if (AI.Utils.IsChainTarget(Card))
             {
-                ReiSelectTarget();
+                RayeSelectTarget();
                 return true;
             }
             if (Card.Attacked && Duel.Phase == DuelPhase.BattleStart)
             {
-                ReiSelectTarget();
+                RayeSelectTarget();
                 return true;
             }
             if (Card == Bot.BattlingMonster && Duel.Player == 1)
             {
-                ReiSelectTarget();
+                RayeSelectTarget();
                 return true;
             }
             if (Duel.Phase == DuelPhase.Main2)
             {
-                ReiSelectTarget();
+                RayeSelectTarget();
                 return true;
             }
             return false;
         }
 
-        private void ReiSelectTarget()
+        private void RayeSelectTarget()
         {
             if (!KagariSummoned && Bot.HasInGraveyard(new[] {
                 CardId.Engage,
-                CardId.HornetBit,
+                CardId.HornetDrones,
                 CardId.WidowAnchor
             }))
             {
@@ -572,7 +574,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.HasInGraveyard(new[] {
                 CardId.Engage,
-                CardId.HornetBit,
+                CardId.HornetDrones,
                 CardId.WidowAnchor
             }))
             {
@@ -584,9 +586,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool KagariEffect()
         {
-            if (EmptyMainMonsterZone() && AI.Utils.GetProblematicEnemyMonster() != null && Bot.HasInGraveyard(CardId.Afterburner))
+            if (EmptyMainMonsterZone() && AI.Utils.GetProblematicEnemyMonster() != null && Bot.HasInGraveyard(CardId.Afterburners))
             {
-                AI.SelectCard(CardId.Afterburner);
+                AI.SelectCard(CardId.Afterburners);
             }
             else if (EmptyMainMonsterZone() && AI.Utils.GetProblematicEnemySpell() != null && Bot.HasInGraveyard(CardId.JammingWave))
             {
@@ -595,7 +597,7 @@ namespace WindBot.Game.AI.Decks
             else
                 AI.SelectCard(new[] {
                     CardId.Engage,
-                    CardId.HornetBit,
+                    CardId.HornetDrones,
                     CardId.WidowAnchor
                 });
             return true;
@@ -619,7 +621,7 @@ namespace WindBot.Game.AI.Decks
             else
                 AI.SelectCard(new[] {
                     CardId.Engage,
-                    CardId.HornetBit,
+                    CardId.HornetDrones,
                     CardId.WidowAnchor
                 });
             return true;
@@ -635,10 +637,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool HayateEffect()
         {
-            if (!Bot.HasInGraveyard(CardId.Rei))
-                AI.SelectCard(CardId.Rei);
-            else if (!Bot.HasInGraveyard(CardId.HornetBit))
-                AI.SelectCard(CardId.HornetBit);
+            if (!Bot.HasInGraveyard(CardId.Raye))
+                AI.SelectCard(CardId.Raye);
+            else if (!Bot.HasInGraveyard(CardId.HornetDrones))
+                AI.SelectCard(CardId.HornetDrones);
             else if (!Bot.HasInGraveyard(CardId.WidowAnchor))
                 AI.SelectCard(CardId.WidowAnchor);
             return true;
@@ -676,7 +678,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool JetSynchronEffect()
         {
-            if (Bot.HasInMonstersZone(CardId.Rei) || Bot.HasInMonstersZone(CardId.CrystronNeedlefiber))
+            if (Bot.HasInMonstersZone(CardId.Raye) || Bot.HasInMonstersZone(CardId.CrystronNeedlefiber))
             {
                 AI.SelectCard(GetDiscardHand());
                 AI.SelectPosition(CardPosition.FaceUpDefence);
@@ -694,8 +696,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.HasInHand(CardId.MetalfoesFusion))
                 return CardId.MetalfoesFusion;
-            if (Bot.HasInHand(CardId.Rei) && !Bot.HasInGraveyard(CardId.Rei))
-                return CardId.Rei;
+            if (Bot.HasInHand(CardId.Raye) && !Bot.HasInGraveyard(CardId.Raye))
+                return CardId.Raye;
             if (Bot.HasInHand(CardId.JetSynchron))
                 return CardId.JetSynchron;
             if (Bot.HasInHand(CardId.ReinforcementOfTheArmy))
@@ -707,25 +709,25 @@ namespace WindBot.Game.AI.Decks
 
         private int GetCardToSearch()
         {
-            if (!Bot.HasInHand(CardId.HornetBit) && Bot.GetRemainingCount(CardId.HornetBit, 3) > 0)
+            if (!Bot.HasInHand(CardId.HornetDrones) && Bot.GetRemainingCount(CardId.HornetDrones, 3) > 0)
             {
-                return CardId.HornetBit;
+                return CardId.HornetDrones;
             }
             else if (AI.Utils.GetProblematicEnemyMonster() != null && Bot.GetRemainingCount(CardId.WidowAnchor, 3) > 0)
             {
                 return CardId.WidowAnchor;
             }
-            else if (EmptyMainMonsterZone() && AI.Utils.GetProblematicEnemyMonster() != null && Bot.GetRemainingCount(CardId.Afterburner, 1) > 0)
+            else if (EmptyMainMonsterZone() && AI.Utils.GetProblematicEnemyMonster() != null && Bot.GetRemainingCount(CardId.Afterburners, 1) > 0)
             {
-                return CardId.Afterburner;
+                return CardId.Afterburners;
             }
             else if (EmptyMainMonsterZone() && AI.Utils.GetProblematicEnemySpell() != null && Bot.GetRemainingCount(CardId.JammingWave, 1) > 0)
             {
                 return CardId.JammingWave;
             }
-            else if (!Bot.HasInHand(CardId.Rei) && !Bot.HasInMonstersZone(CardId.Rei) && Bot.GetRemainingCount(CardId.Rei, 3) > 0)
+            else if (!Bot.HasInHand(CardId.Raye) && !Bot.HasInMonstersZone(CardId.Raye) && Bot.GetRemainingCount(CardId.Raye, 3) > 0)
             {
-                return CardId.Rei;
+                return CardId.Raye;
             }
             else if (!Bot.HasInHand(CardId.WidowAnchor) && !Bot.HasInSpellZone(CardId.WidowAnchor) && Bot.GetRemainingCount(CardId.WidowAnchor, 3) > 0)
             {

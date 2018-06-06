@@ -20,6 +20,8 @@ namespace WindBot.Game
         public IList<ClientCard> CurrentChain { get; set; }
         public IList<ClientCard> ChainTargets { get; set; }
         public int LastSummonPlayer { get; set; }
+        public ClientCard LastSummonMonster { get; set; }
+       
 
         public Duel()
         {
@@ -30,6 +32,8 @@ namespace WindBot.Game
             CurrentChain = new List<ClientCard>();
             ChainTargets = new List<ClientCard>();
             LastSummonPlayer = -1;
+            LastSummonMonster = null;
+           
         }
 
         public ClientCard GetCard(int player, CardLocation loc, int index)
@@ -82,35 +86,34 @@ namespace WindBot.Game
                 if (card == null || subindex >= card.Overlays.Count)
                     return null;
                 return null; // TODO card.Overlays[subindex]
-            }
-
+            }            
             return cards[index];
         }
 
-        public void AddCard(CardLocation loc, int cardId, int player, int zone, int pos)
+        public void AddCard(CardLocation loc, int cardId, int player, int zone, int pos )
         {
             switch (loc)
             {
                 case CardLocation.Hand:
-                    Fields[player].Hand.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Hand.Add(new ClientCard(cardId, loc, -1 , pos));
                     break;
                 case CardLocation.Grave:
-                    Fields[player].Graveyard.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Graveyard.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
                 case CardLocation.Removed:
-                    Fields[player].Banished.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Banished.Add(new ClientCard(cardId, loc, -1 , pos));
                     break;
                 case CardLocation.MonsterZone:
-                    Fields[player].MonsterZone[zone] = new ClientCard(cardId, loc, pos);
+                    Fields[player].MonsterZone[zone] = new ClientCard(cardId, loc, zone , pos);
                     break;
                 case CardLocation.SpellZone:
-                    Fields[player].SpellZone[zone] = new ClientCard(cardId, loc, pos);
+                    Fields[player].SpellZone[zone] = new ClientCard(cardId, loc, zone, pos);
                     break;
                 case CardLocation.Deck:
-                    Fields[player].Deck.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Deck.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
                 case CardLocation.Extra:
-                    Fields[player].ExtraDeck.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].ExtraDeck.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
             }
         }
@@ -119,6 +122,7 @@ namespace WindBot.Game
         {
             card.Location = loc;
             card.Position = pos;
+            card.Zone = zone;
             card.SetId(id);
             switch (loc)
             {
@@ -183,9 +187,12 @@ namespace WindBot.Game
         {
             public static int m_type;
             public static int m_zone;
-            public static int intial_zone;
+            public static int intial_zone = 2;
             public static int InfiniteTransience_zone;
+           
             public static bool ToBattlePhase = false;
+            public static int Bot_Remain_Attacker_Count = 0;
+            public static ClientCard BotLastattacker = null;
         }
     }
 }

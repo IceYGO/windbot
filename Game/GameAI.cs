@@ -139,7 +139,8 @@ namespace WindBot.Game
         /// <returns>A new BattlePhaseAction containing the action to do.</returns>
         public BattlePhaseAction OnSelectBattleCmd(BattlePhase battle)
         {
-            Executor.SetBattle(battle);
+            Logger.DebugWriteLine("OnSelectBattleCmd");
+            Executor.SetBattle(battle);           
             foreach (CardExecutor exec in Executor.Executors)
             {
                 for (int i = 0; i < battle.ActivableCards.Count; ++i)
@@ -151,8 +152,7 @@ namespace WindBot.Game
                         return new BattlePhaseAction(BattlePhaseAction.BattleAction.Activate, card.ActionIndex);
                     }
                 }
-            }
-
+            }            
             // Sort the attackers and defenders, make monster with higher attack go first.
             List<ClientCard> attackers = new List<ClientCard>(battle.AttackableCards);
             attackers.Sort(AIFunctions.CompareCardAttack);
@@ -174,7 +174,7 @@ namespace WindBot.Game
             BattlePhaseAction result = Executor.OnBattle(attackers, defenders);
             if (result != null)
                 return result;
-
+           
             if (attackers.Count == 0)
                 return ToMainPhase2();
 
@@ -184,6 +184,7 @@ namespace WindBot.Game
                 for (int i = attackers.Count - 1; i >= 0; --i)
                 {
                     ClientCard attacker = attackers[i];
+                    Duel.Global.Bot_Remain_Attacker_Count = attackers.Count - i - 1;
                     if (attacker.Attack > 0)
                         return Attack(attacker, null);
                 }
@@ -193,7 +194,9 @@ namespace WindBot.Game
                 for (int k = 0; k < attackers.Count; ++k)
                 {
                     ClientCard attacker = attackers[k];
+                    Duel.Global.Bot_Remain_Attacker_Count = attackers.Count - k - 1;                    
                     attacker.IsLastAttacker = (k == attackers.Count - 1);
+                    Duel.Global.BotLastattacker= attackers[attackers.Count - 1];
                     result = Executor.OnSelectAttackTarget(attacker, defenders);
                     if (result != null)
                         return result;
@@ -290,7 +293,7 @@ namespace WindBot.Game
         /// <param name="forced">You can't return -1 if this param is true.</param>
         /// <returns>Index of the activated card or -1.</returns>
         public int OnSelectChain(IList<ClientCard> cards, IList<int> descs, bool forced)
-        {
+        {            
             foreach (CardExecutor exec in Executor.Executors)
             {
                 for (int i = 0; i < cards.Count; ++i)
@@ -349,7 +352,10 @@ namespace WindBot.Game
             if (result != null)
                 return result;
             result = new List<ClientCard>();
-            // TODO: use selector
+           /* CardSelector sorting = null;
+            sorting = GetSortingCards();
+            if (sorting != null)
+                return sorting.Sort(cards);*/
             for (int i = 0; i < cards.Count; i++)
             {
                 result.Add(cards[i]);
@@ -441,9 +447,10 @@ namespace WindBot.Game
                 }
             }
 
-            if (main.CanBattlePhase && Duel.Fields[0].HasAttackingMonster())
+            if (main.CanBattlePhase)
                 return new MainPhaseAction(MainPhaseAction.MainAction.ToBattlePhase);
-
+            if(Duel.Phase==DuelPhase.Main1)
+               // return new MainPhaseAction(MainPhaseAction.MainAction.ToMainPhaseTwo);
             _dialogs.SendEndTurn();
             return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase); 
         }
@@ -466,7 +473,7 @@ namespace WindBot.Game
         }
 
         public int OnSelectPlace(int cardId, int player, int location, int available)
-        {
+        {            
             int selector_selected = m_place;
             m_place = 0;
 
@@ -724,6 +731,9 @@ namespace WindBot.Game
         private CardSelector m_selector;
         private CardSelector m_nextSelector;
         private CardSelector m_thirdSelector;
+        private CardSelector m_sorting;
+        private CardSelector m_nextSorting;
+        private CardSelector m_thirdSorting;
         private CardSelector m_materialSelector;
         private CardPosition m_position = CardPosition.FaceUpAttack;
         private int m_place;
@@ -809,6 +819,81 @@ namespace WindBot.Game
             m_thirdSelector = new CardSelector(loc);
         }
 
+        public void SortCard(ClientCard card)
+        {
+            m_sorting = new CardSelector(card);
+        }
+
+        public void SortCard(IList<ClientCard> cards)
+        {
+            m_sorting = new CardSelector(cards);
+        }
+
+        public void SortCard(int cardId)
+        {
+            m_sorting = new CardSelector(cardId);
+        }
+
+        public void SortCard(IList<int> ids)
+        {
+            m_sorting = new CardSelector(ids);
+        }
+
+        public void SortCard(CardLocation loc)
+        {
+            m_sorting = new CardSelector(loc);
+        }
+
+        public void SortNextCard(ClientCard card)
+        {
+            m_nextSorting = new CardSelector(card);
+        }
+
+        public void SortNextCard(IList<ClientCard> cards)
+        {
+            m_nextSorting = new CardSelector(cards);
+        }
+
+        public void SortNextCard(int cardId)
+        {
+            m_nextSorting = new CardSelector(cardId);
+        }
+
+        public void SortNextCard(IList<int> ids)
+        {
+            m_nextSorting = new CardSelector(ids);
+        }
+
+        public void SortNextCard(CardLocation loc)
+        {
+            m_nextSorting = new CardSelector(loc);
+        }
+
+        public void SortThirdCard(ClientCard card)
+        {
+            m_thirdSorting = new CardSelector(card);
+        }
+
+        public void SortThirdCard(IList<ClientCard> cards)
+        {
+            m_thirdSorting = new CardSelector(cards);
+        }
+
+        public void SortThirdCard(int cardId)
+        {
+            m_thirdSorting = new CardSelector(cardId);
+        }
+
+        public void SortThirdCard(IList<int> ids)
+        {
+            m_thirdSorting = new CardSelector(ids);
+        }
+
+        public void SortThirdCard(CardLocation loc)
+        {
+            m_thirdSorting = new CardSelector(loc);
+        }
+
         public void SelectMaterials(ClientCard card)
         {
             m_materialSelector = new CardSelector(card);
@@ -856,6 +941,23 @@ namespace WindBot.Game
             return selected;
         }
 
+        public CardSelector GetSortingCards()
+        {
+            CardSelector sorting = m_sorting;
+            m_sorting = null;
+            if (m_nextSorting != null)
+            {
+                m_sorting = m_nextSorting;
+                m_nextSorting = null;
+                if (m_thirdSorting != null)
+                {
+                    m_nextSorting = m_thirdSorting;
+                    m_thirdSorting = null;
+                }
+            }
+            return sorting;
+        }
+
         public void SelectPosition(CardPosition pos)
         {
             m_position = pos;
@@ -864,13 +966,13 @@ namespace WindBot.Game
         /// parameter type:avoid choosing the place with column negate
         /// </summary>
         /// <param name="type">Use CardType or  Zones(single way:1 for MainMonsterZone;2 for spell;4 for trap;3 for ExtraMonsterZone)</param>        
-        public void SelectPlace(int zones,int type = 0)
+        public void SelectPlace(int zones, int type = 0)
         {            
             m_place = zones;
+            Duel.Global.m_type = type;
             Duel.Global.intial_zone = Zones.z2;
             Duel.Global.intial_zone = zones;
-            Duel.Global.m_type = 0;
-            Duel.Global.m_type = type;          
+         
         }
 
         public void SelectOption(int opt)
@@ -974,6 +1076,7 @@ namespace WindBot.Game
 
         public BattlePhaseAction Attack(ClientCard attacker, ClientCard defender)
         {
+            Logger.DebugWriteLine("attack action");
             Executor.SetCard(0, attacker, -1);
             if (defender != null)
             {

@@ -25,6 +25,9 @@ namespace WindBot.Game.AI
             public const int DupeFrog = 46239604;
             public const int MaraudingCaptain = 2460565;
 
+            public const int BlackRoseDragon = 73580471;
+            public const int JudgmentDragon = 57774843;
+            public const int TopologicTrisbaena = 72529749;
             public const int EvilswarmExcitonKnight = 46772449;
             public const int HarpiesFeatherDuster = 18144506;
             public const int DarkMagicAttack = 2314238;
@@ -57,6 +60,8 @@ namespace WindBot.Game.AI
             public const int KeyToTheWorldLegacy = 2930675;
 
             public const int BlueEyesChaosMAXDragon = 55410871;
+
+            public const int EaterOfMillions = 63845230;
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
@@ -688,7 +693,44 @@ namespace WindBot.Game.AI
             AI.SelectCard(selected);
             return true;
         }
-
+        /// <summary>
+        /// Default InfiniteImpermanence effect
+        /// </summary>
+        protected bool DefaultInfiniteImpermanence()
+        {           
+            AI.SelectPlace(Zones.z2, 4);
+            ClientCard target = Enemy.MonsterZone.GetShouldBeDisabledBeforeItUseEffectMonster();
+            if (target != null)
+            {
+                AI.SelectCard(target);
+                return true;
+            }
+            if (Duel.LastChainPlayer == 1)
+            {
+                foreach (ClientCard check in Enemy.GetMonsters())
+                {
+                    if (AI.Utils.GetLastChainCard() == check)
+                    {
+                        target = check;
+                        break;
+                    }
+                }
+                if (target != null)
+                {
+                    AI.SelectCard(target);
+                    return true;
+                }
+            }
+            if (Bot.BattlingMonster != null && Enemy.BattlingMonster != null)
+            {
+                if (Enemy.BattlingMonster.Id == _CardId.EaterOfMillions)
+                {
+                    AI.SelectCard(Enemy.BattlingMonster);
+                    return true;
+                }
+            }
+            return false;
+        }
         /// <summary>
         /// Chain the enemy monster, or disable monster like Rescue Rabbit.
         /// </summary>
@@ -871,6 +913,9 @@ namespace WindBot.Game.AI
         protected bool DefaultOnBecomeTarget()
         {
             if (AI.Utils.IsChainTarget(Card)) return true;
+            if (AI.Utils.ChainContainsCard(_CardId.TopologicTrisbaena)) return true;
+            if (AI.Utils.ChainContainsCard(_CardId.BlackRoseDragon)) return true;
+            if (AI.Utils.ChainContainsCard(_CardId.JudgmentDragon)) return true;
             if (AI.Utils.ChainContainsCard(_CardId.EvilswarmExcitonKnight)) return true;
             if (Enemy.HasInSpellZone(_CardId.HarpiesFeatherDuster, true)) return true;
             if (Enemy.HasInSpellZone(_CardId.DarkMagicAttack, true)) return true;
@@ -895,6 +940,16 @@ namespace WindBot.Game.AI
             return UniqueFaceupSpell();
         }
 
+        /// <summary>
+        /// Activate when avail and no other our trap card in this chain 
+        /// </summary>
+        protected bool DefaultTrapOnly()
+        {
+            if (AI.Utils.HasChainedTrap(0))
+                return false;
+
+            return true;
+        }
         /// <summary>
         /// Check no other our spell or trap card with same name face-up.
         /// </summary>

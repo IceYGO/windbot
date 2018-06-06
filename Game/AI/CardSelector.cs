@@ -100,5 +100,40 @@ namespace WindBot.Game.AI
 
             return result;
         }
+
+        public IList<ClientCard> Sort(IList<ClientCard> cards)
+        {
+            IList<ClientCard> result = new List<ClientCard>();
+
+            switch (_type)
+            {
+                case SelectType.Card:
+                    if (cards.Contains(_card))
+                        result.Add(_card);
+                    break;
+                case SelectType.Cards:
+                    foreach (ClientCard card in _cards)
+                        if (cards.Contains(card))
+                            result.Add(card);
+                    break;
+                case SelectType.Id:
+                    foreach (ClientCard card in cards)
+                        if (card.Id == _id)
+                            result.Add(card);
+                    break;
+                case SelectType.Ids:
+                    foreach (int id in _ids)
+                        foreach (ClientCard card in cards)
+                            if (card.Id == id)
+                                result.Add(card);
+                    break;
+                case SelectType.Location:
+                    foreach (ClientCard card in cards)
+                        if (card.Location == _location)
+                            result.Add(card);
+                    break;
+            }
+            return result;
+        }
     }
 }

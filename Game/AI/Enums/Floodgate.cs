@@ -75,7 +75,7 @@
         OvertexCoatls = 41782653,
         FirePrison = 269510,
         LairOfDarkness = 59160188,
-        MaskedHeroDarkLow = 58481572,
+        
 
     }
 }

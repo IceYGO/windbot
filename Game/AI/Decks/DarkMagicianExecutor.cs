@@ -227,6 +227,7 @@ namespace WindBot.Game.AI.Decks
         bool Spellbook_summon = false;
         bool Rod_summon = false;
         bool GlassBell_summon = false;
+        bool summon_used = false;
         bool magician_sp = false;
         bool soul_used = false;
         bool big_attack = false;
@@ -316,6 +317,7 @@ namespace WindBot.Game.AI.Decks
             big_attack = false;
             big_attack_used = false;
             soul_used = false;
+            summon_used = false;
         }
         public int GetTotalATK(IList<ClientCard> list)
         {
@@ -477,12 +479,12 @@ namespace WindBot.Game.AI.Decks
         private bool OddEyesAbsoluteDragoneff()
         {
             Logger.DebugWriteLine("OddEyesAbsoluteDragonef 1");
-            if (Card.Location == CardLocation.MonsterZone/*ActivateDescription == AI.Utils.GetStringId(CardId.OddEyesAbsoluteDragon, 0)*/)
+            if (Card.Location == CardLocation.MonsterZone)
             {
                 Logger.DebugWriteLine("OddEyesAbsoluteDragonef 2");
                 return Duel.Player == 1;
             }
-            else if (Card.Location == CardLocation.Grave/*ActivateDescription == AI.Utils.GetStringId(CardId.OddEyesAbsoluteDragon, 0)*/)
+            else if (Card.Location == CardLocation.Grave)
             {
                 Logger.DebugWriteLine("OddEyesAbsoluteDragonef 3");
                 AI.SelectCard(CardId.OddEyesWingDragon);
@@ -673,6 +675,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.DarkMagicianTheDragonKnight);
                 return true;
             }
+            if (!summon_used && Bot.HasInHand(CardId.MagiciansRod)) return false;
             if (Duel.Player == 1 && Bot.HasInSpellZone(CardId.DarkMagicalCircle) &&
                 (Enemy.HasInMonstersZone(CardId.SummonSorceress) || Enemy.HasInMonstersZone(CardId.FirewallDragon)))
             {
@@ -1296,6 +1299,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(CardId.SpellbookOfKnowledge);
                 else
                     AI.SelectCard(new[] { CardId.SpellbookOfSecrets, CardId.SpellbookOfKnowledge });
+                summon_used = true;
                 return true;
             }
             return false;
@@ -1304,7 +1308,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (lockbird_used) return false;
             AI.SelectPlace(Zones.z2, 1);
-            if (Rod_summon) return true;
+            summon_used = true;
+            if (Rod_summon) return true;            
             return true;
         }
 
@@ -1541,7 +1546,10 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInMonstersZone(CardId.WindwitchIceBell) &&
                 Bot.HasInMonstersZone(CardId.WindwitchSnowBell) &&
                 !Bot.HasInMonstersZone(CardId.WindwitchGlassBell))
+            {
+                summon_used = true;
                 return true;
+            }
             return false;
         }
         private bool WindwitchGlassBellsummon()
@@ -1552,9 +1560,16 @@ namespace WindBot.Game.AI.Decks
             AI.SelectPlace(Zones.z2, 1);
             if (GlassBell_summon && Bot.HasInMonstersZone(CardId.WindwitchIceBell) &&
                 !Bot.HasInMonstersZone(CardId.WindwitchGlassBell))
+            {
+                summon_used = true;
                 return true;
+            }
             if (WindwitchGlassBelleff_used) return false;
-            if (GlassBell_summon) return true;
+            if (GlassBell_summon)
+            {
+                summon_used = true;
+                return true;
+            }    
             return false;
         }
         private bool BigEyesp()
@@ -1674,12 +1689,25 @@ namespace WindBot.Game.AI.Decks
         }
         public override void OnChaining(int player, ClientCard card)
         {
+            
+           
             base.OnChaining(player, card);
+            
         }
 
 
         public override void OnChainEnd()
         {
+            foreach (ClientCard check in Enemy.GetSpells())
+            {
+                Logger.DebugWriteLine("card zone= " + check.Zone.ToString());
+            }
+            if (AI.Utils.GetLastChainCard().Id == CardId.MaxxC && AI.Utils.ChainContainPlayer(1))
+                maxxc_used = true;
+            if (AI.Utils.GetLastChainCard().Id == CardId.Ghost && AI.Utils.ChainContainPlayer(1))
+                ghost_used = true;
+            if (AI.Utils.GetLastChainCard().Id == CardId.LockBird && AI.Utils.ChainContainPlayer(1))
+                lockbird_used = true;
             /*if (Enemy.MonsterZone[5] != null)
             {
                 Logger.DebugWriteLine("%%%%%%%%%%%%%%%%Enemy.MonsterZone[5].LinkMarker= " + Enemy.MonsterZone[5].LinkMarker);
@@ -1707,7 +1735,7 @@ namespace WindBot.Game.AI.Decks
                     Logger.DebugWriteLine("++++++++SpellZone[" + i + "]= " + Bot.SpellZone[i].Id);
             }*/
 
-            if ((Duel.CurrentChain.Count >= 1 && AI.Utils.GetLastChainCard().Id == 0) ||
+            /*if ((Duel.CurrentChain.Count >= 1 && AI.Utils.GetLastChainCard().Id == 0) ||
                 (Duel.CurrentChain.Count == 2 && !AI.Utils.ChainContainPlayer(0) && Duel.CurrentChain[0].Id == 0))
             {
                 Logger.DebugWriteLine("current chain = " + Duel.CurrentChain.Count);
@@ -1751,7 +1779,7 @@ namespace WindBot.Game.AI.Decks
                     Logger.DebugWriteLine("***********WindwitchGlassBell*********************");
                 }
 
-            }
+            }*/
             foreach (ClientCard dangerous in Enemy.GetMonsters())
             {
                 if (dangerous != null && dangerous.IsShouldNotBeTarget() &&
@@ -1762,7 +1790,7 @@ namespace WindBot.Game.AI.Decks
                     Logger.DebugWriteLine("*********dangerous = " + dangerous.Id);
                 }
             }
-            int count = 0;
+            /*int count = 0;
             foreach (ClientCard check in Enemy.Graveyard)
             {
                 if (check.Id == CardId.MaxxC)
@@ -1782,7 +1810,7 @@ namespace WindBot.Game.AI.Decks
                 if (check.Id == CardId.Ghost)
                     count++;
             }
-            ghost_done = count;
+            ghost_done = count;*/
             base.OnChainEnd();
         }
 

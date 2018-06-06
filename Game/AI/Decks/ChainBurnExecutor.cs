@@ -127,7 +127,8 @@ namespace WindBot.Game.AI.Decks
                 CardId.AccuulatedFortune,
     };
         }
-        public int[] AbouluteKingBackJack_List_1()
+
+        public int[] AbouluteKingBackJack_List_1() 
         {
             return new[] {
             CardId.BlazingMirrorForce,
@@ -143,8 +144,9 @@ namespace WindBot.Game.AI.Decks
             CardId.Ceasefire,
             CardId.BalanceOfJudgment,
             CardId.AccuulatedFortune,
-        };
-    }
+            };
+        }
+    
         public int[] AbouluteKingBackJack_List_2()
         {
             return new[] {
@@ -454,9 +456,9 @@ namespace WindBot.Game.AI.Decks
         private bool AbouluteKingBackJackeff()
         {
             if (ActivateDescription == -1)
-            {                
-                AI.SelectCard(AbouluteKingBackJack_List_1());
-                AI.SelectNextCard(AbouluteKingBackJack_List_2());
+            {
+               AI.SortCard(AbouluteKingBackJack_List_1());
+               AI.SortNextCard(AbouluteKingBackJack_List_2());                
             }
 
             return true;

@@ -13,6 +13,7 @@ namespace WindBot.Game
 
         public int Position { get; set; }
         public CardLocation Location { get; set; }
+        public int Zone { get; set; }
         public int Alias { get; private set; }
         public int Level { get; private set; }
         public int Rank { get; private set; }
@@ -38,17 +39,16 @@ namespace WindBot.Game
         public bool CanDirectAttack { get; set; }
         public bool ShouldDirectAttack { get; set; }
         public bool Attacked { get; set; }
-        public bool IsLastAttacker { get; set; }
-
+        public bool IsLastAttacker { get; set; }      
+        public bool SpSummon { get; set; }
         public int[] ActionIndex { get; set; }
-        public IDictionary<int, int> ActionActivateIndex { get; private set; }
-
+        public IDictionary<int, int> ActionActivateIndex { get; private set; }      
         public ClientCard(int id, CardLocation loc)
-            : this(id, loc, 0)
+            : this(id, loc, 0, 0)
         {
         }
 
-        public ClientCard(int id, CardLocation loc, int position)
+        public ClientCard(int id, CardLocation loc, int zone , int position)
         {
             SetId(id);
             Position = position;
@@ -56,6 +56,8 @@ namespace WindBot.Game
             ActionIndex = new int[16];
             ActionActivateIndex = new Dictionary<int, int>();
             Location = loc;
+            Zone = zone;
+            SpSummon = false;
         }
 
         public void SetId(int id)
@@ -66,6 +68,12 @@ namespace WindBot.Game
             if (Data != null)
                 Name = Data.Name;
         }
+
+        public void UpdateSpSummon()
+        {
+           SpSummon= true;
+        }
+
 
         public void Update(BinaryReader packet, Duel duel)
         {
@@ -214,6 +222,18 @@ namespace WindBot.Game
         public bool IsDisabled()
         {
             return (Disabled != 0);
+        }
+
+        public bool IsSpSummon()
+        {
+            if (!IsMonster())
+                return false;
+            return SpSummon;
+        }
+
+        public bool IsEquiped(int id)
+        {
+            return true;
         }
 
         public bool HasXyzMaterial()
