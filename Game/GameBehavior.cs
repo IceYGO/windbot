@@ -215,6 +215,10 @@ namespace WindBot.Game
             {
                 _room.IsReady[pos] = false;
                 _room.Names[pos] = null;
+                if (state == (int)PlayerChange.Leave && Config.GetBool("AutoQuit", false)) {
+                    Connection.Close();
+                    return;
+                }
             }
 
             if (_room.IsHost && _room.IsReady[0] && _room.IsReady[1])
