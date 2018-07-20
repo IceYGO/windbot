@@ -91,9 +91,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnNewPhase()
         {
-            m_selector = null;
-            m_nextSelector = null;
-            m_thirdSelector = null;
+            m_selector.Clear();
             m_materialSelector = null;
             m_option = -1;
             m_yesno = -1;
@@ -721,9 +719,7 @@ namespace WindBot.Game
         // _ Others functions _
         // Those functions are used by the AI behavior.
 
-        private CardSelector m_selector;
-        private CardSelector m_nextSelector;
-        private CardSelector m_thirdSelector;
+        
         private CardSelector m_materialSelector;
         private CardPosition m_position = CardPosition.FaceUpAttack;
         private int m_place;
@@ -732,81 +728,82 @@ namespace WindBot.Game
         private int m_announce;
         private int m_yesno;
         private IList<CardAttribute> m_attributes = new List<CardAttribute>();
+        private IList<CardSelector> m_selector = new List<CardSelector>();
         private IList<CardRace> m_races = new List<CardRace>();
 
         public void SelectCard(ClientCard card)
         {
-            m_selector = new CardSelector(card);
+            m_selector.Add(new CardSelector(card));
         }
 
         public void SelectCard(IList<ClientCard> cards)
         {
-            m_selector = new CardSelector(cards);
+            m_selector.Add(new CardSelector(cards));
         }
 
         public void SelectCard(int cardId)
         {
-            m_selector = new CardSelector(cardId);
+            m_selector.Add(new CardSelector(cardId));
         }
 
         public void SelectCard(IList<int> ids)
         {
-            m_selector = new CardSelector(ids);
+            m_selector.Add(new CardSelector(ids));
         }
 
         public void SelectCard(CardLocation loc)
         {
-            m_selector = new CardSelector(loc);
+            m_selector.Add(new CardSelector(loc));
         }
 
         public void SelectNextCard(ClientCard card)
         {
-            m_nextSelector = new CardSelector(card);
+            m_selector.Add(new CardSelector(card));
         }
 
         public void SelectNextCard(IList<ClientCard> cards)
         {
-            m_nextSelector = new CardSelector(cards);
+            m_selector.Add(new CardSelector(cards));
         }
 
         public void SelectNextCard(int cardId)
         {
-            m_nextSelector = new CardSelector(cardId);
+            m_selector.Add(new CardSelector(cardId));
         }
 
         public void SelectNextCard(IList<int> ids)
         {
-            m_nextSelector = new CardSelector(ids);
+            m_selector.Add(new CardSelector(ids));
         }
 
         public void SelectNextCard(CardLocation loc)
         {
-            m_nextSelector = new CardSelector(loc);
+            m_selector.Add(new CardSelector(loc));
         }
 
         public void SelectThirdCard(ClientCard card)
         {
-            m_thirdSelector = new CardSelector(card);
+            m_selector.Add(new CardSelector(card));
         }
 
         public void SelectThirdCard(IList<ClientCard> cards)
         {
-            m_thirdSelector = new CardSelector(cards);
+            m_selector.Add(new CardSelector(cards));
         }
 
         public void SelectThirdCard(int cardId)
         {
-            m_thirdSelector = new CardSelector(cardId);
+            m_selector.Add(new CardSelector(cardId));
         }
 
         public void SelectThirdCard(IList<int> ids)
         {
-            m_thirdSelector = new CardSelector(ids);
+            m_selector.Add(new CardSelector(ids));
         }
 
         public void SelectThirdCard(CardLocation loc)
         {
-            m_thirdSelector = new CardSelector(loc);
+            m_selector.Add(new CardSelector(loc));
         }
 
         public void SelectMaterials(ClientCard card)
@@ -841,17 +838,11 @@ namespace WindBot.Game
 
         public CardSelector GetSelectedCards()
         {
-            CardSelector selected = m_selector;
-            m_selector = null;
-            if (m_nextSelector != null)
+            CardSelector selected = null;
+            if (m_selector.Count > 0)
             {
-                m_selector = m_nextSelector;
-                m_nextSelector = null;
-                if (m_thirdSelector != null)
-                {
-                    m_nextSelector = m_thirdSelector;
-                    m_thirdSelector = null;
-                }
+                selected = m_selector[0];
+                m_selector.RemoveAt(0);
             }
             return selected;
         }
