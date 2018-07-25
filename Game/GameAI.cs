@@ -119,6 +119,16 @@ namespace WindBot.Game
         /// <param name="player">Player who is currently chaining.</param>
         public void OnChaining(ClientCard card, int player)
         {
+            if (Duel.CurrentChain.Count == 1)
+            {                
+                CardSelector temp;
+                for (int i = 0; i < m_selector.Count / 2; i++)
+                {
+                    temp = m_selector[i];
+                    m_selector[i] = m_selector[m_selector.Count - 1 - i];
+                    m_selector[m_selector.Count - 1 - i] = temp;
+                }                
+            }
             Executor.OnChaining(player,card);
         }
         
@@ -127,6 +137,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnChainEnd()
         {
+            m_selector.Clear();
             Executor.OnChainEnd();
         }
 
