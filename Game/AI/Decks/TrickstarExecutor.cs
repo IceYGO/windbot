@@ -37,7 +37,7 @@ namespace WindBot.Game.AI.Decks
             public const int Ring = 83555666;
             public const int Strike = 40605147;
             public const int Warn = 84749824;
-            public const int Grass = 10813327;
+            public const int Awaken = 10813327;
 
             public const int Linkuri = 41999284;
             public const int Linkspi = 98978921;
@@ -87,7 +87,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.MG, G_act);
             AddExecutor(ExecutorType.Activate, CardId.Strike, DefaultSolemnStrike);
             AddExecutor(ExecutorType.Activate, CardId.Warn, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, CardId.Grass, Grass_ss);
+            AddExecutor(ExecutorType.Activate, CardId.Awaken, Awaken_ss);
             AddExecutor(ExecutorType.Activate, CardId.Urara, Hand_act_eff);
             AddExecutor(ExecutorType.Activate, CardId.Ghost, Hand_act_eff);
             AddExecutor(ExecutorType.Activate, CardId.Ring, Ring_act);
@@ -99,6 +99,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.DarkHole, DarkHole_eff);
 
             // spell clean
+            AddExecutor(ExecutorType.Activate, field_activate);
             AddExecutor(ExecutorType.Activate, CardId.Stage, Stage_Lock);
             AddExecutor(ExecutorType.Activate, CardId.Feather, Feather_Act);
             AddExecutor(ExecutorType.Activate, CardId.Stage, Stage_act);
@@ -176,12 +177,22 @@ namespace WindBot.Game.AI.Decks
             return (id == CardId.Yellow || id == CardId.Red || id == CardId.Pink || id == CardId.White || id == CardId.Stage || id == CardId.Re || id == CardId.Crown);
         }
 
+        public bool field_activate()
+        {
+            if (Card.HasPosition(CardPosition.FaceDown) && Card.HasType(CardType.Field) && Card.Location == CardLocation.SpellZone)
+            {
+                // field spells that forbid other fields' activate
+                return (Card.Id != 71650854 && Card.Id != 78082039);
+            }
+            return false;
+        }
+
         public int[] Useless_List()
         {
             return new[]
             {
                 CardId.Tuner,
-                CardId.Grass,
+                CardId.Awaken,
                 CardId.Crown,
                 CardId.Pink,
                 CardId.Pot,
@@ -216,7 +227,7 @@ namespace WindBot.Game.AI.Decks
             return atk;
         }
 
-        public bool Grass_ss()
+        public bool Awaken_ss()
         {
             // judge whether can ss from exdeck
             bool judge = (Bot.ExtraDeck.Count > 0);
@@ -231,7 +242,7 @@ namespace WindBot.Game.AI.Decks
             // can ss from exdeck
             if (judge)
             {
-                bool fornextss = AI.Utils.ChainContainsCard(CardId.Grass);
+                bool fornextss = AI.Utils.ChainContainsCard(CardId.Awaken);
                 IList<ClientCard> ex = Bot.ExtraDeck;
                 ClientCard ex_best = null;
                 foreach (ClientCard ex_card in ex)
@@ -250,7 +261,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(ex_best);
                 }
             }
-            if (!judge || AI.Utils.ChainContainsCard(CardId.Grass))
+            if (!judge || AI.Utils.ChainContainsCard(CardId.Awaken))
             {
                 // cannot ss from exdeck or have more than 1 grass in chain
                 int[] secondselect = new[]
@@ -266,7 +277,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.Yellow,
                     CardId.Pink
                 };
-                if (!AI.Utils.ChainContainsCard(CardId.Grass))
+                if (!AI.Utils.ChainContainsCard(CardId.Awaken))
                 {
                     if (!judge && Bot.GetRemainingCount(CardId.Ghost, 2) > 0)
                     {
@@ -409,7 +420,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Player == 0) return false;
             if (Duel.Phase == DuelPhase.End) return true;
-            if (Duel.LastChainPlayer == 1 && (AI.Utils.IsChainTarget(Card) || (AI.Utils.GetLastChainCard().Id == CardId.Feather && !Bot.HasInSpellZone(CardId.Grass)))) return true;
+            if (Duel.LastChainPlayer == 1 && (AI.Utils.IsChainTarget(Card) || (AI.Utils.GetLastChainCard().Id == CardId.Feather && !Bot.HasInSpellZone(CardId.Awaken)))) return true;
             if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
             {
                 int total_atk = 0;
@@ -1321,7 +1332,7 @@ namespace WindBot.Game.AI.Decks
             if (ex_1 != null && ex_1.Controller == 0) ex = ex_1;
             if (ex_2 != null && ex_2.Controller == 0) ex = ex_2;
             if (ex == null) return false;
-            if (!Has_down_arrow(ex.Id)) return false;
+            if (!ex.HasLinkMarker(2)) return false;
             IList<ClientCard> targets = new List<ClientCard>();
             foreach (ClientCard s_m in Bot.GetMonsters())
             {
