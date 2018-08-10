@@ -1499,6 +1499,19 @@ namespace WindBot.Game.AI.Decks
         public bool Phoneix_eff()
         {
             AI.SelectCard(Useless_List());
+            ClientCard target = AI.Utils.GetProblematicEnemySpell();
+            if (target != null)
+            {
+                AI.SelectNextCard(target);
+            } else
+            {
+                List<ClientCard> spells = Enemy.GetSpells();
+                RandomSort(spells);
+                foreach (ClientCard card in spells)
+                {
+                    if ((card != stage_locked || card.HasPosition(CardPosition.FaceUp)) && !(card.IsShouldNotBeTarget() || card.IsShouldNotBeMonsterTarget())) AI.SelectNextCard(card);
+                }
+            }
             return true;
         }
 
