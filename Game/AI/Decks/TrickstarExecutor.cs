@@ -1574,21 +1574,27 @@ namespace WindBot.Game.AI.Decks
             // avoid cards that cannot target.
             AI.SelectCard(Useless_List());
             IList<ClientCard> enemy_list = new List<ClientCard>();
-            enemy_list.Add(m);
+            if (!m.IsShouldNotBeMonsterTarget() && !m.IsShouldNotBeTarget()) enemy_list.Add(m);
             foreach(ClientCard enemy in Enemy.GetMonstersInExtraZone())
             {
-                if (enemy != null && !enemy_list.Contains(enemy)) enemy_list.Add(enemy);
+                if (enemy != null && !enemy_list.Contains(enemy) && !enemy.IsShouldNotBeMonsterTarget() && !enemy.IsShouldNotBeTarget()) enemy_list.Add(enemy);
             }
             foreach (ClientCard enemy in Enemy.GetMonstersInMainZone())
             {
-                if (enemy != null && !enemy_list.Contains(enemy)) enemy_list.Add(enemy);
+                if (enemy != null && !enemy_list.Contains(enemy) && !enemy.IsShouldNotBeMonsterTarget() && !enemy.IsShouldNotBeTarget()) enemy_list.Add(enemy);
             }
             foreach (ClientCard enemy in Enemy.GetSpells())
             {
-                if (enemy != null && !enemy_list.Contains(enemy)) enemy_list.Add(enemy);
+                if (enemy != null && !enemy_list.Contains(enemy) && !enemy.IsShouldNotBeMonsterTarget() && !enemy.IsShouldNotBeTarget()) enemy_list.Add(enemy);
             }
-            AI.SelectNextCard(enemy_list);
-            return true;
+            if (enemy_list.Count > 0)
+            {
+                AI.SelectNextCard(enemy_list);
+                return true;
+            } else
+            {
+                return false;
+            }
         }
 
         public bool Snake_ss()
