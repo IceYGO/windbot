@@ -1811,6 +1811,15 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.IsFaceup() && Card.IsDefense() && Card.Attack == 0)
                 return false;
+
+            if (Card.Id == CardId.Pink)
+            {
+                if ((Bot.HasInSpellZone(CardId.Stage, true) && Enemy.LifePoints <= 1000) || (!Bot.HasInSpellZone(CardId.Stage, true) && Enemy.LifePoints <= 800))
+                {
+                    return !Card.HasPosition(CardPosition.Attack);
+                }
+            }
+
             bool enemyBetter = IsAllEnemyBetter();
 
             if (Card.IsAttack() && enemyBetter)
