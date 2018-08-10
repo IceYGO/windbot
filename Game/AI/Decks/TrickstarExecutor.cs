@@ -215,6 +215,14 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectPlace(SelectSTPlace());
                 return true;
+            } else if (Enemy.HasInSpellZone(58921041,true) || Bot.HasInSpellZone(58921041, true))
+            {
+                if (Card.Id == CardId.Stage) return !Bot.HasInSpellZone(CardId.Stage);
+                if (Card.IsSpell())
+                {
+                    AI.SelectPlace(SelectSTPlace());
+                    return true;
+                }
             }
             return false;
         }
