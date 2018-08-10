@@ -107,6 +107,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.TG, TG_eff);
 
             AddExecutor(ExecutorType.Activate, CardId.Tuner,Tuner_eff);
+            AddExecutor(ExecutorType.SpellSet, Five_Rainbow);
 
             // ex ss
             AddExecutor(ExecutorType.SpSummon, CardId.Borrel, Borrel_ss);
@@ -161,10 +162,61 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
 
+        public bool Five_Rainbow()
+        {
+            if (Enemy.HasInSpellZone(19619755,true) || Bot.HasInSpellZone(19619755, true))
+            {
+                if (Card.HasType(CardType.Field)) return false;
+                bool has_setcard = false;
+                for (int i = 0; i < 5; ++i)
+                {
+                    ClientCard sp = Bot.SpellZone[i];
+                    if (sp != null && sp.HasPosition(CardPosition.FaceDown))
+                    {
+                        has_setcard = true;
+                        break;
+                    }
+                }
+                if (has_setcard) return false;
+                AI.SelectPlace(SelectSTPlace());
+                return true;
+            }
+            return false;
+        }
+
+        public int SelectSTPlace()
+        {
+            List<int> list = new List<int>();
+            list.Add(0);
+            list.Add(1);
+            list.Add(2);
+            list.Add(3);
+            list.Add(4);
+            int n = list.Count;
+            while (n-- > 1)
+            {
+                int index = Program.Rand.Next(n + 1);
+                int temp = list[index];
+                list[index] = list[n];
+                list[n] = temp;
+            }
+            foreach(int seq in list)
+            {
+                int zone = (int)System.Math.Pow(2, seq);
+                if (Bot.SpellZone[seq] == null) return zone;
+            }
+            return 0;
+        }
+
         public bool SpellSet()
         {
             if (Card.Id == CardId.Sheep && Bot.HasInSpellZone(CardId.Sheep)) return false;
-            return DefaultSpellSet();
+            if (DefaultSpellSet())
+            {
+                AI.SelectPlace(SelectSTPlace());
+                return true;
+            }
+            return false;
         }
 
         public bool IsTrickstar(int id)
@@ -406,6 +458,7 @@ namespace WindBot.Game.AI.Decks
             if (selected == null)
                 return false;
             AI.SelectCard(selected);
+            AI.SelectPlace(SelectSTPlace());
             return true;
         }
 
@@ -426,11 +479,13 @@ namespace WindBot.Game.AI.Decks
                     if (self_card.Id == CardId.Galaxy)
                         return false;
                 }
+                AI.SelectPlace(SelectSTPlace());
                 return true;
             }
             // activate when more than 2 cards
             if (Enemy.GetSpellCount() <= 1)
                 return false;
+            AI.SelectPlace(SelectSTPlace());
             return true;
         }
 
@@ -578,7 +633,12 @@ namespace WindBot.Game.AI.Decks
         public bool Pot_Act()
         {
             if (!spell_trap_activate()) return false;
-            return Bot.Deck.Count > 15;
+            if (Bot.Deck.Count > 15)
+            {
+                AI.SelectPlace(SelectSTPlace());
+                return true;
+            }
+            return false;
         }
 
         public bool Hand_act_eff()
@@ -652,7 +712,7 @@ namespace WindBot.Game.AI.Decks
             if (AI.Utils.IsTurn1OrMain2()) return false;
             AI.SelectPosition(CardPosition.FaceUpAttack);
             IList<ClientCard> targets = new List<ClientCard>();
-            if (Bot.SpellZone[5] != null && Bot.SpellZone[5].IsFacedown())
+            if (Bot.SpellZone[5] != null && Bot.SpellZone[5].Id != CardId.Stage)
             {
                 targets.Add(Bot.SpellZone[5]);
             }
@@ -1069,10 +1129,14 @@ namespace WindBot.Game.AI.Decks
 
         public bool Crown_eff()
         {
-            if (Card.Location == CardLocation.Hand)
+            if (Card.Location == CardLocation.Hand || (Card.Location == CardLocation.SpellZone && Card.HasPosition(CardPosition.FaceDown)))
             {
                 if (!spell_trap_activate()) return false;
-                if (Duel.Phase <= DuelPhase.Main1) return Ts_reborn();
+                if (Duel.Phase <= DuelPhase.Main1 && Ts_reborn())
+                {
+                    AI.SelectPlace(SelectSTPlace());
+                    return true;
+                }
                 return false;
             }
             if (Bot.HasInHand(CardId.Pink) && GraveCall_id != CardId.Pink)
@@ -1700,10 +1764,18 @@ namespace WindBot.Game.AI.Decks
                 int bestenemy = -1;
                 foreach (ClientCard enemy in Enemy.GetMonsters())
                 {
-                    if (enemy.IsMonsterDangerous()) return true;
+                    if (enemy.IsMonsterDangerous())
+                    {
+                        AI.SelectPlace(SelectSTPlace());
+                        return true;
+                    }
                     if (enemy.IsFaceup() && (enemy.GetDefensePower() > bestenemy)) bestenemy = enemy.GetDefensePower();
                 }
-                return (bestPower <= bestenemy);
+                if (bestPower <= bestenemy)
+                {
+                    AI.SelectPlace(SelectSTPlace());
+                    return true;
+                }
             }
             return false;
         }
