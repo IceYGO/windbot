@@ -167,6 +167,11 @@ namespace WindBot.Game.AI.Decks
             return DefaultSpellSet();
         }
 
+        public bool Has_down_arrow(int id)
+        {
+            return (id == CardId.Linkuri || id == CardId.Linkspi || id == CardId.Unicorn);
+        }
+
         public bool IsTrickstar(int id)
         {
             return (id == CardId.Yellow || id == CardId.Red || id == CardId.Pink || id == CardId.White || id == CardId.Stage || id == CardId.Re || id == CardId.Crown);
@@ -179,27 +184,6 @@ namespace WindBot.Game.AI.Decks
                 // field spells that forbid other fields' activate
                 return (Card.Id != 71650854 && Card.Id != 78082039);
             }
-            return false;
-        }
-
-        public bool spell_trap_activate()
-        {
-            if (Card.Location != CardLocation.SpellZone && Card.Location != CardLocation.Hand) return true;
-            if (Enemy.HasInMonstersZone(CardId.Exterio,true) && !Bot.HasInHandOrHasInMonstersZone(CardId.Ghost)) return false;
-            if (Card.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(33198837, true) && !Bot.HasInHandOrHasInMonstersZone(CardId.Ghost)) return false;
-                if (Enemy.HasInSpellZone(61740673, true) || Bot.HasInSpellZone(61740673,true)) return false;
-                if (Enemy.HasInMonstersZone(37267041, true) || Bot.HasInMonstersZone(37267041, true)) return false;
-                return true;
-            }
-            if (Card.IsTrap())
-            {
-                if (Enemy.HasInSpellZone(51452091, true) || Bot.HasInSpellZone(51452091, true)) return false;
-                if (Enemy.HasInSpellZone(51452091, true) || Bot.HasInSpellZone(51452091, true)) return false;
-                return true;
-            }
-            // how to get here?
             return false;
         }
 
@@ -393,7 +377,6 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if (!spell_trap_activate()) return false;
                 foreach (ClientCard card in spells)
                 {
                     if (card.IsFacedown() && card != stage_locked)
@@ -417,7 +400,6 @@ namespace WindBot.Game.AI.Decks
 
         public bool Feather_Act()
         {
-            if (!spell_trap_activate()) return false;
             if (AI.Utils.GetProblematicEnemySpell() != null)
             {
                 List<ClientCard> grave = Bot.GetGraveyardSpells();
@@ -436,7 +418,6 @@ namespace WindBot.Game.AI.Decks
 
         public bool Sheep_Act()
         {
-            if (!spell_trap_activate()) return false;
             if (Duel.Player == 0) return false;
             if (Duel.Phase == DuelPhase.End) return true;
             if (Duel.LastChainPlayer == 1 && (AI.Utils.IsChainTarget(Card) || (AI.Utils.GetLastChainCard().Id == CardId.Feather && !Bot.HasInSpellZone(CardId.Awaken)))) return true;
@@ -455,8 +436,8 @@ namespace WindBot.Game.AI.Decks
 
         public bool Stage_act()
         {
-            if (Card.Location == CardLocation.SpellZone && Card.HasPosition(CardPosition.FaceUp)) return false;
-            if (!spell_trap_activate()) return false;
+            if (Card.Location != CardLocation.Hand) return false;
+
             if (!NormalSummoned)
             {
                 if (!Bot.HasInHand(CardId.Yellow))
@@ -577,7 +558,6 @@ namespace WindBot.Game.AI.Decks
 
         public bool Pot_Act()
         {
-            if (!spell_trap_activate()) return false;
             return Bot.Deck.Count > 15;
         }
 
@@ -1055,7 +1035,6 @@ namespace WindBot.Game.AI.Decks
         public bool Reincarnation()
         {
             if (Card.Location == CardLocation.Grave) return Ts_reborn();
-            if (!spell_trap_activate()) return false;
             if (Bot.HasInHand(CardId.LockBird))
             {
                 if (lockbird_useful || AI.Utils.IsChainTarget(Card) || (Duel.Player == 1 && AI.Utils.ChainContainsCard(CardId.Feather))) {
@@ -1071,7 +1050,6 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (!spell_trap_activate()) return false;
                 if (Duel.Phase <= DuelPhase.Main1) return Ts_reborn();
                 return false;
             }
@@ -1209,7 +1187,6 @@ namespace WindBot.Game.AI.Decks
         public bool Ring_act()
         {
             if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == CardId.Ghost) return false;
-            if (!spell_trap_activate()) return false;
             ClientCard target = AI.Utils.GetProblematicEnemyMonster();
             if (target == null && AI.Utils.IsChainTarget(Card))
             {
@@ -1669,10 +1646,8 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        // unfinished.
         public bool GraveCall_eff()
         {
-            if (!spell_trap_activate()) return false;
             if (Duel.LastChainPlayer == 1)
             {
                 if (AI.Utils.GetLastChainCard().IsMonster() && Enemy.HasInGraveyard(AI.Utils.GetLastChainCard().Id))
@@ -1688,7 +1663,6 @@ namespace WindBot.Game.AI.Decks
 
         public bool DarkHole_eff()
         {
-            if (!spell_trap_activate()) return false;
             if (Bot.GetMonsterCount() == 0)
             {
                 
