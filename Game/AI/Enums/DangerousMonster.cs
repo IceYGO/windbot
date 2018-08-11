@@ -14,7 +14,13 @@
         MetaionTheTimelord = 74530899,
         KamionTheTimelord = 91712985,
         LazionTheTimelord = 92435533,
+        MichionTheTimelord = 7733560,
+        HailonTheTimelord = 34137269,
+        RaphionTheTimelord = 60222213,
+        GabrionTheTimelord = 6616912,
+        SandaionTheTimelord = 33015627,
         EaterOfMillions = 63845230,
         ElShaddollConstruct = 20366274,
-}
+        ZushintheSleepingGiant = 67547370,
+    }
 }
