@@ -13,6 +13,7 @@ namespace WindBot
 #if DEBUG
             Console.WriteLine("[" + DateTime.Now.ToString("yy-MM-dd HH:mm:ss") + "] " + message);
 <<<<<<< HEAD
+<<<<<<< HEAD
             using (FileStream fs = new FileStream(@Path.GetFullPath("log.txt"), FileMode.OpenOrCreate, FileAccess.Write))
               {
                   using (StreamWriter sw = new StreamWriter(fs))
@@ -22,6 +23,8 @@ namespace WindBot
                      sw.Flush();
                  }
              }
+=======
+>>>>>>> parent of 61647f1... Logger output
 =======
 >>>>>>> parent of 61647f1... Logger output
 #endif
