@@ -457,21 +457,61 @@ namespace WindBot.Game
             _duel.Phase = (DuelPhase)packet.ReadInt16();
             if (_debug && _duel.Phase == DuelPhase.Standby)
             {
+                Logger.DebugWriteLine("*********LifePoint*********");
+                Logger.DebugWriteLine(_duel.Fields[0].LifePoints.ToString() + ":" + _duel.Fields[1].LifePoints.ToString());
                 Logger.DebugWriteLine("*********Bot Hand*********");
+                string bot_hand = "";
                 foreach (ClientCard card in _duel.Fields[0].Hand)
                 {
-                    Logger.DebugWriteLine(card.Name);
+                    bot_hand += (card.Name + ", ");
                 }
+                Logger.DebugWriteLine(bot_hand);
                 Logger.DebugWriteLine("*********Bot Spell*********");
-                foreach (ClientCard card in _duel.Fields[0].SpellZone)
+                string bot_spell = "";
+                for (int i = 0; i < 7; ++i)
                 {
-                    Logger.DebugWriteLine(card?.Name);
+                    ClientCard card = _duel.Fields[0].SpellZone[i];
+                    if (card != null)
+                    {
+                        bot_spell += (card?.Name + "(" + i.ToString() + "," + (CardPosition)card.Position + "), ");
+                    }
                 }
+                Logger.DebugWriteLine(bot_spell);
                 Logger.DebugWriteLine("*********Bot Monster*********");
-                foreach (ClientCard card in _duel.Fields[0].MonsterZone)
+                string bot_monster = "";
+                for (int i = 0; i < 7; ++i)
                 {
-                    Logger.DebugWriteLine(card?.Name);
+                    ClientCard card = _duel.Fields[0].MonsterZone[i];
+                    if (card != null)
+                    {
+                        bot_monster += (card?.Name + "(" + i.ToString() + "," + (CardPosition)card.Position + "), ");
+                    }
                 }
+                Logger.DebugWriteLine(bot_monster);
+                Logger.DebugWriteLine("*********Enemy Monster*********");
+                string enemy_monster = "";
+                for (int i = 0; i < 7; ++i)
+                {
+                    ClientCard card = _duel.Fields[1].MonsterZone[i];
+                    if (card != null)
+                    {
+                        enemy_monster += (card?.Name + "(" + i.ToString() + "," + (CardPosition)card.Position + "), ");
+                    }
+                }
+                Logger.DebugWriteLine(enemy_monster);
+                Logger.DebugWriteLine("*********Enemy Spell*********");
+                string enemy_spell = "";
+                for (int i = 0; i < 7; ++i)
+                {
+                    ClientCard card = _duel.Fields[1].SpellZone[i];
+                    if (card != null)
+                    {
+                        enemy_spell += (card?.Name + "(" + i.ToString() + "," + (CardPosition)card.Position + "), ");
+                    }
+                }
+                Logger.DebugWriteLine(enemy_spell);
+                Logger.DebugWriteLine("*********Enemy Hand*********");
+                Logger.DebugWriteLine("Count: " + _duel.Fields[1].Hand.Count.ToString());
                 Logger.DebugWriteLine("*********Finish*********");
             }
             if (_debug)
