@@ -272,7 +272,7 @@ namespace WindBot.Game
         {
             int player = packet.ReadInt16();
             string message = packet.ReadUnicode(256);
-            string speaker = _room.Names[player];
+            string speaker = (player < 4) ? _room.Names[player] : "Unknown";
             Logger.DebugWriteLine(speaker + "(" + player.ToString() + ")" + ": " + message);
             return;
         }
