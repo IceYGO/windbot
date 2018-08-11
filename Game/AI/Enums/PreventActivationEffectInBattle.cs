@@ -8,6 +8,7 @@
         GladiatorBeastNerokius = 29357956,
         GemKnightCitrine = 67985943,
         FrightfurSheep = 57477163,
+        SamuraiDestroyer = 40509732,
         ArmadesKeeperOfBoundaries = 88033975,
         NumberS39UtopiaTheLightning = 56832966,
     }
