@@ -80,6 +80,13 @@ namespace WindBot.Game.AI.Decks
         int GraveCall_id = 0;
         int GraveCall_count = 0;
 
+        List<int> SkyStrike_list = new List<int> {
+            26077387, 8491308, 63288573, 90673288,
+            21623008, 25955749, 63166095, 99550630,
+            25733157, 51227866, 52340444,98338152,
+            24010609, 97616504, 50005218
+        };
+
         public TrickstarExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
@@ -325,8 +332,53 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (!fornextss)
                     {
-                        if (ex_best == null || ex_card.Attack > ex_best.Attack) ex_best = ex_card;
-                    }
+                        if (Bot.HasInExtra(CardId.Exterio))
+                        {
+                            bool has_skystriker = false;
+                            foreach (ClientCard card in Enemy.Graveyard)
+                            {
+                                if (card != null && SkyStrike_list.Contains(card.Id))
+                                {
+                                    has_skystriker = true;
+                                    break;
+                                }
+                            }
+                            if (!has_skystriker)
+                            {
+                                foreach (ClientCard card in Enemy.GetSpells())
+                                {
+                                    if (card != null && SkyStrike_list.Contains(card.Id))
+                                    {
+                                        has_skystriker = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!has_skystriker)
+                            {
+                                foreach (ClientCard card in Enemy.GetSpells())
+                                {
+                                    if (card != null && SkyStrike_list.Contains(card.Id))
+                                    {
+                                        has_skystriker = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (has_skystriker)
+                            {
+                                AI.SelectCard(CardId.Exterio);
+                                return true;
+                            } else
+                            {
+                                if (ex_best == null || ex_card.Attack > ex_best.Attack) ex_best = ex_card;
+                            }
+                        }
+                        else
+                        {
+                            if (ex_best == null || ex_card.Attack > ex_best.Attack) ex_best = ex_card;
+                        }
+                    } 
                     else
                     {
                         if (getLinkMarker(ex_card.Id) != 5 && (ex_best == null || ex_card.Attack > ex_best.Attack)) ex_best = ex_card;
