@@ -92,6 +92,7 @@ namespace WindBot.Game
         public void OnNewPhase()
         {
             m_selector.Clear();
+            m_selector_pointer = -1;
             m_materialSelector = null;
             m_option = -1;
             m_yesno = -1;
@@ -119,16 +120,6 @@ namespace WindBot.Game
         /// <param name="player">Player who is currently chaining.</param>
         public void OnChaining(ClientCard card, int player)
         {
-            if (Duel.CurrentChain.Count == 1)
-            {                
-                CardSelector temp;
-                for (int i = 0; i < m_selector.Count / 2; i++)
-                {
-                    temp = m_selector[i];
-                    m_selector[i] = m_selector[m_selector.Count - 1 - i];
-                    m_selector[m_selector.Count - 1 - i] = temp;
-                }                
-            }
             Executor.OnChaining(player,card);
         }
         
@@ -138,6 +129,7 @@ namespace WindBot.Game
         public void OnChainEnd()
         {
             m_selector.Clear();
+            m_selector_pointer = -1;
             Executor.OnChainEnd();
         }
 
@@ -740,81 +732,137 @@ namespace WindBot.Game
         private int m_yesno;
         private IList<CardAttribute> m_attributes = new List<CardAttribute>();
         private IList<CardSelector> m_selector = new List<CardSelector>();
+        private int m_selector_pointer = -1;
         private IList<CardRace> m_races = new List<CardRace>();
 
         public void SelectCard(ClientCard card)
         {
+            m_selector_pointer = m_selector.Count();
             m_selector.Add(new CardSelector(card));
         }
 
         public void SelectCard(IList<ClientCard> cards)
         {
+            m_selector_pointer = m_selector.Count();
             m_selector.Add(new CardSelector(cards));
         }
 
         public void SelectCard(int cardId)
         {
+            m_selector_pointer = m_selector.Count();
             m_selector.Add(new CardSelector(cardId));
         }
 
         public void SelectCard(IList<int> ids)
         {
+            m_selector_pointer = m_selector.Count();
             m_selector.Add(new CardSelector(ids));
         }
 
         public void SelectCard(CardLocation loc)
         {
+            m_selector_pointer = m_selector.Count();
             m_selector.Add(new CardSelector(loc));
         }
 
         public void SelectNextCard(ClientCard card)
         {
-            m_selector.Add(new CardSelector(card));
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(card));
         }
 
         public void SelectNextCard(IList<ClientCard> cards)
         {
-            m_selector.Add(new CardSelector(cards));
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(cards));
         }
 
         public void SelectNextCard(int cardId)
         {
-            m_selector.Add(new CardSelector(cardId));
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(cardId));
         }
 
         public void SelectNextCard(IList<int> ids)
         {
-            m_selector.Add(new CardSelector(ids));
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(ids));
         }
 
         public void SelectNextCard(CardLocation loc)
         {
-            m_selector.Add(new CardSelector(loc));
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(loc));
         }
 
         public void SelectThirdCard(ClientCard card)
         {
-            m_selector.Add(new CardSelector(card));
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(card));
         }
 
         public void SelectThirdCard(IList<ClientCard> cards)
         {
-            m_selector.Add(new CardSelector(cards));
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(cards));
         }
 
         public void SelectThirdCard(int cardId)
         {
-            m_selector.Add(new CardSelector(cardId));
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(cardId));
         }
 
         public void SelectThirdCard(IList<int> ids)
         {
-            m_selector.Add(new CardSelector(ids));
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(ids));
         }
 
         public void SelectThirdCard(CardLocation loc)
         {
-            m_selector.Add(new CardSelector(loc));
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(loc));
         }
 
         public void SelectMaterials(ClientCard card)
@@ -852,8 +900,8 @@ namespace WindBot.Game
             CardSelector selected = null;
             if (m_selector.Count > 0)
             {
-                selected = m_selector[0];
-                m_selector.RemoveAt(0);
+                selected = m_selector[m_selector.Count - 1];
+                m_selector.RemoveAt(m_selector.Count - 1);
             }
             return selected;
         }
