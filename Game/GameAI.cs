@@ -92,7 +92,7 @@ namespace WindBot.Game
         public void OnNewPhase()
         {
             m_selector.Clear();
-            m_selector_printer = -1;
+            m_selector_pointer = -1;
             m_materialSelector = null;
             m_option = -1;
             m_yesno = -1;
@@ -129,7 +129,7 @@ namespace WindBot.Game
         public void OnChainEnd()
         {
             m_selector.Clear();
-            m_selector_printer = -1;
+            m_selector_pointer = -1;
             Executor.OnChainEnd();
         }
 
@@ -732,137 +732,137 @@ namespace WindBot.Game
         private int m_yesno;
         private IList<CardAttribute> m_attributes = new List<CardAttribute>();
         private IList<CardSelector> m_selector = new List<CardSelector>();
-        private int m_selector_printer = -1;
+        private int m_selector_pointer = -1;
         private IList<CardRace> m_races = new List<CardRace>();
 
         public void SelectCard(ClientCard card)
         {
-            m_selector_printer = m_selector.Count();
+            m_selector_pointer = m_selector.Count();
             m_selector.Add(new CardSelector(card));
         }
 
         public void SelectCard(IList<ClientCard> cards)
         {
-            m_selector_printer = m_selector.Count();
+            m_selector_pointer = m_selector.Count();
             m_selector.Add(new CardSelector(cards));
         }
 
         public void SelectCard(int cardId)
         {
-            m_selector_printer = m_selector.Count();
+            m_selector_pointer = m_selector.Count();
             m_selector.Add(new CardSelector(cardId));
         }
 
         public void SelectCard(IList<int> ids)
         {
-            m_selector_printer = m_selector.Count();
+            m_selector_pointer = m_selector.Count();
             m_selector.Add(new CardSelector(ids));
         }
 
         public void SelectCard(CardLocation loc)
         {
-            m_selector_printer = m_selector.Count();
+            m_selector_pointer = m_selector.Count();
             m_selector.Add(new CardSelector(loc));
         }
 
         public void SelectNextCard(ClientCard card)
         {
-            if (m_selector_printer == -1)
+            if (m_selector_pointer == -1)
             {
                 Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
-                m_selector_printer = 0;
+                m_selector_pointer = 0;
             }
-            m_selector.Insert(m_selector_printer, new CardSelector(card));
+            m_selector.Insert(m_selector_pointer, new CardSelector(card));
         }
 
         public void SelectNextCard(IList<ClientCard> cards)
         {
-            if (m_selector_printer == -1)
+            if (m_selector_pointer == -1)
             {
                 Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
-                m_selector_printer = 0;
+                m_selector_pointer = 0;
             }
-            m_selector.Insert(m_selector_printer, new CardSelector(cards));
+            m_selector.Insert(m_selector_pointer, new CardSelector(cards));
         }
 
         public void SelectNextCard(int cardId)
         {
-            if (m_selector_printer == -1)
+            if (m_selector_pointer == -1)
             {
                 Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
-                m_selector_printer = 0;
+                m_selector_pointer = 0;
             }
-            m_selector.Insert(m_selector_printer, new CardSelector(cardId));
+            m_selector.Insert(m_selector_pointer, new CardSelector(cardId));
         }
 
         public void SelectNextCard(IList<int> ids)
         {
-            if (m_selector_printer == -1)
+            if (m_selector_pointer == -1)
             {
                 Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
-                m_selector_printer = 0;
+                m_selector_pointer = 0;
             }
-            m_selector.Insert(m_selector_printer, new CardSelector(ids));
+            m_selector.Insert(m_selector_pointer, new CardSelector(ids));
         }
 
         public void SelectNextCard(CardLocation loc)
         {
-            if (m_selector_printer == -1)
+            if (m_selector_pointer == -1)
             {
                 Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
-                m_selector_printer = 0;
+                m_selector_pointer = 0;
             }
-            m_selector.Insert(m_selector_printer, new CardSelector(loc));
+            m_selector.Insert(m_selector_pointer, new CardSelector(loc));
         }
 
         public void SelectThirdCard(ClientCard card)
         {
-            if (m_selector_printer == -1)
+            if (m_selector_pointer == -1)
             {
                 Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
-                m_selector_printer = 0;
+                m_selector_pointer = 0;
             }
-            m_selector.Insert(m_selector_printer, new CardSelector(card));
+            m_selector.Insert(m_selector_pointer, new CardSelector(card));
         }
 
         public void SelectThirdCard(IList<ClientCard> cards)
         {
-            if (m_selector_printer == -1)
+            if (m_selector_pointer == -1)
             {
                 Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
-                m_selector_printer = 0;
+                m_selector_pointer = 0;
             }
-            m_selector.Insert(m_selector_printer, new CardSelector(cards));
+            m_selector.Insert(m_selector_pointer, new CardSelector(cards));
         }
 
         public void SelectThirdCard(int cardId)
         {
-            if (m_selector_printer == -1)
+            if (m_selector_pointer == -1)
             {
                 Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
-                m_selector_printer = 0;
+                m_selector_pointer = 0;
             }
-            m_selector.Insert(m_selector_printer, new CardSelector(cardId));
+            m_selector.Insert(m_selector_pointer, new CardSelector(cardId));
         }
 
         public void SelectThirdCard(IList<int> ids)
         {
-            if (m_selector_printer == -1)
+            if (m_selector_pointer == -1)
             {
                 Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
-                m_selector_printer = 0;
+                m_selector_pointer = 0;
             }
-            m_selector.Insert(m_selector_printer, new CardSelector(ids));
+            m_selector.Insert(m_selector_pointer, new CardSelector(ids));
         }
 
         public void SelectThirdCard(CardLocation loc)
         {
-            if (m_selector_printer == -1)
+            if (m_selector_pointer == -1)
             {
                 Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
-                m_selector_printer = 0;
+                m_selector_pointer = 0;
             }
-            m_selector.Insert(m_selector_printer, new CardSelector(loc));
+            m_selector.Insert(m_selector_pointer, new CardSelector(loc));
         }
 
         public void SelectMaterials(ClientCard card)
