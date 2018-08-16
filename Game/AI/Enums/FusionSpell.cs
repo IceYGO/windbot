@@ -32,7 +32,7 @@
         TranscendentalPolymerization = 76647978,
         CyberdarkImpact = 80033124,
         DarkFusion = 94820406,
-        ThunderDragonFusion = 95238394;
+        ThunderDragonFusion = 95238394,
         TheBookoftheLaw = 458748,
         ElShaddollFusion = 6417578,
         FlashFusion = 17236839,
