@@ -23,6 +23,7 @@
         Backlinker = 71172240,
         Merlin = 3580032,
         CrystalVanguard = 87475570,
+        TemperanceofProphecy = 87608852,
         Kuribandit = 16404809,
         PhotonLizard = 38973775,
         SuperheavySamuraiFlutist = 27978707,
@@ -36,11 +37,18 @@
         AbyssActorExtras = 88412339,
         PerformapalTrumpWitch = 91584698,
         RaidraptorLastStrix = 97219708,
+        MythicalBeastJackal = 91182675,
         TimeMaiden = 27107590,
         SuperQuantalFairyAlphan = 58753372,
         TheBlackStoneofLegend = 66574418,
         PaladinofDarkDragon = 71408082,
         PaladinofPhotonDragon = 85346853,
-        TwinPhotonLizard = 29455728
+        TwinPhotonLizard = 29455728,
+
+        CosmoBrain = 85679527,
+        ShiranuiSolitaire = 94801854,
+        Mixeroid = 71340250,
+        LonefireBlossom = 48686504,
+        BrotherhoodoftheFireFist_Leopard = 39699564
     }
 }
