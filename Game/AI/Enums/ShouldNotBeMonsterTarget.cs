@@ -7,6 +7,7 @@
     public enum ShouldNotBeMonsterTarget
     {
         TheLegendaryFishermanII = 19801646,
+        GaiaDraketheUniversalForce = 58601383,
         FirstoftheDragons = 10817524,
         Tatsunoko = 55863245,
         CXyzSimontheGreatMoralLeader = 41147577,

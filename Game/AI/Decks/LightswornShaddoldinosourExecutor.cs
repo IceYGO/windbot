@@ -592,12 +592,12 @@ namespace WindBot.Game.AI.Decks
             if (!OvertexCoatlseff_used && Bot.GetRemainingCount(CardId.OvertexCoatls, 3) > 0)
             {
                 AI.SelectCard(CardId.OvertexCoatls);
-                AI.SelectYesNo(false);
+                AI.SelectOption(0);
             }
             else
             {
                 AI.SelectCard(CardId.UltimateConductorTytanno);
-                AI.SelectYesNo(true);
+                AI.SelectOption(1);
             }
             return true;
         }
