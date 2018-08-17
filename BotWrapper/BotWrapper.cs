@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace BotWrapper
 {
@@ -91,14 +92,7 @@ namespace BotWrapper
 
         static string GetRandomBot(string flag)
         {
-            IList<BotInfo> foundBots = new List<BotInfo>();
-            foreach (BotInfo bot in Bots)
-            {
-                if (Array.IndexOf(bot.flags, flag) > -1)
-                {
-                    foundBots.Add(bot);
-                }
-            }
+            IList<BotInfo> foundBots = Bots.Where(bot => Array.IndexOf(bot.flags, flag) > -1).ToList();
             if (foundBots.Count > 0)
             {
                 Random rand = new Random();
