@@ -92,7 +92,7 @@ namespace BotWrapper
 
         static string GetRandomBot(string flag)
         {
-            IList<BotInfo> foundBots = Bots.Where(bot => Array.IndexOf(bot.flags, flag) > -1).ToList();
+            IList<BotInfo> foundBots = Bots.Where(bot => bot.flags.Contains(flag)).ToList();
             if (foundBots.Count > 0)
             {
                 Random rand = new Random();
