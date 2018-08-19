@@ -350,7 +350,7 @@ namespace WindBot.Game.AI
 
         public bool IsChainTargetOnly(ClientCard card)
         {
-            return Duel.ChainTargets.Count == 1 && card.Equals(Duel.ChainTargets[0]);
+            return Duel.ChainTargetOnly.Count == 1 && card.Equals(Duel.ChainTargetOnly[0]);
         }
 
         public bool ChainContainsCard(int id)

@@ -581,7 +581,8 @@ namespace WindBot.Game
             if (_debug)
                 if (card != null) Logger.WriteLine("(" + cc.ToString() + " 's " + (card.Name ?? "UnKnowCard") + " activate effect)");
             _ai.OnChaining(card, cc);
-            _duel.ChainTargets.Clear();
+            //_duel.ChainTargets.Clear();
+            _duel.ChainTargetOnly.Clear();
             _duel.LastSummonPlayer = -1;
             _duel.CurrentChain.Add(card);
             _duel.LastChainPlayer = cc;
@@ -593,7 +594,8 @@ namespace WindBot.Game
             _ai.OnChainEnd();
             _duel.LastChainPlayer = -1;
             _duel.CurrentChain.Clear();
-            //_duel.ChainTargets.Clear();
+            _duel.ChainTargets.Clear();
+            _duel.ChainTargetOnly.Clear();
         }
 
         private void OnCardSorting(BinaryReader packet)
