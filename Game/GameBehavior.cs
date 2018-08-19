@@ -633,7 +633,7 @@ namespace WindBot.Game
             _ai.OnChainEnd();
             _duel.LastChainPlayer = -1;
             _duel.CurrentChain.Clear();
-            //_duel.ChainTargets.Clear();
+            _duel.ChainTargets.Clear();
         }
 
         private void OnCardSorting(BinaryReader packet)
