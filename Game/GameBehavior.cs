@@ -720,6 +720,7 @@ namespace WindBot.Game
                 if (_debug)
                     Logger.WriteLine("(" + (CardLocation)loc + " 's " + (card.Name ?? "UnKnowCard") + " become target)");
                 _duel.ChainTargets.Add(card);
+                _duel.ChainTargetOnly.Add(card);
             }
         }
 
