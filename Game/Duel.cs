@@ -21,6 +21,8 @@ namespace WindBot.Game
         public IList<ClientCard> ChainTargets { get; set; }
         public IList<ClientCard> ChainTargetOnly { get; set; }
         public int LastSummonPlayer { get; set; }
+        public IList<ClientCard> SummoningCards { get; set; }
+        public IList<ClientCard> LastSummonedCards { get; set; }
 
         public Duel()
         {
@@ -32,6 +34,8 @@ namespace WindBot.Game
             ChainTargets = new List<ClientCard>();
             ChainTargetOnly = new List<ClientCard>();
             LastSummonPlayer = -1;
+            SummoningCards = new List<ClientCard>();
+            LastSummonedCards = new List<ClientCard>();
         }
 
         public ClientCard GetCard(int player, CardLocation loc, int index)

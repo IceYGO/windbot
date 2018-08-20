@@ -8,6 +8,9 @@
         MonsterSet,
         SpellSet,
         Activate,
-        SummonOrSet
+        SummonOrSet,
+        GoToBattlePhase,
+        GoToMainPhase2,
+        GoToEndPhase
     }
 }
