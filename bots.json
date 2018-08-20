@@ -2,11 +2,6 @@
     "windbots": [
       {
         "name": "琪露诺",
-        "deck": "Toadally Awesome",
-        "dialog": "cirno.zh-CN"
-      },
-      {
-        "name": "琪露诺",
         "deck": "Rainbow",
         "dialog": "cirno.zh-CN"
       },
@@ -32,11 +27,6 @@
       },
       {
         "name": "复制植物",
-        "deck": "Zoodiac",
-        "dialog": "copy.zh-CN"
-      },
-      {
-        "name": "复制植物",
         "deck": "Blue-Eyes",
         "dialog": "copy.zh-CN"
       },
@@ -44,11 +34,6 @@
         "name": "复制植物",
         "deck": "Blue-Eyes",
         "dialog": "copy.zh-CN"
-      },
-      {
-        "name": "复制梁龙",
-        "deck": "SkyStriker",
-        "dialog": "anothercopy.zh-CN"
       },
       {
         "name": "复制梁龙",
@@ -73,6 +58,11 @@
       {
         "name": "尼亚",
         "deck": "Trickstar",
+        "dialog": "near.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Altergeist",
         "dialog": "near.zh-CN"
       },
       {
@@ -123,11 +113,6 @@
       {
         "name": "奇魔果",
         "deck": "DarkMagician",
-        "dialog": "kiwi.zh-TW"
-      },
-      {
-        "name": "燃血鬥士",
-        "deck": "ChainBurn",
         "dialog": "kiwi.zh-TW"
       },
       {
