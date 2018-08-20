@@ -445,7 +445,6 @@ namespace WindBot.Game.AI
             if (Duel.Phase == DuelPhase.BattleStart && Duel.Player == 1 &&
                 Enemy.HasInMonstersZone(_CardId.NumberS39UtopiaTheLightning, true))
             {
-
                 AI.SelectCard(_CardId.NumberS39UtopiaTheLightning);
                 return UniqueFaceupSpell();
             }
