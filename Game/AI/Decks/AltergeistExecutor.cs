@@ -1548,7 +1548,7 @@ namespace WindBot.Game.AI.Decks
                     ClientCard enemy_card = GetBestEnemyCard_random();
                     if (enemy_card != null)
                     {
-                        Logger.DebugWriteLine("Silquitousdecide:" + bounce_self.Name);
+                        Logger.DebugWriteLine("Silquitousdecide:" + bounce_self?.Name);
                         AI.SelectCard(bounce_self);
                         AI.SelectNextCard(enemy_card);
                         return true;
@@ -1805,6 +1805,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+            AI.SelectCard((ClientCard)null);
         }
 
         public bool Spoofing_eff()
@@ -1983,7 +1984,7 @@ namespace WindBot.Game.AI.Decks
                     if ( (AI.Utils.IsChainTarget(card) || AI.Utils.ChainContainsCard(CardId.DarkHole) || (!Protocol_activing() && card.IsDisabled()))
                         && card.IsFaceup() && Duel.LastChainPlayer != 0 && isAltergeist(card.Id))
                     {
-                        Logger.DebugWriteLine("Spoofing target:" + card.Name);
+                        Logger.DebugWriteLine("Spoofing target:" + card?.Name);
                         AI.SelectCard(card);
                         go = true;
                         break;
