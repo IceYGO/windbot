@@ -81,6 +81,7 @@
     <Compile Include="Game\AI\Decks\ChainBurnExecutor.cs" />
     <Compile Include="Game\AI\Decks\EvilswarmExecutor.cs" />
     <Compile Include="Game\AI\Decks\GraydleExecutor.cs" />
+    <Compile Include="Game\AI\Decks\GrenMajuThunderBoarderExecutor.cs" />
     <Compile Include="Game\AI\Decks\LightswornExecutor.cs" />
     <Compile Include="Game\AI\Decks\LightswornShaddoldinosourExecutor.cs" />
     <Compile Include="Game\AI\Decks\QliphortExecutor.cs" />
