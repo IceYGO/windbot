@@ -887,8 +887,7 @@ namespace WindBot.Game.AI
             List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                // The bot don't know if the card is special summoned, so let we assume all monsters are special summoned
-                if (!monster.Equals(Card) && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
+                if (!monster.Equals(Card) && monster.IsSpecialSummoned && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
                     selfCount++;
             }
 
@@ -896,7 +895,7 @@ namespace WindBot.Game.AI
             monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
+                if (monster.IsSpecialSummoned && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack)
                     oppoCount++;
             }
 

@@ -90,6 +90,16 @@ namespace WindBot.Game.AI
             return cards.FirstOrDefault(card => card?.Data != null && card.IsFaceup() && filter.Invoke(card));
         }
 
+        public static ClientCard GetShouldBeDisabledBeforeItUseEffectMonster(this IEnumerable<ClientCard> cards)
+        {
+            foreach (ClientCard card in cards)
+            {
+                if (card != null && card.IsMonsterShouldBeDisabledBeforeItUseEffect() && card.IsFaceup())
+                    return card;
+            }
+            return null;
+        }
+
         public static IEnumerable<IEnumerable<T>> GetCombinations<T>(this IEnumerable<T> elements, int k)
         {
             return k == 0 ? new[] { new T[0] } :
