@@ -32,6 +32,7 @@
         HazyFlamePeryton = 37803172,
         HazyFlameGriffin = 74010769,
         BlueEyesChaosMAXDragon = 55410871,
+        BlueEyesChaosDragon = 20654247,
         SupremeKingZARC = 13331639,
         CrimsonNovaTrinitytheDarkCubicLord = 72664875,
         LunalightLeoDancer = 24550676,
