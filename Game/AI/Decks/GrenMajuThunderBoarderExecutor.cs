@@ -112,7 +112,7 @@ namespace WindBot.Game.AI.Decks
             {
                 Logger.DebugWriteLine("***********plan_A");
                 plan_A = true;
-                Duel.Global.ToBattlePhase = true;
+                //todo:Duel.Global.ToBattlePhase = true;
             }
 
         }
@@ -184,7 +184,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool EvenlyMatchedeff()
         {
-            Duel.Global.ToBattlePhase = false;
+            // todo:Duel.Global.ToBattlePhase = false;
             plan_A = false;
             return true;
         }
@@ -389,8 +389,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool ThunderKingRaiOheff()
         {
-            if (AI.Utils.GetLastSummonMonster() != null && AI.Utils.GetLastSummonMonster().Attack >= 1900)
-                return true;
+            foreach (ClientCard card in Duel.SummoningMonsters)
+            {
+                if (card.Attack >= 1900)
+                    return true;
+            }
             return false;
         }
 

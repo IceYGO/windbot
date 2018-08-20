@@ -441,7 +441,7 @@ namespace WindBot.Game
                 }
             }
 
-            if (main.CanBattlePhase && (Duel.Fields[0].HasAttackingMonster() || Duel.Global.ToBattlePhase))
+            if (main.CanBattlePhase && Duel.Fields[0].HasAttackingMonster())
                 return new MainPhaseAction(MainPhaseAction.MainAction.ToBattlePhase);
 
             _dialogs.SendEndTurn();
