@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
 namespace WindBot.Game.AI
 {
@@ -52,7 +53,7 @@ namespace WindBot.Game.AI
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = field.MonsterZone[i];
-                if (card == null || card.Data == null) continue;
+                if (card?.Data == null) continue;
                 if (onlyATK && card.IsDefense()) continue;
                 int newPower = card.GetDefensePower();
                 if (newPower > bestPower)
@@ -73,7 +74,7 @@ namespace WindBot.Game.AI
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Enemy.MonsterZone[i];
-                if (card == null || card.Data == null) continue;
+                if (card?.Data == null) continue;
                 if (onlyATK && card.IsDefense()) continue;
                 nomonster = false;
                 int enemyValue = card.GetDefensePower();
@@ -90,7 +91,7 @@ namespace WindBot.Game.AI
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Enemy.MonsterZone[i];
-                if (card == null || card.Data == null) continue;
+                if (card?.Data == null) continue;
                 if (onlyATK && card.IsDefense()) continue;
                 nomonster = false;
                 int enemyValue = card.GetDefensePower();
@@ -138,7 +139,7 @@ namespace WindBot.Game.AI
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Bot.MonsterZone[i];
-                if (card == null || card.Data == null) continue;
+                if (card?.Data == null) continue;
                 if (onlyATK && card.IsDefense()) continue;
                 int newPower = card.GetDefensePower();
                 if (newPower > bestPower)
@@ -157,7 +158,7 @@ namespace WindBot.Game.AI
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Bot.MonsterZone[i];
-                if (card == null || card.Data == null) continue;
+                if (card?.Data == null) continue;
                 if (onlyATK && card.IsDefense()) continue;
                 int newPower = card.GetDefensePower();
                 if (newPower < WorstPower)
@@ -176,7 +177,7 @@ namespace WindBot.Game.AI
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Enemy.MonsterZone[i];
-                if (card == null || card.Data == null || (canBeTarget && card.IsShouldNotBeTarget())) continue;
+                if (card?.Data == null || (canBeTarget && card.IsShouldNotBeTarget())) continue;
                 if (onlyATK && card.IsDefense()) continue;
                 int enemyValue = card.GetDefensePower();
                 if (enemyValue >= bestValue)
@@ -281,7 +282,7 @@ namespace WindBot.Game.AI
             for (int i = 0; i < 7; ++i)
             {
                 ClientCard card = Enemy.MonsterZone[i];
-                if (card == null || card.Data == null) continue;
+                if (card?.Data == null) continue;
                 if (onlyATK && card.IsDefense()) continue;
                 int newPower = card.GetDefensePower();
                 if (newPower < WorstPower)
@@ -338,14 +339,7 @@ namespace WindBot.Game.AI
 
         public bool IsChainTarget(ClientCard card)
         {
-            foreach (ClientCard target in Duel.ChainTargets)
-            {
-                if (card.Equals(target))
-                {
-                    return true;
-                }
-            }
-            return false;
+            return Duel.ChainTargets.Any(card.Equals);
         }
 
         public bool IsChainTargetOnly(ClientCard card)
@@ -355,50 +349,27 @@ namespace WindBot.Game.AI
 
         public bool ChainContainsCard(int id)
         {
-            foreach (ClientCard card in Duel.CurrentChain)
-            {
-                if (card.Id == id)
-                    return true;
-            }
-            return false;
+            return Duel.CurrentChain.Any(card => card.Id == id);
         }
 
         public int ChainCountPlayer(int player)
         {
-            int count = 0;
-            foreach (ClientCard card in Duel.CurrentChain)
-            {
-                if (card.Controller == player)
-                    count++;
-            }
-            return count;
+            return Duel.CurrentChain.Count(card => card.Controller == player);
         }
 
         public bool ChainContainPlayer(int player)
-        {            
-            foreach (ClientCard card in Duel.CurrentChain)
-            {
-                if (card.Controller == player)
-                    return true;
-            }
-            return false;
+        {
+            return Duel.CurrentChain.Any(card => card.Controller == player);
         }
 
         public bool HasChainedTrap(int player)
         {
-            foreach (ClientCard card in Duel.CurrentChain)
-            {
-                if (card.Controller == player && card.HasType(CardType.Trap))
-                    return true;
-            }
-            return false;
+            return Duel.CurrentChain.Any(card => card.Controller == player && card.HasType(CardType.Trap));
         }
 
         public ClientCard GetLastChainCard()
         {
-            if (Duel.CurrentChain.Count > 0)
-                return Duel.CurrentChain[Duel.CurrentChain.Count - 1];
-            return null;
+            return Duel.CurrentChain.LastOrDefault();
         }
 
         /// <summary>
@@ -429,12 +400,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public void SelectPreferredCards(IList<ClientCard> selected, IList<ClientCard> preferred, IList<ClientCard> cards, int min, int max)
         {
-            IList<ClientCard> avail = new List<ClientCard>();
-            foreach (ClientCard card in cards)
-            {
-                // clone
-                avail.Add(card);
-            }
+            IList<ClientCard> avail = cards.ToList(); // clone
             while (preferred.Count > 0 && avail.IndexOf(preferred[0]) > 0 && selected.Count < max)
             {
                 ClientCard card = preferred[0];
@@ -449,11 +415,11 @@ namespace WindBot.Game.AI
         /// </summary>
         public void SelectPreferredCards(IList<ClientCard> selected, IList<int> preferred, IList<ClientCard> cards, int min, int max)
         {
-            for (int i = 0; i < preferred.Count; i++)
+            foreach (int id in preferred)
             {
                 foreach (ClientCard card in cards)
                 {
-                    if (card.Id == preferred[i] && selected.Count < max && selected.IndexOf(card) <= 0)
+                    if (card.Id == id && selected.Count < max && selected.IndexOf(card) <= 0)
                         selected.Add(card);
                 }
                 if (selected.Count >= max)
