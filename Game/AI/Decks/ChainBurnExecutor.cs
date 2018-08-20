@@ -11,8 +11,8 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            public const int SandaionTheTimelord = 100227025;
-            public const int MichionTimelord = 100227021;
+            public const int SandaionTheTimelord = 33015627;
+            public const int MichionTimelord = 7733560;
             public const int Mathematician = 41386308;
             public const int DiceJar = 3549275;
             public const int CardcarD = 45812361;
