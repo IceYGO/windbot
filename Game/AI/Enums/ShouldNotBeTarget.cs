@@ -32,6 +32,7 @@
         HazyFlamePeryton = 37803172,
         HazyFlameGriffin = 74010769,
         BlueEyesChaosMAXDragon = 55410871,
+        BlueEyesChaosDragon = 20654247,
         SupremeKingZARC = 13331639,
         CrimsonNovaTrinitytheDarkCubicLord = 72664875,
         LunalightLeoDancer = 24550676,
@@ -44,6 +45,7 @@
         YaziEviloftheYangZing = 43202238,
         RaidraptorUltimateFalcon = 86221741,
         DisdainfulBirdofParadise = 27240101,
-        DarkestDiabolosLordOfTheLair = 50383626
+        DarkestDiabolosLordOfTheLair = 50383626,
+        Blackwing_FullArmoredWing = 54082269
     }
 }
