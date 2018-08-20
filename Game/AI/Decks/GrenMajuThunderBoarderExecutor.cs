@@ -389,7 +389,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ThunderKingRaiOheff()
         {
-            foreach (ClientCard card in Duel.SummoningMonsters)
+            foreach (ClientCard card in Duel.SummoningCards)
             {
                 if (card.Attack >= 1900)
                     return true;
