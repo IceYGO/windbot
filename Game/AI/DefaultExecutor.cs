@@ -862,6 +862,7 @@ namespace WindBot.Game.AI
             ClientCard target = AI.Utils.GetProblematicEnemyCard();
             if (target != null)
             {
+                AI.SelectCard(0);
                 AI.SelectNextCard(target);
                 return true;
             }
