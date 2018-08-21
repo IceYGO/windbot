@@ -1316,9 +1316,11 @@ namespace WindBot.Game
             {
                 result[index++] = 0;
             }
-            for (int i = 0; i < selected.Count; ++i)
+            int l = 0;
+            while (l < selected.Count)
             {
-                result[index++] = (byte)selected[i].SelectSeq;
+                result[index++] = (byte)selected[l].SelectSeq;
+                ++l;
             }
 
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
