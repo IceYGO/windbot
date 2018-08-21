@@ -27,6 +27,7 @@ namespace WindBot.Game
         private int _hand;
         private bool _debug;        
         private int _select_hint;
+        private GameMessage _lastMessage;
 
         public GameBehavior(GameClient game)
         {
@@ -61,6 +62,7 @@ namespace WindBot.Game
                 GameMessage msg = (GameMessage)packet.ReadByte();
                 if (_messages.ContainsKey(msg))
                     _messages[msg](packet);
+                _lastMessage = msg;
                 return;
             }
             if (_packets.ContainsKey(id))
@@ -312,7 +314,7 @@ namespace WindBot.Game
         {
             _ai.OnRetry();
             Connection.Close();
-            throw new Exception("Got MSG_RETRY.");
+            throw new Exception("Got MSG_RETRY. Last message is " + _lastMessage);
         }
 
         private void OnHint(BinaryReader packet)
