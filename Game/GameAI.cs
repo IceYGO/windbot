@@ -430,7 +430,6 @@ namespace WindBot.Game
                     if (ShouldExecute(exec, card, ExecutorType.SpSummon))
                     {
                         _dialogs.SendSummon(card.Name);
-                        Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.SpSummon, card.ActionIndex);
                     }
                 }
@@ -439,7 +438,6 @@ namespace WindBot.Game
                     if (ShouldExecute(exec, card, ExecutorType.Summon))
                     {
                         _dialogs.SendSummon(card.Name);
-                        Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
                     if (ShouldExecute(exec, card, ExecutorType.SummonOrSet))
@@ -451,7 +449,6 @@ namespace WindBot.Game
                             return new MainPhaseAction(MainPhaseAction.MainAction.SetMonster, card.ActionIndex);
                         }
                         _dialogs.SendSummon(card.Name);
-                        Duel.LastSummonPlayer = 0;
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
                 }                
