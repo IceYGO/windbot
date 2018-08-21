@@ -63,7 +63,7 @@ namespace WindBot.Game.AI
                     break;
                 case SelectType.Cards:
                     foreach (ClientCard card in _cards)
-                        if (cards.Contains(card))
+                        if (cards.Contains(card) && !result.Contains(card))
                             result.Add(card);
                     break;
                 case SelectType.Id:
