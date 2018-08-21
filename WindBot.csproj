@@ -78,6 +78,7 @@
     <Compile Include="Game\AI\Decks\GravekeeperExecutor.cs" />
     <Compile Include="Game\AI\Decks\RainbowExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlueEyesExecutor.cs" />
+    <Compile Include="Game\AI\Decks\BlueEyesMaxDragonExecutor.cs" />
     <Compile Include="Game\AI\Decks\BurnExecutor.cs" />
     <Compile Include="Game\AI\Decks\ChainBurnExecutor.cs" />
     <Compile Include="Game\AI\Decks\EvilswarmExecutor.cs" />
