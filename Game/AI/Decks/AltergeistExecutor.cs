@@ -1135,7 +1135,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (!AI.Utils.IsTurn1OrMain2())
                 {
-                    ClientCard self_best = AI.Utils.GetBestBotMonster(true);
+                    ClientCard self_best = AI.Utils.GetBestBotMonster();
                     ClientCard enemy_best = AI.Utils.GetProblematicEnemyCard(self_best.Attack + 1, true);
                     ClientCard enemy_target = GetProblematicEnemyCard_Alter(true,false);
 
