@@ -76,6 +76,7 @@
         FirePrison = 269510,
         LairOfDarkness = 59160188,
         SuperboltThunderDragon = 15291624,
-        ThunderDragonLord = 41685633
+        ThunderDragonLord = 41685633,
+        CyberDragonInfinity = 10443957
     }
 }
