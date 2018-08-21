@@ -114,8 +114,8 @@ namespace WindBot.Game.AI.Decks
                 if (result.Count >= max)
                     break;
             }
-            AI.Utils.CheckSelectCount(result, cards, min, max);
-            return result;
+            
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
         }
 
         private bool ReinforcementOfTheArmyEffect()

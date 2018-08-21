@@ -375,31 +375,38 @@ namespace WindBot.Game.AI
         /// <summary>
         /// Select cards listed in preferred.
         /// </summary>
-        public void SelectPreferredCards(IList<ClientCard> selected, ClientCard preferred, IList<ClientCard> cards, int min, int max)
+        public IList<ClientCard> SelectPreferredCards(ClientCard preferred, IList<ClientCard> cards, int min, int max)
         {
+            IList<ClientCard> selected = new List<ClientCard>();
             if (cards.IndexOf(preferred) > 0 && selected.Count < max)
             {
                 selected.Add(preferred);
             }
+
+            return selected;
         }
 
         /// <summary>
         /// Select cards listed in preferred.
         /// </summary>
-        public void SelectPreferredCards(IList<ClientCard> selected, int preferred, IList<ClientCard> cards, int min, int max)
+        public IList<ClientCard> SelectPreferredCards(int preferred, IList<ClientCard> cards, int min, int max)
         {
+            IList<ClientCard> selected = new List<ClientCard>();
             foreach (ClientCard card in cards)
             {
                 if (card.Id== preferred && selected.Count < max)
                     selected.Add(card);
             }
+
+            return selected;
         }
 
         /// <summary>
         /// Select cards listed in preferred.
         /// </summary>
-        public void SelectPreferredCards(IList<ClientCard> selected, IList<ClientCard> preferred, IList<ClientCard> cards, int min, int max)
+        public IList<ClientCard> SelectPreferredCards(IList<ClientCard> preferred, IList<ClientCard> cards, int min, int max)
         {
+            IList<ClientCard> selected = new List<ClientCard>();
             IList<ClientCard> avail = cards.ToList(); // clone
             while (preferred.Count > 0 && avail.IndexOf(preferred[0]) > 0 && selected.Count < max)
             {
@@ -408,13 +415,16 @@ namespace WindBot.Game.AI
                 avail.Remove(card);
                 selected.Add(card);
             }
+
+            return selected;
         }
 
         /// <summary>
         /// Select cards listed in preferred.
         /// </summary>
-        public void SelectPreferredCards(IList<ClientCard> selected, IList<int> preferred, IList<ClientCard> cards, int min, int max)
+        public IList<ClientCard> SelectPreferredCards(IList<int> preferred, IList<ClientCard> cards, int min, int max)
         {
+            IList<ClientCard> selected = new List<ClientCard>();
             foreach (int id in preferred)
             {
                 foreach (ClientCard card in cards)
@@ -425,13 +435,16 @@ namespace WindBot.Game.AI
                 if (selected.Count >= max)
                     break;
             }
+
+            return selected;
         }
 
         /// <summary>
         /// Check and fix selected to make sure it meet the count requirement.
         /// </summary>
-        public void CheckSelectCount(IList<ClientCard> selected, IList<ClientCard> cards, int min, int max)
+        public IList<ClientCard> CheckSelectCount(IList<ClientCard> _selected, IList<ClientCard> cards, int min, int max)
         {
+            var selected = _selected.ToList();
             if (selected.Count < min)
             {
                 foreach (ClientCard card in cards)
@@ -446,6 +459,8 @@ namespace WindBot.Game.AI
             {
                 selected.RemoveAt(selected.Count - 1);
             }
+
+            return selected;
         }
     }
 }
