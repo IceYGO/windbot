@@ -42,6 +42,19 @@ namespace WindBot.Game.AI
             public const int InjectionFairyLily = 79575620;
 
             public const int BlueEyesChaosMAXDragon = 55410871;
+
+            public const int AshBlossom = 14558127;
+            public const int MaxxC = 23434538;
+            public const int LockBird = 94145021;
+            public const int GhostOgreAndSnowRabbit = 59438930;
+            public const int GhostBelle = 73642296;
+            public const int EffectVeiler = 63845230;
+            public const int CalledByTheGrave = 24224830;
+            public const int InfiniteImpermanence = 10045474;
+            public const int GalaxySoldier = 46659709;
+            public const int MacroCosmos = 30241314;
+            public const int UpstartGoblin = 70368879;
+            public const int EaterOfMillions = 63845230;
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
@@ -312,6 +325,129 @@ namespace WindBot.Game.AI
             return true;
         }
 
+        /// <summary>
+        /// Always active in opponent's turn.
+        /// </summary>
+        protected bool DefaultMaxxC()
+        {
+            return Duel.Player == 1;
+        }
+        /// <summary>
+        /// Always disable opponent's effect except some cards like UpstartGoblin
+        /// </summary>
+        protected bool DefaultAshBlossomAndJoyousSpring()
+        {
+            if (AI.Utils.GetLastChainCard().Id == _CardId.MacroCosmos)
+                return false;
+            if (AI.Utils.GetLastChainCard().Id == _CardId.UpstartGoblin)
+                return false;
+            return Duel.LastChainPlayer == 1;
+        }
+        /// <summary>
+        /// Always activate unless the activating card is disabled
+        /// </summary>
+        protected bool DefaultGhostOgreAndSnowRabbit()
+        {
+            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsDisabled())
+                return false;
+            return DefaultTrap();
+        }
+        /// <summary>
+        /// Always disable opponent's effect
+        /// </summary>
+        protected bool DefaultGhostBelleAndHauntedMansion()
+        {
+            return DefaultTrap();
+        }
+        /// <summary>
+        /// Same as DefaultBreakthroughSkill
+        /// </summary>
+        protected bool DefaultEffectVeiler()
+        {
+            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == _CardId.GalaxySoldier && Enemy.Hand.Count >= 3) return false;
+            if (AI.Utils.ChainContainsCard(_CardId.EffectVeiler))
+                return false;
+            return DefaultBreakthroughSkill();
+        }
+        /// <summary>
+        /// Chain common hand traps
+        /// </summary>
+        protected bool DefaultCalledByTheGrave()
+        {
+            if (Duel.LastChainPlayer == 1)
+            {
+                if (AI.Utils.GetLastChainCard().Id == _CardId.MaxxC)
+                {
+                    AI.SelectCard(_CardId.MaxxC);
+                    return UniqueFaceupSpell();
+                }
+                if (AI.Utils.GetLastChainCard().Id == _CardId.LockBird)
+                {
+                    AI.SelectCard(_CardId.LockBird);
+                    return UniqueFaceupSpell();
+                }
+                if (AI.Utils.GetLastChainCard().Id == _CardId.GhostOgreAndSnowRabbit)
+                {
+                    AI.SelectCard(_CardId.GhostOgreAndSnowRabbit);
+                    return UniqueFaceupSpell();
+                }
+                if (AI.Utils.GetLastChainCard().Id == _CardId.AshBlossom)
+                {
+                    AI.SelectCard(_CardId.AshBlossom);
+                    return UniqueFaceupSpell();
+                }
+                if (AI.Utils.GetLastChainCard().Id == _CardId.GhostBelle)
+                {
+                    AI.SelectCard(_CardId.GhostBelle);
+                    return UniqueFaceupSpell();
+                }
+            }
+            return false;
+        }
+        /// <summary>
+        /// Default InfiniteImpermanence effect
+        /// </summary>
+        protected bool DefaultInfiniteImpermanence()
+        {            
+            ClientCard target = Enemy.MonsterZone.GetShouldBeDisabledBeforeItUseEffectMonster();
+            if (target != null)
+            {
+                AI.SelectCard(target);
+                return true;
+            }
+            if (Duel.LastChainPlayer == 1)
+            {
+                foreach (ClientCard check in Enemy.GetMonsters())
+                {
+                    if (AI.Utils.GetLastChainCard() == check)
+                    {
+                        target = check;
+                        break;
+                    }
+                }
+                if (target != null && !target.IsDisabled())
+                {
+                    AI.SelectCard(target);
+                    return true;
+                }
+            }
+            if (Bot.BattlingMonster != null && Enemy.BattlingMonster != null)
+            {
+                if (Enemy.BattlingMonster.IsDisabled()) return false;
+                if (Enemy.BattlingMonster.Id == _CardId.EaterOfMillions)
+                {
+                    AI.SelectCard(Enemy.BattlingMonster);
+                    return true;
+                }
+            }
+            if (Duel.Phase == DuelPhase.BattleStart && Duel.Player == 1 &&
+                Enemy.HasInMonstersZone(_CardId.NumberS39UtopiaTheLightning, true))
+            {
+                AI.SelectCard(_CardId.NumberS39UtopiaTheLightning);
+                return UniqueFaceupSpell();
+            }
+            return false;
+        }
         /// <summary>
         /// Chain the enemy monster, or disable monster like Rescue Rabbit.
         /// </summary>
