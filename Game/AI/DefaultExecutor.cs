@@ -326,14 +326,14 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// Default MaxxC effect
+        /// Always active in opponent's turn.
         /// </summary>
         protected bool DefaultMaxxC()
         {
             return Duel.Player == 1;
         }
         /// <summary>
-        /// Default AshBlossomAndJoyousSpring effect
+        /// Always disable opponent's effect except some cards like UpstartGoblin
         /// </summary>
         protected bool DefaultAshBlossomAndJoyousSpring()
         {
@@ -344,7 +344,7 @@ namespace WindBot.Game.AI
             return Duel.LastChainPlayer == 1;
         }
         /// <summary>
-        /// Default GhostOgreAndSnowRabbit effect
+        /// Always activate unless the activating card is disabled
         /// </summary>
         protected bool DefaultGhostOgreAndSnowRabbit()
         {
@@ -353,26 +353,24 @@ namespace WindBot.Game.AI
             return DefaultTrap();
         }
         /// <summary>
-        /// Default GhostBelle effect
+        /// Always disable opponent's effect
         /// </summary>
-        protected bool DefaultGhostBelle()
+        protected bool DefaultGhostBelleAndHauntedMansion()
         {
             return DefaultTrap();
         }
         /// <summary>
-        /// Default EffectVeiler effect
+        /// Same as DefaultBreakthroughSkill
         /// </summary>
         protected bool DefaultEffectVeiler()
         {
             if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == _CardId.GalaxySoldier && Enemy.Hand.Count >= 3) return false;
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsDisabled())
-                return false;
             if (AI.Utils.ChainContainsCard(_CardId.EffectVeiler))
                 return false;
             return DefaultBreakthroughSkill();
         }
         /// <summary>
-        /// Default CalledByTheGrave effect
+        /// Chain common hand traps
         /// </summary>
         protected bool DefaultCalledByTheGrave()
         {
