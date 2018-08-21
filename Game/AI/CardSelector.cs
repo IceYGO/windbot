@@ -74,7 +74,7 @@ namespace WindBot.Game.AI
                 case SelectType.Ids:
                     foreach (int id in _ids)
                         foreach (ClientCard card in cards)
-                            if (card.Id == id)
+                            if (card.Id == id && !result.Contains(card))
                                 result.Add(card);
                     break;
                 case SelectType.Location:
