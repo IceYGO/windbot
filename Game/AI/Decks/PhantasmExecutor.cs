@@ -64,7 +64,7 @@ namespace WindBot.Game.AI.Decks
             //AddExecutor(ExecutorType.ToBattlePhase, ToBattlePhaseeff);
             AddExecutor(ExecutorType.Activate, CardId.StarlightRoad, PreventFeatherDustereff);
             AddExecutor(ExecutorType.Activate, CardId.TheHugeRevolutionIsOver, PreventFeatherDustereff);
-            AddExecutor(ExecutorType.Activate, _CardId.GhostBelle, DefaultGhostBelle);
+            AddExecutor(ExecutorType.Activate, _CardId.GhostBelle, DefaultGhostBelleAndHauntedMansion);
             AddExecutor(ExecutorType.Activate, _CardId.CalledByTheGrave, DefaultCalledByTheGrave);
             AddExecutor(ExecutorType.Activate, _CardId.EffectVeiler, DefaultEffectVeiler);
             AddExecutor(ExecutorType.Activate, _CardId.InfiniteImpermanence, DefaultInfiniteImpermanence);
