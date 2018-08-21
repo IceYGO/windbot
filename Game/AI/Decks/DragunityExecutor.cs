@@ -382,9 +382,7 @@ namespace WindBot.Game.AI.Decks
             if (destroyCard == null)
                 return false;
 
-            if (tributeId != -1)
-                AI.SelectCard(tributeId);
-
+            AI.SelectCard(tributeId);
             AI.SelectNextCard(destroyCard);
 
             return true;

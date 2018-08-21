@@ -29,6 +29,7 @@ namespace WindBot.Game
         private int _select_hint;
         private bool ChainReplace = false;
         private ClientCard ChainReplaceOld = null;
+        private GameMessage _lastMessage;
 
         public GameBehavior(GameClient game)
         {
@@ -63,6 +64,7 @@ namespace WindBot.Game
                 GameMessage msg = (GameMessage)packet.ReadByte();
                 if (_messages.ContainsKey(msg))
                     _messages[msg](packet);
+                _lastMessage = msg;
                 return;
             }
             if (_packets.ContainsKey(id))
@@ -131,8 +133,12 @@ namespace WindBot.Game
             _messages.Add(GameMessage.AnnounceCardFilter, OnAnnounceCard);
             _messages.Add(GameMessage.RockPaperScissors, OnRockPaperScissors);
 
-            _messages.Add(GameMessage.SpSummoning, OnSpSummon);
-            _messages.Add(GameMessage.SpSummoned, OnSpSummon);
+            _messages.Add(GameMessage.Summoning, OnSummoning);
+            _messages.Add(GameMessage.Summoned, OnSummoned);
+            _messages.Add(GameMessage.SpSummoning, OnSpSummoning);
+            _messages.Add(GameMessage.SpSummoned, OnSpSummoned);
+            _messages.Add(GameMessage.FlipSummoning, OnSummoning);
+            _messages.Add(GameMessage.FlipSummoned, OnSummoned);
         }
 
         private void OnJoinGame(BinaryReader packet)
@@ -310,7 +316,7 @@ namespace WindBot.Game
         {
             _ai.OnRetry();
             Connection.Close();
-            throw new Exception("Got MSG_RETRY.");
+            throw new Exception("Got MSG_RETRY. Last message is " + _lastMessage);
         }
 
         private void OnHint(BinaryReader packet)
@@ -480,6 +486,8 @@ namespace WindBot.Game
             if (_debug)
                 Logger.WriteLine("(Go to " + (_duel.Phase.ToString()) + ")");
             _duel.LastSummonPlayer = -1;
+            _duel.SummoningCards.Clear();
+            _duel.LastSummonedCards.Clear();
             _duel.Fields[0].BattlingMonster = null;
             _duel.Fields[1].BattlingMonster = null;
             _ai.OnNewPhase();
@@ -559,6 +567,8 @@ namespace WindBot.Game
                 else
                 {
                     _duel.AddCard((CardLocation)currentLocation, card, currentControler, currentSequence, currentPosition, cardId);
+                    if (card != null && previousLocation != currentLocation)
+                        card.IsSpecialSummoned = false;
                     if (_debug && card != null)
                         Logger.WriteLine("(" + previousControler.ToString() + " 's " + (card.Name ?? "UnKnowCard")
                         + " from " +
@@ -1319,9 +1329,11 @@ namespace WindBot.Game
             {
                 result[index++] = 0;
             }
-            for (int i = 0; i < selected.Count; ++i)
+            int l = 0;
+            while (l < selected.Count)
             {
-                result[index++] = (byte)selected[i].SelectSeq;
+                result[index++] = (byte)selected[l].SelectSeq;
+                ++l;
             }
 
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
@@ -1413,9 +1425,50 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, result);
         }
 
-        private void OnSpSummon(BinaryReader packet)
+        private void OnSummoning(BinaryReader packet)
         {
+            _duel.LastSummonedCards.Clear();
+            int code = packet.ReadInt32();
+            int currentControler = GetLocalPlayer(packet.ReadByte());
+            int currentLocation = packet.ReadByte();
+            int currentSequence = packet.ReadSByte();
+            int currentPosition = packet.ReadSByte();
+            ClientCard card = _duel.GetCard(currentControler, (CardLocation)currentLocation, currentSequence);
+            _duel.SummoningCards.Add(card);
+            _duel.LastSummonPlayer = currentControler;
+        }
+
+        private void OnSummoned(BinaryReader packet)
+        {
+            foreach (ClientCard card in _duel.SummoningCards)
+            {
+                _duel.LastSummonedCards.Add(card);
+            }
+            _duel.SummoningCards.Clear();
+        }
+
+        private void OnSpSummoning(BinaryReader packet)
+        {
+            _duel.LastSummonedCards.Clear();
             _ai.CleanSelectMaterials();
+            int code = packet.ReadInt32();
+            int currentControler = GetLocalPlayer(packet.ReadByte());
+            int currentLocation = packet.ReadByte();
+            int currentSequence = packet.ReadSByte();
+            int currentPosition = packet.ReadSByte();
+            ClientCard card = _duel.GetCard(currentControler, (CardLocation)currentLocation, currentSequence);
+            _duel.SummoningCards.Add(card);
+            _duel.LastSummonPlayer = currentControler;
+        }
+
+        private void OnSpSummoned(BinaryReader packet)
+        {
+            foreach (ClientCard card in _duel.SummoningCards)
+            {
+                card.IsSpecialSummoned = true;
+                _duel.LastSummonedCards.Add(card);
+            }
+            _duel.SummoningCards.Clear();
         }
     }
 }
