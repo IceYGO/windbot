@@ -76,11 +76,6 @@
         "dialog": "default"
       },
       {
-        "name": "试作型机器人1732",
-        "deck": "ST1732",
-        "dialog": "default"
-      },
-      {
         "name": "永远之魂",
         "deck": "Burn",
         "dialog": "soul.zh-CN"
@@ -111,8 +106,28 @@
         "dialog": "kiwi.zh-TW"
       },
       {
-        "name": "奇魔果",
-        "deck": "DarkMagician",
+        "name": "MAX龍果",
+        "deck": "BlueEyesMaxDragon",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "MAX龍果",
+        "deck": "BlueEyesMaxDragon",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "幻煌果",
+        "deck": "Phantasm",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "幻煌果",
+        "deck": "Phantasm",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "報社鬥士",
+        "deck": "GrenMajuThunderBoarder",
         "dialog": "kiwi.zh-TW"
       },
       {
