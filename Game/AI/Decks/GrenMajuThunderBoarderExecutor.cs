@@ -177,7 +177,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool EvenlyMatchedToBP()
         {
-            return Bot.HasInHand(CardId.EvenlyMatched) && Duel.Turn >= 2 && Enemy.GetFieldCount() >= 2;
+            return Bot.HasInHand(CardId.EvenlyMatched) && Bot.GetFieldCount() <= 1 && Duel.Turn >= 2 && Enemy.GetFieldCount() - Bot.GetFieldCount() >= 2;
         }
 
         private bool EvenlyMatchedeff()
