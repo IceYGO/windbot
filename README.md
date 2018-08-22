@@ -45,7 +45,7 @@ False to turn the chat of bot off.
 Print verbose log of card movement info. False at default. (May be updated in future)
 
 `AutoQuit`
-Automatically quit the room when opponent leaves.
+Automatically quit the room when opponent leaves. Default `false`.
 
 `ServerMode` and `ServerPort`  
 WindBot can run as a "server", provide a http interface to create bot.
