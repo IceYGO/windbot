@@ -98,25 +98,25 @@ namespace WindBot.Game
             switch (loc)
             {
                 case CardLocation.Hand:
-                    Fields[player].Hand.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Hand.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
                 case CardLocation.Grave:
-                    Fields[player].Graveyard.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Graveyard.Add(new ClientCard(cardId, loc,-1, pos));
                     break;
                 case CardLocation.Removed:
-                    Fields[player].Banished.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Banished.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
                 case CardLocation.MonsterZone:
-                    Fields[player].MonsterZone[zone] = new ClientCard(cardId, loc, pos);
+                    Fields[player].MonsterZone[zone] = new ClientCard(cardId, loc, zone, pos);
                     break;
                 case CardLocation.SpellZone:
-                    Fields[player].SpellZone[zone] = new ClientCard(cardId, loc, pos);
+                    Fields[player].SpellZone[zone] = new ClientCard(cardId, loc, zone, pos);
                     break;
                 case CardLocation.Deck:
-                    Fields[player].Deck.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Deck.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
                 case CardLocation.Extra:
-                    Fields[player].ExtraDeck.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].ExtraDeck.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
             }
         }
@@ -124,6 +124,7 @@ namespace WindBot.Game
         public void AddCard(CardLocation loc, ClientCard card, int player, int zone, int pos, int id)
         {
             card.Location = loc;
+            card.Zone = zone;
             card.Position = pos;
             card.SetId(id);
             switch (loc)

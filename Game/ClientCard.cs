@@ -11,6 +11,7 @@ namespace WindBot.Game
         public NamedCard Data { get; private set; }
         public string Name { get; private set; }
 
+        public int Zone { get; set; }
         public int Position { get; set; }
         public CardLocation Location { get; set; }
         public int Alias { get; private set; }
@@ -44,14 +45,15 @@ namespace WindBot.Game
         public int[] ActionIndex { get; set; }
         public IDictionary<int, int> ActionActivateIndex { get; private set; }
 
-        public ClientCard(int id, CardLocation loc)
-            : this(id, loc, 0)
+        public ClientCard(int id, CardLocation loc, int zone)
+            : this(id, loc, -1 , 0)
         {
         }
 
-        public ClientCard(int id, CardLocation loc, int position)
+        public ClientCard(int id, CardLocation loc, int zone ,int position)
         {
             SetId(id);
+            Zone = zone;
             Position = position;
             Overlays = new List<int>();
             ActionIndex = new int[16];
