@@ -312,6 +312,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard target = AI.Utils.GetOneEnemyBetterThanValue(oppoBestAttack, true);
             if (target != null)
             {
+                AI.SelectCard(0);
                 AI.SelectNextCard(target);
             }
             return true;

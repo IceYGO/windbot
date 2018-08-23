@@ -27,6 +27,7 @@ namespace WindBot.Game
         private int _hand;
         private bool _debug;        
         private int _select_hint;
+        private GameMessage _lastMessage;
 
         public GameBehavior(GameClient game)
         {
@@ -61,6 +62,7 @@ namespace WindBot.Game
                 GameMessage msg = (GameMessage)packet.ReadByte();
                 if (_messages.ContainsKey(msg))
                     _messages[msg](packet);
+                _lastMessage = msg;
                 return;
             }
             if (_packets.ContainsKey(id))
@@ -312,7 +314,7 @@ namespace WindBot.Game
         {
             _ai.OnRetry();
             Connection.Close();
-            throw new Exception("Got MSG_RETRY.");
+            throw new Exception("Got MSG_RETRY. Last message is " + _lastMessage);
         }
 
         private void OnHint(BinaryReader packet)
@@ -363,7 +365,7 @@ namespace WindBot.Game
             for (int i = 0; i < count; ++i)
             {
                 _duel.Fields[player].Deck.RemoveAt(_duel.Fields[player].Deck.Count - 1);
-                _duel.Fields[player].Hand.Add(new ClientCard(0, CardLocation.Hand));
+                _duel.Fields[player].Hand.Add(new ClientCard(0, CardLocation.Hand, -1));
             }
             _ai.OnDraw(player);
         }
@@ -434,19 +436,19 @@ namespace WindBot.Game
             _duel.Fields[player].Deck.Clear();
             for (int i = 0; i < mcount; ++i)
             {
-                _duel.Fields[player].Deck.Add(new ClientCard(0, CardLocation.Deck));
+                _duel.Fields[player].Deck.Add(new ClientCard(0, CardLocation.Deck, -1));
             }
             _duel.Fields[player].ExtraDeck.Clear();
             for (int i = 0; i < ecount; ++i)
             {
                 int code = packet.ReadInt32() & 0x7fffffff;
-                _duel.Fields[player].ExtraDeck.Add(new ClientCard(code, CardLocation.Extra));
+                _duel.Fields[player].ExtraDeck.Add(new ClientCard(code, CardLocation.Extra, -1));
             }
             _duel.Fields[player].Hand.Clear();
             for (int i = 0; i < hcount; ++i)
             {
                 int code = packet.ReadInt32();
-                _duel.Fields[player].Hand.Add(new ClientCard(code, CardLocation.Hand));
+                _duel.Fields[player].Hand.Add(new ClientCard(code, CardLocation.Hand,-1));
             }
         }
 
@@ -660,7 +662,7 @@ namespace WindBot.Game
                 int seq = packet.ReadByte();
                 ClientCard card;
                 if (((int)loc & (int)CardLocation.Overlay) != 0)
-                    card = new ClientCard(id, CardLocation.Overlay);
+                    card = new ClientCard(id, CardLocation.Overlay, -1);
                 else
                     card = _duel.GetCard(controler, loc, seq);
                 if (card == null) continue;
@@ -848,7 +850,7 @@ namespace WindBot.Game
                 packet.ReadByte(); // pos
                 ClientCard card;
                 if (((int)loc & (int)CardLocation.Overlay) != 0)
-                    card = new ClientCard(id, CardLocation.Overlay);
+                    card = new ClientCard(id, CardLocation.Overlay, -1);
                 else
                     card = _duel.GetCard(player, loc, seq);
                 if (card == null) continue;
@@ -907,7 +909,7 @@ namespace WindBot.Game
                 packet.ReadByte(); // pos
                 ClientCard card;
                 if (((int)loc & (int)CardLocation.Overlay) != 0)
-                    card = new ClientCard(id, CardLocation.Overlay);
+                    card = new ClientCard(id, CardLocation.Overlay, -1);
                 else
                     card = _duel.GetCard(player, loc, seq);
                 if (card == null) continue;
@@ -1314,9 +1316,11 @@ namespace WindBot.Game
             {
                 result[index++] = 0;
             }
-            for (int i = 0; i < selected.Count; ++i)
+            int l = 0;
+            while (l < selected.Count)
             {
-                result[index++] = (byte)selected[i].SelectSeq;
+                result[index++] = (byte)selected[l].SelectSeq;
+                ++l;
             }
 
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
