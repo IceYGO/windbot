@@ -12,6 +12,7 @@ namespace WindBot.Game
         public string Name { get; private set; }
 
         public int Position { get; set; }
+        public int Sequence { get; set; }
         public CardLocation Location { get; set; }
         public int Alias { get; private set; }
         public int Level { get; private set; }
@@ -44,14 +45,15 @@ namespace WindBot.Game
         public int[] ActionIndex { get; set; }
         public IDictionary<int, int> ActionActivateIndex { get; private set; }
 
-        public ClientCard(int id, CardLocation loc)
-            : this(id, loc, 0)
+        public ClientCard(int id, CardLocation loc, int sequence)
+            : this(id, loc, -1 , 0)
         {
         }
 
-        public ClientCard(int id, CardLocation loc, int position)
+        public ClientCard(int id, CardLocation loc, int sequence, int position)
         {
             SetId(id);
+            Sequence = sequence;
             Position = position;
             Overlays = new List<int>();
             ActionIndex = new int[16];
@@ -189,7 +191,7 @@ namespace WindBot.Game
 
         public bool IsExtraCard()
         {
-            return (HasType(CardType.Fusion) || HasType(CardType.Synchro) || HasType(CardType.Xyz));
+            return HasType(CardType.Fusion) || HasType(CardType.Synchro) || HasType(CardType.Xyz) || HasType(CardType.Link);
         }
 
         public bool IsFaceup()
