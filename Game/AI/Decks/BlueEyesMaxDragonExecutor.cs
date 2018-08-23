@@ -128,28 +128,29 @@ namespace WindBot.Game.AI.Decks
         {
             if(Duel.LastChainPlayer==1)
             {
-                if(AI.Utils.GetLastChainCard().Id==CardId.MaxxC)
+                ClientCard lastCard = AI.Utils.GetLastChainCard();
+                if (lastCard.Id==CardId.MaxxC)
                 {
                     AI.SelectCard(CardId.MaxxC);
                     if(AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
                         AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
                     return UniqueFaceupSpell();
                 }
-                if (AI.Utils.GetLastChainCard().Id == CardId.LockBird)
+                if (lastCard.Id == CardId.LockBird)
                 {
                     AI.SelectCard(CardId.LockBird);
                     if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
                         AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
                     return UniqueFaceupSpell();
                 }
-                if (AI.Utils.GetLastChainCard().Id == CardId.Ghost)
+                if (lastCard.Id == CardId.Ghost)
                 {
                     AI.SelectCard(CardId.Ghost);
                     if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
                         AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
                     return UniqueFaceupSpell();
                 }
-                if (AI.Utils.GetLastChainCard().Id == CardId.AshBlossom)
+                if (lastCard.Id == CardId.AshBlossom)
                 {
                     AI.SelectCard(CardId.AshBlossom);
                     if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
