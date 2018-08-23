@@ -57,7 +57,8 @@ namespace WindBot.Game.AI.Decks
 
         public GrenMajuThunderBoarderExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
-        {            
+        {
+            AddExecutor(ExecutorType.GoToBattlePhase, EvenlyMatchedToBP);
             AddExecutor(ExecutorType.Activate, CardId.EvenlyMatched, EvenlyMatchedeff);
             //Sticker
             AddExecutor(ExecutorType.Activate, CardId.MacroCosmos, MacroCosmoseff);
@@ -102,19 +103,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
         bool CardOfDemiseeff_used = false;
-        bool plan_A = false;
         bool eater_eff = false;
         public override void OnNewTurn()
         {
             eater_eff = false;
             CardOfDemiseeff_used = false;            
-            if (Bot.HasInHand(CardId.EvenlyMatched) && Duel.Turn == 2 && Enemy.GetFieldCount()>=2)
-            {
-                Logger.DebugWriteLine("***********plan_A");
-                plan_A = true;
-                //todo:Duel.Global.ToBattlePhase = true;
-            }
-
         }
 
         public override void OnNewPhase()
@@ -182,15 +175,17 @@ namespace WindBot.Game.AI.Decks
             return Duel.Player == 1;
         }
 
+        private bool EvenlyMatchedToBP()
+        {
+            return Bot.HasInHand(CardId.EvenlyMatched) && Bot.GetFieldCount() <= 1 && Duel.Turn >= 2 && Enemy.GetFieldCount() - Bot.GetFieldCount() >= 2;
+        }
+
         private bool EvenlyMatchedeff()
         {
-            // todo:Duel.Global.ToBattlePhase = false;
-            plan_A = false;
             return true;
         }
         private bool InfiniteImpermanenceeff()
         {
-            if (plan_A) return false;
             AI.SelectPlace(Zones.z2);
             ClientCard target = Enemy.MonsterZone.GetShouldBeDisabledBeforeItUseEffectMonster();
             if(target!=null)
@@ -368,21 +363,18 @@ namespace WindBot.Game.AI.Decks
 
         private bool InspectBoardersummon()
         {
-            if (plan_A) return false;
             AI.SelectPlace(Zones.z4 | Zones.z0);
             return true;
         }
         private bool GrenMajuDaEizosummon()
         {
             if (Duel.Turn == 1) return false;
-            if (plan_A) return false;
             AI.SelectPlace(Zones.z4 | Zones.z0);
             return Bot.Banished.Count >= 6;
         }
 
         private bool ThunderKingRaiOhsummon()
         {
-            if (plan_A) return false;
             AI.SelectPlace(Zones.z4 | Zones.z0);
             return true;
         }
@@ -440,7 +432,6 @@ namespace WindBot.Game.AI.Decks
         private bool EaterOfMillionssp()
         {
             if (Bot.HasInMonstersZone(CardId.InspectBoarder) && !eater_eff) return false;
-            if (plan_A) return false;
             if (AI.Utils.GetProblematicEnemyMonster() == null && Bot.ExtraDeck.Count < 5) return false;
             if (Bot.GetMonstersInMainZone().Count >= 5) return false;
             if (AI.Utils.IsTurn1OrMain2()) return false;
@@ -547,7 +538,6 @@ namespace WindBot.Game.AI.Decks
 
         private bool SpellSet()
         {           
-            if (plan_A) return false;
             int count = 0;
             foreach(ClientCard check in Bot.Hand)
             {
