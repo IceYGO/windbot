@@ -27,6 +27,8 @@ namespace WindBot.Game
         private int _hand;
         private bool _debug;        
         private int _select_hint;
+        private bool ChainReplace = false;
+        private ClientCard ChainReplaceOld = null;
         private GameMessage _lastMessage;
 
         public GameBehavior(GameClient game)
@@ -630,6 +632,9 @@ namespace WindBot.Game
             int cc = GetLocalPlayer(packet.ReadByte());
             if (_debug)
                 if (card != null) Logger.WriteLine("(" + cc.ToString() + " 's " + (card.Name ?? "UnKnowCard") + " activate effect)");
+            ChainReplaceOld = card;
+            if (ChainReplaceOld.Name == null && _duel.CurrentChain.Count > 0)
+                ChainReplace = true;
             _ai.OnChaining(card, cc);
             //_duel.ChainTargets.Clear();
             _duel.ChainTargetOnly.Clear();
@@ -712,6 +717,14 @@ namespace WindBot.Game
             if (card == null) return;
 
             card.Update(packet, _duel);
+            if (ChainReplace)
+            {
+                //Logger.DebugWriteLine("card name =" + card.Name);
+                //Logger.DebugWriteLine("ChainReplaceOld= " + ChainReplaceOld.Name);
+                _duel.CurrentChain[_duel.CurrentChain.IndexOf(ChainReplaceOld)] = card;
+                ChainReplace = false;
+                ChainReplaceOld = null;
+            }
         }
 
         private void OnUpdateData(BinaryReader packet)
