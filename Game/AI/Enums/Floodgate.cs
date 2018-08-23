@@ -77,6 +77,7 @@
         LairOfDarkness = 59160188,
         SuperboltThunderDragon = 15291624,
         ThunderDragonLord = 41685633,
-        CyberDragonInfinity = 10443957
+        CyberDragonInfinity = 10443957,
+        ImperialCustom = 9995766
     }
 }
