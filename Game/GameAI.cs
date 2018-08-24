@@ -92,11 +92,12 @@ namespace WindBot.Game
         public void OnNewPhase()
         {
             m_selector.Clear();
+            m_position.Clear();
             m_selector_pointer = -1;
             m_materialSelector = null;
             m_option = -1;
             m_yesno = -1;
-            m_position = CardPosition.FaceUpAttack;
+           
             m_place = 0;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
@@ -508,8 +509,7 @@ namespace WindBot.Game
         /// <returns>Selected position.</returns>
         public CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
-            CardPosition selector_selected = m_position;
-            m_position = CardPosition.FaceUpAttack;
+            CardPosition selector_selected = GetSelectedPosition();
 
             CardPosition executor_selected = Executor.OnSelectPosition(cardId, positions);
 
@@ -747,7 +747,6 @@ namespace WindBot.Game
 
         
         private CardSelector m_materialSelector;
-        private CardPosition m_position = CardPosition.FaceUpAttack;
         private int m_place;
         private int m_option;
         private int m_number;
@@ -755,6 +754,7 @@ namespace WindBot.Game
         private int m_yesno;
         private IList<CardAttribute> m_attributes = new List<CardAttribute>();
         private IList<CardSelector> m_selector = new List<CardSelector>();
+        private IList<CardPosition> m_position = new List<CardPosition>();
         private int m_selector_pointer = -1;
         private IList<CardRace> m_races = new List<CardRace>();
 
@@ -929,9 +929,20 @@ namespace WindBot.Game
             return selected;
         }
 
+        public CardPosition GetSelectedPosition()
+        {
+            CardPosition selected = CardPosition.FaceUpAttack;
+            if (m_position.Count > 0)
+            {
+                selected = m_position[0];
+                m_position.RemoveAt(0);
+            }
+            return selected;
+        }
+
         public void SelectPosition(CardPosition pos)
         {
-            m_position = pos;
+            m_position.Add(pos);
         }
 
         public void SelectPlace(int zones)
