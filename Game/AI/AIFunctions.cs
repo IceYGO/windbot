@@ -47,7 +47,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public int GetTotalAttackingMonsterAttack(int player)
         {
-            return Duel.Fields[player].GetMonsters().Where(m => m.IsAttack()).Sum(m => m.Attack); ;
+            return Duel.Fields[player].GetMonsters().Where(m => m.IsAttack()).Sum(m => (int?)m.Attack) ?? 0;
         }
         /// <summary>
         /// Get the best ATK or DEF power of the field.
@@ -69,13 +69,13 @@ namespace WindBot.Game.AI
         public bool IsOneEnemyBetterThanValue(int value, bool onlyATK)
         {
             return Enemy.MonsterZone.GetMonsters()
-                .Any(card => card.GetDefensePower() > value && !(onlyATK && card.IsDefense()));
+                .Any(card => card.GetDefensePower() > value && (!onlyATK || card.IsAttack()));
         }
 
         public bool IsAllEnemyBetterThanValue(int value, bool onlyATK)
         {
             return Enemy.MonsterZone.GetMonsters()
-                .All(card => card.GetDefensePower() > value && !(onlyATK && card.IsDefense()));
+                .All(card => card.GetDefensePower() > value && (!onlyATK || card.IsAttack()));
         }
 
         /// <summary>
