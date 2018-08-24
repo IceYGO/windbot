@@ -386,7 +386,7 @@ namespace WindBot.Game.AI.Decks
                 if (Bot.BattlingMonster.Attack + 800 >= Enemy.BattlingMonster.GetDefensePower())
                 {
                     AI.SelectCard(Bot.BattlingMonster);
-                    return DefaultTrapOnly();
+                    return DefaultUniqueTrap();
                 }                
             }
             return false;
@@ -403,9 +403,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Turn == 1) return false;           
             if (Bot.MonsterZone[0] == null)
-                AI.SelectPlace(Zones.z0, 1);
+                AI.SelectPlace(Zones.z0);
             else
-                AI.SelectPlace(Zones.z4, 1);
+                AI.SelectPlace(Zones.z4);
             return Bot.Banished.Count >= 6;
         }
 
@@ -420,8 +420,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool ThunderKingRaiOheff()
         {
-            if (AI.Utils.GetLastSummonMonster() != null && AI.Utils.GetLastSummonMonster().Attack >= 1900)
-                return true;
+           if(Duel.SummoningCards.Count > 0)
+           {
+                foreach(ClientCard m in Duel.SummoningCards)
+                {
+                    if (m.Attack >= 1900)
+                        return true;
+                }
+           }            
             return false;
         }
 
