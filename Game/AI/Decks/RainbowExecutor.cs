@@ -358,6 +358,7 @@ namespace WindBot.Game.AI.Decks
         private bool LightningChidoriEffect()
         {
             ClientCard problematicCard = AI.Utils.GetProblematicEnemyCard();
+            AI.SelectCard(0);
             AI.SelectNextCard(problematicCard);
             return true;
         }
@@ -423,6 +424,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard result = AI.Utils.GetOneEnemyBetterThanValue(2000, true);
             if (result != null)
             {
+                AI.SelectCard(0);
                 AI.SelectNextCard(result);
                 return true;
             }
