@@ -719,7 +719,6 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultOnBecomeTarget()
         {
-            if (Duel.LastChainPlayer != 1) return false;
             if (AI.Utils.IsChainTarget(Card)) return true;
             if (AI.Utils.ChainContainsCard(_CardId.TopologicTrisbaena)) return true;
             if (AI.Utils.ChainContainsCard(_CardId.BlackRoseDragon)) return true;
