@@ -746,7 +746,7 @@ namespace WindBot.Game
         // Those functions are used by the AI behavior.
 
         
-        private CardSelector m_materialSelector;       
+        private CardSelector m_materialSelector;
         private int m_place;
         private int m_option;
         private int m_number;
