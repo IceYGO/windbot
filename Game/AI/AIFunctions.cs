@@ -47,13 +47,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public int GetTotalAttackingMonsterAttack(int player)
         {
-            int atk = 0;
-            foreach (ClientCard m in Duel.Fields[player].GetMonsters())
-            {
-                if (m.IsAttack())
-                    atk += m.Attack;
-            }
-            return atk;
+            return Duel.Fields[player].GetMonsters().Where(m => m.IsAttack()).Sum(m => m.Attack); ;
         }
         /// <summary>
         /// Get the best ATK or DEF power of the field.
@@ -62,17 +56,9 @@ namespace WindBot.Game.AI
         /// <param name="onlyATK">Only calculate attack.</param>
         public int GetBestPower(ClientField field, bool onlyATK = false)
         {
-            int bestPower = -1;
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = field.MonsterZone[i];
-                if (card?.Data == null) continue;
-                if (onlyATK && card.IsDefense()) continue;
-                int newPower = card.GetDefensePower();
-                if (newPower > bestPower)
-                    bestPower = newPower;
-            }
-            return bestPower;
+            return field.MonsterZone.GetMonsters()
+                .Where(card => !onlyATK || card.IsAttack())
+                .Max(card => (int?)card.GetDefensePower()) ?? -1;
         }
 
         public int GetBestAttack(ClientField field)
@@ -82,36 +68,14 @@ namespace WindBot.Game.AI
 
         public bool IsOneEnemyBetterThanValue(int value, bool onlyATK)
         {
-            int bestValue = -1;
-            bool nomonster = true;
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = Enemy.MonsterZone[i];
-                if (card?.Data == null) continue;
-                if (onlyATK && card.IsDefense()) continue;
-                nomonster = false;
-                int enemyValue = card.GetDefensePower();
-                if (enemyValue > bestValue)
-                    bestValue = enemyValue;
-            }
-            if (nomonster) return false;
-            return bestValue > value;
+            return Enemy.MonsterZone.GetMonsters()
+                .Any(card => card.GetDefensePower() > value && !(onlyATK && card.IsDefense()));
         }
 
         public bool IsAllEnemyBetterThanValue(int value, bool onlyATK)
         {
-            bool nomonster = true;
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = Enemy.MonsterZone[i];
-                if (card?.Data == null) continue;
-                if (onlyATK && card.IsDefense()) continue;
-                nomonster = false;
-                int enemyValue = card.GetDefensePower();
-                if (enemyValue <= value)
-                    return false;
-            }
-            return !nomonster;
+            return Enemy.MonsterZone.GetMonsters()
+                .All(card => card.GetDefensePower() > value && !(onlyATK && card.IsDefense()));
         }
 
         /// <summary>
@@ -147,59 +111,24 @@ namespace WindBot.Game.AI
 
         public ClientCard GetBestBotMonster(bool onlyATK = false)
         {
-            int bestPower = -1;
-            ClientCard bestMonster = null;
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = Bot.MonsterZone[i];
-                if (card?.Data == null) continue;
-                if (onlyATK && card.IsDefense()) continue;
-                int newPower = card.GetDefensePower();
-                if (newPower > bestPower)
-                {
-                    bestPower = newPower;
-                    bestMonster = card;
-                }
-            }
-            return bestMonster;
+            return Bot.MonsterZone.GetMonsters()
+                .Where(card => !onlyATK || card.IsAttack())
+                .OrderByDescending(card => card.GetDefensePower())
+                .FirstOrDefault();
         }
 		
         public ClientCard GetWorstBotMonster(bool onlyATK = false)
         {
-            int WorstPower = -1;
-            ClientCard WorstMonster = null;
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = Bot.MonsterZone[i];
-                if (card?.Data == null) continue;
-                if (onlyATK && card.IsDefense()) continue;
-                int newPower = card.GetDefensePower();
-                if (newPower < WorstPower)
-                {
-                    WorstPower = newPower;
-                    WorstMonster = card;
-                }
-            }
-            return WorstMonster;
+            return Bot.MonsterZone.GetMonsters()
+                .Where(card => !onlyATK || card.IsAttack())
+                .OrderBy(card => card.GetDefensePower())
+                .FirstOrDefault();
         }
-		
+
         public ClientCard GetOneEnemyBetterThanValue(int value, bool onlyATK = false, bool canBeTarget = false)
         {
-            ClientCard bestCard = null;
-            int bestValue = value;
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = Enemy.MonsterZone[i];
-                if (card?.Data == null || (canBeTarget && card.IsShouldNotBeTarget())) continue;
-                if (onlyATK && card.IsDefense()) continue;
-                int enemyValue = card.GetDefensePower();
-                if (enemyValue >= bestValue)
-                {
-                    bestCard = card;
-                    bestValue = enemyValue;
-                }
-            }
-            return bestCard;
+            return Enemy.MonsterZone.GetMonsters()
+                .FirstOrDefault(card => (!onlyATK || card.IsAttack()) && (!canBeTarget || !card.IsShouldNotBeTarget()));
         }
 
         public ClientCard GetOneEnemyBetterThanMyBest(bool onlyATK = false, bool canBeTarget = false)
@@ -290,21 +219,10 @@ namespace WindBot.Game.AI
 
         public ClientCard GetWorstEnemyMonster(bool onlyATK = false)
         {
-            int WorstPower = -1;
-            ClientCard WorstMonster = null;
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = Enemy.MonsterZone[i];
-                if (card?.Data == null) continue;
-                if (onlyATK && card.IsDefense()) continue;
-                int newPower = card.GetDefensePower();
-                if (newPower < WorstPower)
-                {
-                    WorstPower = newPower;
-                    WorstMonster = card;
-                }
-            }
-            return WorstMonster;
+            return Enemy.MonsterZone.GetMonsters()
+                .Where(card => !onlyATK || card.IsAttack())
+                .OrderBy(card => card.GetDefensePower())
+                .FirstOrDefault();
         }
 
         public ClientCard GetBestEnemySpell(bool onlyFaceup = false)
@@ -313,14 +231,11 @@ namespace WindBot.Game.AI
             if (card != null)
                 return card;
 
-            List<ClientCard> spells = Enemy.GetSpells();
+            var spells = Enemy.GetSpells();
 
-            foreach (ClientCard ecard in spells)
-            {
-                if (ecard.IsFaceup() && ecard.HasType(CardType.Continuous)||
-                    ecard.IsFaceup() && ecard.HasType(CardType.Field))
-                    return ecard;
-            }
+            card = spells.FirstOrDefault(ecard => ecard.IsFaceup() && (ecard.HasType(CardType.Continuous) || ecard.HasType(CardType.Field)));
+            if (card != null)
+                return card;
 
             if (spells.Count > 0 && !onlyFaceup)
                 return spells[0];
