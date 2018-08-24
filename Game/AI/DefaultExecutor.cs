@@ -38,6 +38,7 @@ namespace WindBot.Game.AI
             public const int Number39Utopia = 84013237;
             public const int UltimayaTzolkin = 1686814;
 
+            public const int MoonMirrorShield = 19508728;
             public const int VampireFräulein = 6039967;
             public const int InjectionFairyLily = 79575620;
 
@@ -124,6 +125,14 @@ namespace WindBot.Game.AI
                         return false;
                 }
 
+                foreach (ClientCard equip in defender.EquipCards)
+                {
+                    if (equip.Id == _CardId.MoonMirrorShield && !equip.IsDisabled())
+                    {
+                        return false;
+                    }
+                }
+
                 if (defender.Id == _CardId.CrystalWingSynchroDragon && defender.IsAttack() && !defender.IsDisabled() && attacker.Level >= 5)
                     return false;
 
@@ -141,6 +150,14 @@ namespace WindBot.Game.AI
             {
                 if (attacker.Id == _CardId.NumberS39UtopiaTheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, _CardId.Number39Utopia))
                     attacker.RealPower = 5000;
+
+                foreach (ClientCard equip in attacker.EquipCards)
+                {
+                    if (equip.Id == _CardId.MoonMirrorShield && !equip.IsDisabled())
+                    {
+                        attacker.RealPower = defender.RealPower + 100;
+                    }
+                }
             }
 
             if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && defender.Id != _CardId.DupeFrog)
