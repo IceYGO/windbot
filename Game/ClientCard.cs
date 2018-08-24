@@ -36,6 +36,10 @@ namespace WindBot.Game
         public int SelectSeq { get; set; }
         public int OpParam1 { get; set; }
         public int OpParam2 { get; set; }
+
+        public List<ClientCard> EquipCards { get; set; }
+        public ClientCard EquipTarget;
+
         public bool CanDirectAttack { get; set; }
         public bool ShouldDirectAttack { get; set; }
         public bool Attacked { get; set; }
@@ -56,6 +60,7 @@ namespace WindBot.Game
             Sequence = sequence;
             Position = position;
             Overlays = new List<int>();
+            EquipCards = new List<ClientCard>();
             ActionIndex = new int[16];
             ActionActivateIndex = new Dictionary<int, int>();
             Location = loc;

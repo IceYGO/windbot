@@ -130,7 +130,8 @@ namespace WindBot.Game
             _messages.Add(GameMessage.AnnounceRace, OnAnnounceRace);
             _messages.Add(GameMessage.AnnounceCardFilter, OnAnnounceCard);
             _messages.Add(GameMessage.RockPaperScissors, OnRockPaperScissors);
-
+            _messages.Add(GameMessage.Equip, OnEquip);
+            _messages.Add(GameMessage.Unequip, OnUnEquip);
             _messages.Add(GameMessage.Summoning, OnSummoning);
             _messages.Add(GameMessage.Summoned, OnSummoned);
             _messages.Add(GameMessage.SpSummoning, OnSpSummoning);
@@ -1410,6 +1411,43 @@ namespace WindBot.Game
             else
                 result = _ai.OnRockPaperScissors();
             Connection.Send(CtosMessage.Response, result);
+        }
+
+        private void OnEquip(BinaryReader packet)
+        {
+            int equipCardControler = GetLocalPlayer(packet.ReadByte());
+            int equipCardLocation = packet.ReadByte();
+            int equipCardSequence = packet.ReadSByte();
+            packet.ReadByte();
+            int targetCardControler = GetLocalPlayer(packet.ReadByte());
+            int targetCardLocation = packet.ReadByte();
+            int targetCardSequence = packet.ReadSByte();
+            packet.ReadByte();
+            ClientCard equipCard = _duel.GetCard(equipCardControler, (CardLocation)equipCardLocation, equipCardSequence);
+            ClientCard targetCard = _duel.GetCard(targetCardControler, (CardLocation)targetCardLocation, targetCardSequence);
+            if (equipCard == null || targetCard == null) return;
+            if (equipCard.EquipTarget != null)
+            {
+                equipCard.EquipTarget.EquipCards.Remove(equipCard);
+            }
+
+            equipCard.EquipTarget = targetCard;
+            targetCard.EquipCards.Add(equipCard);
+        }
+
+        private void OnUnEquip(BinaryReader packet)
+        {
+            int equipCardControler = GetLocalPlayer(packet.ReadByte());
+            int equipCardLocation = packet.ReadByte();
+            int equipCardSequence = packet.ReadSByte();
+            packet.ReadByte();
+            ClientCard equipCard = _duel.GetCard(equipCardControler, (CardLocation)equipCardLocation, equipCardSequence);
+            if (equipCard == null) return;
+            if (equipCard.EquipTarget != null)
+            {
+                equipCard.EquipTarget.EquipCards.Remove(equipCard);
+                equipCard.EquipTarget = null;
+            }
         }
 
         private void OnSummoning(BinaryReader packet)
