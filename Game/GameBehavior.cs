@@ -101,6 +101,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.Recover, OnRecover);
             _messages.Add(GameMessage.LpUpdate, OnLpUpdate);
             _messages.Add(GameMessage.Move, OnMove);
+            _messages.Add(GameMessage.Swap, OnSwap);
             _messages.Add(GameMessage.Attack, OnAttack);
             _messages.Add(GameMessage.PosChange, OnPosChange);
             _messages.Add(GameMessage.Chaining, OnChaining);
@@ -574,6 +575,27 @@ namespace WindBot.Game
                         (CardLocation)previousLocation + " move to " + (CardLocation)currentLocation + ")");
                 }
             }
+        }
+
+        private void OnSwap(BinaryReader packet)
+        {
+            int cardId1 = packet.ReadInt32();
+            int controler1 = GetLocalPlayer(packet.ReadByte());
+            int location1 = packet.ReadByte();
+            int sequence1 = packet.ReadByte();
+            packet.ReadByte();
+            int cardId2 = packet.ReadInt32();
+            int controler2 = GetLocalPlayer(packet.ReadByte());
+            int location2 = packet.ReadByte();
+            int sequence2 = packet.ReadByte();
+            packet.ReadByte();
+            ClientCard card1 = _duel.GetCard(controler1, (CardLocation)location1, sequence1);
+            ClientCard card2 = _duel.GetCard(controler2, (CardLocation)location2, sequence2);
+            if (card1 == null || card2 == null) return;
+            _duel.RemoveCard((CardLocation)location1, card1, controler1, sequence1);
+            _duel.RemoveCard((CardLocation)location2, card2, controler2, sequence2);
+            _duel.AddCard((CardLocation)location2, card1, controler2, sequence2, card1.Position, cardId1);
+            _duel.AddCard((CardLocation)location1, card2, controler1, sequence1, card2.Position, cardId2);
         }
 
         private void OnAttack(BinaryReader packet)
