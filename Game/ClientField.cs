@@ -31,9 +31,9 @@ namespace WindBot.Game
             ExtraDeck = new List<ClientCard>();
 
             for (int i = 0; i < deck; ++i)
-                Deck.Add(new ClientCard(0, CardLocation.Deck));
+                Deck.Add(new ClientCard(0, CardLocation.Deck, -1));
             for (int i = 0; i < extra; ++i)
-                ExtraDeck.Add(new ClientCard(0, CardLocation.Extra));
+                ExtraDeck.Add(new ClientCard(0, CardLocation.Extra, -1));
         }
 
         public int GetMonstersExtraZoneCount()

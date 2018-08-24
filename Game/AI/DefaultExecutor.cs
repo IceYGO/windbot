@@ -38,6 +38,7 @@ namespace WindBot.Game.AI
             public const int Number39Utopia = 84013237;
             public const int UltimayaTzolkin = 1686814;
 
+            public const int MoonMirrorShield = 19508728;
             public const int VampireFräulein = 6039967;
             public const int InjectionFairyLily = 79575620;
 
@@ -55,6 +56,14 @@ namespace WindBot.Game.AI
             public const int MacroCosmos = 30241314;
             public const int UpstartGoblin = 70368879;
             public const int EaterOfMillions = 63845230;
+
+            public const int InvokedPurgatrio = 12307878;
+            public const int ChaosAncientGearGiant = 51788412;
+            public const int UltimateAncientGearGolem = 12652643;
+
+            public const int ImperialOrder = 61740673;
+            public const int NaturiaBeast = 33198837;
+            public const int AntiSpellFragrance = 58921041;
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
@@ -116,6 +125,14 @@ namespace WindBot.Game.AI
                         return false;
                 }
 
+                foreach (ClientCard equip in defender.EquipCards)
+                {
+                    if (equip.Id == _CardId.MoonMirrorShield && !equip.IsDisabled())
+                    {
+                        return false;
+                    }
+                }
+
                 if (defender.Id == _CardId.CrystalWingSynchroDragon && defender.IsAttack() && !defender.IsDisabled() && attacker.Level >= 5)
                     return false;
 
@@ -133,6 +150,14 @@ namespace WindBot.Game.AI
             {
                 if (attacker.Id == _CardId.NumberS39UtopiaTheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, _CardId.Number39Utopia))
                     attacker.RealPower = 5000;
+
+                foreach (ClientCard equip in attacker.EquipCards)
+                {
+                    if (equip.Id == _CardId.MoonMirrorShield && !equip.IsDisabled())
+                    {
+                        attacker.RealPower = defender.RealPower + 100;
+                    }
+                }
             }
 
             if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && defender.Id != _CardId.DupeFrog)
@@ -325,6 +350,31 @@ namespace WindBot.Game.AI
             return true;
         }
 
+        /// <summary>
+        /// Default Scapegoat effect
+        /// </summary>
+        protected bool DefaultScapegoat()
+        {
+            if (DefaultSpellWillBeNegated()) return false;
+            if (Duel.Player == 0) return false;
+            if (Duel.Phase == DuelPhase.End) return true;
+            if (DefaultOnBecomeTarget()) return true;
+            if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
+            {
+                if (Enemy.HasInMonstersZone(_CardId.UltimateConductorTytanno, true)) return false;
+                if (Enemy.HasInMonstersZone(_CardId.InvokedPurgatrio, true)) return false;
+                if (Enemy.HasInMonstersZone(_CardId.ChaosAncientGearGiant, true)) return false;
+                if (Enemy.HasInMonstersZone(_CardId.UltimateAncientGearGolem, true)) return false;
+                int total_atk = 0;
+                List<ClientCard> enemy_monster = Enemy.GetMonsters();
+                foreach (ClientCard m in enemy_monster)
+                {
+                    if (m.IsAttack()) total_atk += m.Attack;
+                }
+                if (total_atk >= Bot.LifePoints) return true;
+            }
+            return false;
+        }
         /// <summary>
         /// Always active in opponent's turn.
         /// </summary>
@@ -620,6 +670,42 @@ namespace WindBot.Game.AI
             if (Card.IsAttack() && enemyBetter)
                 return true;
             if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
+                return true;
+            return false;
+        }
+
+        /// <summary>
+        /// If spell will be negated
+        /// </summary>
+        protected bool DefaultSpellWillBeNegated()
+        {
+            ClientCard card = null;
+            foreach (ClientCard check in Bot.GetSpells())
+            {
+                if (check.Id == _CardId.ImperialOrder && !check.IsDisabled())
+                    card = check;
+            }
+            if (card != null && card.IsFaceup())
+                return true;
+            if (Enemy.HasInSpellZone(_CardId.ImperialOrder, true) || Enemy.HasInMonstersZone(_CardId.NaturiaBeast, true))
+                return true;
+            return false;
+        }
+
+        /// <summary>
+        /// If spell must set first to activate
+        /// </summary>
+        protected bool DefaultSpellMustSetFirst()
+        {
+            ClientCard card = null;
+            foreach (ClientCard check in Bot.GetSpells())
+            {
+                if (check.Id == _CardId.AntiSpellFragrance && !check.IsDisabled())
+                    card = check;
+            }
+            if (card != null && card.IsFaceup())
+                return true;
+            if (Enemy.HasInSpellZone(_CardId.AntiSpellFragrance, true))
                 return true;
             return false;
         }
