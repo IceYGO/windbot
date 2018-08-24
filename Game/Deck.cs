@@ -83,8 +83,7 @@ namespace WindBot.Game
             }
             catch (Exception)
             {
-                if (reader != null)
-                    reader.Close();
+                reader?.Close();
                 return null;
             }
         }
