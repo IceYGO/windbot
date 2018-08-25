@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using YGOSharp.OCGWrapper.Enums;
+using System;
 using System.Linq;
 
 namespace WindBot.Game.AI
@@ -8,185 +9,90 @@ namespace WindBot.Game.AI
     {
         public static ClientCard GetHighestAttackMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
-            int highestAtk = 0;
-            ClientCard selected = null;
-            foreach (ClientCard card in cards)
-            {
-                if (card == null || card.Data == null || card.IsFacedown() || (canBeTarget && card.IsShouldNotBeTarget())) continue;
-                if (card.HasType(CardType.Monster) && card.Attack > highestAtk)
-                {
-                    highestAtk = card.Attack;
-                    selected = card;
-                }
-            }
-            return selected;
+            return cards
+                .Where(card => card?.Data != null && card.HasType(CardType.Monster) && card.IsFaceup() && !(canBeTarget && card.IsShouldNotBeTarget()))
+                .OrderBy(card => card.Attack).FirstOrDefault();
         }
 
         public static ClientCard GetHighestDefenseMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
-            int highestDef = 0;
-            ClientCard selected = null;
-            foreach (ClientCard card in cards)
-            {
-                if (card == null || card.Data == null || card.IsFacedown() || (canBeTarget && card.IsShouldNotBeTarget())) continue;
-                if (card.HasType(CardType.Monster) && card.Defense > highestDef)
-                {
-                    highestDef = card.Defense;
-                    selected = card;
-                }
-            }
-            return selected;
+            return cards
+                .Where(card => card?.Data != null && card.HasType(CardType.Monster) && card.IsFaceup() && !(canBeTarget && card.IsShouldNotBeTarget()))
+                .OrderBy(card => card.Defense).FirstOrDefault();
         }
 
         public static ClientCard GetLowestAttackMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
-            int lowestAtk = 0;
-            ClientCard selected = null;
-            foreach (ClientCard card in cards)
-            {
-                if (card == null || card.Data == null || card.IsFacedown() || (canBeTarget && card.IsShouldNotBeTarget())) continue;
-                if (lowestAtk == 0 && card.HasType(CardType.Monster) ||
-                    card.HasType(CardType.Monster) && card.Attack < lowestAtk)
-                {
-                    lowestAtk = card.Attack;
-                    selected = card;
-                }
-            }
-            return selected;
+            return cards
+                .Where(card => card?.Data != null && card.HasType(CardType.Monster) && card.IsFaceup() && !(canBeTarget && card.IsShouldNotBeTarget()))
+                .OrderByDescending(card => card.Attack).FirstOrDefault();
         }
 
         public static ClientCard GetLowestDefenseMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
-            int lowestDef = 0;
-            ClientCard selected = null;
-            foreach (ClientCard card in cards)
-            {
-                if (card == null || card.Data == null || card.IsFacedown() || (canBeTarget && card.IsShouldNotBeTarget())) continue;
-                if (lowestDef == 0 && card.HasType(CardType.Monster) ||
-                    card.HasType(CardType.Monster) && card.Defense < lowestDef)
-                {
-                    lowestDef = card.Defense;
-                    selected = card;
-                }
-            }
-            return selected;
+            return cards
+                .Where(card => card?.Data != null && card.HasType(CardType.Monster) && card.IsFaceup() && !(canBeTarget && card.IsShouldNotBeTarget()))
+                .OrderByDescending(card => card.Defense).FirstOrDefault();
         }
 
         public static bool ContainsMonsterWithLevel(this IEnumerable<ClientCard> cards, int level)
         {
-            foreach (ClientCard card in cards)
-            {
-                if (card == null)
-                    continue;
-                if (!card.HasType(CardType.Xyz) && card.Level == level)
-                    return true;
-            }
-            return false;
+            return cards.Where(card => card?.Data != null).Any(card => !card.HasType(CardType.Xyz) && card.Level == level);
         }
 
         public static bool ContainsMonsterWithRank(this IEnumerable<ClientCard> cards, int rank)
         {
-            foreach (ClientCard card in cards)
-            {
-                if (card == null)
-                    continue;
-                if (card.HasType(CardType.Xyz) && card.Rank == rank)
-                    return true;
-            }
-            return false;
+            return cards.Where(card => card?.Data != null).Any(card => card.HasType(CardType.Xyz) && card.Rank == rank);
         }
 
         public static bool ContainsCardWithId(this IEnumerable<ClientCard> cards, int id)
         {
-            foreach (ClientCard card in cards)
-            {
-                if (card == null)
-                    continue;
-                if (card.Id == id)
-                    return true;
-            }
-            return false;
+            return cards.Where(card => card?.Data != null).Any(card => card.Id == id);
         }
 
         public static int GetCardCount(this IEnumerable<ClientCard> cards, int id)
         {
-            int count = 0;
-            foreach (ClientCard card in cards)
-            {
-                if (card == null)
-                    continue;
-                if (card.Id == id)
-                    count++;
-            }
-            return count;
+            return cards.Where(card => card?.Data != null).Count(card => card.Id == id);
         }
 
         public static List<ClientCard> GetMonsters(this IEnumerable<ClientCard> cards)
         {
-            List<ClientCard> cardlist = new List<ClientCard>();
-
-            foreach (ClientCard card in cards)
-            {
-                if (card == null)
-                    continue;
-                if (card.HasType(CardType.Monster))
-                    cardlist.Add(card);
-            }
-            return cardlist;
+            return cards.Where(card => card?.Data != null && card.HasType(CardType.Monster)).ToList();
         }
 
         public static List<ClientCard> GetFaceupPendulumMonsters(this IEnumerable<ClientCard> cards)
         {
-            List<ClientCard> cardlist = new List<ClientCard>();
-
-            foreach (ClientCard card in cards)
-            {
-                if (card == null)
-                    continue;
-                if (card.HasType(CardType.Monster) && card.IsFaceup() && card.HasType(CardType.Pendulum))
-                    cardlist.Add(card);
-            }
-            return cardlist;
+            return cards.Where(card => card?.Data != null && card.HasType(CardType.Monster) && card.IsFaceup() && card.HasType(CardType.Pendulum)).ToList();
         }
 
         public static ClientCard GetInvincibleMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
-            foreach (ClientCard card in cards)
-            {
-                if (card != null && card.IsMonsterInvincible() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()))
-                    return card;
-            }
-            return null;
+            return cards.FirstOrDefault(card => card?.Data != null && card.IsMonsterInvincible() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()));
         }
 
         public static ClientCard GetDangerousMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
-            foreach (ClientCard card in cards)
-            {
-                if (card != null && card.IsMonsterDangerous() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()))
-                    return card;
-            }
-            return null;
+            return cards.FirstOrDefault(card => card?.Data != null && card.IsMonsterDangerous() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()));
         }
 
         public static ClientCard GetFloodgate(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
-            foreach (ClientCard card in cards)
-            {
-                if (card != null && card.IsFloodgate() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()))
-                    return card;
-            }
-            return null;
+            return cards.FirstOrDefault(card => card?.Data != null && card.IsFloodgate() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()));
         }
 
-        public static ClientCard GetShouldBeDisabledBeforeItUseEffectMonster(this IEnumerable<ClientCard> cards)
+        public static ClientCard GetFirstMatchingCard(this IEnumerable<ClientCard> cards, Func<ClientCard, bool> filter)
         {
-            foreach (ClientCard card in cards)
-            {
-                if (card != null && card.IsMonsterShouldBeDisabledBeforeItUseEffect() && card.IsFaceup())
-                    return card;
-            }
-            return null;
+            return cards.FirstOrDefault(card => card?.Data != null && filter.Invoke(card));
+        }
+
+        public static ClientCard GetFirstMatchingFaceupCard(this IEnumerable<ClientCard> cards, Func<ClientCard, bool> filter)
+        {
+            return cards.FirstOrDefault(card => card?.Data != null && card.IsFaceup() && filter.Invoke(card));
+        }
+
+        public static ClientCard GetShouldBeDisabledBeforeItUseEffectMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = true)
+        {
+            return cards.FirstOrDefault(card => card?.Data != null && card.IsMonsterShouldBeDisabledBeforeItUseEffect() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()));
         }
 
         public static IEnumerable<IEnumerable<T>> GetCombinations<T>(this IEnumerable<T> elements, int k)

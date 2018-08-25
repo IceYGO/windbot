@@ -151,27 +151,27 @@ namespace WindBot.Game
 
         public bool HasLinkMarker(int dir)
         {
-            return ((LinkMarker & dir) != 0);
+            return (LinkMarker & dir) != 0;
         }
 
         public bool HasLinkMarker(LinkMarker dir)
         {
-            return ((LinkMarker & (int)dir) != 0);
+            return (LinkMarker & (int)dir) != 0;
         }
 
         public bool HasType(CardType type)
         {
-            return ((Type & (int)type) != 0);
+            return (Type & (int)type) != 0;
         }
 
         public bool HasPosition(CardPosition position)
         {
-            return ((Position & (int)position) != 0);
+            return (Position & (int)position) != 0;
         }
 
         public bool HasAttribute(CardAttribute attribute)
         {
-            return ((Attribute & (int)attribute) != 0);
+            return (Attribute & (int)attribute) != 0;
         }
 
         public bool IsMonster()
@@ -221,7 +221,7 @@ namespace WindBot.Game
 
         public bool IsDisabled()
         {
-            return (Disabled != 0);
+            return Disabled != 0;
         }
 
         public bool HasXyzMaterial()

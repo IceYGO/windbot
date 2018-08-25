@@ -619,7 +619,7 @@ namespace WindBot.Game
             _duel.Fields[attackcard.Controller].BattlingMonster = attackcard;
             _duel.Fields[1 - attackcard.Controller].BattlingMonster = defendcard;
 
-            if (ld == 0 && (attackcard != null) && (ca != 0))
+            if (ld == 0 && ca != 0)
             {
                 _ai.OnDirectAttack(attackcard);
             }
@@ -732,9 +732,8 @@ namespace WindBot.Game
             packet.ReadInt32(); // ???
 
             ClientCard card = _duel.GetCard(player, (CardLocation)loc, seq);
-            if (card == null) return;
 
-            card.Update(packet, _duel);
+            card?.Update(packet, _duel);
         }
 
         private void OnUpdateData(BinaryReader packet)
@@ -1448,11 +1447,7 @@ namespace WindBot.Game
             ClientCard equipCard = _duel.GetCard(equipCardControler, (CardLocation)equipCardLocation, equipCardSequence);
             ClientCard targetCard = _duel.GetCard(targetCardControler, (CardLocation)targetCardLocation, targetCardSequence);
             if (equipCard == null || targetCard == null) return;
-            if (equipCard.EquipTarget != null)
-            {
-                equipCard.EquipTarget.EquipCards.Remove(equipCard);
-            }
-
+            equipCard.EquipTarget?.EquipCards.Remove(equipCard);
             equipCard.EquipTarget = targetCard;
             targetCard.EquipCards.Add(equipCard);
         }
