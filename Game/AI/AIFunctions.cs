@@ -280,6 +280,11 @@ namespace WindBot.Game.AI
             return Duel.CurrentChain.Any(card => card.Id == id);
         }
 
+        public bool ChainContainsCard(int[] ids)
+        {
+            return Duel.CurrentChain.Any(card => ids.Contains(card.Id));
+        }
+
         public int ChainCountPlayer(int player)
         {
             return Duel.CurrentChain.Count(card => card.Controller == player);

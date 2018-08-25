@@ -198,24 +198,24 @@ namespace WindBot.Game
             return GetMonsters().Any(card => card.IsDefense());
         }
 
-        public bool HasInMonstersZone(int cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        public bool HasInMonstersZone(int cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
-            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial);
+            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial, faceUp);
         }
 
-        public bool HasInMonstersZone(IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        public bool HasInMonstersZone(IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
-            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial);
+            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial, faceUp);
         }
 
-        public bool HasInSpellZone(int cardId, bool notDisabled = false)
+        public bool HasInSpellZone(int cardId, bool notDisabled = false, bool faceUp = false)
         {
-            return HasInCards(SpellZone, cardId, notDisabled);
+            return HasInCards(SpellZone, cardId, notDisabled, false, faceUp);
         }
 
-        public bool HasInSpellZone(IList<int> cardId, bool notDisabled = false)
+        public bool HasInSpellZone(IList<int> cardId, bool notDisabled = false, bool faceUp = false)
         {
-            return HasInCards(SpellZone, cardId, notDisabled);
+            return HasInCards(SpellZone, cardId, notDisabled, false, faceUp);
         }
 
         public bool HasInHandOrInSpellZone(int cardId)
@@ -323,14 +323,14 @@ namespace WindBot.Game
             return cards.Where(card => card != null).ToList();
         }
 
-        private static bool HasInCards(IEnumerable<ClientCard> cards, int cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        private static bool HasInCards(IEnumerable<ClientCard> cards, int cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
-            return cards.Any(card => card != null && card.Id == cardId && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()));
+            return cards.Any(card => card != null && card.Id == cardId && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()) && !(faceUp && card.IsFacedown()));
         }
 
-        private static bool HasInCards(IEnumerable<ClientCard> cards, IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        private static bool HasInCards(IEnumerable<ClientCard> cards, IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
-            return cards.Any(card => card != null && cardId.Contains(card.Id) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()));
+            return cards.Any(card => card != null && cardId.Contains(card.Id) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()) && !(faceUp && card.IsFacedown()));
         }
     }
 }
