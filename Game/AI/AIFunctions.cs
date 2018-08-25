@@ -128,7 +128,7 @@ namespace WindBot.Game.AI
         public ClientCard GetOneEnemyBetterThanValue(int value, bool onlyATK = false, bool canBeTarget = false)
         {
             return Enemy.MonsterZone.GetMonsters()
-                .FirstOrDefault(card => (!onlyATK || card.IsAttack()) && (!canBeTarget || !card.IsShouldNotBeTarget()));
+                .FirstOrDefault(card => card.GetDefensePower() > value && (!onlyATK || card.IsAttack()) && (!canBeTarget || !card.IsShouldNotBeTarget()));
         }
 
         public ClientCard GetOneEnemyBetterThanMyBest(bool onlyATK = false, bool canBeTarget = false)
