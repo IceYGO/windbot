@@ -76,6 +76,7 @@ namespace WindBot
             Info.Hand = Config.GetInt("Hand", Info.Hand);
             Info.Debug = Config.GetBool("Debug", Info.Debug);
             Info.Chat = Config.GetBool("Chat", Info.Chat);
+            Info.ShowBotHand = Config.GetBool("ShowBotHand", Info.ShowBotHand);
             Run(Info);
         }
 
