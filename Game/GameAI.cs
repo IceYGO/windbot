@@ -947,9 +947,16 @@ namespace WindBot.Game
             m_position.Add(pos);
         }
 
-        public void SelectPlace(int zones)
+        /// <summary>
+        /// parameter type:avoid choosing the place with column negate
+        /// </summary>
+        /// <param name="type">Use CardType or  Zones(single way:1 for MainMonsterZone;2 for spell;4 for trap;3 for ExtraMonsterZone)</param> 
+        public void SelectPlace(int zones, int type = 0)
         {
             m_place = zones;
+            Duel.Global.m_type = type;
+            Duel.Global.intial_zone = Zones.z2;
+            Duel.Global.intial_zone = zones;
         }
 
         public void SelectOption(int opt)
