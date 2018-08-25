@@ -139,10 +139,10 @@ namespace WindBot.Game.AI.Decks
             if (max == 2 && cards[0].Location == CardLocation.Deck)
             {
                 Logger.DebugWriteLine("OnSelectCard MelodyOfAwakeningDragon");
-                IList<ClientCard> result = new List<ClientCard>();
+                List<ClientCard> result = new List<ClientCard>();
                 if (!Bot.HasInHand(CardId.WhiteDragon))
-                    result.Add(cards.FirstOrDefault(card => card.Id == CardId.WhiteDragon));
-                result = result.Concat(cards.Where(card => card.Id == CardId.AlternativeWhiteDragon)).ToList();
+                    result.AddRange(cards.Where(card => card.Id == CardId.WhiteDragon).Take(1));
+                result.AddRange(cards.Where(card => card.Id == CardId.AlternativeWhiteDragon));
                 return AI.Utils.CheckSelectCount(result, cards, min, max);
             }
             Logger.DebugWriteLine("Use default.");
