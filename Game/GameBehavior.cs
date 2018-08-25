@@ -644,6 +644,7 @@ namespace WindBot.Game
                 if (_debug)
                     Logger.WriteLine("(" + (card.Name ?? "UnKnowCard") + " change position to " + (CardPosition)cp + ")");
             }
+            _duel.OnAttack = false;
         }
 
         private void OnChaining(BinaryReader packet)
