@@ -575,6 +575,7 @@ namespace WindBot.Game
                         (CardLocation)previousLocation + " move to " + (CardLocation)currentLocation + ")");
                 }
             }
+            _ai.OnMove();
         }
 
         private void OnSwap(BinaryReader packet)

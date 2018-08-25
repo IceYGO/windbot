@@ -79,6 +79,14 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when move a card
+        /// </summary>
+        public void OnMove()
+        {
+            Executor.OnMove();
+        }
+
+        /// <summary>
         /// Called when it's a new turn.
         /// </summary>
         public void OnNewTurn()
