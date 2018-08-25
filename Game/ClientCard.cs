@@ -12,6 +12,7 @@ namespace WindBot.Game
         public string Name { get; private set; }
 
         public int Position { get; set; }
+        public int Sequence { get; set; }
         public CardLocation Location { get; set; }
         public int Alias { get; private set; }
         public int Level { get; private set; }
@@ -35,6 +36,10 @@ namespace WindBot.Game
         public int SelectSeq { get; set; }
         public int OpParam1 { get; set; }
         public int OpParam2 { get; set; }
+
+        public List<ClientCard> EquipCards { get; set; }
+        public ClientCard EquipTarget;
+
         public bool CanDirectAttack { get; set; }
         public bool ShouldDirectAttack { get; set; }
         public bool Attacked { get; set; }
@@ -44,16 +49,18 @@ namespace WindBot.Game
         public int[] ActionIndex { get; set; }
         public IDictionary<int, int> ActionActivateIndex { get; private set; }
 
-        public ClientCard(int id, CardLocation loc)
-            : this(id, loc, 0)
+        public ClientCard(int id, CardLocation loc, int sequence)
+            : this(id, loc, -1 , 0)
         {
         }
 
-        public ClientCard(int id, CardLocation loc, int position)
+        public ClientCard(int id, CardLocation loc, int sequence, int position)
         {
             SetId(id);
+            Sequence = sequence;
             Position = position;
             Overlays = new List<int>();
+            EquipCards = new List<ClientCard>();
             ActionIndex = new int[16];
             ActionActivateIndex = new Dictionary<int, int>();
             Location = loc;
@@ -144,27 +151,27 @@ namespace WindBot.Game
 
         public bool HasLinkMarker(int dir)
         {
-            return ((LinkMarker & dir) != 0);
+            return (LinkMarker & dir) != 0;
         }
 
         public bool HasLinkMarker(LinkMarker dir)
         {
-            return ((LinkMarker & (int)dir) != 0);
+            return (LinkMarker & (int)dir) != 0;
         }
 
         public bool HasType(CardType type)
         {
-            return ((Type & (int)type) != 0);
+            return (Type & (int)type) != 0;
         }
 
         public bool HasPosition(CardPosition position)
         {
-            return ((Position & (int)position) != 0);
+            return (Position & (int)position) != 0;
         }
 
         public bool HasAttribute(CardAttribute attribute)
         {
-            return ((Attribute & (int)attribute) != 0);
+            return (Attribute & (int)attribute) != 0;
         }
 
         public bool IsMonster()
@@ -189,7 +196,7 @@ namespace WindBot.Game
 
         public bool IsExtraCard()
         {
-            return (HasType(CardType.Fusion) || HasType(CardType.Synchro) || HasType(CardType.Xyz));
+            return HasType(CardType.Fusion) || HasType(CardType.Synchro) || HasType(CardType.Xyz) || HasType(CardType.Link);
         }
 
         public bool IsFaceup()
@@ -214,7 +221,7 @@ namespace WindBot.Game
 
         public bool IsDisabled()
         {
-            return (Disabled != 0);
+            return Disabled != 0;
         }
 
         public bool HasXyzMaterial()

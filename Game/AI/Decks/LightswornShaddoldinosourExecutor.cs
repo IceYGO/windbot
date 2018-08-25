@@ -1098,6 +1098,7 @@ namespace WindBot.Game.AI.Decks
                 if (targets.Count == 0)
                     return false;
 
+                AI.SelectCard(0);
                 AI.SelectNextCard(targets);
                 return true;
             }

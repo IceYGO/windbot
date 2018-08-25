@@ -138,14 +138,12 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            IList<ClientCard> result = new List<ClientCard>();
-            AI.Utils.SelectPreferredCards(result, new[] {
+            IList<ClientCard> result = AI.Utils.SelectPreferredCards(new[] {
                 CardId.StarDrawing,
                 CardId.SolarWindJammer,
                 CardId.Goblindbergh
             }, cards, min, max);
-            AI.Utils.CheckSelectCount(result, cards, min, max);
-            return result;
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
         }
 
         private bool Number39Utopia()

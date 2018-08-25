@@ -181,10 +181,8 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            IList<ClientCard> result = new List<ClientCard>();
-            AI.Utils.SelectPreferredCards(result, CardId.YosenjuTsujik, cards, min, max);
-            AI.Utils.CheckSelectCount(result, cards, min, max);
-            return result;
+            IList<ClientCard> result = AI.Utils.SelectPreferredCards(CardId.YosenjuTsujik, cards, min, max);
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
         }
 
         private bool PotOfDualityEffect()
