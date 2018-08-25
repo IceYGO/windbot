@@ -25,7 +25,8 @@ namespace WindBot.Game
         private Room _room;
         private Duel _duel;
         private int _hand;
-        private bool _debug;        
+        private bool _debug;
+        private bool _showbothand;
         private int _select_hint;
         private GameMessage _lastMessage;
 
@@ -34,7 +35,8 @@ namespace WindBot.Game
             Game = game;
             Connection = game.Connection;
             _hand = game.Hand;
-            _debug = game.Debug;           
+            _debug = game.Debug;
+            _showbothand = game.ShowBotHand;
             _packets = new Dictionary<StocMessage, Action<BinaryReader>>();
             _messages = new Dictionary<GameMessage, Action<BinaryReader>>();
             RegisterPackets();
@@ -464,18 +466,18 @@ namespace WindBot.Game
         private void OnNewPhase(BinaryReader packet)
         {
             _duel.Phase = (DuelPhase)packet.ReadInt16();
-            if (_debug && _duel.Phase == DuelPhase.Standby)
+            if (_showbothand && _duel.Phase == DuelPhase.Standby)
             {
-                Logger.WriteLine("*********Bot Hand*********");
+                Logger.DebugWriteLine("*********Bot Hand*********");
                 foreach (ClientCard card in _duel.Fields[0].Hand)
                 {
-                    Logger.WriteLine(card.Name);
+                    Logger.DebugWriteLine(card.Name);
                 }
-                Logger.WriteLine("*********Bot Spell*********");
-                foreach (ClientCard card in _duel.Fields[0].SpellZone)
-                {
-                    Logger.WriteLine(card?.Name);
-                }
+                Logger.DebugWriteLine("*********Bot Hand*********");
+
+            }
+            if (_debug && _duel.Phase == DuelPhase.Standby)
+            {               
                 Logger.WriteLine("*********Bot Monster*********");
                 foreach (ClientCard card in _duel.Fields[0].MonsterZone)
                 {
