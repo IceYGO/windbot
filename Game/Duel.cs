@@ -16,6 +16,8 @@ namespace WindBot.Game
         public MainPhase MainPhase { get; set; }
         public BattlePhase BattlePhase { get; set; }
 
+        public bool OnAttack { get; set; }
+
         public int LastChainPlayer { get; set; }
         public IList<ClientCard> CurrentChain { get; set; }
         public IList<ClientCard> ChainTargets { get; set; }
