@@ -91,6 +91,7 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             ClownUsed = false;
+            base.OnNewTurn();
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
