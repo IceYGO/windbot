@@ -1261,7 +1261,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RedWyverneff()
         {
-            IList<ClientCard> check = Enemy.MonsterZone;
+            IList<ClientCard> check = Enemy.GetMonsters();
             ClientCard best = null;
             foreach (ClientCard monster in check)
             {

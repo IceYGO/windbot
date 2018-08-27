@@ -781,14 +781,17 @@ namespace WindBot.Game.AI
                 {
                     if (monster.HasType(CardType.Tuner))
                         tuner = true;
-                    else if (!monster.HasType(CardType.Xyz))
+                    else if (!monster.HasType(CardType.Xyz) && !monster.HasType(CardType.Link))
+                    {
                         nontuner = true;
+                        levels[monster.Level] = levels[monster.Level] + 1;
+                    }
+
                     if (monster.IsOneForXyz())
                     {
                         AI.SelectOption(XYZ);
                         return true;
                     }
-                    levels[monster.Level] = levels[monster.Level] + 1;
                 }
                 if (tuner && nontuner)
                 {
