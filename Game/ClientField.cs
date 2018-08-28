@@ -97,7 +97,6 @@ namespace WindBot.Game
             return count;
         }
 
-
         public int GetFieldCount()
         {
             return GetSpellCount() + GetMonsterCount();
@@ -111,6 +110,16 @@ namespace WindBot.Game
         public bool IsFieldEmpty()
         {
             return GetMonsters().Count == 0 && GetSpells().Count == 0;
+        }
+
+        public int GetLinkedZones()
+        {
+            int zones = 0;
+            for (int i = 0; i < 7; i++)
+            {
+                zones |= MonsterZone[i]?.GetLinkedZones() ?? 0;
+            }
+            return zones;
         }
 
         public List<ClientCard> GetMonsters()

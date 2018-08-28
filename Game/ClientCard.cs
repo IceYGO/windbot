@@ -154,9 +154,59 @@ namespace WindBot.Game
             return (LinkMarker & dir) != 0;
         }
 
-        public bool HasLinkMarker(LinkMarker dir)
+        public bool HasLinkMarker(CardLinkMarker dir)
         {
             return (LinkMarker & (int)dir) != 0;
+        }
+
+        public int GetLinkedZones()
+        {
+            if (!HasType(CardType.Link) || Location != CardLocation.MonsterZone)
+                return 0;
+            int zones = 0;
+            if (Sequence > 0 && Sequence <= 4 && HasLinkMarker(CardLinkMarker.Left))
+                zones |= 1 << (Sequence - 1);
+            if (Sequence <= 3 && HasLinkMarker(CardLinkMarker.Right))
+                zones |= 1 << (Sequence + 1);
+            if (Sequence == 0 && HasLinkMarker(CardLinkMarker.TopRight)
+                || Sequence == 1 && HasLinkMarker(CardLinkMarker.Top)
+                || Sequence == 2 && HasLinkMarker(CardLinkMarker.TopLeft))
+                zones |= (1 << 5) | (1 << (16 + 6));
+            if (Sequence == 2 && HasLinkMarker(CardLinkMarker.TopRight)
+                || Sequence == 3 && HasLinkMarker(CardLinkMarker.Top)
+                || Sequence == 4 && HasLinkMarker(CardLinkMarker.TopLeft))
+                zones |= (1 << 6) | (1 << (16 + 5));
+            if (Sequence == 5)
+            {
+                if (HasLinkMarker(CardLinkMarker.BottomLeft))
+                    zones |= 1 << 0;
+                if (HasLinkMarker(CardLinkMarker.Bottom))
+                    zones |= 1 << 1;
+                if (HasLinkMarker(CardLinkMarker.BottomRight))
+                    zones |= 1 << 2;
+                if (HasLinkMarker(CardLinkMarker.TopLeft))
+                    zones |= 1 << (16 + 4);
+                if (HasLinkMarker(CardLinkMarker.Top))
+                    zones |= 1 << (16 + 3);
+                if (HasLinkMarker(CardLinkMarker.TopRight))
+                    zones |= 1 << (16 + 2);
+            }
+            if (Sequence == 6)
+            {
+                if (HasLinkMarker(CardLinkMarker.BottomLeft))
+                    zones |= 1 << 2;
+                if (HasLinkMarker(CardLinkMarker.Bottom))
+                    zones |= 1 << 3;
+                if (HasLinkMarker(CardLinkMarker.BottomRight))
+                    zones |= 1 << 4;
+                if (HasLinkMarker(CardLinkMarker.TopLeft))
+                    zones |= 1 << (16 + 2);
+                if (HasLinkMarker(CardLinkMarker.Top))
+                    zones |= 1 << (16 + 1);
+                if (HasLinkMarker(CardLinkMarker.TopRight))
+                    zones |= 1 << (16 + 0);
+            }
+            return zones;
         }
 
         public bool HasType(CardType type)

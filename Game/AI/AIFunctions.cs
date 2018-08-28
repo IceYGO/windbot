@@ -265,6 +265,64 @@ namespace WindBot.Game.AI
             return Duel.Turn == 1 || Duel.Phase == DuelPhase.Main2;
         }
 
+        internal bool inListOrNull(ClientCard card, IList<ClientCard> list)
+        {
+            return card == null || list.Contains(card);
+        }
+
+        public int GetBotAvailZonesFromExtraDeck(IList<ClientCard> remove)
+        {
+            if (!Duel.IsNewRule)
+                return Zones.MainMonsterZones;
+            int result = 0;
+            
+            if (inListOrNull(Bot.MonsterZone[5], remove) && inListOrNull(Bot.MonsterZone[6], remove) &&
+                (inListOrNull(Enemy.MonsterZone[5], remove) || inListOrNull(Enemy.MonsterZone[6], remove)))
+                result |= Zones.ExtraMonsterZones;
+
+            if (inListOrNull(Bot.MonsterZone[0], remove) &&
+                (!inListOrNull(Bot.MonsterZone[1], remove) && Bot.MonsterZone[1].HasLinkMarker(CardLinkMarker.Left) ||
+                 !inListOrNull(Bot.MonsterZone[5], remove) && Bot.MonsterZone[5].HasLinkMarker(CardLinkMarker.BottomLeft) ||
+                 !inListOrNull(Enemy.MonsterZone[6], remove) && Enemy.MonsterZone[6].HasLinkMarker(CardLinkMarker.TopRight)))
+                result += Zones.z0;
+            if (inListOrNull(Bot.MonsterZone[1], remove) &&
+                (!inListOrNull(Bot.MonsterZone[0], remove) && Bot.MonsterZone[0].HasLinkMarker(CardLinkMarker.Right) ||
+                 !inListOrNull(Bot.MonsterZone[2], remove) && Bot.MonsterZone[2].HasLinkMarker(CardLinkMarker.Left) ||
+                 !inListOrNull(Bot.MonsterZone[5], remove) && Bot.MonsterZone[5].HasLinkMarker(CardLinkMarker.Bottom) ||
+                 !inListOrNull(Enemy.MonsterZone[6], remove) && Enemy.MonsterZone[6].HasLinkMarker(CardLinkMarker.Top)))
+                result += Zones.z1;
+            if (inListOrNull(Bot.MonsterZone[2], remove) &&
+                (!inListOrNull(Bot.MonsterZone[1], remove) && Bot.MonsterZone[1].HasLinkMarker(CardLinkMarker.Right) ||
+                 !inListOrNull(Bot.MonsterZone[3], remove) && Bot.MonsterZone[3].HasLinkMarker(CardLinkMarker.Left) ||
+                 !inListOrNull(Bot.MonsterZone[5], remove) && Bot.MonsterZone[5].HasLinkMarker(CardLinkMarker.BottomRight) ||
+                 !inListOrNull(Enemy.MonsterZone[6], remove) && Enemy.MonsterZone[6].HasLinkMarker(CardLinkMarker.TopLeft) ||
+                 !inListOrNull(Bot.MonsterZone[6], remove) && Bot.MonsterZone[6].HasLinkMarker(CardLinkMarker.BottomLeft) ||
+                 !inListOrNull(Enemy.MonsterZone[5], remove) && Enemy.MonsterZone[5].HasLinkMarker(CardLinkMarker.TopRight)))
+                result += Zones.z2;
+            if (inListOrNull(Bot.MonsterZone[3], remove) &&
+                (!inListOrNull(Bot.MonsterZone[2], remove) && Bot.MonsterZone[2].HasLinkMarker(CardLinkMarker.Right) ||
+                 !inListOrNull(Bot.MonsterZone[4], remove) && Bot.MonsterZone[4].HasLinkMarker(CardLinkMarker.Left) ||
+                 !inListOrNull(Bot.MonsterZone[6], remove) && Bot.MonsterZone[6].HasLinkMarker(CardLinkMarker.Bottom) ||
+                 !inListOrNull(Enemy.MonsterZone[5], remove) && Enemy.MonsterZone[5].HasLinkMarker(CardLinkMarker.Top)))
+                result += Zones.z3;
+            if (inListOrNull(Bot.MonsterZone[4], remove) &&
+                (!inListOrNull(Bot.MonsterZone[3], remove) && Bot.MonsterZone[3].HasLinkMarker(CardLinkMarker.Right) ||
+                 !inListOrNull(Bot.MonsterZone[6], remove) && Bot.MonsterZone[6].HasLinkMarker(CardLinkMarker.BottomRight) ||
+                 !inListOrNull(Enemy.MonsterZone[5], remove) && Enemy.MonsterZone[5].HasLinkMarker(CardLinkMarker.TopLeft)))
+                result += Zones.z4;
+            return result;
+        }
+
+        public int GetBotAvailZonesFromExtraDeck(ClientCard remove)
+        {
+            return GetBotAvailZonesFromExtraDeck(new [] { remove });
+        }
+
+        public int GetBotAvailZonesFromExtraDeck()
+        {
+            return GetBotAvailZonesFromExtraDeck(new List<ClientCard>());
+        }
+
         public bool IsChainTarget(ClientCard card)
         {
             return Duel.ChainTargets.Any(card.Equals);

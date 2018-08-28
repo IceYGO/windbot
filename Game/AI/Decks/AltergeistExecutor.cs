@@ -2161,7 +2161,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Phase != DuelPhase.Main2) return false;
             ClientCard card_ex_left = Enemy.MonsterZone[6];
             ClientCard card_ex_right = Enemy.MonsterZone[5];
-            if (card_ex_left != null && card_ex_left.HasLinkMarker((int)LinkMarker.Top))
+            if (card_ex_left != null && card_ex_left.HasLinkMarker((int)CardLinkMarker.Top))
             {
                 ClientCard self_card_1 = Bot.MonsterZone[1];
                 if (self_card_1 == null)
@@ -2178,7 +2178,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
             }
-            if (card_ex_right != null && card_ex_right.HasLinkMarker((int)LinkMarker.Top))
+            if (card_ex_right != null && card_ex_right.HasLinkMarker((int)CardLinkMarker.Top))
             {
                 ClientCard self_card_2 = Bot.MonsterZone[3];
                 if (self_card_2 == null)
