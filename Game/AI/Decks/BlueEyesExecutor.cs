@@ -1,5 +1,6 @@
 ﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
+using System.Linq;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -138,27 +139,11 @@ namespace WindBot.Game.AI.Decks
             if (max == 2 && cards[0].Location == CardLocation.Deck)
             {
                 Logger.DebugWriteLine("OnSelectCard MelodyOfAwakeningDragon");
-                IList<ClientCard> result = new List<ClientCard>();
+                List<ClientCard> result = new List<ClientCard>();
                 if (!Bot.HasInHand(CardId.WhiteDragon))
-                {
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.Id == CardId.WhiteDragon)
-                        {
-                            result.Add(card);
-                            break;
-                        }
-                    }
-                }
-                foreach (ClientCard card in cards)
-                {
-                    if (card.Id == CardId.AlternativeWhiteDragon && result.Count < max)
-                    {
-                        result.Add(card);
-                    }
-                }
-                AI.Utils.CheckSelectCount(result, cards, min, max);
-                return result;
+                    result.AddRange(cards.Where(card => card.Id == CardId.WhiteDragon).Take(1));
+                result.AddRange(cards.Where(card => card.Id == CardId.AlternativeWhiteDragon));
+                return AI.Utils.CheckSelectCount(result, cards, min, max);
             }
             Logger.DebugWriteLine("Use default.");
             return null;
@@ -167,10 +152,8 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
             Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
-            IList<ClientCard> result = new List<ClientCard>();
-            AI.Utils.SelectPreferredCards(result, UsedAlternativeWhiteDragon, cards, min, max);
-            AI.Utils.CheckSelectCount(result, cards, min, max);
-            return result;
+            IList<ClientCard> result = AI.Utils.SelectPreferredCards(UsedAlternativeWhiteDragon, cards, min, max);
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
         }
 
         public override IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)

@@ -127,7 +127,7 @@ namespace WindBot.Game.AI
 
         public void SendOnDirectAttack(string attacker)
         {
-            if (attacker == "" || attacker == null)
+            if (string.IsNullOrEmpty(attacker))
             {
                 attacker = _facedownmonstername;
             }

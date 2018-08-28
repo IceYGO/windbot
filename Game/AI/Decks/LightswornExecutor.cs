@@ -91,6 +91,7 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             ClownUsed = false;
+            base.OnNewTurn();
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
@@ -114,8 +115,8 @@ namespace WindBot.Game.AI.Decks
                 if (result.Count >= max)
                     break;
             }
-            AI.Utils.CheckSelectCount(result, cards, min, max);
-            return result;
+            
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
         }
 
         private bool ReinforcementOfTheArmyEffect()

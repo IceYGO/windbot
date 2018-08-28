@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
 using WindBot;
 using WindBot.Game;
@@ -82,12 +83,12 @@ namespace WindBot.Game.AI
 
         public virtual void OnChaining(int player, ClientCard card)
         {
-            
+            // For overriding
         }
 
         public virtual void OnChainEnd()
         {
-            
+            // For overriding
         }
         public virtual void OnNewPhase()
         {
@@ -239,12 +240,7 @@ namespace WindBot.Game.AI
 
         private bool DefaultNoExecutor()
         {
-            foreach (CardExecutor exec in Executors)
-            {
-                if (exec.Type == Type && exec.CardId == Card.Id)
-                    return false;
-            }
-            return true;
+            return Executors.All(exec => exec.Type != Type || exec.CardId != Card.Id);
         }
     }
 }
