@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -103,7 +104,7 @@ namespace WindBot.Game.AI.Decks
             // Summons: Effects
             AddExecutor(ExecutorType.Activate, CardId.Goblindbergh, GoblindberghEffect);
             AddExecutor(ExecutorType.Activate, CardId.TinGoldfish, GoblindberghEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Kagetokage);
+            AddExecutor(ExecutorType.Activate, CardId.Kagetokage, KagetokageEffect);
             AddExecutor(ExecutorType.Activate, CardId.SummonerMonk, SummonerMonkEffect);
             AddExecutor(ExecutorType.Activate, CardId.Honest, DefaultHonestEffect);
 
@@ -231,6 +232,13 @@ namespace WindBot.Game.AI.Decks
                     CardId.SummonerMonk
                 });
             return true;
+        }
+
+        private bool KagetokageEffect()
+        {
+            var lastChainCard = AI.Utils.GetLastChainCard();
+            if (lastChainCard == null) return true;
+            return lastChainCard.Id != CardId.Goblindbergh && lastChainCard.Id != CardId.TinGoldfish;
         }
 
         private bool SummonerMonkEffect()
