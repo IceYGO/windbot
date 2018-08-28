@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using YGOSharp.OCGWrapper;
 using YGOSharp.OCGWrapper.Enums;
 
@@ -272,6 +273,21 @@ namespace WindBot.Game
         public bool IsDisabled()
         {
             return Disabled != 0;
+        }
+
+        public bool IsCode(int id)
+        {
+            return Id == id;// || Alias == id;
+        }
+
+        public bool IsCode(IList<int> ids)
+        {
+            return ids.Contains(Id);// || ids.Contains(Alias);
+        }
+
+        public bool IsCode(params int[] ids)
+        {
+            return ids.Contains(Id);// || ids.Contains(Alias);
         }
 
         public bool HasXyzMaterial()

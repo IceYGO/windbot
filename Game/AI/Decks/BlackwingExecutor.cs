@@ -111,7 +111,7 @@ namespace WindBot.Game.AI.Decks
         {
             List<ClientCard> monster = Bot.GetMonsters();
             foreach (ClientCard card in monster)
-                if (card != null && card.Id == CardId.KrisTheCrackOfDawn || card.Id == CardId.KalutTheMoonShadow || card.Id == CardId.GaleTheWhirlwind || card.Id == CardId.BoraTheSpear || card.Id == CardId.SiroccoTheDawn || card.Id == CardId.ShuraTheBlueFlame || card.Id == CardId.BlizzardTheFarNorth)
+                if (card != null && card.IsCode(CardId.KrisTheCrackOfDawn) || card.IsCode(CardId.KalutTheMoonShadow) || card.IsCode(CardId.GaleTheWhirlwind) || card.IsCode(CardId.BoraTheSpear) || card.IsCode(CardId.SiroccoTheDawn) || card.IsCode(CardId.ShuraTheBlueFlame) || card.IsCode(CardId.BlizzardTheFarNorth))
                     return true;
             return false;
         }
@@ -119,7 +119,7 @@ namespace WindBot.Game.AI.Decks
         private bool KalutTheMoonShadowSummon()
         {
             foreach (ClientCard card in Bot.Hand)
-                if (card != null && card.Id == CardId.KrisTheCrackOfDawn || card.Id == CardId.GaleTheWhirlwind || card.Id == CardId.BoraTheSpear || card.Id == CardId.SiroccoTheDawn || card.Id == CardId.ShuraTheBlueFlame || card.Id == CardId.BlizzardTheFarNorth)
+                if (card != null && card.IsCode(CardId.KrisTheCrackOfDawn) || card.IsCode(CardId.GaleTheWhirlwind) || card.IsCode(CardId.BoraTheSpear) || card.IsCode(CardId.SiroccoTheDawn) || card.IsCode(CardId.ShuraTheBlueFlame) || card.IsCode(CardId.BlizzardTheFarNorth))
                     return false;
             return true;
         }
@@ -127,7 +127,7 @@ namespace WindBot.Game.AI.Decks
         private bool BlizzardTheFarNorthSummon()
         {
             foreach (ClientCard card in Bot.Graveyard)
-                if (card != null && card.Id == CardId.KalutTheMoonShadow || card.Id == CardId.BoraTheSpear || card.Id == CardId.ShuraTheBlueFlame || card.Id == CardId.KrisTheCrackOfDawn)
+                if (card != null && card.IsCode(CardId.KalutTheMoonShadow) || card.IsCode(CardId.BoraTheSpear) || card.IsCode(CardId.ShuraTheBlueFlame) || card.IsCode(CardId.KrisTheCrackOfDawn))
                     return true;
             return false;
         }
@@ -138,7 +138,7 @@ namespace WindBot.Game.AI.Decks
 
             List<ClientCard> monster = Bot.GetMonsters();
             foreach (ClientCard card in monster)
-                if (card != null && card.Id == CardId.KrisTheCrackOfDawn || card.Id == CardId.KalutTheMoonShadow || card.Id == CardId.GaleTheWhirlwind || card.Id == CardId.BoraTheSpear || card.Id == CardId.SiroccoTheDawn || card.Id == CardId.ShuraTheBlueFlame || card.Id == CardId.BlizzardTheFarNorth)
+                if (card != null && card.IsCode(CardId.KrisTheCrackOfDawn) || card.IsCode(CardId.KalutTheMoonShadow) || card.IsCode(CardId.GaleTheWhirlwind) || card.IsCode(CardId.BoraTheSpear) || card.IsCode(CardId.SiroccoTheDawn) || card.IsCode(CardId.ShuraTheBlueFlame) || card.IsCode(CardId.BlizzardTheFarNorth))
                     Count++;
 
             if (Count == 3)

@@ -141,8 +141,8 @@ namespace WindBot.Game.AI.Decks
                 Logger.DebugWriteLine("OnSelectCard MelodyOfAwakeningDragon");
                 List<ClientCard> result = new List<ClientCard>();
                 if (!Bot.HasInHand(CardId.WhiteDragon))
-                    result.AddRange(cards.Where(card => card.Id == CardId.WhiteDragon).Take(1));
-                result.AddRange(cards.Where(card => card.Id == CardId.AlternativeWhiteDragon));
+                    result.AddRange(cards.Where(card => card.IsCode(CardId.WhiteDragon)).Take(1));
+                result.AddRange(cards.Where(card => card.IsCode(CardId.AlternativeWhiteDragon)));
                 return AI.Utils.CheckSelectCount(result, cards, min, max);
             }
             Logger.DebugWriteLine("Use default.");
@@ -883,16 +883,9 @@ namespace WindBot.Game.AI.Decks
                 return true;
             if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
                 return true;
-            if (Card.IsDefense() && (
-                   Card.Id == CardId.BlueEyesSpiritDragon
-                || Card.Id == CardId.AzureEyesSilverDragon
-                ))
+            if (Card.IsDefense() && Card.IsCode(CardId.BlueEyesSpiritDragon, CardId.AzureEyesSilverDragon))
                 return true;
-            if (Card.IsAttack() && (
-                   Card.Id == CardId.SageWithEyesOfBlue
-                || Card.Id == CardId.WhiteStoneOfAncients
-                || Card.Id == CardId.WhiteStoneOfLegend
-                ))
+            if (Card.IsAttack() && Card.IsCode(CardId.SageWithEyesOfBlue, CardId.WhiteStoneOfAncients, CardId.WhiteStoneOfLegend))
                 return true;
             return false;
         }
@@ -907,7 +900,7 @@ namespace WindBot.Game.AI.Decks
             int num = 0;
             foreach (ClientCard card in Bot.Hand)
             {
-                if (card != null && card.Id == id)
+                if (card != null && card.IsCode(id))
                     num++;
             }
             return num >= 2;

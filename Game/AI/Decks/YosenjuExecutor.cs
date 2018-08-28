@@ -163,7 +163,7 @@ namespace WindBot.Game.AI.Decks
             if (Card == null)
                 return true;
             // Logger.DebugWriteLine(Card.Name);
-            if (Card.Id == CardId.YosenjuKama2)
+            if (Card.IsCode(CardId.YosenjuKama2))
                 return Card.ShouldDirectAttack;
             else
                 return true;

@@ -152,7 +152,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (attacker.Id == CardId.HiSpeedroidChanbara && !attacker.IsDisabled())
+                if (attacker.IsCode(CardId.HiSpeedroidChanbara) && !attacker.IsDisabled())
                     attacker.RealPower = attacker.RealPower + 200;
             }
             return base.OnPreBattleBetween(attacker, defender);
@@ -399,7 +399,7 @@ namespace WindBot.Game.AI.Decks
                 IList<ClientCard> targets = new List<ClientCard>();
                 foreach(ClientCard card in Bot.GetGraveyardMonsters())
                 {
-                    if (card.Id == CardId.Hayate || card.Id == CardId.Kagari || card.Id == CardId.Shizuku)
+                    if (card.IsCode(CardId.Hayate, CardId.Kagari, CardId.Shizuku))
                         targets.Add(card);
                 }
                 if (targets.Count > 0)
@@ -451,7 +451,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard target in Bot.GetMonsters())
             {
-                if (target.Id == CardId.Raye && Bot.GetMonstersExtraZoneCount() == 0)
+                if (target.IsCode(CardId.Raye) && Bot.GetMonstersExtraZoneCount() == 0)
                 {
                     AI.SelectCard(target);
                     return true;
@@ -459,7 +459,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard target in Bot.GetSpells())
             {
-                if (target.Id != CardId.AreaZero && target.Id != CardId.Multirole && target.Id != CardId.WidowAnchor && target.IsSpell())
+                if (!target.IsCode(CardId.AreaZero, CardId.Multirole, CardId.WidowAnchor) && target.IsSpell())
                 {
                     AI.SelectCard(target);
                     return true;
@@ -482,7 +482,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard target in Bot.GetMonsters())
                 {
-                    if (target.Id == CardId.Raye && Bot.GetMonstersExtraZoneCount() == 0)
+                    if (target.IsCode(CardId.Raye) && Bot.GetMonstersExtraZoneCount() == 0)
                     {
                         AI.SelectCard(target);
                         return true;
@@ -490,7 +490,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard target in Bot.GetSpells())
                 {
-                    if (target.Id == CardId.AreaZero)
+                    if (target.IsCode(CardId.AreaZero))
                     {
                         AI.SelectCard(target);
                         return true;
@@ -498,7 +498,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard target in Bot.GetSpells())
                 {
-                    if (target.Id != CardId.Multirole && target.Id != CardId.WidowAnchor && target.IsSpell())
+                    if (!target.IsCode(CardId.Multirole, CardId.WidowAnchor) && target.IsSpell())
                     {
                         AI.SelectCard(target);
                         return true;

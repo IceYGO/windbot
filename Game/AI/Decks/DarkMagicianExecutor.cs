@@ -169,7 +169,7 @@ namespace WindBot.Game.AI.Decks
                 int BotZone = 0;
                 for (int i = 0; i <= 6; i++)
                 {
-                    if (Enemy.MonsterZone[i] != null && Enemy.MonsterZone[i].Id == CardId.MekkKnightMorningStar)
+                    if (Enemy.MonsterZone[i] != null && Enemy.MonsterZone[i].IsCode(CardId.MekkKnightMorningStar))
                     {
                         MekkKnightZone = i;
                         break;
@@ -242,7 +242,7 @@ namespace WindBot.Game.AI.Decks
             ApprenticeLllusionMagician_count = 0;
             foreach (ClientCard count in Bot.GetMonsters())
             {
-                if (count.Id == CardId.ApprenticeLllusionMagician && count.IsFaceup())
+                if (count.IsCode(CardId.ApprenticeLllusionMagician) && count.IsFaceup())
                     ApprenticeLllusionMagician_count++;
             }
             foreach (ClientCard dangerous in Enemy.GetMonsters())
@@ -352,7 +352,7 @@ namespace WindBot.Game.AI.Decks
                 int ghost_count = 0;
                 foreach (ClientCard check in Enemy.Graveyard)
                 {
-                    if (check.Id == CardId.Ghost)
+                    if (check.IsCode(CardId.Ghost))
                         ghost_count++;
                 }
                 if (ghost_count != ghost_done)
@@ -502,7 +502,7 @@ namespace WindBot.Game.AI.Decks
         private bool ChainEnemy()
         {
             if (AI.Utils.GetLastChainCard() != null &&
-                AI.Utils.GetLastChainCard().Id == CardId.UpstartGoblin)
+                AI.Utils.GetLastChainCard().IsCode(CardId.UpstartGoblin))
                 return false;
             return Duel.LastChainPlayer == 1;
         }
@@ -577,7 +577,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard c in Bot.GetMonsters())
             {
-                if (c.Id != CardId.WindwitchSnowBell && c.Level == 1 && c.Id != CardId.LinkSpider && c.Id != CardId.Linkuriboh)
+                if (!c.IsCode(CardId.WindwitchSnowBell) && c.Level == 1 && !c.IsCode(CardId.LinkSpider) && !c.IsCode(CardId.Linkuriboh))
                 {
                     AI.SelectCard(c);
                     return true;
@@ -589,7 +589,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Linkuriboheff()
         {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh) return false;
+            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             if (Bot.HasInMonstersZone(CardId.WindwitchSnowBell)) return false;
             return true;
         }
@@ -636,7 +636,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> magician = new List<ClientCard>();
             foreach (ClientCard check in grave)
             {
-                if (check.Id == CardId.DarkMagician)
+                if (check.IsCode(CardId.DarkMagician))
                 {
                     magician.Add(check);
                 }
@@ -653,7 +653,7 @@ namespace WindBot.Game.AI.Decks
 
             foreach (ClientCard target in Duel.ChainTargets)
             {
-                if ((target.Id == CardId.DarkMagician || target.Id == CardId.DarkMagicianTheDragonKnight)
+                if ((target.IsCode(CardId.DarkMagician, CardId.DarkMagicianTheDragonKnight))
                     && Card.IsFacedown())
                 {
                     AI.SelectYesNo(false);
@@ -793,7 +793,7 @@ namespace WindBot.Game.AI.Decks
             bool soul_faceup = false;
             foreach (ClientCard check in Bot.GetSpells())
             {
-                if (check.Id == CardId.EternalSoul && check.IsFaceup())
+                if (check.IsCode(CardId.EternalSoul) && check.IsFaceup())
                 {
                     soul_faceup = true;
                 }
@@ -940,7 +940,7 @@ namespace WindBot.Game.AI.Decks
             //AI.SelectPlace(Zones.z2, 2);
             foreach (ClientCard m in Bot.GetSpells())
             {
-                if (m.Id == CardId.EternalSoul && m.IsFaceup())
+                if (m.IsCode(CardId.EternalSoul) && m.IsFaceup())
                     soul_exist = true;
             }
             if (!soul_used && soul_exist)
@@ -957,12 +957,12 @@ namespace WindBot.Game.AI.Decks
                 int ghost_count = 0;
                 foreach (ClientCard check in Enemy.Graveyard)
                 {
-                    if (check.Id == CardId.Ghost)
+                    if (check.IsCode(CardId.Ghost))
                         ghost_count++;
                 }
                 if (ghost_count != ghost_done)
                 {
-                    if (Duel.CurrentChain.Count >= 2 && AI.Utils.GetLastChainCard().Id == 0)
+                    if (Duel.CurrentChain.Count >= 2 && AI.Utils.GetLastChainCard().IsCode(0))
                     {
                         AI.SelectCard(CardId.MagiciansRod);
                         AI.SelectNextCard(new[] { CardId.DarkMagician, CardId.DarkMagician });
@@ -981,7 +981,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
                 if (count == 0) return false;
-                if ((target.Id == CardId.WindwitchGlassBell || target.Id == CardId.WindwitchIceBell) &&
+                if ((target.IsCode(CardId.WindwitchGlassBell, CardId.WindwitchIceBell)) &&
                     Bot.HasInMonstersZone(CardId.WindwitchIceBell) &&
                     Bot.HasInMonstersZone(CardId.WindwitchGlassBell))
                     return false;
@@ -1077,7 +1077,7 @@ namespace WindBot.Game.AI.Decks
             int count = 0;
             foreach (ClientCard check in Bot.GetMonsters())
             {
-                if (check.Id != CardId.CrystalWingSynchroDragon)
+                if (!check.IsCode(CardId.CrystalWingSynchroDragon))
                     count++;
             }
             Logger.DebugWriteLine("%%%%%%%%%%%%%%%%SpellCaster= " + count);
@@ -1118,7 +1118,7 @@ namespace WindBot.Game.AI.Decks
             int count = 0;
             foreach (ClientCard check in Bot.GetMonsters())
             {
-                if (check.Id != CardId.CrystalWingSynchroDragon)
+                if (!check.IsCode(CardId.CrystalWingSynchroDragon))
                     count++;
             }
             Logger.DebugWriteLine("%%%%%%%%%%%%%%%%SpellCaster= " + count);
@@ -1208,7 +1208,7 @@ namespace WindBot.Game.AI.Decks
             int count = 0;
             foreach (ClientCard check in Bot.Hand)
             {
-                if (check.Id == CardId.WonderWand)
+                if (check.IsCode(CardId.WonderWand))
                     count++;
             }
             if (count >= 2)
@@ -1241,7 +1241,7 @@ namespace WindBot.Game.AI.Decks
                 int Navigation_count = 0;
                 foreach (ClientCard Navigation in Bot.Hand)
                 {
-                    if (Navigation.Id == CardId.MagicianNavigation)
+                    if (Navigation.IsCode(CardId.MagicianNavigation))
                         Navigation_count++;
                 }
                 if (Navigation_count >= 2)
@@ -1619,7 +1619,7 @@ namespace WindBot.Game.AI.Decks
             int rod_count = 0;
             foreach (ClientCard rod in Bot.GetMonsters())
             {
-                if (rod.Id == CardId.MagiciansRod)
+                if (rod.IsCode(CardId.MagiciansRod))
                     rod_count++;
             }
             if (rod_count >= 2)
@@ -1716,7 +1716,7 @@ namespace WindBot.Game.AI.Decks
                 int maxxc_count = 0;
                 foreach (ClientCard check in Enemy.Graveyard)
                 {
-                    if (check.Id == CardId.MaxxC)
+                    if (check.IsCode(CardId.MaxxC))
                         maxxc_count++;
                 }
                 if (maxxc_count != maxxc_done)
@@ -1727,7 +1727,7 @@ namespace WindBot.Game.AI.Decks
                 int lockbird_count = 0;
                 foreach (ClientCard check in Enemy.Graveyard)
                 {
-                    if (check.Id == CardId.LockBird)
+                    if (check.IsCode(CardId.LockBird))
                         lockbird_count++;
                 }
                 if (lockbird_count != lockbird_done)
@@ -1738,7 +1738,7 @@ namespace WindBot.Game.AI.Decks
                 int ghost_count = 0;
                 foreach (ClientCard check in Enemy.Graveyard)
                 {
-                    if (check.Id == CardId.Ghost)
+                    if (check.IsCode(CardId.Ghost))
                         ghost_count++;
                 }
                 if (ghost_count != ghost_done)
@@ -1766,21 +1766,21 @@ namespace WindBot.Game.AI.Decks
             int count = 0;
             foreach (ClientCard check in Enemy.Graveyard)
             {
-                if (check.Id == CardId.MaxxC)
+                if (check.IsCode(CardId.MaxxC))
                     count++;
             }
             maxxc_done = count;
             count = 0;
             foreach (ClientCard check in Enemy.Graveyard)
             {
-                if (check.Id == CardId.LockBird)
+                if (check.IsCode(CardId.LockBird))
                     count++;
             }
             lockbird_done = count;
             count = 0;
             foreach (ClientCard check in Enemy.Graveyard)
             {
-                if (check.Id == CardId.Ghost)
+                if (check.IsCode(CardId.Ghost))
                     count++;
             }
             ghost_done = count;
@@ -1800,7 +1800,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         if (Bot.MonsterZone[a] != null && Enemy.MonsterZone[b] != null &&
                             SameMonsterColumn(a, b) &&
-                            Bot.MonsterZone[a].Id == attacker.Id && Enemy.MonsterZone[b].Id == defender.Id)
+                            Bot.MonsterZone[a].IsCode(attacker.Id) && Enemy.MonsterZone[b].IsCode(defender.Id))
                         {
                             attackerzone = a;
                             defenderzone = b;
@@ -1820,27 +1820,24 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player == 0 && Bot.GetMonsterCount() >= 2 && plan_C)
             {
                 Logger.DebugWriteLine("*********dangerous********************* ");
-                if (attacker.Id == CardId.OddEyesAbsoluteDragon || attacker.Id == CardId.OddEyesWingDragon)
+                if (attacker.IsCode(CardId.OddEyesAbsoluteDragon, CardId.OddEyesWingDragon))
                     attacker.RealPower = 9999;
             }
-            if ((attacker.Id == CardId.DarkMagician ||
-                attacker.Id == CardId.MagiciansRod ||
-                attacker.Id == CardId.BigEye ||
-                attacker.Id == CardId.ApprenticeWitchling) &&
+            if ((attacker.IsCode(CardId.DarkMagician, CardId.MagiciansRod, CardId.BigEye, CardId.ApprenticeWitchling)) &&
                 Bot.HasInHandOrHasInMonstersZone(CardId.ApprenticeLllusionMagician))
             {
                 attacker.RealPower += 2000;
             }
-            if (attacker.Id == CardId.ApprenticeLllusionMagician && ApprenticeLllusionMagician_count >= 2)
+            if (attacker.IsCode(CardId.ApprenticeLllusionMagician) && ApprenticeLllusionMagician_count >= 2)
             {
                 attacker.RealPower += 2000;
             }
-            if ((attacker.Id == CardId.DarkMagician || attacker.Id == CardId.DarkMagicianTheDragonKnight)
+            if ((attacker.IsCode(CardId.DarkMagician, CardId.DarkMagicianTheDragonKnight))
                 && Bot.HasInSpellZone(CardId.EternalSoul))
             {
                 return true;
             }
-            if (attacker.Id == CardId.CrystalWingSynchroDragon)
+            if (attacker.IsCode(CardId.CrystalWingSynchroDragon))
             {
                 if (defender.Level >= 5)
                     attacker.RealPower = 9999;
@@ -1853,10 +1850,10 @@ namespace WindBot.Game.AI.Decks
                 big_attack_used = true;
                 return true;
             }
-            if (attacker.Id == CardId.ApprenticeLllusionMagician)
+            if (attacker.IsCode(CardId.ApprenticeLllusionMagician))
                 Logger.DebugWriteLine("@@@@@@@@@@@@@@@@@@@ApprenticeLllusionMagician= " + attacker.RealPower);
             if (Bot.HasInSpellZone(CardId.EternalSoul) &&
-                (attacker.Id == CardId.DarkMagician || attacker.Id == CardId.DarkMagicianTheDragonKnight || attacker.Id == CardId.MagicianOfLllusion))
+                (attacker.IsCode(CardId.DarkMagician, CardId.DarkMagicianTheDragonKnight, CardId.MagicianOfLllusion)))
                 return true;
             return base.OnPreBattleBetween(attacker, defender);
         }
@@ -1872,7 +1869,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         if (Enemy.MonsterZone[b] != null &&
                             SameMonsterColumn(attackerzone, b) &&
-                            Bot.MonsterZone[attackerzone].Id == attacker.Id && Enemy.MonsterZone[b].Id == defender.Id)
+                            Bot.MonsterZone[attackerzone].IsCode(attacker.Id) && Enemy.MonsterZone[b].IsCode(defender.Id))
                         {
                             defenderzone = b;
                         }
@@ -1907,7 +1904,7 @@ namespace WindBot.Game.AI.Decks
                             {
                                 if (Bot.MonsterZone[a] != null && Enemy.MonsterZone[b]!=null &&
                                     SameMonsterColumn(a,b) && 
-                                    Bot.MonsterZone[a].Id==attacker.Id && Enemy.MonsterZone[b].Id == defender.Id)
+                                    Bot.MonsterZone[a].Id==attacker.Id && Enemy.MonsterZone[b].IsCode(defender.Id))
                                 {
                                     attackerzone = a;
                                     defenderzone = b;

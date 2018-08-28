@@ -136,7 +136,7 @@ namespace WindBot.Game.AI.Decks
                 int count = 0;
                 foreach (ClientCard card in Bot.Hand)
                 {
-                    if (card.Id == CardId.DragunityDux)
+                    if (card.IsCode(CardId.DragunityDux))
                         ++count;
                 }
                 if (count >= 2)
@@ -164,7 +164,7 @@ namespace WindBot.Game.AI.Decks
                 /*bool hasRealMonster = false;
                 foreach (ClientCard card in Bot.GetMonsters())
                 {
-                    if (card.Id != CardId.AssaultBeast)
+                    if (!card.IsCode(CardId.AssaultBeast))
                     {
                         hasRealMonster = true;
                         break;
@@ -184,13 +184,13 @@ namespace WindBot.Game.AI.Decks
 
             int remaining = 3;
             foreach (ClientCard card in Bot.Hand)
-                if (card.Id == needId)
+                if (card.IsCode(needId))
                     remaining--;
             foreach (ClientCard card in Bot.Graveyard)
-                if (card.Id == needId)
+                if (card.IsCode(needId))
                     remaining--;
             foreach (ClientCard card in Bot.Banished)
-                if (card.Id == needId)
+                if (card.IsCode(needId))
                     remaining--;
             if (remaining <= 0)
                 return false;
@@ -462,7 +462,7 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.Id == CardId.StardustDragon && monster.Attacked)
+                    if (monster.IsCode(CardId.StardustDragon) && monster.Attacked)
                     {
                         AI.SelectCard(monster);
                         return true;

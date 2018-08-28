@@ -162,7 +162,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (AI.Utils.GetProblematicEnemyCard(9999,true)!=null)
             {
-                if (AI.Utils.GetProblematicEnemyCard(9999, true).Id == CardId.ElShaddollWinda &&
+                if (AI.Utils.GetProblematicEnemyCard(9999, true).IsCode(CardId.ElShaddollWinda) &&
                     !AI.Utils.GetProblematicEnemyCard(9999, true).IsDisabled())
                     return false;
                 AI.SelectCard(AI.Utils.GetProblematicEnemyCard(9999, true));                
@@ -388,7 +388,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard m in Bot.GetMonsters())
             {
-                if (m.Id == CardId.MissusRadiant)
+                if (m.IsCode(CardId.MissusRadiant))
                 {
                     material_list.Add(m);
                     break;
@@ -396,7 +396,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard m in Bot.GetMonsters())
             {
-                if (m.Id == CardId.Linkuriboh || m.Id == CardId.LinkSpider)
+                if (m.IsCode(CardId.Linkuriboh, CardId.LinkSpider))
                 {
                     material_list.Add(m);
                     if (material_list.Count == 3)
@@ -489,7 +489,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.HasAttribute(CardAttribute.Earth) && monster.Level == 1 && monster.Id != CardId.EaterOfMillions)
+                if (monster.HasAttribute(CardAttribute.Earth) && monster.Level == 1 && !monster.IsCode(CardId.EaterOfMillions))
                     material_list.Add(monster);
                 if (material_list.Count == 2) break;
             }
@@ -518,7 +518,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard c in Bot.GetMonsters())
             {
-                if (c.Id != CardId.EaterOfMillions && c.Id != CardId.Linkuriboh && c.Level == 1)
+                if (!c.IsCode(CardId.EaterOfMillions, CardId.Linkuriboh) && c.Level == 1)
                 {
                     AI.SelectMaterials(c);
                     return true;
@@ -529,7 +529,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Linkuriboheff()
         {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh) return false;
+            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             return true;
         }
         private bool SeaStealthAttackeff()
@@ -548,7 +548,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         foreach (ClientCard s in Bot.GetGraveyardSpells())
                         {
-                            if (s.Id == CardId.PacifisThePhantasmCity)
+                            if (s.IsCode(CardId.PacifisThePhantasmCity))
                             {
                                 AI.SelectYesNo(true);
                                 AI.SelectCard(s);
@@ -560,7 +560,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         foreach (ClientCard s in Bot.Hand)
                         {
-                            if (s.Id == CardId.PacifisThePhantasmCity)
+                            if (s.IsCode(CardId.PacifisThePhantasmCity))
                             {
                                 AI.SelectYesNo(true);
                                 AI.SelectCard(s);
@@ -579,7 +579,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard target = null;
                 foreach(ClientCard s in Bot.GetSpells())
                 {
-                    if (s.Id == CardId.PacifisThePhantasmCity)
+                    if (s.IsCode(CardId.PacifisThePhantasmCity))
                         target = s;
                 }
                 if (target != null && AI.Utils.IsChainTarget(target))
@@ -691,13 +691,13 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard s in Bot.GetSpells())
                 {
-                    if (s.IsFaceup() && s.Id == CardId.SeaStealthAttack &&
+                    if (s.IsFaceup() && s.IsCode(CardId.SeaStealthAttack) &&
                         Bot.HasInSpellZone(CardId.PacifisThePhantasmCity) &&
                         Card.IsAttack())
                         return false;
                 }
             }
-            if (Card.Id == CardId.EaterOfMillions && !Card.IsDisabled() && Card.IsAttack())
+            if (Card.IsCode(CardId.EaterOfMillions) && !Card.IsDisabled() && Card.IsAttack())
                 return false;
             return DefaultMonsterRepos();
         }
@@ -712,10 +712,10 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach(ClientCard s in Bot.GetSpells())
                 {
-                    if (s.IsFaceup() && s.Id == CardId.SeaStealthAttack && Bot.HasInSpellZone(CardId.PacifisThePhantasmCity))
+                    if (s.IsFaceup() && s.IsCode(CardId.SeaStealthAttack) && Bot.HasInSpellZone(CardId.PacifisThePhantasmCity))
                     { 
                         attacker.RealPower = 9999;
-                        if (defender.Id == CardId.EaterOfMillions) return true;
+                        if (defender.IsCode(CardId.EaterOfMillions)) return true;
                     }
                        
                 }
@@ -728,7 +728,7 @@ namespace WindBot.Game.AI.Decks
             for (int i = 0; i < attackers.Count; ++i)
             {
                 ClientCard attacker = attackers[i];
-                if (attacker.Id == CardId.EaterOfMillions) return attacker;
+                if (attacker.IsCode(CardId.EaterOfMillions)) return attacker;
             }
             return null;
         }

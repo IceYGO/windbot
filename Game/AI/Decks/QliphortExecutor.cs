@@ -141,7 +141,7 @@ namespace WindBot.Game.AI.Decks
             for (int i = 1; i <= max; ++i)
             {
                 ClientCard card = cards[cards.Count - i];
-                if (card.Id != CardId.Scout || (card.Location == CardLocation.Extra && !Duel.IsNewRule))
+                if (!card.IsCode(CardId.Scout) || (card.Location == CardLocation.Extra && !Duel.IsNewRule))
                     selected.Add(card);
             }
             if (selected.Count == 0)
@@ -152,7 +152,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool NormalSummon()
         {
-            if (Card.Id == CardId.Scout)
+            if (Card.IsCode(CardId.Scout))
                 return false;
             if (Card.Level < 8)
                 AI.SelectOption(1);

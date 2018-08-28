@@ -238,7 +238,7 @@ namespace WindBot.Game.AI.Decks
         {
             var lastChainCard = AI.Utils.GetLastChainCard();
             if (lastChainCard == null) return true;
-            return lastChainCard.Id != CardId.Goblindbergh && lastChainCard.Id != CardId.TinGoldfish;
+            return !lastChainCard.IsCode(CardId.Goblindbergh, CardId.TinGoldfish);
         }
 
         private bool SummonerMonkEffect()
@@ -279,7 +279,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterRepos()
         {
-            if (Card.Id == CardId.NumberS39UtopiatheLightning && Card.IsAttack())
+            if (Card.IsCode(CardId.NumberS39UtopiatheLightning) && Card.IsAttack())
                 return false;
             return base.DefaultMonsterRepos();
         }
