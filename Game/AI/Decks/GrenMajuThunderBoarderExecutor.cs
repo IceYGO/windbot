@@ -437,7 +437,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.Id ==CardId.MissusRadiant || monster.Id==CardId.LinkSpider || monster.Id==CardId.Linkuriboh)
+                if (monster.IsCode(CardId.MissusRadiant, CardId.LinkSpider, CardId.Linkuriboh))
                     material_list.Add(monster);
                 if (material_list.Count == 3) break;
             }
@@ -556,7 +556,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.HasAttribute(CardAttribute.Earth) && monster.Level==1 && monster.Id!=CardId.EaterOfMillions)
+                if (monster.HasAttribute(CardAttribute.Earth) && monster.Level==1 && !monster.IsCode(CardId.EaterOfMillions))
                     material_list.Add(monster);
                 if (material_list.Count == 2) break;
             }

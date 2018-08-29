@@ -129,7 +129,7 @@ namespace WindBot.Game.AI.Decks
             if(Duel.LastChainPlayer==1)
             {
                 ClientCard lastCard = AI.Utils.GetLastChainCard();
-                if (lastCard.Id==CardId.MaxxC)
+                if (lastCard.IsCode(CardId.MaxxC))
                 {
                     AI.SelectCard(CardId.MaxxC);
                     if(AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
@@ -349,7 +349,7 @@ namespace WindBot.Game.AI.Decks
         private bool DeviritualCheck()
         {
             Count_check();
-            if(Card.Id==CardId.DeviritualTalismandra || Card.Id==CardId.DevirrtualCandoll)
+            if(Card.IsCode(CardId.DeviritualTalismandra, CardId.DevirrtualCandoll))
             {
                 if (Card.Location == CardLocation.MonsterZone)
                 {
@@ -365,12 +365,12 @@ namespace WindBot.Game.AI.Decks
                 }
                 if(Card.Location==CardLocation.Hand)
                 {                    
-                    if(Card.Id==CardId.DevirrtualCandoll)
+                    if(Card.IsCode(CardId.DevirrtualCandoll))
                     {
                         if (MaxDragon_count >= 2 && Talismandra_count >= 1 || Candoll_used)
                             return false;
                     }
-                    if(Card.Id==CardId.DeviritualTalismandra)
+                    if(Card.IsCode(CardId.DeviritualTalismandra))
                     {
                         if (RitualArt_count + ChaosForm_count >= 2 && Candoll_count >= 1 || Talismandra_used)
                             return false;
@@ -595,7 +595,7 @@ namespace WindBot.Game.AI.Decks
         }
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
         {
-            if(attacker.Id==CardId.BlueEyesChaosMaxDragon && !attacker.IsDisabled() &&
+            if(attacker.IsCode(CardId.BlueEyesChaosMaxDragon) && !attacker.IsDisabled() &&
                 Enemy.HasInMonstersZone(new[] {CardId.DeviritualTalismandra,CardId.DevirrtualCandoll }))
             {              
                 for (int i = 0; i < defenders.Count; i++)

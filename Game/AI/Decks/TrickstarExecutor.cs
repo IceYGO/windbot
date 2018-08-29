@@ -772,7 +772,7 @@ namespace WindBot.Game.AI.Decks
             if (AI.Utils.IsTurn1OrMain2()) return false;
             AI.SelectPosition(CardPosition.FaceUpAttack);
             IList<ClientCard> targets = new List<ClientCard>();
-            if (Bot.SpellZone[5] != null && Bot.SpellZone[5].Id != CardId.Stage)
+            if (Bot.SpellZone[5] != null && !Bot.SpellZone[5].IsCode(CardId.Stage))
             {
                 targets.Add(Bot.SpellZone[5]);
             }

@@ -349,7 +349,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard target = null;
                 foreach(ClientCard s in Bot.GetSpells())
                 {
-                    if(s.Id==CardId.SeaStealthAttack && Card.IsFaceup())
+                    if(s.IsCode(CardId.SeaStealthAttack) && Card.IsFaceup())
                     {
                         target = s;
                         break;
@@ -590,13 +590,13 @@ namespace WindBot.Game.AI.Decks
                 target = AI.Utils.GetLastChainCard();
                 if(target!=null)
                 {
-                    if(target.Id==CardId.BrandishSkillAfterburner)
+                    if(target.IsCode(CardId.BrandishSkillAfterburner))
                     {
                         AI.SelectCard(CardId.MegalosmasherX);
                         SeaStealthAttackeff_used = true;
                         return true;
                     }
-                    if(Enemy.GetGraveyardSpells().Count>=3 && target.Id==CardId.BrandishSkillJammingWave)
+                    if(Enemy.GetGraveyardSpells().Count>=3 && target.IsCode(CardId.BrandishSkillJammingWave))
                     {
                         AI.SelectCard(CardId.MegalosmasherX);
                         SeaStealthAttackeff_used = true;
@@ -675,7 +675,7 @@ namespace WindBot.Game.AI.Decks
                 int zone_count = 5 - Bot.GetSpellCountWithoutField();
                 return zone_count- hand_spell_count >= 1;
             }
-            if(Card.Id==CardId.PhantasmSprialBattle || Card.Id==CardId.PhantasmSpiralPower)
+            if(Card.IsCode(CardId.PhantasmSprialBattle, CardId.PhantasmSpiralPower))
             {
                 if (Bot.HasInMonstersZone(CardId.MegalosmasherX) &&
                     !Bot.HasInHandOrInSpellZone(CardId.PacifisThePhantasmCity) &&
@@ -704,7 +704,7 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if(attacker.Id==CardId.PacifisThePhantasmCity+1 && defender.Id==CardId.EaterOfMillions)
+            if(attacker.IsCode(CardId.PacifisThePhantasmCity+1) && defender.IsCode(CardId.EaterOfMillions))
             {
                 if (attacker.RealPower >= defender.RealPower) return true;
             }

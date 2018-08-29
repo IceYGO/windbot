@@ -730,7 +730,7 @@ namespace WindBot.Game.AI.Decks
         }
         public bool MonsterRepos()
         {
-            if (Card.IsFacedown() && Card.Id!=CardId.DiceJar)
+            if (Card.IsFacedown() && !Card.IsCode(CardId.DiceJar))
                 return true;
             return base.DefaultMonsterRepos();
         }
@@ -742,7 +742,7 @@ namespace WindBot.Game.AI.Decks
                 attacker.RealPower = 9999;
                 return true;
             }
-            if(attacker.Id==CardId.MichionTimelord && !attacker.IsDisabled())
+            if(attacker.IsCode(CardId.MichionTimelord) && !attacker.IsDisabled())
             {
                 attacker.RealPower = 9999;
                 return true;

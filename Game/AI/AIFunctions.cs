@@ -385,7 +385,7 @@ namespace WindBot.Game.AI
             IList<ClientCard> selected = new List<ClientCard>();
             foreach (ClientCard card in cards)
             {
-                if (card.Id== preferred && selected.Count < max)
+                if (card.IsCode(preferred) && selected.Count < max)
                     selected.Add(card);
             }
 

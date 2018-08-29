@@ -196,7 +196,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card.Id == Card.Id)
+                if (card.IsCode(Card.Id))
                     return false;
             }
             return TrapSetWhenZoneFree();

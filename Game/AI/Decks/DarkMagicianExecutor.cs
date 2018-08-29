@@ -1904,7 +1904,7 @@ namespace WindBot.Game.AI.Decks
                             {
                                 if (Bot.MonsterZone[a] != null && Enemy.MonsterZone[b]!=null &&
                                     SameMonsterColumn(a,b) && 
-                                    Bot.MonsterZone[a].Id==attacker.Id && Enemy.MonsterZone[b].IsCode(defender.Id))
+                                    Bot.MonsterZone[a].IsCode(attacker.Id) && Enemy.MonsterZone[b].IsCode(defender.Id))
                                 {
                                     attackerzone = a;
                                     defenderzone = b;

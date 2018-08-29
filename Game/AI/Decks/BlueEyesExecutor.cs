@@ -892,7 +892,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SpellSet()
         {
-            return (Card.IsTrap() || (Card.Id==CardId.SilversCry)) && Bot.GetSpellCountWithoutField() < 4;
+            return (Card.IsTrap() || Card.IsCode(CardId.SilversCry)) && Bot.GetSpellCountWithoutField() < 4;
         }
 
         private bool HasTwoInHand(int id)
