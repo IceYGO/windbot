@@ -88,8 +88,8 @@ namespace WindBot.Game
             if ((flag & (int)Query.Position) != 0)
             {
                 Controller = duel.GetLocalPlayer(packet.ReadByte());
-                packet.ReadByte();
-                packet.ReadByte();
+                Location = packet.ReadByte();
+                Sequence = packet.ReadByte();
                 Position = packet.ReadByte();
             }
             if ((flag & (int)Query.Alias) != 0)
