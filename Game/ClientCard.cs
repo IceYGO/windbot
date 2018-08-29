@@ -88,7 +88,7 @@ namespace WindBot.Game
             if ((flag & (int)Query.Position) != 0)
             {
                 Controller = duel.GetLocalPlayer(packet.ReadByte());
-                Location = packet.ReadByte();
+                Location = (CardLocation)packet.ReadByte();
                 Sequence = packet.ReadByte();
                 Position = packet.ReadByte();
             }
