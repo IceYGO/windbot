@@ -106,9 +106,9 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInHand(NekrozRituelCard) || Bot.HasInHand(CardId.Shurit) || !Bot.HasInHand(NekrozSpellCard))
                 return true;
             foreach (ClientCard Card in Bot.Hand)
-                if (Card != null && Card.Id == CardId.Kaleidoscope && !Bot.HasInHand(CardId.Unicore))
+                if (Card != null && Card.IsCode(CardId.Kaleidoscope) && !Bot.HasInHand(CardId.Unicore))
                     return true;
-                else if (Card.Id == CardId.Trishula || Card.Id == CardId.DecisiveArmor && !Bot.HasInHand(CardId.Mirror) || !Bot.HasInHand(CardId.Shurit))
+                else if (Card.IsCode(CardId.Trishula) || Card.IsCode(CardId.DecisiveArmor) && !Bot.HasInHand(CardId.Mirror) || !Bot.HasInHand(CardId.Shurit))
                     return true;
             return false;
         }
@@ -271,9 +271,9 @@ namespace WindBot.Game.AI.Decks
             List<int> NekrozCard = new List<int>();
             try
             {
-                foreach (ClientCard Card in Bot.Hand)
-                    if (Card != null && NekrozRituelCard.Contains((int)Card.Id))
-                        NekrozCard.Add(Card.Id);
+                foreach (ClientCard card in Bot.Hand)
+                    if (card != null && card.IsCode(NekrozRituelCard))
+                        NekrozCard.Add(card.Id);
 
                 foreach (int Id in NekrozCard)
                 {

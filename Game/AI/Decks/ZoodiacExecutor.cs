@@ -230,14 +230,14 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard card in Enemy.Graveyard)
             {
-                if (card.Id == CardId.AleisterTheInvoker)
+                if (card.IsCode(CardId.AleisterTheInvoker))
                 {
                     return card;
                 }
             }
             foreach (ClientCard card in Bot.Graveyard)
             {
-                if (card.Id == CardId.AleisterTheInvoker)
+                if (card.IsCode(CardId.AleisterTheInvoker))
                 {
                     return card;
                 }
@@ -445,7 +445,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.IsFaceup() && monster.Id == CardId.Drident && !monster.HasXyzMaterial())
+                if (monster.IsFaceup() && monster.IsCode(CardId.Drident) && !monster.HasXyzMaterial())
                 {
                     target = monster;
                     break;
@@ -455,7 +455,7 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.IsFaceup() && monster.Type == (int)CardType.Xyz && monster.Id != CardId.DaigustoEmeral && !monster.HasXyzMaterial())
+                    if (monster.IsFaceup() && monster.Type == (int)CardType.Xyz && !monster.IsCode(CardId.DaigustoEmeral) && !monster.HasXyzMaterial())
                     {
                         target = monster;
                         break;
@@ -550,7 +550,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard spell in Bot.GetSpells())
             {
-                if (spell.Id == CardId.ZoodiacBarrage && !Card.Equals(spell))
+                if (spell.IsCode(CardId.ZoodiacBarrage) && !Card.Equals(spell))
                     return false;
             }
             AI.SelectCard(new[]
@@ -604,7 +604,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterRepos()
         {
-            if (Card.Id == CardId.NumberS39UtopiatheLightning && Card.IsAttack())
+            if (Card.IsCode(CardId.NumberS39UtopiatheLightning) && Card.IsAttack())
                 return false;
             return base.DefaultMonsterRepos();
         }

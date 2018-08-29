@@ -360,10 +360,7 @@ namespace WindBot.Game
                 return result;
             result = new List<ClientCard>();
             // TODO: use selector
-            for (int i = 0; i < cards.Count; i++)
-            {
-                result.Add(cards[i]);
-            }
+            result = cards.ToList();
             return result;
         }
 
@@ -550,10 +547,15 @@ namespace WindBot.Game
                 }
                 else
                 {
-                    if (hint == HINTMSG_SMATERIAL)
-                        selected = Executor.OnSelectSynchroMaterial(cards, sum, min, max);
-                    if (hint == HINTMSG_RELEASE)
-                        selected = Executor.OnSelectRitualTribute(cards, sum, min, max);
+                    switch (hint)
+                    {
+                        case HINTMSG_SMATERIAL:
+                            selected = Executor.OnSelectSynchroMaterial(cards, sum, min, max);
+                            break;
+                        case HINTMSG_RELEASE:
+                            selected = Executor.OnSelectRitualTribute(cards, sum, min, max);
+                            break;
+                    }
                 }
                 if (selected != null)
                 {
@@ -1017,12 +1019,7 @@ namespace WindBot.Game
         /// <returns>A list of the selected attributes.</returns>
         public virtual IList<CardAttribute> OnAnnounceAttrib(int count, IList<CardAttribute> attributes)
         {
-            IList<CardAttribute> foundAttributes = new List<CardAttribute>();
-            foreach (CardAttribute attribute in m_attributes)
-            {
-                if(attributes.Contains(attribute))
-                    foundAttributes.Add(attribute);
-            }
+            IList<CardAttribute> foundAttributes = m_attributes.Where(attributes.Contains).ToList();
             if (foundAttributes.Count > 0)
                 return foundAttributes;
 
@@ -1037,12 +1034,7 @@ namespace WindBot.Game
         /// <returns>A list of the selected races.</returns>
         public virtual IList<CardRace> OnAnnounceRace(int count, IList<CardRace> races)
         {
-            IList<CardRace> foundRaces = new List<CardRace>();
-            foreach (CardRace race in m_races)
-            {
-                if (races.Contains(race))
-                    foundRaces.Add(race);
-            }
+            IList<CardRace> foundRaces = m_races.Where(races.Contains).ToList();
             if (foundRaces.Count > 0)
                 return foundRaces;
 
@@ -1080,12 +1072,10 @@ namespace WindBot.Game
         private bool ShouldExecute(CardExecutor exec, ClientCard card, ExecutorType type, int desc = -1)
         {
             Executor.SetCard(type, card, desc);
-            if (card != null &&
-                exec.Type == type &&
-                (exec.CardId == -1 || exec.CardId == card.Id) &&
-                (exec.Func == null || exec.Func()))
-                return true;
-            return false;
+            return card != null &&
+                   exec.Type == type &&
+                   (exec.CardId == -1 || exec.CardId == card.Id) &&
+                   (exec.Func == null || exec.Func());
         }
     }
 }

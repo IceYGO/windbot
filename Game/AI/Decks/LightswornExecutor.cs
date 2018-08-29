@@ -91,6 +91,7 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             ClownUsed = false;
+            base.OnNewTurn();
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
@@ -109,13 +110,13 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> result = new List<ClientCard>();
             foreach (ClientCard card in cards)
             {
-                if (!result.Contains(card) && (!ClownUsed || card.Id != CardId.PerformageTrickClown))
+                if (!result.Contains(card) && (!ClownUsed || !card.IsCode(CardId.PerformageTrickClown)))
                     result.Add(card);
                 if (result.Count >= max)
                     break;
             }
-            AI.Utils.CheckSelectCount(result, cards, min, max);
-            return result;
+            
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
         }
 
         private bool ReinforcementOfTheArmyEffect()

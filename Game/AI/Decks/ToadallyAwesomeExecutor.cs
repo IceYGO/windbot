@@ -116,7 +116,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (attacker.Id == CardId.SkyCavalryCentaurea && !attacker.IsDisabled() && attacker.HasXyzMaterial())
+                if (attacker.IsCode(CardId.SkyCavalryCentaurea) && !attacker.IsDisabled() && attacker.HasXyzMaterial())
                     attacker.RealPower = Bot.LifePoints + attacker.Attack;
             }
             return base.OnPreBattleBetween(attacker, defender);
@@ -315,7 +315,7 @@ namespace WindBot.Game.AI.Decks
                 };
                 foreach (ClientCard monster in monsters)
                 {
-                    if (suitableCost.Contains(monster.Id))
+                    if (monster.IsCode(suitableCost))
                     {
                         AI.SelectCard(monster);
                         return true;
@@ -325,7 +325,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     foreach (ClientCard monster in monsters)
                     {
-                        if (monster.Id == CardId.DupeFrog)
+                        if (monster.IsCode(CardId.DupeFrog))
                         {
                             AI.SelectCard(monster);
                             return true;
@@ -337,7 +337,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     foreach (ClientCard monster in hands)
                     {
-                        if (monster.Id == CardId.GraydleSlimeJr)
+                        if (monster.IsCode(CardId.GraydleSlimeJr))
                         {
                             AI.SelectCard(monster);
                             return true;
@@ -348,7 +348,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     foreach (ClientCard monster in hands)
                     {
-                        if (monster.Id == CardId.DupeFrog)
+                        if (monster.IsCode(CardId.DupeFrog))
                         {
                             AI.SelectCard(monster);
                             return true;
@@ -357,7 +357,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard monster in hands)
                 {
-                    if (monster.Id == CardId.Ronintoadin || monster.Id == CardId.DupeFrog)
+                    if (monster.IsCode(CardId.Ronintoadin, CardId.DupeFrog))
                     {
                         AI.SelectCard(monster);
                         return true;
@@ -442,7 +442,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == CardId.ToadallyAwesome && monster.Attack <= 2200)
+                if (monster.IsCode(CardId.ToadallyAwesome) && monster.Attack <= 2200)
                 {
                     SelectXYZDetach(Card.Overlays);
                     AI.SelectNextCard(monster);
@@ -451,7 +451,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == CardId.SkyCavalryCentaurea && monster.Attack <= 2000)
+                if (monster.IsCode(CardId.SkyCavalryCentaurea) && monster.Attack <= 2000)
                 {
                     SelectXYZDetach(Card.Overlays);
                     AI.SelectNextCard(monster);
@@ -460,7 +460,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == CardId.DaigustoPhoenix && monster.Attack <= 1500)
+                if (monster.IsCode(CardId.DaigustoPhoenix) && monster.Attack <= 1500)
                 {
                     SelectXYZDetach(Card.Overlays);
                     AI.SelectNextCard(monster);

@@ -120,15 +120,13 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            IList<ClientCard> result = new List<ClientCard>();
-            AI.Utils.SelectPreferredCards(result, new[] {
+            IList<ClientCard> result = AI.Utils.SelectPreferredCards(new[] {
                 CardId.MistArchfiend,
                 CardId.PanzerDragon,
                 CardId.SolarWindJammer,
                 CardId.StarDrawing
             }, cards, min, max);
-            AI.Utils.CheckSelectCount(result, cards, min, max);
-            return result;
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
         }
 
         private bool NormalSummon()
@@ -187,15 +185,15 @@ namespace WindBot.Game.AI.Decks
             int lv5Count = 0;
             foreach (ClientCard card in Bot.Hand)
             {
-                if (card.Id == CardId.SolarWindJammer && Bot.GetMonsterCount() == 0)
+                if (card.IsCode(CardId.SolarWindJammer) && Bot.GetMonsterCount() == 0)
                     ++lv5Count;
-                if (card.Id == CardId.InstantFusion && !InstantFusionUsed)
+                if (card.IsCode(CardId.InstantFusion) && !InstantFusionUsed)
                     ++lv5Count;
-                if (card.Id == CardId.QuickdrawSynchron && Bot.Hand.ContainsMonsterWithLevel(4))
+                if (card.IsCode(CardId.QuickdrawSynchron) && Bot.Hand.ContainsMonsterWithLevel(4))
                     ++lv5Count;
-                if (card.Id == CardId.MistArchfiend && !NormalSummoned)
+                if (card.IsCode(CardId.MistArchfiend) && !NormalSummoned)
                     ++lv5Count;
-                if (card.Id == CardId.DoubleSummon && DoubleSummonEffect())
+                if (card.IsCode(CardId.DoubleSummon) && DoubleSummonEffect())
                     ++lv5Count;
             }
             if (lv5Count >= 2)
@@ -389,8 +387,8 @@ namespace WindBot.Game.AI.Decks
                 if (monster.HasType(CardType.Monster) &&
                     !monster.HasType(CardType.Xyz) &&
                     (monster.Level == 5
-                    || monster.Id == CardId.StarDrawing
-                    || (monster.Id == CardId.WindUpSoldier) && !monster.Equals(Card)))
+                    || monster.IsCode(CardId.StarDrawing)
+                    || (monster.IsCode(CardId.WindUpSoldier)) && !monster.Equals(Card)))
                     return true;
             }
             return false;
