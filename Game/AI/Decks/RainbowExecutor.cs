@@ -162,7 +162,7 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard card2 in cards)
                 {
-                    if (card1.Id == card2.Id && !card1.Equals(card2))
+                    if (card1.IsCode(card2.Id) && !card1.Equals(card2))
                     {
                         result.Add(card1);
                         result.Add(card2);

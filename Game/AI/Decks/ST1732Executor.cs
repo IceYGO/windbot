@@ -284,7 +284,7 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.Id == CardId.BalancerLord)
+                    if (monster.IsCode(CardId.BalancerLord))
                     {
                         AI.SelectCard(monster);
                         selected = true;
@@ -404,7 +404,7 @@ namespace WindBot.Game.AI.Decks
             };
             foreach (ClientCard monster in Bot.Hand)
             {
-                if (targets.Contains(monster.Id))
+                if (monster.IsCode(targets))
                 {
                     AI.SelectCard(targets);
                     return true;
@@ -418,7 +418,7 @@ namespace WindBot.Game.AI.Decks
             };
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (targets2.Contains(monster.Id))
+                if (monster.IsCode(targets2))
                 {
                     AI.SelectCard(targets2);
                     return true;

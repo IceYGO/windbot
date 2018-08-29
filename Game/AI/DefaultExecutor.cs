@@ -45,6 +45,8 @@ namespace WindBot.Game.AI
             public const int UltimayaTzolkin = 1686814;
 
             public const int MoonMirrorShield = 19508728;
+            public const int PhantomKnightsFogBlade = 25542642;
+
             public const int VampireFraeulein = 6039967;
             public const int InjectionFairyLily = 79575620;
 
@@ -129,16 +131,16 @@ namespace WindBot.Game.AI
                 if (defender.IsMonsterDangerous())
                 {
                     bool canIgnoreIt = !attacker.IsDisabled() && (
-                        attacker.Id == _CardId.UltimateConductorTytanno && defender.IsDefense() || 
-                        attacker.Id == _CardId.ElShaddollConstruct && defender.IsSpecialSummoned ||
-                        attacker.Id == _CardId.AllyOfJusticeCatastor && !defender.HasAttribute(CardAttribute.Dark));
+                        attacker.IsCode(_CardId.UltimateConductorTytanno) && defender.IsDefense() || 
+                        attacker.IsCode(_CardId.ElShaddollConstruct) && defender.IsSpecialSummoned ||
+                        attacker.IsCode(_CardId.AllyOfJusticeCatastor) && !defender.HasAttribute(CardAttribute.Dark));
                     if (!canIgnoreIt)
                         return false;
                 }
 
                 foreach (ClientCard equip in defender.EquipCards)
                 {
-                    if (equip.Id == _CardId.MoonMirrorShield && !equip.IsDisabled())
+                    if (equip.IsCode(_CardId.MoonMirrorShield) && !equip.IsDisabled())
                     {
                         return false;
                     }
@@ -146,44 +148,47 @@ namespace WindBot.Game.AI
 
                 if (!defender.IsDisabled())
                 {
-                    if (defender.Id == _CardId.CrystalWingSynchroDragon && defender.IsAttack() && attacker.Level >= 5)
+                    if (defender.IsCode(_CardId.CrystalWingSynchroDragon) && defender.IsAttack() && attacker.Level >= 5)
                         return false;
 
-                    if (defender.Id == _CardId.AllyOfJusticeCatastor && !attacker.HasAttribute(CardAttribute.Dark))
+                    if (defender.IsCode(_CardId.AllyOfJusticeCatastor) && !attacker.HasAttribute(CardAttribute.Dark))
                         return false;
 
-                    if (defender.Id == _CardId.NumberS39UtopiaTheLightning && defender.IsAttack() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
+                    if (defender.IsCode(_CardId.NumberS39UtopiaTheLightning) && defender.IsAttack() && defender.HasXyzMaterial(2, _CardId.Number39Utopia))
                         defender.RealPower = 5000;
 
-                    if (defender.Id == _CardId.VampireFraeulein)
+                    if (defender.IsCode(_CardId.VampireFraeulein))
                         defender.RealPower += (Enemy.LifePoints > 3000) ? 3000 : (Enemy.LifePoints - 100);
 
-                    if (defender.Id == _CardId.InjectionFairyLily && Enemy.LifePoints > 2000)
+                    if (defender.IsCode(_CardId.InjectionFairyLily) && Enemy.LifePoints > 2000)
                         defender.RealPower += 3000;
                 }
             }
 
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (attacker.Id == _CardId.NumberS39UtopiaTheLightning && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, _CardId.Number39Utopia))
+                if (attacker.IsCode(_CardId.NumberS39UtopiaTheLightning) && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, _CardId.Number39Utopia))
                     attacker.RealPower = 5000;
 
                 foreach (ClientCard equip in attacker.EquipCards)
                 {
-                    if (equip.Id == _CardId.MoonMirrorShield && !equip.IsDisabled())
+                    if (equip.IsCode(_CardId.MoonMirrorShield) && !equip.IsDisabled())
                     {
                         attacker.RealPower = defender.RealPower + 100;
                     }
                 }
             }
 
-            if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && defender.Id != _CardId.DupeFrog)
+            if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && !(defender).IsCode(_CardId.DupeFrog))
                 return false;
 
-            if (Enemy.HasInMonstersZone(_CardId.MaraudingCaptain, true) && defender.Id != _CardId.MaraudingCaptain && defender.Race == (int)CardRace.Warrior)
+            if (Enemy.HasInMonstersZone(_CardId.MaraudingCaptain, true) && !defender.IsCode(_CardId.MaraudingCaptain) && defender.Race == (int)CardRace.Warrior)
                 return false;
 
-            if (defender.Id == _CardId.UltimayaTzolkin && !defender.IsDisabled() && Enemy.GetMonsters().Any(monster => !monster.Equals(defender) && monster.HasType(CardType.Synchro)))
+            if (defender.IsCode(_CardId.UltimayaTzolkin) && !defender.IsDisabled() && Enemy.GetMonsters().Any(monster => !monster.Equals(defender) && monster.HasType(CardType.Synchro)))
+                return false;
+
+            if (defender.OwnTargets.Any(card => card.IsCode(_CardId.PhantomKnightsFogBlade) && !card.IsDisabled()))
                 return false;
 
             return true;
@@ -231,7 +236,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultMysticalSpaceTyphoon()
         {
-            if (Duel.CurrentChain.Any(card => card.Id == _CardId.MysticalSpaceTyphoon))
+            if (Duel.CurrentChain.Any(card => card.IsCode(_CardId.MysticalSpaceTyphoon)))
             {
                 return false;
             }
@@ -262,7 +267,7 @@ namespace WindBot.Game.AI
         protected bool DefaultCosmicCyclone()
         {
             foreach (ClientCard card in Duel.CurrentChain)
-                if (card.Id == _CardId.CosmicCyclone)
+                if (card.IsCode(_CardId.CosmicCyclone))
                     return false;
             return (Bot.LifePoints > 1000) && DefaultMysticalSpaceTyphoon();
         }
@@ -386,7 +391,7 @@ namespace WindBot.Game.AI
                 _CardId.UpstartGoblin,
                 _CardId.CyberEmergency
             };
-            if (ignoreList.Contains(AI.Utils.GetLastChainCard().Id))
+            if (AI.Utils.GetLastChainCard().IsCode(ignoreList))
                 return false;
             return Duel.LastChainPlayer == 1;
         }
@@ -411,7 +416,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultEffectVeiler()
         {
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == _CardId.GalaxySoldier && Enemy.Hand.Count >= 3) return false;
+            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsCode(_CardId.GalaxySoldier) && Enemy.Hand.Count >= 3) return false;
             if (AI.Utils.ChainContainsCard(_CardId.EffectVeiler))
                 return false;
             return DefaultBreakthroughSkill();
@@ -433,7 +438,7 @@ namespace WindBot.Game.AI
             {
                 foreach (int id in targetList)
                 {
-                    if (AI.Utils.GetLastChainCard().Id == id)
+                    if (AI.Utils.GetLastChainCard().IsCode(id))
                     {
                         AI.SelectCard(id);
                         return UniqueFaceupSpell();
@@ -479,7 +484,7 @@ namespace WindBot.Game.AI
 
             if (Bot.BattlingMonster != null && Enemy.BattlingMonster != null)
             {
-                if (!Enemy.BattlingMonster.IsDisabled() && Enemy.BattlingMonster.Id == _CardId.EaterOfMillions)
+                if (!Enemy.BattlingMonster.IsDisabled() && Enemy.BattlingMonster.IsCode(_CardId.EaterOfMillions))
                 {
                     AI.SelectCard(Enemy.BattlingMonster);
                     return true;
@@ -659,7 +664,7 @@ namespace WindBot.Game.AI
             ClientCard card = null;
             foreach (ClientCard check in Bot.GetSpells())
             {
-                if (check.Id == _CardId.AntiSpellFragrance && !check.IsDisabled())
+                if (check.IsCode(_CardId.AntiSpellFragrance) && !check.IsDisabled())
                     card = check;
             }
             if (card != null && card.IsFaceup())
@@ -715,7 +720,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool UniqueFaceupSpell()
         {
-            return !Bot.GetSpells().Any(card => card.Id == Card.Id && card.IsFaceup());
+            return !Bot.GetSpells().Any(card => card.IsCode(Card.Id) && card.IsFaceup());
         }
 
         /// <summary>
@@ -723,7 +728,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool UniqueFaceupMonster()
         {
-            return !Bot.GetMonsters().Any(card => card.Id == Card.Id && card.IsFaceup());
+            return !Bot.GetMonsters().Any(card => card.IsCode(Card.Id) && card.IsFaceup());
         }
 
         /// <summary>
@@ -917,7 +922,7 @@ namespace WindBot.Game.AI
             };
             foreach (ClientCard monster in Enemy.GetMonsters())
             {
-                if (kaijus.Contains(monster.Id))
+                if (monster.IsCode(kaijus))
                     return Card.GetDefensePower() > monster.GetDefensePower();
             }
             ClientCard card = Enemy.MonsterZone.GetFloodgate();

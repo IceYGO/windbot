@@ -163,7 +163,7 @@ namespace WindBot.Game.AI.Decks
             if (Card == null)
                 return true;
             // Logger.DebugWriteLine(Card.Name);
-            if (Card.Id == CardId.YosenjuKama2)
+            if (Card.IsCode(CardId.YosenjuKama2))
                 return Card.ShouldDirectAttack;
             else
                 return true;
@@ -241,7 +241,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard card in Bot.Hand.GetMonsters())
             {
-                if (!card.Equals(Card) && card.Id == Card.Id)
+                if (!card.Equals(Card) && card.IsCode(Card.Id))
                     return true;
             }
             return false;
@@ -251,7 +251,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card.Id == Card.Id)
+                if (card.IsCode(Card.Id))
                     return false;
             }
             return TrapSetWhenZoneFree();

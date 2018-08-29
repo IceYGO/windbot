@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using YGOSharp.OCGWrapper;
 using YGOSharp.OCGWrapper.Enums;
 
@@ -39,6 +40,8 @@ namespace WindBot.Game
 
         public List<ClientCard> EquipCards { get; set; }
         public ClientCard EquipTarget;
+        public List<ClientCard> OwnTargets { get; set; }
+        public List<ClientCard> TargetCards { get; set; }
 
         public bool CanDirectAttack { get; set; }
         public bool ShouldDirectAttack { get; set; }
@@ -61,6 +64,8 @@ namespace WindBot.Game
             Position = position;
             Overlays = new List<int>();
             EquipCards = new List<ClientCard>();
+            OwnTargets = new List<ClientCard>();
+            TargetCards = new List<ClientCard>();
             ActionIndex = new int[16];
             ActionActivateIndex = new Dictionary<int, int>();
             Location = loc;
@@ -72,7 +77,11 @@ namespace WindBot.Game
             Id = id;
             Data = NamedCard.Get(Id);
             if (Data != null)
+            {
                 Name = Data.Name;
+                if (Data.Alias != 0)
+                    Alias = Data.Alias;
+            }
         }
 
         public void Update(BinaryReader packet, Duel duel)
@@ -83,8 +92,8 @@ namespace WindBot.Game
             if ((flag & (int)Query.Position) != 0)
             {
                 Controller = duel.GetLocalPlayer(packet.ReadByte());
-                packet.ReadByte();
-                packet.ReadByte();
+                Location = (CardLocation)packet.ReadByte();
+                Sequence = packet.ReadByte();
                 Position = packet.ReadByte();
             }
             if ((flag & (int)Query.Alias) != 0)
@@ -147,6 +156,20 @@ namespace WindBot.Game
                 LinkCount = packet.ReadInt32();
                 LinkMarker = packet.ReadInt32();
             }
+        }
+
+        public void ClearCardTargets()
+        {
+            foreach (ClientCard card in TargetCards)
+            {
+                card.OwnTargets.Remove(this);
+            }
+            foreach (ClientCard card in OwnTargets)
+            {
+                card.TargetCards.Remove(this);
+            }
+            OwnTargets.Clear();
+            TargetCards.Clear();
         }
 
         public bool HasLinkMarker(int dir)
@@ -272,6 +295,21 @@ namespace WindBot.Game
         public bool IsDisabled()
         {
             return Disabled != 0;
+        }
+
+        public bool IsCode(int id)
+        {
+            return Id == id || Alias != 0 && Alias == id;
+        }
+
+        public bool IsCode(IList<int> ids)
+        {
+            return ids.Contains(Id) || Alias != 0 && ids.Contains(Alias);
+        }
+
+        public bool IsCode(params int[] ids)
+        {
+            return ids.Contains(Id) || Alias != 0 && ids.Contains(Alias);
         }
 
         public bool HasXyzMaterial()

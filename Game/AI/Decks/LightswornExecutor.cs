@@ -110,7 +110,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> result = new List<ClientCard>();
             foreach (ClientCard card in cards)
             {
-                if (!result.Contains(card) && (!ClownUsed || card.Id != CardId.PerformageTrickClown))
+                if (!result.Contains(card) && (!ClownUsed || !card.IsCode(CardId.PerformageTrickClown)))
                     result.Add(card);
                 if (result.Count >= max)
                     break;
