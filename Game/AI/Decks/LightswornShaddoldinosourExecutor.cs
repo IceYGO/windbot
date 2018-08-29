@@ -1216,12 +1216,12 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard hand in Bot.Hand)
                 {
-                    if (hand.IsCode(CardId.Red) || hand.IsCode(CardId.Pink))
+                    if (hand.IsCode(CardId.Red, CardId.Pink))
                     {
                         AI.SelectCard(hand);
                         return true;
                     }
-                    if (hand.IsCode(CardId.Urara) || hand.IsCode(CardId.Ghost))
+                    if (hand.IsCode(CardId.Urara, CardId.Ghost))
                     {
                         if (Tuner_ss())
                         {

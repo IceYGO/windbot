@@ -644,7 +644,7 @@ namespace WindBot.Game.AI.Decks
             if (Multifaker_can_ss() && Bot.HasInHand(CardId.Multifaker)) return true;
             foreach(ClientCard card in Bot.GetMonsters())
             {
-                if (card != null && card.IsFaceup() && (card.Race & (int)CardRace.SpellCaster) != 0 && !(card).IsCode(CardId.Meluseek)) return true;
+                if (card != null && card.IsFaceup() && (card.Race & (int)CardRace.SpellCaster) != 0 && !card.IsCode(CardId.Meluseek)) return true;
             }
             return false;   
         }
@@ -1342,7 +1342,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         foreach(ClientCard set_card in Bot.GetSpells())
                         {
-                            if (set_card.IsFacedown() && !(set_card).IsCode(CardId.WakingtheDragon))
+                            if (set_card.IsFacedown() && !set_card.IsCode(CardId.WakingtheDragon))
                             {
                                 AI.SelectCard(CardId.Multifaker);
                                 return true;
@@ -1492,7 +1492,7 @@ namespace WindBot.Game.AI.Decks
                             selected_target = card;
                         }
                         if (faceup_Multifaker == null && card.IsCode(CardId.Multifaker)) faceup_Multifaker = card;
-                        if (faceup_monster == null && !(card).IsCode(CardId.Hexstia)) faceup_monster = card;
+                        if (faceup_monster == null && !card.IsCode(CardId.Hexstia)) faceup_monster = card;
                     }
                 }
                 if (bounce_self == null)
@@ -1756,7 +1756,7 @@ namespace WindBot.Game.AI.Decks
                     if (isAltergeist(card))
                     {
                         if (card.IsCode(CardId.Silquitous) && card.IsFaceup() && !Silquitous_bounced) can_bounce += 10;
-                        else if (card.IsFaceup() && !(card).IsCode(CardId.Hexstia)) can_bounce++;
+                        else if (card.IsFaceup() && !card.IsCode(CardId.Hexstia)) can_bounce++;
                         if (card.IsDisabled() && !Protocol_activing()) should_disnegate = true;
                     }
                 }
@@ -2277,7 +2277,7 @@ namespace WindBot.Game.AI.Decks
                     ClientCard enemy_card = Enemy.BattlingMonster;
                     if (enemy_card == null) return false;
                     ClientCard self_card = Bot.BattlingMonster;
-                    if (self_card == null) return (!(enemy_card).IsCode(CardId.Hayate));
+                    if (self_card == null) return (!enemy_card.IsCode(CardId.Hayate));
                     return (enemy_card.Attack > self_card.GetDefensePower());
                 }
             }

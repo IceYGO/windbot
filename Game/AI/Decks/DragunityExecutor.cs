@@ -262,7 +262,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard card = cards[i];
                 if (card.Attack < 2000)
                     break;
-                if (card.IsCode(CardId.StardustDragonAssaultMode, CardId.StardustDragonAssaultMode))
+                if (card.IsCode(CardId.StardustDragonAssaultMode, CardId.FiveHeadedDragon))
                     continue;
                 if (card.IsMonster())
                 {
