@@ -45,6 +45,8 @@ namespace WindBot.Game.AI
             public const int UltimayaTzolkin = 1686814;
 
             public const int MoonMirrorShield = 19508728;
+            public const int PhantomKnightsFogBlade = 25542642;
+
             public const int VampireFraeulein = 6039967;
             public const int InjectionFairyLily = 79575620;
 
@@ -184,6 +186,9 @@ namespace WindBot.Game.AI
                 return false;
 
             if (defender.IsCode(_CardId.UltimayaTzolkin) && !defender.IsDisabled() && Enemy.GetMonsters().Any(monster => !monster.Equals(defender) && monster.HasType(CardType.Synchro)))
+                return false;
+
+            if (defender.OwnTargets.Any(card => card.IsCode(_CardId.PhantomKnightsFogBlade) && !card.IsDisabled()))
                 return false;
 
             return true;
