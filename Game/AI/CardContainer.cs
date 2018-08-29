@@ -47,12 +47,12 @@ namespace WindBot.Game.AI
 
         public static bool ContainsCardWithId(this IEnumerable<ClientCard> cards, int id)
         {
-            return cards.Where(card => card?.Data != null).Any(card => card.Id == id);
+            return cards.Where(card => card?.Data != null).Any(card => card.IsCode(id));
         }
 
         public static int GetCardCount(this IEnumerable<ClientCard> cards, int id)
         {
-            return cards.Where(card => card?.Data != null).Count(card => card.Id == id);
+            return cards.Where(card => card?.Data != null).Count(card => card.IsCode(id));
         }
 
         public static List<ClientCard> GetMonsters(this IEnumerable<ClientCard> cards)

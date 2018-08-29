@@ -300,10 +300,10 @@ namespace WindBot.Game
         public int GetRemainingCount(int cardId, int initialCount)
         {
             int remaining = initialCount;
-            remaining = remaining - Hand.Count(card => card != null && card.Id == cardId);
-            remaining = remaining - SpellZone.Count(card => card != null && card.Id == cardId);
-            remaining = remaining - Graveyard.Count(card => card != null && card.Id == cardId);
-            remaining = remaining - Banished.Count(card => card != null && card.Id == cardId);
+            remaining = remaining - Hand.Count(card => card != null && card.IsCode(cardId));
+            remaining = remaining - SpellZone.Count(card => card != null && card.IsCode(cardId));
+            remaining = remaining - Graveyard.Count(card => card != null && card.IsCode(cardId));
+            remaining = remaining - Banished.Count(card => card != null && card.IsCode(cardId));
             return (remaining < 0) ? 0 : remaining;
         }
 
@@ -314,12 +314,12 @@ namespace WindBot.Game
 
         public int GetCountCardInZone(IEnumerable<ClientCard> cards, int cardId)
         {
-            return cards.Count(card => card != null && card.Id == cardId);
+            return cards.Count(card => card != null && card.IsCode(cardId));
         }
 
         public int GetCountCardInZone(IEnumerable<ClientCard> cards, List<int> cardId)
         {
-            return cards.Count(card => card != null && cardId.Contains(card.Id));
+            return cards.Count(card => card != null && card.IsCode(cardId));
         }
 
         private static List<ClientCard> GetCards(IEnumerable<ClientCard> cards, CardType type)
@@ -334,12 +334,12 @@ namespace WindBot.Game
 
         private static bool HasInCards(IEnumerable<ClientCard> cards, int cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
-            return cards.Any(card => card != null && card.Id == cardId && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()) && !(faceUp && card.IsFacedown()));
+            return cards.Any(card => card != null && card.IsCode(cardId) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()) && !(faceUp && card.IsFacedown()));
         }
 
         private static bool HasInCards(IEnumerable<ClientCard> cards, IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
-            return cards.Any(card => card != null && cardId.Contains(card.Id) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()) && !(faceUp && card.IsFacedown()));
+            return cards.Any(card => card != null && card.IsCode(cardId) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()) && !(faceUp && card.IsFacedown()));
         }
     }
 }

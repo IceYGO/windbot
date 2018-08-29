@@ -1086,7 +1086,8 @@ namespace WindBot.Game
                 return;
             }
             
-            if (card.Id == 0) card.SetId(cardId);
+            if (card.Id == 0)
+                card.SetId(cardId);
 
             int reply = _ai.OnSelectEffectYn(card, desc) ? (1) : (0);
             Connection.Send(CtosMessage.Response, reply);

@@ -335,12 +335,12 @@ namespace WindBot.Game.AI
 
         public bool ChainContainsCard(int id)
         {
-            return Duel.CurrentChain.Any(card => card.Id == id);
+            return Duel.CurrentChain.Any(card => card.IsCode(id));
         }
 
         public bool ChainContainsCard(int[] ids)
         {
-            return Duel.CurrentChain.Any(card => ids.Contains(card.Id));
+            return Duel.CurrentChain.Any(card => card.IsCode(ids));
         }
 
         public int ChainCountPlayer(int player)
@@ -385,7 +385,7 @@ namespace WindBot.Game.AI
             IList<ClientCard> selected = new List<ClientCard>();
             foreach (ClientCard card in cards)
             {
-                if (card.Id== preferred && selected.Count < max)
+                if (card.IsCode(preferred) && selected.Count < max)
                     selected.Add(card);
             }
 
@@ -420,7 +420,7 @@ namespace WindBot.Game.AI
             {
                 foreach (ClientCard card in cards)
                 {
-                    if (card.Id == id && selected.Count < max && selected.IndexOf(card) <= 0)
+                    if (card.IsCode(id) && selected.Count < max && selected.IndexOf(card) <= 0)
                         selected.Add(card);
                 }
                 if (selected.Count >= max)

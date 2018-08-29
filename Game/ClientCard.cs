@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using YGOSharp.OCGWrapper;
 using YGOSharp.OCGWrapper.Enums;
 
@@ -72,7 +73,11 @@ namespace WindBot.Game
             Id = id;
             Data = NamedCard.Get(Id);
             if (Data != null)
+            {
                 Name = Data.Name;
+                if (Data.Alias != 0)
+                    Alias = Data.Alias;
+            }
         }
 
         public void Update(BinaryReader packet, Duel duel)
@@ -272,6 +277,21 @@ namespace WindBot.Game
         public bool IsDisabled()
         {
             return Disabled != 0;
+        }
+
+        public bool IsCode(int id)
+        {
+            return Id == id || Alias != 0 && Alias == id;
+        }
+
+        public bool IsCode(IList<int> ids)
+        {
+            return ids.Contains(Id) || Alias != 0 && ids.Contains(Alias);
+        }
+
+        public bool IsCode(params int[] ids)
+        {
+            return ids.Contains(Id) || Alias != 0 && ids.Contains(Alias);
         }
 
         public bool HasXyzMaterial()

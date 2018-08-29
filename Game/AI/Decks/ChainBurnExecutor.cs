@@ -227,7 +227,7 @@ namespace WindBot.Game.AI.Decks
         {
             return (id == CardId.SandaionTheTimelord ||
                     id == CardId.BattleFader ||
-                    id ==CardId.MichionTimelord
+                    id == CardId.MichionTimelord
                    );
         }
         bool no_sp = false;
@@ -322,49 +322,49 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> check = Bot.GetSpells();
             foreach (ClientCard card in check)
             {
-                if (card.Id == CardId.AccuulatedFortune)
+                if (card.IsCode(CardId.AccuulatedFortune))
                     HasAccuulatedFortune++;
 
             }
             foreach (ClientCard card in check)
             {
-                if (card.Id == CardId.SecretBlast)
+                if (card.IsCode(CardId.SecretBlast))
                     blast_count++;
 
             }
             foreach (ClientCard card in check)
             {
-                if (card.Id == CardId.SectetBarrel)
+                if (card.IsCode(CardId.SectetBarrel))
                     barrel_count++;
 
             }
             foreach (ClientCard card in check)
             {
-                if (card.Id == CardId.JustDesserts)
+                if (card.IsCode(CardId.JustDesserts))
                     just_count++;
 
             }
             foreach (ClientCard card in check)
             {
-                if (card.Id == CardId.ChainStrike)
+                if (card.IsCode(CardId.ChainStrike))
                     strike_count++;
 
             }
             foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card.Id == CardId.RecklessGreed)
+                if (card.IsCode(CardId.RecklessGreed))
                     greed_count++;
 
             }
             foreach (ClientCard card in check)
             {
-                if (card.Id == CardId.Waboku)
+                if (card.IsCode(CardId.Waboku))
                     Waboku_count++;
 
             }
             foreach (ClientCard card in check)
             {
-                if (card.Id == CardId.ThreateningRoar)
+                if (card.IsCode(CardId.ThreateningRoar))
                     Roar_count++;
 
             }            
@@ -418,7 +418,7 @@ namespace WindBot.Game.AI.Decks
             if (AI.Utils.IsChainTarget(Card)) return true;
             foreach (ClientCard card in Enemy.GetSpells())
             {
-                if (card.Id == CardId.HarpiesFeatherDuster&&card.IsFaceup())
+                if (card.IsCode(CardId.HarpiesFeatherDuster)&&card.IsFaceup())
                 {
                     return true;
                 }
@@ -432,7 +432,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BrunSpellSet()
         {
-            if (Card.Id == CardId.OjamaTrio && Bot.HasInSpellZone(CardId.OjamaTrio))return false;
+            if (Card.IsCode(CardId.OjamaTrio) && Bot.HasInSpellZone(CardId.OjamaTrio))return false;
             return (Card.IsTrap() || Card.HasType(CardType.QuickPlay)) && Bot.GetSpellCountWithoutField() < 5;
         }
         private bool MichionTimelordsummon()
@@ -565,7 +565,7 @@ namespace WindBot.Game.AI.Decks
             int count=0;
             foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card.Id == CardId.RecklessGreed)
+                if (card.IsCode(CardId.RecklessGreed))
                     count++;
 
             }           
@@ -668,7 +668,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard card in Bot.GetMonsters())
             {
-                if (card.Id == CardId.CardcarD && card.IsFaceup())
+                if (card.IsCode(CardId.CardcarD) && card.IsFaceup())
                     return false;
             }
             if (Bot.GetHandCount() == 1 && Bot.GetSpellCountWithoutField() <= 3)
@@ -694,7 +694,7 @@ namespace WindBot.Game.AI.Decks
             foreach (ClientCard card in Bot.GetMonsters())
 
             {
-                if (card.Id == CardId.DiceJar && card.IsFacedown())
+                if (card.IsCode(CardId.DiceJar) && card.IsFacedown())
                     return true;
                 break;
             }
@@ -725,24 +725,24 @@ namespace WindBot.Game.AI.Decks
             if (GetTotalATK(newlist) / 2 >= Enemy.LifePoints && Bot.HasInSpellZone(CardId.BlazingMirrorForce))
                 return false;
             if (AI.Utils.GetLastChainCard() == null) return true;
-            if (AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh) return false;
+            if (AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             return true;
         }
         public bool MonsterRepos()
         {
-            if (Card.IsFacedown() && Card.Id!=CardId.DiceJar)
+            if (Card.IsFacedown() && !Card.IsCode(CardId.DiceJar))
                 return true;
             return base.DefaultMonsterRepos();
         }
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (attacker.Id == CardId.Linkuriboh && defender.IsFacedown()) return false;
-            if (attacker.Id == CardId.SandaionTheTimelord && !attacker.IsDisabled())
+            if (attacker.IsCode(CardId.Linkuriboh) && defender.IsFacedown()) return false;
+            if (attacker.IsCode(CardId.SandaionTheTimelord) && !attacker.IsDisabled())
             {
                 attacker.RealPower = 9999;
                 return true;
             }
-            if(attacker.Id==CardId.MichionTimelord && !attacker.IsDisabled())
+            if(attacker.IsCode(CardId.MichionTimelord) && !attacker.IsDisabled())
             {
                 attacker.RealPower = 9999;
                 return true;
@@ -771,49 +771,49 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> check = Bot.GetSpells();
             foreach (ClientCard card1 in check)
             {
-                if (card1.Id == CardId.AccuulatedFortune)
+                if (card1.IsCode(CardId.AccuulatedFortune))
                     HasAccuulatedFortune++;
 
             }
             foreach (ClientCard card1 in check)
             {
-                if (card1.Id == CardId.SecretBlast)
+                if (card1.IsCode(CardId.SecretBlast))
                     blast_count++;
 
             }
             foreach (ClientCard card1 in check)
             {
-                if (card1.Id == CardId.SectetBarrel)
+                if (card1.IsCode(CardId.SectetBarrel))
                     barrel_count++;
 
             }
             foreach (ClientCard card1 in check)
             {
-                if (card1.Id == CardId.JustDesserts)
+                if (card1.IsCode(CardId.JustDesserts))
                     just_count++;
 
             }
             foreach (ClientCard card1 in check)
             {
-                if (card1.Id == CardId.ChainStrike)
+                if (card1.IsCode(CardId.ChainStrike))
                     strike_count++;
 
             }
             foreach (ClientCard card1 in Bot.GetSpells())
             {
-                if (card1.Id == CardId.RecklessGreed)
+                if (card1.IsCode(CardId.RecklessGreed))
                     greed_count++;
 
             }
             foreach (ClientCard card1 in check)
             {
-                if (card1.Id == CardId.Waboku)
+                if (card1.IsCode(CardId.Waboku))
                     Waboku_count++;
 
             }
             foreach (ClientCard card1 in check)
             {
-                if (card1.Id == CardId.ThreateningRoar)
+                if (card1.IsCode(CardId.ThreateningRoar))
                     Roar_count++;
 
             }
