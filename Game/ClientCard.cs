@@ -40,6 +40,8 @@ namespace WindBot.Game
 
         public List<ClientCard> EquipCards { get; set; }
         public ClientCard EquipTarget;
+        public List<ClientCard> OwnTargets { get; set; }
+        public List<ClientCard> TargetCards { get; set; }
 
         public bool CanDirectAttack { get; set; }
         public bool ShouldDirectAttack { get; set; }
@@ -62,6 +64,8 @@ namespace WindBot.Game
             Position = position;
             Overlays = new List<int>();
             EquipCards = new List<ClientCard>();
+            OwnTargets = new List<ClientCard>();
+            TargetCards = new List<ClientCard>();
             ActionIndex = new int[16];
             ActionActivateIndex = new Dictionary<int, int>();
             Location = loc;
@@ -152,6 +156,20 @@ namespace WindBot.Game
                 LinkCount = packet.ReadInt32();
                 LinkMarker = packet.ReadInt32();
             }
+        }
+
+        public void ClearCardTargets()
+        {
+            foreach (ClientCard card in TargetCards)
+            {
+                card.OwnTargets.Remove(this);
+            }
+            foreach (ClientCard card in OwnTargets)
+            {
+                card.TargetCards.Remove(this);
+            }
+            OwnTargets.Clear();
+            TargetCards.Clear();
         }
 
         public bool HasLinkMarker(int dir)
