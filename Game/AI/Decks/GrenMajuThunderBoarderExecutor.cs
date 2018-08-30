@@ -308,41 +308,38 @@ namespace WindBot.Game.AI.Decks
                     count++;
             }
             if(AI.Utils.GetBestEnemyMonster()!=null && AI.Utils.GetBestEnemyMonster().Attack>=1900)
-                AI.SelectCard(new[]
-                   {
-                     CardId.EaterOfMillions,
+                AI.SelectCard(
+                    CardId.EaterOfMillions,
                     CardId.PotOfDesires,
                     CardId.GrenMajuDaEizo,
                     CardId.InspectBoarder,
-                    CardId.ThunderKingRaiOh,                  
+                    CardId.ThunderKingRaiOh,
                     CardId.Scapegoat,
                     CardId.SolemnJudgment,
                     CardId.SolemnWarning,
                     CardId.SolemStrike,
-                    CardId.InfiniteImpermanence,
-                });
+                    CardId.InfiniteImpermanence
+                    );
             if (count == 0)
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.PotOfDesires,
                     CardId.InspectBoarder,
                     CardId.ThunderKingRaiOh,
                     CardId.EaterOfMillions,
                     CardId.GrenMajuDaEizo,
-                    CardId.Scapegoat,
-                });
+                    CardId.Scapegoat
+                    );
             else
             {
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.PotOfDesires,
                     CardId.CardOfDemise,
                     CardId.SolemnJudgment,
                     CardId.SolemnWarning,
                     CardId.SolemStrike,
                     CardId.InfiniteImpermanence,
-                    CardId.Scapegoat,
-                });
+                    CardId.Scapegoat
+                    );
             }
             return true;
         }
@@ -572,11 +569,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MissusRadianteff()
         {
-            AI.SelectCard(new[]
-           {
-                CardId.MaxxC,
-                CardId.MissusRadiant,
-            });
+            AI.SelectCard(CardId.MaxxC, CardId.MissusRadiant);
             return true;
         }
 

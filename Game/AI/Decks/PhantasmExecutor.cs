@@ -292,39 +292,43 @@ namespace WindBot.Game.AI.Decks
             {
                 if(Bot.HasInGraveyard(CardId.PacifisThePhantasmCity) && !Bot.HasInHandOrInSpellZone(CardId.SeaStealthAttack))
                 {
-                    AI.SelectCard(new[] {
-                    CardId.SeaStealthAttack,
-                    CardId.PacifisThePhantasmCity,
-                    CardId.Terraforming,
-                    CardId.Metaverse,
-                    CardId.CardOfDemise,
-                    CardId.Scapegoat});
+                    AI.SelectCard(
+                        CardId.SeaStealthAttack,
+                        CardId.PacifisThePhantasmCity,
+                        CardId.Terraforming,
+                        CardId.Metaverse,
+                        CardId.CardOfDemise,
+                        CardId.Scapegoat
+                        );
                 }
                 else
                 {
-                    AI.SelectCard(new[] {
-                    CardId.PacifisThePhantasmCity,
-                    CardId.Terraforming,
-                    CardId.Metaverse,
-                    CardId.CardOfDemise,
-                    CardId.Scapegoat});
+                    AI.SelectCard(
+                        CardId.PacifisThePhantasmCity,
+                        CardId.Terraforming,
+                        CardId.Metaverse,
+                        CardId.CardOfDemise,
+                        CardId.Scapegoat
+                        );
                 }
                 
             }
             else if(!Bot.HasInHandOrInSpellZone(CardId.SeaStealthAttack))
             {
-                AI.SelectCard(new[] {
-                CardId.SeaStealthAttack,                
-                CardId.CardOfDemise,
-                CardId.PotOfDesires,
-                CardId.Scapegoat});
+                AI.SelectCard(
+                    CardId.SeaStealthAttack,
+                    CardId.CardOfDemise,
+                    CardId.PotOfDesires,
+                    CardId.Scapegoat
+                    );
             }
             else
             {
-                AI.SelectCard(new[] {                
-                CardId.CardOfDemise,
-                CardId.PotOfDesires,
-                CardId.Scapegoat});
+                AI.SelectCard(
+                    CardId.CardOfDemise,
+                    CardId.PotOfDesires,
+                    CardId.Scapegoat
+                    );
             }
             return true;
         }
@@ -460,12 +464,13 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             if(Bot.HasInExtra(CardId.BorreloadDragon))
             {
-                AI.SelectCard(new[] {
-                CardId.TopologicBomberDragon,
-                CardId.TopologicTrisbaena,
-                CardId.KnightmareGryphon,
-                CardId.SummonSorceress,
-                CardId.BorreloadDragon});
+                AI.SelectCard(
+                    CardId.TopologicBomberDragon,
+                    CardId.TopologicTrisbaena,
+                    CardId.KnightmareGryphon,
+                    CardId.SummonSorceress,
+                    CardId.BorreloadDragon
+                    );
             }
             else 
             {               

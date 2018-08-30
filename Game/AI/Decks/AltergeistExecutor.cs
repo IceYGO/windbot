@@ -658,8 +658,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.LastChainPlayer != 0)
             {
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     _CardId.HarpiesFeatherDuster,
                     CardId.PotofDesires,
                     CardId.OneForOne,
@@ -677,7 +676,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.WakingtheDragon,
                     CardId.Impermanence,
                     CardId.Marionetter
-                });
+                    );
                 return true;
             }
             return false;
@@ -1102,18 +1101,12 @@ namespace WindBot.Game.AI.Decks
             {
                 if (!Bot.HasInHandOrInSpellZone(CardId.Protocol) && Bot.GetRemainingCount(CardId.Protocol,2) > 0)
                 {
-                    AI.SelectCard(new[] {
-                        CardId.Protocol,
-                        CardId.Manifestation
-                    });
+                    AI.SelectCard(CardId.Protocol, CardId.Manifestation);
                     AI.SelectPlace(SelectSetPlace());
                     return true;
                 } else
                 {
-                    AI.SelectCard(new[] {
-                        CardId.Manifestation,
-                        CardId.Protocol
-                    });
+                    AI.SelectCard(CardId.Manifestation, CardId.Protocol);
                     AI.SelectPlace(SelectSetPlace());
                     return true;
                 }
@@ -1291,16 +1284,15 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.Protocol);
                 return true;
             }
-            AI.SelectCard(new[]
-            {
-                    CardId.Meluseek,
-                    CardId.Kunquery,
-                    CardId.Marionetter,
-                    CardId.Multifaker,
-                    CardId.Manifestation,
-                    CardId.Protocol,
-                    CardId.Silquitous
-                });
+            AI.SelectCard(
+                CardId.Meluseek,
+                CardId.Kunquery,
+                CardId.Marionetter,
+                CardId.Multifaker,
+                CardId.Manifestation,
+                CardId.Protocol,
+                CardId.Silquitous
+                );
             return true;
         }
 
@@ -1373,13 +1365,12 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.Kunquery,
                     CardId.Marionetter,
                     CardId.Multifaker,
                     CardId.Silquitous
-                });
+                    );
                 return true;
             }
             return false;
@@ -1883,10 +1874,7 @@ namespace WindBot.Game.AI.Decks
                             if (card.IsCode(CardId.Silquitous))
                             {
                                 AI.SelectCard(card);
-                                AI.SelectNextCard(new[] {
-                                    CardId.Multifaker,
-                                    CardId.Kunquery
-                                });
+                                AI.SelectNextCard(CardId.Multifaker, CardId.Kunquery);
                                 return true;
                             }
                         }
@@ -1903,13 +1891,13 @@ namespace WindBot.Game.AI.Decks
                             CardId.Protocol,
                             CardId.Meluseek
                         });
-                        AI.SelectNextCard(new[]{
+                        AI.SelectNextCard(
                             CardId.Multifaker,
                             CardId.Marionetter,
                             CardId.Meluseek,
                             CardId.Kunquery,
                             CardId.Silquitous
-                        });
+                            );
                         return true;
                     }
                 }
@@ -1932,13 +1920,13 @@ namespace WindBot.Game.AI.Decks
                         CardId.Protocol,
                         CardId.Meluseek
                     });
-                    AI.SelectNextCard(new[]{
+                    AI.SelectNextCard(
                         CardId.Multifaker,
                         CardId.Marionetter,
                         CardId.Meluseek,
                         CardId.Kunquery,
                         CardId.Silquitous
-                    });
+                        );
                 }
                 else if (!summoned && !Bot.HasInGraveyard(CardId.Meluseek) && Bot.GetRemainingCount(CardId.Meluseek,3) > 0 && !Bot.HasInHand(CardId.Meluseek)
                     && (enemy_best != null || enemy_target != null) )
@@ -1950,10 +1938,10 @@ namespace WindBot.Game.AI.Decks
                             if (card.IsCode(CardId.Silquitous))
                             {
                                 AI.SelectCard(card);
-                                AI.SelectNextCard(new[]{
+                                AI.SelectNextCard(
                                     CardId.Meluseek,
                                     CardId.Marionetter
-                                });
+                                    );
                                 return true;
                             }
                         }
@@ -1970,12 +1958,12 @@ namespace WindBot.Game.AI.Decks
                             CardId.Meluseek,
                             CardId.Marionetter,
                         });
-                        AI.SelectNextCard(new[]{
+                        AI.SelectNextCard(
                             CardId.Meluseek,
                             CardId.Marionetter,
                             CardId.Multifaker,
                             CardId.Kunquery
-                        });
+                            );
                         return true;
                     }
                 }
@@ -1988,10 +1976,10 @@ namespace WindBot.Game.AI.Decks
                             if (card.IsCode(CardId.Silquitous))
                             {
                                 AI.SelectCard(card);
-                                AI.SelectNextCard(new[]{
+                                AI.SelectNextCard(
                                     CardId.Marionetter,
                                     CardId.Meluseek
-                                });
+                                    );
                                 return true;
                             }
                         }
@@ -2008,12 +1996,12 @@ namespace WindBot.Game.AI.Decks
                             CardId.Meluseek,
                             CardId.Marionetter,
                         });
-                        AI.SelectNextCard(new[]{
+                        AI.SelectNextCard(
                             CardId.Marionetter,
                             CardId.Meluseek,
                             CardId.Multifaker,
                             CardId.Kunquery
-                        });
+                            );
                         return true;
                     }
                 }
@@ -2046,12 +2034,12 @@ namespace WindBot.Game.AI.Decks
             }
             if (go)
             {
-                AI.SelectNextCard(new[]{
+                AI.SelectNextCard(
                     CardId.Marionetter,
                     CardId.Meluseek,
                     CardId.Multifaker,
                     CardId.Kunquery
-                });
+                    );
                 return true;
             }
             return false;
@@ -2062,25 +2050,23 @@ namespace WindBot.Game.AI.Decks
             if (!spell_trap_activate()) return false;
             if (!Bot.HasInHandOrInMonstersZoneOrInGraveyard(CardId.Meluseek) && !Bot.HasInHandOrInMonstersZoneOrInGraveyard(CardId.Multifaker))
             {
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.GR_WC,
                     CardId.MaxxC,
                     CardId.Kunquery,
                     CardId.GO_SR
-                });
+                    );
                 if (AI.Utils.IsTurn1OrMain2()) AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
             }
             if (!summoned && !Meluseek_searched && !Bot.HasInHand(CardId.Marionetter))
             {
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.GR_WC,
                     CardId.MaxxC,
                     CardId.Kunquery,
                     CardId.GO_SR
-                });
+                    );
                 return true;
             }
             return false;
@@ -2482,11 +2468,11 @@ namespace WindBot.Game.AI.Decks
 
         public bool Needlefiber_eff()
         {
-            AI.SelectCard(new[] {
+            AI.SelectCard(
                 CardId.GR_WC,
                 CardId.GO_SR,
                 CardId.AB_JS
-            });
+                );
             return true;
         }
 

@@ -431,14 +431,7 @@ namespace WindBot.Game.AI.Decks
             // tuner ss
             if (ActivateDescription == -1)
             {
-                AI.SelectCard(new[]
-                {
-                    CardId.Ghost,
-                    CardId.TG,
-                    CardId.Tuner,
-                    CardId.Urara,
-                    CardId.BF
-                });
+                AI.SelectCard(CardId.Ghost, CardId.TG, CardId.Tuner, CardId.Urara, CardId.BF);
                 return true;
             };
             // counter
@@ -576,62 +569,31 @@ namespace WindBot.Game.AI.Decks
             {
                 if (!Bot.HasInHand(CardId.Yellow))
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Yellow,
-                        CardId.Pink,
-                        CardId.Red,
-                        CardId.White
-                    });
+                    AI.SelectCard(CardId.Yellow, CardId.Pink, CardId.Red, CardId.White);
                     stage_locked = null;
                     return true;
                 }
                 else if (Enemy.LifePoints <= 1000 && Bot.GetRemainingCount(CardId.Pink,1) > 0)
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Pink,
-                        CardId.Yellow,
-                        CardId.Red,
-                        CardId.White
-                    });
+                    AI.SelectCard(CardId.Pink, CardId.Yellow, CardId.Red, CardId.White);
                     stage_locked = null;
                     return true;
                 }
                 else if (Bot.HasInHand(CardId.Yellow) && ! Bot.HasInHand(CardId.Red))
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Red,
-                        CardId.Pink,
-                        CardId.Yellow,
-                        CardId.White
-                    });
+                    AI.SelectCard(CardId.Red, CardId.Pink, CardId.Yellow, CardId.White);
                     stage_locked = null;
                     return true;
                 }
                 else if (Enemy.GetMonsterCount() > 0 && AI.Utils.GetBestEnemyMonster().Attack >= AI.Utils.GetBestAttack(Bot))
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.White,
-                        CardId.Yellow,
-                        CardId.Pink,
-                        CardId.Red
-                        
-                    });
+                    AI.SelectCard(CardId.White, CardId.Yellow, CardId.Pink, CardId.Red);
                     stage_locked = null;
                     return true;
                 }
                 else if (!Bot.HasInSpellZone(CardId.Stage))
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Yellow,
-                        CardId.Pink,
-                        CardId.Red,
-                        CardId.White
-                    });
+                    AI.SelectCard(CardId.Yellow, CardId.Pink, CardId.Red, CardId.White);
                     stage_locked = null;
                     return true;
                 }
@@ -642,47 +604,23 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Enemy.LifePoints <= 1000 && !pink_ss && Bot.GetRemainingCount(CardId.Pink,1) > 0)
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Pink,
-                        CardId.Yellow,
-                        CardId.Red,
-                        CardId.White
-                    });
+                    AI.SelectCard(CardId.Pink, CardId.Yellow, CardId.Red, CardId.White);
                     stage_locked = null;
                     return true;
                 }
                 if (Enemy.GetMonsterCount() > 0 && AI.Utils.GetBestEnemyMonster().Attack >= AI.Utils.GetBestAttack(Bot) && !Bot.HasInHand(CardId.White))
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.White,
-                        CardId.Yellow,
-                        CardId.Pink,
-                        CardId.Red
-                    });
+                    AI.SelectCard(CardId.White, CardId.Yellow, CardId.Pink, CardId.Red);
                     stage_locked = null;
                     return true;
                 }
                 if (Bot.HasInMonstersZone(CardId.Yellow) && !Bot.HasInHand(CardId.Red))
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Red,
-                        CardId.Pink,
-                        CardId.Yellow,
-                        CardId.White
-                    });
+                    AI.SelectCard(CardId.Red, CardId.Pink, CardId.Yellow, CardId.White);
                     stage_locked = null;
                     return true;
                 }
-                AI.SelectCard(new[]
-                {
-                    CardId.Yellow,
-                    CardId.Pink,
-                    CardId.Red,
-                    CardId.White
-                });
+                AI.SelectCard(CardId.Yellow, CardId.Pink, CardId.Red, CardId.White);
                 stage_locked = null;
                 return true;
             }
@@ -744,21 +682,11 @@ namespace WindBot.Game.AI.Decks
             {
                 if (!NormalSummoned && Bot.HasInGraveyard(CardId.Yellow))
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Yellow,
-                        CardId.Red,
-                        CardId.White
-                    });
+                    AI.SelectCard(CardId.Yellow, CardId.Red, CardId.White);
                     return true;
                 } else
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Red,
-                        CardId.Yellow,
-                        CardId.White
-                    });
+                    AI.SelectCard(CardId.Red, CardId.Yellow, CardId.White);
                     return true;
                 }
             }
@@ -934,46 +862,19 @@ namespace WindBot.Game.AI.Decks
         {
             if (!Bot.HasInHand(CardId.Stage) && !Bot.HasInSpellZone(CardId.Stage) && Bot.GetRemainingCount(CardId.Stage, 3) > 0)
             {
-                AI.SelectCard(new[]
-                {
-                    CardId.Stage,
-                    CardId.Red,
-                    CardId.White,
-                    CardId.Pink,
-                    CardId.Re,
-                    CardId.Crown,
-                    CardId.Yellow
-                });
+                AI.SelectCard(CardId.Stage, CardId.Red, CardId.White, CardId.Pink, CardId.Re, CardId.Crown, CardId.Yellow);
                 return true;
             }
             if (Enemy.LifePoints <= 1000)
             {
                 if (Bot.GetRemainingCount(CardId.Pink, 1) > 0 && !pink_ss)
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Pink,
-                        CardId.Stage,
-                        CardId.Red,
-                        CardId.White,
-                        CardId.Re,
-                        CardId.Crown,
-                        CardId.Yellow
-                    });
+                    AI.SelectCard(CardId.Pink, CardId.Stage, CardId.Red, CardId.White, CardId.Re, CardId.Crown, CardId.Yellow);
                     return true;
                 }
                 else if (Bot.HasInGraveyard(CardId.Pink) && Bot.GetRemainingCount(CardId.Crown, 1) > 0)
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Crown,
-                        CardId.Pink,
-                        CardId.Re,
-                        CardId.Stage,
-                        CardId.Red,
-                        CardId.White,
-                        CardId.Yellow
-                    });
+                    AI.SelectCard(CardId.Crown, CardId.Pink, CardId.Re, CardId.Stage, CardId.Red, CardId.White, CardId.Yellow);
                     return true;
                 }
             }
@@ -981,68 +882,23 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.HasInGraveyard(CardId.Red) && Bot.GetRemainingCount(CardId.Pink, 1) > 0 && !pink_ss)
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Pink,
-                        CardId.Red,
-                        CardId.White,
-                        CardId.Re,
-                        CardId.Stage,
-                        CardId.Crown,
-                        CardId.Yellow
-                    });
+                    AI.SelectCard(CardId.Pink, CardId.Red, CardId.White, CardId.Re, CardId.Stage, CardId.Crown, CardId.Yellow);
                 }
                 else if (Bot.HasInGraveyard(CardId.Pink) && Bot.HasInGraveyard(CardId.Red) && Bot.GetRemainingCount(CardId.Ring, 1) > 0)
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Crown,
-                        CardId.Red,
-                        CardId.White,
-                        CardId.Re,
-                        CardId.Stage,
-                        CardId.Pink,
-                        CardId.Yellow
-                    });
+                    AI.SelectCard(CardId.Crown, CardId.Red, CardId.White, CardId.Re, CardId.Stage, CardId.Pink, CardId.Yellow);
                 }
                 else if (Bot.GetRemainingCount(CardId.White, 2) > 0 && Enemy.LifePoints <= 4000)
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.White,
-                        CardId.Red,
-                        CardId.Pink,
-                        CardId.Re,
-                        CardId.Stage,
-                        CardId.Crown,
-                        CardId.Yellow
-                    });
+                    AI.SelectCard(CardId.White, CardId.Red, CardId.Pink, CardId.Re, CardId.Stage, CardId.Crown, CardId.Yellow);
                 }
                 else if (Bot.HasInGraveyard(CardId.White) && Bot.GetRemainingCount(CardId.Crown, 1) > 0)
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Crown,
-                        CardId.Red,
-                        CardId.Pink,
-                        CardId.Re,
-                        CardId.Stage,
-                        CardId.White,
-                        CardId.Yellow
-                    });
+                    AI.SelectCard(CardId.Crown, CardId.Red, CardId.Pink, CardId.Re, CardId.Stage, CardId.White, CardId.Yellow);
                 }
                 else
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Red,
-                        CardId.Pink,
-                        CardId.Re,
-                        CardId.Crown,
-                        CardId.Stage,
-                        CardId.White,
-                        CardId.Yellow
-                    });
+                    AI.SelectCard(CardId.Red, CardId.Pink, CardId.Re, CardId.Crown, CardId.Stage, CardId.White, CardId.Yellow);
                 }
                 return true;
             }
@@ -1051,55 +907,19 @@ namespace WindBot.Game.AI.Decks
                 int power = AI.Utils.GetProblematicEnemyMonster().GetDefensePower();
                 if (power >= 1800 && power <= 3600 && Bot.GetRemainingCount(CardId.White, 2) > 0 && !Bot.HasInHand(CardId.White))
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.White,
-                        CardId.Red,
-                        CardId.Pink,
-                        CardId.Re,
-                        CardId.Stage,
-                        CardId.Crown,
-                        CardId.Yellow
-                    });
+                    AI.SelectCard(CardId.White, CardId.Red, CardId.Pink, CardId.Re, CardId.Stage, CardId.Crown, CardId.Yellow);
                 }
                 else
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Red,
-                        CardId.Pink,
-                        CardId.Re,
-                        CardId.Crown,
-                        CardId.Stage,
-                        CardId.White,
-                        CardId.Yellow
-                    });
+                    AI.SelectCard(CardId.Red, CardId.Pink, CardId.Re, CardId.Crown, CardId.Stage, CardId.White, CardId.Yellow);
                 }
                 return true;
             }
             if ((Bot.HasInHand(CardId.Red) || Bot.HasInHand(CardId.Stage) || Bot.HasInHand(CardId.Yellow)) && Bot.GetRemainingCount(CardId.Re,1) > 0) {
-                AI.SelectCard(new[]
-                {
-                    CardId.Re,
-                    CardId.Red,
-                    CardId.White,
-                    CardId.Crown,
-                    CardId.Pink,
-                    CardId.Stage,
-                    CardId.Yellow
-                });
+                AI.SelectCard(CardId.Re, CardId.Red, CardId.White, CardId.Crown, CardId.Pink, CardId.Stage, CardId.Yellow);
                 return true;
             }
-            AI.SelectCard(new[]
-            {
-                CardId.Red,
-                CardId.Pink,
-                CardId.Re,
-                CardId.Crown,
-                CardId.Stage,
-                CardId.White,
-                CardId.Yellow
-            });
+            AI.SelectCard(CardId.Red, CardId.Pink, CardId.Re, CardId.Crown, CardId.Stage, CardId.White, CardId.Yellow);
             return true;
         }
 
@@ -1239,26 +1059,14 @@ namespace WindBot.Game.AI.Decks
                 }
                 else
                 {
-                    AI.SelectCard(new[]
-                    {
-                        CardId.Red,
-                        CardId.White,
-                        CardId.Yellow,
-                        CardId.Pink
-                    });
+                    AI.SelectCard(CardId.Red, CardId.White, CardId.Yellow, CardId.Pink);
                     return true;
                 }
             }
             else
             {
                 
-                AI.SelectCard(new[]
-                    {
-                        CardId.Red,
-                        CardId.White,
-                        CardId.Yellow,
-                        CardId.Pink
-                    });
+                AI.SelectCard(CardId.Red, CardId.White, CardId.Yellow, CardId.Pink);
                 return true;
             }
         }
@@ -1364,7 +1172,7 @@ namespace WindBot.Game.AI.Decks
         public bool Linkuri_eff()
         {
             if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().IsCode(CardId.Linkuri)) return false;
-            AI.SelectCard(new[] { CardId.Tuner, CardId.BF + 1 });
+            AI.SelectCard(CardId.Tuner, CardId.BF + 1);
             return true;
         }
 
@@ -1373,10 +1181,7 @@ namespace WindBot.Game.AI.Decks
             if (crystal_eff_used) return false;
             if (Bot.HasInMonstersZone(CardId.BF) && Bot.HasInMonstersZone(CardId.BF + 1))
             {
-                AI.SelectCard(new[]
-                    {CardId.BF,
-                    CardId.BF + 1
-                    });
+                AI.SelectCard(CardId.BF, CardId.BF + 1);
                 return true;
             }
             foreach(ClientCard extra_card in Bot.GetMonstersInExtraZone())
@@ -1415,7 +1220,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player == 0)
             {
                 crystal_eff_used = true;
-                AI.SelectCard(new[] { CardId.Tuner, CardId.Ghost , CardId.Urara});
+                AI.SelectCard(CardId.Tuner, CardId.Ghost, CardId.Urara);
                 return true;
             }
             else if (AI.Utils.IsChainTarget(Card) || AI.Utils.GetProblematicEnemySpell() != null) return true;
@@ -1734,12 +1539,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Missus_eff()
         {
-            AI.SelectCard(new[]
-            {
-                CardId.MG,
-                CardId.Missus,
-                CardId.Snake
-            });
+            AI.SelectCard(CardId.MG, CardId.Missus, CardId.Snake);
             return true;
         }
 

@@ -147,17 +147,16 @@ namespace WindBot.Game.AI.Decks
         {
             if (!NeedLV5())
                 return false;
-            AI.SelectCard(new[]
-                {
-                    CardId.QuickdrawSynchron,
-                    CardId.ZWEagleClaw,
-                    CardId.SolarWindJammer,
-                    CardId.CyberDragon,
-                    CardId.MistArchfiend,
-                    CardId.WindUpSoldier,
-                    CardId.StarDrawing,
-                    CardId.ChronomalyGoldenJet
-                });
+            AI.SelectCard(
+                CardId.QuickdrawSynchron,
+                CardId.ZWEagleClaw,
+                CardId.SolarWindJammer,
+                CardId.CyberDragon,
+                CardId.MistArchfiend,
+                CardId.WindUpSoldier,
+                CardId.StarDrawing,
+                CardId.ChronomalyGoldenJet
+                );
             return true;
         }
 
@@ -333,14 +332,13 @@ namespace WindBot.Game.AI.Decks
         {
             if (!UniqueFaceupSpell())
                 return false;
-            AI.SelectCard(new[]
-                {
-                    CardId.CyberDragonInfinity,
-                    CardId.CyberDragonNova,
-                    CardId.TirasKeeperOfGenesis,
-                    CardId.SharkFortress,
-                    CardId.Number61Volcasaurus
-                });
+            AI.SelectCard(
+                CardId.CyberDragonInfinity,
+                CardId.CyberDragonNova,
+                CardId.TirasKeeperOfGenesis,
+                CardId.SharkFortress,
+                CardId.Number61Volcasaurus
+                );
             return true;
         }
 
