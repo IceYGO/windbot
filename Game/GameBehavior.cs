@@ -487,6 +487,7 @@ namespace WindBot.Game
             }
             if (_debug)
                 Logger.WriteLine("(Go to " + (_duel.Phase.ToString()) + ")");
+            _duel.OnAttack = false;
             _duel.LastSummonPlayer = -1;
             _duel.SummoningCards.Clear();
             _duel.LastSummonedCards.Clear();
@@ -503,6 +504,7 @@ namespace WindBot.Game
             if (_debug)
                 Logger.WriteLine("(" + player.ToString() + " got damage , LifePoint left= " + final.ToString() + ")");
             _duel.Fields[player].LifePoints = final;
+            _duel.OnAttack = false;
         }
 
         private void OnRecover(BinaryReader packet)
@@ -531,6 +533,7 @@ namespace WindBot.Game
             int currentPosition = packet.ReadSByte();
             packet.ReadInt32(); // reason
 
+            _duel.OnAttack = false;
             ClientCard card = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
             if ((previousLocation & (int)CardLocation.Overlay) != 0)
             {
@@ -618,7 +621,8 @@ namespace WindBot.Game
             {
                 if (defendcard == null) Logger.WriteLine("(" + (attackcard.Name ?? "UnKnowCard") + " direct attack!!)");
                 else Logger.WriteLine("(" + ca.ToString() + " 's " + (attackcard.Name ?? "UnKnowCard") + " attack  " + cd.ToString() + " 's " + (defendcard.Name ?? "UnKnowCard") + ")");
-            }                
+            }
+            _duel.OnAttack = true;
             _duel.Fields[attackcard.Controller].BattlingMonster = attackcard;
             _duel.Fields[1 - attackcard.Controller].BattlingMonster = defendcard;
 
@@ -645,6 +649,7 @@ namespace WindBot.Game
                 if (_debug)
                     Logger.WriteLine("(" + (card.Name ?? "UnKnowCard") + " change position to " + (CardPosition)cp + ")");
             }
+            _duel.OnAttack = false;
         }
 
         private void OnChaining(BinaryReader packet)
