@@ -153,10 +153,10 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.EternalSoul);
                 return UniqueFaceupSpell();
             }
-            if(Duel.Player==1 && Duel.Onattack &&
-                Bot.BattlingMonster!=null && Bot.BattlingMonster.Id==CardId.MegalosmasherX)
+            if(Bot.UnderAttack && Bot.BattlingMonster != null && Bot.BattlingMonster.IsCode(CardId.MegalosmasherX))
             {
                 AI.SelectCard(Enemy.BattlingMonster);
+                return UniqueFaceupSpell();
             }
             if (Bot.GetMonsterCount() > 0 && !Bot.HasInSpellZone(CardId.SeaStealthAttack) &&
                 AI.Utils.IsOneEnemyBetterThanValue(2000, false) && Duel.Phase==DuelPhase.BattleStart)
