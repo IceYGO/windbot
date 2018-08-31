@@ -249,9 +249,8 @@ namespace WindBot.Game
 
         public bool HasSetcode(int setcode)
         {
-            YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(Id);
-            if (cardData == null) return false;
-            long setcodes = cardData.Setcode;
+            if (Data == null) return false;
+            long setcodes = Data.Setcode;
             int settype = setcode & 0xfff;
             int setsubtype = setcode & 0xf000;
             while (setcodes > 0)
