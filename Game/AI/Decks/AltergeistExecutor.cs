@@ -1298,7 +1298,8 @@ namespace WindBot.Game.AI.Decks
 
         public bool Meluseek_eff()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.Meluseek,0))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.Meluseek,0)
+                || (ActivateDescription == -1 && Card.Location == CardLocation.MonsterZone))
             {
                 attacked_Meluseek.Add(Card);
                 ClientCard target = GetProblematicEnemyCard_Alter(true);
@@ -2762,7 +2763,8 @@ namespace WindBot.Game.AI.Decks
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
-            if (AI.Utils.IsTurn1OrMain2())
+            if (AI.Utils.IsTurn1OrMain2()
+                && (cardId == CardId.Meluseek || cardId == CardId.Silquitous))
             {
                 return CardPosition.FaceUpDefence;
             }
