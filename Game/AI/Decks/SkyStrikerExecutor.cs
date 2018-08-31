@@ -152,7 +152,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (attacker.Id == CardId.HiSpeedroidChanbara && !attacker.IsDisabled())
+                if (attacker.IsCode(CardId.HiSpeedroidChanbara) && !attacker.IsDisabled())
                     attacker.RealPower = attacker.RealPower + 200;
             }
             return base.OnPreBattleBetween(attacker, defender);
@@ -229,12 +229,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool FoolishBurialGoodsEffect()
         {
-            AI.SelectCard(new[]{
+            AI.SelectCard(
                 CardId.MetalfoesFusion,
                 CardId.WidowAnchor,
                 CardId.Engage,
                 CardId.HornetDrones
-            });
+                );
             return true;
         }
 
@@ -312,13 +312,13 @@ namespace WindBot.Game.AI.Decks
             if (target > 0)
                 AI.SelectCard(target);
             else
-                AI.SelectCard(new[] {
+                AI.SelectCard(
                     CardId.Multirole,
                     CardId.AreaZero,
                     CardId.Afterburners,
                     CardId.JammingWave,
                     CardId.Raye
-                });
+                    );
 
             return true;
         }
@@ -330,13 +330,13 @@ namespace WindBot.Game.AI.Decks
             if (target > 0)
                 AI.SelectCard(target);
             else
-                AI.SelectCard(new[] {
+                AI.SelectCard(
                     CardId.Multirole,
                     CardId.AreaZero,
                     CardId.Afterburners,
                     CardId.JammingWave,
                     CardId.Raye
-                });
+                    );
 
             return true;
         }
@@ -399,7 +399,7 @@ namespace WindBot.Game.AI.Decks
                 IList<ClientCard> targets = new List<ClientCard>();
                 foreach(ClientCard card in Bot.GetGraveyardMonsters())
                 {
-                    if (card.Id == CardId.Hayate || card.Id == CardId.Kagari || card.Id == CardId.Shizuku)
+                    if (card.IsCode(CardId.Hayate, CardId.Kagari, CardId.Shizuku))
                         targets.Add(card);
                 }
                 if (targets.Count > 0)
@@ -451,7 +451,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard target in Bot.GetMonsters())
             {
-                if (target.Id == CardId.Raye && Bot.GetMonstersExtraZoneCount() == 0)
+                if (target.IsCode(CardId.Raye) && Bot.GetMonstersExtraZoneCount() == 0)
                 {
                     AI.SelectCard(target);
                     return true;
@@ -459,7 +459,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard target in Bot.GetSpells())
             {
-                if (target.Id != CardId.AreaZero && target.Id != CardId.Multirole && target.Id != CardId.WidowAnchor && target.IsSpell())
+                if (!target.IsCode(CardId.AreaZero, CardId.Multirole, CardId.WidowAnchor) && target.IsSpell())
                 {
                     AI.SelectCard(target);
                     return true;
@@ -482,7 +482,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard target in Bot.GetMonsters())
                 {
-                    if (target.Id == CardId.Raye && Bot.GetMonstersExtraZoneCount() == 0)
+                    if (target.IsCode(CardId.Raye) && Bot.GetMonstersExtraZoneCount() == 0)
                     {
                         AI.SelectCard(target);
                         return true;
@@ -490,7 +490,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard target in Bot.GetSpells())
                 {
-                    if (target.Id == CardId.AreaZero)
+                    if (target.IsCode(CardId.AreaZero))
                     {
                         AI.SelectCard(target);
                         return true;
@@ -498,7 +498,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard target in Bot.GetSpells())
                 {
-                    if (target.Id != CardId.Multirole && target.Id != CardId.WidowAnchor && target.IsSpell())
+                    if (!target.IsCode(CardId.Multirole, CardId.WidowAnchor) && target.IsSpell())
                     {
                         AI.SelectCard(target);
                         return true;
@@ -562,11 +562,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                AI.SelectCard(new[] {
-                    CardId.Shizuku,
-                    CardId.Kagari,
-                    CardId.Hayate
-                });
+                AI.SelectCard(CardId.Shizuku, CardId.Kagari, CardId.Hayate);
             }
         }
 
@@ -595,11 +591,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.JammingWave);
             }
             else
-                AI.SelectCard(new[] {
-                    CardId.Engage,
-                    CardId.HornetDrones,
-                    CardId.WidowAnchor
-                });
+                AI.SelectCard(CardId.Engage, CardId.HornetDrones, CardId.WidowAnchor);
             return true;
         }
 
@@ -619,11 +611,7 @@ namespace WindBot.Game.AI.Decks
             if (target != 0)
                 AI.SelectCard(target);
             else
-                AI.SelectCard(new[] {
-                    CardId.Engage,
-                    CardId.HornetDrones,
-                    CardId.WidowAnchor
-                });
+                AI.SelectCard(CardId.Engage, CardId.HornetDrones, CardId.WidowAnchor);
             return true;
         }
 

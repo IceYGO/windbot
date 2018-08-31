@@ -91,6 +91,7 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             ClownUsed = false;
+            base.OnNewTurn();
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
@@ -109,13 +110,13 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> result = new List<ClientCard>();
             foreach (ClientCard card in cards)
             {
-                if (!result.Contains(card) && (!ClownUsed || card.Id != CardId.PerformageTrickClown))
+                if (!result.Contains(card) && (!ClownUsed || !card.IsCode(CardId.PerformageTrickClown)))
                     result.Add(card);
                 if (result.Count >= max)
                     break;
             }
-            AI.Utils.CheckSelectCount(result, cards, min, max);
-            return result;
+            
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
         }
 
         private bool ReinforcementOfTheArmyEffect()
@@ -138,26 +139,24 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInHand(CardId.Lumina))
                 AI.SelectCard(CardId.Lumina);
             else
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.Raiden,
                     CardId.Lumina,
                     CardId.Minerva,
                     CardId.Lyla
-                });
+                    );
             return true;
         }
 
         private bool SolarRechargeEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.Wulf,
-                    CardId.Felis,
-                    CardId.Minerva,
-                    CardId.Lyla,
-                    CardId.Raiden
-                });
+            AI.SelectCard(
+                CardId.Wulf,
+                CardId.Felis,
+                CardId.Minerva,
+                CardId.Lyla,
+                CardId.Raiden
+                );
             return true;
         }
 
@@ -173,14 +172,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool GoblindberghEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.Felis,
-                    CardId.Wulf,
-                    CardId.Raiden,
-                    CardId.PerformageTrickClown,
-                    CardId.ThousandBlades
-                });
+            AI.SelectCard(
+                CardId.Felis,
+                CardId.Wulf,
+                CardId.Raiden,
+                CardId.PerformageTrickClown,
+                CardId.ThousandBlades
+                );
             return true;
         }
 
@@ -196,17 +194,14 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                AI.SelectCard(new[] {
+                AI.SelectCard(
                     CardId.Wulf,
                     CardId.Felis,
                     CardId.Minerva,
                     CardId.ThousandBlades
-                });
+                    );
             }
-            AI.SelectNextCard(new[] {
-                    CardId.Raiden,
-                    CardId.Felis
-                });
+            AI.SelectNextCard(CardId.Raiden, CardId.Felis);
             return true;
         }
 

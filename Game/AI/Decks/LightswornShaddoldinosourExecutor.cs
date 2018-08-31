@@ -390,7 +390,7 @@ namespace WindBot.Game.AI.Decks
             Pillused = true;
             foreach (ClientCard card in Bot.GetMonsters())
             {
-                if (card.Id == CardId.UltimateConductorTytanno && card.IsFaceup())
+                if (card.IsCode(CardId.UltimateConductorTytanno) && card.IsFaceup())
                     return false;
             }
             Ultimate_ss++;
@@ -410,12 +410,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterRepos()
         {
-            if (Card.Id == CardId.UltimateConductorTytanno && Card.IsFacedown()) return true;
-            if (Card.Id == CardId.ElShaddollConstruct && Card.IsFacedown()) return true;
-            if (Card.Id == CardId.ElShaddollConstruct && Card.IsAttack()) return false;
-            if (Card.Id == CardId.GlowUpBulb && Card.IsDefense()) return false;
-            if (Card.Id == CardId.ShaddollDragon && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
-            if (Card.Id == CardId.ShaddollSquamata && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
+            if (Card.IsCode(CardId.UltimateConductorTytanno) && Card.IsFacedown()) return true;
+            if (Card.IsCode(CardId.ElShaddollConstruct) && Card.IsFacedown()) return true;
+            if (Card.IsCode(CardId.ElShaddollConstruct) && Card.IsAttack()) return false;
+            if (Card.IsCode(CardId.GlowUpBulb) && Card.IsDefense()) return false;
+            if (Card.IsCode(CardId.ShaddollDragon) && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
+            if (Card.IsCode(CardId.ShaddollSquamata) && Card.IsFacedown() && Enemy.GetMonsterCount() >= 0) return true;
             return base.DefaultMonsterRepos();
         }
 
@@ -430,7 +430,7 @@ namespace WindBot.Game.AI.Decks
         {          
             foreach (ClientCard card in Bot.GetMonsters())
             {
-                if (card.Id == CardId.UltimateConductorTytanno && card.IsFaceup())
+                if (card.IsCode(CardId.UltimateConductorTytanno) && card.IsFaceup())
                     return false;
             }
             if (Pillused == true) return false;
@@ -446,27 +446,11 @@ namespace WindBot.Game.AI.Decks
                 };
             if (Bot.HasInGraveyard(targets))
             {
-                AI.SelectCard(new[] {
-                    CardId.GiantRex,
-                    CardId.DogorantheMadFlameKaiju,
-                    CardId.OvertexCoatls,
-                    CardId.GamecieltheSeaTurtleKaiju,
-                    CardId.RadiantheMultidimensionalKaiju,
-                    CardId.SouleatingOviraptor,
-                    CardId.UltimateConductorTytanno,
-                });
+                AI.SelectCard(CardId.GiantRex, CardId.DogorantheMadFlameKaiju, CardId.OvertexCoatls, CardId.GamecieltheSeaTurtleKaiju, CardId.RadiantheMultidimensionalKaiju, CardId.SouleatingOviraptor, CardId.UltimateConductorTytanno);
             }
             else
             {
-                AI.SelectCard(new[] {
-                    CardId.GiantRex,
-                    CardId.DogorantheMadFlameKaiju,
-                    CardId.GamecieltheSeaTurtleKaiju,
-                    CardId.RadiantheMultidimensionalKaiju,
-                    CardId.OvertexCoatls,
-                    CardId.SouleatingOviraptor,
-                    CardId.UltimateConductorTytanno,
-                });
+                AI.SelectCard(CardId.GiantRex, CardId.DogorantheMadFlameKaiju, CardId.GamecieltheSeaTurtleKaiju, CardId.RadiantheMultidimensionalKaiju, CardId.OvertexCoatls, CardId.SouleatingOviraptor, CardId.UltimateConductorTytanno);
             }
             IList<int> targets2 = new[] {
                     CardId.GiantRex,
@@ -479,42 +463,10 @@ namespace WindBot.Game.AI.Decks
                 };
             if (Bot.HasInGraveyard(targets))
             {
-                AI.SelectNextCard(new[] {
-                    CardId.ShaddollBeast,
-                    CardId.ShaddollDragon,
-                    CardId.KeeperOfDragonicMagic,
-                    CardId.ShaddollSquamata,
-                    CardId.SouleatingOviraptor,
-                    CardId.Raiden,
-                    CardId.Lumina,
-                    CardId.ShaddollHedgehog,
-                    CardId.AshBlossom,
-                    CardId.GhostOgre,
-                    CardId.ShaddollFalco,
-                    CardId.MaxxC,
-                    CardId.PlaguespreaderZombie,
-                    CardId.GlowUpBulb,
-                    CardId.FairyTailSnow,
-                });
+                AI.SelectNextCard(CardId.ShaddollBeast, CardId.ShaddollDragon, CardId.KeeperOfDragonicMagic, CardId.ShaddollSquamata, CardId.SouleatingOviraptor, CardId.Raiden, CardId.Lumina, CardId.ShaddollHedgehog, CardId.AshBlossom, CardId.GhostOgre, CardId.ShaddollFalco, CardId.MaxxC, CardId.PlaguespreaderZombie, CardId.GlowUpBulb, CardId.FairyTailSnow);
             }
             else
-                AI.SelectNextCard(new[] {
-                    CardId.ShaddollBeast,
-                    CardId.ShaddollDragon,
-                    CardId.KeeperOfDragonicMagic,
-                    CardId.ShaddollSquamata,
-                    CardId.SouleatingOviraptor,
-                    CardId.Raiden,
-                    CardId.Lumina,
-                    CardId.ShaddollHedgehog,
-                    CardId.AshBlossom,
-                    CardId.GhostOgre,
-                    CardId.ShaddollFalco,
-                    CardId.MaxxC,
-                    CardId.PlaguespreaderZombie,
-                    CardId.GlowUpBulb,
-                    CardId.FairyTailSnow,
-                });
+                AI.SelectNextCard(CardId.ShaddollBeast, CardId.ShaddollDragon, CardId.KeeperOfDragonicMagic, CardId.ShaddollSquamata, CardId.SouleatingOviraptor, CardId.Raiden, CardId.Lumina, CardId.ShaddollHedgehog, CardId.AshBlossom, CardId.GhostOgre, CardId.ShaddollFalco, CardId.MaxxC, CardId.PlaguespreaderZombie, CardId.GlowUpBulb, CardId.FairyTailSnow);
 
             AI.SelectThirdCard(new[] {
                     CardId.UltimateConductorTytanno,
@@ -552,7 +504,7 @@ namespace WindBot.Game.AI.Decks
                 IList<ClientCard> all = new List<ClientCard>();
                 foreach (ClientCard check in grave)
                 {
-                    if (check.Id == CardId.GiantRex)
+                    if (check.IsCode(CardId.GiantRex))
                     {
                         all.Add(check);
                     }
@@ -745,23 +697,20 @@ namespace WindBot.Game.AI.Decks
 
             if (deck_check)
             {
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.ElShaddollConstruct,
                     CardId.ElShaddollShekhinaga,
                     CardId.ElShaddollGrysra,
                     CardId.ElShaddollWinda
-                });
-                AI.SelectNextCard(new[]
-                      {
+                    );
+                AI.SelectNextCard(
                     CardId.ShaddollSquamata,
                     CardId.ShaddollBeast,
-
                     CardId.ShaddollHedgehog,
                     CardId.ShaddollDragon,
                     CardId.ShaddollFalco,
-                    CardId.FairyTailSnow,
-                });
+                    CardId.FairyTailSnow
+                    );
                 AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
             }
@@ -841,15 +790,13 @@ namespace WindBot.Game.AI.Decks
             {
                 if (DefaultBreakthroughSkill())
                 {
-                    AI.SelectCard(new[]
-                    {
-                    CardId.ShaddollBeast,
-                    CardId.ShaddollSquamata,
-                    CardId.ShaddollHedgehog,
-                    CardId.ShaddollDragon,
-                    CardId.ShaddollFalco,
-                }
-                );
+                    AI.SelectCard(
+                        CardId.ShaddollBeast,
+                        CardId.ShaddollSquamata,
+                        CardId.ShaddollHedgehog,
+                        CardId.ShaddollDragon,
+                        CardId.ShaddollFalco
+                        );
                 }
                 else
                     return false;
@@ -925,15 +872,13 @@ namespace WindBot.Game.AI.Decks
                 return true;
             else
             {
-                AI.SelectCard(new[]
-                {
-                CardId.ElShaddollConstruct,
-                CardId.ElShaddollShekhinaga,
-                CardId.ElShaddollGrysra,
-                CardId.ElShaddollWinda,
-                CardId.ShaddollSquamata,
-                }
-                );
+                AI.SelectCard(
+                    CardId.ElShaddollConstruct,
+                    CardId.ElShaddollShekhinaga,
+                    CardId.ElShaddollGrysra,
+                    CardId.ElShaddollWinda,
+                    CardId.ShaddollSquamata
+                    );
 
             }
             return true;
@@ -947,25 +892,28 @@ namespace WindBot.Game.AI.Decks
             {
                 if (AI.Utils.ChainContainsCard(CardId.ElShaddollConstruct))
                 {
-                    AI.SelectNextCard(new[]{
-                       CardId.ShaddollFalco,
-                       CardId.ShaddollSquamata,
-                       CardId.ShaddollDragon,
-                    });
+                    AI.SelectNextCard(
+                        CardId.ShaddollFalco,
+                        CardId.ShaddollSquamata,
+                        CardId.ShaddollDragon
+                        );
 
                 }
                 else
                 {
-                    AI.SelectCard(new[]{                      
-                       CardId.ShaddollSquamata,
-                       CardId.ShaddollDragon,
-                    });
+                    AI.SelectCard(
+                        CardId.ShaddollSquamata,
+                        CardId.ShaddollDragon
+                        );
                 }
 
             }
             else
             {
-                AI.SelectCard(new[] { CardId.ShaddollFusion, CardId.SinisterShadowGames });
+                AI.SelectCard(
+                    CardId.ShaddollFusion,
+                    CardId.SinisterShadowGames
+                    );
             }
             return true;
         }
@@ -1018,11 +966,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                AI.SelectCard(new[]
-                    {                        
-                        CardId.ShaddollSquamata,
-                        CardId.FairyTailSnow,
-                    });
+                AI.SelectCard(CardId.ShaddollSquamata, CardId.FairyTailSnow);
             }
             return true;
         }      
@@ -1030,8 +974,8 @@ namespace WindBot.Game.AI.Decks
        
         public bool Hand_act_eff()
         {
-            //if (Card.Id == CardId.Urara && Bot.HasInHand(CardId.LockBird) && Bot.HasInSpellZone(CardId.Re)) return false;
-            if (Card.Id == CardId.GhostOgre && Card.Location == CardLocation.Hand && Bot.HasInMonstersZone(CardId.GhostOgre)) return false;
+            //if (Card.IsCode(CardId.Urara) && Bot.HasInHand(CardId.LockBird) && Bot.HasInSpellZone(CardId.Re)) return false;
+            if (Card.IsCode(CardId.GhostOgre) && Card.Location == CardLocation.Hand && Bot.HasInMonstersZone(CardId.GhostOgre)) return false;
             return (Duel.LastChainPlayer == 1);
         }
         //other extra
@@ -1098,6 +1042,7 @@ namespace WindBot.Game.AI.Decks
                 if (targets.Count == 0)
                     return false;
 
+                AI.SelectCard(0);
                 AI.SelectNextCard(targets);
                 return true;
             }
@@ -1127,14 +1072,8 @@ namespace WindBot.Game.AI.Decks
             };
             int count=0;
             foreach (ClientCard monster in Bot.GetMonsters())
-                if (monster.Id == CardId.GlowUpBulb ||
-                   monster.Id == CardId.FairyTailSnow ||
-                   monster.Id == CardId.KeeperOfDragonicMagic ||
-                   monster.Id == CardId.SouleatingOviraptor||
-                   monster.Id == CardId.GiantRex||
-                   monster.Id == CardId.Lumina||
-                   monster.Id == CardId.Raiden
-                    )
+                if (monster.IsCode(CardId.GlowUpBulb, CardId.FairyTailSnow, CardId.KeeperOfDragonicMagic,
+                    CardId.SouleatingOviraptor, CardId.GiantRex, CardId.Lumina, CardId.Raiden))
                     count++;
             if (!Bot.HasInMonstersZone(CardId.GlowUpBulb) || count<2)
                 return false;
@@ -1149,7 +1088,7 @@ namespace WindBot.Game.AI.Decks
             bool DarkHole = false;
             foreach (ClientCard card in Enemy.GetSpells())
             {
-                if (card.Id == 53129443 && card.IsFaceup())
+                if (card.IsCode(53129443) && card.IsFaceup())
                 {
                     DarkHole = true;
                 }
@@ -1158,7 +1097,12 @@ namespace WindBot.Game.AI.Decks
             {
 
                 CrystronNeedlefibereff_used = true;
-                AI.SelectCard(new[] { CardId.GhostOgre, CardId.GlowUpBulb, CardId.PlaguespreaderZombie, CardId.ShaddollFalco });
+                AI.SelectCard(
+                    CardId.GhostOgre,
+                    CardId.GlowUpBulb,
+                    CardId.PlaguespreaderZombie,
+                    CardId.ShaddollFalco
+                    );
                 return true;
             }
             
@@ -1221,12 +1165,12 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard hand in Bot.Hand)
                 {
-                    if (hand.Id == CardId.Red || hand.Id == CardId.Pink)
+                    if (hand.IsCode(CardId.Red, CardId.Pink))
                     {
                         AI.SelectCard(hand);
                         return true;
                     }
-                    if (hand.Id == CardId.Urara || hand.Id == CardId.Ghost)
+                    if (hand.IsCode(CardId.Urara, CardId.Ghost))
                     {
                         if (Tuner_ss())
                         {
@@ -1260,7 +1204,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RedWyverneff()
         {
-            IList<ClientCard> check = Enemy.MonsterZone;
+            IList<ClientCard> check = Enemy.GetMonsters();
             ClientCard best = null;
             foreach (ClientCard monster in check)
             {
@@ -1303,9 +1247,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (attacker.Id == CardId.ElShaddollConstruct && !attacker.IsDisabled()) // TODO: && defender.IsSpecialSummoned
+                if (attacker.IsCode(CardId.ElShaddollConstruct) && !attacker.IsDisabled()) // TODO: && defender.IsSpecialSummoned
                     attacker.RealPower = 9999;
-                if (attacker.Id == CardId.UltimateConductorTytanno && !attacker.IsDisabled() && defender.IsDefense())
+                if (attacker.IsCode(CardId.UltimateConductorTytanno) && !attacker.IsDisabled() && defender.IsDefense())
                     attacker.RealPower = 9999;
             }
             return base.OnPreBattleBetween(attacker, defender);

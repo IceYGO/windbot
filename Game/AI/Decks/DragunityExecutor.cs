@@ -136,7 +136,7 @@ namespace WindBot.Game.AI.Decks
                 int count = 0;
                 foreach (ClientCard card in Bot.Hand)
                 {
-                    if (card.Id == CardId.DragunityDux)
+                    if (card.IsCode(CardId.DragunityDux))
                         ++count;
                 }
                 if (count >= 2)
@@ -164,7 +164,7 @@ namespace WindBot.Game.AI.Decks
                 /*bool hasRealMonster = false;
                 foreach (ClientCard card in Bot.GetMonsters())
                 {
-                    if (card.Id != CardId.AssaultBeast)
+                    if (!card.IsCode(CardId.AssaultBeast))
                     {
                         hasRealMonster = true;
                         break;
@@ -184,13 +184,13 @@ namespace WindBot.Game.AI.Decks
 
             int remaining = 3;
             foreach (ClientCard card in Bot.Hand)
-                if (card.Id == needId)
+                if (card.IsCode(needId))
                     remaining--;
             foreach (ClientCard card in Bot.Graveyard)
-                if (card.Id == needId)
+                if (card.IsCode(needId))
                     remaining--;
             foreach (ClientCard card in Bot.Banished)
-                if (card.Id == needId)
+                if (card.IsCode(needId))
                     remaining--;
             if (remaining <= 0)
                 return false;
@@ -243,12 +243,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool FoolishBurial()
         {
-            AI.SelectCard(new[]
-            {
+            AI.SelectCard(
                 CardId.DragunityPhalanx,
                 CardId.AssaultBeast,
                 CardId.StardustDragonAssaultMode
-            });
+                );
             return true;
         }
 
@@ -262,8 +261,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard card = cards[i];
                 if (card.Attack < 2000)
                     break;
-                if (card.Id == (int) CardId.StardustDragonAssaultMode ||
-                    card.Id == (int) CardId.FiveHeadedDragon)
+                if (card.IsCode(CardId.StardustDragonAssaultMode, CardId.FiveHeadedDragon))
                     continue;
                 if (card.IsMonster())
                 {
@@ -298,7 +296,7 @@ namespace WindBot.Game.AI.Decks
             int phalanxCount = 0;
             foreach (ClientCard card in Bot.Graveyard)
             {
-                if (card.Id == (int) CardId.DragunityPhalanx)
+                if (card.IsCode(CardId.DragunityPhalanx))
                 {
                     phalanxCount++;
                     break;
@@ -315,7 +313,7 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard card in Bot.Graveyard)
                 {
-                    if (card.Id == (int) CardId.DragunityPhalanx)
+                    if (card.IsCode(CardId.DragunityPhalanx))
                     {
                         phalanxCount--;
                         tributes.Add(card);
@@ -462,7 +460,7 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.Id == CardId.StardustDragon && monster.Attacked)
+                    if (monster.IsCode(CardId.StardustDragon) && monster.Attacked)
                     {
                         AI.SelectCard(monster);
                         return true;

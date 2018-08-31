@@ -175,12 +175,12 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> targets = Enemy.GetSpells();
             if (targets.Count > 0)
             {
-                AI.SelectCard(new[]{
+                AI.SelectCard(
                     CardId.DualAssembloom,
                     CardId.Bitron,
                     CardId.Digitron,
                     CardId.RecodedAlive
-                });
+                    );
                 AI.SelectNextCard(targets);
                 return true;
             }
@@ -284,7 +284,7 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> monsters = Bot.GetMonsters();
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.Id == CardId.BalancerLord)
+                    if (monster.IsCode(CardId.BalancerLord))
                     {
                         AI.SelectCard(monster);
                         selected = true;
@@ -306,14 +306,13 @@ namespace WindBot.Game.AI.Decks
             }
             if (selected)
             {
-                AI.SelectNextCard(new[]
-                {
+                AI.SelectNextCard(
                     CardId.ROMCloudia,
                     CardId.BalancerLord,
                     CardId.Kleinant,
                     CardId.Draconnet,
                     CardId.Backlinker
-                });
+                    );
                 return true;
             }
             return false;
@@ -360,24 +359,24 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.MonsterZone)
             {
-                AI.SelectCard(new[]{
+                AI.SelectCard(
                     CardId.BootStagguard,
                     CardId.BalancerLord,
                     CardId.Kleinant,
                     CardId.Linkslayer,
                     CardId.Draconnet,
                     CardId.RAMClouder
-                });
+                    );
                 return true;
             }
             else
             {
-                AI.SelectCard(new[]{
+                AI.SelectCard(
                     CardId.BalancerLord,
                     CardId.Kleinant,
                     CardId.RAMClouder,
                     CardId.DotScaper
-                });
+                    );
                 return true;
             }
         }
@@ -404,7 +403,7 @@ namespace WindBot.Game.AI.Decks
             };
             foreach (ClientCard monster in Bot.Hand)
             {
-                if (targets.Contains(monster.Id))
+                if (monster.IsCode(targets))
                 {
                     AI.SelectCard(targets);
                     return true;
@@ -418,7 +417,7 @@ namespace WindBot.Game.AI.Decks
             };
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (targets2.Contains(monster.Id))
+                if (monster.IsCode(targets2))
                 {
                     AI.SelectCard(targets2);
                     return true;
@@ -429,28 +428,28 @@ namespace WindBot.Game.AI.Decks
 
         private bool RAMClouderEffect()
         {
-            AI.SelectCard(new[]{
-                    CardId.StagToken,
-                    CardId.Bitron,
-                    CardId.Digitron,
-                    CardId.DotScaper,
-                    CardId.Draconnet,
-                    CardId.Backlinker,
-                    CardId.RAMClouder
-                });
-            AI.SelectNextCard(new[]{
-                    CardId.DecodeTalker,
-                    CardId.EncodeTalker,
-                    CardId.TriGateWizard,
-                    CardId.BinarySorceress,
-                    CardId.Honeybot,
-                    CardId.DualAssembloom,
-                    CardId.BootStagguard,
-                    CardId.BalancerLord,
-                    CardId.ROMCloudia,
-                    CardId.Linkslayer,
-                    CardId.RAMClouder
-                });
+            AI.SelectCard(
+                CardId.StagToken,
+                CardId.Bitron,
+                CardId.Digitron,
+                CardId.DotScaper,
+                CardId.Draconnet,
+                CardId.Backlinker,
+                CardId.RAMClouder
+                );
+            AI.SelectNextCard(
+                CardId.DecodeTalker,
+                CardId.EncodeTalker,
+                CardId.TriGateWizard,
+                CardId.BinarySorceress,
+                CardId.Honeybot,
+                CardId.DualAssembloom,
+                CardId.BootStagguard,
+                CardId.BalancerLord,
+                CardId.ROMCloudia,
+                CardId.Linkslayer,
+                CardId.RAMClouder
+                );
             return true;
         }
 

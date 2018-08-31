@@ -104,17 +104,17 @@ namespace WindBot.Game.AI.Decks
             MaxDragon_count = 0;
             foreach (ClientCard check in Bot.Hand)
             {
-                if (check.Id == CardId.AdvancedRitualArt)
+                if (check.IsCode(CardId.AdvancedRitualArt))
                     RitualArt_count++;
-                if (check.Id == CardId.ChaosForm)
+                if (check.IsCode(CardId.ChaosForm))
                     ChaosForm_count++;
-                if (check.Id == CardId.DevirrtualCandoll)
+                if (check.IsCode(CardId.DevirrtualCandoll))
                     Candoll_count++;
-                if (check.Id == CardId.DeviritualTalismandra)
+                if (check.IsCode(CardId.DeviritualTalismandra))
                     Talismandra_count++;
-                if (check.Id == CardId.BlueEyesChaosMaxDragon)
+                if (check.IsCode(CardId.BlueEyesChaosMaxDragon))
                     MaxDragon_count++;
-                if (check.Id == CardId.TheMelodyOfAwakeningDragon)
+                if (check.IsCode(CardId.TheMelodyOfAwakeningDragon))
                     TheMelody_count++;
             }
         }        
@@ -128,32 +128,33 @@ namespace WindBot.Game.AI.Decks
         {
             if(Duel.LastChainPlayer==1)
             {
-                if(AI.Utils.GetLastChainCard().Id==CardId.MaxxC)
+                ClientCard lastCard = AI.Utils.GetLastChainCard();
+                if (lastCard.IsCode(CardId.MaxxC))
                 {
                     AI.SelectCard(CardId.MaxxC);
                     if(AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
-                        AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
+                        AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
-                if (AI.Utils.GetLastChainCard().Id == CardId.LockBird)
+                if (lastCard.IsCode(CardId.LockBird))
                 {
                     AI.SelectCard(CardId.LockBird);
                     if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
-                        AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
+                        AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
-                if (AI.Utils.GetLastChainCard().Id == CardId.Ghost)
+                if (lastCard.IsCode(CardId.Ghost))
                 {
                     AI.SelectCard(CardId.Ghost);
                     if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
-                        AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
+                        AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
-                if (AI.Utils.GetLastChainCard().Id == CardId.AshBlossom)
+                if (lastCard.IsCode(CardId.AshBlossom))
                 {
                     AI.SelectCard(CardId.AshBlossom);
                     if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
-                        AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
+                        AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
             }
@@ -183,7 +184,7 @@ namespace WindBot.Game.AI.Decks
             if(Bot.HasInMonstersZone(CardId.BlueEyesChaosMaxDragon,true) && Duel.Phase==DuelPhase.Main1 &&
                 (Bot.HasInMonstersZone(CardId.DeviritualTalismandra) || Bot.HasInMonstersZone(CardId.DevirrtualCandoll)))
             {
-                AI.SelectCard(new[] {CardId.DevirrtualCandoll,CardId.DeviritualTalismandra });
+                AI.SelectCard(CardId.DevirrtualCandoll, CardId.DeviritualTalismandra);
                 return true;
             }
             return false;
@@ -194,13 +195,13 @@ namespace WindBot.Game.AI.Decks
             if(TheMelody_count>=2 && Bot.GetRemainingCount(CardId.BlueEyesChaosMaxDragon,3)>0)
             {
                 AI.SelectCard(CardId.TheMelodyOfAwakeningDragon);
-                AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon , CardId.BlueEyesAlternativeWhiteDragon });
+                AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                 return true;
             }
             if(Bot.HasInHand(CardId.BlueEyesWhiteDragon) && Bot.GetRemainingCount(CardId.BlueEyesChaosMaxDragon, 3) > 0)
             {
                 AI.SelectCard(CardId.BlueEyesWhiteDragon);
-                AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon,CardId.BlueEyesAlternativeWhiteDragon });
+                AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                 return true;
             }
             return false;
@@ -215,16 +216,16 @@ namespace WindBot.Game.AI.Decks
                 {
                     foreach (ClientCard m in Bot.Hand)
                     {
-                        if (m.Id == CardId.AdvancedRitualArt)
+                        if (m.IsCode(CardId.AdvancedRitualArt))
                         AI.SelectCard(m);
                     }
                 }
                 foreach(ClientCard m in Bot.Hand)
                 {
-                    if (m.Id != CardId.AdvancedRitualArt)
+                    if (!m.IsCode(CardId.AdvancedRitualArt))
                     AI.SelectCard(m);
                 }
-                AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
+                AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                 return true;
             }            
             return false;
@@ -328,15 +329,13 @@ namespace WindBot.Game.AI.Decks
             ClientCard check = null;
             foreach (ClientCard m in Bot.GetGraveyardMonsters())
             {
-                if (m.Id == CardId.BlueEyesAlternativeWhiteDragon ||
-                    m.Id == CardId.BlueEyesChaosMaxDragon ||
-                    m.Id == CardId.BlueEyesWhiteDragon)
+                if (m.IsCode(CardId.BlueEyesAlternativeWhiteDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesWhiteDragon))
                     check = m;
             }
             
             foreach (ClientCard m in Bot.Hand)
             {
-                if (m.Id == CardId.BlueEyesWhiteDragon)
+                if (m.IsCode(CardId.BlueEyesWhiteDragon))
                     check = m;
             }
             if (check != null)
@@ -350,7 +349,7 @@ namespace WindBot.Game.AI.Decks
         private bool DeviritualCheck()
         {
             Count_check();
-            if(Card.Id==CardId.DeviritualTalismandra || Card.Id==CardId.DevirrtualCandoll)
+            if(Card.IsCode(CardId.DeviritualTalismandra, CardId.DevirrtualCandoll))
             {
                 if (Card.Location == CardLocation.MonsterZone)
                 {
@@ -366,12 +365,12 @@ namespace WindBot.Game.AI.Decks
                 }
                 if(Card.Location==CardLocation.Hand)
                 {                    
-                    if(Card.Id==CardId.DevirrtualCandoll)
+                    if(Card.IsCode(CardId.DevirrtualCandoll))
                     {
                         if (MaxDragon_count >= 2 && Talismandra_count >= 1 || Candoll_used)
                             return false;
                     }
-                    if(Card.Id==CardId.DeviritualTalismandra)
+                    if(Card.IsCode(CardId.DeviritualTalismandra))
                     {
                         if (RitualArt_count + ChaosForm_count >= 2 && Candoll_count >= 1 || Talismandra_used)
                             return false;
@@ -401,9 +400,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard check = null;
             foreach(ClientCard m in Bot.Graveyard)
             {
-                if (m.Id == CardId.BlueEyesAlternativeWhiteDragon ||
-                    m.Id == CardId.BlueEyesChaosMaxDragon ||
-                    m.Id == CardId.BlueEyesWhiteDragon)
+                if (m.IsCode(CardId.BlueEyesAlternativeWhiteDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesWhiteDragon))
                     check = m;
                 
             }
@@ -416,7 +413,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach(ClientCard m in Bot.Hand)
             {
-                if (m.Id == CardId.BlueEyesWhiteDragon)
+                if (m.IsCode(CardId.BlueEyesWhiteDragon))
                     check = m;
             }           
             if (check != null)
@@ -448,11 +445,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MissusRadianteff()
         {
-            AI.SelectCard(new[]
-           {
-                CardId.MaxxC,
-                CardId.MissusRadiant,
-            });
+            AI.SelectCard(CardId.MaxxC, CardId.MissusRadiant);
             return true;
         }
 
@@ -460,7 +453,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard c in Bot.GetMonsters())
             {
-                if (c.Id != CardId.Linkuriboh && c.Level == 1)
+                if (!c.IsCode(CardId.Linkuriboh) && c.Level == 1)
                 {
                     AI.SelectMaterials(c);
                     return true;
@@ -471,7 +464,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Linkuriboheff()
         {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh) return false;
+            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             return true;
         }
         private bool BirrelswordDragonsp()
@@ -480,7 +473,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard m in Bot.GetMonsters())
             {
-                if (m.Id == CardId.MissusRadiant)
+                if (m.IsCode(CardId.MissusRadiant))
                 {
                     material_list.Add(m);
                     break;
@@ -488,7 +481,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard m in Bot.GetMonsters())
             {
-                if (m.Id == CardId.Linkuriboh || m.Level==1)
+                if (m.IsCode(CardId.Linkuriboh) || m.Level==1)
                 {
                     material_list.Add(m);
                     if (material_list.Count == 3)
@@ -540,11 +533,11 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SpellSet()
         {
-            if (Card.Id == CardId.InfiniteImpermanence)
+            if (Card.IsCode(CardId.InfiniteImpermanence))
                 return !Bot.IsFieldEmpty();
-            if (Card.Id == CardId.RecklessGreed)
+            if (Card.IsCode(CardId.RecklessGreed))
                 return true;
-            if (Card.Id == CardId.Scapegoat)
+            if (Card.IsCode(CardId.Scapegoat))
                 return true;
             return false;
         }
@@ -554,7 +547,7 @@ namespace WindBot.Game.AI.Decks
             int count = 0;
             foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card.Id == CardId.RecklessGreed)
+                if (card.IsCode(CardId.RecklessGreed))
                     count++;
             }            
             if (DefaultOnBecomeTarget()) return true;            
@@ -588,7 +581,7 @@ namespace WindBot.Game.AI.Decks
             for (int i = 0; i < attackers.Count; ++i)
             {                
                 ClientCard attacker = attackers[i];
-                if (attacker.Id == CardId.BlueEyesChaosMaxDragon)
+                if (attacker.IsCode(CardId.BlueEyesChaosMaxDragon))
                 {
                     Logger.DebugWriteLine(attacker.Name);
                     return attacker;
@@ -598,7 +591,7 @@ namespace WindBot.Game.AI.Decks
         }
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
         {
-            if(attacker.Id==CardId.BlueEyesChaosMaxDragon && !attacker.IsDisabled() &&
+            if(attacker.IsCode(CardId.BlueEyesChaosMaxDragon) && !attacker.IsDisabled() &&
                 Enemy.HasInMonstersZone(new[] {CardId.DeviritualTalismandra,CardId.DevirrtualCandoll }))
             {              
                 for (int i = 0; i < defenders.Count; i++)
@@ -608,7 +601,7 @@ namespace WindBot.Game.AI.Decks
                     defender.RealPower = defender.GetDefensePower();
                     if (!OnPreBattleBetween(attacker, defender))
                         continue;                    
-                    if (defender.Id == CardId.DevirrtualCandoll || defender.Id == CardId.DeviritualTalismandra)
+                    if (defender.IsCode(CardId.DevirrtualCandoll, CardId.DeviritualTalismandra))
                     {
                         return AI.Attack(attacker, defender);                                          
                     }                   

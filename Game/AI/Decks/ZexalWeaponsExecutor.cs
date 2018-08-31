@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -103,7 +104,7 @@ namespace WindBot.Game.AI.Decks
             // Summons: Effects
             AddExecutor(ExecutorType.Activate, CardId.Goblindbergh, GoblindberghEffect);
             AddExecutor(ExecutorType.Activate, CardId.TinGoldfish, GoblindberghEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Kagetokage);
+            AddExecutor(ExecutorType.Activate, CardId.Kagetokage, KagetokageEffect);
             AddExecutor(ExecutorType.Activate, CardId.SummonerMonk, SummonerMonkEffect);
             AddExecutor(ExecutorType.Activate, CardId.Honest, DefaultHonestEffect);
 
@@ -138,14 +139,12 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            IList<ClientCard> result = new List<ClientCard>();
-            AI.Utils.SelectPreferredCards(result, new[] {
+            IList<ClientCard> result = AI.Utils.SelectPreferredCards(new[] {
                 CardId.StarDrawing,
                 CardId.SolarWindJammer,
                 CardId.Goblindbergh
             }, cards, min, max);
-            AI.Utils.CheckSelectCount(result, cards, min, max);
-            return result;
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
         }
 
         private bool Number39Utopia()
@@ -171,14 +170,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool ReinforcementOfTheArmy()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.Goblindbergh,
-                    CardId.TinGoldfish,
-                    CardId.StarDrawing,
-                    CardId.Kagetokage,
-                    CardId.SacredCrane
-                });
+            AI.SelectCard(
+                CardId.Goblindbergh,
+                CardId.TinGoldfish,
+                CardId.StarDrawing,
+                CardId.Kagetokage,
+                CardId.SacredCrane
+                );
             return true;
         }
 
@@ -225,14 +223,20 @@ namespace WindBot.Game.AI.Decks
 
         private bool GoblindberghEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.SacredCrane,
-                    CardId.HeroicChallengerExtraSword,
-                    CardId.StarDrawing,
-                    CardId.SummonerMonk
-                });
+            AI.SelectCard(
+                CardId.SacredCrane,
+                CardId.HeroicChallengerExtraSword,
+                CardId.StarDrawing,
+                CardId.SummonerMonk
+                );
             return true;
+        }
+
+        private bool KagetokageEffect()
+        {
+            var lastChainCard = AI.Utils.GetLastChainCard();
+            if (lastChainCard == null) return true;
+            return !lastChainCard.IsCode(CardId.Goblindbergh, CardId.TinGoldfish);
         }
 
         private bool SummonerMonkEffect()
@@ -247,13 +251,12 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInHand(costs))
             {
                 AI.SelectCard(costs);
-                AI.SelectNextCard(new[]
-                    {
+                AI.SelectNextCard(
                     CardId.SacredCrane,
                     CardId.StarDrawing,
                     CardId.Goblindbergh,
                     CardId.TinGoldfish
-                    });
+                    );
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
             }
@@ -273,7 +276,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterRepos()
         {
-            if (Card.Id == CardId.NumberS39UtopiatheLightning && Card.IsAttack())
+            if (Card.IsCode(CardId.NumberS39UtopiatheLightning) && Card.IsAttack())
                 return false;
             return base.DefaultMonsterRepos();
         }
