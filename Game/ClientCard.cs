@@ -247,6 +247,22 @@ namespace WindBot.Game
             return (Attribute & (int)attribute) != 0;
         }
 
+        public bool HasSetcode(int setcode)
+        {
+            YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(Id);
+            if (cardData == null) return false;
+            long setcodes = cardData.Setcode;
+            int settype = setcode & 0xfff;
+            int setsubtype = setcode & 0xf000;
+            while (setcodes > 0)
+            {
+                long check_setcode = setcodes % 0x10000;
+                setcodes /= 0x10000;
+                if ((check_setcode & 0xfff) == settype && (check_setcode & 0xf000 & setsubtype) == setsubtype) return true;
+            }
+            return false;
+        }
+
         public bool IsMonster()
         {
             return HasType(CardType.Monster);
