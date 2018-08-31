@@ -1,5 +1,6 @@
 ﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
+using System.Linq;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -138,27 +139,11 @@ namespace WindBot.Game.AI.Decks
             if (max == 2 && cards[0].Location == CardLocation.Deck)
             {
                 Logger.DebugWriteLine("OnSelectCard MelodyOfAwakeningDragon");
-                IList<ClientCard> result = new List<ClientCard>();
+                List<ClientCard> result = new List<ClientCard>();
                 if (!Bot.HasInHand(CardId.WhiteDragon))
-                {
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.Id == CardId.WhiteDragon)
-                        {
-                            result.Add(card);
-                            break;
-                        }
-                    }
-                }
-                foreach (ClientCard card in cards)
-                {
-                    if (card.Id == CardId.AlternativeWhiteDragon && result.Count < max)
-                    {
-                        result.Add(card);
-                    }
-                }
-                AI.Utils.CheckSelectCount(result, cards, min, max);
-                return result;
+                    result.AddRange(cards.Where(card => card.IsCode(CardId.WhiteDragon)).Take(1));
+                result.AddRange(cards.Where(card => card.IsCode(CardId.AlternativeWhiteDragon)));
+                return AI.Utils.CheckSelectCount(result, cards, min, max);
             }
             Logger.DebugWriteLine("Use default.");
             return null;
@@ -167,10 +152,8 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
             Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
-            IList<ClientCard> result = new List<ClientCard>();
-            AI.Utils.SelectPreferredCards(result, UsedAlternativeWhiteDragon, cards, min, max);
-            AI.Utils.CheckSelectCount(result, cards, min, max);
-            return result;
+            IList<ClientCard> result = AI.Utils.SelectPreferredCards(UsedAlternativeWhiteDragon, cards, min, max);
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
         }
 
         public override IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)
@@ -194,41 +177,38 @@ namespace WindBot.Game.AI.Decks
 
         private bool DragonShrineEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.DragonSpiritOfWhite,
-                    CardId.WhiteDragon,
-                    CardId.WhiteStoneOfAncients,
-                    CardId.WhiteStoneOfLegend
-                });
+            AI.SelectCard(
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteDragon,
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend
+                );
             if (!Bot.HasInHand(CardId.WhiteDragon))
             {
                 AI.SelectNextCard(CardId.WhiteStoneOfLegend);
             }
             else
             {
-                AI.SelectNextCard(new[]
-                {
+                AI.SelectNextCard(
                     CardId.WhiteStoneOfAncients,
                     CardId.DragonSpiritOfWhite,
                     CardId.WhiteStoneOfLegend
-                });
+                    );
             }
             return true;
         }
 
         private bool MelodyOfAwakeningDragonEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.WhiteStoneOfAncients,
-                    CardId.DragonSpiritOfWhite,
-                    CardId.WhiteStoneOfLegend,
-                    CardId.GalaxyCyclone,
-                    CardId.EffectVeiler,
-                    CardId.TradeIn,
-                    CardId.SageWithEyesOfBlue
-                });
+            AI.SelectCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteStoneOfLegend,
+                CardId.GalaxyCyclone,
+                CardId.EffectVeiler,
+                CardId.TradeIn,
+                CardId.SageWithEyesOfBlue
+                );
             return true;
         }
 
@@ -268,11 +248,7 @@ namespace WindBot.Game.AI.Decks
             }
             else if (!Bot.HasInHand(CardId.WhiteDragon) || !Bot.HasInHand(CardId.AlternativeWhiteDragon))
             {
-                AI.SelectCard(new[]
-                {
-                    CardId.WhiteDragon,
-                    CardId.AlternativeWhiteDragon
-                });
+                AI.SelectCard(CardId.WhiteDragon, CardId.AlternativeWhiteDragon);
                 return true;
             }
             else
@@ -365,12 +341,11 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            AI.SelectCard(new[]
-                {
-                    CardId.WhiteStoneOfAncients,
-                    CardId.EffectVeiler,
-                    CardId.WhiteStoneOfLegend
-                });
+            AI.SelectCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.EffectVeiler,
+                CardId.WhiteStoneOfLegend
+                );
             return true;
         }
 
@@ -398,11 +373,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            AI.SelectCard(new[]
-                {
-                    CardId.WhiteStoneOfLegend,
-                    CardId.WhiteStoneOfAncients
-                });
+            AI.SelectCard(CardId.WhiteStoneOfLegend, CardId.WhiteStoneOfAncients);
             if (Enemy.GetSpellCount() > 0)
             {
                 AI.SelectNextCard(CardId.DragonSpiritOfWhite);
@@ -747,20 +718,18 @@ namespace WindBot.Game.AI.Decks
 
         private bool GalaxyEyesDarkMatterDragonEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.WhiteStoneOfAncients,
-                    CardId.WhiteStoneOfLegend,
-                    CardId.DragonSpiritOfWhite,
-                    CardId.WhiteDragon
-                });
-            AI.SelectNextCard(new[]
-                {
-                    CardId.WhiteStoneOfAncients,
-                    CardId.WhiteStoneOfLegend,
-                    CardId.DragonSpiritOfWhite,
-                    CardId.WhiteDragon
-                });
+            AI.SelectCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend,
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteDragon
+                );
+            AI.SelectNextCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend,
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteDragon
+                );
             return true;
         }
 
@@ -839,11 +808,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SylvanPrincesspriteEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.WhiteStoneOfLegend,
-                    CardId.WhiteStoneOfAncients
-                });
+            AI.SelectCard(CardId.WhiteStoneOfLegend, CardId.WhiteStoneOfAncients);
             return true;
         }
 
@@ -875,17 +840,16 @@ namespace WindBot.Game.AI.Decks
                 if (attack - defence > Enemy.LifePoints)
                     return false;
             }
-            AI.SelectCard(new[]
-                {
-                    CardId.BlueEyesSpiritDragon,
-                    CardId.HopeHarbingerDragonTitanicGalaxy,
-                    CardId.AlternativeWhiteDragon,
-                    CardId.WhiteDragon,
-                    CardId.DragonSpiritOfWhite,
-                    CardId.AzureEyesSilverDragon,
-                    CardId.WhiteStoneOfAncients,
-                    CardId.WhiteStoneOfLegend
-                });
+            AI.SelectCard(
+                CardId.BlueEyesSpiritDragon,
+                CardId.HopeHarbingerDragonTitanicGalaxy,
+                CardId.AlternativeWhiteDragon,
+                CardId.WhiteDragon,
+                CardId.DragonSpiritOfWhite,
+                CardId.AzureEyesSilverDragon,
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend
+                );
             SoulChargeUsed = true;
             return true;
         }
@@ -900,23 +864,16 @@ namespace WindBot.Game.AI.Decks
                 return true;
             if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
                 return true;
-            if (Card.IsDefense() && (
-                   Card.Id == CardId.BlueEyesSpiritDragon
-                || Card.Id == CardId.AzureEyesSilverDragon
-                ))
+            if (Card.IsDefense() && Card.IsCode(CardId.BlueEyesSpiritDragon, CardId.AzureEyesSilverDragon))
                 return true;
-            if (Card.IsAttack() && (
-                   Card.Id == CardId.SageWithEyesOfBlue
-                || Card.Id == CardId.WhiteStoneOfAncients
-                || Card.Id == CardId.WhiteStoneOfLegend
-                ))
+            if (Card.IsAttack() && Card.IsCode(CardId.SageWithEyesOfBlue, CardId.WhiteStoneOfAncients, CardId.WhiteStoneOfLegend))
                 return true;
             return false;
         }
 
         private bool SpellSet()
         {
-            return (Card.IsTrap() || (Card.Id==CardId.SilversCry)) && Bot.GetSpellCountWithoutField() < 4;
+            return (Card.IsTrap() || Card.IsCode(CardId.SilversCry)) && Bot.GetSpellCountWithoutField() < 4;
         }
 
         private bool HasTwoInHand(int id)
@@ -924,7 +881,7 @@ namespace WindBot.Game.AI.Decks
             int num = 0;
             foreach (ClientCard card in Bot.Hand)
             {
-                if (card != null && card.Id == id)
+                if (card != null && card.IsCode(id))
                     num++;
             }
             return num >= 2;
