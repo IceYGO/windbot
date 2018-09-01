@@ -103,6 +103,8 @@ namespace WindBot.Game
             _messages.Add(GameMessage.Move, OnMove);
             _messages.Add(GameMessage.Swap, OnSwap);
             _messages.Add(GameMessage.Attack, OnAttack);
+            _messages.Add(GameMessage.Battle, OnBattle);
+            _messages.Add(GameMessage.AttackDisabled, OnAttackDisabled);
             _messages.Add(GameMessage.PosChange, OnPosChange);
             _messages.Add(GameMessage.Chaining, OnChaining);
             _messages.Add(GameMessage.ChainEnd, OnChainEnd);
@@ -326,6 +328,14 @@ namespace WindBot.Game
             int type = packet.ReadByte();
             int player = packet.ReadByte();
             int data = packet.ReadInt32();
+            if (type == 1) // HINT_EVENT
+            {
+                if (data == 24) // battling
+                {
+                    _duel.Fields[0].UnderAttack = false;
+                    _duel.Fields[1].UnderAttack = false;
+                }
+            }
             if (type == 3) // HINT_SELECTMSG
             {
                 _select_hint = data;
@@ -492,6 +502,8 @@ namespace WindBot.Game
             _duel.LastSummonedCards.Clear();
             _duel.Fields[0].BattlingMonster = null;
             _duel.Fields[1].BattlingMonster = null;
+            _duel.Fields[0].UnderAttack = false;
+            _duel.Fields[1].UnderAttack = false;
             _ai.OnNewPhase();
         }
 
@@ -621,11 +633,24 @@ namespace WindBot.Game
             }                
             _duel.Fields[attackcard.Controller].BattlingMonster = attackcard;
             _duel.Fields[1 - attackcard.Controller].BattlingMonster = defendcard;
+            _duel.Fields[1 - attackcard.Controller].UnderAttack = true;
 
             if (ld == 0 && ca != 0)
             {
                 _ai.OnDirectAttack(attackcard);
             }
+        }
+
+        private void OnBattle(BinaryReader packet)
+        {
+            _duel.Fields[0].UnderAttack = false;
+            _duel.Fields[1].UnderAttack = false;
+        }
+
+        private void OnAttackDisabled(BinaryReader packet)
+        {
+            _duel.Fields[0].UnderAttack = false;
+            _duel.Fields[1].UnderAttack = false;
         }
 
         private void OnPosChange(BinaryReader packet)

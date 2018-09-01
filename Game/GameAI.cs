@@ -784,6 +784,12 @@ namespace WindBot.Game
             m_selector.Add(new CardSelector(ids));
         }
 
+        public void SelectCard(params int[] ids)
+        {
+            m_selector_pointer = m_selector.Count();
+            m_selector.Add(new CardSelector(ids));
+        }
+
         public void SelectCard(CardLocation loc)
         {
             m_selector_pointer = m_selector.Count();
@@ -821,6 +827,16 @@ namespace WindBot.Game
         }
 
         public void SelectNextCard(IList<int> ids)
+        {
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(ids));
+        }
+
+        public void SelectNextCard(params int[] ids)
         {
             if (m_selector_pointer == -1)
             {
@@ -871,6 +887,16 @@ namespace WindBot.Game
         }
 
         public void SelectThirdCard(IList<int> ids)
+        {
+            if (m_selector_pointer == -1)
+            {
+                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                m_selector_pointer = 0;
+            }
+            m_selector.Insert(m_selector_pointer, new CardSelector(ids));
+        }
+
+        public void SelectThirdCard(params int[] ids)
         {
             if (m_selector_pointer == -1)
             {

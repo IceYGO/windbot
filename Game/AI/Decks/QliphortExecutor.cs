@@ -166,19 +166,18 @@ namespace WindBot.Game.AI.Decks
 
         private bool PotOfDualityEffect()
         {
-            AI.SelectCard(new[]
-                    {
-                    CardId.Scout,
-                    CardId.SkillDrain,
-                    CardId.VanitysEmptiness,
-                    CardId.DimensionalBarrier,
-                    CardId.Stealth,
-                    CardId.Shell,
-                    CardId.Helix,
-                    CardId.Carrier,
-                    CardId.SolemnStrike,
-                    CardId.CardOfDemise
-                });
+            AI.SelectCard(
+                CardId.Scout,
+                CardId.SkillDrain,
+                CardId.VanitysEmptiness,
+                CardId.DimensionalBarrier,
+                CardId.Stealth,
+                CardId.Shell,
+                CardId.Helix,
+                CardId.Carrier,
+                CardId.SolemnStrike,
+                CardId.CardOfDemise
+                );
             return !ShouldPendulum();
         }
 
@@ -304,12 +303,7 @@ namespace WindBot.Game.AI.Decks
             }
             else if (handcount>0 || fieldcount>0)
             {
-                AI.SelectCard(new[]
-                {
-                    CardId.Saqlifice,
-                    CardId.Shell,
-                    CardId.Helix
-                });
+                AI.SelectCard(CardId.Saqlifice, CardId.Shell, CardId.Helix);
             }
             else
             {

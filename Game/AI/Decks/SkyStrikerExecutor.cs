@@ -229,12 +229,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool FoolishBurialGoodsEffect()
         {
-            AI.SelectCard(new[]{
+            AI.SelectCard(
                 CardId.MetalfoesFusion,
                 CardId.WidowAnchor,
                 CardId.Engage,
                 CardId.HornetDrones
-            });
+                );
             return true;
         }
 
@@ -312,13 +312,13 @@ namespace WindBot.Game.AI.Decks
             if (target > 0)
                 AI.SelectCard(target);
             else
-                AI.SelectCard(new[] {
+                AI.SelectCard(
                     CardId.Multirole,
                     CardId.AreaZero,
                     CardId.Afterburners,
                     CardId.JammingWave,
                     CardId.Raye
-                });
+                    );
 
             return true;
         }
@@ -330,13 +330,13 @@ namespace WindBot.Game.AI.Decks
             if (target > 0)
                 AI.SelectCard(target);
             else
-                AI.SelectCard(new[] {
+                AI.SelectCard(
                     CardId.Multirole,
                     CardId.AreaZero,
                     CardId.Afterburners,
                     CardId.JammingWave,
                     CardId.Raye
-                });
+                    );
 
             return true;
         }
@@ -562,11 +562,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                AI.SelectCard(new[] {
-                    CardId.Shizuku,
-                    CardId.Kagari,
-                    CardId.Hayate
-                });
+                AI.SelectCard(CardId.Shizuku, CardId.Kagari, CardId.Hayate);
             }
         }
 
@@ -595,11 +591,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.JammingWave);
             }
             else
-                AI.SelectCard(new[] {
-                    CardId.Engage,
-                    CardId.HornetDrones,
-                    CardId.WidowAnchor
-                });
+                AI.SelectCard(CardId.Engage, CardId.HornetDrones, CardId.WidowAnchor);
             return true;
         }
 
@@ -619,11 +611,7 @@ namespace WindBot.Game.AI.Decks
             if (target != 0)
                 AI.SelectCard(target);
             else
-                AI.SelectCard(new[] {
-                    CardId.Engage,
-                    CardId.HornetDrones,
-                    CardId.WidowAnchor
-                });
+                AI.SelectCard(CardId.Engage, CardId.HornetDrones, CardId.WidowAnchor);
             return true;
         }
 

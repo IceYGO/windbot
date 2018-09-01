@@ -179,12 +179,11 @@ namespace WindBot.Game.AI.Decks
         private bool UnexpectedDaiEffect()
         {
             if (Bot.HasInHand(CardId.RescueRabbit) || NormalSummoned)
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.MysteryShellDragon,
                     CardId.PhantomGryphon,
                     CardId.MegalosmasherX
-                });
+                    );
             else if (AI.Utils.IsTurn1OrMain2())
             {
                 if (Bot.HasInHand(CardId.MysteryShellDragon))
@@ -203,11 +202,7 @@ namespace WindBot.Game.AI.Decks
                 else if (Bot.HasInHand(CardId.PhantomGryphon))
                     AI.SelectCard(CardId.PhantomGryphon);
                 else if (Bot.HasInHand(CardId.AngelTrumpeter))
-                    AI.SelectCard(new[]
-                    {
-                        CardId.MetalfoesGoldriver,
-                        CardId.MasterPendulumTheDracoslayer
-                    });
+                    AI.SelectCard(CardId.MetalfoesGoldriver, CardId.MasterPendulumTheDracoslayer);
             }
             return true;
         }
@@ -216,22 +211,20 @@ namespace WindBot.Game.AI.Decks
         {
             if (AI.Utils.IsTurn1OrMain2())
             {
-                AI.SelectCard(new[]
-                    {
-                        CardId.MegalosmasherX,
-                        CardId.MysteryShellDragon
-                    });
+                AI.SelectCard(
+                    CardId.MegalosmasherX,
+                    CardId.MysteryShellDragon
+                    );
             }
             else
             {
-                AI.SelectCard(new[]
-                    {
-                        CardId.MasterPendulumTheDracoslayer,
-                        CardId.PhantomGryphon,
-                        CardId.MegalosmasherX,
-                        CardId.MetalfoesGoldriver,
-                        CardId.AngelTrumpeter
-                    });
+                AI.SelectCard(
+                    CardId.MasterPendulumTheDracoslayer,
+                    CardId.PhantomGryphon,
+                    CardId.MegalosmasherX,
+                    CardId.MetalfoesGoldriver,
+                    CardId.AngelTrumpeter
+                    );
             }
             return true;
         }
