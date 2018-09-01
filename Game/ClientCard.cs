@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using YGOSharp.OCGWrapper;
 using YGOSharp.OCGWrapper.Enums;
 
@@ -39,6 +40,8 @@ namespace WindBot.Game
 
         public List<ClientCard> EquipCards { get; set; }
         public ClientCard EquipTarget;
+        public List<ClientCard> OwnTargets { get; set; }
+        public List<ClientCard> TargetCards { get; set; }
 
         public bool CanDirectAttack { get; set; }
         public bool ShouldDirectAttack { get; set; }
@@ -61,6 +64,8 @@ namespace WindBot.Game
             Position = position;
             Overlays = new List<int>();
             EquipCards = new List<ClientCard>();
+            OwnTargets = new List<ClientCard>();
+            TargetCards = new List<ClientCard>();
             ActionIndex = new int[16];
             ActionActivateIndex = new Dictionary<int, int>();
             Location = loc;
@@ -72,7 +77,11 @@ namespace WindBot.Game
             Id = id;
             Data = NamedCard.Get(Id);
             if (Data != null)
+            {
                 Name = Data.Name;
+                if (Data.Alias != 0)
+                    Alias = Data.Alias;
+            }
         }
 
         public void Update(BinaryReader packet, Duel duel)
@@ -83,7 +92,7 @@ namespace WindBot.Game
             if ((flag & (int)Query.Position) != 0)
             {
                 Controller = duel.GetLocalPlayer(packet.ReadByte());
-                Location = packet.ReadByte();
+                Location = (CardLocation)packet.ReadByte();
                 Sequence = packet.ReadByte();
                 Position = packet.ReadByte();
             }
@@ -149,14 +158,78 @@ namespace WindBot.Game
             }
         }
 
+        public void ClearCardTargets()
+        {
+            foreach (ClientCard card in TargetCards)
+            {
+                card.OwnTargets.Remove(this);
+            }
+            foreach (ClientCard card in OwnTargets)
+            {
+                card.TargetCards.Remove(this);
+            }
+            OwnTargets.Clear();
+            TargetCards.Clear();
+        }
+
         public bool HasLinkMarker(int dir)
         {
             return (LinkMarker & dir) != 0;
         }
 
-        public bool HasLinkMarker(LinkMarker dir)
+        public bool HasLinkMarker(CardLinkMarker dir)
         {
             return (LinkMarker & (int)dir) != 0;
+        }
+
+        public int GetLinkedZones()
+        {
+            if (!HasType(CardType.Link) || Location != CardLocation.MonsterZone)
+                return 0;
+            int zones = 0;
+            if (Sequence > 0 && Sequence <= 4 && HasLinkMarker(CardLinkMarker.Left))
+                zones |= 1 << (Sequence - 1);
+            if (Sequence <= 3 && HasLinkMarker(CardLinkMarker.Right))
+                zones |= 1 << (Sequence + 1);
+            if (Sequence == 0 && HasLinkMarker(CardLinkMarker.TopRight)
+                || Sequence == 1 && HasLinkMarker(CardLinkMarker.Top)
+                || Sequence == 2 && HasLinkMarker(CardLinkMarker.TopLeft))
+                zones |= (1 << 5) | (1 << (16 + 6));
+            if (Sequence == 2 && HasLinkMarker(CardLinkMarker.TopRight)
+                || Sequence == 3 && HasLinkMarker(CardLinkMarker.Top)
+                || Sequence == 4 && HasLinkMarker(CardLinkMarker.TopLeft))
+                zones |= (1 << 6) | (1 << (16 + 5));
+            if (Sequence == 5)
+            {
+                if (HasLinkMarker(CardLinkMarker.BottomLeft))
+                    zones |= 1 << 0;
+                if (HasLinkMarker(CardLinkMarker.Bottom))
+                    zones |= 1 << 1;
+                if (HasLinkMarker(CardLinkMarker.BottomRight))
+                    zones |= 1 << 2;
+                if (HasLinkMarker(CardLinkMarker.TopLeft))
+                    zones |= 1 << (16 + 4);
+                if (HasLinkMarker(CardLinkMarker.Top))
+                    zones |= 1 << (16 + 3);
+                if (HasLinkMarker(CardLinkMarker.TopRight))
+                    zones |= 1 << (16 + 2);
+            }
+            if (Sequence == 6)
+            {
+                if (HasLinkMarker(CardLinkMarker.BottomLeft))
+                    zones |= 1 << 2;
+                if (HasLinkMarker(CardLinkMarker.Bottom))
+                    zones |= 1 << 3;
+                if (HasLinkMarker(CardLinkMarker.BottomRight))
+                    zones |= 1 << 4;
+                if (HasLinkMarker(CardLinkMarker.TopLeft))
+                    zones |= 1 << (16 + 2);
+                if (HasLinkMarker(CardLinkMarker.Top))
+                    zones |= 1 << (16 + 1);
+                if (HasLinkMarker(CardLinkMarker.TopRight))
+                    zones |= 1 << (16 + 0);
+            }
+            return zones;
         }
 
         public bool HasType(CardType type)
@@ -222,6 +295,21 @@ namespace WindBot.Game
         public bool IsDisabled()
         {
             return Disabled != 0;
+        }
+
+        public bool IsCode(int id)
+        {
+            return Id == id || Alias != 0 && Alias == id;
+        }
+
+        public bool IsCode(IList<int> ids)
+        {
+            return ids.Contains(Id) || Alias != 0 && ids.Contains(Alias);
+        }
+
+        public bool IsCode(params int[] ids)
+        {
+            return ids.Contains(Id) || Alias != 0 && ids.Contains(Alias);
         }
 
         public bool HasXyzMaterial()

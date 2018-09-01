@@ -79,7 +79,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             int remaining = 2;
             foreach (ClientCard card in Bot.Banished)
-                if (card.Id == CardId.WhiteNightDragon)
+                if (card.IsCode(CardId.WhiteNightDragon))
                     remaining--;
             if (remaining > 0)
             {
@@ -154,7 +154,7 @@ namespace WindBot.Game.AI.Decks
             // We should summon Horus the Black Flame Dragon LV6 if he can lvlup.
             if (Enemy.GetMonsterCount() != 0 && !AI.Utils.IsAllEnemyBetterThanValue(2300 - 1, false))
                 foreach (ClientCard card in Main.SummonableCards)
-                    if (card.Id == 11224103)
+                    if (card.IsCode(11224103))
                         return false;
 
             return DefaultTributeSummon();
@@ -197,7 +197,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard monster = cards[i];
                 if (monster.Attack < 2300)
                     return false;
-                if (monster.Race == (int)CardRace.Dragon && monster.Id != CardId.HorusTheBlackFlameDragonLv8)
+                if (monster.Race == (int)CardRace.Dragon && !monster.IsCode(CardId.HorusTheBlackFlameDragonLv8))
                 {
                     summonCard = monster;
                     break;

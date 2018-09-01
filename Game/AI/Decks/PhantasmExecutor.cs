@@ -61,7 +61,7 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             //counter
-            //AddExecutor(ExecutorType.ToBattlePhase, ToBattlePhaseeff);
+            AddExecutor(ExecutorType.GoToBattlePhase, GoToBattlePhase);
             AddExecutor(ExecutorType.Activate, CardId.StarlightRoad, PreventFeatherDustereff);
             AddExecutor(ExecutorType.Activate, CardId.TheHugeRevolutionIsOver, PreventFeatherDustereff);
             AddExecutor(ExecutorType.Activate, _CardId.GhostBelle, DefaultGhostBelleAndHauntedMansion);
@@ -100,7 +100,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.EaterOfMillions, EaterOfMillionseff);
             //other
 
-            AddExecutor(ExecutorType.Activate, CardId.Scapegoat, Scapegoateff);
+            AddExecutor(ExecutorType.Activate, CardId.Scapegoat, DefaultScapegoat);
             AddExecutor(ExecutorType.SpellSet, CardId.SeaStealthAttack, NoSetAlreadyDone);
             AddExecutor(ExecutorType.SpellSet, CardId.StarlightRoad, StarlightRoadset);
             AddExecutor(ExecutorType.SpellSet, CardId.TheHugeRevolutionIsOver, TheHugeRevolutionIsOverset);
@@ -129,18 +129,17 @@ namespace WindBot.Game.AI.Decks
             return Duel.LastChainPlayer == 1;          
         }
 
-       /* private bool ToBattlePhaseeff()
+        private bool GoToBattlePhase()
         {           
             if (Enemy.GetMonsterCount() == 0)
             {
                 if (AI.Utils.GetTotalAttackingMonsterAttack(0) >= Enemy.LifePoints)
-                {
-                    AI.ManualPhaseChange = true;
+                {                   
                     return true;
                 }
             }
             return false;
-        }*/
+        }
 
         private bool PhantasmSprialBattleeff()
         {
@@ -154,15 +153,20 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.EternalSoul);
                 return UniqueFaceupSpell();
             }
-            if(Bot.GetMonsterCount()>0 && !Bot.HasInSpellZone(CardId.SeaStealthAttack) &&
-                AI.Utils.IsOneEnemyBetterThanValue(2000,true) && Duel.Phase==DuelPhase.BattleStart)
+            if(Bot.UnderAttack && Bot.BattlingMonster != null && Bot.BattlingMonster.IsCode(CardId.MegalosmasherX))
+            {
+                AI.SelectCard(Enemy.BattlingMonster);
+                return UniqueFaceupSpell();
+            }
+            if (Bot.GetMonsterCount() > 0 && !Bot.HasInSpellZone(CardId.SeaStealthAttack) &&
+                AI.Utils.IsOneEnemyBetterThanValue(2000, false) && Duel.Phase==DuelPhase.BattleStart)
             {
                 AI.SelectCard(AI.Utils.GetBestEnemyMonster(true,true));
                 return UniqueFaceupSpell();
             }
             if (AI.Utils.GetProblematicEnemyCard(9999,true)!=null)
             {
-                if (AI.Utils.GetProblematicEnemyCard(9999, true).Id == CardId.ElShaddollWinda &&
+                if (AI.Utils.GetProblematicEnemyCard(9999, true).IsCode(CardId.ElShaddollWinda) &&
                     !AI.Utils.GetProblematicEnemyCard(9999, true).IsDisabled())
                     return false;
                 AI.SelectCard(AI.Utils.GetProblematicEnemyCard(9999, true));                
@@ -257,7 +261,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CardOfDemiseeff()
         {
-            //if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultSpellWillBeNegated()) return false;
             AI.SelectPlace(Zones.z2);
             if(Card.Location==CardLocation.Hand)
             {
@@ -280,7 +284,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FossilDigeff()
         {
-            //if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultSpellWillBeNegated()) return false;
             if (CardOfDemiseeff_used && summon_used) return false;
             return true;
         }
@@ -292,52 +296,56 @@ namespace WindBot.Game.AI.Decks
             {
                 if(Bot.HasInGraveyard(CardId.PacifisThePhantasmCity) && !Bot.HasInHandOrInSpellZone(CardId.SeaStealthAttack))
                 {
-                    AI.SelectCard(new[] {
-                    CardId.SeaStealthAttack,
-                    CardId.PacifisThePhantasmCity,
-                    CardId.Terraforming,
-                    CardId.Metaverse,
-                    CardId.CardOfDemise,
-                    CardId.Scapegoat});
+                    AI.SelectCard(
+                        CardId.SeaStealthAttack,
+                        CardId.PacifisThePhantasmCity,
+                        CardId.Terraforming,
+                        CardId.Metaverse,
+                        CardId.CardOfDemise,
+                        CardId.Scapegoat
+                        );
                 }
                 else
                 {
-                    AI.SelectCard(new[] {
-                    CardId.PacifisThePhantasmCity,
-                    CardId.Terraforming,
-                    CardId.Metaverse,
-                    CardId.CardOfDemise,
-                    CardId.Scapegoat});
+                    AI.SelectCard(
+                        CardId.PacifisThePhantasmCity,
+                        CardId.Terraforming,
+                        CardId.Metaverse,
+                        CardId.CardOfDemise,
+                        CardId.Scapegoat
+                        );
                 }
                 
             }
             else if(!Bot.HasInHandOrInSpellZone(CardId.SeaStealthAttack))
             {
-                AI.SelectCard(new[] {
-                CardId.SeaStealthAttack,                
-                CardId.CardOfDemise,
-                CardId.PotOfDesires,
-                CardId.Scapegoat});
+                AI.SelectCard(
+                    CardId.SeaStealthAttack,
+                    CardId.CardOfDemise,
+                    CardId.PotOfDesires,
+                    CardId.Scapegoat
+                    );
             }
             else
             {
-                AI.SelectCard(new[] {                
-                CardId.CardOfDemise,
-                CardId.PotOfDesires,
-                CardId.Scapegoat});
+                AI.SelectCard(
+                    CardId.CardOfDemise,
+                    CardId.PotOfDesires,
+                    CardId.Scapegoat
+                    );
             }
             return true;
         }
         private bool Terraformingeff()
         {
-           // if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultSpellWillBeNegated()) return false;
             if (CardOfDemiseeff_used && Bot.HasInSpellZone(CardId.PacifisThePhantasmCity)) return false;
             return true;
         }
         
         private bool PacifisThePhantasmCityeff()
         {
-           // if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultSpellWillBeNegated()) return false;
             if(Card.Location==CardLocation.Hand)
             {
                 if (Bot.HasInSpellZone(CardId.PacifisThePhantasmCity))
@@ -349,7 +357,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard target = null;
                 foreach(ClientCard s in Bot.GetSpells())
                 {
-                    if(s.Id==CardId.SeaStealthAttack && Card.IsFaceup())
+                    if(s.IsCode(CardId.SeaStealthAttack) && Card.IsFaceup())
                     {
                         target = s;
                         break;
@@ -388,7 +396,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard m in Bot.GetMonsters())
             {
-                if (m.Id == CardId.MissusRadiant)
+                if (m.IsCode(CardId.MissusRadiant))
                 {
                     material_list.Add(m);
                     break;
@@ -396,7 +404,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard m in Bot.GetMonsters())
             {
-                if (m.Id == CardId.Linkuriboh || m.Id == CardId.LinkSpider)
+                if (m.IsCode(CardId.Linkuriboh, CardId.LinkSpider))
                 {
                     material_list.Add(m);
                     if (material_list.Count == 3)
@@ -460,12 +468,13 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             if(Bot.HasInExtra(CardId.BorreloadDragon))
             {
-                AI.SelectCard(new[] {
-                CardId.TopologicBomberDragon,
-                CardId.TopologicTrisbaena,
-                CardId.KnightmareGryphon,
-                CardId.SummonSorceress,
-                CardId.BorreloadDragon});
+                AI.SelectCard(
+                    CardId.TopologicBomberDragon,
+                    CardId.TopologicTrisbaena,
+                    CardId.KnightmareGryphon,
+                    CardId.SummonSorceress,
+                    CardId.BorreloadDragon
+                    );
             }
             else 
             {               
@@ -489,7 +498,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.HasAttribute(CardAttribute.Earth) && monster.Level == 1 && monster.Id != CardId.EaterOfMillions)
+                if (monster.HasAttribute(CardAttribute.Earth) && monster.Level == 1 && !monster.IsCode(CardId.EaterOfMillions))
                     material_list.Add(monster);
                 if (material_list.Count == 2) break;
             }
@@ -518,7 +527,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard c in Bot.GetMonsters())
             {
-                if (c.Id != CardId.EaterOfMillions && c.Id != CardId.Linkuriboh && c.Level == 1)
+                if (!c.IsCode(CardId.EaterOfMillions, CardId.Linkuriboh) && c.Level == 1)
                 {
                     AI.SelectMaterials(c);
                     return true;
@@ -529,7 +538,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Linkuriboheff()
         {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh) return false;
+            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             return true;
         }
         private bool SeaStealthAttackeff()
@@ -548,7 +557,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         foreach (ClientCard s in Bot.GetGraveyardSpells())
                         {
-                            if (s.Id == CardId.PacifisThePhantasmCity)
+                            if (s.IsCode(CardId.PacifisThePhantasmCity))
                             {
                                 AI.SelectYesNo(true);
                                 AI.SelectCard(s);
@@ -560,7 +569,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         foreach (ClientCard s in Bot.Hand)
                         {
-                            if (s.Id == CardId.PacifisThePhantasmCity)
+                            if (s.IsCode(CardId.PacifisThePhantasmCity))
                             {
                                 AI.SelectYesNo(true);
                                 AI.SelectCard(s);
@@ -579,7 +588,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard target = null;
                 foreach(ClientCard s in Bot.GetSpells())
                 {
-                    if (s.Id == CardId.PacifisThePhantasmCity)
+                    if (s.IsCode(CardId.PacifisThePhantasmCity))
                         target = s;
                 }
                 if (target != null && AI.Utils.IsChainTarget(target))
@@ -590,13 +599,13 @@ namespace WindBot.Game.AI.Decks
                 target = AI.Utils.GetLastChainCard();
                 if(target!=null)
                 {
-                    if(target.Id==CardId.BrandishSkillAfterburner)
+                    if(target.IsCode(CardId.BrandishSkillAfterburner))
                     {
                         AI.SelectCard(CardId.MegalosmasherX);
                         SeaStealthAttackeff_used = true;
                         return true;
                     }
-                    if(Enemy.GetGraveyardSpells().Count>=3 && target.Id==CardId.BrandishSkillJammingWave)
+                    if(Enemy.GetGraveyardSpells().Count>=3 && target.IsCode(CardId.BrandishSkillJammingWave))
                     {
                         AI.SelectCard(CardId.MegalosmasherX);
                         SeaStealthAttackeff_used = true;
@@ -610,26 +619,7 @@ namespace WindBot.Game.AI.Decks
         private bool PotOfDesireseff()
         {
             return Bot.Deck.Count >= 18;
-        }
-
-        private bool Scapegoateff()
-        {
-          //  if (DefaultSpellWillBeNegated()) return false;
-            if (Duel.Player == 0) return false;
-            if (Duel.Phase == DuelPhase.End) return true;
-            if (DefaultOnBecomeTarget()) return true;
-            if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
-            {
-                int total_atk = 0;
-                List<ClientCard> enemy_monster = Enemy.GetMonsters();
-                foreach (ClientCard m in enemy_monster)
-                {
-                    if (m.IsAttack()) total_atk += m.Attack;
-                }
-                if (total_atk >= Bot.LifePoints) return true;
-            }
-            return false;
-        }
+        }       
        
         private bool StarlightRoadset()
         {
@@ -675,7 +665,7 @@ namespace WindBot.Game.AI.Decks
                 int zone_count = 5 - Bot.GetSpellCountWithoutField();
                 return zone_count- hand_spell_count >= 1;
             }
-            if(Card.Id==CardId.PhantasmSprialBattle || Card.Id==CardId.PhantasmSpiralPower)
+            if(Card.IsCode(CardId.PhantasmSprialBattle, CardId.PhantasmSpiralPower))
             {
                 if (Bot.HasInMonstersZone(CardId.MegalosmasherX) &&
                     !Bot.HasInHandOrInSpellZone(CardId.PacifisThePhantasmCity) &&
@@ -691,20 +681,20 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard s in Bot.GetSpells())
                 {
-                    if (s.IsFaceup() && s.Id == CardId.SeaStealthAttack &&
+                    if (s.IsFaceup() && s.IsCode(CardId.SeaStealthAttack) &&
                         Bot.HasInSpellZone(CardId.PacifisThePhantasmCity) &&
                         Card.IsAttack())
                         return false;
                 }
             }
-            if (Card.Id == CardId.EaterOfMillions && !Card.IsDisabled() && Card.IsAttack())
+            if (Card.IsCode(CardId.EaterOfMillions) && !Card.IsDisabled() && Card.IsAttack())
                 return false;
             return DefaultMonsterRepos();
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if(attacker.Id==CardId.PacifisThePhantasmCity+1 && defender.Id==CardId.EaterOfMillions)
+            if(attacker.IsCode(CardId.PacifisThePhantasmCity+1) && defender.IsCode(CardId.EaterOfMillions))
             {
                 if (attacker.RealPower >= defender.RealPower) return true;
             }
@@ -712,10 +702,10 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach(ClientCard s in Bot.GetSpells())
                 {
-                    if (s.IsFaceup() && s.Id == CardId.SeaStealthAttack && Bot.HasInSpellZone(CardId.PacifisThePhantasmCity))
+                    if (s.IsFaceup() && s.IsCode(CardId.SeaStealthAttack) && Bot.HasInSpellZone(CardId.PacifisThePhantasmCity))
                     { 
                         attacker.RealPower = 9999;
-                        if (defender.Id == CardId.EaterOfMillions) return true;
+                        if (defender.IsCode(CardId.EaterOfMillions)) return true;
                     }
                        
                 }
@@ -728,7 +718,7 @@ namespace WindBot.Game.AI.Decks
             for (int i = 0; i < attackers.Count; ++i)
             {
                 ClientCard attacker = attackers[i];
-                if (attacker.Id == CardId.EaterOfMillions) return attacker;
+                if (attacker.IsCode(CardId.EaterOfMillions)) return attacker;
             }
             return null;
         }

@@ -163,7 +163,7 @@ namespace WindBot.Game.AI.Decks
             if (Card == null)
                 return true;
             // Logger.DebugWriteLine(Card.Name);
-            if (Card.Id == CardId.YosenjuKama2)
+            if (Card.IsCode(CardId.YosenjuKama2))
                 return Card.ShouldDirectAttack;
             else
                 return true;
@@ -189,8 +189,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (CardOfDemiseUsed)
             {
-                AI.SelectCard(new[]
-                    {
+                AI.SelectCard(
                     CardId.StarlightRoad,
                     CardId.MagicDrain,
                     CardId.SolemnJudgment,
@@ -202,12 +201,11 @@ namespace WindBot.Game.AI.Decks
                     CardId.SolemnWarning,
                     CardId.MacroCosmos,
                     CardId.CardOfDemise
-                });
+                    );
             }
             else
             {
-                AI.SelectCard(new[]
-                    {
+                AI.SelectCard(
                     CardId.YosenjuKama3,
                     CardId.YosenjuKama1,
                     CardId.YosenjuKama2,
@@ -221,8 +219,8 @@ namespace WindBot.Game.AI.Decks
                     CardId.SolemnJudgment,
                     CardId.SolemnWarning,
                     CardId.MacroCosmos,
-                    CardId.CardOfDemise,
-                });
+                    CardId.CardOfDemise
+                    );
             }
             return true;
         }
@@ -241,7 +239,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard card in Bot.Hand.GetMonsters())
             {
-                if (!card.Equals(Card) && card.Id == Card.Id)
+                if (!card.Equals(Card) && card.IsCode(Card.Id))
                     return true;
             }
             return false;
@@ -251,7 +249,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card.Id == Card.Id)
+                if (card.IsCode(Card.Id))
                     return false;
             }
             return TrapSetWhenZoneFree();
@@ -272,12 +270,7 @@ namespace WindBot.Game.AI.Decks
             // Don't activate the return to hand effect first
             if (Duel.Phase == DuelPhase.End)
                 return false;
-            AI.SelectCard(new[]
-                {
-                    CardId.YosenjuKama1,
-                    CardId.YosenjuKama2,
-                    CardId.YosenjuKama3
-                });
+            AI.SelectCard(CardId.YosenjuKama1, CardId.YosenjuKama2, CardId.YosenjuKama3);
             return true;
         }
 

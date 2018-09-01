@@ -141,7 +141,7 @@ namespace WindBot.Game.AI.Decks
             for (int i = 1; i <= max; ++i)
             {
                 ClientCard card = cards[cards.Count - i];
-                if (card.Id != CardId.Scout || (card.Location == CardLocation.Extra && !Duel.IsNewRule))
+                if (!card.IsCode(CardId.Scout) || (card.Location == CardLocation.Extra && !Duel.IsNewRule))
                     selected.Add(card);
             }
             if (selected.Count == 0)
@@ -152,7 +152,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool NormalSummon()
         {
-            if (Card.Id == CardId.Scout)
+            if (Card.IsCode(CardId.Scout))
                 return false;
             if (Card.Level < 8)
                 AI.SelectOption(1);
@@ -166,19 +166,18 @@ namespace WindBot.Game.AI.Decks
 
         private bool PotOfDualityEffect()
         {
-            AI.SelectCard(new[]
-                    {
-                    CardId.Scout,
-                    CardId.SkillDrain,
-                    CardId.VanitysEmptiness,
-                    CardId.DimensionalBarrier,
-                    CardId.Stealth,
-                    CardId.Shell,
-                    CardId.Helix,
-                    CardId.Carrier,
-                    CardId.SolemnStrike,
-                    CardId.CardOfDemise
-                });
+            AI.SelectCard(
+                CardId.Scout,
+                CardId.SkillDrain,
+                CardId.VanitysEmptiness,
+                CardId.DimensionalBarrier,
+                CardId.Stealth,
+                CardId.Shell,
+                CardId.Helix,
+                CardId.Carrier,
+                CardId.SolemnStrike,
+                CardId.CardOfDemise
+                );
             return !ShouldPendulum();
         }
 
@@ -196,7 +195,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card.Id == Card.Id)
+                if (card.IsCode(Card.Id))
                     return false;
             }
             return TrapSetWhenZoneFree();
@@ -304,12 +303,7 @@ namespace WindBot.Game.AI.Decks
             }
             else if (handcount>0 || fieldcount>0)
             {
-                AI.SelectCard(new[]
-                {
-                    CardId.Saqlifice,
-                    CardId.Shell,
-                    CardId.Helix
-                });
+                AI.SelectCard(CardId.Saqlifice, CardId.Shell, CardId.Helix);
             }
             else
             {

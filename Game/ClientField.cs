@@ -17,6 +17,7 @@ namespace WindBot.Game
 
         public int LifePoints;
         public ClientCard BattlingMonster;
+        public bool UnderAttack;
 
         public ClientField()
         {
@@ -97,7 +98,6 @@ namespace WindBot.Game
             return count;
         }
 
-
         public int GetFieldCount()
         {
             return GetSpellCount() + GetMonsterCount();
@@ -111,6 +111,16 @@ namespace WindBot.Game
         public bool IsFieldEmpty()
         {
             return GetMonsters().Count == 0 && GetSpells().Count == 0;
+        }
+
+        public int GetLinkedZones()
+        {
+            int zones = 0;
+            for (int i = 0; i < 7; i++)
+            {
+                zones |= MonsterZone[i]?.GetLinkedZones() ?? 0;
+            }
+            return zones;
         }
 
         public List<ClientCard> GetMonsters()
@@ -198,24 +208,24 @@ namespace WindBot.Game
             return GetMonsters().Any(card => card.IsDefense());
         }
 
-        public bool HasInMonstersZone(int cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        public bool HasInMonstersZone(int cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
-            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial);
+            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial, faceUp);
         }
 
-        public bool HasInMonstersZone(IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        public bool HasInMonstersZone(IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
-            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial);
+            return HasInCards(MonsterZone, cardId, notDisabled, hasXyzMaterial, faceUp);
         }
 
-        public bool HasInSpellZone(int cardId, bool notDisabled = false)
+        public bool HasInSpellZone(int cardId, bool notDisabled = false, bool faceUp = false)
         {
-            return HasInCards(SpellZone, cardId, notDisabled);
+            return HasInCards(SpellZone, cardId, notDisabled, false, faceUp);
         }
 
-        public bool HasInSpellZone(IList<int> cardId, bool notDisabled = false)
+        public bool HasInSpellZone(IList<int> cardId, bool notDisabled = false, bool faceUp = false)
         {
-            return HasInCards(SpellZone, cardId, notDisabled);
+            return HasInCards(SpellZone, cardId, notDisabled, false, faceUp);
         }
 
         public bool HasInHandOrInSpellZone(int cardId)
@@ -291,10 +301,10 @@ namespace WindBot.Game
         public int GetRemainingCount(int cardId, int initialCount)
         {
             int remaining = initialCount;
-            remaining = remaining - Hand.Count(card => card != null && card.Id == cardId);
-            remaining = remaining - SpellZone.Count(card => card != null && card.Id == cardId);
-            remaining = remaining - Graveyard.Count(card => card != null && card.Id == cardId);
-            remaining = remaining - Banished.Count(card => card != null && card.Id == cardId);
+            remaining = remaining - Hand.Count(card => card != null && card.IsCode(cardId));
+            remaining = remaining - SpellZone.Count(card => card != null && card.IsCode(cardId));
+            remaining = remaining - Graveyard.Count(card => card != null && card.IsCode(cardId));
+            remaining = remaining - Banished.Count(card => card != null && card.IsCode(cardId));
             return (remaining < 0) ? 0 : remaining;
         }
 
@@ -305,12 +315,12 @@ namespace WindBot.Game
 
         public int GetCountCardInZone(IEnumerable<ClientCard> cards, int cardId)
         {
-            return cards.Count(card => card != null && card.Id == cardId);
+            return cards.Count(card => card != null && card.IsCode(cardId));
         }
 
         public int GetCountCardInZone(IEnumerable<ClientCard> cards, List<int> cardId)
         {
-            return cards.Count(card => card != null && cardId.Contains(card.Id));
+            return cards.Count(card => card != null && card.IsCode(cardId));
         }
 
         private static List<ClientCard> GetCards(IEnumerable<ClientCard> cards, CardType type)
@@ -323,14 +333,14 @@ namespace WindBot.Game
             return cards.Where(card => card != null).ToList();
         }
 
-        private static bool HasInCards(IEnumerable<ClientCard> cards, int cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        private static bool HasInCards(IEnumerable<ClientCard> cards, int cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
-            return cards.Any(card => card != null && card.Id == cardId && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()));
+            return cards.Any(card => card != null && card.IsCode(cardId) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()) && !(faceUp && card.IsFacedown()));
         }
 
-        private static bool HasInCards(IEnumerable<ClientCard> cards, IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false)
+        private static bool HasInCards(IEnumerable<ClientCard> cards, IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
-            return cards.Any(card => card != null && cardId.Contains(card.Id) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()));
+            return cards.Any(card => card != null && card.IsCode(cardId) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()) && !(faceUp && card.IsFacedown()));
         }
     }
 }

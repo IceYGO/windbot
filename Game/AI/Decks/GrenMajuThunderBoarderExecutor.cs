@@ -251,21 +251,21 @@ namespace WindBot.Game.AI.Decks
 
         private bool DarkBribeeff()
         {
-            if (AI.Utils.GetLastChainCard()!=null && AI.Utils.GetLastChainCard().Id == CardId.UpstartGoblin)
+            if (AI.Utils.GetLastChainCard()!=null && AI.Utils.GetLastChainCard().IsCode(CardId.UpstartGoblin))
                 return false;
             return true;
 
         }
         private bool ImperialOrderfirst()
         {
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == CardId.UpstartGoblin)
+            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsCode(CardId.UpstartGoblin))
                 return false;
             return DefaultOnBecomeTarget() && AI.Utils.GetLastChainCard().HasType(CardType.Spell);
         }
 
         private bool ImperialOrdereff()
         {
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == CardId.UpstartGoblin)
+            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsCode(CardId.UpstartGoblin))
                 return false;
             if (Duel.LastChainPlayer == 1)
             {
@@ -308,41 +308,38 @@ namespace WindBot.Game.AI.Decks
                     count++;
             }
             if(AI.Utils.GetBestEnemyMonster()!=null && AI.Utils.GetBestEnemyMonster().Attack>=1900)
-                AI.SelectCard(new[]
-                   {
-                     CardId.EaterOfMillions,
+                AI.SelectCard(
+                    CardId.EaterOfMillions,
                     CardId.PotOfDesires,
                     CardId.GrenMajuDaEizo,
                     CardId.InspectBoarder,
-                    CardId.ThunderKingRaiOh,                  
+                    CardId.ThunderKingRaiOh,
                     CardId.Scapegoat,
                     CardId.SolemnJudgment,
                     CardId.SolemnWarning,
                     CardId.SolemStrike,
-                    CardId.InfiniteImpermanence,
-                });
+                    CardId.InfiniteImpermanence
+                    );
             if (count == 0)
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.PotOfDesires,
                     CardId.InspectBoarder,
                     CardId.ThunderKingRaiOh,
                     CardId.EaterOfMillions,
                     CardId.GrenMajuDaEizo,
-                    CardId.Scapegoat,
-                });
+                    CardId.Scapegoat
+                    );
             else
             {
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.PotOfDesires,
                     CardId.CardOfDemise,
                     CardId.SolemnJudgment,
                     CardId.SolemnWarning,
                     CardId.SolemStrike,
                     CardId.InfiniteImpermanence,
-                    CardId.Scapegoat,
-                });
+                    CardId.Scapegoat
+                    );
             }
             return true;
         }
@@ -437,7 +434,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.Id ==CardId.MissusRadiant || monster.Id==CardId.LinkSpider || monster.Id==CardId.Linkuriboh)
+                if (monster.IsCode(CardId.MissusRadiant, CardId.LinkSpider, CardId.Linkuriboh))
                     material_list.Add(monster);
                 if (material_list.Count == 3) break;
             }
@@ -454,10 +451,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if ((monster.Id == CardId.MissusRadiant || 
-                    monster.Id == CardId.LinkSpider || 
-                    monster.Id == CardId.Linkuriboh )&&
-                    monster.Id!=CardId.EaterOfMillions)
+                if (monster.IsCode(CardId.MissusRadiant, CardId.LinkSpider, CardId.Linkuriboh))
                     material_list.Add(monster);
                 if (material_list.Count == 3) break;
             }
@@ -559,7 +553,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.HasAttribute(CardAttribute.Earth) && monster.Level==1 && monster.Id!=CardId.EaterOfMillions)
+                if (monster.HasAttribute(CardAttribute.Earth) && monster.Level==1 && !monster.IsCode(CardId.EaterOfMillions))
                     material_list.Add(monster);
                 if (material_list.Count == 2) break;
             }
@@ -575,11 +569,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MissusRadianteff()
         {
-            AI.SelectCard(new[]
-           {
-                CardId.MaxxC,
-                CardId.MissusRadiant,
-            });
+            AI.SelectCard(CardId.MaxxC, CardId.MissusRadiant);
             return true;
         }
 
@@ -587,7 +577,7 @@ namespace WindBot.Game.AI.Decks
         {            
             foreach (ClientCard c in Bot.GetMonsters())
             {
-                if (c.Id != CardId.EaterOfMillions  && c.Id != CardId.Linkuriboh && c.Level==1 )
+                if (!c.IsCode(CardId.EaterOfMillions, CardId.Linkuriboh) && c.Level==1)
                 {
                     AI.SelectMaterials(c);
                     return true;
@@ -598,12 +588,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool Linkuriboheff()
         {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh) return false;           
+            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;           
             return true;
         }
         private bool MonsterRepos()
         {
-            if (Card.Id == CardId.EaterOfMillions && Card.IsAttack()) return false;
+            if (Card.IsCode(CardId.EaterOfMillions) && Card.IsAttack()) return false;
             return DefaultMonsterRepos();
         }
 
@@ -612,29 +602,29 @@ namespace WindBot.Game.AI.Decks
             int count = 0;
             foreach(ClientCard check in Bot.Hand)
             {
-                if (check.Id == CardId.CardOfDemise)
+                if (check.IsCode(CardId.CardOfDemise))
                     count++;
             }
             if (count == 2 && Bot.Hand.Count == 2 && Bot.GetSpellCountWithoutField() <= 2)
                 return true;            
-            if (Card.Id == CardId.MacroCosmos && Bot.HasInSpellZone(CardId.MacroCosmos)) return false;
-            if (Card.Id == CardId.AntiSpellFragrance && Bot.HasInSpellZone(CardId.AntiSpellFragrance)) return false;
+            if (Card.IsCode(CardId.MacroCosmos) && Bot.HasInSpellZone(CardId.MacroCosmos)) return false;
+            if (Card.IsCode(CardId.AntiSpellFragrance) && Bot.HasInSpellZone(CardId.AntiSpellFragrance)) return false;
             if (CardOfDemiseeff_used)return true;            
-            if (Card.Id == CardId.EvenlyMatched && (Enemy.GetFieldCount() - Bot.GetFieldCount()) < 0) return false;
-            if (Card.Id == CardId.AntiSpellFragrance && Bot.HasInSpellZone(CardId.AntiSpellFragrance)) return false;
-            if (Card.Id == CardId.MacroCosmos && Bot.HasInSpellZone(CardId.MacroCosmos)) return false;
+            if (Card.IsCode(CardId.EvenlyMatched) && (Enemy.GetFieldCount() - Bot.GetFieldCount()) < 0) return false;
+            if (Card.IsCode(CardId.AntiSpellFragrance) && Bot.HasInSpellZone(CardId.AntiSpellFragrance)) return false;
+            if (Card.IsCode(CardId.MacroCosmos) && Bot.HasInSpellZone(CardId.MacroCosmos)) return false;
             if (Duel.Turn > 1 && Duel.Phase == DuelPhase.Main1 && Bot.HasAttackingMonster())
                 return false;
-            if (Card.Id == CardId.InfiniteImpermanence)
+            if (Card.IsCode(CardId.InfiniteImpermanence))
                 return Bot.GetFieldCount() > 0 && Bot.GetSpellCountWithoutField() < 4;
-            if (Card.Id == CardId.Scapegoat)
+            if (Card.IsCode(CardId.Scapegoat))
                 return true;
             if (Card.HasType(CardType.Trap))
                 return Bot.GetSpellCountWithoutField() < 4;
             if(Bot.HasInSpellZone(CardId.AntiSpellFragrance,true))
             {
-                if (Card.Id == CardId.UpstartGoblin || Card.Id == CardId.PotOfDesires || Card.Id==CardId.PotOfDuality) return true;
-                if (Card.Id == CardId.CardOfDemise && Bot.HasInSpellZone(CardId.CardOfDemise)) return false;
+                if (Card.IsCode(CardId.UpstartGoblin, CardId.PotOfDesires, CardId.PotOfDuality)) return true;
+                if (Card.IsCode(CardId.CardOfDemise) && Bot.HasInSpellZone(CardId.CardOfDemise)) return false;
                 if (Card.HasType(CardType.Spell))
                     return Bot.GetSpellCountWithoutField() < 4;
             }
@@ -642,12 +632,12 @@ namespace WindBot.Game.AI.Decks
         }
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (attacker.Id == _CardId.EaterOfMillions && (Bot.HasInMonstersZone(CardId.InspectBoarder) && eater_eff) && !attacker.IsDisabled())
+            if (attacker.IsCode(_CardId.EaterOfMillions) && (Bot.HasInMonstersZone(CardId.InspectBoarder) && eater_eff) && !attacker.IsDisabled())
             {
                 attacker.RealPower = 9999;
                 return true;
             }
-            if (attacker.Id == _CardId.EaterOfMillions && !Bot.HasInMonstersZone(CardId.InspectBoarder) && !attacker.IsDisabled())
+            if (attacker.IsCode(_CardId.EaterOfMillions) && !Bot.HasInMonstersZone(CardId.InspectBoarder) && !attacker.IsDisabled())
             {
                 attacker.RealPower = 9999;
                 return true;
@@ -659,7 +649,7 @@ namespace WindBot.Game.AI.Decks
             for (int i = 0; i < attackers.Count; ++i)
             {
                 ClientCard attacker = attackers[i];
-                if (attacker.Id == CardId.BirrelswordDragon || attacker.Id == CardId.EaterOfMillions) return attacker;
+                if (attacker.IsCode(CardId.BirrelswordDragon, CardId.EaterOfMillions)) return attacker;
             }
             return null;
         }

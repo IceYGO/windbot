@@ -116,7 +116,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (attacker.Id == CardId.SkyCavalryCentaurea && !attacker.IsDisabled() && attacker.HasXyzMaterial())
+                if (attacker.IsCode(CardId.SkyCavalryCentaurea) && !attacker.IsDisabled() && attacker.HasXyzMaterial())
                     attacker.RealPower = Bot.LifePoints + attacker.Attack;
             }
             return base.OnPreBattleBetween(attacker, defender);
@@ -138,28 +138,26 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                AI.SelectCard(new[]
-                    {
+                AI.SelectCard(
                     CardId.CryomancerOfTheIceBarrier,
                     CardId.DewdarkOfTheIceBarrier
-                });
+                    );
             }
             return true;
         }
 
         private bool SurfaceEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.ToadallyAwesome,
-                    CardId.HeraldOfTheArcLight,
-                    CardId.SwapFrog,
-                    CardId.DewdarkOfTheIceBarrier,
-                    CardId.CryomancerOfTheIceBarrier,
-                    CardId.DupeFrog,
-                    CardId.Ronintoadin,
-                    CardId.GraydleSlimeJr
-                });
+            AI.SelectCard(
+                CardId.ToadallyAwesome,
+                CardId.HeraldOfTheArcLight,
+                CardId.SwapFrog,
+                CardId.DewdarkOfTheIceBarrier,
+                CardId.CryomancerOfTheIceBarrier,
+                CardId.DupeFrog,
+                CardId.Ronintoadin,
+                CardId.GraydleSlimeJr
+                );
             return true;
         }
 
@@ -182,27 +180,25 @@ namespace WindBot.Game.AI.Decks
             else if (Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.Ronintoadin))
                 AI.SelectCard(CardId.Ronintoadin);
             else
-                AI.SelectCard(new[]
-                    {
-                        CardId.GraydleSlimeJr,
-                        CardId.Ronintoadin,
-                        CardId.DupeFrog,
-                        CardId.CryomancerOfTheIceBarrier,
-                        CardId.DewdarkOfTheIceBarrier,
-                        CardId.PriorOfTheIceBarrier,
-                        CardId.SwapFrog
-                    });
+                AI.SelectCard(
+                    CardId.GraydleSlimeJr,
+                    CardId.Ronintoadin,
+                    CardId.DupeFrog,
+                    CardId.CryomancerOfTheIceBarrier,
+                    CardId.DewdarkOfTheIceBarrier,
+                    CardId.PriorOfTheIceBarrier,
+                    CardId.SwapFrog
+                    );
             return true;
         }
 
         private bool SalvageEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.SwapFrog,
-                    CardId.PriorOfTheIceBarrier,
-                    CardId.GraydleSlimeJr
-                });
+            AI.SelectCard(
+                CardId.SwapFrog,
+                CardId.PriorOfTheIceBarrier,
+                CardId.GraydleSlimeJr
+                );
             return true;
         }
 
@@ -215,16 +211,15 @@ namespace WindBot.Game.AI.Decks
             else if (Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.Ronintoadin))
                 AI.SelectCard(CardId.Ronintoadin);
             else
-                AI.SelectCard(new[]
-                    {
-                        CardId.Ronintoadin,
-                        CardId.DupeFrog,
-                        CardId.CryomancerOfTheIceBarrier,
-                        CardId.DewdarkOfTheIceBarrier,
-                        CardId.PriorOfTheIceBarrier,
-                        CardId.GraydleSlimeJr,
-                        CardId.SwapFrog
-                    });
+                AI.SelectCard(
+                    CardId.Ronintoadin,
+                    CardId.DupeFrog,
+                    CardId.CryomancerOfTheIceBarrier,
+                    CardId.DewdarkOfTheIceBarrier,
+                    CardId.PriorOfTheIceBarrier,
+                    CardId.GraydleSlimeJr,
+                    CardId.SwapFrog
+                    );
             return true;
         }
 
@@ -238,12 +233,11 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.HasInHand(CardId.DupeFrog))
                 {
-                    AI.SelectCard(new[]
-                        {
-                            CardId.PriorOfTheIceBarrier,
-                            CardId.GraydleSlimeJr,
-                            CardId.SwapFrog
-                        });
+                    AI.SelectCard(
+                        CardId.PriorOfTheIceBarrier,
+                        CardId.GraydleSlimeJr,
+                        CardId.SwapFrog
+                        );
                     return true;
                 }
             }
@@ -259,16 +253,15 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(CardId.GraydleSlimeJr);
             AI.SelectPosition(CardPosition.FaceUpDefence);
-            AI.SelectNextCard(new[]
-                {
-                    CardId.SwapFrog,
-                    CardId.CryomancerOfTheIceBarrier,
-                    CardId.DewdarkOfTheIceBarrier,
-                    CardId.Ronintoadin,
-                    CardId.DupeFrog,
-                    CardId.PriorOfTheIceBarrier,
-                    CardId.GraydleSlimeJr
-                });
+            AI.SelectNextCard(
+                CardId.SwapFrog,
+                CardId.CryomancerOfTheIceBarrier,
+                CardId.DewdarkOfTheIceBarrier,
+                CardId.Ronintoadin,
+                CardId.DupeFrog,
+                CardId.PriorOfTheIceBarrier,
+                CardId.GraydleSlimeJr
+                );
             return true;
         }
 
@@ -315,7 +308,7 @@ namespace WindBot.Game.AI.Decks
                 };
                 foreach (ClientCard monster in monsters)
                 {
-                    if (suitableCost.Contains(monster.Id))
+                    if (monster.IsCode(suitableCost))
                     {
                         AI.SelectCard(monster);
                         return true;
@@ -325,7 +318,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     foreach (ClientCard monster in monsters)
                     {
-                        if (monster.Id == CardId.DupeFrog)
+                        if (monster.IsCode(CardId.DupeFrog))
                         {
                             AI.SelectCard(monster);
                             return true;
@@ -337,7 +330,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     foreach (ClientCard monster in hands)
                     {
-                        if (monster.Id == CardId.GraydleSlimeJr)
+                        if (monster.IsCode(CardId.GraydleSlimeJr))
                         {
                             AI.SelectCard(monster);
                             return true;
@@ -348,7 +341,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     foreach (ClientCard monster in hands)
                     {
-                        if (monster.Id == CardId.DupeFrog)
+                        if (monster.IsCode(CardId.DupeFrog))
                         {
                             AI.SelectCard(monster);
                             return true;
@@ -357,7 +350,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 foreach (ClientCard monster in hands)
                 {
-                    if (monster.Id == CardId.Ronintoadin || monster.Id == CardId.DupeFrog)
+                    if (monster.IsCode(CardId.Ronintoadin, CardId.DupeFrog))
                     {
                         AI.SelectCard(monster);
                         return true;
@@ -378,12 +371,11 @@ namespace WindBot.Game.AI.Decks
                 }
                 else
                 {
-                    AI.SelectCard(new[]
-                        {
-                            CardId.SwapFrog,
-                            CardId.PriorOfTheIceBarrier,
-                            CardId.GraydleSlimeJr
-                        });
+                    AI.SelectCard(
+                        CardId.SwapFrog,
+                        CardId.PriorOfTheIceBarrier,
+                        CardId.GraydleSlimeJr
+                        );
                 }
                 return true;
             }
@@ -392,27 +384,25 @@ namespace WindBot.Game.AI.Decks
                 SelectXYZDetach(Card.Overlays);
                 if (Duel.Player == 0)
                 {
-                    AI.SelectNextCard(new[]
-                        {
-                            CardId.SwapFrog,
-                            CardId.CryomancerOfTheIceBarrier,
-                            CardId.DewdarkOfTheIceBarrier,
-                            CardId.Ronintoadin,
-                            CardId.DupeFrog,
-                            CardId.GraydleSlimeJr
-                        });
+                    AI.SelectNextCard(
+                        CardId.SwapFrog,
+                        CardId.CryomancerOfTheIceBarrier,
+                        CardId.DewdarkOfTheIceBarrier,
+                        CardId.Ronintoadin,
+                        CardId.DupeFrog,
+                        CardId.GraydleSlimeJr
+                        );
                 }
                 else
                 {
-                    AI.SelectNextCard(new[]
-                        {
-                            CardId.DupeFrog,
-                            CardId.SwapFrog,
-                            CardId.Ronintoadin,
-                            CardId.GraydleSlimeJr,
-                            CardId.CryomancerOfTheIceBarrier,
-                            CardId.DewdarkOfTheIceBarrier
-                        });
+                    AI.SelectNextCard(
+                        CardId.DupeFrog,
+                        CardId.SwapFrog,
+                        CardId.Ronintoadin,
+                        CardId.GraydleSlimeJr,
+                        CardId.CryomancerOfTheIceBarrier,
+                        CardId.DewdarkOfTheIceBarrier
+                        );
                     AI.SelectPosition(CardPosition.FaceUpDefence);
                 }
                 return true;
@@ -442,7 +432,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == CardId.ToadallyAwesome && monster.Attack <= 2200)
+                if (monster.IsCode(CardId.ToadallyAwesome) && monster.Attack <= 2200)
                 {
                     SelectXYZDetach(Card.Overlays);
                     AI.SelectNextCard(monster);
@@ -451,7 +441,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == CardId.SkyCavalryCentaurea && monster.Attack <= 2000)
+                if (monster.IsCode(CardId.SkyCavalryCentaurea) && monster.Attack <= 2000)
                 {
                     SelectXYZDetach(Card.Overlays);
                     AI.SelectNextCard(monster);
@@ -460,7 +450,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard monster in monsters)
             {
-                if (monster.Id == CardId.DaigustoPhoenix && monster.Attack <= 1500)
+                if (monster.IsCode(CardId.DaigustoPhoenix) && monster.Attack <= 1500)
                 {
                     SelectXYZDetach(Card.Overlays);
                     AI.SelectNextCard(monster);
@@ -566,16 +556,15 @@ namespace WindBot.Game.AI.Decks
             else if (Overlays.Contains(CardId.Ronintoadin) && Bot.HasInGraveyard(CardId.DupeFrog) && !Bot.HasInGraveyard(CardId.Ronintoadin))
                 AI.SelectCard(CardId.Ronintoadin);
             else
-                AI.SelectCard(new[]
-                    {
-                        CardId.GraydleSlimeJr,
-                        CardId.Ronintoadin,
-                        CardId.DupeFrog,
-                        CardId.CryomancerOfTheIceBarrier,
-                        CardId.DewdarkOfTheIceBarrier,
-                        CardId.PriorOfTheIceBarrier,
-                        CardId.SwapFrog
-                    });
+                AI.SelectCard(
+                    CardId.GraydleSlimeJr,
+                    CardId.Ronintoadin,
+                    CardId.DupeFrog,
+                    CardId.CryomancerOfTheIceBarrier,
+                    CardId.DewdarkOfTheIceBarrier,
+                    CardId.PriorOfTheIceBarrier,
+                    CardId.SwapFrog
+                    );
         }
     }
 }

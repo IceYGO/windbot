@@ -147,7 +147,7 @@ namespace WindBot.Game.AI.Decks
             if (AI.Utils.IsOneEnemyBetterThanValue(atk, true))
                 return false;
 
-            if (Card.Id == CardId.SwapFrog)
+            if (Card.IsCode(CardId.SwapFrog))
                 m_swapFrogSummoned = Duel.Turn;
             return true;
         }
@@ -200,7 +200,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> spells = Bot.GetSpells();
             foreach (ClientCard spell in spells)
             {
-                if (spell.Id == CardId.GravityBind && !spell.IsFacedown())
+                if (spell.IsCode(CardId.GravityBind) && !spell.IsFacedown())
                     return false;
             }
             return true;
@@ -208,9 +208,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool FrogMonsterRepos()
         {
-            if (Card.Id == CardId.Unifrog)
+            if (Card.IsCode(CardId.Unifrog))
                 return Card.IsDefense();
-            if (Card.Id == CardId.DewdarkOfTheIceBarrier)
+            if (Card.IsCode(CardId.DewdarkOfTheIceBarrier))
                 return Card.IsDefense();
 
             bool enemyBetter = AI.Utils.IsOneEnemyBetterThanValue(Card.Attack + (Card.IsFacedown() ? GetSpellBonus() : 0), true);
@@ -222,10 +222,10 @@ namespace WindBot.Game.AI.Decks
             if (Card.IsDefense() && !enemyBetter)
                 result = true;
 
-            if (!result && Card.Id == CardId.FlipFlopFrog && Enemy.GetMonsterCount() > 0 && Card.IsFacedown())
+            if (!result && Card.IsCode(CardId.FlipFlopFrog) && Enemy.GetMonsterCount() > 0 && Card.IsFacedown())
                 result = true;
 
-            if (Card.Id == CardId.FlipFlopFrog && Card.IsFacedown() && result)
+            if (Card.IsCode(CardId.FlipFlopFrog) && Card.IsFacedown() && result)
                 m_flipFlopFrogSummoned = Duel.Turn;
 
             return result;
@@ -242,7 +242,7 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard card in Bot.GetSpells())
                 {
-                    if (card.Id == CardId.Solidarity)
+                    if (card.IsCode(CardId.Solidarity))
                         atk += 800;
                 }
             }

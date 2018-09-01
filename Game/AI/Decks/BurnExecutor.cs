@@ -108,7 +108,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard card in Bot.GetMonsters())
             {
-                if (card.Id == CardId.Marshmallon || card.Id == CardId.SpiritReaper)
+                if (card.IsCode(CardId.Marshmallon, CardId.SpiritReaper))
                 {
                     return false;
                 }
@@ -134,9 +134,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool ReposEverything()
         {
-            if (Card.Id == CardId.ReflectBounder)
+            if (Card.IsCode(CardId.ReflectBounder))
                 return Card.IsDefense();
-            if (Card.Id == CardId.FencingFireFerret)
+            if (Card.IsCode(CardId.FencingFireFerret))
                 return DefaultMonsterRepos();
             if (Card.IsAttack())
                 return true;
