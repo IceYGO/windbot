@@ -53,6 +53,14 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when player send chat message
+        /// </summary>
+        public void OnChat(int player ,string msg,string myname,string othername)
+        {
+            _dialogs.SendChatReply(Executor.OnChat(player, msg, myname, othername));
+        }
+
+        /// <summary>
         /// Called when the AI do the rock-paper-scissors.
         /// </summary>
         /// <returns>1 for Scissors, 2 for Rock, 3 for Paper.</returns>
