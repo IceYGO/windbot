@@ -189,8 +189,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (CardOfDemiseUsed)
             {
-                AI.SelectCard(new[]
-                    {
+                AI.SelectCard(
                     CardId.StarlightRoad,
                     CardId.MagicDrain,
                     CardId.SolemnJudgment,
@@ -202,12 +201,11 @@ namespace WindBot.Game.AI.Decks
                     CardId.SolemnWarning,
                     CardId.MacroCosmos,
                     CardId.CardOfDemise
-                });
+                    );
             }
             else
             {
-                AI.SelectCard(new[]
-                    {
+                AI.SelectCard(
                     CardId.YosenjuKama3,
                     CardId.YosenjuKama1,
                     CardId.YosenjuKama2,
@@ -221,8 +219,8 @@ namespace WindBot.Game.AI.Decks
                     CardId.SolemnJudgment,
                     CardId.SolemnWarning,
                     CardId.MacroCosmos,
-                    CardId.CardOfDemise,
-                });
+                    CardId.CardOfDemise
+                    );
             }
             return true;
         }
@@ -272,12 +270,7 @@ namespace WindBot.Game.AI.Decks
             // Don't activate the return to hand effect first
             if (Duel.Phase == DuelPhase.End)
                 return false;
-            AI.SelectCard(new[]
-                {
-                    CardId.YosenjuKama1,
-                    CardId.YosenjuKama2,
-                    CardId.YosenjuKama3
-                });
+            AI.SelectCard(CardId.YosenjuKama1, CardId.YosenjuKama2, CardId.YosenjuKama3);
             return true;
         }
 

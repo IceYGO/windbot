@@ -270,20 +270,18 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.HasInGraveyard(CardId.Whiptail) || Bot.HasInGraveyard(CardId.Thoroughblade))
             {
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     CardId.Broadbull,
                     CardId.Tigermortar,
                     CardId.Chakanine,
                     CardId.Thoroughblade,
                     CardId.Ratpier,
                     CardId.Whiptail
-                });
-                AI.SelectNextCard(new[]
-                {
+                    );
+                AI.SelectNextCard(
                     CardId.Whiptail,
                     CardId.Thoroughblade
-                });
+                    );
                 return true;
             }
             return false;
@@ -336,12 +334,7 @@ namespace WindBot.Game.AI.Decks
             //    return false;
             AI.SelectCard(CardId.Chakanine);
             AI.SelectNextCard(CardId.Tigermortar);
-            AI.SelectThirdCard(new[]
-                {
-                    CardId.Ratpier,
-                    CardId.Whiptail,
-                    CardId.Thoroughblade
-                });
+            AI.SelectThirdCard(CardId.Ratpier, CardId.Whiptail, CardId.Thoroughblade);
             return true;
         }
 
@@ -384,14 +377,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool BroadbullEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.Tigermortar,
-                    CardId.Chakanine,
-                    CardId.Drident,
-                    CardId.AleisterTheInvoker,
-                    CardId.PhotonThrasher
-                });
+            AI.SelectCard(
+                CardId.Tigermortar,
+                CardId.Chakanine,
+                CardId.Drident,
+                CardId.AleisterTheInvoker,
+                CardId.PhotonThrasher
+                );
             if (Bot.HasInHand(CardId.Whiptail) && !Bot.HasInHand(CardId.Ratpier))
                 AI.SelectNextCard(CardId.Ratpier);
             else
@@ -475,12 +467,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool RatpierEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.ZoodiacCombo,
-                    CardId.Thoroughblade,
-                    CardId.ZoodiacBarrage
-                });
+            AI.SelectCard(
+                CardId.ZoodiacCombo,
+                CardId.Thoroughblade,
+                CardId.ZoodiacBarrage
+                );
             return true;
         }
 
@@ -491,15 +482,14 @@ namespace WindBot.Game.AI.Decks
             ClientCard target = AI.Utils.GetBestEnemyCard(true);
             if (target == null)
                 return false;
-            AI.SelectCard(new[]
-                {
-                    CardId.Broadbull,
-                    CardId.Tigermortar,
-                    CardId.Chakanine,
-                    CardId.Thoroughblade,
-                    CardId.Ratpier,
-                    CardId.Whiptail
-                });
+            AI.SelectCard(
+                CardId.Broadbull,
+                CardId.Tigermortar,
+                CardId.Chakanine,
+                CardId.Thoroughblade,
+                CardId.Ratpier,
+                CardId.Whiptail
+                );
             AI.SelectNextCard(target);
             return true;
         }
@@ -516,17 +506,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool DaigustoEmeralEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.Ratpier,
-                    CardId.AleisterTheInvoker,
-                    CardId.Whiptail
-                });
-            AI.SelectNextCard(new[]
-                {
-                    CardId.Ratpier,
-                    CardId.DaigustoEmeral
-                });
+            AI.SelectCard(
+                CardId.Ratpier,
+                CardId.AleisterTheInvoker,
+                CardId.Whiptail
+                );
+            AI.SelectNextCard(
+                CardId.Ratpier,
+                CardId.DaigustoEmeral
+                );
             return true;
         }
 
@@ -553,18 +541,16 @@ namespace WindBot.Game.AI.Decks
                 if (spell.IsCode(CardId.ZoodiacBarrage) && !Card.Equals(spell))
                     return false;
             }
-            AI.SelectCard(new[]
-                {
-                    CardId.FireFormationTenki,
-                    CardId.MagicalMeltdown,
-                    CardId.ZoodiacBarrage
-                });
-            AI.SelectNextCard(new[]
-                {
-                    CardId.Ratpier,
-                    CardId.Whiptail,
-                    CardId.Thoroughblade
-                });
+            AI.SelectCard(
+                CardId.FireFormationTenki,
+                CardId.MagicalMeltdown,
+                CardId.ZoodiacBarrage
+                );
+            AI.SelectNextCard(
+                CardId.Ratpier,
+                CardId.Whiptail,
+                CardId.Thoroughblade
+                );
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
@@ -576,29 +562,27 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location != CardLocation.Grave)
             {
                 AI.SelectCard(CardId.Drident);
-                AI.SelectNextCard(new[]
-                {
+                AI.SelectNextCard(
                     CardId.Whiptail,
                     CardId.Ratpier,
                     CardId.Thoroughblade
-                });
+                    );
             }
             return true;
         }
 
         private bool MonsterRebornEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.Ratpier,
-                    CardId.Whiptail,
-                    CardId.InvokedMechaba,
-                    CardId.JizukirutheStarDestroyingKaiju,
-                    CardId.InvokedMagellanica,
-                    CardId.Tigermortar,
-                    CardId.Chakanine,
-                    CardId.Broadbull
-                });
+            AI.SelectCard(
+                CardId.Ratpier,
+                CardId.Whiptail,
+                CardId.InvokedMechaba,
+                CardId.JizukirutheStarDestroyingKaiju,
+                CardId.InvokedMagellanica,
+                CardId.Tigermortar,
+                CardId.Chakanine,
+                CardId.Broadbull
+                );
             return true;
         }
 

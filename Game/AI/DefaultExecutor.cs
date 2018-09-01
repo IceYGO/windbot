@@ -362,7 +362,7 @@ namespace WindBot.Game.AI
             if (DefaultOnBecomeTarget()) return true;
             if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
             {
-                if (Enemy.HasInMonstersZone(new []
+                if (Enemy.HasInMonstersZone(new[]
                 {
                     _CardId.UltimateConductorTytanno,
                     _CardId.InvokedPurgatrio,
@@ -863,42 +863,38 @@ namespace WindBot.Game.AI
         {
             if (Card.Location == CardLocation.Grave)
             {
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     _CardId.GamecieltheSeaTurtleKaiju,
                     _CardId.KumongoustheStickyStringKaiju,
                     _CardId.GadarlatheMysteryDustKaiju,
                     _CardId.RadiantheMultidimensionalKaiju,
                     _CardId.DogorantheMadFlameKaiju,
                     _CardId.ThunderKingtheLightningstrikeKaiju,
-                    _CardId.JizukirutheStarDestroyingKaiju,
-                });
+                    _CardId.JizukirutheStarDestroyingKaiju
+                    );
                 return true;
             }
 
             if (DefaultDarkHole())
             {
-                AI.SelectCard(new[]
-                {
+                AI.SelectCard(
                     _CardId.JizukirutheStarDestroyingKaiju,
                     _CardId.ThunderKingtheLightningstrikeKaiju,
                     _CardId.DogorantheMadFlameKaiju,
                     _CardId.RadiantheMultidimensionalKaiju,
                     _CardId.GadarlatheMysteryDustKaiju,
                     _CardId.KumongoustheStickyStringKaiju,
-                    _CardId.GamecieltheSeaTurtleKaiju,
-                });
-                AI.SelectNextCard(new[]
-                {
+                    _CardId.GamecieltheSeaTurtleKaiju
+                    );
+                AI.SelectNextCard(
                     _CardId.SuperAntiKaijuWarMachineMechaDogoran,
                     _CardId.GamecieltheSeaTurtleKaiju,
                     _CardId.KumongoustheStickyStringKaiju,
                     _CardId.GadarlatheMysteryDustKaiju,
                     _CardId.RadiantheMultidimensionalKaiju,
                     _CardId.DogorantheMadFlameKaiju,
-                    _CardId.ThunderKingtheLightningstrikeKaiju,
-
-                });
+                    _CardId.ThunderKingtheLightningstrikeKaiju
+                    );
                 return true;
             }
 

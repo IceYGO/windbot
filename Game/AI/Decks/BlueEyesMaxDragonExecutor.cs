@@ -133,28 +133,28 @@ namespace WindBot.Game.AI.Decks
                 {
                     AI.SelectCard(CardId.MaxxC);
                     if(AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
-                        AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
+                        AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
                 if (lastCard.IsCode(CardId.LockBird))
                 {
                     AI.SelectCard(CardId.LockBird);
                     if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
-                        AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
+                        AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
                 if (lastCard.IsCode(CardId.Ghost))
                 {
                     AI.SelectCard(CardId.Ghost);
                     if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
-                        AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
+                        AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
                 if (lastCard.IsCode(CardId.AshBlossom))
                 {
                     AI.SelectCard(CardId.AshBlossom);
                     if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
-                        AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
+                        AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
             }
@@ -184,7 +184,7 @@ namespace WindBot.Game.AI.Decks
             if(Bot.HasInMonstersZone(CardId.BlueEyesChaosMaxDragon,true) && Duel.Phase==DuelPhase.Main1 &&
                 (Bot.HasInMonstersZone(CardId.DeviritualTalismandra) || Bot.HasInMonstersZone(CardId.DevirrtualCandoll)))
             {
-                AI.SelectCard(new[] {CardId.DevirrtualCandoll,CardId.DeviritualTalismandra });
+                AI.SelectCard(CardId.DevirrtualCandoll, CardId.DeviritualTalismandra);
                 return true;
             }
             return false;
@@ -195,13 +195,13 @@ namespace WindBot.Game.AI.Decks
             if(TheMelody_count>=2 && Bot.GetRemainingCount(CardId.BlueEyesChaosMaxDragon,3)>0)
             {
                 AI.SelectCard(CardId.TheMelodyOfAwakeningDragon);
-                AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon , CardId.BlueEyesAlternativeWhiteDragon });
+                AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                 return true;
             }
             if(Bot.HasInHand(CardId.BlueEyesWhiteDragon) && Bot.GetRemainingCount(CardId.BlueEyesChaosMaxDragon, 3) > 0)
             {
                 AI.SelectCard(CardId.BlueEyesWhiteDragon);
-                AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon,CardId.BlueEyesAlternativeWhiteDragon });
+                AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                 return true;
             }
             return false;
@@ -225,7 +225,7 @@ namespace WindBot.Game.AI.Decks
                     if (!m.IsCode(CardId.AdvancedRitualArt))
                     AI.SelectCard(m);
                 }
-                AI.SelectNextCard(new[] { CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon });
+                AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                 return true;
             }            
             return false;
@@ -445,11 +445,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MissusRadianteff()
         {
-            AI.SelectCard(new[]
-           {
-                CardId.MaxxC,
-                CardId.MissusRadiant,
-            });
+            AI.SelectCard(CardId.MaxxC, CardId.MissusRadiant);
             return true;
         }
 

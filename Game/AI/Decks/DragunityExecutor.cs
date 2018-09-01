@@ -243,12 +243,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool FoolishBurial()
         {
-            AI.SelectCard(new[]
-            {
+            AI.SelectCard(
                 CardId.DragunityPhalanx,
                 CardId.AssaultBeast,
                 CardId.StardustDragonAssaultMode
-            });
+                );
             return true;
         }
 
