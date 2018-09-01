@@ -57,6 +57,8 @@ namespace WindBot.Game
         /// </summary>
         public void OnChat(int player ,string msg,string myname,string othername)
         {
+            if ( (player > 0 && !Duel.IsFirst) || (Duel.IsFirst && player == 0))
+                return;
             _dialogs.SendChatReply(Executor.OnChat(player, msg, myname, othername));
         }
 
