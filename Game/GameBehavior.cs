@@ -284,8 +284,8 @@ namespace WindBot.Game
         {
             int player = packet.ReadInt16();
             string message = packet.ReadUnicode(256);
-            // not start yet
             int real_index = 16;
+            // not start yet
             if (_duel.Turn == 0) real_index = player;
             // not tag duel
             else if (_room.Names[3] == null) real_index = (player > 1) ? player : (
