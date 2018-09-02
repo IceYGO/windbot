@@ -255,8 +255,8 @@ namespace WindBot.Game
             int setsubtype = setcode & 0xf000;
             while (setcodes > 0)
             {
-                long check_setcode = setcodes % 0x10000;
-                setcodes /= 0x10000;
+                long check_setcode = setcodes & 0xffff;
+                setcodes >>= 16;
                 if ((check_setcode & 0xfff) == settype && (check_setcode & 0xf000 & setsubtype) == setsubtype) return true;
             }
             return false;
