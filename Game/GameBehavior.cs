@@ -288,6 +288,8 @@ namespace WindBot.Game
             string otherName = (player == 0) ? _room.Names[1] : _room.Names[0];
             if (player < 4)
                 Logger.DebugWriteLine(otherName + " say to " + myName + ": " + message);
+            //chat
+            _ai.OnChat(player,message,myName,otherName);
         }
 
         private void OnErrorMsg(BinaryReader packet)

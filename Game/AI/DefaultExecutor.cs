@@ -231,6 +231,12 @@ namespace WindBot.Game.AI
             HonestEffectCount = 0;
         }
 
+        public override IList<string> OnChat(int player, string msg, string myname, string othername)
+        {
+            string[] reply ={ "好了好了，我知道了。"};
+            return reply;
+        }
+
         /// <summary>
         /// Destroy face-down cards first, in our turn.
         /// </summary>
