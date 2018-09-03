@@ -170,14 +170,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool ReinforcementOfTheArmy()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.Goblindbergh,
-                    CardId.TinGoldfish,
-                    CardId.StarDrawing,
-                    CardId.Kagetokage,
-                    CardId.SacredCrane
-                });
+            AI.SelectCard(
+                CardId.Goblindbergh,
+                CardId.TinGoldfish,
+                CardId.StarDrawing,
+                CardId.Kagetokage,
+                CardId.SacredCrane
+                );
             return true;
         }
 
@@ -224,13 +223,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool GoblindberghEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.SacredCrane,
-                    CardId.HeroicChallengerExtraSword,
-                    CardId.StarDrawing,
-                    CardId.SummonerMonk
-                });
+            AI.SelectCard(
+                CardId.SacredCrane,
+                CardId.HeroicChallengerExtraSword,
+                CardId.StarDrawing,
+                CardId.SummonerMonk
+                );
             return true;
         }
 
@@ -253,13 +251,12 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInHand(costs))
             {
                 AI.SelectCard(costs);
-                AI.SelectNextCard(new[]
-                    {
+                AI.SelectNextCard(
                     CardId.SacredCrane,
                     CardId.StarDrawing,
                     CardId.Goblindbergh,
                     CardId.TinGoldfish
-                    });
+                    );
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
             }

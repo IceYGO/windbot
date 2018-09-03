@@ -17,6 +17,7 @@ namespace WindBot.Game
 
         public int LifePoints;
         public ClientCard BattlingMonster;
+        public bool UnderAttack;
 
         public ClientField()
         {

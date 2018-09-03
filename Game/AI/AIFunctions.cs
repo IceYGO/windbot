@@ -74,7 +74,8 @@ namespace WindBot.Game.AI
 
         public bool IsAllEnemyBetterThanValue(int value, bool onlyATK)
         {
-            return Enemy.MonsterZone.GetMonsters()
+            List<ClientCard> monsters = Enemy.MonsterZone.GetMonsters();
+            return monsters.Count > 0 && monsters
                 .All(card => card.GetDefensePower() > value && (!onlyATK || card.IsAttack()));
         }
 

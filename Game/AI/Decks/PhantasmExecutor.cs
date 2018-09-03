@@ -61,7 +61,7 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             //counter
-            //AddExecutor(ExecutorType.ToBattlePhase, ToBattlePhaseeff);
+            AddExecutor(ExecutorType.GoToBattlePhase, GoToBattlePhase);
             AddExecutor(ExecutorType.Activate, CardId.StarlightRoad, PreventFeatherDustereff);
             AddExecutor(ExecutorType.Activate, CardId.TheHugeRevolutionIsOver, PreventFeatherDustereff);
             AddExecutor(ExecutorType.Activate, _CardId.GhostBelle, DefaultGhostBelleAndHauntedMansion);
@@ -100,7 +100,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.EaterOfMillions, EaterOfMillionseff);
             //other
 
-            AddExecutor(ExecutorType.Activate, CardId.Scapegoat, Scapegoateff);
+            AddExecutor(ExecutorType.Activate, CardId.Scapegoat, DefaultScapegoat);
             AddExecutor(ExecutorType.SpellSet, CardId.SeaStealthAttack, NoSetAlreadyDone);
             AddExecutor(ExecutorType.SpellSet, CardId.StarlightRoad, StarlightRoadset);
             AddExecutor(ExecutorType.SpellSet, CardId.TheHugeRevolutionIsOver, TheHugeRevolutionIsOverset);
@@ -129,18 +129,17 @@ namespace WindBot.Game.AI.Decks
             return Duel.LastChainPlayer == 1;          
         }
 
-       /* private bool ToBattlePhaseeff()
+        private bool GoToBattlePhase()
         {           
             if (Enemy.GetMonsterCount() == 0)
             {
                 if (AI.Utils.GetTotalAttackingMonsterAttack(0) >= Enemy.LifePoints)
-                {
-                    AI.ManualPhaseChange = true;
+                {                   
                     return true;
                 }
             }
             return false;
-        }*/
+        }
 
         private bool PhantasmSprialBattleeff()
         {
@@ -154,8 +153,13 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.EternalSoul);
                 return UniqueFaceupSpell();
             }
-            if(Bot.GetMonsterCount()>0 && !Bot.HasInSpellZone(CardId.SeaStealthAttack) &&
-                AI.Utils.IsOneEnemyBetterThanValue(2000,true) && Duel.Phase==DuelPhase.BattleStart)
+            if(Bot.UnderAttack && Bot.BattlingMonster != null && Bot.BattlingMonster.IsCode(CardId.MegalosmasherX))
+            {
+                AI.SelectCard(Enemy.BattlingMonster);
+                return UniqueFaceupSpell();
+            }
+            if (Bot.GetMonsterCount() > 0 && !Bot.HasInSpellZone(CardId.SeaStealthAttack) &&
+                AI.Utils.IsOneEnemyBetterThanValue(2000, false) && Duel.Phase==DuelPhase.BattleStart)
             {
                 AI.SelectCard(AI.Utils.GetBestEnemyMonster(true,true));
                 return UniqueFaceupSpell();
@@ -257,7 +261,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CardOfDemiseeff()
         {
-            //if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultSpellWillBeNegated()) return false;
             AI.SelectPlace(Zones.z2);
             if(Card.Location==CardLocation.Hand)
             {
@@ -280,7 +284,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FossilDigeff()
         {
-            //if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultSpellWillBeNegated()) return false;
             if (CardOfDemiseeff_used && summon_used) return false;
             return true;
         }
@@ -292,52 +296,56 @@ namespace WindBot.Game.AI.Decks
             {
                 if(Bot.HasInGraveyard(CardId.PacifisThePhantasmCity) && !Bot.HasInHandOrInSpellZone(CardId.SeaStealthAttack))
                 {
-                    AI.SelectCard(new[] {
-                    CardId.SeaStealthAttack,
-                    CardId.PacifisThePhantasmCity,
-                    CardId.Terraforming,
-                    CardId.Metaverse,
-                    CardId.CardOfDemise,
-                    CardId.Scapegoat});
+                    AI.SelectCard(
+                        CardId.SeaStealthAttack,
+                        CardId.PacifisThePhantasmCity,
+                        CardId.Terraforming,
+                        CardId.Metaverse,
+                        CardId.CardOfDemise,
+                        CardId.Scapegoat
+                        );
                 }
                 else
                 {
-                    AI.SelectCard(new[] {
-                    CardId.PacifisThePhantasmCity,
-                    CardId.Terraforming,
-                    CardId.Metaverse,
-                    CardId.CardOfDemise,
-                    CardId.Scapegoat});
+                    AI.SelectCard(
+                        CardId.PacifisThePhantasmCity,
+                        CardId.Terraforming,
+                        CardId.Metaverse,
+                        CardId.CardOfDemise,
+                        CardId.Scapegoat
+                        );
                 }
                 
             }
             else if(!Bot.HasInHandOrInSpellZone(CardId.SeaStealthAttack))
             {
-                AI.SelectCard(new[] {
-                CardId.SeaStealthAttack,                
-                CardId.CardOfDemise,
-                CardId.PotOfDesires,
-                CardId.Scapegoat});
+                AI.SelectCard(
+                    CardId.SeaStealthAttack,
+                    CardId.CardOfDemise,
+                    CardId.PotOfDesires,
+                    CardId.Scapegoat
+                    );
             }
             else
             {
-                AI.SelectCard(new[] {                
-                CardId.CardOfDemise,
-                CardId.PotOfDesires,
-                CardId.Scapegoat});
+                AI.SelectCard(
+                    CardId.CardOfDemise,
+                    CardId.PotOfDesires,
+                    CardId.Scapegoat
+                    );
             }
             return true;
         }
         private bool Terraformingeff()
         {
-           // if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultSpellWillBeNegated()) return false;
             if (CardOfDemiseeff_used && Bot.HasInSpellZone(CardId.PacifisThePhantasmCity)) return false;
             return true;
         }
         
         private bool PacifisThePhantasmCityeff()
         {
-           // if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultSpellWillBeNegated()) return false;
             if(Card.Location==CardLocation.Hand)
             {
                 if (Bot.HasInSpellZone(CardId.PacifisThePhantasmCity))
@@ -460,12 +468,13 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             if(Bot.HasInExtra(CardId.BorreloadDragon))
             {
-                AI.SelectCard(new[] {
-                CardId.TopologicBomberDragon,
-                CardId.TopologicTrisbaena,
-                CardId.KnightmareGryphon,
-                CardId.SummonSorceress,
-                CardId.BorreloadDragon});
+                AI.SelectCard(
+                    CardId.TopologicBomberDragon,
+                    CardId.TopologicTrisbaena,
+                    CardId.KnightmareGryphon,
+                    CardId.SummonSorceress,
+                    CardId.BorreloadDragon
+                    );
             }
             else 
             {               
@@ -610,26 +619,7 @@ namespace WindBot.Game.AI.Decks
         private bool PotOfDesireseff()
         {
             return Bot.Deck.Count >= 18;
-        }
-
-        private bool Scapegoateff()
-        {
-          //  if (DefaultSpellWillBeNegated()) return false;
-            if (Duel.Player == 0) return false;
-            if (Duel.Phase == DuelPhase.End) return true;
-            if (DefaultOnBecomeTarget()) return true;
-            if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
-            {
-                int total_atk = 0;
-                List<ClientCard> enemy_monster = Enemy.GetMonsters();
-                foreach (ClientCard m in enemy_monster)
-                {
-                    if (m.IsAttack()) total_atk += m.Attack;
-                }
-                if (total_atk >= Bot.LifePoints) return true;
-            }
-            return false;
-        }
+        }       
        
         private bool StarlightRoadset()
         {

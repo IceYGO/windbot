@@ -177,41 +177,38 @@ namespace WindBot.Game.AI.Decks
 
         private bool DragonShrineEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.DragonSpiritOfWhite,
-                    CardId.WhiteDragon,
-                    CardId.WhiteStoneOfAncients,
-                    CardId.WhiteStoneOfLegend
-                });
+            AI.SelectCard(
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteDragon,
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend
+                );
             if (!Bot.HasInHand(CardId.WhiteDragon))
             {
                 AI.SelectNextCard(CardId.WhiteStoneOfLegend);
             }
             else
             {
-                AI.SelectNextCard(new[]
-                {
+                AI.SelectNextCard(
                     CardId.WhiteStoneOfAncients,
                     CardId.DragonSpiritOfWhite,
                     CardId.WhiteStoneOfLegend
-                });
+                    );
             }
             return true;
         }
 
         private bool MelodyOfAwakeningDragonEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.WhiteStoneOfAncients,
-                    CardId.DragonSpiritOfWhite,
-                    CardId.WhiteStoneOfLegend,
-                    CardId.GalaxyCyclone,
-                    CardId.EffectVeiler,
-                    CardId.TradeIn,
-                    CardId.SageWithEyesOfBlue
-                });
+            AI.SelectCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteStoneOfLegend,
+                CardId.GalaxyCyclone,
+                CardId.EffectVeiler,
+                CardId.TradeIn,
+                CardId.SageWithEyesOfBlue
+                );
             return true;
         }
 
@@ -251,11 +248,7 @@ namespace WindBot.Game.AI.Decks
             }
             else if (!Bot.HasInHand(CardId.WhiteDragon) || !Bot.HasInHand(CardId.AlternativeWhiteDragon))
             {
-                AI.SelectCard(new[]
-                {
-                    CardId.WhiteDragon,
-                    CardId.AlternativeWhiteDragon
-                });
+                AI.SelectCard(CardId.WhiteDragon, CardId.AlternativeWhiteDragon);
                 return true;
             }
             else
@@ -348,12 +341,11 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            AI.SelectCard(new[]
-                {
-                    CardId.WhiteStoneOfAncients,
-                    CardId.EffectVeiler,
-                    CardId.WhiteStoneOfLegend
-                });
+            AI.SelectCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.EffectVeiler,
+                CardId.WhiteStoneOfLegend
+                );
             return true;
         }
 
@@ -381,11 +373,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            AI.SelectCard(new[]
-                {
-                    CardId.WhiteStoneOfLegend,
-                    CardId.WhiteStoneOfAncients
-                });
+            AI.SelectCard(CardId.WhiteStoneOfLegend, CardId.WhiteStoneOfAncients);
             if (Enemy.GetSpellCount() > 0)
             {
                 AI.SelectNextCard(CardId.DragonSpiritOfWhite);
@@ -730,20 +718,18 @@ namespace WindBot.Game.AI.Decks
 
         private bool GalaxyEyesDarkMatterDragonEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.WhiteStoneOfAncients,
-                    CardId.WhiteStoneOfLegend,
-                    CardId.DragonSpiritOfWhite,
-                    CardId.WhiteDragon
-                });
-            AI.SelectNextCard(new[]
-                {
-                    CardId.WhiteStoneOfAncients,
-                    CardId.WhiteStoneOfLegend,
-                    CardId.DragonSpiritOfWhite,
-                    CardId.WhiteDragon
-                });
+            AI.SelectCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend,
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteDragon
+                );
+            AI.SelectNextCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend,
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteDragon
+                );
             return true;
         }
 
@@ -822,11 +808,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SylvanPrincesspriteEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    CardId.WhiteStoneOfLegend,
-                    CardId.WhiteStoneOfAncients
-                });
+            AI.SelectCard(CardId.WhiteStoneOfLegend, CardId.WhiteStoneOfAncients);
             return true;
         }
 
@@ -858,17 +840,16 @@ namespace WindBot.Game.AI.Decks
                 if (attack - defence > Enemy.LifePoints)
                     return false;
             }
-            AI.SelectCard(new[]
-                {
-                    CardId.BlueEyesSpiritDragon,
-                    CardId.HopeHarbingerDragonTitanicGalaxy,
-                    CardId.AlternativeWhiteDragon,
-                    CardId.WhiteDragon,
-                    CardId.DragonSpiritOfWhite,
-                    CardId.AzureEyesSilverDragon,
-                    CardId.WhiteStoneOfAncients,
-                    CardId.WhiteStoneOfLegend
-                });
+            AI.SelectCard(
+                CardId.BlueEyesSpiritDragon,
+                CardId.HopeHarbingerDragonTitanicGalaxy,
+                CardId.AlternativeWhiteDragon,
+                CardId.WhiteDragon,
+                CardId.DragonSpiritOfWhite,
+                CardId.AzureEyesSilverDragon,
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend
+                );
             SoulChargeUsed = true;
             return true;
         }
