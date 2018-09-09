@@ -52,6 +52,10 @@ namespace WindBot.Game
         public void OnStart()
         {
             _dialogs.SendDuelStart();
+            for (int i = 0; i < 16; i += 1)
+            {
+                noreply[i] = false;
+            }
         }
 
         /// <summary>
