@@ -45,7 +45,7 @@ namespace WindBot.Game.AI
             return Program.Rand.Next(2) > 0;
         }
 
-        public virtual IList<string> OnChat(int player, string msg, string myname, string othername)
+        public virtual IList<string> OnChat(int player, string msg, string myname, string speakername)
         {
             // for overriding
             return null;

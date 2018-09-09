@@ -231,7 +231,7 @@ namespace WindBot.Game.AI
             HonestEffectCount = 0;
         }
 
-        public override IList<string> OnChat(int player, string msg, string myname, string othername)
+        public override IList<string> OnChat(int player, string msg, string myname, string speakername)
         {
             string[] reply ={ "好了好了，我知道了。"};
             return reply;
