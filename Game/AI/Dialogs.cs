@@ -165,7 +165,7 @@ namespace WindBot.Game.AI
             foreach (string s in strs)
             {
                 if (s != null && s.Length > 0) 
-                    _game.Chat(s);
+                    _game.Chat("[AI]:"+s);
             }
         }
 

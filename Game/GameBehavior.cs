@@ -28,6 +28,7 @@ namespace WindBot.Game
         private bool _debug;        
         private int _select_hint;
         private GameMessage _lastMessage;
+        /*private bool _has_started;*/
 
         public GameBehavior(GameClient game)
         {
@@ -47,6 +48,7 @@ namespace WindBot.Game
             Deck = Deck.Load(_ai.Executor.Deck);
 
             _select_hint = 0;
+            /*_has_started = false;*/
         }
 
         public int GetLocalPlayer(int player)
@@ -298,7 +300,12 @@ namespace WindBot.Game
             string otherName = (player == 0) ? _room.Names[1] : _room.Names[0];
             Logger.DebugWriteLine(speaker + "(" + real_index.ToString() + ")" + ": " + message);
             //chat
-            _ai.OnChat(player,message,myName,otherName);
+            //not reply to bot it self if duel not started. 
+            if (/*!_has_started && */_duel.Turn == 0 && real_index == _room.Position)
+                return;
+            //reply if speaker is not bot itself. 
+
+            _ai.OnChat(player,message,myName,speaker);
         }
 
         private void OnErrorMsg(BinaryReader packet)
@@ -369,6 +376,7 @@ namespace WindBot.Game
 
             Logger.DebugWriteLine("Duel started: " + _room.Names[0] + " versus " + _room.Names[1]);
             _ai.OnStart();
+            /*_has_started = true;*/
         }
 
         private void OnWin(BinaryReader packet)
