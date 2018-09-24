@@ -156,13 +156,13 @@ namespace WindBot.Game.AI.Decks
             // effect
             AddExecutor(ExecutorType.Activate, CardId.Spoofing, Spoofing_eff);
             AddExecutor(ExecutorType.Activate, CardId.Kunquery, Kunquery_eff);
-            AddExecutor(ExecutorType.Activate, CardId.Marionetter, Marionetter_eff);
             AddExecutor(ExecutorType.Activate, CardId.Multifaker, Multifaker_deckss);
 
             // summon
             AddExecutor(ExecutorType.SpSummon, CardId.Hexstia, Hexstia_ss);
             AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh, Linkuriboh_ss);
             AddExecutor(ExecutorType.Activate, CardId.Linkuriboh, Linkuriboh_eff);
+            AddExecutor(ExecutorType.Activate, CardId.Marionetter, Marionetter_eff);
             AddExecutor(ExecutorType.Activate, CardId.OneForOne, OneForOne_activate);
             AddExecutor(ExecutorType.Summon, CardId.Meluseek, Meluseek_summon);
             AddExecutor(ExecutorType.Summon, CardId.Marionetter, Marionetter_summon);
@@ -176,6 +176,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.Silquitous, Silquitous_summon);
             AddExecutor(ExecutorType.Summon, CardId.Multifaker, Multifaker_summon);
             AddExecutor(ExecutorType.Repos, MonsterRepos);
+            AddExecutor(ExecutorType.Summon, MonsterSummon);
             AddExecutor(ExecutorType.MonsterSet, MonsterSet);
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
@@ -931,6 +932,11 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.Needlefiber);
                 return true;
             }
+            if (has_level_1 && !Enemy.HasInHandOrInMonstersZoneOrInGraveyard(CardId.Linkuriboh) && !Enemy.HasInBanished(CardId.Linkuriboh) && Bot.HasInExtra(CardId.Linkuriboh))
+            {
+                AI.SelectCard(CardId.Linkuriboh);
+                return true;
+            }
             if (altergeis_count > 0 && !Enemy.HasInBanished(CardId.Hexstia) && Bot.HasInExtra(CardId.Hexstia))
             {
                 AI.SelectCard(CardId.Hexstia);
@@ -948,11 +954,6 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(CardId.FWD);
                     return true;
                 }
-            }
-            if (has_level_1 && !Enemy.HasInHandOrInMonstersZoneOrInGraveyard(CardId.Linkuriboh) && !Enemy.HasInBanished(CardId.Linkuriboh) && Bot.HasInExtra(CardId.Linkuriboh))
-            {
-                AI.SelectCard(CardId.Linkuriboh);
-                return true;
             }
 
             return false;
@@ -1298,7 +1299,8 @@ namespace WindBot.Game.AI.Decks
 
         public bool Meluseek_eff()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.Meluseek,0))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.Meluseek,0)
+                || (ActivateDescription == -1 && Card.Location == CardLocation.MonsterZone))
             {
                 attacked_Meluseek.Add(Card);
                 ClientCard target = GetProblematicEnemyCard_Alter(true);
@@ -1388,13 +1390,15 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location != CardLocation.Hand)
             {
+                ClientCard Silquitous_target = GetProblematicEnemyCard_Alter(true);
                 if (Duel.Player == 1 && Duel.Phase >= DuelPhase.Main2 && GetProblematicEnemyCard_Alter(true) == null && Bot.GetRemainingCount(CardId.Meluseek,3) > 0)
                 {
                     AI.SelectCard(CardId.Meluseek);
                     Multifaker_ssfromdeck = true;
                     return true;
                 }
-                else if (!Silquitous_bounced && !Bot.HasInMonstersZone(CardId.Silquitous) && Bot.GetRemainingCount(CardId.Silquitous,2) > 0)
+                else if (!Silquitous_bounced && !Bot.HasInMonstersZone(CardId.Silquitous) && Bot.GetRemainingCount(CardId.Silquitous,2) > 0
+                    && !(Duel.Player == 0 && Silquitous_target==null))
                 {
                     AI.SelectCard(CardId.Silquitous);
                     Multifaker_ssfromdeck = true;
@@ -1624,6 +1628,8 @@ namespace WindBot.Game.AI.Decks
                 foreach(int id in choose_list)
                 {
                     if (Bot.HasInGraveyard(id)){
+                        if (id == CardId.Kunquery
+                            && (!Bot.HasInHand(CardId.Multifaker) || !Multifaker_candeckss())) continue;
                         AI.SelectCard(id);
                         return true;
                     }
@@ -1810,6 +1816,7 @@ namespace WindBot.Game.AI.Decks
         public bool Spoofing_eff()
         {
             if (AI.Utils.ChainContainsCard(CardId.Spoofing)) return false;
+            if (Card.IsDisabled()) return false;
             if (!AI.Utils.ChainContainPlayer(0) && !Multifaker_ssfromhand && Multifaker_candeckss() && Bot.HasInHand(CardId.Multifaker) && Card.HasPosition(CardPosition.FaceDown))
             {
                 AI.SelectYesNo(false);
@@ -2633,11 +2640,12 @@ namespace WindBot.Game.AI.Decks
                 return Card.HasPosition(CardPosition.Defence);
             }
            
-            if (isAltergeist(Card) && Bot.HasInHandOrInSpellZone(CardId.Protocol) && Card.IsFacedown()) return true;
+            if (isAltergeist(Card) && Bot.HasInHandOrInSpellZone(CardId.Protocol) && Card.IsFacedown())
+                return true;
 
             bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
             if (Card.IsAttack() && enemyBetter)
-                    return true;
+                return true;
             if (Card.IsDefense() && !enemyBetter)
                 return true;
             return false;
@@ -2645,7 +2653,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool MonsterSet()
         {
-            if (AI.Utils.GetOneEnemyBetterThanMyBest() == null) return false;
+            if (AI.Utils.GetOneEnemyBetterThanMyBest() == null && Bot.GetMonsterCount() > 0) return false;
             if (Card.Level > 4) return false;
             int rest_lp = Bot.LifePoints;
             int count = Bot.GetMonsterCount();
@@ -2665,7 +2673,12 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        // just a test
+        public bool MonsterSummon()
+        {
+            if (Enemy.GetMonsterCount() + Bot.GetMonsterCount() > 0) return false;
+            return Card.Attack >= Enemy.LifePoints;
+        }
+
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
         {
             if (EvenlyMatched_ready())
@@ -2686,7 +2699,11 @@ namespace WindBot.Game.AI.Decks
                 ClientCard defender = defenders[i];
                 attacker.RealPower = attacker.Attack;
                 defender.RealPower = defender.GetDefensePower();
-                if (!OnPreBattleBetween(attacker, defender) && !(attacker.IsCode(CardId.Borrelsword) && !attacker.IsDisabled()))
+                if (attacker.IsCode(CardId.Borrelsword) && !attacker.IsDisabled())
+                    return AI.Attack(attacker, defender);
+                if (!OnPreBattleBetween(attacker, defender))
+                    continue;
+                if (attacker.RealPower == defender.RealPower && Bot.GetMonsterCount() < Enemy.GetMonsterCount())
                     continue;
                 if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && attacker.IsLastAttacker && defender.IsAttack()))
                     return AI.Attack(attacker, defender);
@@ -2762,7 +2779,8 @@ namespace WindBot.Game.AI.Decks
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
-            if (AI.Utils.IsTurn1OrMain2())
+            if (AI.Utils.IsTurn1OrMain2()
+                && (cardId == CardId.Meluseek || cardId == CardId.Silquitous))
             {
                 return CardPosition.FaceUpDefence;
             }

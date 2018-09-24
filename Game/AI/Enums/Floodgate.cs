@@ -78,6 +78,8 @@
         SuperboltThunderDragon = 15291624,
         ThunderDragonLord = 41685633,
         CyberDragonInfinity = 10443957,
-        ImperialCustom = 9995766
+        ImperialCustom = 9995766,
+        InspectorBoarder = 15397015
+
     }
 }
