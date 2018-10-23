@@ -194,7 +194,7 @@ namespace WindBot.Game.AI.Decks
         public bool has_altergeist_left()
         {
             return (Bot.GetRemainingCount(CardId.Marionetter, 3) > 0
-                || Bot.GetRemainingCount(CardId.Multifaker, 3) > 0
+                || Bot.GetRemainingCount(CardId.Multifaker, 2) > 0
                 || Bot.GetRemainingCount(CardId.Meluseek,3) > 0
                 || Bot.GetRemainingCount(CardId.Silquitous,2) > 0
                 || Bot.GetRemainingCount(CardId.Kunquery,1) > 0);
@@ -1265,7 +1265,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.Marionetter);
                 return true;
             }
-            if (!Bot.HasInHandOrHasInMonstersZone(CardId.Multifaker) && Bot.GetRemainingCount(CardId.Multifaker, 3) > 0 && Multifaker_can_ss())
+            if (!Bot.HasInHandOrHasInMonstersZone(CardId.Multifaker) && Bot.GetRemainingCount(CardId.Multifaker, 2) > 0 && Multifaker_can_ss())
             {
                 AI.SelectCard(CardId.Multifaker);
                 return true;
@@ -1332,7 +1332,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Duel.Player == 1)
                 {
-                    if (!Bot.HasInHandOrHasInMonstersZone(CardId.Multifaker) && Bot.GetRemainingCount(CardId.Multifaker, 3) > 0 && Multifaker_candeckss() && Multifaker_can_ss())
+                    if (!Bot.HasInHandOrHasInMonstersZone(CardId.Multifaker) && Bot.GetRemainingCount(CardId.Multifaker, 2) > 0 && Multifaker_candeckss() && Multifaker_can_ss())
                     {
                         foreach(ClientCard set_card in Bot.GetSpells())
                         {
@@ -1356,7 +1356,7 @@ namespace WindBot.Game.AI.Decks
                         AI.SelectCard(CardId.Marionetter);
                         return true;
                     }
-                    if (!Bot.HasInHandOrHasInMonstersZone(CardId.Multifaker) && Bot.GetRemainingCount(CardId.Multifaker, 3) > 0 && Multifaker_can_ss())
+                    if (!Bot.HasInHandOrHasInMonstersZone(CardId.Multifaker) && Bot.GetRemainingCount(CardId.Multifaker, 2) > 0 && Multifaker_can_ss())
                     {
                         AI.SelectCard(CardId.Multifaker);
                         return true;
@@ -2362,7 +2362,7 @@ namespace WindBot.Game.AI.Decks
                     if (GetTotalATK(targets) >= 1500 && (summoned || (!Meluseek_selected && !Hexstia_selected))) return false;
                 }
                 bool can_have_Multifaker = (Bot.HasInHand(CardId.Multifaker) 
-                    || (Bot.GetRemainingCount(CardId.Multifaker, 3) > 0 
+                    || (Bot.GetRemainingCount(CardId.Multifaker, 2) > 0 
                         && ( (Meluseek_selected && !Meluseek_searched) 
                             || (Hexstia_selected && !Hexstia_searched) )));
                 if (can_have_Multifaker && Multifaker_can_ss()) altergeist_count++;
