@@ -1042,6 +1042,10 @@ namespace WindBot.Game
                 int sseq = packet.ReadByte();
 
                 int desc = packet.ReadInt32();
+                if (desc == 221) // trigger effect
+                {
+                    desc = 0;
+                }
                 cards.Add(_duel.GetCard(con, loc, seq, sseq));
                 descs.Add(desc);
             }
