@@ -143,10 +143,10 @@ namespace WindBot.Game
             }
             if ((flag & (int)Query.Owner) != 0)
                 Owner = duel.GetLocalPlayer(packet.ReadInt32());
-            if ((flag & (int)Query.IsDisabled) != 0)
-                Disabled = packet.ReadInt32();
-            if ((flag & (int)Query.IsPublic) != 0)
-                packet.ReadInt32();
+            if ((flag & (int)Query.Status) != 0) {
+                int status = packet.ReadInt32();
+                Disabled = status & 0x0001;
+            }
             if ((flag & (int)Query.LScale) != 0)
                 LScale = packet.ReadInt32();
             if ((flag & (int)Query.RScale) != 0)
