@@ -261,7 +261,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool AfterburnersEffect()
         {
-            ClientCard target = AI.Utils.GetBestEnemyMonster(true);
+            ClientCard target = AI.Utils.GetBestEnemyMonster(true, true);
             if (target != null)
             {
                 AI.SelectCard(target);
