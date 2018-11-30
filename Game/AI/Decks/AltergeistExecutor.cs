@@ -24,6 +24,7 @@ namespace WindBot.Game.AI.Decks
             public const int Meluseek = 25533642;
             public const int OneForOne = 2295440;
             public const int PotofDesires = 35261759;
+            public const int PotofIndulgence = 49238328;
             public const int Impermanence = 10045474;
             public const int WakingtheDragon = 10813327;
             public const int EvenlyMatched = 15693423;
@@ -115,6 +116,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.MaxxC, G_activate);
             AddExecutor(ExecutorType.Activate, CardId.Anti_Spell, Anti_Spell_activate);
+            AddExecutor(ExecutorType.Activate, CardId.PotofIndulgence, PotofIndulgence_activate);
 
             AddExecutor(ExecutorType.Activate, field_activate);
             AddExecutor(ExecutorType.Activate, CardId.SecretVillage, SecretVillage_activate);
@@ -2153,6 +2155,32 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
+        }
+
+        public bool PotofIndulgence_activate()
+        {
+            if (!spell_trap_activate()) return false;
+            if (!Bot.HasInGraveyard(CardId.Linkuriboh) && !Bot.HasInGraveyard(CardId.Hexstia))
+            {
+                int important_count = 0;
+                foreach (ClientCard card in Bot.ExtraDeck)
+                {
+                    if (card.Id == CardId.Linkuriboh || card.Id == CardId.Hexstia)
+                    {
+                        important_count++;
+                    }
+                }
+                if (important_count > 0)
+                {
+                    AI.SelectPlace(SelectSTPlace(Card, true));
+                    AI.SelectOption(1);
+                    return true;
+                }
+                return false;
+            }
+            AI.SelectPlace(SelectSTPlace(Card, true));
+            AI.SelectOption(1);
+            return true;
         }
 
         public bool Anima_ss()
