@@ -261,7 +261,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool AfterburnersEffect()
         {
-            ClientCard target = AI.Utils.GetBestEnemyMonster(true);
+            ClientCard target = AI.Utils.GetBestEnemyMonster(true, true);
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -293,7 +293,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (AI.Utils.ChainContainsCard(CardId.WidowAnchor))
                 return false;
-            ClientCard target = AI.Utils.GetProblematicEnemyMonster();
+            ClientCard target = AI.Utils.GetProblematicEnemyMonster(0, true);
             if (target != null)
             {
                 WidowAnchorTarget = target;
@@ -382,7 +382,7 @@ namespace WindBot.Game.AI.Decks
             if (!HaveThreeSpellsInGrave() || Duel.Player == 1 || Duel.Phase < DuelPhase.Main1 || Duel.Phase >= DuelPhase.Main2 || AI.Utils.ChainContainsCard(CardId.WidowAnchor))
                 return false;
 
-            ClientCard target = AI.Utils.GetBestEnemyMonster(true);
+            ClientCard target = AI.Utils.GetBestEnemyMonster(true, true);
             if (target != null && !target.IsDisabled() && !target.HasType(CardType.Normal))
             {
                 WidowAnchorTarget = target;
