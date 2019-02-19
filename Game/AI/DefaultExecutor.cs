@@ -233,7 +233,7 @@ namespace WindBot.Game.AI
 
         public override IList<string> OnChat(int player, string msg, string myname, string speakername)
         {
-            string[] reply ={ "好了好了，我知道了。"};
+            string[] reply ={ "OK. I got it~"};
             return reply;
         }
 
