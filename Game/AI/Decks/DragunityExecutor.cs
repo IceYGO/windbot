@@ -430,7 +430,15 @@ namespace WindBot.Game.AI.Decks
                 && Bot.HasInGraveyard(CardId.DragunityPhalanx))
                 || Bot.HasInMonstersZone(CardId.DragunityPhalanx)
                 || Bot.HasInHand(CardId.DragunitySpearOfDestiny))
-                return true;
+            {
+                List<ClientCard> monster_sorted = Bot.GetMonsters();
+                monster_sorted.Sort(AIFunctions.CompareCardAttack);
+                foreach (ClientCard monster in monster_sorted)
+                {
+                    AI.SelectMaterials(monster);
+                    return true;
+                }
+            }
             return false;
         }
 
