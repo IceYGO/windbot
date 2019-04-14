@@ -50,7 +50,7 @@ namespace WindBot.Game
         public bool IsSpecialSummoned { get; set; }
 
         public int[] ActionIndex { get; set; }
-        public IDictionary<int, int> ActionActivateIndex { get; private set; }
+        public IDictionary<long, int> ActionActivateIndex { get; private set; }
 
         public ClientCard(int id, CardLocation loc, int sequence)
             : this(id, loc, -1 , 0)
@@ -67,7 +67,7 @@ namespace WindBot.Game
             OwnTargets = new List<ClientCard>();
             TargetCards = new List<ClientCard>();
             ActionIndex = new int[16];
-            ActionActivateIndex = new Dictionary<int, int>();
+            ActionActivateIndex = new Dictionary<long, int>();
             Location = loc;
         }
 
@@ -119,14 +119,14 @@ namespace WindBot.Game
             if ((flag & (int)Query.Reason) != 0)
                 packet.ReadInt32();
             if ((flag & (int)Query.ReasonCard) != 0)
-                packet.ReadInt32(); // Int8 * 4
+                packet.ReadChars(10); // Int8 * 2 + Int32 * 2
             if ((flag & (int)Query.EquipCard) != 0)
-                packet.ReadInt32(); // Int8 * 4
+                packet.ReadChars(10); // Int8 * 2 + Int32 * 2
             if ((flag & (int)Query.TargetCard) != 0)
             {
                 int count = packet.ReadInt32();
                 for (int i = 0; i < count; ++i)
-                    packet.ReadInt32(); // Int8 * 4
+                    packet.ReadChars(10); // Int8 * 2 + Int32 * 2
             }
             if ((flag & (int)Query.OverlayCard) != 0)
             {

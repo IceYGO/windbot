@@ -6,7 +6,7 @@ namespace WindBot.Game
     {
         public IList<ClientCard> AttackableCards { get; private set; }
         public IList<ClientCard> ActivableCards { get; private set; }
-        public IList<int> ActivableDescs { get; private set; }
+        public IList<long> ActivableDescs { get; private set; }
         public bool CanMainPhaseTwo { get; set; }
         public bool CanEndPhase { get; set; }
 
@@ -14,7 +14,7 @@ namespace WindBot.Game
         {
             AttackableCards = new List<ClientCard>();
             ActivableCards = new List<ClientCard>();
-            ActivableDescs = new List<int>();
+            ActivableDescs = new List<long>();
         }
     }
 }

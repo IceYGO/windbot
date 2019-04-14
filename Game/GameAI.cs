@@ -299,7 +299,7 @@ namespace WindBot.Game
         /// <param name="descs">List of effect descriptions.</param>
         /// <param name="forced">You can't return -1 if this param is true.</param>
         /// <returns>Index of the activated card or -1.</returns>
-        public int OnSelectChain(IList<ClientCard> cards, IList<int> descs, bool forced)
+        public int OnSelectChain(IList<ClientCard> cards, IList<long> descs, bool forced)
         {
             foreach (CardExecutor exec in Executor.Executors)
             {
@@ -369,7 +369,7 @@ namespace WindBot.Game
         /// </summary>
         /// <param name="card">Card to activate.</param>
         /// <returns>True for yes, false for no.</returns>
-        public bool OnSelectEffectYn(ClientCard card, int desc)
+        public bool OnSelectEffectYn(ClientCard card, long desc)
         {
             foreach (CardExecutor exec in Executor.Executors)
             {
@@ -469,7 +469,7 @@ namespace WindBot.Game
         /// </summary>
         /// <param name="options">List of available options.</param>
         /// <returns>Index of the selected option.</returns>
-        public int OnSelectOption(IList<int> options)
+        public int OnSelectOption(IList<long> options)
         {
             if (m_option != -1 && m_option < options.Count)
                 return m_option;
@@ -717,7 +717,7 @@ namespace WindBot.Game
         /// </summary>
         /// <param name="desc">Id of the question.</param>
         /// <returns>True for yes, false for no.</returns>
-        public bool OnSelectYesNo(int desc)
+        public bool OnSelectYesNo(long desc)
         {
             if (m_yesno != -1)
                 return m_yesno > 0;
@@ -1095,7 +1095,7 @@ namespace WindBot.Game
             return new BattlePhaseAction(BattlePhaseAction.BattleAction.ToMainPhaseTwo);
         }
 
-        private bool ShouldExecute(CardExecutor exec, ClientCard card, ExecutorType type, int desc = -1)
+        private bool ShouldExecute(CardExecutor exec, ClientCard card, ExecutorType type, long desc = -1)
         {
             Executor.SetCard(type, card, desc);
             return card != null &&

@@ -28,6 +28,33 @@ namespace WindBot.Game
         private bool _debug;        
         private int _select_hint;
         private GameMessage _lastMessage;
+        public class LocationInfo
+        {
+            public int controler;
+            public int location;
+            public int sequence;
+            public int position;
+            public LocationInfo()
+            {
+                controler = 0;
+                location = 0;
+                sequence = 0;
+                position = 0;
+            }
+            public LocationInfo(BinaryReader packet, bool isfirst = false)
+            {
+                Read(packet, isfirst);
+            }
+            public void Read(BinaryReader packet, bool isfirst = false)
+            {
+                controler = packet.ReadByte();
+                if(!isfirst)
+                    controler =  1 - controler;
+                location = packet.ReadByte();
+                sequence = packet.ReadInt32();
+                position = packet.ReadInt32();
+            }
+        }
 
         public GameBehavior(GameClient game)
         {
@@ -347,8 +374,8 @@ namespace WindBot.Game
             int type = packet.ReadByte();
             _duel.IsFirst = (type & 0xF) == 0;
             _duel.Turn = 0;
-            int duel_rule = packet.ReadByte();
-            _ai.Duel.IsNewRule = (duel_rule == 4);
+            /*int duel_rule = packet.ReadByte();
+            _ai.Duel.IsNewRule = (duel_rule == 4);*/
             _duel.Fields[GetLocalPlayer(0)].LifePoints = packet.ReadInt32();
             _duel.Fields[GetLocalPlayer(1)].LifePoints = packet.ReadInt32();
             int deck = packet.ReadInt16();
@@ -419,25 +446,19 @@ namespace WindBot.Game
             ClientCard[] list = new ClientCard[5];
             for (int i = 0; i < count; ++i)
             {
-                int player = GetLocalPlayer(packet.ReadByte());
-                int loc = packet.ReadByte();
-                int seq = packet.ReadByte();
-                /*int sseq = */packet.ReadByte();
-                ClientCard card = _duel.GetCard(player, (CardLocation)loc, seq);
+                LocationInfo loc = new LocationInfo(packet, _duel.IsFirst);
+                ClientCard card = _duel.GetCard(loc.controler, (CardLocation)loc.location, loc.sequence);
                 if (card == null) continue;
                 list[i] = card;
                 card.SetId(0);
             }
             for (int i = 0; i < count; ++i)
             {
-                int player = GetLocalPlayer(packet.ReadByte());
-                int loc = packet.ReadByte();
-                int seq = packet.ReadByte();
-                /*int sseq = */packet.ReadByte();
-                ClientCard card = _duel.GetCard(player, (CardLocation)loc, seq);
+                LocationInfo loc = new LocationInfo(packet, _duel.IsFirst);
+                ClientCard card = _duel.GetCard(loc.controler, (CardLocation)loc.location, loc.sequence);
                 if (card == null) continue;
-                ClientCard[] zone = (loc == (int)CardLocation.MonsterZone) ? _duel.Fields[player].MonsterZone : _duel.Fields[player].SpellZone;
-                zone[seq] = list[i];
+                ClientCard[] zone = (loc.location == (int)CardLocation.MonsterZone) ? _duel.Fields[loc.controler].MonsterZone : _duel.Fields[loc.controler].SpellZone;
+                zone[loc.sequence] = list[i];
             }
         }
 
@@ -535,61 +556,55 @@ namespace WindBot.Game
         {
             // TODO: update equip cards and target cards
             int cardId = packet.ReadInt32();
-            int previousControler = GetLocalPlayer(packet.ReadByte());
-            int previousLocation = packet.ReadByte();
-            int previousSequence = packet.ReadSByte();
-            /*int previousPosotion = */packet.ReadSByte();
-            int currentControler = GetLocalPlayer(packet.ReadByte());
-            int currentLocation = packet.ReadByte();
-            int currentSequence = packet.ReadSByte();
-            int currentPosition = packet.ReadSByte();
+            LocationInfo previous = new LocationInfo(packet, _duel.IsFirst);
+            LocationInfo current = new LocationInfo(packet, _duel.IsFirst);
             packet.ReadInt32(); // reason
 
-            ClientCard card = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
-            if ((previousLocation & (int)CardLocation.Overlay) != 0)
+            ClientCard card = _duel.GetCard(previous.controler, (CardLocation)previous.location, previous.sequence);
+            if ((previous.location & (int)CardLocation.Overlay) != 0)
             {
-                previousLocation = previousLocation & 0x7f;
-                card = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
+                previous.location = previous.location & 0x7f;
+                card = _duel.GetCard(previous.controler, (CardLocation)previous.location, previous.sequence);
                 if (card != null)
                 {
                     if (_debug)
-                        Logger.WriteLine("(" + previousControler.ToString() + " 's " + (card.Name ?? "UnKnowCard") + " deattach " + (NamedCard.Get(cardId)?.Name) + ")");
+                        Logger.WriteLine("(" + previous.controler.ToString() + " 's " + (card.Name ?? "UnKnowCard") + " deattach " + (NamedCard.Get(cardId)?.Name) + ")");
                     card.Overlays.Remove(cardId);
                 }
-                previousLocation = 0; // the card is removed when it go to overlay, so here we treat it as a new card
+                previous.location = 0; // the card is removed when it go to overlay, so here we treat it as a new card
             }
             else
-                _duel.RemoveCard((CardLocation)previousLocation, card, previousControler, previousSequence);
+                _duel.RemoveCard((CardLocation)previous.location, card, previous.controler, previous.sequence);
 
-            if ((currentLocation & (int)CardLocation.Overlay) != 0)
+            if ((current.location & (int)CardLocation.Overlay) != 0)
             {
-                currentLocation = currentLocation & 0x7f;
-                card = _duel.GetCard(currentControler, (CardLocation)currentLocation, currentSequence);
+                current.location = current.location & 0x7f;
+                card = _duel.GetCard(current.controler, (CardLocation)current.location, current.sequence);
                 if (card != null)
                 {
                     if (_debug)
-                        Logger.WriteLine("(" + previousControler.ToString() + " 's " + (card.Name ?? "UnKnowCard") + " overlay " + (NamedCard.Get(cardId)?.Name) + ")");
+                        Logger.WriteLine("(" + previous.controler.ToString() + " 's " + (card.Name ?? "UnKnowCard") + " overlay " + (NamedCard.Get(cardId)?.Name) + ")");
                     card.Overlays.Add(cardId);
                 }
             }
             else
             {
-                if (previousLocation == 0)
+                if (previous.location == 0)
                 {
                     if (_debug)
-                        Logger.WriteLine("(" + previousControler.ToString() + " 's " + (NamedCard.Get(cardId)?.Name)
-                        + " appear in " + (CardLocation)currentLocation + ")");
-                    _duel.AddCard((CardLocation)currentLocation, cardId, currentControler, currentSequence, currentPosition);
+                        Logger.WriteLine("(" + previous.controler.ToString() + " 's " + (NamedCard.Get(cardId)?.Name)
+                        + " appear in " + (CardLocation)current.location + ")");
+                    _duel.AddCard((CardLocation)current.location, cardId, current.controler, current.sequence, current.position);
                 }
                 else
                 {
-                    _duel.AddCard((CardLocation)currentLocation, card, currentControler, currentSequence, currentPosition, cardId);
-                    if (card != null && previousLocation != currentLocation)
+                    _duel.AddCard((CardLocation)current.location, card, current.controler, current.sequence, current.position, cardId);
+                    if (card != null && previous.location != current.location)
                         card.IsSpecialSummoned = false;
                     if (_debug && card != null)
-                        Logger.WriteLine("(" + previousControler.ToString() + " 's " + (card.Name ?? "UnKnowCard")
+                        Logger.WriteLine("(" + previous.controler.ToString() + " 's " + (card.Name ?? "UnKnowCard")
                         + " from " +
-                        (CardLocation)previousLocation + " move to " + (CardLocation)currentLocation + ")");
+                        (CardLocation)previous.location + " move to " + (CardLocation)current.location + ")");
                 }
             }
         }
@@ -597,47 +612,35 @@ namespace WindBot.Game
         private void OnSwap(BinaryReader packet)
         {
             int cardId1 = packet.ReadInt32();
-            int controler1 = GetLocalPlayer(packet.ReadByte());
-            int location1 = packet.ReadByte();
-            int sequence1 = packet.ReadByte();
-            packet.ReadByte();
+            LocationInfo info1 = new LocationInfo(packet, _duel.IsFirst);
             int cardId2 = packet.ReadInt32();
-            int controler2 = GetLocalPlayer(packet.ReadByte());
-            int location2 = packet.ReadByte();
-            int sequence2 = packet.ReadByte();
-            packet.ReadByte();
-            ClientCard card1 = _duel.GetCard(controler1, (CardLocation)location1, sequence1);
-            ClientCard card2 = _duel.GetCard(controler2, (CardLocation)location2, sequence2);
+            LocationInfo info2 = new LocationInfo(packet, _duel.IsFirst);
+            ClientCard card1 = _duel.GetCard(info1.controler, (CardLocation)info1.location, info1.sequence);
+            ClientCard card2 = _duel.GetCard(info2.controler, (CardLocation)info2.location, info2.sequence);
             if (card1 == null || card2 == null) return;
-            _duel.RemoveCard((CardLocation)location1, card1, controler1, sequence1);
-            _duel.RemoveCard((CardLocation)location2, card2, controler2, sequence2);
-            _duel.AddCard((CardLocation)location2, card1, controler2, sequence2, card1.Position, cardId1);
-            _duel.AddCard((CardLocation)location1, card2, controler1, sequence1, card2.Position, cardId2);
+            _duel.RemoveCard((CardLocation)info1.location, card1, info1.controler, info1.sequence);
+            _duel.RemoveCard((CardLocation)info2.location, card2, info2.controler, info2.sequence);
+            _duel.AddCard((CardLocation)info2.location, card1, info2.controler, info2.sequence, card1.Position, cardId1);
+            _duel.AddCard((CardLocation)info1.location, card2, info1.controler, info1.sequence, card2.Position, cardId2);
         }
 
         private void OnAttack(BinaryReader packet)
         {
-            int ca = GetLocalPlayer(packet.ReadByte());
-            int la = packet.ReadByte();
-            int sa = packet.ReadByte();
-            packet.ReadByte(); //
-            int cd = GetLocalPlayer(packet.ReadByte());
-            int ld = packet.ReadByte();
-            int sd = packet.ReadByte();
-            packet.ReadByte(); //
+            LocationInfo info1 = new LocationInfo(packet, _duel.IsFirst);
+            LocationInfo info2 = new LocationInfo(packet, _duel.IsFirst);
 
-            ClientCard attackcard = _duel.GetCard(ca, (CardLocation)la, sa);
-            ClientCard defendcard = _duel.GetCard(cd, (CardLocation)ld, sd);
+            ClientCard attackcard = _duel.GetCard(info1.controler, (CardLocation)info1.location, info1.sequence);
+            ClientCard defendcard = _duel.GetCard(info2.controler, (CardLocation)info2.location, info2.sequence);
             if (_debug)
             {
                 if (defendcard == null) Logger.WriteLine("(" + (attackcard.Name ?? "UnKnowCard") + " direct attack!!)");
-                else Logger.WriteLine("(" + ca.ToString() + " 's " + (attackcard.Name ?? "UnKnowCard") + " attack  " + cd.ToString() + " 's " + (defendcard.Name ?? "UnKnowCard") + ")");
+                else Logger.WriteLine("(" + info1.controler.ToString() + " 's " + (attackcard.Name ?? "UnKnowCard") + " attack  " + info2.controler.ToString() + " 's " + (defendcard.Name ?? "UnKnowCard") + ")");
             }                
             _duel.Fields[attackcard.Controller].BattlingMonster = attackcard;
             _duel.Fields[1 - attackcard.Controller].BattlingMonster = defendcard;
             _duel.Fields[1 - attackcard.Controller].UnderAttack = true;
 
-            if (ld == 0 && ca != 0)
+            if (info2.location == 0 && info1.controler != 0)
             {
                 _ai.OnDirectAttack(attackcard);
             }
@@ -677,11 +680,8 @@ namespace WindBot.Game
         private void OnChaining(BinaryReader packet)
         {
             packet.ReadInt32(); // card id
-            int pcc = GetLocalPlayer(packet.ReadByte());
-            int pcl = packet.ReadByte();
-            int pcs = packet.ReadSByte();
-            int subs = packet.ReadSByte();
-            ClientCard card = _duel.GetCard(pcc, pcl, pcs, subs);
+            LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
+            ClientCard card = _duel.GetCard(info.controler, info.location, info.sequence, info.position);
             int cc = GetLocalPlayer(packet.ReadByte());
             if (_debug)
                 if (card != null) Logger.WriteLine("(" + cc.ToString() + " 's " + (card.Name ?? "UnKnowCard") + " activate effect)");
@@ -815,14 +815,11 @@ namespace WindBot.Game
             int count = packet.ReadByte();
             for (int i = 0; i < count; ++i)
             {
-                int player = GetLocalPlayer(packet.ReadByte());
-                int loc = packet.ReadByte();
-                int seq = packet.ReadByte();
-                /*int sseq = */packet.ReadByte();
-                ClientCard card = _duel.GetCard(player, (CardLocation)loc, seq);
+                LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
+                ClientCard card = _duel.GetCard(info.controler, (CardLocation)info.location, info.sequence);
                 if (card == null) continue;
                 if (_debug)
-                    Logger.WriteLine("(" + (CardLocation)loc + " 's " + (card.Name ?? "UnKnowCard") + " become target)");
+                    Logger.WriteLine("(" + (CardLocation)info.location + " 's " + (card.Name ?? "UnKnowCard") + " become target)");
                 _duel.ChainTargets.Add(card);
                 _duel.ChainTargetOnly.Add(card);
             }
@@ -840,8 +837,8 @@ namespace WindBot.Game
                 packet.ReadInt32(); // card id
                 int con = GetLocalPlayer(packet.ReadByte());
                 CardLocation loc = (CardLocation)packet.ReadByte();
-                int seq = packet.ReadByte();
-                int desc = packet.ReadInt32();
+                int seq = packet.ReadInt32();
+                long desc = packet.ReadInt64();
 
                 ClientCard card = _duel.GetCard(con, loc, seq);
                 if (card != null)
@@ -898,15 +895,12 @@ namespace WindBot.Game
             for (int i = 0; i < count; ++i)
             {
                 int id = packet.ReadInt32();
-                int player = GetLocalPlayer(packet.ReadByte());
-                CardLocation loc = (CardLocation)packet.ReadByte();
-                int seq = packet.ReadByte();
-                packet.ReadByte(); // pos
+                LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
                 ClientCard card;
-                if (((int)loc & (int)CardLocation.Overlay) != 0)
+                if (((int)info.location & (int)CardLocation.Overlay) != 0)
                     card = new ClientCard(id, CardLocation.Overlay, -1);
                 else
-                    card = _duel.GetCard(player, loc, seq);
+                    card = _duel.GetCard(info.controler, (CardLocation)info.location, info.sequence);
                 if (card == null) continue;
                 if (card.Id == 0)
                     card.SetId(id);
@@ -922,8 +916,15 @@ namespace WindBot.Game
                 return;
             }
 
-            byte[] result = new byte[selected.Count + 1];
-            result[0] = (byte)selected.Count;
+            byte[] result = new byte[selected.Count + 8];
+            result[0] = 0;
+            result[1] = 1;
+            result[2] = 0;
+            result[3] = 0;
+            result[4] = (byte)(selected.Count & 0xff);
+            result[5] = (byte)((selected.Count >> 4) & 0xff);
+            result[6] = (byte)((selected.Count >> 8) & 0xff);
+            result[7] = (byte)((selected.Count >> 16) & 0xff);
             for (int i = 0; i < selected.Count; ++i)
             {
                 int id = 0;
@@ -936,7 +937,7 @@ namespace WindBot.Game
                         break;
                     }
                 }
-                result[i + 1] = (byte)id;
+                result[i + 2] = (byte)id;
             }
 
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
@@ -957,15 +958,12 @@ namespace WindBot.Game
             for (int i = 0; i < count; ++i)
             {
                 int id = packet.ReadInt32();
-                int player = GetLocalPlayer(packet.ReadByte());
-                CardLocation loc = (CardLocation)packet.ReadByte();
-                int seq = packet.ReadByte();
-                packet.ReadByte(); // pos
+                LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
                 ClientCard card;
-                if (((int)loc & (int)CardLocation.Overlay) != 0)
+                if (((int)info.location & (int)CardLocation.Overlay) != 0)
                     card = new ClientCard(id, CardLocation.Overlay, -1);
                 else
-                    card = _duel.GetCard(player, loc, seq);
+                    card = _duel.GetCard(info.controler, (CardLocation)info.location, info.sequence);
                 if (card == null) continue;
                 if (card.Id == 0)
                     card.SetId(id);
@@ -975,81 +973,11 @@ namespace WindBot.Game
             for (int i = 0; i < count2; ++i)
             {
                 int id = packet.ReadInt32();
-                int player = GetLocalPlayer(packet.ReadByte());
-                CardLocation loc = (CardLocation)packet.ReadByte();
-                int seq = packet.ReadByte();
-                packet.ReadByte(); // pos
+                LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
             }
 
             IList<ClientCard> selected = func(cards, (finishable ? 0 : 1), 1, _select_hint, cancelable);
             _select_hint = 0;
-
-            if (selected.Count == 0 && cancelable)
-            {
-                Connection.Send(CtosMessage.Response, -1);
-                return;
-            }
-
-            byte[] result = new byte[selected.Count + 1];
-            result[0] = (byte)selected.Count;
-            for (int i = 0; i < selected.Count; ++i)
-            {
-                int id = 0;
-                for (int j = 0; j < count; ++j)
-                {
-                    if (cards[j] == null) continue;
-                    if (cards[j].Equals(selected[i]))
-                    {
-                        id = j;
-                        break;
-                    }
-                }
-                result[i + 1] = (byte)id;
-            }
-
-            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
-            reply.Write(result);
-            Connection.Send(reply);
-        }
-        
-        private void InternalOnSelectUnselectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, bool, IList<ClientCard>> func)
-        {
-            packet.ReadByte(); // player
-            packet.ReadByte(); // buttonok
-            bool cancelable = packet.ReadByte() != 0;
-            int min = packet.ReadByte();
-            int max = packet.ReadByte();
-
-            IList<ClientCard> cards = new List<ClientCard>();
-            int count = packet.ReadByte();
-            for (int i = 0; i < count; ++i)
-            {
-                int id = packet.ReadInt32();
-                int player = GetLocalPlayer(packet.ReadByte());
-                CardLocation loc = (CardLocation)packet.ReadByte();
-                int seq = packet.ReadByte();
-                packet.ReadByte(); // pos
-                ClientCard card;
-                if (((int)loc & (int)CardLocation.Overlay) != 0)
-                    card = new ClientCard(id, CardLocation.Overlay);
-                else
-                    card = _duel.GetCard(player, loc, seq);
-                if (card == null) continue;
-                if (card.Id == 0)
-                    card.SetId(id);
-                cards.Add(card);
-            }
-            int count2 = packet.ReadByte();
-            for (int i = 0; i < count2; ++i)
-            {
-                int id = packet.ReadInt32();
-                int player = GetLocalPlayer(packet.ReadByte());
-                CardLocation loc = (CardLocation)packet.ReadByte();
-                int seq = packet.ReadByte();
-                packet.ReadByte(); // pos
-            }
-
-            IList<ClientCard> selected = func(cards, min, max, cancelable);
 
             if (selected.Count == 0 && cancelable)
             {
@@ -1083,11 +1011,6 @@ namespace WindBot.Game
         {
             InternalOnSelectCard(packet, _ai.OnSelectCard);
         }
-        
-        private void OnSelectUnselectCard(BinaryReader packet)
-        {
-            InternalOnSelectUnselectCard(packet, _ai.OnSelectCard);
-        }
 
         private void OnSelectUnselectCard(BinaryReader packet)
         {
@@ -1104,23 +1027,20 @@ namespace WindBot.Game
             packet.ReadInt32(); // hint2
 
             IList<ClientCard> cards = new List<ClientCard>();
-            IList<int> descs = new List<int>();
+            IList<long> descs = new List<long>();
 
             for (int i = 0; i < count; ++i)
             {
                 packet.ReadByte(); // flag
                 packet.ReadInt32(); // card id
-                int con = GetLocalPlayer(packet.ReadByte());
-                int loc = packet.ReadByte();
-                int seq = packet.ReadByte();
-                int sseq = packet.ReadByte();
+                LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
 
-                int desc = packet.ReadInt32();
+                long desc = packet.ReadInt64();
                 if (desc == 221) // trigger effect
                 {
                     desc = 0;
                 }
-                cards.Add(_duel.GetCard(con, loc, seq, sseq));
+                cards.Add(_duel.GetCard(info.controler, info.location, info.sequence, info.position));
                 descs.Add(desc);
             }
 
@@ -1185,7 +1105,7 @@ namespace WindBot.Game
             CardLocation loc = (CardLocation)packet.ReadByte();
             int seq = packet.ReadByte();
             packet.ReadByte();
-            int desc = packet.ReadInt32();
+            long desc = packet.ReadInt64();
 
             ClientCard card = _duel.GetCard(player, loc, seq);
             if (card == null)
@@ -1216,7 +1136,7 @@ namespace WindBot.Game
                     packet.ReadInt32(); // card id
                     int con = GetLocalPlayer(packet.ReadByte());
                     CardLocation loc = (CardLocation)packet.ReadByte();
-                    int seq = packet.ReadByte();
+                    int seq = k == 2 ? packet.ReadByte() : packet.ReadInt32();
                     ClientCard card = _duel.GetCard(con, loc, seq);
                     if (card == null) continue;
                     card.ActionIndex[k] = i;
@@ -1246,8 +1166,8 @@ namespace WindBot.Game
                 packet.ReadInt32(); // card id
                 int con = GetLocalPlayer(packet.ReadByte());
                 CardLocation loc = (CardLocation)packet.ReadByte();
-                int seq = packet.ReadByte();
-                int desc = packet.ReadInt32();
+                int seq = packet.ReadInt32();
+                long desc = packet.ReadInt64();
 
                 ClientCard card = _duel.GetCard(con, loc, seq);
                 if (card == null) continue;
@@ -1268,11 +1188,11 @@ namespace WindBot.Game
 
         private void OnSelectOption(BinaryReader packet)
         {
-            IList<int> options = new List<int>();
+            IList<long> options = new List<long>();
             packet.ReadByte(); // player
             int count = packet.ReadByte();
             for (int i = 0; i < count; ++i)
-                options.Add(packet.ReadInt32());
+                options.Add(packet.ReadInt64());
             Connection.Send(CtosMessage.Response, _ai.OnSelectOption(options));
         }
 
@@ -1406,7 +1326,7 @@ namespace WindBot.Game
                     int cardId = packet.ReadInt32();
                     int player = GetLocalPlayer(packet.ReadByte());
                     CardLocation loc = (CardLocation)packet.ReadByte();
-                    int seq = packet.ReadByte();
+                    int seq = packet.ReadInt32();
                     ClientCard card = _duel.GetCard(player, loc, seq);
                     if (cardId != 0 && card.Id != cardId)
                         card.SetId(cardId);
@@ -1438,11 +1358,22 @@ namespace WindBot.Game
 
             IList<ClientCard> selected = _ai.OnSelectSum(cards, sumval, min, max, _select_hint, mode);
             _select_hint = 0;
-
             byte[] result = new byte[mandatoryCards.Count + selected.Count + 1];
-            int index = 0;
+            result[0] = 0;
+            result[1] = 1;
+            result[2] = 0;
+            result[3] = 0;
 
-            result[index++] = (byte)(mandatoryCards.Count + selected.Count);
+
+            int tot_count = mandatoryCards.Count + selected.Count;
+
+            result[4] = (byte)(tot_count & 0xff);
+            result[5] = (byte)((tot_count >> 4) & 0xff);
+            result[6] = (byte)((tot_count >> 8) & 0xff);
+            result[7] = (byte)((tot_count >> 16) & 0xff);
+
+            int index = 8;
+
             while (index <= mandatoryCards.Count)
             {
                 result[index++] = 0;
@@ -1467,7 +1398,7 @@ namespace WindBot.Game
         private void OnSelectYesNo(BinaryReader packet)
         {
             packet.ReadByte(); // player
-            int desc = packet.ReadInt32();
+            long desc = packet.ReadInt64();
             int reply;
             if (desc == 30)
                 reply = _ai.OnSelectBattleReplay() ? 1 : 0;
@@ -1545,16 +1476,10 @@ namespace WindBot.Game
 
         private void OnEquip(BinaryReader packet)
         {
-            int equipCardControler = GetLocalPlayer(packet.ReadByte());
-            int equipCardLocation = packet.ReadByte();
-            int equipCardSequence = packet.ReadSByte();
-            packet.ReadByte();
-            int targetCardControler = GetLocalPlayer(packet.ReadByte());
-            int targetCardLocation = packet.ReadByte();
-            int targetCardSequence = packet.ReadSByte();
-            packet.ReadByte();
-            ClientCard equipCard = _duel.GetCard(equipCardControler, (CardLocation)equipCardLocation, equipCardSequence);
-            ClientCard targetCard = _duel.GetCard(targetCardControler, (CardLocation)targetCardLocation, targetCardSequence);
+            LocationInfo info1 = new LocationInfo(packet, _duel.IsFirst);
+            LocationInfo info2 = new LocationInfo(packet, _duel.IsFirst);
+            ClientCard equipCard = _duel.GetCard(info1.controler, (CardLocation)info1.location, info1.sequence);
+            ClientCard targetCard = _duel.GetCard(info2.controler, (CardLocation)info2.location, info2.sequence);
             if (equipCard == null || targetCard == null) return;
             equipCard.EquipTarget?.EquipCards.Remove(equipCard);
             equipCard.EquipTarget = targetCard;
@@ -1563,11 +1488,8 @@ namespace WindBot.Game
 
         private void OnUnEquip(BinaryReader packet)
         {
-            int equipCardControler = GetLocalPlayer(packet.ReadByte());
-            int equipCardLocation = packet.ReadByte();
-            int equipCardSequence = packet.ReadSByte();
-            packet.ReadByte();
-            ClientCard equipCard = _duel.GetCard(equipCardControler, (CardLocation)equipCardLocation, equipCardSequence);
+            LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
+            ClientCard equipCard = _duel.GetCard(info.controler, (CardLocation)info.location, info.sequence);
             if (equipCard == null) return;
             if (equipCard.EquipTarget != null)
             {
@@ -1578,16 +1500,10 @@ namespace WindBot.Game
 
         private void OnCardTarget(BinaryReader packet)
         {
-            int ownerCardControler = GetLocalPlayer(packet.ReadByte());
-            int ownerCardLocation = packet.ReadByte();
-            int ownerCardSequence = packet.ReadSByte();
-            packet.ReadByte();
-            int targetCardControler = GetLocalPlayer(packet.ReadByte());
-            int targetCardLocation = packet.ReadByte();
-            int targetCardSequence = packet.ReadSByte();
-            packet.ReadByte();
-            ClientCard ownerCard = _duel.GetCard(ownerCardControler, (CardLocation)ownerCardLocation, ownerCardSequence);
-            ClientCard targetCard = _duel.GetCard(targetCardControler, (CardLocation)targetCardLocation, targetCardSequence);
+            LocationInfo info1 = new LocationInfo(packet, _duel.IsFirst);
+            LocationInfo info2 = new LocationInfo(packet, _duel.IsFirst);
+            ClientCard ownerCard = _duel.GetCard(info1.controler, (CardLocation)info1.location, info1.sequence);
+            ClientCard targetCard = _duel.GetCard(info2.controler, (CardLocation)info2.location, info2.sequence);
             if (ownerCard == null || targetCard == null) return;
             ownerCard.TargetCards.Add(targetCard);
             targetCard.OwnTargets.Add(ownerCard);
@@ -1595,16 +1511,10 @@ namespace WindBot.Game
 
         private void OnCancelTarget(BinaryReader packet)
         {
-            int ownerCardControler = GetLocalPlayer(packet.ReadByte());
-            int ownerCardLocation = packet.ReadByte();
-            int ownerCardSequence = packet.ReadSByte();
-            packet.ReadByte();
-            int targetCardControler = GetLocalPlayer(packet.ReadByte());
-            int targetCardLocation = packet.ReadByte();
-            int targetCardSequence = packet.ReadSByte();
-            packet.ReadByte();
-            ClientCard ownerCard = _duel.GetCard(ownerCardControler, (CardLocation)ownerCardLocation, ownerCardSequence);
-            ClientCard targetCard = _duel.GetCard(targetCardControler, (CardLocation)targetCardLocation, targetCardSequence);
+            LocationInfo info1 = new LocationInfo(packet, _duel.IsFirst);
+            LocationInfo info2 = new LocationInfo(packet, _duel.IsFirst);
+            ClientCard ownerCard = _duel.GetCard(info1.controler, (CardLocation)info1.location, info1.sequence);
+            ClientCard targetCard = _duel.GetCard(info2.controler, (CardLocation)info2.location, info2.sequence);
             if (ownerCard == null || targetCard == null) return;
             ownerCard.TargetCards.Remove(targetCard);
             targetCard.OwnTargets.Remove(ownerCard);
@@ -1614,13 +1524,10 @@ namespace WindBot.Game
         {
             _duel.LastSummonedCards.Clear();
             int code = packet.ReadInt32();
-            int currentControler = GetLocalPlayer(packet.ReadByte());
-            int currentLocation = packet.ReadByte();
-            int currentSequence = packet.ReadSByte();
-            int currentPosition = packet.ReadSByte();
-            ClientCard card = _duel.GetCard(currentControler, (CardLocation)currentLocation, currentSequence);
+            LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
+            ClientCard card = _duel.GetCard(info.controler, (CardLocation)info.location, info.sequence);
             _duel.SummoningCards.Add(card);
-            _duel.LastSummonPlayer = currentControler;
+            _duel.LastSummonPlayer = info.controler;
         }
 
         private void OnSummoned(BinaryReader packet)
@@ -1637,13 +1544,10 @@ namespace WindBot.Game
             _duel.LastSummonedCards.Clear();
             _ai.CleanSelectMaterials();
             int code = packet.ReadInt32();
-            int currentControler = GetLocalPlayer(packet.ReadByte());
-            int currentLocation = packet.ReadByte();
-            int currentSequence = packet.ReadSByte();
-            int currentPosition = packet.ReadSByte();
-            ClientCard card = _duel.GetCard(currentControler, (CardLocation)currentLocation, currentSequence);
+            LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
+            ClientCard card = _duel.GetCard(info.controler, (CardLocation)info.location, info.sequence);
             _duel.SummoningCards.Add(card);
-            _duel.LastSummonPlayer = currentControler;
+            _duel.LastSummonPlayer = info.controler;
         }
 
         private void OnSpSummoned(BinaryReader packet)

@@ -10,7 +10,7 @@ namespace WindBot.Game
         public IList<ClientCard> MonsterSetableCards { get; private set; }
         public IList<ClientCard> SpellSetableCards { get; private set; }
         public IList<ClientCard> ActivableCards { get; private set; }
-        public IList<int> ActivableDescs { get; private set; }
+        public IList<long> ActivableDescs { get; private set; }
         public bool CanBattlePhase { get; set; }
         public bool CanEndPhase { get; set; }
 
@@ -22,7 +22,7 @@ namespace WindBot.Game
             MonsterSetableCards = new List<ClientCard>();
             SpellSetableCards = new List<ClientCard>();
             ActivableCards = new List<ClientCard>();
-            ActivableDescs = new List<int>();
+            ActivableDescs = new List<long>();
         }
     }
 }
