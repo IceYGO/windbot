@@ -2,11 +2,6 @@
     "windbots": [
       {
         "name": "琪露诺",
-        "deck": "Toadally Awesome",
-        "dialog": "cirno.zh-CN"
-      },
-      {
-        "name": "琪露诺",
         "deck": "Rainbow",
         "dialog": "cirno.zh-CN"
       },
@@ -32,18 +27,23 @@
       },
       {
         "name": "复制植物",
-        "deck": "Zoodiac",
-        "dialog": "copy.zh-CN"
-      },
-      {
-        "name": "复制植物",
-        "deck": "Zoodiac",
+        "deck": "Blue-Eyes",
         "dialog": "copy.zh-CN"
       },
       {
         "name": "复制植物",
         "deck": "Blue-Eyes",
         "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "复制梁龙",
+        "deck": "SkyStriker",
+        "dialog": "anothercopy.zh-CN"
+      },
+      {
+        "name": "复制梁龙",
+        "deck": "SkyStriker",
+        "dialog": "anothercopy.zh-CN"
       },
       {
         "name": "尼亚",
@@ -57,13 +57,13 @@
       },
       {
         "name": "尼亚",
-        "deck": "Qliphort",
+        "deck": "Trickstar",
         "dialog": "near.zh-CN"
       },
       {
-        "name": "试作型机器人1732",
-        "deck": "ST1732",
-        "dialog": "default"
+        "name": "尼亚",
+        "deck": "Altergeist",
+        "dialog": "near.zh-CN"
       },
       {
         "name": "试作型机器人1732",
@@ -89,6 +89,51 @@
         "name": "永远之魂",
         "deck": "Horus",
         "dialog": "soul.zh-CN"
+      },
+      {
+        "name": "奇異果",
+        "deck": "LightswornShaddoldinosour",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "奇異果",
+        "deck": "LightswornShaddoldinosour",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "奇魔果",
+        "deck": "DarkMagician",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "MAX龍果",
+        "deck": "BlueEyesMaxDragon",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "MAX龍果",
+        "deck": "BlueEyesMaxDragon",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "幻煌果",
+        "deck": "Phantasm",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "幻煌果",
+        "deck": "Phantasm",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "報社鬥士",
+        "deck": "GrenMajuThunderBoarder",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "燃血鬥士",
+        "deck": "ChainBurn",
+        "dialog": "kiwi.zh-TW"
       }
     ]
 }

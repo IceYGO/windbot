@@ -9,222 +9,221 @@ namespace WindBot.Game.AI.Decks
     [Deck("Qliphort", "AI_Qliphort")]
     public class QliphortExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            机壳工具丑恶 = 65518099,
-            机壳别名愚钝 = 13073850,
-            机壳壳层拒绝 = 90885155,
-            机壳基因组贪欲 = 37991342,
-            机壳档案色欲 = 91907707,
-            黑洞 = 53129443,
-            削命的宝札 = 59750328,
-            召唤师的技艺 = 79816536,
-            强欲而谦虚之壶 = 98645731,
-            机壳的牲祭 = 17639150,
-            神圣防护罩反射镜力 = 44095762,
-            激流葬 = 53582587,
-            次元障壁 = 83326048,
-            强制脱出装置 = 94192409,
-            虚无空间 = 5851097,
-            技能抽取 = 82732705,
-            神之通告 = 40605147,
-            反大革命 = 99188141
+            public const int Scout = 65518099;
+            public const int Stealth = 13073850;
+            public const int Shell = 90885155;
+            public const int Helix = 37991342;
+            public const int Carrier = 91907707;
+
+            public const int DarkHole = 53129443;
+            public const int CardOfDemise = 59750328;
+            public const int SummonersArt = 79816536;
+            public const int PotOfDuality = 98645731;
+            public const int Saqlifice = 17639150;
+
+            public const int MirrorForce = 44095762;
+            public const int TorrentialTribute = 53582587;
+            public const int DimensionalBarrier = 83326048;
+            public const int CompulsoryEvacuationDevice = 94192409;
+            public const int VanitysEmptiness = 5851097;
+            public const int SkillDrain = 82732705;
+            public const int SolemnStrike = 40605147;
+            public const int TheHugeRevolutionIsOver = 99188141;
         }
 
-        bool 已发动削命 = false;
+        bool CardOfDemiseUsed = false;
 
-        List<int> 低刻度 = new List<int>
+        IList<int> LowScaleCards = new[]
         {
-            (int)CardId.机壳别名愚钝,
-            (int)CardId.机壳档案色欲
+            CardId.Stealth,
+            CardId.Carrier
         };
-        List<int> 高刻度 = new List<int>
+        IList<int> HighScaleCards = new[]
         {
-            (int)CardId.机壳工具丑恶,
-            (int)CardId.机壳壳层拒绝,
-            (int)CardId.机壳基因组贪欲
+            CardId.Scout,
+            CardId.Shell,
+            CardId.Helix
         };
 
         public QliphortExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.召唤师的技艺);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.SummonersArt);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.机壳工具丑恶, 机壳工具丑恶发动);
-            AddExecutor(ExecutorType.Activate, (int)CardId.机壳工具丑恶, 机壳工具丑恶效果);
+            AddExecutor(ExecutorType.Activate, CardId.Scout, ScoutActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Scout, ScoutEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.机壳别名愚钝, 设置刻度);
-            AddExecutor(ExecutorType.Activate, (int)CardId.机壳壳层拒绝, 设置刻度);
-            AddExecutor(ExecutorType.Activate, (int)CardId.机壳基因组贪欲, 设置刻度);
-            AddExecutor(ExecutorType.Activate, (int)CardId.机壳档案色欲, 设置刻度);
+            AddExecutor(ExecutorType.Activate, CardId.Stealth, ScaleActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Shell, ScaleActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Helix, ScaleActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Carrier, ScaleActivate);
 
-            AddExecutor(ExecutorType.Summon, 通常召唤);
+            AddExecutor(ExecutorType.Summon, NormalSummon);
             AddExecutor(ExecutorType.SpSummon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.机壳的牲祭, 机壳的牲祭);
+            AddExecutor(ExecutorType.Activate, CardId.Saqlifice, SaqlificeEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.机壳别名愚钝, 机壳别名愚钝效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.机壳基因组贪欲, 机壳基因组贪欲效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.机壳档案色欲, 机壳档案色欲效果);
+            AddExecutor(ExecutorType.Activate, CardId.Stealth, StealthEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Helix, HelixEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Carrier, CarrierEffect);
 
-            // 盖坑
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.技能抽取, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.虚无空间, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.次元障壁, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.激流葬, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之通告, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神圣防护罩反射镜力, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.强制脱出装置, 优先盖不重复的坑);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.反大革命, 优先盖不重复的坑);
+            AddExecutor(ExecutorType.SpellSet, CardId.SkillDrain, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.DimensionalBarrier, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.TorrentialTribute, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.MirrorForce, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.CompulsoryEvacuationDevice, TrapSetUnique);
+            AddExecutor(ExecutorType.SpellSet, CardId.TheHugeRevolutionIsOver, TrapSetUnique);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.机壳的牲祭, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.技能抽取, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.虚无空间, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.次元障壁, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.激流葬, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之通告, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神圣防护罩反射镜力, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.强制脱出装置, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.反大革命, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.黑洞, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.召唤师的技艺, 魔陷区有空余格子);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.强欲而谦虚之壶, 魔陷区有空余格子);
+            AddExecutor(ExecutorType.SpellSet, CardId.Saqlifice, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SkillDrain, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.DimensionalBarrier, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.TorrentialTribute, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.MirrorForce, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.CompulsoryEvacuationDevice, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.TheHugeRevolutionIsOver, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.DarkHole, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.SummonersArt, TrapSetWhenZoneFree);
+            AddExecutor(ExecutorType.SpellSet, CardId.PotOfDuality, TrapSetWhenZoneFree);
 
-            // 开完削命继续盖坑
-            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而谦虚之壶, 强欲而谦虚之壶);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.削命的宝札);
-            AddExecutor(ExecutorType.Activate, (int)CardId.削命的宝札, 削命的宝札);
+            AddExecutor(ExecutorType.Activate, CardId.PotOfDuality, PotOfDualityEffect);
+            AddExecutor(ExecutorType.SpellSet, CardId.CardOfDemise);
+            AddExecutor(ExecutorType.Activate, CardId.CardOfDemise, CardOfDemiseEffect);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.机壳的牲祭, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.技能抽取, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.虚无空间, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.次元障壁, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.激流葬, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神之通告, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.神圣防护罩反射镜力, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.强制脱出装置, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.反大革命, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.黑洞, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.召唤师的技艺, 已发动过削命);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.强欲而谦虚之壶, 已发动过削命);
+            AddExecutor(ExecutorType.SpellSet, CardId.Saqlifice, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SkillDrain, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.VanitysEmptiness, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.DimensionalBarrier, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.TorrentialTribute, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.MirrorForce, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.CompulsoryEvacuationDevice, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.TheHugeRevolutionIsOver, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.DarkHole, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.SummonersArt, CardOfDemiseAcivated);
+            AddExecutor(ExecutorType.SpellSet, CardId.PotOfDuality, CardOfDemiseAcivated);
 
-            // 坑人
-            AddExecutor(ExecutorType.Activate, (int)CardId.反大革命, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, DefaultSolemnStrike);
-            AddExecutor(ExecutorType.Activate, (int)CardId.技能抽取, 技能抽取);
-            AddExecutor(ExecutorType.Activate, (int)CardId.虚无空间, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.强制脱出装置, DefaultCompulsoryEvacuationDevice);
-            AddExecutor(ExecutorType.Activate, (int)CardId.次元障壁, DefaultDimensionalBarrier);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神圣防护罩反射镜力, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.激流葬, DefaultTorrentialTribute);
+            AddExecutor(ExecutorType.Activate, CardId.TheHugeRevolutionIsOver, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.Activate, CardId.SkillDrain, SkillDrainEffect);
+            AddExecutor(ExecutorType.Activate, CardId.VanitysEmptiness, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.CompulsoryEvacuationDevice, DefaultCompulsoryEvacuationDevice);
+            AddExecutor(ExecutorType.Activate, CardId.DimensionalBarrier, DefaultDimensionalBarrier);
+            AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
         public override bool OnSelectHand()
         {
-            // 抢先攻
             return true;
         }
 
         public override void OnNewTurn()
         {
-            // 回合开始时重置状况
-            已发动削命 = false;
+            CardOfDemiseUsed = false;
         }
 
-        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+        public override IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int max)
         {
-            if (max <= min)
-            {
-                return null;
-            }
-            IList<ClientCard> selected = new List<ClientCard>();
-
+            Logger.DebugWriteLine("OnSelectPendulumSummon");
             // select the last cards
+
+            IList<ClientCard> selected = new List<ClientCard>();
             for (int i = 1; i <= max; ++i)
-                selected.Add(cards[cards.Count - i]);
+            {
+                ClientCard card = cards[cards.Count - i];
+                if (!card.IsCode(CardId.Scout) || (card.Location == CardLocation.Extra && !Duel.IsNewRule))
+                    selected.Add(card);
+            }
+            if (selected.Count == 0)
+                selected.Add(cards[cards.Count - 1]);
 
             return selected;
         }
 
-        private bool 通常召唤()
+        private bool NormalSummon()
         {
-            if (Card.Id == (int)CardId.机壳工具丑恶)
+            if (Card.IsCode(CardId.Scout))
                 return false;
             if (Card.Level < 8)
                 AI.SelectOption(1);
             return true;
         }
 
-        private bool 技能抽取()
+        private bool SkillDrainEffect()
         {
-            return (Duel.LifePoints[0] > 1000) && DefaultUniqueTrap();
+            return (Bot.LifePoints > 1000) && DefaultUniqueTrap();
         }
 
-        private bool 强欲而谦虚之壶()
+        private bool PotOfDualityEffect()
         {
-            AI.SelectCard(new[]
-                    {
-                    (int)CardId.机壳工具丑恶,
-                    (int)CardId.技能抽取,
-                    (int)CardId.虚无空间,
-                    (int)CardId.次元障壁,
-                    (int)CardId.机壳别名愚钝,
-                    (int)CardId.机壳壳层拒绝,
-                    (int)CardId.机壳基因组贪欲,
-                    (int)CardId.机壳档案色欲,
-                    (int)CardId.神之通告,
-                    (int)CardId.削命的宝札
-                });
-            return !应进行灵摆召唤();
+            AI.SelectCard(
+                CardId.Scout,
+                CardId.SkillDrain,
+                CardId.VanitysEmptiness,
+                CardId.DimensionalBarrier,
+                CardId.Stealth,
+                CardId.Shell,
+                CardId.Helix,
+                CardId.Carrier,
+                CardId.SolemnStrike,
+                CardId.CardOfDemise
+                );
+            return !ShouldPendulum();
         }
 
-        private bool 削命的宝札()
+        private bool CardOfDemiseEffect()
         {
-            if (AI.Utils.IsTurn1OrMain2() && !应进行灵摆召唤())
+            if (AI.Utils.IsTurn1OrMain2() && !ShouldPendulum())
             {
-                已发动削命 = true;
+                CardOfDemiseUsed = true;
                 return true;
             }
             return false;
         }
-        
-        private bool 优先盖不重复的坑()
+
+        private bool TrapSetUnique()
         {
-            foreach (ClientCard card in Bot.SpellZone)
+            foreach (ClientCard card in Bot.GetSpells())
             {
-                if (card != null && card.Id == Card.Id)
+                if (card.IsCode(Card.Id))
                     return false;
             }
-            return 魔陷区有空余格子();
+            return TrapSetWhenZoneFree();
         }
 
-        private bool 魔陷区有空余格子()
+        private bool TrapSetWhenZoneFree()
         {
             return Bot.GetSpellCountWithoutField() < 4;
         }
 
-        private bool 已发动过削命()
+        private bool CardOfDemiseAcivated()
         {
-            return 已发动削命;
+            return CardOfDemiseUsed;
         }
 
-        private bool 机壳的牲祭()
+        private bool SaqlificeEffect()
         {
             if (Card.Location == CardLocation.Grave)
             {
                 ClientCard l = AI.Utils.GetPZone(0, 0);
                 ClientCard r = AI.Utils.GetPZone(0, 1);
                 if (l == null && r == null)
-                    AI.SelectCard((int)CardId.机壳工具丑恶);
+                    AI.SelectCard(CardId.Scout);
             }
             return true;
         }
 
-        private bool 机壳工具丑恶发动()
+        private bool ScoutActivate()
         {
             if (Card.Location != CardLocation.Hand)
                 return false;
@@ -239,7 +238,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 设置刻度()
+        private bool ScaleActivate()
         {
             if (!Card.HasType(CardType.Pendulum) || Card.Location != CardLocation.Hand)
                 return false;
@@ -249,16 +248,15 @@ namespace WindBot.Game.AI.Decks
                 if (!Card.Equals(card))
                     count++;
             }
-            foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
+            foreach (ClientCard card in Bot.ExtraDeck.GetFaceupPendulumMonsters())
             {
-                if (card.HasType(CardType.Pendulum) && card.IsFaceup())
-                    count++;
+                count++;
             }
             ClientCard l = AI.Utils.GetPZone(0, 0);
             ClientCard r = AI.Utils.GetPZone(0, 1);
             if (l == null && r == null)
             {
-                if (已发动削命)
+                if (CardOfDemiseUsed)
                     return true;
                 bool pair = false;
                 foreach (ClientCard card in Bot.Hand.GetMonsters())
@@ -273,13 +271,13 @@ namespace WindBot.Game.AI.Decks
                 return pair && count>1;
             }
             if (l == null && r.RScale != Card.LScale)
-                return count > 1 || 已发动削命;
+                return count > 1 || CardOfDemiseUsed;
             if (r == null && l.LScale != Card.RScale)
-                return count > 1 || 已发动削命;
+                return count > 1 || CardOfDemiseUsed;
             return false;
         }
 
-        private bool 机壳工具丑恶效果()
+        private bool ScoutEffect()
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
@@ -295,111 +293,65 @@ namespace WindBot.Game.AI.Decks
             {
                 fieldcount++;
             }
-            foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
+            foreach (ClientCard card in Bot.ExtraDeck.GetFaceupPendulumMonsters())
             {
-                if (card.HasType(CardType.Pendulum) && card.IsFaceup())
-                    count++;
+                count++;
             }
-            if (count>0 && !Bot.HasInHand(低刻度))
+            if (count>0 && !Bot.HasInHand(LowScaleCards))
             {
-                AI.SelectCard(低刻度);
+                AI.SelectCard(LowScaleCards);
             }
             else if (handcount>0 || fieldcount>0)
             {
-                AI.SelectCard(new[]
-                {
-                    (int)CardId.机壳的牲祭,
-                    (int)CardId.机壳壳层拒绝,
-                    (int)CardId.机壳基因组贪欲
-                });
+                AI.SelectCard(CardId.Saqlifice, CardId.Shell, CardId.Helix);
             }
             else
             {
-                AI.SelectCard(高刻度);
+                AI.SelectCard(HighScaleCards);
             }
-            return Duel.LifePoints[0] > 800;
+            return Bot.LifePoints > 800;
         }
 
-        private bool 机壳别名愚钝效果()
+        private bool StealthEffect()
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicCard();
+            ClientCard target = AI.Utils.GetBestEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
                 return true;
             }
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                AI.SelectCard(monster);
-                return true;
-            }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
-            {
-                if (spell.IsFacedown())
-                {
-                    AI.SelectCard(spell);
-                    return true;
-                }
-            }
-            foreach (ClientCard spell in spells)
-            {
-                AI.SelectCard(spell);
-                return true;
-            }
             return false;
         }
 
-        private bool 机壳档案色欲效果()
+        private bool CarrierEffect()
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicMonsterCard();
+            ClientCard target = AI.Utils.GetBestEnemyMonster();
             if (target != null)
             {
                 AI.SelectCard(target);
                 return true;
             }
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                AI.SelectCard(monster);
-                return true;
-            }
             return false;
         }
 
-        private bool 机壳基因组贪欲效果()
+        private bool HelixEffect()
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicSpellCard();
+            ClientCard target = AI.Utils.GetBestEnemySpell();
             if (target != null)
             {
                 AI.SelectCard(target);
                 return true;
             }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
-            {
-                if (spell.IsFacedown())
-                {
-                    AI.SelectCard(spell);
-                    return true;
-                }
-            }
-            foreach (ClientCard spell in spells)
-            {
-                AI.SelectCard(spell);
-                return true;
-            }
             return false;
         }
 
-        private bool 应进行灵摆召唤()
+        private bool ShouldPendulum()
         {
             ClientCard l = AI.Utils.GetPZone(0, 0);
             ClientCard r = AI.Utils.GetPZone(0, 1);
@@ -410,10 +362,9 @@ namespace WindBot.Game.AI.Decks
                 {
                     count++;
                 }
-                foreach (ClientCard card in Bot.ExtraDeck.GetMonsters())
+                foreach (ClientCard card in Bot.ExtraDeck.GetFaceupPendulumMonsters())
                 {
-                    if (card.HasType(CardType.Pendulum) && card.IsFaceup())
-                        count++;
+                    count++;
                 }
                 return count > 1;
             }

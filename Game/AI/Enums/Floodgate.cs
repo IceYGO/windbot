@@ -1,5 +1,8 @@
 ﻿namespace WindBot.Game.AI.Enums
 {
+    /// <summary>
+    /// Cards that restrict player from performing some action. Bot will preferentially destroy them.
+    /// </summary>
     public enum Floodgate
     {
         BarrierStatueoftheTorrent = 10963799,
@@ -24,11 +27,13 @@
         LevelLimitAreaB = 3136426,
         DimensionalFissure = 81674782,
         Necrovalley = 47355498,
+        SavageColosseum = 32391631,
         SecretVillageoftheSpellcasters = 68462976,
         SwordsofRevealingLight = 72302403,
         MessengerofPeace = 44656491,
         KaiserColosseum = 35059553,
         DomainoftheTrueMonarchs = 84171830,
+        ZombieWorld = 4064256,
         ImperialOrder = 61740673,
         MacroCosmos = 30241314,
         MindDrain = 68937720,
@@ -41,6 +46,7 @@
         LightImprisoningMirror = 53341729,
         ShadowImprisoningMirror = 99735427,
         WallofRevealingLight = 17078030,
+        GravityBind = 85742772,
         VanitysEmptiness = 5851097,
         Lose1Turn = 24348804,
         Reqliate = 20426907,
@@ -53,13 +59,27 @@
         NaturiaExterio = 99916754,
         TheLastWarriorfromAnotherPlanet = 86099788,
         ThousandEyesRestrict = 63519819,
-        ElShaddollWinda = 94977269,
         MaskedHERODarkLaw = 58481572,
         NaturiaBeast = 33198837,
         NaturiaBarkion = 2956282,
         EvilswarmOphion = 91279700,
         MermailAbyssgaios = 74371660,
         AbyssDweller = 21044178,
-        ZoodiacDrident = 48905153
+        ZoodiacDrident = 48905153,
+        InvokedMechaba = 75286621,
+        ElShaddollShekhinaga = 74822425,
+        ElShaddollConstruct = 20366274,
+        ElShaddollGrysra = 48424886,
+        ElShaddollWinda = 94977269,
+        UltimateConductorTytanno = 18940556,
+        OvertexCoatls = 41782653,
+        FirePrison = 269510,
+        LairOfDarkness = 59160188,
+        SuperboltThunderDragon = 15291624,
+        ThunderDragonLord = 41685633,
+        CyberDragonInfinity = 10443957,
+        ImperialCustom = 9995766,
+        InspectorBoarder = 15397015,
+        Mashoudou = 76375976
     }
 }

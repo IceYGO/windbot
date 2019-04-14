@@ -15,7 +15,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -23,7 +23,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>none</DebugType>
@@ -33,6 +33,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>WindBot.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Data.Sqlite">
@@ -55,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
     <Compile Include="Game\AI\AIFunctions.cs" />
     <Compile Include="Game\AI\CardContainer.cs" />
     <Compile Include="Game\AI\CardExecutor.cs" />
@@ -62,19 +66,30 @@
     <Compile Include="Game\AI\CardSelector.cs" />
     <Compile Include="Game\AI\DeckAttribute.cs" />
     <Compile Include="Game\AI\DecksManager.cs" />
+    <Compile Include="Game\AI\Decks\AltergeistExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
     <Compile Include="Game\AI\Decks\CyberDragonExecutor.cs" />
+    <Compile Include="Game\AI\Decks\DarkMagicianExecutor.cs" />
+    <Compile Include="Game\AI\Decks\SkyStrikerExecutor.cs" />
+    <Compile Include="Game\AI\Decks\MokeyMokeyKingExecutor.cs" />
+    <Compile Include="Game\AI\Decks\MokeyMokeyExecutor.cs" />
     <Compile Include="Game\AI\Decks\ToadallyAwesomeExecutor.cs" />
     <Compile Include="Game\AI\Decks\NekrozExecutor.cs" />
     <Compile Include="Game\AI\Decks\GravekeeperExecutor.cs" />
     <Compile Include="Game\AI\Decks\RainbowExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlueEyesExecutor.cs" />
+    <Compile Include="Game\AI\Decks\BlueEyesMaxDragonExecutor.cs" />
     <Compile Include="Game\AI\Decks\BurnExecutor.cs" />
+    <Compile Include="Game\AI\Decks\ChainBurnExecutor.cs" />
     <Compile Include="Game\AI\Decks\EvilswarmExecutor.cs" />
     <Compile Include="Game\AI\Decks\GraydleExecutor.cs" />
+    <Compile Include="Game\AI\Decks\GrenMajuThunderBoarderExecutor.cs" />
     <Compile Include="Game\AI\Decks\LightswornExecutor.cs" />
+    <Compile Include="Game\AI\Decks\LightswornShaddoldinosourExecutor.cs" />
+    <Compile Include="Game\AI\Decks\PhantasmExecutor.cs" />
     <Compile Include="Game\AI\Decks\QliphortExecutor.cs" />
     <Compile Include="Game\AI\Decks\ST1732Executor.cs" />
+    <Compile Include="Game\AI\Decks\TrickstarExecutor.cs" />
     <Compile Include="Game\AI\Decks\YosenjuExecutor.cs" />
     <Compile Include="Game\AI\Decks\DragunityExecutor.cs" />
     <Compile Include="Game\AI\Decks\FrogExecutor.cs" />
@@ -88,15 +103,16 @@
     <Compile Include="Game\AI\Dialogs.cs" />
     <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
     <Compile Include="Game\AI\Enums\FusionSpell.cs" />
+    <Compile Include="Game\AI\Enums\ShouldBeDisabledBeforeItUseEffectMonster.cs" />
+    <Compile Include="Game\AI\Enums\ShouldNotBeSpellTarget.cs" />
+    <Compile Include="Game\AI\Enums\ShouldNotBeMonsterTarget.cs" />
+    <Compile Include="Game\AI\Enums\ShouldNotBeTarget.cs" />
+    <Compile Include="Game\AI\Enums\PreventActivationEffectInBattle.cs" />
     <Compile Include="Game\AI\Enums\OneForXyz.cs" />
     <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
     <Compile Include="Game\AI\Enums\Floodgate.cs" />
-    <Compile Include="Game\AI\Enums\NegateAttackSpell.cs" />
-    <Compile Include="Game\AI\Enums\NegatesEffects.cs" />
-    <Compile Include="Game\AI\Enums\NegatesSpells.cs" />
-    <Compile Include="Game\AI\Enums\NegatesSummons.cs" />
-    <Compile Include="Game\AI\Enums\NegatesTraps.cs" />
     <Compile Include="Game\AI\Executor.cs" />
+    <Compile Include="Game\AI\Zones.cs" />
     <Compile Include="Game\AI\ExecutorType.cs" />
     <Compile Include="Game\BattlePhase.cs" />
     <Compile Include="Game\BattlePhaseAction.cs" />
@@ -132,6 +148,9 @@
     <None Include="Dialogs\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="WindBot.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

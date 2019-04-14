@@ -6,28 +6,29 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Evilswarm", "AI_Evilswarm")]
+    // NOT FINISHED YET
+    [Deck("Evilswarm", "AI_Evilswarm", "NotFinished")]
     public class EvilswarmExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            黑洞 = 53129443,
-            宇宙旋风 = 8267140,
-            侵略的泛发感染 = 27541267,
-            神之宣告 = 41420027,
-            神之警告 = 84749824,
-            神之通告 = 40605147
+            public const int DarkHole = 53129443;
+            public const int CosmicCyclone = 8267140;
+            public const int InfestationPandemic = 27541267;
+            public const int SolemnJudgment = 41420027;
+            public const int SolemnWarning = 84749824;
+            public const int SolemnStrike = 40605147;
         }
 
         public EvilswarmExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.宇宙旋风, DefaultCosmicCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之宣告, DefaultSolemnJudgment);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之警告, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神之通告, DefaultSolemnStrike);
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.侵略的泛发感染);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.CosmicCyclone, DefaultCosmicCyclone);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
+            AddExecutor(ExecutorType.SpellSet, CardId.InfestationPandemic);
             AddExecutor(ExecutorType.Activate, DefaultDontChainMyself);
             AddExecutor(ExecutorType.Summon);
             AddExecutor(ExecutorType.SpSummon);

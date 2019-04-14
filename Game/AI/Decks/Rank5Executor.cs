@@ -1,96 +1,97 @@
-﻿using YGOSharp.OCGWrapper.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI.Decks
 {
     [Deck("Rank V", "AI_Rank5")]
     public class Rank5Executor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            迷雾恶魔 = 28601770,
-            电子龙 = 70095154,
-            异热同心武器荒鹫激神爪 = 29353756,
-            太阳风帆船 = 33911264,
-            速攻同调士 = 20932152,
-            发条士兵 = 12299841,
-            画星宝宝 = 24610207,
-            先史遗产黄金航天飞机 = 88552992,
-            简易融合 = 1845204,
-            二重召唤 = 43422537,
-            旋风 = 5318639,
-            月之书 = 14087893,
-            超量组件 = 13032689,
-            超量苏生 = 26708437,
-            神圣防护罩反射镜力 = 44095762,
-            激流葬 = 53582587,
-            超量遮护罩 = 96457619,
+            public const int MistArchfiend = 28601770;
+            public const int CyberDragon = 70095154;
+            public const int ZWEagleClaw = 29353756;
+            public const int SolarWindJammer = 33911264;
+            public const int QuickdrawSynchron = 20932152;
+            public const int WindUpSoldier = 12299841;
+            public const int StarDrawing = 24610207;
+            public const int ChronomalyGoldenJet = 88552992;
 
-            重装机甲装甲车龙 = 72959823,
-            迅雷之骑士盖亚龙骑士 = 91949988,
-            电子龙无限 = 10443957,
-            始祖守护者提拉斯 = 31386180,
-            No61火山恐龙 = 29669359,
-            鲨鱼要塞 = 50449881,
-            电子龙新星 = 58069384
+            public const int InstantFusion = 1845204;
+            public const int DoubleSummon = 43422537;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int BookOfMoon = 14087893;
+            public const int XyzUnit = 13032689;
+            public const int XyzReborn = 26708437;
+            public const int MirrorForce = 44095762;
+            public const int TorrentialTribute = 53582587;
+            public const int XyzVeil = 96457619;
+
+            public const int PanzerDragon = 72959823;
+            public const int GaiaDragonTheThunderCharger = 91949988;
+            public const int CyberDragonInfinity = 10443957;
+            public const int TirasKeeperOfGenesis = 31386180;
+            public const int Number61Volcasaurus = 29669359;
+            public const int SharkFortress = 50449881;
+            public const int CyberDragonNova = 58069384;
         }
 
-        private bool 已通常召唤 = false;
-        private bool 已发动简易融合 = false;
-        private bool 已发动二重召唤 = false;
-        private bool 已特殊召唤电子龙无限 = false;
-        private bool 已发动火山恐龙 = false;
+        private bool NormalSummoned = false;
+        private bool InstantFusionUsed = false;
+        private bool DoubleSummonUsed = false;
+        private bool CyberDragonInfinitySummoned = false;
+        private bool Number61VolcasaurusUsed = false;
 
         public Rank5Executor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
             // Quick spells
-            AddExecutor(ExecutorType.Activate, (int)CardId.月之书, DefaultBookOfMoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.旋风, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.BookOfMoon, DefaultBookOfMoon);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
 
-            // 优先出的超量怪兽
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.电子龙新星, 电子龙新星特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.电子龙新星, 电子龙新星效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.电子龙无限, 电子龙无限特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.电子龙无限, 电子龙无限效果);
+            // Cyber Dragon Infinity first
+            AddExecutor(ExecutorType.SpSummon, CardId.CyberDragonNova, CyberDragonNovaSummon);
+            AddExecutor(ExecutorType.Activate, CardId.CyberDragonNova, CyberDragonNovaEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.CyberDragonInfinity, CyberDragonInfinitySummon);
+            AddExecutor(ExecutorType.Activate, CardId.CyberDragonInfinity, CyberDragonInfinityEffect);
 
-            // 无副作用的5星怪兽
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.电子龙);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.太阳风帆船, 太阳风帆船特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.异热同心武器荒鹫激神爪);
-            AddExecutor(ExecutorType.Summon, (int)CardId.先史遗产黄金航天飞机, 通常召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.先史遗产黄金航天飞机, 先史遗产黄金航天飞机效果);
-            AddExecutor(ExecutorType.Summon, (int)CardId.画星宝宝, 通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.发条士兵, 通常召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.发条士兵, 发条士兵效果);
+            // Level 5 monsters without side effects
+            AddExecutor(ExecutorType.SpSummon, CardId.CyberDragon);
+            AddExecutor(ExecutorType.SpSummon, CardId.ZWEagleClaw);
+            AddExecutor(ExecutorType.Summon, CardId.ChronomalyGoldenJet, NormalSummon);
+            AddExecutor(ExecutorType.Activate, CardId.ChronomalyGoldenJet, ChronomalyGoldenJetEffect);
+            AddExecutor(ExecutorType.Summon, CardId.StarDrawing, NormalSummon);
+            AddExecutor(ExecutorType.Summon, CardId.WindUpSoldier, NormalSummon);
+            AddExecutor(ExecutorType.Activate, CardId.WindUpSoldier, WindUpSoldierEffect);
 
             // XYZ Monsters: Summon
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.No61火山恐龙, No61火山恐龙特殊召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.No61火山恐龙, No61火山恐龙效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.始祖守护者提拉斯);
-            AddExecutor(ExecutorType.Activate, (int)CardId.始祖守护者提拉斯, 始祖守护者提拉斯效果);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.鲨鱼要塞);
-            AddExecutor(ExecutorType.Activate, (int)CardId.鲨鱼要塞);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number61Volcasaurus, Number61VolcasaurusSummon);
+            AddExecutor(ExecutorType.Activate, CardId.Number61Volcasaurus, Number61VolcasaurusEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.TirasKeeperOfGenesis);
+            AddExecutor(ExecutorType.Activate, CardId.TirasKeeperOfGenesis, TirasKeeperOfGenesisEffect);
+            AddExecutor(ExecutorType.SpSummon, CardId.SharkFortress);
+            AddExecutor(ExecutorType.Activate, CardId.SharkFortress);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.迅雷之骑士盖亚龙骑士, 迅雷之骑士盖亚龙骑士特殊召唤);
+            AddExecutor(ExecutorType.SpSummon, CardId.GaiaDragonTheThunderCharger, GaiaDragonTheThunderChargerSummon);
 
 
-            // 有副作用的5星怪兽
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.速攻同调士, 速攻同调士特殊召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.迷雾恶魔, 迷雾恶魔通常召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.简易融合, 简易融合效果);
+            // Level 5 monsters with side effects
+            AddExecutor(ExecutorType.SpSummon, CardId.SolarWindJammer, SolarWindJammerSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.QuickdrawSynchron, QuickdrawSynchronSummon);
+            AddExecutor(ExecutorType.Summon, CardId.MistArchfiend, MistArchfiendSummon);
+            AddExecutor(ExecutorType.Activate, CardId.InstantFusion, InstantFusionEffect);
 
             // Useful spells
-            AddExecutor(ExecutorType.Activate, (int)CardId.二重召唤, 二重召唤效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.超量组件, 超量组件效果);
+            AddExecutor(ExecutorType.Activate, CardId.DoubleSummon, DoubleSummonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.XyzUnit, XyzUnitEffect);
 
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.超量苏生, 超量苏生效果);
+            AddExecutor(ExecutorType.Activate, CardId.XyzReborn, XyzRebornEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.重装机甲装甲车龙, 重装机甲装甲车龙效果);
+            AddExecutor(ExecutorType.Activate, CardId.PanzerDragon, PanzerDragonEffect);
 
             // Reposition
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
@@ -98,9 +99,9 @@ namespace WindBot.Game.AI.Decks
             // Set and activate traps
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.超量遮护罩, 超量遮护罩效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.激流葬, DefaultTorrentialTribute);
-            AddExecutor(ExecutorType.Activate, (int)CardId.神圣防护罩反射镜力, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.XyzVeil, XyzVeilEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
+            AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultTrap);
         }
 
         public override bool OnSelectHand()
@@ -110,130 +111,132 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnNewTurn()
         {
-            // 回合开始时重置状况
-            已通常召唤 = false;
-            已发动简易融合 = false;
-            已发动二重召唤 = false;
-            已特殊召唤电子龙无限 = false;
-            已发动火山恐龙 = false;
+            NormalSummoned = false;
+            InstantFusionUsed = false;
+            DoubleSummonUsed = false;
+            CyberDragonInfinitySummoned = false;
+            Number61VolcasaurusUsed = false;
         }
 
-        private bool 特殊召唤不重复的超量怪兽()
+        public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
-                if (monster.Id == Card.Id)
-                    return false;
+            IList<ClientCard> result = AI.Utils.SelectPreferredCards(new[] {
+                CardId.MistArchfiend,
+                CardId.PanzerDragon,
+                CardId.SolarWindJammer,
+                CardId.StarDrawing
+            }, cards, min, max);
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
+        }
+
+        private bool NormalSummon()
+        {
+            NormalSummoned = true;
             return true;
         }
 
-        private bool 通常召唤()
+        private bool SolarWindJammerSummon()
         {
-            已通常召唤 = true;
-            return true;
-        }
-
-        private bool 太阳风帆船特殊召唤()
-        {
+            if (!NeedLV5())
+                return false;
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
 
-        private bool 速攻同调士特殊召唤()
+        private bool QuickdrawSynchronSummon()
         {
-            if (!需要出5星())
+            if (!NeedLV5())
                 return false;
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.速攻同调士,
-                    (int)CardId.异热同心武器荒鹫激神爪,
-                    (int)CardId.太阳风帆船,
-                    (int)CardId.电子龙,
-                    (int)CardId.迷雾恶魔,
-                    (int)CardId.发条士兵,
-                    (int)CardId.画星宝宝,
-                    (int)CardId.先史遗产黄金航天飞机
-                });
+            AI.SelectCard(
+                CardId.QuickdrawSynchron,
+                CardId.ZWEagleClaw,
+                CardId.SolarWindJammer,
+                CardId.CyberDragon,
+                CardId.MistArchfiend,
+                CardId.WindUpSoldier,
+                CardId.StarDrawing,
+                CardId.ChronomalyGoldenJet
+                );
             return true;
         }
 
-        private bool 迷雾恶魔通常召唤()
+        private bool MistArchfiendSummon()
         {
-            if (!需要出5星())
+            if (!NeedLV5())
                 return false;
             AI.SelectOption(1);
-            已通常召唤 = true;
+            NormalSummoned = true;
             return true;
         }
 
-        private bool 简易融合效果()
+        private bool InstantFusionEffect()
         {
-            if (!需要出5星())
+            if (!NeedLV5())
                 return false;
-            已发动简易融合 = true;
+            InstantFusionUsed = true;
             return true;
         }
 
-        private bool 需要出5星()
+        private bool NeedLV5()
         {
-            if (场上有5星怪兽())
+            if (HaveOtherLV5OnField())
                 return true;
-            int 其他的5星资源数量 = 0;
-            IList<ClientCard> hand = Bot.Hand;
-            foreach (ClientCard card in hand)
+            int lv5Count = 0;
+            foreach (ClientCard card in Bot.Hand)
             {
-                if (card.Id == (int)CardId.简易融合 && !已发动简易融合)
-                    ++其他的5星资源数量;
-                if (card.Id == (int)CardId.速攻同调士 && Bot.Hand.ContainsMonsterWithLevel(4))
-                    ++其他的5星资源数量;
-                if (card.Id == (int)CardId.迷雾恶魔 && !已通常召唤)
-                    ++其他的5星资源数量;
-                if (card.Id == (int)CardId.二重召唤 && 二重召唤效果())
-                    ++其他的5星资源数量;
+                if (card.IsCode(CardId.SolarWindJammer) && Bot.GetMonsterCount() == 0)
+                    ++lv5Count;
+                if (card.IsCode(CardId.InstantFusion) && !InstantFusionUsed)
+                    ++lv5Count;
+                if (card.IsCode(CardId.QuickdrawSynchron) && Bot.Hand.ContainsMonsterWithLevel(4))
+                    ++lv5Count;
+                if (card.IsCode(CardId.MistArchfiend) && !NormalSummoned)
+                    ++lv5Count;
+                if (card.IsCode(CardId.DoubleSummon) && DoubleSummonEffect())
+                    ++lv5Count;
             }
-            if (其他的5星资源数量 >= 2)
+            if (lv5Count >= 2)
                 return true;
             return false;
         }
 
-        private bool 发条士兵效果()
+        private bool WindUpSoldierEffect()
         {
-            return 场上有5星怪兽();
+            return HaveOtherLV5OnField();
         }
 
-        private bool 先史遗产黄金航天飞机效果()
+        private bool ChronomalyGoldenJetEffect()
         {
             return Card.Level == 4;
         }
 
-        private bool 二重召唤效果()
+        private bool DoubleSummonEffect()
         {
-            if (!已通常召唤 || 已发动二重召唤)
+            if (!NormalSummoned || DoubleSummonUsed)
                 return false;
-            IList<ClientCard> hand = Bot.Hand;
-            foreach (ClientCard card in hand)
-            {
-                if (card.Id == (int)CardId.迷雾恶魔 ||
-                    card.Id == (int)CardId.发条士兵 ||
-                    card.Id == (int)CardId.画星宝宝 ||
-                    card.Id == (int)CardId.先史遗产黄金航天飞机)
+            if (Bot.HasInHand(new[]
                 {
-                    已通常召唤 = false;
-                    已发动二重召唤 = true;
-                    return true;
-                }
+                    CardId.MistArchfiend,
+                    CardId.WindUpSoldier,
+                    CardId.StarDrawing,
+                    CardId.ChronomalyGoldenJet
+                }))
+            {
+                NormalSummoned = false;
+                DoubleSummonUsed = true;
+                return true;
             }
             return false;
         }
 
-        private bool 电子龙新星特殊召唤()
+        private bool CyberDragonNovaSummon()
         {
-            return !已特殊召唤电子龙无限;
+            return !CyberDragonInfinitySummoned;
         }
 
-        private bool 电子龙新星效果()
+        private bool CyberDragonNovaEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.电子龙新星, 0))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.CyberDragonNova, 0))
             {
                 return true;
             }
@@ -248,23 +251,22 @@ namespace WindBot.Game.AI.Decks
             }
         }
 
-        private bool 电子龙无限特殊召唤()
+        private bool CyberDragonInfinitySummon()
         {
-            已特殊召唤电子龙无限 = true;
+            CyberDragonInfinitySummoned = true;
             return true;
         }
 
-        private bool 电子龙无限效果()
+        private bool CyberDragonInfinityEffect()
         {
-            if (CurrentChain.Count > 0)
+            if (Duel.CurrentChain.Count > 0)
             {
-                return LastChainPlayer == 1;
+                return Duel.LastChainPlayer == 1;
             }
             else
             {
-                List<ClientCard> monsters = Enemy.GetMonsters();
                 ClientCard bestmonster = null;
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Enemy.GetMonsters())
                 {
                     if (monster.IsAttack() && (bestmonster == null || monster.Attack >= bestmonster.Attack))
                         bestmonster = monster;
@@ -278,29 +280,29 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool No61火山恐龙特殊召唤()
+        private bool Number61VolcasaurusSummon()
         {
             return AI.Utils.IsOneEnemyBetterThanValue(2000, false);
         }
 
-        private bool No61火山恐龙效果()
+        private bool Number61VolcasaurusEffect()
         {
-            ClientCard target = Enemy.MonsterZone.GetFloodgate();
-            if (target == null)
-                target = AI.Utils.GetOneEnemyBetterThanValue(2000, false);
+            ClientCard target = AI.Utils.GetProblematicEnemyMonster(2000);
             if (target != null)
             {
-                AI.SelectCard((int)CardId.电子龙);
+                AI.SelectCard(CardId.CyberDragon);
                 AI.SelectNextCard(target);
-                已发动火山恐龙 = true;
+                Number61VolcasaurusUsed = true;
                 return true;
             }
             return false;
         }
 
-        private bool 始祖守护者提拉斯效果()
+        private bool TirasKeeperOfGenesisEffect()
         {
-            ClientCard target = AI.Utils.GetProblematicCard();
+            ClientCard target = AI.Utils.GetProblematicEnemyCard();
+            if (target == null)
+                target = AI.Utils.GetBestEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -308,15 +310,14 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool 迅雷之骑士盖亚龙骑士特殊召唤()
+        private bool GaiaDragonTheThunderChargerSummon()
         {
-            if (已发动火山恐龙 && Bot.HasInMonstersZone((int)CardId.No61火山恐龙))
+            if (Number61VolcasaurusUsed && Bot.HasInMonstersZone(CardId.Number61Volcasaurus))
             {
-                AI.SelectCard((int)CardId.No61火山恐龙);
+                AI.SelectCard(CardId.Number61Volcasaurus);
                 return true;
             }
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 if (monster.HasType(CardType.Xyz) && !monster.HasXyzMaterial())
                 {
@@ -327,73 +328,49 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 超量苏生效果()
+        private bool XyzRebornEffect()
         {
-            foreach (ClientCard card in Bot.SpellZone)
-            {
-                if (card != null &&
-                    card.Id == Card.Id &&
-                    card.HasPosition(CardPosition.FaceUp))
-                    return false;
-            }
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.电子龙无限,
-                    (int)CardId.电子龙新星,
-                    (int)CardId.始祖守护者提拉斯,
-                    (int)CardId.鲨鱼要塞,
-                    (int)CardId.No61火山恐龙
-                });
+            if (!UniqueFaceupSpell())
+                return false;
+            AI.SelectCard(
+                CardId.CyberDragonInfinity,
+                CardId.CyberDragonNova,
+                CardId.TirasKeeperOfGenesis,
+                CardId.SharkFortress,
+                CardId.Number61Volcasaurus
+                );
             return true;
         }
 
-        private bool 超量组件效果()
+        private bool XyzUnitEffect()
         {
-            List<ClientCard> monsters = Bot.GetMonsters();
-            return monsters.Exists(p => p.HasType(CardType.Xyz));
+            foreach (ClientCard monster in Bot.GetMonsters())
+            {
+                if (monster.HasType(CardType.Xyz))
+                {
+                    AI.SelectCard(monster);
+                    return true;
+                }
+            }
+            return false;
         }
 
-        private bool 重装机甲装甲车龙效果()
+        private bool PanzerDragonEffect()
         {
-            ClientCard target = AI.Utils.GetProblematicCard();
+            ClientCard target = AI.Utils.GetBestEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
                 return true;
             }
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            foreach (ClientCard monster in monsters)
-            {
-                AI.SelectCard(monster);
-                return true;
-            }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
-            {
-                if (spell.IsFacedown())
-                {
-                    AI.SelectCard(spell);
-                    return true;
-                }
-            }
-            foreach (ClientCard spell in spells)
-            {
-                AI.SelectCard(spell);
-                return true;
-            }
             return false;
         }
 
-        private bool 超量遮护罩效果()
+        private bool XyzVeilEffect()
         {
-            List<ClientCard> spells = Bot.GetSpells();
-            foreach (ClientCard spell in spells)
-            {
-                if (spell.Id == (int)CardId.超量遮护罩 && !spell.IsFacedown())
-                    return false;
-            }
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            if (!UniqueFaceupSpell())
+                return false;
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 if (monster.HasType(CardType.Xyz))
                     return true;
@@ -401,16 +378,15 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 场上有5星怪兽()
+        private bool HaveOtherLV5OnField()
         {
-            List<ClientCard> monsters = Bot.GetMonsters();
-            foreach (ClientCard monster in monsters)
+            foreach (ClientCard monster in Bot.GetMonsters())
             {
                 if (monster.HasType(CardType.Monster) &&
                     !monster.HasType(CardType.Xyz) &&
                     (monster.Level == 5
-                    || monster.Id == (int)CardId.画星宝宝
-                    || (monster.Id == (int)CardId.发条士兵) && !monster.Equals(Card)))
+                    || monster.IsCode(CardId.StarDrawing)
+                    || (monster.IsCode(CardId.WindUpSoldier)) && !monster.Equals(Card)))
                     return true;
             }
             return false;

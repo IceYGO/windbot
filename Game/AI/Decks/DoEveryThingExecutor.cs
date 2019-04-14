@@ -6,13 +6,13 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Test", "AI_Test")]
+    [Deck("Test", "AI_Test", "Test")]
     public class DoEverythingExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            LeoWizard = 4392470,
-            Bunilla = 69380702
+            public const int LeoWizard = 4392470;
+            public const int Bunilla = 69380702;
         }
 
         public DoEverythingExecutor(GameAI ai, Duel duel)
@@ -25,7 +25,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet);
         }
 
-        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (Duel.Phase == DuelPhase.BattleStart)
                 return null;

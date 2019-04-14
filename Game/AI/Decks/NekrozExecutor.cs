@@ -6,35 +6,37 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Nekroz", "AI_Nekroz")]
+    // NOT FINISHED YET
+    [Deck("Nekroz", "AI_Nekroz", "NotFinished")]
     public class NekrozExecutor : DefaultExecutor
-    {  
-        public enum CardId
+    {
+        public class CardId
         {
-            影灵衣舞姬 = 52738610,
-            千手神 = 23401839,
-            万手神 = 95492061,
-            影灵衣术士施里特 = 90307777,
-            增殖的G = 23434538,
-            决战兵器之影灵衣 = 88240999,
-            三叉龙之影灵衣 = 52068432,
-            瓦尔基鲁斯之影灵衣 = 25857246,
-            天枪龙之影灵衣 = 74122412,
-            光枪龙之影灵衣 = 26674724,
-            尤尼科之影灵衣 = 89463537,
-            辉剑鸟之影灵衣 = 99185129,
-            混沌幻影 = 30312361,
-            黑洞 = 53129443,
-            增援 = 32807846,
-            抵价购物 = 38120068,
-            仪式的准备 = 96729612,
-            影灵衣的降魔镜 = 14735698,
-            影灵衣的万华镜 = 51124303,
-            影灵衣的返魂术 = 97211663,
-            旋风 = 5318639,
-            王宫的通告 = 51452091,
-            励辉士入魔蝇王 = 46772449,
-            虹光之宣告者 = 79606837
+            public const int DancePrincess = 52738610;
+            public const int ThousandHands = 23401839;
+            public const int TenThousandHands = 95492061;
+            public const int Shurit = 90307777;
+            public const int MaxxC = 23434538;
+            public const int DecisiveArmor = 88240999;
+            public const int Trishula = 52068432;
+            public const int Valkyrus = 25857246;
+            public const int Gungnir = 74122412;
+            public const int Brionac = 26674724;
+            public const int Unicore = 89463537;
+            public const int Clausolas = 99185129;
+            public const int PhantomOfChaos = 30312361;
+
+            public const int DarkHole = 53129443;
+            public const int ReinforcementOfTheArmy = 32807846;
+            public const int TradeIn = 38120068;
+            public const int PreparationOfRites = 96729612;
+            public const int Mirror = 14735698;
+            public const int Kaleidoscope = 51124303;
+            public const int Cycle = 97211663;
+            public const int MysticalSpaceTyphoon = 5318639;
+            public const int RoyalDecree = 51452091;
+            public const int EvilswarmExcitonKnight = 46772449;
+            public const int HeraldOfTheArcLight = 79606837;
         }
 
         List<int> NekrozRituelCard = new List<int>();
@@ -43,159 +45,138 @@ namespace WindBot.Game.AI.Decks
         public NekrozExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            NekrozRituelCard.Add((int)CardId.辉剑鸟之影灵衣); 
-            NekrozRituelCard.Add((int)CardId.尤尼科之影灵衣);
-            NekrozRituelCard.Add((int)CardId.决战兵器之影灵衣);
-            NekrozRituelCard.Add((int)CardId.光枪龙之影灵衣);
-            NekrozRituelCard.Add((int)CardId.三叉龙之影灵衣);
-            NekrozRituelCard.Add((int)CardId.天枪龙之影灵衣);
-            NekrozRituelCard.Add((int)CardId.瓦尔基鲁斯之影灵衣);
+            NekrozRituelCard.Add(CardId.Clausolas);
+            NekrozRituelCard.Add(CardId.Unicore);
+            NekrozRituelCard.Add(CardId.DecisiveArmor);
+            NekrozRituelCard.Add(CardId.Brionac);
+            NekrozRituelCard.Add(CardId.Trishula);
+            NekrozRituelCard.Add(CardId.Gungnir);
+            NekrozRituelCard.Add(CardId.Valkyrus);
 
-            NekrozSpellCard.Add((int)CardId.影灵衣的降魔镜);
-            NekrozSpellCard.Add((int)CardId.影灵衣的万华镜);
-            NekrozSpellCard.Add((int)CardId.影灵衣的返魂术);
+            NekrozSpellCard.Add(CardId.Mirror);
+            NekrozSpellCard.Add(CardId.Kaleidoscope);
+            NekrozSpellCard.Add(CardId.Cycle);
 
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.增援, 增援);
-            AddExecutor(ExecutorType.Activate, (int)CardId.抵价购物);
-            AddExecutor(ExecutorType.Activate, (int)CardId.仪式的准备);
-            AddExecutor(ExecutorType.Activate, (int)CardId.影灵衣的降魔镜);
-            AddExecutor(ExecutorType.Activate, (int)CardId.影灵衣的万华镜);
-            AddExecutor(ExecutorType.Activate, (int)CardId.影灵衣的返魂术);
-            AddExecutor(ExecutorType.Activate, (int)CardId.旋风, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.王宫的通告);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.ReinforcementOfTheArmy, ReinforcementOfTheArmyEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TradeIn);
+            AddExecutor(ExecutorType.Activate, CardId.PreparationOfRites);
+            AddExecutor(ExecutorType.Activate, CardId.Mirror);
+            AddExecutor(ExecutorType.Activate, CardId.Kaleidoscope);
+            AddExecutor(ExecutorType.Activate, CardId.Cycle);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.RoyalDecree);
 
-            AddExecutor(ExecutorType.SummonOrSet, (int)CardId.影灵衣舞姬, 影灵衣舞姬召唤);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.影灵衣术士施里特, 影灵衣术士施里特);
-            AddExecutor(ExecutorType.Summon, (int)CardId.千手神, 千手神召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.万手神, 万手神召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.混沌幻影, 混沌幻影);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.DancePrincess, DancePrincessSummon);
+            AddExecutor(ExecutorType.MonsterSet, CardId.Shurit, ShuritSet);
+            AddExecutor(ExecutorType.Summon, CardId.ThousandHands, ThousandHandsSummon);
+            AddExecutor(ExecutorType.Summon, CardId.TenThousandHands, TenThousandHandsSummon);
+            AddExecutor(ExecutorType.Summon, CardId.PhantomOfChaos, PhantomOfChaosSummon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.尤尼科之影灵衣, 尤尼科之影灵衣);
-            AddExecutor(ExecutorType.Activate, (int)CardId.决战兵器之影灵衣, 决战兵器之影灵衣);
-            AddExecutor(ExecutorType.Activate, (int)CardId.瓦尔基鲁斯之影灵衣, 瓦尔基鲁斯之影灵衣);
-            AddExecutor(ExecutorType.Activate, (int)CardId.天枪龙之影灵衣, 天枪龙之影灵衣);
-            AddExecutor(ExecutorType.Activate, (int)CardId.光枪龙之影灵衣, 光枪龙之影灵衣);
-            AddExecutor(ExecutorType.Activate, (int)CardId.辉剑鸟之影灵衣, 辉剑鸟之影灵衣);
-            AddExecutor(ExecutorType.Activate, (int)CardId.三叉龙之影灵衣);
-            AddExecutor(ExecutorType.Activate, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.混沌幻影, 混沌幻影效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.增殖的G);
-            AddExecutor(ExecutorType.Activate, (int)CardId.千手神, 千手神效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.万手神, 光枪龙之影灵衣);
-            AddExecutor(ExecutorType.Activate, (int)CardId.虹光之宣告者);
-            AddExecutor(ExecutorType.Activate, (int)CardId.影灵衣术士施里特);
+            AddExecutor(ExecutorType.Activate, CardId.Unicore, UnicoreEffect);
+            AddExecutor(ExecutorType.Activate, CardId.DecisiveArmor, DecisiveArmorEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Valkyrus, ValkyrusEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Gungnir, GungnirEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Brionac, BrionacEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Clausolas, ClausolasEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Trishula);
+            AddExecutor(ExecutorType.Activate, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.Activate, CardId.PhantomOfChaos, PhantomOfChaosEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MaxxC);
+            AddExecutor(ExecutorType.Activate, CardId.ThousandHands, ThousandHandsEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TenThousandHands, BrionacEffect);
+            AddExecutor(ExecutorType.Activate, CardId.HeraldOfTheArcLight);
+            AddExecutor(ExecutorType.Activate, CardId.Shurit);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.三叉龙之影灵衣);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.决战兵器之影灵衣);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.瓦尔基鲁斯之影灵衣);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.天枪龙之影灵衣);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.光枪龙之影灵衣);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.尤尼科之影灵衣);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.辉剑鸟之影灵衣);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.励辉士入魔蝇王, 励辉士入魔蝇王特殊召唤);
+            AddExecutor(ExecutorType.SpSummon, CardId.Trishula);
+            AddExecutor(ExecutorType.SpSummon, CardId.DecisiveArmor);
+            AddExecutor(ExecutorType.SpSummon, CardId.Valkyrus);
+            AddExecutor(ExecutorType.SpSummon, CardId.Gungnir);
+            AddExecutor(ExecutorType.SpSummon, CardId.Brionac);
+            AddExecutor(ExecutorType.SpSummon, CardId.Unicore);
+            AddExecutor(ExecutorType.SpSummon, CardId.Clausolas);
+            AddExecutor(ExecutorType.SpSummon, CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
         }
 
-        private bool 千手神召唤()
+        private bool ThousandHandsSummon()
         {
-            if (!Bot.HasInHand(NekrozRituelCard) || Bot.HasInHand((int)CardId.影灵衣术士施里特) || !Bot.HasInHand(NekrozSpellCard))  
+            if (!Bot.HasInHand(NekrozRituelCard) || Bot.HasInHand(CardId.Shurit) || !Bot.HasInHand(NekrozSpellCard))
                 return true;
             foreach (ClientCard Card in Bot.Hand)
-                if (Card != null && Card.Id == (int)CardId.影灵衣的万华镜 && !Bot.HasInHand((int)CardId.尤尼科之影灵衣))
+                if (Card != null && Card.IsCode(CardId.Kaleidoscope) && !Bot.HasInHand(CardId.Unicore))
                     return true;
-                else if (Card.Id == (int)CardId.三叉龙之影灵衣 || Card.Id == (int)CardId.决战兵器之影灵衣 && !Bot.HasInHand((int)CardId.影灵衣的降魔镜) || !Bot.HasInHand((int)CardId.影灵衣术士施里特))
+                else if (Card.IsCode(CardId.Trishula) || Card.IsCode(CardId.DecisiveArmor) && !Bot.HasInHand(CardId.Mirror) || !Bot.HasInHand(CardId.Shurit))
                     return true;
             return false;
         }
 
-        private bool 增援()
+        private bool ReinforcementOfTheArmyEffect()
         {
-            if (!Bot.HasInGraveyard((int)CardId.影灵衣术士施里特) && !Bot.HasInHand((int)CardId.影灵衣术士施里特))
+            if (!Bot.HasInGraveyard(CardId.Shurit) && !Bot.HasInHand(CardId.Shurit))
             {
-                AI.SelectCard((int)CardId.影灵衣术士施里特);
+                AI.SelectCard(CardId.Shurit);
                 return true;
             }
             return false;
         }
 
-        private bool 万手神召唤()
+        private bool TenThousandHandsSummon()
         {
-                if (!Bot.HasInHand((int)CardId.千手神) || !Bot.HasInHand((int)CardId.影灵衣术士施里特))
+                if (!Bot.HasInHand(CardId.ThousandHands) || !Bot.HasInHand(CardId.Shurit))
                 return true;
             return false;
         }
 
-        private bool 影灵衣舞姬召唤()
+        private bool DancePrincessSummon()
         {
-            if (!Bot.HasInHand((int)CardId.千手神) && !Bot.HasInHand((int)CardId.万手神))
+            if (!Bot.HasInHand(CardId.ThousandHands) && !Bot.HasInHand(CardId.TenThousandHands))
                 return true;
             return false;
         }
 
-        private bool 混沌幻影()
+        private bool PhantomOfChaosSummon()
         {
-            if (Bot.HasInGraveyard((int)CardId.影灵衣术士施里特) && Bot.HasInHand(NekrozSpellCard) && Bot.HasInHand(NekrozRituelCard))
+            if (Bot.HasInGraveyard(CardId.Shurit) && Bot.HasInHand(NekrozSpellCard) && Bot.HasInHand(NekrozRituelCard))
                 return true;
             return false;
         }
 
-        private bool 混沌幻影效果()
+        private bool PhantomOfChaosEffect()
         {
-            AI.SelectCard((int)CardId.影灵衣术士施里特);
+            AI.SelectCard(CardId.Shurit);
             return true;
         }
 
-        private bool 影灵衣术士施里特()
+        private bool ShuritSet()
         {
-            if (!Bot.HasInHand((int)CardId.千手神) && !Bot.HasInHand((int)CardId.万手神) && !Bot.HasInHand((int)CardId.影灵衣舞姬))
+            if (!Bot.HasInHand(CardId.ThousandHands) && !Bot.HasInHand(CardId.TenThousandHands) && !Bot.HasInHand(CardId.DancePrincess))
                 return true;
             return false;
         }
 
-        private bool 三叉龙之影灵衣()
-        {
-            if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand((int)CardId.决战兵器之影灵衣))
-                return false;
-            return true;
-        }
-
-        private bool 决战兵器之影灵衣()
+        private bool DecisiveArmorEffect()
         {
             if (AI.Utils.IsAllEnemyBetterThanValue(3300, true))
             {
-                AI.SelectCard((int)CardId.决战兵器之影灵衣);
+                AI.SelectCard(CardId.DecisiveArmor);
                 return true;
             }
             return false;
         }
 
-        private bool 励辉士入魔蝇王特殊召唤()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
-            return (selfCount - 1 < oppoCount) && 励辉士入魔蝇王效果();
-        }
-
-        private bool 励辉士入魔蝇王效果()
-        {
-            int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
-            int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
-            return selfCount < oppoCount;
-        }
-
-        private bool 瓦尔基鲁斯之影灵衣()
+        private bool ValkyrusEffect()
         {
             if (Duel.Phase == DuelPhase.Battle)
                 return true;
             return false;
         }
 
-        private bool 天枪龙之影灵衣()
-        {           
-            if (AI.Utils.IsEnemyBetter(true, false) && Duel.Phase == DuelPhase.Main1)
+        private bool GungnirEffect()
+        {
+            if (AI.Utils.IsOneEnemyBetter(true) && Duel.Phase == DuelPhase.Main1)
             {
                 AI.SelectCard(Enemy.GetMonsters().GetHighestAttackMonster());
                 return true;
@@ -203,76 +184,76 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 光枪龙之影灵衣()
+        private bool BrionacEffect()
         {
-            if (!Bot.HasInHand((int)CardId.影灵衣术士施里特))
+            if (!Bot.HasInHand(CardId.Shurit))
             {
-                AI.SelectCard((int)CardId.影灵衣术士施里特);
+                AI.SelectCard(CardId.Shurit);
                 return true;
             }
             else if (!Bot.HasInHand(NekrozSpellCard))
             {
-                AI.SelectCard((int)CardId.影灵衣的降魔镜);
+                AI.SelectCard(CardId.Mirror);
                 return true;
             }
-            else if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand((int)CardId.三叉龙之影灵衣))
+            else if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand(CardId.Trishula))
             {
-                AI.SelectCard((int)CardId.三叉龙之影灵衣);
+                AI.SelectCard(CardId.Trishula);
                 return true;
             }
-            else if (AI.Utils.IsAllEnemyBetterThanValue(2700,true) && !Bot.HasInHand((int)CardId.决战兵器之影灵衣))
+            else if (AI.Utils.IsAllEnemyBetterThanValue(2700,true) && !Bot.HasInHand(CardId.DecisiveArmor))
             {
-                AI.SelectCard((int)CardId.决战兵器之影灵衣);
+                AI.SelectCard(CardId.DecisiveArmor);
                 return true;
             }
-            else if (Bot.HasInHand((int)CardId.尤尼科之影灵衣) && !Bot.HasInHand((int)CardId.影灵衣的万华镜))
+            else if (Bot.HasInHand(CardId.Unicore) && !Bot.HasInHand(CardId.Kaleidoscope))
             {
-                AI.SelectCard((int)CardId.影灵衣的万华镜);
+                AI.SelectCard(CardId.Kaleidoscope);
                 return true;
             }
-            else if (!Bot.HasInHand((int)CardId.尤尼科之影灵衣) && Bot.HasInHand((int)CardId.影灵衣的万华镜))
+            else if (!Bot.HasInHand(CardId.Unicore) && Bot.HasInHand(CardId.Kaleidoscope))
             {
-                AI.SelectCard((int)CardId.尤尼科之影灵衣);
-                return true;
-            }
-            return true;
-        }
-
-        private bool 千手神效果()
-        {
-            if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand((int)CardId.三叉龙之影灵衣))
-            {
-                AI.SelectCard((int)CardId.三叉龙之影灵衣);
-                return true;
-            }
-            else if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && !Bot.HasInHand((int)CardId.决战兵器之影灵衣))
-            {
-                AI.SelectCard((int)CardId.决战兵器之影灵衣);
-                return true;
-            }
-            else if (!Bot.HasInHand((int)CardId.尤尼科之影灵衣) && Bot.HasInHand((int)CardId.影灵衣的万华镜))
-            {
-                AI.SelectCard((int)CardId.尤尼科之影灵衣);
+                AI.SelectCard(CardId.Unicore);
                 return true;
             }
             return true;
         }
 
-        private bool 尤尼科之影灵衣()
+        private bool ThousandHandsEffect()
         {
-            if (Bot.HasInGraveyard((int)CardId.影灵衣术士施里特))
+            if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand(CardId.Trishula))
             {
-                AI.SelectCard((int)CardId.影灵衣术士施里特);
+                AI.SelectCard(CardId.Trishula);
+                return true;
+            }
+            else if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && !Bot.HasInHand(CardId.DecisiveArmor))
+            {
+                AI.SelectCard(CardId.DecisiveArmor);
+                return true;
+            }
+            else if (!Bot.HasInHand(CardId.Unicore) && Bot.HasInHand(CardId.Kaleidoscope))
+            {
+                AI.SelectCard(CardId.Unicore);
+                return true;
+            }
+            return true;
+        }
+
+        private bool UnicoreEffect()
+        {
+            if (Bot.HasInGraveyard(CardId.Shurit))
+            {
+                AI.SelectCard(CardId.Shurit);
                 return true;
             }
             return false;
         }
 
-        private bool 辉剑鸟之影灵衣()
+        private bool ClausolasEffect()
         {
             if (!Bot.HasInHand(NekrozSpellCard))
             {
-                AI.SelectCard((int)CardId.影灵衣的降魔镜);
+                AI.SelectCard(CardId.Mirror);
                 return true;
             }
             return false;
@@ -280,7 +261,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool IsTheLastPossibility()
         {
-            if (!Bot.HasInHand((int)CardId.决战兵器之影灵衣) && !Bot.HasInHand((int)CardId.三叉龙之影灵衣))
+            if (!Bot.HasInHand(CardId.DecisiveArmor) && !Bot.HasInHand(CardId.Trishula))
                 return true;
             return false;
         }
@@ -290,48 +271,48 @@ namespace WindBot.Game.AI.Decks
             List<int> NekrozCard = new List<int>();
             try
             {
-                foreach (ClientCard Card in Bot.Hand)
-                    if (Card != null && NekrozRituelCard.Contains((int)Card.Id))
-                        NekrozCard.Add(Card.Id);
+                foreach (ClientCard card in Bot.Hand)
+                    if (card != null && card.IsCode(NekrozRituelCard))
+                        NekrozCard.Add(card.Id);
 
                 foreach (int Id in NekrozCard)
                 {
-                    if (Id == (int)CardId.三叉龙之影灵衣 && AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand((int)CardId.决战兵器之影灵衣))
+                    if (Id == CardId.Trishula && AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand(CardId.DecisiveArmor))
                     {
-                        AI.SelectCard((int)CardId.三叉龙之影灵衣);
+                        AI.SelectCard(CardId.Trishula);
                         return true;
                     }
-                    else if (Id == (int)CardId.决战兵器之影灵衣)
+                    else if (Id == CardId.DecisiveArmor)
                     {
-                        AI.SelectCard((int)CardId.决战兵器之影灵衣);
+                        AI.SelectCard(CardId.DecisiveArmor);
                         return true;
                     }
-                    else if (Id == (int)CardId.尤尼科之影灵衣 && Bot.HasInHand((int)CardId.影灵衣的万华镜) && !Bot.HasInGraveyard((int)CardId.影灵衣术士施里特))
+                    else if (Id == CardId.Unicore && Bot.HasInHand(CardId.Kaleidoscope) && !Bot.HasInGraveyard(CardId.Shurit))
                     {
-                        AI.SelectCard((int)CardId.尤尼科之影灵衣);
+                        AI.SelectCard(CardId.Unicore);
                         return true;
                     }
-                    else if (Id == (int)CardId.瓦尔基鲁斯之影灵衣)
+                    else if (Id == CardId.Valkyrus)
                     {
                         if (IsTheLastPossibility())
                         {
-                            AI.SelectCard((int)CardId.瓦尔基鲁斯之影灵衣);
+                            AI.SelectCard(CardId.Valkyrus);
                             return true;
                         }
                     }
-                    else if (Id == (int)CardId.天枪龙之影灵衣)
+                    else if (Id == CardId.Gungnir)
                     {
                         if (IsTheLastPossibility())
                         {
-                            AI.SelectCard((int)CardId.天枪龙之影灵衣);
+                            AI.SelectCard(CardId.Gungnir);
                             return true;
                         }
                     }
-                    else if (Id == (int)CardId.辉剑鸟之影灵衣)
+                    else if (Id == CardId.Clausolas)
                     {
                         if (IsTheLastPossibility())
                         {
-                            AI.SelectCard((int)CardId.辉剑鸟之影灵衣);
+                            AI.SelectCard(CardId.Clausolas);
                             return true;
                         }
                     }

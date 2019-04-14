@@ -1,5 +1,5 @@
-﻿using YGOSharp.OCGWrapper.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI
 {
@@ -63,18 +63,18 @@ namespace WindBot.Game.AI
                     break;
                 case SelectType.Cards:
                     foreach (ClientCard card in _cards)
-                        if (cards.Contains(card))
+                        if (cards.Contains(card) && !result.Contains(card))
                             result.Add(card);
                     break;
                 case SelectType.Id:
                     foreach (ClientCard card in cards)
-                        if (card.Id == _id)
+                        if (card.IsCode(_id))
                             result.Add(card);
                     break;
                 case SelectType.Ids:
                     foreach (int id in _ids)
                         foreach (ClientCard card in cards)
-                            if (card.Id == id)
+                            if (card.IsCode(id) && !result.Contains(card))
                                 result.Add(card);
                     break;
                 case SelectType.Location:

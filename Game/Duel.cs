@@ -1,5 +1,5 @@
-﻿using YGOSharp.OCGWrapper.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game
 {
@@ -8,7 +8,6 @@ namespace WindBot.Game
         public bool IsFirst { get; set; }
         public bool IsNewRule { get; set; }
 
-        public int[] LifePoints { get; private set; }
         public ClientField[] Fields { get; private set; }
 
         public int Turn { get; set; }
@@ -16,25 +15,35 @@ namespace WindBot.Game
         public DuelPhase Phase { get; set; }
         public MainPhase MainPhase { get; set; }
         public BattlePhase BattlePhase { get; set; }
+
+        public int LastChainPlayer { get; set; }
+        public IList<ClientCard> CurrentChain { get; set; }
         public IList<ClientCard> ChainTargets { get; set; }
+        public IList<ClientCard> ChainTargetOnly { get; set; }
         public int LastSummonPlayer { get; set; }
+        public IList<ClientCard> SummoningCards { get; set; }
+        public IList<ClientCard> LastSummonedCards { get; set; }
 
         public Duel()
         {
-            LifePoints = new int[2];
             Fields = new ClientField[2];
             Fields[0] = new ClientField();
             Fields[1] = new ClientField();
+            LastChainPlayer = -1;
+            CurrentChain = new List<ClientCard>();
             ChainTargets = new List<ClientCard>();
+            ChainTargetOnly = new List<ClientCard>();
             LastSummonPlayer = -1;
+            SummoningCards = new List<ClientCard>();
+            LastSummonedCards = new List<ClientCard>();
         }
 
-        public ClientCard GetCard(int player, CardLocation loc, int index)
+        public ClientCard GetCard(int player, CardLocation loc, int seq)
         {
-            return GetCard(player, (int)loc, index, 0);
+            return GetCard(player, (int)loc, seq, 0);
         }
 
-        public ClientCard GetCard(int player, int loc, int index, int subindex)
+        public ClientCard GetCard(int player, int loc, int seq, int subSeq)
         {
             if (player < 0 || player > 1)
                 return null;
@@ -70,49 +79,81 @@ namespace WindBot.Game
             if (cards == null)
                 return null;
 
-            if (index >= cards.Count)
+            if (seq >= cards.Count)
                 return null;
 
             if (isXyz)
             {
-                ClientCard card = cards[index];
-                if (card == null || subindex >= card.Overlays.Count)
+                ClientCard card = cards[seq];
+                if (card == null || subSeq >= card.Overlays.Count)
                     return null;
-                return null; // TODO card.Overlays[subindex]
+                return null; // TODO card.Overlays[subSeq]
             }
 
-            return cards[index];
+            return cards[seq];
         }
 
-        public void AddCard(CardLocation loc, int cardId, int player, int zone, int pos)
+        public void AddCard(CardLocation loc, int cardId, int player, int seq, int pos)
         {
             switch (loc)
             {
                 case CardLocation.Hand:
-                    Fields[player].Hand.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Hand.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
                 case CardLocation.Grave:
-                    Fields[player].Graveyard.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Graveyard.Add(new ClientCard(cardId, loc,-1, pos));
                     break;
                 case CardLocation.Removed:
-                    Fields[player].Banished.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Banished.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
                 case CardLocation.MonsterZone:
-                    Fields[player].MonsterZone[zone] = new ClientCard(cardId, loc, pos);
+                    Fields[player].MonsterZone[seq] = new ClientCard(cardId, loc, seq, pos);
                     break;
                 case CardLocation.SpellZone:
-                    Fields[player].SpellZone[zone] = new ClientCard(cardId, loc, pos);
+                    Fields[player].SpellZone[seq] = new ClientCard(cardId, loc, seq, pos);
                     break;
                 case CardLocation.Deck:
-                    Fields[player].Deck.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].Deck.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
                 case CardLocation.Extra:
-                    Fields[player].ExtraDeck.Add(new ClientCard(cardId, loc, pos));
+                    Fields[player].ExtraDeck.Add(new ClientCard(cardId, loc, -1, pos));
                     break;
             }
         }
 
-        public void RemoveCard(CardLocation loc, ClientCard card, int player, int zone)
+        public void AddCard(CardLocation loc, ClientCard card, int player, int seq, int pos, int id)
+        {
+            card.Location = loc;
+            card.Sequence = seq;
+            card.Position = pos;
+            card.SetId(id);
+            switch (loc)
+            {
+                case CardLocation.Hand:
+                    Fields[player].Hand.Add(card);
+                    break;
+                case CardLocation.Grave:
+                    Fields[player].Graveyard.Add(card);
+                    break;
+                case CardLocation.Removed:
+                    Fields[player].Banished.Add(card);
+                    break;
+                case CardLocation.MonsterZone:
+                    Fields[player].MonsterZone[seq] = card;
+                    break;
+                case CardLocation.SpellZone:
+                    Fields[player].SpellZone[seq] = card;
+                    break;
+                case CardLocation.Deck:
+                    Fields[player].Deck.Add(card);
+                    break;
+                case CardLocation.Extra:
+                    Fields[player].ExtraDeck.Add(card);
+                    break;
+            }
+        }
+
+        public void RemoveCard(CardLocation loc, ClientCard card, int player, int seq)
         {
             switch (loc)
             {
@@ -126,10 +167,10 @@ namespace WindBot.Game
                     Fields[player].Banished.Remove(card);
                     break;
                 case CardLocation.MonsterZone:
-                    Fields[player].MonsterZone[zone] = null;
+                    Fields[player].MonsterZone[seq] = null;
                     break;
                 case CardLocation.SpellZone:
-                    Fields[player].SpellZone[zone] = null;
+                    Fields[player].SpellZone[seq] = null;
                     break;
                 case CardLocation.Deck:
                     Fields[player].Deck.Remove(card);

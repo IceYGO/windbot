@@ -1,5 +1,6 @@
 ﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
+using System.Linq;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -9,420 +10,301 @@ namespace WindBot.Game.AI.Decks
     [Deck("Blue-Eyes", "AI_BlueEyes")]
     class BlueEyesExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            青眼白龙 = 89631139,
-            青眼亚白龙 = 38517737,
-            白色灵龙 = 45467446,
-            增殖的G = 23434538,
-            太古的白石 = 71039903,
-            传说的白石 = 79814787,
-            青色眼睛的贤士 = 8240199,
-            效果遮蒙者 = 97268402,
-            银河旋风 = 5133471,
-            鹰身女妖的羽毛扫 = 18144506,
-            复活之福音 = 6853254,
-            强欲而贪欲之壶 = 35261759,
-            抵价购物 = 38120068,
-            调和的宝札 = 39701395,
-            龙之灵庙 = 41620959,
-            龙觉醒旋律 = 48800175,
-            灵魂补充 = 54447022,
-            死者苏生 = 83764718,
-            银龙的轰咆 = 87025064,
+            public const int WhiteDragon = 89631139;
+            public const int AlternativeWhiteDragon = 38517737;
+            public const int DragonSpiritOfWhite = 45467446;
+            public const int WhiteStoneOfAncients = 71039903;
+            public const int WhiteStoneOfLegend = 79814787;
+            public const int SageWithEyesOfBlue = 8240199;
+            public const int EffectVeiler = 97268402;
+            public const int GalaxyCyclone = 5133471;
+            public const int HarpiesFeatherDuster = 18144506;
+            public const int ReturnOfTheDragonLords = 6853254;
+            public const int PotOfDesires = 35261759;
+            public const int TradeIn = 38120068;
+            public const int CardsOfConsonance = 39701395;
+            public const int DragonShrine = 41620959;
+            public const int MelodyOfAwakeningDragon = 48800175;
+            public const int SoulCharge = 54447022;
+            public const int MonsterReborn = 83764718;
+            public const int SilversCry = 87025064;
 
-            鬼岩城 = 63422098,
-            苍眼银龙 = 40908371,
-            青眼精灵龙 = 59822133,
-            银河眼暗物质龙 = 58820923,
-            银河眼光波刃龙 = 2530830,
-            银河眼重铠光子龙 = 39030163,
-            银河眼光子龙皇 = 31801517,
-            银河眼光波龙 = 18963306,
-            希望魁龙银河巨神 = 63767246,
-            森罗的姬牙宫 = 33909817
+            public const int Giganticastle = 63422098;
+            public const int AzureEyesSilverDragon = 40908371;
+            public const int BlueEyesSpiritDragon = 59822133;
+            public const int GalaxyEyesDarkMatterDragon = 58820923;
+            public const int GalaxyEyesCipherBladeDragon = 2530830;
+            public const int GalaxyEyesFullArmorPhotonDragon = 39030163;
+            public const int GalaxyEyesPrimePhotonDragon = 31801517;
+            public const int GalaxyEyesCipherDragon = 18963306;
+            public const int HopeHarbingerDragonTitanicGalaxy = 63767246;
+            public const int SylvanPrincessprite = 33909817;
         }
 
-        private List<ClientCard> 使用过的青眼亚白龙 = new List<ClientCard>();
-        ClientCard 使用过的光波龙;
-        bool 已特殊召唤青眼亚白龙 = false;
-        bool 已发动灵魂补充 = false;
+        private List<ClientCard> UsedAlternativeWhiteDragon = new List<ClientCard>();
+        ClientCard UsedGalaxyEyesCipherDragon;
+        bool AlternativeWhiteDragonSummoned = false;
+        bool SoulChargeUsed = false;
 
         public BlueEyesExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            // 有坑先清
-            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫, DefaultHarpiesFeatherDusterFirst);
-            AddExecutor(ExecutorType.Activate, (int)CardId.银河旋风, DefaultGalaxyCyclone);
-            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
+            // destroy traps
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyCyclone, DefaultGalaxyCyclone);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
 
-            // 灵庙
-            AddExecutor(ExecutorType.Activate, (int)CardId.龙之灵庙, 龙之灵庙效果);
+            AddExecutor(ExecutorType.Activate, CardId.DragonShrine, DragonShrineEffect);
 
-            // 贤士检索
-            AddExecutor(ExecutorType.Summon, (int)CardId.青色眼睛的贤士, 青色眼睛的贤士通常召唤);
+            // Sage search
+            AddExecutor(ExecutorType.Summon, CardId.SageWithEyesOfBlue, SageWithEyesOfBlueSummon);
 
-            // 拿亚白
-            AddExecutor(ExecutorType.Activate, (int)CardId.龙觉醒旋律, 龙觉醒旋律效果);
+            // search Alternative White Dragon
+            AddExecutor(ExecutorType.Activate, CardId.MelodyOfAwakeningDragon, MelodyOfAwakeningDragonEffect);
 
-            // 调和
-            AddExecutor(ExecutorType.Activate, (int)CardId.调和的宝札, 调和的宝札效果);
+            AddExecutor(ExecutorType.Activate, CardId.CardsOfConsonance, CardsOfConsonanceEffect);
 
-            // 八抽
-            AddExecutor(ExecutorType.Activate, (int)CardId.抵价购物, 抵价购物效果);
+            AddExecutor(ExecutorType.Activate, CardId.TradeIn, TradeInEffect);
 
-            // 吸一口
-            AddExecutor(ExecutorType.Activate, (int)CardId.强欲而贪欲之壶, DefaultPotOfDesires);
+            AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, DefaultPotOfDesires);
 
-            // 有亚白就跳
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.青眼亚白龙, 青眼亚白龙特殊召唤);
+            // spsummon Alternative White Dragon if possible
+            AddExecutor(ExecutorType.SpSummon, CardId.AlternativeWhiteDragon, AlternativeWhiteDragonSummon);
 
-            // 苏生
-            AddExecutor(ExecutorType.Activate, (int)CardId.复活之福音, 死者苏生效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.银龙的轰咆, 死者苏生效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.死者苏生, 死者苏生效果);
+            // reborn
+            AddExecutor(ExecutorType.Activate, CardId.ReturnOfTheDragonLords, RebornEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SilversCry, RebornEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, RebornEffect);
 
-            // 效果
-            AddExecutor(ExecutorType.Activate, (int)CardId.青眼亚白龙, 青眼亚白龙效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.青色眼睛的贤士, 青色眼睛的贤士效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.太古的白石, 太古的白石效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.白色灵龙, 白色灵龙效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.青眼精灵龙, 青眼精灵龙效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.希望魁龙银河巨神, 希望魁龙银河巨神效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.银河眼光波龙, 银河眼光波龙效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.银河眼光子龙皇, 银河眼光子龙皇效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.银河眼重铠光子龙, 银河眼重铠光子龙效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.银河眼光波刃龙, 银河眼光波刃龙效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.银河眼暗物质龙, 银河眼暗物质龙效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.苍眼银龙, 苍眼银龙效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.森罗的姬牙宫, 森罗的姬芽宫效果);
+            // monster effects
+            AddExecutor(ExecutorType.Activate, CardId.AlternativeWhiteDragon, AlternativeWhiteDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SageWithEyesOfBlue, SageWithEyesOfBlueEffect);
+            AddExecutor(ExecutorType.Activate, CardId.WhiteStoneOfAncients, WhiteStoneOfAncientsEffect);
+            AddExecutor(ExecutorType.Activate, CardId.DragonSpiritOfWhite, DragonSpiritOfWhiteEffect);
+            AddExecutor(ExecutorType.Activate, CardId.BlueEyesSpiritDragon, BlueEyesSpiritDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.HopeHarbingerDragonTitanicGalaxy, HopeHarbingerDragonTitanicGalaxyEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyEyesCipherDragon, GalaxyEyesCipherDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyEyesPrimePhotonDragon, GalaxyEyesPrimePhotonDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyEyesFullArmorPhotonDragon, GalaxyEyesFullArmorPhotonDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyEyesCipherBladeDragon, GalaxyEyesCipherBladeDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.GalaxyEyesDarkMatterDragon, GalaxyEyesDarkMatterDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.AzureEyesSilverDragon, AzureEyesSilverDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SylvanPrincessprite, SylvanPrincesspriteEffect);
 
-            // 通招
-            AddExecutor(ExecutorType.Summon, (int)CardId.青色眼睛的贤士, 太古的白石通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.太古的白石, 太古的白石通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.传说的白石, 太古的白石通常召唤);
+            // normal summon
+            AddExecutor(ExecutorType.Summon, CardId.SageWithEyesOfBlue, WhiteStoneSummon);
+            AddExecutor(ExecutorType.Summon, CardId.WhiteStoneOfAncients, WhiteStoneSummon);
+            AddExecutor(ExecutorType.Summon, CardId.WhiteStoneOfLegend, WhiteStoneSummon);
 
-            // 出大怪
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.银河眼光波龙, 银河眼光波龙超量召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.银河眼光子龙皇, 银河眼光子龙皇超量召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.银河眼重铠光子龙, 银河眼重铠光子龙超量召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.银河眼光波刃龙, 银河眼光波刃龙超量召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.银河眼暗物质龙, 银河眼暗物质龙超量召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.鬼岩城, 鬼岩城同调召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.青眼精灵龙, 青眼精灵龙同调召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.希望魁龙银河巨神, 希望魁龙银河巨神超量召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.森罗的姬牙宫, 森罗的姬芽宫超量召唤);
+            // special summon from extra
+            AddExecutor(ExecutorType.SpSummon, CardId.GalaxyEyesCipherDragon, GalaxyEyesCipherDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GalaxyEyesPrimePhotonDragon, GalaxyEyesPrimePhotonDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GalaxyEyesFullArmorPhotonDragon, GalaxyEyesFullArmorPhotonDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GalaxyEyesCipherBladeDragon, GalaxyEyesCipherBladeDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GalaxyEyesDarkMatterDragon, GalaxyEyesDarkMatterDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Giganticastle, GiganticastleSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.BlueEyesSpiritDragon, BlueEyesSpiritDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.HopeHarbingerDragonTitanicGalaxy, HopeHarbingerDragonTitanicGalaxySummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.SylvanPrincessprite, SylvanPrincesspriteSummon);
 
-            // 没别的可干
-            AddExecutor(ExecutorType.Activate, (int)CardId.灵魂补充, 灵魂补充);
-            AddExecutor(ExecutorType.Repos, 改变攻守表示);
-            // 通招白石发动贤士手卡效果
-            AddExecutor(ExecutorType.Summon, (int)CardId.传说的白石, 传说的白石通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.太古的白石, 传说的白石通常召唤);
-            AddExecutor(ExecutorType.Summon, (int)CardId.青色眼睛的贤士, 传说的白石通常召唤);
-            AddExecutor(ExecutorType.Activate, (int)CardId.青色眼睛的贤士, 青色眼睛的贤士手卡效果);
-            // 优先盖传说白石以期望拿到白龙打开局面
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.传说的白石);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.太古的白石);
-            AddExecutor(ExecutorType.SpellSet, 盖卡);
+            // if we don't have other things to do...
+            AddExecutor(ExecutorType.Activate, CardId.SoulCharge, SoulChargeEffect);
+            AddExecutor(ExecutorType.Repos, Repos);
+            // summon White Stone to use the hand effect of Sage
+            AddExecutor(ExecutorType.Summon, CardId.WhiteStoneOfLegend, WhiteStoneSummonForSage);
+            AddExecutor(ExecutorType.Summon, CardId.WhiteStoneOfAncients, WhiteStoneSummonForSage);
+            AddExecutor(ExecutorType.Summon, CardId.SageWithEyesOfBlue, WhiteStoneSummonForSage);
+            AddExecutor(ExecutorType.Activate, CardId.SageWithEyesOfBlue, SageWithEyesOfBlueEffectInHand);
+            // set White Stone of Legend frist
+            AddExecutor(ExecutorType.MonsterSet, CardId.WhiteStoneOfLegend);
+            AddExecutor(ExecutorType.MonsterSet, CardId.WhiteStoneOfAncients);
 
-        }
-
-        public override bool OnSelectHand()
-        {
-            // 随机先后攻
-            return Program.Rand.Next(2) > 0;
+            AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
 
         public override void OnNewTurn()
         {
-            // 回合开始时重置状况
-            使用过的青眼亚白龙.Clear();
-            使用过的光波龙 = null;
-            已特殊召唤青眼亚白龙 = false;
-            已发动灵魂补充 = false;
+            // reset
+            UsedAlternativeWhiteDragon.Clear();
+            UsedGalaxyEyesCipherDragon = null;
+            AlternativeWhiteDragonSummoned = false;
+            SoulChargeUsed = false;
         }
 
-        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             Logger.DebugWriteLine("OnSelectCard " + cards.Count + " " + min + " " + max);
             if (max == 2 && cards[0].Location == CardLocation.Deck)
             {
-                Logger.DebugWriteLine("龙觉醒检索.");
-                IList<ClientCard> result = new List<ClientCard>();
-                if (!Bot.HasInHand((int)CardId.青眼白龙))
-                {
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.Id == (int)CardId.青眼白龙)
-                        {
-                            result.Add(card);
-                            break;
-                        }
-                    }
-                }
-                foreach (ClientCard card in cards)
-                {
-                    if (card.Id == (int)CardId.青眼亚白龙 && result.Count < max)
-                    {
-                        result.Add(card);
-                    }
-                }
-                if (result.Count < min)
-                {
-                    foreach (ClientCard card in cards)
-                    {
-                        if (!result.Contains(card))
-                            result.Add(card);
-                        if (result.Count >= min)
-                            break;
-                    }
-                }
-                while (result.Count > max)
-                {
-                    result.RemoveAt(result.Count - 1);
-                }
-                return result;
-            }
-            if (max == 2 && min == 2 && cards[0].Location == CardLocation.MonsterZone)
-            {
-                Logger.DebugWriteLine("超量召唤.");
-                IList<ClientCard> avail = new List<ClientCard>();
-                foreach (ClientCard card in cards)
-                {
-                    // clone
-                    avail.Add(card);
-                }
-                IList<ClientCard> result = new List<ClientCard>();
-                while (使用过的青眼亚白龙.Count > 0 && avail.IndexOf(使用过的青眼亚白龙[0]) > 0)
-                {
-                    Logger.DebugWriteLine("优先用使用过的亚白龙超量.");
-                    ClientCard card = 使用过的青眼亚白龙[0];
-                    使用过的青眼亚白龙.Remove(card);
-                    avail.Remove(card);
-                    result.Add(card);
-                }
-                if (result.Count < 2)
-                {
-                    foreach (ClientCard card in cards)
-                    {
-                        if (!result.Contains(card))
-                            result.Add(card);
-                        if (result.Count >= 2)
-                            break;
-                    }
-                }
-                return result;
+                Logger.DebugWriteLine("OnSelectCard MelodyOfAwakeningDragon");
+                List<ClientCard> result = new List<ClientCard>();
+                if (!Bot.HasInHand(CardId.WhiteDragon))
+                    result.AddRange(cards.Where(card => card.IsCode(CardId.WhiteDragon)).Take(1));
+                result.AddRange(cards.Where(card => card.IsCode(CardId.AlternativeWhiteDragon)));
+                return AI.Utils.CheckSelectCount(result, cards, min, max);
             }
             Logger.DebugWriteLine("Use default.");
             return null;
         }
 
-        public override IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
+        public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            Logger.DebugWriteLine("OnSelectSum " + cards.Count + " " + sum + " " + min + " " + max);
-            if (sum != 8 || !mode)
+            Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
+            IList<ClientCard> result = AI.Utils.SelectPreferredCards(UsedAlternativeWhiteDragon, cards, min, max);
+            return AI.Utils.CheckSelectCount(result, cards, min, max);
+        }
+
+        public override IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)
+        {
+            Logger.DebugWriteLine("OnSelectSynchroMaterial " + cards.Count + " " + sum + " " + min + " " + max);
+            if (sum != 8)
                 return null;
 
-            foreach (ClientCard 亚白龙 in 使用过的青眼亚白龙)
+            foreach (ClientCard AlternativeWhiteDragon in UsedAlternativeWhiteDragon)
             {
-                if (cards.IndexOf(亚白龙) > 0)
+                if (cards.IndexOf(AlternativeWhiteDragon) > 0)
                 {
-                    使用过的青眼亚白龙.Remove(亚白龙);
-                    Logger.DebugWriteLine("选择了使用过的青眼亚白龙");
-                    return new[] { 亚白龙 };
+                    UsedAlternativeWhiteDragon.Remove(AlternativeWhiteDragon);
+                    Logger.DebugWriteLine("select UsedAlternativeWhiteDragon");
+                    return new[] { AlternativeWhiteDragon };
                 }
             }
 
             return null;
         }
 
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
+        private bool DragonShrineEffect()
         {
-            if (defender.IsMonsterInvincible())
+            AI.SelectCard(
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteDragon,
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend
+                );
+            if (!Bot.HasInHand(CardId.WhiteDragon))
             {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
-            }
-            return attacker.Attack > 0;
-        }
-
-        private bool 龙之灵庙效果()
-        {
-            Logger.DebugWriteLine("龙之灵庙.");
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.白色灵龙,
-                    (int)CardId.青眼白龙,
-                    (int)CardId.太古的白石,
-                    (int)CardId.传说的白石
-                });
-            if (!Bot.HasInHand((int)CardId.青眼白龙))
-            {
-                Logger.DebugWriteLine("手里没有本体，堆白石.");
-                AI.SelectNextCard((int)CardId.传说的白石);
+                AI.SelectNextCard(CardId.WhiteStoneOfLegend);
             }
             else
             {
-                Logger.DebugWriteLine("堆太古或灵龙或白石.");
-                AI.SelectNextCard(new[]
-                {
-                    (int)CardId.太古的白石,
-                    (int)CardId.白色灵龙,
-                    (int)CardId.传说的白石
-                });
+                AI.SelectNextCard(
+                    CardId.WhiteStoneOfAncients,
+                    CardId.DragonSpiritOfWhite,
+                    CardId.WhiteStoneOfLegend
+                    );
             }
             return true;
         }
 
-        private bool 龙觉醒旋律效果()
+        private bool MelodyOfAwakeningDragonEffect()
         {
-            Logger.DebugWriteLine("龙觉醒选要丢的卡.");
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.太古的白石,
-                    (int)CardId.白色灵龙,
-                    (int)CardId.传说的白石,
-                    (int)CardId.银河旋风,
-                    (int)CardId.效果遮蒙者,
-                    (int)CardId.抵价购物,
-                    (int)CardId.青色眼睛的贤士
-                });
+            AI.SelectCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteStoneOfLegend,
+                CardId.GalaxyCyclone,
+                CardId.EffectVeiler,
+                CardId.TradeIn,
+                CardId.SageWithEyesOfBlue
+                );
             return true;
         }
 
-        private bool 调和的宝札效果()
+        private bool CardsOfConsonanceEffect()
         {
-            Logger.DebugWriteLine("调和选要丢的卡.");
-            if (!Bot.HasInHand((int)CardId.青眼白龙))
+            if (!Bot.HasInHand(CardId.WhiteDragon))
             {
-                Logger.DebugWriteLine("手里没有本体，丢白石.");
-                AI.SelectCard((int)CardId.传说的白石);
+                AI.SelectCard(CardId.WhiteStoneOfLegend);
             }
-            else if (Bot.HasInHand((int)CardId.抵价购物))
+            else if (Bot.HasInHand(CardId.TradeIn))
             {
-                Logger.DebugWriteLine("手里有本体，再拿一个喂八抽.");
-                AI.SelectCard((int)CardId.传说的白石);
+                AI.SelectCard(CardId.WhiteStoneOfLegend);
             }
             else
             {
-                Logger.DebugWriteLine("手里有本体，优先丢太古.");
-                AI.SelectCard((int)CardId.太古的白石);
+                AI.SelectCard(CardId.WhiteStoneOfAncients);
             }
             return true;
         }
 
-        private bool 抵价购物效果()
+        private bool TradeInEffect()
         {
-            Logger.DebugWriteLine("抵价购物发动.");
-            if (Bot.HasInHand((int)CardId.白色灵龙))
+            if (Bot.HasInHand(CardId.DragonSpiritOfWhite))
             {
-                Logger.DebugWriteLine("手里有白灵龙，优先丢掉.");
-                AI.SelectCard((int)CardId.白色灵龙);
+                AI.SelectCard(CardId.DragonSpiritOfWhite);
                 return true;
             }
-            else if (手里有2个((int)CardId.青眼白龙))
+            else if (HasTwoInHand(CardId.WhiteDragon))
             {
-                Logger.DebugWriteLine("手里有2个青眼白龙，丢1个.");
-                AI.SelectCard((int)CardId.青眼白龙);
+                AI.SelectCard(CardId.WhiteDragon);
                 return true;
             }
-            else if (手里有2个((int)CardId.青眼亚白龙))
+            else if (HasTwoInHand(CardId.AlternativeWhiteDragon))
             {
-                Logger.DebugWriteLine("手里有2个青眼亚白龙，丢1个.");
-                AI.SelectCard((int)CardId.青眼亚白龙);
+                AI.SelectCard(CardId.AlternativeWhiteDragon);
                 return true;
             }
-            else if (!Bot.HasInHand((int)CardId.青眼白龙) || !Bot.HasInHand((int)CardId.青眼亚白龙))
+            else if (!Bot.HasInHand(CardId.WhiteDragon) || !Bot.HasInHand(CardId.AlternativeWhiteDragon))
             {
-                Logger.DebugWriteLine("手里没有成对的青眼和亚白，丢1个.");
-                AI.SelectCard(new[]
-                {
-                    (int)CardId.青眼白龙,
-                    (int)CardId.青眼亚白龙
-                });
+                AI.SelectCard(CardId.WhiteDragon, CardId.AlternativeWhiteDragon);
                 return true;
             }
             else
             {
-                Logger.DebugWriteLine("手里只有一对，不能乱丢.");
                 return false;
             }
         }
 
-        private bool 青眼亚白龙效果()
+        private bool AlternativeWhiteDragonEffect()
         {
-            Logger.DebugWriteLine("亚白龙效果.");
-            ClientCard card = Enemy.MonsterZone.GetFloodgate();
-            if (card != null)
+            ClientCard target = AI.Utils.GetProblematicEnemyMonster(Card.GetDefensePower());
+            if (target != null)
             {
-                Logger.DebugWriteLine("炸坑怪.");
-                AI.SelectCard(card);
-                使用过的青眼亚白龙.Add(Card);
+                AI.SelectCard(target);
+                UsedAlternativeWhiteDragon.Add(Card);
                 return true;
             }
-            card = Enemy.MonsterZone.GetInvincibleMonster();
-            if (card != null)
+            if (CanDealWithUsedAlternativeWhiteDragon())
             {
-                Logger.DebugWriteLine("炸打不死的怪.");
-                AI.SelectCard(card);
-                使用过的青眼亚白龙.Add(Card);
+                target = AI.Utils.GetBestEnemyMonster(false, true);
+                AI.SelectCard(target);
+                UsedAlternativeWhiteDragon.Add(Card);
                 return true;
             }
-            card = Enemy.MonsterZone.GetDangerousMonster();
-            if (card != null)
-            {
-                Logger.DebugWriteLine("炸厉害的怪.");
-                AI.SelectCard(card);
-                使用过的青眼亚白龙.Add(Card);
-                return true;
-            }
-            card = AI.Utils.GetOneEnemyBetterThanValue(Card.GetDefensePower(), false);
-            if (card != null)
-            {
-                Logger.DebugWriteLine("炸比自己强的怪.");
-                AI.SelectCard(card);
-                使用过的青眼亚白龙.Add(Card);
-                return true;
-            }
-            if (能处理青眼亚白龙())
-            {
-                使用过的青眼亚白龙.Add(Card);
-                return true;
-            }
-            Logger.DebugWriteLine("不炸.");
             return false;
         }
 
-        private bool 死者苏生效果()
+        private bool RebornEffect()
         {
-            if (Duel.Player == 0 && CurrentChain.Count > 0)
+            if (Duel.Player == 0 && Duel.CurrentChain.Count > 0)
             {
-                Logger.DebugWriteLine("轰咆避免卡时点.");
+                // Silver's Cry spsummon Dragon Spirit at chain 2 will miss the timing
                 return false;
             }
             if (Duel.Player == 0 && (Duel.Phase == DuelPhase.Draw || Duel.Phase == DuelPhase.Standby))
             {
-                Logger.DebugWriteLine("轰咆自己回合不和苍眼银龙抢对象.");
+                // Let Azure-Eyes spsummon first
                 return false;
             }
-            List<int> targets = new List<int> {
-                    (int)CardId.希望魁龙银河巨神,
-                    (int)CardId.银河眼暗物质龙,
-                    (int)CardId.青眼亚白龙,
-                    (int)CardId.苍眼银龙,
-                    (int)CardId.青眼精灵龙,
-                    (int)CardId.青眼白龙,
-                    (int)CardId.白色灵龙
+            IList<int> targets = new[] {
+                    CardId.HopeHarbingerDragonTitanicGalaxy,
+                    CardId.GalaxyEyesDarkMatterDragon,
+                    CardId.AlternativeWhiteDragon,
+                    CardId.AzureEyesSilverDragon,
+                    CardId.BlueEyesSpiritDragon,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
                 };
             if (!Bot.HasInGraveyard(targets))
             {
                 return false;
             }
             ClientCard floodgate = Enemy.SpellZone.GetFloodgate();
-            if (floodgate != null && Bot.HasInGraveyard((int)CardId.白色灵龙))
+            if (floodgate != null && Bot.HasInGraveyard(CardId.DragonSpiritOfWhite))
             {
-                AI.SelectCard((int)CardId.白色灵龙);
+                AI.SelectCard(CardId.DragonSpiritOfWhite);
             }
             else
             {
@@ -431,264 +313,210 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool 苍眼银龙效果()
+        private bool AzureEyesSilverDragonEffect()
         {
-            Logger.DebugWriteLine("苍眼银龙效果.");
             if (Enemy.GetSpellCount() > 0)
             {
-                AI.SelectCard((int)CardId.白色灵龙);
+                AI.SelectCard(CardId.DragonSpiritOfWhite);
             }
             else
             {
-                AI.SelectCard((int)CardId.青眼白龙);
+                AI.SelectCard(CardId.WhiteDragon);
             }
             return true;
         }
 
-        private bool 青色眼睛的贤士通常召唤()
+        private bool SageWithEyesOfBlueSummon()
         {
-            Logger.DebugWriteLine("手里没有白石，先贤士检索.");
-            return !Bot.HasInHand(new List<int>
+            return !Bot.HasInHand(new[]
                 {
-                    (int)CardId.太古的白石,
-                    (int)CardId.传说的白石
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend
                 });
         }
 
-        private bool 青色眼睛的贤士效果()
+        private bool SageWithEyesOfBlueEffect()
         {
             if (Card.Location == CardLocation.Hand)
             {
                 return false;
             }
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.太古的白石,
-                    (int)CardId.效果遮蒙者,
-                    (int)CardId.传说的白石
-                });
+            AI.SelectCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.EffectVeiler,
+                CardId.WhiteStoneOfLegend
+                );
             return true;
         }
 
-        private bool 传说的白石通常召唤()
+        private bool WhiteStoneSummonForSage()
         {
-            Logger.DebugWriteLine("通招白石给贤士发手卡效果.");
-            return Bot.HasInHand((int)CardId.青色眼睛的贤士);
+            return Bot.HasInHand(CardId.SageWithEyesOfBlue);
         }
 
-        private bool 青色眼睛的贤士手卡效果()
+        private bool SageWithEyesOfBlueEffectInHand()
         {
             if (Card.Location != CardLocation.Hand)
             {
                 return false;
             }
-            if (!Bot.HasInMonstersZone(new List<int>
+            if (!Bot.HasInMonstersZone(new[]
                 {
-                    (int)CardId.传说的白石,
-                    (int)CardId.太古的白石
-                }) || Bot.HasInMonstersZone(new List<int>
+                    CardId.WhiteStoneOfLegend,
+                    CardId.WhiteStoneOfAncients
+                }) || Bot.HasInMonstersZone(new[]
                 {
-                    (int)CardId.青眼亚白龙,
-                    (int)CardId.青眼白龙,
-                    (int)CardId.白色灵龙
+                    CardId.AlternativeWhiteDragon,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
                 }))
             {
-                Logger.DebugWriteLine("能做其他展开，不发贤士效果.");
                 return false;
             }
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.传说的白石,
-                    (int)CardId.太古的白石
-                });
-            List<ClientCard> spells = Enemy.GetSpells();
-            if (spells.Count == 0)
+            AI.SelectCard(CardId.WhiteStoneOfLegend, CardId.WhiteStoneOfAncients);
+            if (Enemy.GetSpellCount() > 0)
             {
-                Logger.DebugWriteLine("对面没坑，跳个本体.");
-                AI.SelectNextCard((int)CardId.青眼白龙);
+                AI.SelectNextCard(CardId.DragonSpiritOfWhite);
             }
             else
             {
-                Logger.DebugWriteLine("对面有坑，拆.");
-                AI.SelectNextCard((int)CardId.白色灵龙);
+                AI.SelectNextCard(CardId.WhiteDragon);
             }
             return true;
         }
 
-        private bool 白色灵龙效果()
+        private bool DragonSpiritOfWhiteEffect()
         {
-            Logger.DebugWriteLine("白色灵龙" + ActivateDescription);
             if (ActivateDescription == -1)
             {
-                Logger.DebugWriteLine("白色灵龙拆后场.");
-                ClientCard target = Enemy.SpellZone.GetFloodgate();
+                ClientCard target = AI.Utils.GetBestEnemySpell();
                 AI.SelectCard(target);
                 return true;
             }
-            /*else if(Duel.Phase==DuelPhase.BattleStart)
-            {
-                Logger.DebugWriteLine("白色灵龙战阶变身.");
-                return true;
-            }*/
-            else
+            else if (HaveEnoughWhiteDragonInHand())
             {
                 if (Duel.Player == 0 && Duel.Phase == DuelPhase.BattleStart)
                 {
-                    Logger.DebugWriteLine("白色灵龙打完变身");
-                    return 手里有足够的青眼白龙() && Card.Attacked;
+                    return Card.Attacked;
                 }
                 if (Duel.Player == 1 && Duel.Phase == DuelPhase.End)
                 {
-                    Logger.DebugWriteLine("白色灵龙回合结束变身");
-                    return 手里有足够的青眼白龙()
-                        && Bot.HasInMonstersZone((int)CardId.苍眼银龙, true)
-                        && !Bot.HasInGraveyard((int)CardId.白色灵龙)
-                        && !Bot.HasInGraveyard((int)CardId.青眼白龙);
+                    return Bot.HasInMonstersZone(CardId.AzureEyesSilverDragon, true)
+                        && !Bot.HasInGraveyard(CardId.DragonSpiritOfWhite)
+                        && !Bot.HasInGraveyard(CardId.WhiteDragon);
                 }
-                Logger.DebugWriteLine("白色灵龙特招手卡. 对象数量" + Duel.ChainTargets.Count);
-                foreach (ClientCard card in Duel.ChainTargets)
+                if (AI.Utils.IsChainTarget(Card))
                 {
-                    // Logger.DebugWriteLine("对象" + card.Id);
-                    if (Card.Equals(card))
-                    {
-                        Logger.DebugWriteLine("白色灵龙被取对象，是否变身.");
-                        return 手里有足够的青眼白龙();
-                    }
+                    return true;
                 }
-                return false;
             }
+            return false;
         }
 
-        private bool 青眼精灵龙效果()
+        private bool BlueEyesSpiritDragonEffect()
         {
-            Logger.DebugWriteLine("青眼精灵龙" + ActivateDescription);
-            if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId((int)CardId.青眼精灵龙, 0))
+            if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId(CardId.BlueEyesSpiritDragon, 0))
             {
-                Logger.DebugWriteLine("青眼精灵龙无效墓地.");
-                return LastChainPlayer == 1;
+                return Duel.LastChainPlayer == 1;
             }
             else if (Duel.Player == 1 && (Duel.Phase == DuelPhase.BattleStart || Duel.Phase == DuelPhase.End))
             {
-                Logger.DebugWriteLine("青眼精灵龙主动变身.");
-                AI.SelectCard((int)CardId.苍眼银龙);
+                AI.SelectCard(CardId.AzureEyesSilverDragon);
                 return true;
             }
             else
             {
-                Logger.DebugWriteLine("青眼精灵龙变身. 对象数量" + Duel.ChainTargets.Count);
-                foreach (ClientCard card in Duel.ChainTargets)
+                if (AI.Utils.IsChainTarget(Card))
                 {
-                    // Logger.DebugWriteLine("对象" + card.Id);
-                    if (Card.Equals(card))
-                    {
-                        Logger.DebugWriteLine("青眼精灵龙被取对象，变身.");
-                        AI.SelectCard((int)CardId.苍眼银龙);
-                        return true;
-                    }
+                    AI.SelectCard(CardId.AzureEyesSilverDragon);
+                    return true;
                 }
                 return false;
             }
         }
 
-        private bool 希望魁龙银河巨神效果()
+        private bool HopeHarbingerDragonTitanicGalaxyEffect()
         {
-            Logger.DebugWriteLine("希望魁龙银河巨神" + ActivateDescription);
-            if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId((int)CardId.希望魁龙银河巨神, 0))
+            if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId(CardId.HopeHarbingerDragonTitanicGalaxy, 0))
             {
-                Logger.DebugWriteLine("希望魁龙银河巨神无效魔法.");
-                return LastChainPlayer == 1;
+                return Duel.LastChainPlayer == 1;
             }
             return true;
         }
 
-        private bool 太古的白石效果()
+        private bool WhiteStoneOfAncientsEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.太古的白石, 0))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.WhiteStoneOfAncients, 0))
             {
-                Logger.DebugWriteLine("太古白石回收效果.");
-                if (Bot.HasInHand((int)CardId.抵价购物)
-                    && !Bot.HasInHand((int)CardId.青眼白龙)
-                    && !Bot.HasInHand((int)CardId.青眼亚白龙))
+                if (Bot.HasInHand(CardId.TradeIn)
+                    && !Bot.HasInHand(CardId.WhiteDragon)
+                    && !Bot.HasInHand(CardId.AlternativeWhiteDragon))
                 {
-                    Logger.DebugWriteLine("回收喂八抽.");
-                    AI.SelectCard((int)CardId.青眼白龙);
+                    AI.SelectCard(CardId.WhiteDragon);
                     return true;
                 }
-                if (已特殊召唤青眼亚白龙)
+                if (AlternativeWhiteDragonSummoned)
                 {
-                    Logger.DebugWriteLine("已经跳过亚白龙，下回合再回收.");
                     return false;
                 }
-                if (Bot.HasInHand((int)CardId.青眼白龙)
-                    && !Bot.HasInHand((int)CardId.青眼亚白龙)
-                    && Bot.HasInGraveyard((int)CardId.青眼亚白龙))
+                if (Bot.HasInHand(CardId.WhiteDragon)
+                    && !Bot.HasInHand(CardId.AlternativeWhiteDragon)
+                    && Bot.HasInGraveyard(CardId.AlternativeWhiteDragon))
                 {
-                    Logger.DebugWriteLine("缺亚白龙，回收.");
-                    AI.SelectCard((int)CardId.青眼亚白龙);
+                    AI.SelectCard(CardId.AlternativeWhiteDragon);
                     return true;
                 }
-                if (Bot.HasInHand((int)CardId.青眼亚白龙)
-                    && !Bot.HasInHand((int)CardId.青眼白龙)
-                    && Bot.HasInGraveyard((int)CardId.青眼白龙))
+                if (Bot.HasInHand(CardId.AlternativeWhiteDragon)
+                    && !Bot.HasInHand(CardId.WhiteDragon)
+                    && Bot.HasInGraveyard(CardId.WhiteDragon))
                 {
-                    Logger.DebugWriteLine("有亚白龙缺本体，回收.");
-                    AI.SelectCard((int)CardId.青眼白龙);
+                    AI.SelectCard(CardId.WhiteDragon);
                     return true;
                 }
-                Logger.DebugWriteLine("并没有应该回收的.");
                 return false;
             }
             else
             {
-                Logger.DebugWriteLine("太古白石特招效果.");
-                List<ClientCard> spells = Enemy.GetSpells();
-                if (spells.Count == 0)
+                if (Enemy.GetSpellCount() > 0)
                 {
-                    Logger.DebugWriteLine("对面没坑，跳个本体.");
-                    AI.SelectCard((int)CardId.青眼白龙);
-                    //AI.SelectCard((int)CardId.白色灵龙);
+                    AI.SelectCard(CardId.DragonSpiritOfWhite);
                 }
                 else
                 {
-                    Logger.DebugWriteLine("对面有坑，拆.");
-                    AI.SelectCard((int)CardId.白色灵龙);
+                    AI.SelectCard(CardId.WhiteDragon);
                 }
                 return true;
             }
         }
 
-        private bool 青眼亚白龙特殊召唤()
+        private bool AlternativeWhiteDragonSummon()
         {
-            已特殊召唤青眼亚白龙 = true;
+            AlternativeWhiteDragonSummoned = true;
             return true;
         }
 
-        private bool 太古的白石通常召唤()
+        private bool WhiteStoneSummon()
         {
-            Logger.DebugWriteLine("1星怪兽通常召唤.");
-            return Bot.HasInMonstersZone(new List<int>
+            return Bot.HasInMonstersZone(new[]
                 {
-                    (int)CardId.青色眼睛的贤士,
-                    (int)CardId.太古的白石,
-                    (int)CardId.传说的白石,
-                    (int)CardId.青眼亚白龙,
-                    (int)CardId.青眼白龙,
-                    (int)CardId.白色灵龙
+                    CardId.SageWithEyesOfBlue,
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend,
+                    CardId.AlternativeWhiteDragon,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
                 });
         }
 
-        private bool 银河眼光波龙超量召唤()
+        private bool GalaxyEyesCipherDragonSummon()
         {
-            Logger.DebugWriteLine("银河眼光波龙超量召唤.");
-            if (Duel.Turn == 1 || 已发动灵魂补充)
+            if (Duel.Turn == 1 || SoulChargeUsed)
             {
-                Logger.DebugWriteLine("先攻不叠银河眼，叠银河巨神.");
                 return false;
             }
             List<ClientCard> monsters = Enemy.GetMonsters();
             if (monsters.Count == 1 && !monsters[0].IsFacedown() && ((monsters[0].IsDefense() && monsters[0].GetDefensePower() >= 3000) && monsters[0].HasType(CardType.Xyz)))
             {
-                Logger.DebugWriteLine("只有一个大怪兽，光波龙抢之.");
                 return true;
             }
             if (monsters.Count >= 3)
@@ -697,7 +525,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (!monster.IsFacedown() && ((monster.IsDefense() && monster.GetDefensePower() >= 3000) || monster.HasType(CardType.Xyz)))
                     {
-                        Logger.DebugWriteLine("貌似打不死，出个光波龙看看.");
                         return true;
                     }
                 }
@@ -705,87 +532,78 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 银河眼光子龙皇超量召唤()
+        private bool GalaxyEyesPrimePhotonDragonSummon()
         {
-            Logger.DebugWriteLine("银河眼光子龙皇超量召唤.");
             if (Duel.Turn == 1)
             {
-                Logger.DebugWriteLine("先攻不叠银河眼，叠银河巨神.");
                 return false;
             }
             if (AI.Utils.IsOneEnemyBetterThanValue(2999, false))
             {
-                Logger.DebugWriteLine("有高攻怪兽，出银河眼.");
                 return true;
             }
             return false;
         }
 
-        private bool 银河眼重铠光子龙超量召唤()
+        private bool GalaxyEyesFullArmorPhotonDragonSummon()
         {
-            Logger.DebugWriteLine("银河眼重铠光子龙超量召唤.");
-            if (Bot.HasInMonstersZone((int)CardId.银河眼光波龙))
+            if (Bot.HasInMonstersZone(CardId.GalaxyEyesCipherDragon))
             {
-                List<ClientCard> monsters = Bot.GetMonsters();
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Bot.GetMonsters())
                 {
-                    if ((monster.IsDisabled() && monster.HasType(CardType.Xyz) && !monster.Equals(使用过的光波龙))
-                        || (Duel.Phase == DuelPhase.Main2 && monster.Equals(使用过的光波龙)))
+                    if ((monster.IsDisabled() && monster.HasType(CardType.Xyz) && !monster.Equals(UsedGalaxyEyesCipherDragon))
+                        || (Duel.Phase == DuelPhase.Main2 && monster.Equals(UsedGalaxyEyesCipherDragon)))
                     {
                         AI.SelectCard(monster);
                         return true;
                     }
                 }
             }
-            if (Bot.HasInMonstersZone((int)CardId.银河眼光子龙皇))
+            if (Bot.HasInMonstersZone(CardId.GalaxyEyesPrimePhotonDragon))
             {
                 if (!AI.Utils.IsOneEnemyBetterThanValue(4000, false))
                 {
-                    Logger.DebugWriteLine("没有高攻怪兽，出重铠.");
-                    AI.SelectCard((int)CardId.银河眼光子龙皇);
+                    AI.SelectCard(CardId.GalaxyEyesPrimePhotonDragon);
                     return true;
                 }
             }
             return false;
         }
 
-        private bool 银河眼光波刃龙超量召唤()
+        private bool GalaxyEyesCipherBladeDragonSummon()
         {
-            Logger.DebugWriteLine("银河眼光波刃龙超量召唤.");
-            if (Bot.HasInMonstersZone((int)CardId.银河眼重铠光子龙) && AI.Utils.GetProblematicCard() != null)
+            if (Bot.HasInMonstersZone(CardId.GalaxyEyesFullArmorPhotonDragon) && AI.Utils.GetProblematicEnemyCard() != null)
             {
-                AI.SelectCard((int)CardId.银河眼重铠光子龙);
+                AI.SelectCard(CardId.GalaxyEyesFullArmorPhotonDragon);
                 return true;
             }
             return false;
         }
 
-        private bool 银河眼暗物质龙超量召唤()
+        private bool GalaxyEyesDarkMatterDragonSummon()
         {
-            Logger.DebugWriteLine("银河眼暗物质龙超量召唤.");
-            if (Bot.HasInMonstersZone((int)CardId.银河眼重铠光子龙))
+            if (Bot.HasInMonstersZone(CardId.GalaxyEyesFullArmorPhotonDragon))
             {
-                AI.SelectCard((int)CardId.银河眼重铠光子龙);
+                AI.SelectCard(CardId.GalaxyEyesFullArmorPhotonDragon);
                 return true;
             }
             return false;
         }
 
-        private bool 银河眼光子龙皇效果()
+        private bool GalaxyEyesPrimePhotonDragonEffect()
         {
             return true;
         }
 
-        private bool 银河眼光波龙效果()
+        private bool GalaxyEyesCipherDragonEffect()
         {
-            Logger.DebugWriteLine("银河眼光波龙效果.");
             List<ClientCard> monsters = Enemy.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
                 if (monster.HasType(CardType.Xyz))
                 {
                     AI.SelectCard(monster);
-                    使用过的光波龙 = Card;
+                    UsedGalaxyEyesCipherDragon = Card;
                     return true;
                 }
             }
@@ -794,33 +612,31 @@ namespace WindBot.Game.AI.Decks
                 if (monster.IsDefense())
                 {
                     AI.SelectCard(monster);
-                    使用过的光波龙 = Card;
+                    UsedGalaxyEyesCipherDragon = Card;
                     return true;
                 }
             }
-            使用过的光波龙 = Card;
+            UsedGalaxyEyesCipherDragon = Card;
             return true;
         }
 
-        private bool 银河眼重铠光子龙效果()
+        private bool GalaxyEyesFullArmorPhotonDragonEffect()
         {
-            Logger.DebugWriteLine("重铠优先炸后场.");
-            ClientCard floodgate = Enemy.SpellZone.GetFloodgate();
-            if (floodgate != null)
+            ClientCard target = AI.Utils.GetProblematicEnemySpell();
+            if (target != null)
             {
-                AI.SelectCard(floodgate);
+                AI.SelectCard(target);
                 return true;
             }
-            floodgate = Enemy.MonsterZone.GetFloodgate();
-            if (floodgate != null)
+            target = AI.Utils.GetProblematicEnemyMonster();
+            if (target != null)
             {
-                AI.SelectCard(floodgate);
+                AI.SelectCard(target);
                 return true;
             }
-            List<ClientCard> spells = Enemy.GetSpells();
-            foreach (ClientCard spell in spells)
+            foreach (ClientCard spell in Enemy.GetSpells())
             {
-                if (!spell.IsFacedown())
+                if (spell.IsFaceup())
                 {
                     AI.SelectCard(spell);
                     return true;
@@ -829,7 +645,6 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> monsters = Enemy.GetMonsters();
             if (monsters.Count >= 2)
             {
-                Logger.DebugWriteLine("怪多就先炸守备的.");
                 foreach (ClientCard monster in monsters)
                 {
                     if (monster.IsDefense())
@@ -842,7 +657,6 @@ namespace WindBot.Game.AI.Decks
             }
             if (monsters.Count == 2)
             {
-                Logger.DebugWriteLine("2只怪只炸打不过的，剩下留给暗物质打.");
                 foreach (ClientCard monster in monsters)
                 {
                     if (monster.IsMonsterInvincible() || monster.IsMonsterDangerous() || monster.GetDefensePower() > 4000)
@@ -859,14 +673,13 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 银河眼光波刃龙效果()
+        private bool GalaxyEyesCipherBladeDragonEffect()
         {
             if (Card.Location == CardLocation.Grave)
             {
                 return true;
             }
-            Logger.DebugWriteLine("光波刃龙优先炸前场.");
-            ClientCard target = AI.Utils.GetProblematicCard();
+            ClientCard target = AI.Utils.GetProblematicEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -903,168 +716,147 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 银河眼暗物质龙效果()
+        private bool GalaxyEyesDarkMatterDragonEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.太古的白石,
-                    (int)CardId.传说的白石,
-                    (int)CardId.白色灵龙,
-                    (int)CardId.青眼白龙
-                });
-            AI.SelectNextCard(new[]
-                {
-                    (int)CardId.太古的白石,
-                    (int)CardId.传说的白石,
-                    (int)CardId.白色灵龙,
-                    (int)CardId.青眼白龙
-                });
+            AI.SelectCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend,
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteDragon
+                );
+            AI.SelectNextCard(
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend,
+                CardId.DragonSpiritOfWhite,
+                CardId.WhiteDragon
+                );
             return true;
         }
 
-        private bool 鬼岩城同调召唤()
+        private bool GiganticastleSummon()
         {
-            if (Duel.Phase != DuelPhase.Main1 || Duel.Turn == 1 || 已发动灵魂补充)
+            if (Duel.Phase != DuelPhase.Main1 || Duel.Turn == 1 || SoulChargeUsed)
                 return false;
-            int bestSelfAttack = AI.Utils.GetBestAttack(Bot, false);
-            int bestEnemyAttack = AI.Utils.GetBestAttack(Enemy, false);
+            int bestSelfAttack = AI.Utils.GetBestAttack(Bot);
+            int bestEnemyAttack = AI.Utils.GetBestPower(Enemy);
             return bestSelfAttack <= bestEnemyAttack && bestEnemyAttack > 2500 && bestEnemyAttack <= 3100;
         }
 
-        private bool 青眼精灵龙同调召唤()
+        private bool BlueEyesSpiritDragonSummon()
         {
             if (Duel.Phase == DuelPhase.Main1)
             {
-                Logger.DebugWriteLine("主阶段1同调精灵龙.");
-                if (使用过的青眼亚白龙.Count > 0)
+                if (UsedAlternativeWhiteDragon.Count > 0)
                 {
-                    Logger.DebugWriteLine("有用过的亚白需要同调.");
                     return true;
                 }
-                if (Duel.Turn == 1 || 已发动灵魂补充)
+                if (Duel.Turn == 1 || SoulChargeUsed)
                 {
-                    Logger.DebugWriteLine("先攻同调.");
                     AI.SelectPosition(CardPosition.FaceUpDefence);
                     return true;
                 }
             }
             if (Duel.Phase == DuelPhase.Main2)
             {
-                Logger.DebugWriteLine("主阶段2同调精灵龙.");
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
             }
             return false;
         }
 
-        private bool 希望魁龙银河巨神超量召唤()
+        private bool HopeHarbingerDragonTitanicGalaxySummon()
         {
             if (Duel.Phase == DuelPhase.Main1)
             {
-                Logger.DebugWriteLine("主阶段1超量银河巨神.");
-                if (使用过的青眼亚白龙.Count > 0)
+                if (UsedAlternativeWhiteDragon.Count > 0)
                 {
-                    Logger.DebugWriteLine("有用过的亚白可以叠.");
                     return true;
                 }
-                if (Duel.Turn == 1 || 已发动灵魂补充)
+                if (Duel.Turn == 1 || SoulChargeUsed)
                 {
-                    Logger.DebugWriteLine("先攻超量银河巨神.");
                     return true;
                 }
             }
             if (Duel.Phase == DuelPhase.Main2)
             {
-                Logger.DebugWriteLine("主阶段2超量银河巨神.");
                 return true;
             }
             return false;
         }
 
-        private bool 森罗的姬芽宫超量召唤()
+        private bool SylvanPrincesspriteSummon()
         {
             if (Duel.Turn == 1)
             {
-                Logger.DebugWriteLine("先攻可以超量森罗的姬芽宫.");
                 return true;
             }
-            if (Duel.Phase == DuelPhase.Main1 && !Bot.HasInMonstersZone(new List<int>
+            if (Duel.Phase == DuelPhase.Main1 && !Bot.HasInMonstersZone(new[]
                 {
-                    (int)CardId.青眼亚白龙,
-                    (int)CardId.青眼白龙,
-                    (int)CardId.白色灵龙
+                    CardId.AlternativeWhiteDragon,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
                 }))
             {
-                Logger.DebugWriteLine("不能出L9，只能叠森罗的姬芽宫.");
                 return true;
             }
-            if (Duel.Phase == DuelPhase.Main2 || 已发动灵魂补充)
+            if (Duel.Phase == DuelPhase.Main2 || SoulChargeUsed)
             {
-                Logger.DebugWriteLine("主阶段2超量森罗的姬芽宫.");
                 return true;
             }
             return false;
         }
 
-        private bool 森罗的姬芽宫效果()
+        private bool SylvanPrincesspriteEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.传说的白石,
-                    (int)CardId.太古的白石
-                });
+            AI.SelectCard(CardId.WhiteStoneOfLegend, CardId.WhiteStoneOfAncients);
             return true;
         }
 
-        private bool 灵魂补充()
+        private bool SoulChargeEffect()
         {
-            Logger.DebugWriteLine("灵魂补充.");
-            if (Bot.HasInMonstersZone((int)CardId.青眼精灵龙, true))
+            if (Bot.HasInMonstersZone(CardId.BlueEyesSpiritDragon, true))
                 return false;
             int count = Bot.GetGraveyardMonsters().Count;
-            int space = 5 - Bot.GetMonsterCount();
+            int space = 5 - Bot.GetMonstersInMainZone().Count;
             if (count < space)
                 count = space;
-            if (count < 2 || Duel.LifePoints[0] < count*1000)
+            if (count < 2 || Bot.LifePoints < count*1000)
                 return false;
             if (Duel.Turn != 1)
             {
                 int attack = 0;
                 int defence = 0;
-                List<ClientCard> monsters = Bot.GetMonsters();
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Bot.GetMonsters())
                 {
                     if (!monster.IsDefense())
                     {
                         attack += monster.Attack;
                     }
                 }
-                monsters = Enemy.GetMonsters();
-                foreach (ClientCard monster in monsters)
+                foreach (ClientCard monster in Enemy.GetMonsters())
                 {
                     defence += monster.GetDefensePower();
                 }
-                if (attack - defence > Duel.LifePoints[1])
+                if (attack - defence > Enemy.LifePoints)
                     return false;
             }
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.青眼精灵龙,
-                    (int)CardId.希望魁龙银河巨神,
-                    (int)CardId.青眼亚白龙,
-                    (int)CardId.青眼白龙,
-                    (int)CardId.白色灵龙,
-                    (int)CardId.苍眼银龙,
-                    (int)CardId.太古的白石,
-                    (int)CardId.传说的白石
-                });
-            已发动灵魂补充 = true;
+            AI.SelectCard(
+                CardId.BlueEyesSpiritDragon,
+                CardId.HopeHarbingerDragonTitanicGalaxy,
+                CardId.AlternativeWhiteDragon,
+                CardId.WhiteDragon,
+                CardId.DragonSpiritOfWhite,
+                CardId.AzureEyesSilverDragon,
+                CardId.WhiteStoneOfAncients,
+                CardId.WhiteStoneOfLegend
+                );
+            SoulChargeUsed = true;
             return true;
         }
 
-        private bool 改变攻守表示()
+        private bool Repos()
         {
-            bool enemyBetter = AI.Utils.IsEnemyBetter(true, true);
+            bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
 
             if (Card.IsAttack() && enemyBetter)
                 return true;
@@ -1072,53 +864,46 @@ namespace WindBot.Game.AI.Decks
                 return true;
             if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
                 return true;
-            if (Card.IsDefense() && (
-                   Card.Id == (int)CardId.青眼精灵龙
-                || Card.Id == (int)CardId.苍眼银龙
-                ))
+            if (Card.IsDefense() && Card.IsCode(CardId.BlueEyesSpiritDragon, CardId.AzureEyesSilverDragon))
                 return true;
-            if (Card.IsAttack() && (
-                   Card.Id == (int)CardId.青色眼睛的贤士
-                || Card.Id == (int)CardId.太古的白石
-                || Card.Id == (int)CardId.传说的白石
-                ))
+            if (Card.IsAttack() && Card.IsCode(CardId.SageWithEyesOfBlue, CardId.WhiteStoneOfAncients, CardId.WhiteStoneOfLegend))
                 return true;
             return false;
         }
 
-        private bool 盖卡()
+        private bool SpellSet()
         {
-            return (Card.IsTrap() || (Card.Id==(int)CardId.银龙的轰咆)) && Bot.GetSpellCountWithoutField() < 4;
+            return (Card.IsTrap() || Card.IsCode(CardId.SilversCry)) && Bot.GetSpellCountWithoutField() < 4;
         }
 
-        private bool 手里有2个(int id)
+        private bool HasTwoInHand(int id)
         {
             int num = 0;
             foreach (ClientCard card in Bot.Hand)
             {
-                if (card != null && card.Id == id)
+                if (card != null && card.IsCode(id))
                     num++;
             }
             return num >= 2;
         }
 
-        private bool 能处理青眼亚白龙()
+        private bool CanDealWithUsedAlternativeWhiteDragon()
         {
-            return Bot.HasInMonstersZone(new List<int>
+            return Bot.HasInMonstersZone(new[]
                 {
-                    (int)CardId.青色眼睛的贤士,
-                    (int)CardId.太古的白石,
-                    (int)CardId.传说的白石,
-                    (int)CardId.青眼白龙,
-                    (int)CardId.白色灵龙
-                }) || Bot.GetCountCardInZone(Bot.MonsterZone, (int)CardId.青眼亚白龙)>=2 ;
+                    CardId.SageWithEyesOfBlue,
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
+                }) || Bot.GetCountCardInZone(Bot.MonsterZone, CardId.AlternativeWhiteDragon)>=2 ;
         }
 
-        private bool 手里有足够的青眼白龙()
+        private bool HaveEnoughWhiteDragonInHand()
         {
-            return 手里有2个((int)CardId.青眼白龙) || (
-                Bot.HasInGraveyard((int)CardId.青眼白龙)
-                && Bot.HasInGraveyard((int)CardId.太古的白石)
+            return HasTwoInHand(CardId.WhiteDragon) || (
+                Bot.HasInGraveyard(CardId.WhiteDragon)
+                && Bot.HasInGraveyard(CardId.WhiteStoneOfAncients)
                 );
         }
     }

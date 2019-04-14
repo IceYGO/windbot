@@ -1,6 +1,7 @@
-﻿using YGOSharp.OCGWrapper.Enums;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using YGOSharp.OCGWrapper.Enums;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -21,9 +22,6 @@ namespace WindBot.Game.AI
         protected ClientCard Card { get; private set; }
         protected int ActivateDescription { get; private set; }
 
-        protected int LastChainPlayer { get; private set; }
-        protected IList<ClientCard> CurrentChain { get; private set; }
-
         protected ClientField Bot { get; private set; }
         protected ClientField Enemy { get; private set; }
 
@@ -33,11 +31,13 @@ namespace WindBot.Game.AI
             AI = ai;
             Executors = new List<CardExecutor>();
 
-            LastChainPlayer = -1;
-            CurrentChain = new List<ClientCard>();
-
             Bot = Duel.Fields[0];
             Enemy = Duel.Fields[1];
+        }
+
+        public virtual int OnRockPaperScissors()
+        {
+            return Program.Rand.Next(1, 4);
         }
 
         public virtual bool OnSelectHand()
@@ -45,76 +45,116 @@ namespace WindBot.Game.AI
             return Program.Rand.Next(2) > 0;
         }
 
+        /// <summary>
+        /// Called when the AI has to decide if it should attack
+        /// </summary>
+        /// <param name="attackers">List of monsters that can attcack.</param>
+        /// <param name="defenders">List of monsters of enemy.</param>
+        /// <returns>A new BattlePhaseAction containing the action to do.</returns>
         public virtual BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
-            if (attackers.Count == 0)
-                return AI.ToMainPhase2();
+            // For overriding
+            return null;
+        }
 
-            if (defenders.Count == 0)
-                return AI.Attack(attackers[0], null);
+        /// <summary>
+        /// Called when the AI has to decide which card to attack first
+        /// </summary>
+        /// <param name="attackers">List of monsters that can attcack.</param>
+        /// <param name="defenders">List of monsters of enemy.</param>
+        /// <returns>The card to attack first.</returns>
+        public virtual ClientCard OnSelectAttacker(IList<ClientCard> attackers, IList<ClientCard> defenders)
+        {
+            // For overriding
+            return null;
+        }
 
-            for (int i = defenders.Count - 1; i >= 0; --i)
-            {
-                ClientCard defender = defenders[i];
-                int def = defender.GetDefensePower();
-                for (int j = 0; j < attackers.Count; ++j)
-                {
-                    ClientCard attacker = attackers[j];
-                    attacker.RealPower = attacker.Attack;
-                    if (!OnPreBattleBetween(attacker, defender))
-                        continue;
-                    if (attacker.RealPower > def || (attacker.RealPower >= def && j == attackers.Count - 1))
-                        return AI.Attack(attacker, defender);
-                }
-            }
-
-            for (int i = attackers.Count - 1; i >= 0; --i)
-            {
-                ClientCard attacker = attackers[i];
-                if (attacker.CanDirectAttack)
-                    return AI.Attack(attacker, null);
-            }
-
-            if (!Battle.CanMainPhaseTwo)
-                return AI.Attack(attackers[attackers.Count - 1], defenders[0]);
-
-            return AI.ToMainPhase2();
+        public virtual BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
+        {
+            // Overrided in DefalultExecutor
+            return null;
         }
 
         public virtual bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
-            {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
-            }
+            // Overrided in DefalultExecutor
             return true;
         }
 
         public virtual void OnChaining(int player, ClientCard card)
         {
-            CurrentChain.Add(card);
-            LastChainPlayer = player;
+            // For overriding
         }
 
         public virtual void OnChainEnd()
         {
-            LastChainPlayer = -1;
-            CurrentChain.Clear();
+            // For overriding
         }
-
+        public virtual void OnNewPhase()
+        {
+            // Some AI need do something on new phase
+        }
         public virtual void OnNewTurn()
         {
             // Some AI need do something on new turn
         }
-
-        public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, bool cancelable)
+		
+        public virtual void OnDraw(int player)
         {
+            // Some AI need do something on draw
+        }
+
+        public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            // For overriding
             return null;
         }
 
-        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, bool mode)
+        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, int hint, bool mode)
         {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectFusionMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectLinkMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectRitualTribute(IList<ClientCard> cards, int sum, int min, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int max)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnCardSorting(IList<ClientCard> cards)
+        {
+            // For overriding
             return null;
         }
 
@@ -128,42 +168,22 @@ namespace WindBot.Game.AI
             return -1;
         }
 
-        public bool ChainContainsCard(int id)
+        public virtual int OnSelectPlace(int cardId, int player, int location, int available)
         {
-            foreach (ClientCard card in CurrentChain)
-            {
-                if (card.Id == id)
-                    return true;
-            }
+            // For overriding
+            return 0;
+        }
+
+        public virtual CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
+        {
+            // Overrided in DefalultExecutor
+            return 0;
+        }
+
+        public virtual bool OnSelectBattleReplay()
+        {
+            // Overrided in DefalultExecutor
             return false;
-        }
-
-        public int ChainCountPlayer(int player)
-        {
-            int count = 0;
-            foreach (ClientCard card in CurrentChain)
-            {
-                if (card.Controller == player)
-                    count++;
-            }
-            return count;
-        }
-
-        public bool HasChainedTrap(int player)
-        {
-            foreach (ClientCard card in CurrentChain)
-            {
-                if (card.Controller == player && card.HasType(CardType.Trap))
-                    return true;
-            }
-            return false;
-        }
-
-        public ClientCard GetLastChainCard()
-        {
-            if (CurrentChain.Count > 0)
-                return CurrentChain[CurrentChain.Count - 1];
-            return null;
         }
 
         public void SetMain(MainPhase main)
@@ -176,6 +196,9 @@ namespace WindBot.Game.AI
             Battle = battle;
         }
 
+        /// <summary>
+        /// Set global variables Type, Card, ActivateDescription for Executor
+        /// </summary>
         public void SetCard(ExecutorType type, ClientCard card, int description)
         {
             Type = type;
@@ -183,21 +206,33 @@ namespace WindBot.Game.AI
             ActivateDescription = description;
         }
 
+        /// <summary>
+        /// Do the action for the card if func return true.
+        /// </summary>
         public void AddExecutor(ExecutorType type, int cardId, Func<bool> func)
         {
             Executors.Add(new CardExecutor(type, cardId, func));
         }
 
+        /// <summary>
+        /// Do the action for the card if available.
+        /// </summary>
         public void AddExecutor(ExecutorType type, int cardId)
         {
             Executors.Add(new CardExecutor(type, cardId, null));
         }
 
+        /// <summary>
+        /// Do the action for every card if func return true.
+        /// </summary>
         public void AddExecutor(ExecutorType type, Func<bool> func)
         {
             Executors.Add(new CardExecutor(type, -1, func));
         }
 
+        /// <summary>
+        /// Do the action for every card if no other Executor is added to it.
+        /// </summary>
         public void AddExecutor(ExecutorType type)
         {
             Executors.Add(new CardExecutor(type, -1, DefaultNoExecutor));
@@ -205,12 +240,7 @@ namespace WindBot.Game.AI
 
         private bool DefaultNoExecutor()
         {
-            foreach (CardExecutor exec in Executors)
-            {
-                if (exec.Type == Type && exec.CardId == Card.Id)
-                    return false;
-            }
-            return true;
+            return Executors.All(exec => exec.Type != Type || exec.CardId != Card.Id);
         }
     }
 }

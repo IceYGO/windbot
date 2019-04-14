@@ -1,35 +1,35 @@
-﻿using YGOSharp.OCGWrapper.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Frog", "AI_Frog")]
+    [Deck("Frog", "AI_Frog", "Easy")]
     public class FrogExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            CryomancerOfTheIceBarrier = 23950192,
-            DewdarkOfTheIceBarrier = 90311614,
-            SubmarineFrog = 63948258,
-            SwapFrog = 9126351,
-            FlipFlopFrog = 81278754,
-            Unifrog = 56052205,
-            Ronintoadin = 1357146,
-            DupeFrog = 46239604,
-            Tradetoad = 23408872,
-            TreebornFrog = 12538374,
-            DarkHole = 53129443,
-            Raigeki = 12580477,
-            Terraforming = 73628505,
-            PotOfDuality = 98645731,
-            Solidarity = 86780027,
-            Wetlands = 2084239,
-            FroggyForcefield = 34351849,
-            GravityBind = 85742772,
-            TheHugeRevolutionIsOver = 99188141
+            public const int CryomancerOfTheIceBarrier = 23950192;
+            public const int DewdarkOfTheIceBarrier = 90311614;
+            public const int SubmarineFrog = 63948258;
+            public const int SwapFrog = 9126351;
+            public const int FlipFlopFrog = 81278754;
+            public const int Unifrog = 56052205;
+            public const int Ronintoadin = 1357146;
+            public const int DupeFrog = 46239604;
+            public const int Tradetoad = 23408872;
+            public const int TreebornFrog = 12538374;
+            public const int DarkHole = 53129443;
+            public const int Raigeki = 12580477;
+            public const int Terraforming = 73628505;
+            public const int PotOfDuality = 98645731;
+            public const int Solidarity = 86780027;
+            public const int Wetlands = 2084239;
+            public const int FroggyForcefield = 34351849;
+            public const int GravityBind = 85742772;
+            public const int TheHugeRevolutionIsOver = 99188141;
         }
 
         public FrogExecutor(GameAI ai, Duel duel)
@@ -37,61 +37,52 @@ namespace WindBot.Game.AI.Decks
         {
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.Solidarity, Solidarity);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Terraforming, Terraforming);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Wetlands, DefaultField);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DarkHole, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Raigeki, DefaultRaigeki);
-            AddExecutor(ExecutorType.Activate, (int)CardId.PotOfDuality, PotOfDuality);
+            AddExecutor(ExecutorType.Activate, CardId.Solidarity, Solidarity);
+            AddExecutor(ExecutorType.Activate, CardId.Terraforming, Terraforming);
+            AddExecutor(ExecutorType.Activate, CardId.Wetlands, DefaultField);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.Raigeki, DefaultRaigeki);
+            AddExecutor(ExecutorType.Activate, CardId.PotOfDuality, PotOfDuality);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.SwapFrog, SwapFrogSummon);
-            AddExecutor(ExecutorType.Activate, (int)CardId.SwapFrog, SwapFrogActivate);
-            AddExecutor(ExecutorType.Activate, (int)CardId.DupeFrog, DupeFrog);
-            AddExecutor(ExecutorType.Activate, (int)CardId.FlipFlopFrog, FlipFlopFrog);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Ronintoadin, Ronintoadin);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TreebornFrog);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Unifrog);
+            AddExecutor(ExecutorType.SpSummon, CardId.SwapFrog, SwapFrogSummon);
+            AddExecutor(ExecutorType.Activate, CardId.SwapFrog, SwapFrogActivate);
+            AddExecutor(ExecutorType.Activate, CardId.DupeFrog, DupeFrog);
+            AddExecutor(ExecutorType.Activate, CardId.FlipFlopFrog, FlipFlopFrog);
+            AddExecutor(ExecutorType.Activate, CardId.Ronintoadin, Ronintoadin);
+            AddExecutor(ExecutorType.Activate, CardId.TreebornFrog);
+            AddExecutor(ExecutorType.Activate, CardId.Unifrog);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.CryomancerOfTheIceBarrier, SummonFrog);
-            AddExecutor(ExecutorType.Summon, (int)CardId.DewdarkOfTheIceBarrier, SummonFrog);
-            AddExecutor(ExecutorType.Summon, (int)CardId.SubmarineFrog, SummonFrog);
-            AddExecutor(ExecutorType.Summon, (int)CardId.SwapFrog, SummonFrog);
-            AddExecutor(ExecutorType.Summon, (int)CardId.Unifrog, SummonFrog);
-            AddExecutor(ExecutorType.Summon, (int)CardId.Ronintoadin, SummonFrog);
-            AddExecutor(ExecutorType.Summon, (int)CardId.DupeFrog, SummonFrog);
-            AddExecutor(ExecutorType.Summon, (int)CardId.Tradetoad, SummonFrog);
-            AddExecutor(ExecutorType.Summon, (int)CardId.TreebornFrog, SummonFrog);
-            AddExecutor(ExecutorType.Summon, (int)CardId.FlipFlopFrog, SummonFrog);
+            AddExecutor(ExecutorType.Summon, CardId.CryomancerOfTheIceBarrier, SummonFrog);
+            AddExecutor(ExecutorType.Summon, CardId.DewdarkOfTheIceBarrier, SummonFrog);
+            AddExecutor(ExecutorType.Summon, CardId.SubmarineFrog, SummonFrog);
+            AddExecutor(ExecutorType.Summon, CardId.SwapFrog, SummonFrog);
+            AddExecutor(ExecutorType.Summon, CardId.Unifrog, SummonFrog);
+            AddExecutor(ExecutorType.Summon, CardId.Ronintoadin, SummonFrog);
+            AddExecutor(ExecutorType.Summon, CardId.DupeFrog, SummonFrog);
+            AddExecutor(ExecutorType.Summon, CardId.Tradetoad, SummonFrog);
+            AddExecutor(ExecutorType.Summon, CardId.TreebornFrog, SummonFrog);
+            AddExecutor(ExecutorType.Summon, CardId.FlipFlopFrog, SummonFrog);
 
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.FlipFlopFrog);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.DupeFrog);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.Tradetoad);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.Ronintoadin);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.TreebornFrog);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.Unifrog);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.SwapFrog);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.SubmarineFrog);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.DewdarkOfTheIceBarrier);
-            AddExecutor(ExecutorType.MonsterSet, (int)CardId.CryomancerOfTheIceBarrier);
+            AddExecutor(ExecutorType.MonsterSet, CardId.FlipFlopFrog);
+            AddExecutor(ExecutorType.MonsterSet, CardId.DupeFrog);
+            AddExecutor(ExecutorType.MonsterSet, CardId.Tradetoad);
+            AddExecutor(ExecutorType.MonsterSet, CardId.Ronintoadin);
+            AddExecutor(ExecutorType.MonsterSet, CardId.TreebornFrog);
+            AddExecutor(ExecutorType.MonsterSet, CardId.Unifrog);
+            AddExecutor(ExecutorType.MonsterSet, CardId.SwapFrog);
+            AddExecutor(ExecutorType.MonsterSet, CardId.SubmarineFrog);
+            AddExecutor(ExecutorType.MonsterSet, CardId.DewdarkOfTheIceBarrier);
+            AddExecutor(ExecutorType.MonsterSet, CardId.CryomancerOfTheIceBarrier);
 
             AddExecutor(ExecutorType.Repos, FrogMonsterRepos);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.FroggyForcefield, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.TheHugeRevolutionIsOver, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, (int)CardId.GravityBind, GravityBind);
+            AddExecutor(ExecutorType.Activate, CardId.FroggyForcefield, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.TheHugeRevolutionIsOver, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.GravityBind, GravityBind);
         }
 
         private int m_swapFrogSummoned;
         private int m_flipFlopFrogSummoned;
-
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
-        {
-            if (attacker.Id == (int)CardId.Unifrog || attacker.Id == (int)CardId.DewdarkOfTheIceBarrier)
-                return true;
-            if (defender.IsMonsterInvincible() && !defender.IsMonsterDangerous() && attacker.Id == (int)CardId.SubmarineFrog)
-                return true;
-            return base.OnPreBattleBetween(attacker, defender);
-        }
 
         private bool SwapFrogSummon()
         {
@@ -99,7 +90,7 @@ namespace WindBot.Game.AI.Decks
             if (AI.Utils.IsAllEnemyBetterThanValue(atk, true))
                 return false;
 
-            AI.SelectCard((int)CardId.Ronintoadin);
+            AI.SelectCard(CardId.Ronintoadin);
             m_swapFrogSummoned = Duel.Turn;
             return true;
         }
@@ -110,10 +101,10 @@ namespace WindBot.Game.AI.Decks
                 return false;
             m_swapFrogSummoned = -1;
 
-            if (Bot.GetRemainingCount((int)CardId.Ronintoadin, 2) == 0)
+            if (Bot.GetRemainingCount(CardId.Ronintoadin, 2) == 0)
                 return false;
 
-            AI.SelectCard((int)CardId.Ronintoadin);
+            AI.SelectCard(CardId.Ronintoadin);
             return true;
         }
 
@@ -156,7 +147,7 @@ namespace WindBot.Game.AI.Decks
             if (AI.Utils.IsOneEnemyBetterThanValue(atk, true))
                 return false;
 
-            if (Card.Id == (int)CardId.SwapFrog)
+            if (Card.IsCode(CardId.SwapFrog))
                 m_swapFrogSummoned = Duel.Turn;
             return true;
         }
@@ -165,20 +156,20 @@ namespace WindBot.Game.AI.Decks
         {
             List<int> cards = new List<int>();
             
-            if (AI.Utils.IsEnemyBetter(false, false))
+            if (AI.Utils.IsOneEnemyBetter())
             {
-                cards.Add((int)CardId.FlipFlopFrog);
+                cards.Add(CardId.FlipFlopFrog);
             }
 
             if (Bot.SpellZone[5] == null)
             {
-                cards.Add((int)CardId.Terraforming);
-                cards.Add((int)CardId.Wetlands);
+                cards.Add(CardId.Terraforming);
+                cards.Add(CardId.Wetlands);
             }
 
-            cards.Add((int)CardId.DarkHole);
-            cards.Add((int)CardId.SwapFrog);
-            cards.Add((int)CardId.GravityBind);
+            cards.Add(CardId.DarkHole);
+            cards.Add(CardId.SwapFrog);
+            cards.Add(CardId.GravityBind);
 
             if (cards.Count > 0)
             {
@@ -191,7 +182,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Terraforming()
         {
-            if (Bot.HasInHand((int)CardId.Wetlands))
+            if (Bot.HasInHand(CardId.Wetlands))
                 return false;
             if (Bot.SpellZone[5] != null)
                 return false;
@@ -209,7 +200,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> spells = Bot.GetSpells();
             foreach (ClientCard spell in spells)
             {
-                if (spell.Id == (int)CardId.GravityBind && !spell.IsFacedown())
+                if (spell.IsCode(CardId.GravityBind) && !spell.IsFacedown())
                     return false;
             }
             return true;
@@ -217,9 +208,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool FrogMonsterRepos()
         {
-            if (Card.Id == (int)CardId.Unifrog)
+            if (Card.IsCode(CardId.Unifrog))
                 return Card.IsDefense();
-            if (Card.Id == (int)CardId.DewdarkOfTheIceBarrier)
+            if (Card.IsCode(CardId.DewdarkOfTheIceBarrier))
                 return Card.IsDefense();
 
             bool enemyBetter = AI.Utils.IsOneEnemyBetterThanValue(Card.Attack + (Card.IsFacedown() ? GetSpellBonus() : 0), true);
@@ -231,10 +222,10 @@ namespace WindBot.Game.AI.Decks
             if (Card.IsDefense() && !enemyBetter)
                 result = true;
 
-            if (!result && Card.Id == (int)CardId.FlipFlopFrog && Enemy.GetMonsterCount() > 0 && Card.IsFacedown())
+            if (!result && Card.IsCode(CardId.FlipFlopFrog) && Enemy.GetMonsterCount() > 0 && Card.IsFacedown())
                 result = true;
 
-            if (Card.Id == (int)CardId.FlipFlopFrog && Card.IsFacedown() && result)
+            if (Card.IsCode(CardId.FlipFlopFrog) && Card.IsFacedown() && result)
                 m_flipFlopFrogSummoned = Duel.Turn;
 
             return result;
@@ -251,7 +242,7 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard card in Bot.GetSpells())
                 {
-                    if (card.Id == (int)CardId.Solidarity)
+                    if (card.IsCode(CardId.Solidarity))
                         atk += 800;
                 }
             }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
-
 namespace WindBot.Game.AI
 {
     public class AIFunctions
@@ -42,148 +42,206 @@ namespace WindBot.Game.AI
             return 1;
         }
 
-        public int GetBestAttack(ClientField field, bool onlyatk)
+        /// <summary>
+        /// Get the total ATK Monster of the player.
+        /// </summary>
+        public int GetTotalAttackingMonsterAttack(int player)
         {
-            int bestAtk = -1;
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = field.MonsterZone[i];
-                if (card == null) continue;
-                if (onlyatk && card.IsDefense()) continue;
-                int enemyValue = card.GetDefensePower();
-                if (enemyValue > bestAtk)
-                    bestAtk = enemyValue;
-            }
-            return bestAtk;
+            return Duel.Fields[player].GetMonsters().Where(m => m.IsAttack()).Sum(m => (int?)m.Attack) ?? 0;
+        }
+        /// <summary>
+        /// Get the best ATK or DEF power of the field.
+        /// </summary>
+        /// <param name="field">Bot or Enemy.</param>
+        /// <param name="onlyATK">Only calculate attack.</param>
+        public int GetBestPower(ClientField field, bool onlyATK = false)
+        {
+            return field.MonsterZone.GetMonsters()
+                .Where(card => !onlyATK || card.IsAttack())
+                .Max(card => (int?)card.GetDefensePower()) ?? -1;
         }
 
-        public bool IsEnemyBetter(bool onlyatk, bool all)
+        public int GetBestAttack(ClientField field)
         {
-            if (Enemy.GetMonsterCount() == 0)
-                return false;
-            List<ClientCard> monsters = Bot.GetMonsters();
-            monsters.Sort(CompareCardAttack);
-            int bestAtk = -1;
-            if (monsters.Count > 0)
-                bestAtk = monsters[monsters.Count - 1].Attack;
+            return GetBestPower(field, true);
+        }
+
+        public bool IsOneEnemyBetterThanValue(int value, bool onlyATK)
+        {
+            return Enemy.MonsterZone.GetMonsters()
+                .Any(card => card.GetDefensePower() > value && (!onlyATK || card.IsAttack()));
+        }
+
+        public bool IsAllEnemyBetterThanValue(int value, bool onlyATK)
+        {
+            List<ClientCard> monsters = Enemy.MonsterZone.GetMonsters();
+            return monsters.Count > 0 && monsters
+                .All(card => card.GetDefensePower() > value && (!onlyATK || card.IsAttack()));
+        }
+
+        /// <summary>
+        /// Deprecated, use IsOneEnemyBetter and IsAllEnemyBetter instead.
+        /// </summary>
+        public bool IsEnemyBetter(bool onlyATK, bool all)
+        {
             if (all)
-                return IsAllEnemyBetterThanValue(bestAtk, onlyatk);
-            return IsOneEnemyBetterThanValue(bestAtk, onlyatk);
+                return IsAllEnemyBetter(onlyATK);
+            else
+                return IsOneEnemyBetter(onlyATK);
         }
 
-        public bool IsOneEnemyBetterThanValue(int value, bool onlyatk)
+        /// <summary>
+        /// Is there an enemy monster who has better power than the best power of the bot's?
+        /// </summary>
+        /// <param name="onlyATK">Only calculate attack.</param>
+        public bool IsOneEnemyBetter(bool onlyATK = false)
         {
-            int bestValue = -1;
-            bool nomonster = true;
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = Enemy.MonsterZone[i];
-                if (card == null) continue;
-                if (onlyatk && card.IsDefense()) continue;
-                nomonster = false;
-                int enemyValue = card.GetDefensePower();
-                if (enemyValue > bestValue)
-                    bestValue = enemyValue;
-            }
-            if (nomonster) return false;
-            return bestValue > value;
+            int bestBotPower = GetBestPower(Bot, onlyATK);
+            return IsOneEnemyBetterThanValue(bestBotPower, onlyATK);
         }
 
-        public bool IsAllEnemyBetterThanValue(int value, bool onlyatk)
+        /// <summary>
+        /// Do all enemy monsters have better power than the best power of the bot's?
+        /// </summary>
+        /// <param name="onlyATK">Only calculate attack.</param>
+        public bool IsAllEnemyBetter(bool onlyATK = false)
         {
-            bool nomonster = true;
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = Enemy.MonsterZone[i];
-                if (card == null || card.Data == null) continue;
-                if (onlyatk && card.IsDefense()) continue;
-                nomonster = false;
-                int enemyValue = card.GetDefensePower();
-                if (enemyValue <= value)
-                    return false;
-            }
-            return !nomonster;
+            int bestBotPower = GetBestPower(Bot, onlyATK);
+            return IsAllEnemyBetterThanValue(bestBotPower, onlyATK);
         }
 
-        public ClientCard GetOneEnemyBetterThanValue(int value, bool onlyatk)
+        public ClientCard GetBestBotMonster(bool onlyATK = false)
         {
-            for (int i = 0; i < 7; ++i)
-            {
-                ClientCard card = Enemy.MonsterZone[i];
-                if (card == null) continue;
-                if (onlyatk && card.IsDefense()) continue;
-                int enemyValue = card.GetDefensePower();
-                if (enemyValue >= value)
-                    return card;
-            }
-            return null;
+            return Bot.MonsterZone.GetMonsters()
+                .Where(card => !onlyATK || card.IsAttack())
+                .OrderByDescending(card => card.GetDefensePower())
+                .FirstOrDefault();
+        }
+		
+        public ClientCard GetWorstBotMonster(bool onlyATK = false)
+        {
+            return Bot.MonsterZone.GetMonsters()
+                .Where(card => !onlyATK || card.IsAttack())
+                .OrderBy(card => card.GetDefensePower())
+                .FirstOrDefault();
         }
 
-        public ClientCard GetAnyEnemyMonster()
+        public ClientCard GetOneEnemyBetterThanValue(int value, bool onlyATK = false, bool canBeTarget = false)
         {
-            List<ClientCard> monsters = Enemy.GetMonsters();
-            ClientCard hmonster = monsters.GetHighestAttackMonster();
-            if (hmonster != null)
-            {
-                return hmonster;
-            }
-            foreach (ClientCard monster in monsters)
-            {
-                return monster;
-            }
-            return null;
+            return Enemy.MonsterZone.GetMonsters()
+                .FirstOrDefault(card => card.GetDefensePower() > value && (!onlyATK || card.IsAttack()) && (!canBeTarget || !card.IsShouldNotBeTarget()));
         }
 
-        public ClientCard GetProblematicCard(int attack = 0)
+        public ClientCard GetOneEnemyBetterThanMyBest(bool onlyATK = false, bool canBeTarget = false)
         {
-            ClientCard card = Enemy.MonsterZone.GetInvincibleMonster();
+            int bestBotPower = GetBestPower(Bot, onlyATK);
+            return GetOneEnemyBetterThanValue(bestBotPower, onlyATK, canBeTarget);
+        }
+
+        public ClientCard GetProblematicEnemyCard(int attack = 0, bool canBeTarget = false)
+        {
+            ClientCard card = Enemy.MonsterZone.GetFloodgate(canBeTarget);
             if (card != null)
                 return card;
-            card = Enemy.MonsterZone.GetFloodgate();
+
+            card = Enemy.SpellZone.GetFloodgate(canBeTarget);
             if (card != null)
                 return card;
-            card = Enemy.SpellZone.GetFloodgate();
+
+            card = Enemy.MonsterZone.GetDangerousMonster(canBeTarget);
             if (card != null)
                 return card;
+
+            card = Enemy.MonsterZone.GetInvincibleMonster(canBeTarget);
+            if (card != null)
+                return card;
+
             if (attack == 0)
-                attack = GetBestAttack(Bot, true);
-            return GetOneEnemyBetterThanValue(attack, true);
+                attack = GetBestAttack(Bot);
+            return GetOneEnemyBetterThanValue(attack, true, canBeTarget);
         }
 
-        public ClientCard GetBestEnemyCard()
+        public ClientCard GetProblematicEnemyMonster(int attack = 0, bool canBeTarget = false)
         {
-            ClientCard card = GetProblematicCard();
+            ClientCard card = Enemy.MonsterZone.GetFloodgate(canBeTarget);
             if (card != null)
                 return card;
-            card = Enemy.MonsterZone.GetHighestAttackMonster();
-            if (card != null)
-                return card;
-            List<ClientCard> spells = Enemy.GetSpells();
-            if (spells.Count > 0)
-                return spells[0];
-            return null;
-        }
 
-        public ClientCard GetProblematicMonsterCard(int attack = 0)
-        {
-            ClientCard card = Enemy.MonsterZone.GetInvincibleMonster();
+            card = Enemy.MonsterZone.GetDangerousMonster(canBeTarget);
             if (card != null)
                 return card;
-            card = Enemy.MonsterZone.GetFloodgate();
+
+            card = Enemy.MonsterZone.GetInvincibleMonster(canBeTarget);
             if (card != null)
                 return card;
+
             if (attack == 0)
-                attack = GetBestAttack(Bot, true);
-            return GetOneEnemyBetterThanValue(attack, true);
+                attack = GetBestAttack(Bot);
+            return GetOneEnemyBetterThanValue(attack, true, canBeTarget);
         }
 
-        public ClientCard GetProblematicSpellCard()
+        public ClientCard GetProblematicEnemySpell()
         {
-            ClientCard card = Enemy.SpellZone.GetNegateAttackSpell();
-            if (card != null)
-                return card;
-            card = Enemy.SpellZone.GetFloodgate();
+            ClientCard card = Enemy.SpellZone.GetFloodgate();
             return card;
+        }
+
+        public ClientCard GetBestEnemyCard(bool onlyFaceup = false, bool canBeTarget = false)
+        {
+            ClientCard card = GetBestEnemyMonster(onlyFaceup, canBeTarget);
+            if (card != null)
+                return card;
+
+            card = GetBestEnemySpell(onlyFaceup);
+            if (card != null)
+                return card;
+
+            return null;
+        }
+
+        public ClientCard GetBestEnemyMonster(bool onlyFaceup = false, bool canBeTarget = false)
+        {
+            ClientCard card = GetProblematicEnemyMonster(0, canBeTarget);
+            if (card != null)
+                return card;
+
+            card = Enemy.MonsterZone.GetHighestAttackMonster(canBeTarget);
+            if (card != null)
+                return card;
+
+            List<ClientCard> monsters = Enemy.GetMonsters();
+
+            // after GetHighestAttackMonster, the left monsters must be face-down.
+            if (monsters.Count > 0 && !onlyFaceup)
+                return monsters[0];
+
+            return null;
+        }
+
+        public ClientCard GetWorstEnemyMonster(bool onlyATK = false)
+        {
+            return Enemy.MonsterZone.GetMonsters()
+                .Where(card => !onlyATK || card.IsAttack())
+                .OrderBy(card => card.GetDefensePower())
+                .FirstOrDefault();
+        }
+
+        public ClientCard GetBestEnemySpell(bool onlyFaceup = false)
+        {
+            ClientCard card = GetProblematicEnemySpell();
+            if (card != null)
+                return card;
+
+            var spells = Enemy.GetSpells();
+
+            card = spells.FirstOrDefault(ecard => ecard.IsFaceup() && (ecard.HasType(CardType.Continuous) || ecard.HasType(CardType.Field)));
+            if (card != null)
+                return card;
+
+            if (spells.Count > 0 && !onlyFaceup)
+                return spells[0];
+
+            return null;
         }
 
         public ClientCard GetPZone(int player, int id)
@@ -206,6 +264,195 @@ namespace WindBot.Game.AI
         public bool IsTurn1OrMain2()
         {
             return Duel.Turn == 1 || Duel.Phase == DuelPhase.Main2;
+        }
+
+        internal bool inListOrNull(ClientCard card, IList<ClientCard> list)
+        {
+            return card == null || list.Contains(card);
+        }
+
+        public int GetBotAvailZonesFromExtraDeck(IList<ClientCard> remove)
+        {
+            if (!Duel.IsNewRule)
+                return Zones.MainMonsterZones;
+            int result = 0;
+            
+            if (inListOrNull(Bot.MonsterZone[5], remove) && inListOrNull(Bot.MonsterZone[6], remove) &&
+                (inListOrNull(Enemy.MonsterZone[5], remove) || inListOrNull(Enemy.MonsterZone[6], remove)))
+                result |= Zones.ExtraMonsterZones;
+
+            if (inListOrNull(Bot.MonsterZone[0], remove) &&
+                (!inListOrNull(Bot.MonsterZone[1], remove) && Bot.MonsterZone[1].HasLinkMarker(CardLinkMarker.Left) ||
+                 !inListOrNull(Bot.MonsterZone[5], remove) && Bot.MonsterZone[5].HasLinkMarker(CardLinkMarker.BottomLeft) ||
+                 !inListOrNull(Enemy.MonsterZone[6], remove) && Enemy.MonsterZone[6].HasLinkMarker(CardLinkMarker.TopRight)))
+                result += Zones.z0;
+            if (inListOrNull(Bot.MonsterZone[1], remove) &&
+                (!inListOrNull(Bot.MonsterZone[0], remove) && Bot.MonsterZone[0].HasLinkMarker(CardLinkMarker.Right) ||
+                 !inListOrNull(Bot.MonsterZone[2], remove) && Bot.MonsterZone[2].HasLinkMarker(CardLinkMarker.Left) ||
+                 !inListOrNull(Bot.MonsterZone[5], remove) && Bot.MonsterZone[5].HasLinkMarker(CardLinkMarker.Bottom) ||
+                 !inListOrNull(Enemy.MonsterZone[6], remove) && Enemy.MonsterZone[6].HasLinkMarker(CardLinkMarker.Top)))
+                result += Zones.z1;
+            if (inListOrNull(Bot.MonsterZone[2], remove) &&
+                (!inListOrNull(Bot.MonsterZone[1], remove) && Bot.MonsterZone[1].HasLinkMarker(CardLinkMarker.Right) ||
+                 !inListOrNull(Bot.MonsterZone[3], remove) && Bot.MonsterZone[3].HasLinkMarker(CardLinkMarker.Left) ||
+                 !inListOrNull(Bot.MonsterZone[5], remove) && Bot.MonsterZone[5].HasLinkMarker(CardLinkMarker.BottomRight) ||
+                 !inListOrNull(Enemy.MonsterZone[6], remove) && Enemy.MonsterZone[6].HasLinkMarker(CardLinkMarker.TopLeft) ||
+                 !inListOrNull(Bot.MonsterZone[6], remove) && Bot.MonsterZone[6].HasLinkMarker(CardLinkMarker.BottomLeft) ||
+                 !inListOrNull(Enemy.MonsterZone[5], remove) && Enemy.MonsterZone[5].HasLinkMarker(CardLinkMarker.TopRight)))
+                result += Zones.z2;
+            if (inListOrNull(Bot.MonsterZone[3], remove) &&
+                (!inListOrNull(Bot.MonsterZone[2], remove) && Bot.MonsterZone[2].HasLinkMarker(CardLinkMarker.Right) ||
+                 !inListOrNull(Bot.MonsterZone[4], remove) && Bot.MonsterZone[4].HasLinkMarker(CardLinkMarker.Left) ||
+                 !inListOrNull(Bot.MonsterZone[6], remove) && Bot.MonsterZone[6].HasLinkMarker(CardLinkMarker.Bottom) ||
+                 !inListOrNull(Enemy.MonsterZone[5], remove) && Enemy.MonsterZone[5].HasLinkMarker(CardLinkMarker.Top)))
+                result += Zones.z3;
+            if (inListOrNull(Bot.MonsterZone[4], remove) &&
+                (!inListOrNull(Bot.MonsterZone[3], remove) && Bot.MonsterZone[3].HasLinkMarker(CardLinkMarker.Right) ||
+                 !inListOrNull(Bot.MonsterZone[6], remove) && Bot.MonsterZone[6].HasLinkMarker(CardLinkMarker.BottomRight) ||
+                 !inListOrNull(Enemy.MonsterZone[5], remove) && Enemy.MonsterZone[5].HasLinkMarker(CardLinkMarker.TopLeft)))
+                result += Zones.z4;
+            return result;
+        }
+
+        public int GetBotAvailZonesFromExtraDeck(ClientCard remove)
+        {
+            return GetBotAvailZonesFromExtraDeck(new [] { remove });
+        }
+
+        public int GetBotAvailZonesFromExtraDeck()
+        {
+            return GetBotAvailZonesFromExtraDeck(new List<ClientCard>());
+        }
+
+        public bool IsChainTarget(ClientCard card)
+        {
+            return Duel.ChainTargets.Any(card.Equals);
+        }
+
+        public bool IsChainTargetOnly(ClientCard card)
+        {
+            return Duel.ChainTargetOnly.Count == 1 && card.Equals(Duel.ChainTargetOnly[0]);
+        }
+
+        public bool ChainContainsCard(int id)
+        {
+            return Duel.CurrentChain.Any(card => card.IsCode(id));
+        }
+
+        public bool ChainContainsCard(int[] ids)
+        {
+            return Duel.CurrentChain.Any(card => card.IsCode(ids));
+        }
+
+        public int ChainCountPlayer(int player)
+        {
+            return Duel.CurrentChain.Count(card => card.Controller == player);
+        }
+
+        public bool ChainContainPlayer(int player)
+        {
+            return Duel.CurrentChain.Any(card => card.Controller == player);
+        }
+
+        public bool HasChainedTrap(int player)
+        {
+            return Duel.CurrentChain.Any(card => card.Controller == player && card.HasType(CardType.Trap));
+        }
+
+        public ClientCard GetLastChainCard()
+        {
+            return Duel.CurrentChain.LastOrDefault();
+        }
+
+        /// <summary>
+        /// Select cards listed in preferred.
+        /// </summary>
+        public IList<ClientCard> SelectPreferredCards(ClientCard preferred, IList<ClientCard> cards, int min, int max)
+        {
+            IList<ClientCard> selected = new List<ClientCard>();
+            if (cards.IndexOf(preferred) > 0 && selected.Count < max)
+            {
+                selected.Add(preferred);
+            }
+
+            return selected;
+        }
+
+        /// <summary>
+        /// Select cards listed in preferred.
+        /// </summary>
+        public IList<ClientCard> SelectPreferredCards(int preferred, IList<ClientCard> cards, int min, int max)
+        {
+            IList<ClientCard> selected = new List<ClientCard>();
+            foreach (ClientCard card in cards)
+            {
+                if (card.IsCode(preferred) && selected.Count < max)
+                    selected.Add(card);
+            }
+
+            return selected;
+        }
+
+        /// <summary>
+        /// Select cards listed in preferred.
+        /// </summary>
+        public IList<ClientCard> SelectPreferredCards(IList<ClientCard> preferred, IList<ClientCard> cards, int min, int max)
+        {
+            IList<ClientCard> selected = new List<ClientCard>();
+            IList<ClientCard> avail = cards.ToList(); // clone
+            while (preferred.Count > 0 && avail.IndexOf(preferred[0]) > 0 && selected.Count < max)
+            {
+                ClientCard card = preferred[0];
+                preferred.Remove(card);
+                avail.Remove(card);
+                selected.Add(card);
+            }
+
+            return selected;
+        }
+
+        /// <summary>
+        /// Select cards listed in preferred.
+        /// </summary>
+        public IList<ClientCard> SelectPreferredCards(IList<int> preferred, IList<ClientCard> cards, int min, int max)
+        {
+            IList<ClientCard> selected = new List<ClientCard>();
+            foreach (int id in preferred)
+            {
+                foreach (ClientCard card in cards)
+                {
+                    if (card.IsCode(id) && selected.Count < max && selected.IndexOf(card) <= 0)
+                        selected.Add(card);
+                }
+                if (selected.Count >= max)
+                    break;
+            }
+
+            return selected;
+        }
+
+        /// <summary>
+        /// Check and fix selected to make sure it meet the count requirement.
+        /// </summary>
+        public IList<ClientCard> CheckSelectCount(IList<ClientCard> _selected, IList<ClientCard> cards, int min, int max)
+        {
+            var selected = _selected.ToList();
+            if (selected.Count < min)
+            {
+                foreach (ClientCard card in cards)
+                {
+                    if (!selected.Contains(card))
+                        selected.Add(card);
+                    if (selected.Count >= max)
+                        break;
+                }
+            }
+            while (selected.Count > max)
+            {
+                selected.RemoveAt(selected.Count - 1);
+            }
+
+            return selected;
         }
     }
 }

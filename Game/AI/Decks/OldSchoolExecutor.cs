@@ -6,50 +6,63 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("OldSchool", "AI_OldSchool")]
+    [Deck("OldSchool", "AI_OldSchool", "Easy")]
     public class OldSchoolExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            Raigeki = 12580477
+            public const int AncientGearGolem = 83104731;
+            public const int Frostosaurus = 6631034;
+            public const int AlexandriteDragon = 43096270;
+            public const int GeneWarpedWarwolf = 69247929;
+            public const int GearGolemTheMovingFortress = 30190809;
+            public const int EvilswarmHeliotrope = 77542832;
+            public const int LusterDragon = 11091375;
+            public const int InsectKnight = 35052053;
+            public const int ArchfiendSoldier = 49881766;
+
+            public const int HeavyStorm = 19613556;
+            public const int DarkHole = 53129443;
+            public const int Raigeki = 12580477;
+            public const int HammerShot = 26412047;
+            public const int Fissure = 66788016;
+            public const int SwordsOfRevealingLight = 72302403;
+            public const int DoubleSummon = 43422537;
+
+            public const int MirrorForce = 44095762;
+            public const int DimensionalPrison = 70342110;
+
         }
 
         public OldSchoolExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, 19613556, DefaultHeavyStorm);
+            AddExecutor(ExecutorType.Activate, CardId.HeavyStorm, DefaultHeavyStorm);
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
-            AddExecutor(ExecutorType.Activate, 53129443, DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate, (int)CardId.Raigeki, DefaultRaigeki);
-            AddExecutor(ExecutorType.Activate, 26412047, DefaultHammerShot);
-            AddExecutor(ExecutorType.Activate, 66788016);
-            AddExecutor(ExecutorType.Activate, 72302403, SwordsOfRevealingLight);
-            AddExecutor(ExecutorType.Activate, 43422537, DoubleSummon);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.Raigeki, DefaultRaigeki);
+            AddExecutor(ExecutorType.Activate, CardId.HammerShot, DefaultHammerShot);
+            AddExecutor(ExecutorType.Activate, CardId.Fissure);
+            AddExecutor(ExecutorType.Activate, CardId.SwordsOfRevealingLight, SwordsOfRevealingLight);
+            AddExecutor(ExecutorType.Activate, CardId.DoubleSummon, DoubleSummon);
 
-            AddExecutor(ExecutorType.Summon, 83104731, DefaultTributeSummon);
-            AddExecutor(ExecutorType.Summon, 6631034, DefaultTributeSummon);
-            AddExecutor(ExecutorType.SummonOrSet, 43096270);
-            AddExecutor(ExecutorType.SummonOrSet, 69247929);
-            AddExecutor(ExecutorType.MonsterSet, 30190809);
-            AddExecutor(ExecutorType.SummonOrSet, 77542832);
-            AddExecutor(ExecutorType.SummonOrSet, 11091375);
-            AddExecutor(ExecutorType.SummonOrSet, 35052053);
-            AddExecutor(ExecutorType.SummonOrSet, 49881766);
+            AddExecutor(ExecutorType.Summon, CardId.AncientGearGolem, DefaultTributeSummon);
+            AddExecutor(ExecutorType.Summon, CardId.Frostosaurus, DefaultTributeSummon);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.AlexandriteDragon);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.GeneWarpedWarwolf);
+            AddExecutor(ExecutorType.MonsterSet, CardId.GearGolemTheMovingFortress);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.EvilswarmHeliotrope);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.LusterDragon);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.InsectKnight);
+            AddExecutor(ExecutorType.SummonOrSet, CardId.ArchfiendSoldier);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
 
-            AddExecutor(ExecutorType.Activate, 44095762, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, 70342110, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.DimensionalPrison, DefaultTrap);
         }
 
         private int _lastDoubleSummon;
-
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
-        {
-            if (defender.IsMonsterInvincible() && !defender.IsMonsterDangerous() && attacker.Id == 83104731)
-                return true;
-            return base.OnPreBattleBetween(attacker, defender);
-        }
 
         private bool DoubleSummon()
         {
@@ -91,7 +104,7 @@ namespace WindBot.Game.AI.Decks
                 if (handCard.IsFacedown())
                     return true;
             }
-            return AI.Utils.IsEnemyBetter(true, false);
+            return AI.Utils.IsOneEnemyBetter(true);
         }
     }
 }

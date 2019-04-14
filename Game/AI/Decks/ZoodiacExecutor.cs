@@ -6,162 +6,149 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Zoodiac", "AI_Zoodiac")]
+    [Deck("Zoodiac", "AI_Zoodiac", "OutDated")]
     class ZoodiacExecutor : DefaultExecutor
     {
-        public enum CardId
+        public class CardId
         {
-            坏星坏兽席兹奇埃鲁 = 63941210,
-            怪粉坏兽加达拉 = 36956512,
-            海龟坏兽加美西耶勒 = 55063751,
-            多次元坏兽拉迪安 = 28674152,
-            黏丝坏兽库莫古斯 = 29726552,
-            光子斩击者 = 65367484,
-            十二兽马剑 = 77150143,
-            十二兽蛇笞 = 31755044,
-            召唤师阿莱斯特 = 86120751,
-            十二兽鼠骑 = 78872731,
-            鹰身女妖的羽毛扫 = 18144506,
-            黑洞 = 53129443,
-            星球改造 = 73628505,
-            召唤魔术 = 74063034,
-            死者苏生 = 83764718,
-            遭受妨碍的坏兽安眠 = 99330325,
-            十二兽的会局 = 46060017,
-            炎舞天玑 = 57103969,
-            暴走魔法阵 = 47679935,
-            十二兽的方合 = 73881652,
-            召唤兽梅尔卡巴 = 75286621,
-            召唤兽墨瓦腊泥加 = 48791583,
-            闪光No39希望皇霍普电光皇 = 56832966,
-            No39希望皇霍普 = 84013237,
-            大薰风骑士翠玉 = 581014,
-            十二兽虎炮 = 11510448,
-            十二兽狗环 = 41375811,
-            十二兽龙枪 = 48905153,
-            十二兽牛犄 = 85115440
+            public const int JizukirutheStarDestroyingKaiju = 63941210;
+            public const int GadarlatheMysteryDustKaiju = 36956512;
+            public const int GamecieltheSeaTurtleKaiju = 55063751;
+            public const int RadiantheMultidimensionalKaiju = 28674152;
+            public const int KumongoustheStickyStringKaiju = 29726552;
+            public const int PhotonThrasher = 65367484;
+            public const int Thoroughblade = 77150143;
+            public const int Whiptail = 31755044;
+            public const int Ratpier = 78872731;
+            public const int AleisterTheInvoker = 86120751;
+
+            public const int HarpiesFeatherDuster = 18144506;
+            public const int DarkHole = 53129443;
+            public const int Terraforming = 73628505;
+            public const int Invocation = 74063034;
+            public const int MonsterReborn = 83764718;
+            public const int InterruptedKaijuSlumber = 99330325;
+            public const int ZoodiacBarrage = 46060017;
+            public const int FireFormationTenki = 57103969;
+            public const int MagicalMeltdown = 47679935;
+            public const int ZoodiacCombo = 73881652;
+
+            public const int InvokedMechaba = 75286621;
+            public const int InvokedMagellanica = 48791583;
+            public const int NumberS39UtopiatheLightning = 56832966;
+            public const int Number39Utopia = 84013237;
+            public const int DaigustoEmeral = 581014;
+            public const int Tigermortar = 11510448;
+            public const int Chakanine = 41375811;
+            public const int Drident = 48905153;
+            public const int Broadbull = 85115440;
         }
 
-        bool 已特殊召唤虎炮 = false;
-        bool 已特殊召唤狗环 = false;
-        bool 已特殊召唤牛犄 = false;
-        int 蛇笞发动次数 = 0;
+        bool TigermortarSpsummoned = false;
+        bool ChakanineSpsummoned = false;
+        bool BroadbullSpsummoned = false;
+        int WhiptailEffectCount = 0;
 
         public ZoodiacExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
             // Quick spells
-            AddExecutor(ExecutorType.Activate, (int)CardId.鹰身女妖的羽毛扫);
-            AddExecutor(ExecutorType.Activate, (int)CardId.遭受妨碍的坏兽安眠, DefaultInterruptedKaijuSlumber);
-            AddExecutor(ExecutorType.Activate, (int)CardId.黑洞, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
+            AddExecutor(ExecutorType.Activate, CardId.InterruptedKaijuSlumber, DefaultInterruptedKaijuSlumber);
+            AddExecutor(ExecutorType.Activate, CardId.DarkHole, DefaultDarkHole);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.海龟坏兽加美西耶勒, DefaultKaijuSpsummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.黏丝坏兽库莫古斯, DefaultKaijuSpsummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.怪粉坏兽加达拉, DefaultKaijuSpsummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.多次元坏兽拉迪安, DefaultKaijuSpsummon);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.坏星坏兽席兹奇埃鲁, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GamecieltheSeaTurtleKaiju, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.KumongoustheStickyStringKaiju, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GadarlatheMysteryDustKaiju, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.RadiantheMultidimensionalKaiju, DefaultKaijuSpsummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.JizukirutheStarDestroyingKaiju, DefaultKaijuSpsummon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.星球改造);
-            AddExecutor(ExecutorType.Activate, (int)CardId.暴走魔法阵);
-            AddExecutor(ExecutorType.Activate, (int)CardId.炎舞天玑, 炎舞天玑效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽的会局, 十二兽的会局效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.大薰风骑士翠玉);
+            AddExecutor(ExecutorType.Activate, CardId.Terraforming);
+            AddExecutor(ExecutorType.Activate, CardId.MagicalMeltdown);
+            AddExecutor(ExecutorType.Activate, CardId.FireFormationTenki, FireFormationTenkiEffect);
+            AddExecutor(ExecutorType.Activate, CardId.ZoodiacBarrage, ZoodiacBarrageEffect);
+            AddExecutor(ExecutorType.Activate, CardId.DaigustoEmeral, DaigustoEmeralEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.光子斩击者, 光子斩击者特殊召唤);
+            AddExecutor(ExecutorType.SpSummon, CardId.PhotonThrasher, PhotonThrasherSummon);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.No39希望皇霍普, 电光皇特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.闪光No39希望皇霍普电光皇);
-            AddExecutor(ExecutorType.Activate, (int)CardId.闪光No39希望皇霍普电光皇);
+            AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.Activate, CardId.NumberS39UtopiatheLightning, DefaultNumberS39UtopiaTheLightningEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.召唤兽梅尔卡巴, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.InvokedMechaba, DefaultTrap);
 
-            AddExecutor(ExecutorType.Activate, 十二兽鼠骑素材效果);
+            AddExecutor(ExecutorType.Activate, RatpierMaterialEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽龙枪, 十二兽龙枪效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽牛犄, 十二兽牛犄效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽虎炮, 十二兽虎炮效果);
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽狗环, 十二兽狗环效果);
+            AddExecutor(ExecutorType.Activate, CardId.Drident, DridentEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Broadbull, BroadbullEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Tigermortar, TigermortarEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Chakanine, ChakanineEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.十二兽狗环, 十二兽狗环特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.十二兽虎炮, 十二兽虎炮特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.十二兽牛犄, 十二兽牛犄特殊召唤);
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.十二兽龙枪, 十二兽龙枪特殊召唤);
+            AddExecutor(ExecutorType.SpSummon, CardId.Chakanine, ChakanineSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Tigermortar, TigermortarSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Broadbull, BroadbullSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.Drident, DridentSummon);
 
-            AddExecutor(ExecutorType.Summon, (int)CardId.十二兽鼠骑);
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽鼠骑, 十二兽鼠骑效果);
-            AddExecutor(ExecutorType.Summon, (int)CardId.十二兽马剑);
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽马剑, 十二兽鼠骑效果);
-            AddExecutor(ExecutorType.Summon, (int)CardId.召唤师阿莱斯特);
-            AddExecutor(ExecutorType.Activate, (int)CardId.召唤师阿莱斯特, 召唤师阿莱斯特效果);
+            AddExecutor(ExecutorType.Summon, CardId.Ratpier);
+            AddExecutor(ExecutorType.Activate, CardId.Ratpier, RatpierEffect);
+            AddExecutor(ExecutorType.Summon, CardId.Thoroughblade);
+            AddExecutor(ExecutorType.Activate, CardId.Thoroughblade, RatpierEffect);
+            AddExecutor(ExecutorType.Summon, CardId.AleisterTheInvoker);
+            AddExecutor(ExecutorType.Activate, CardId.AleisterTheInvoker, AleisterTheInvokerEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.大薰风骑士翠玉, 大薰风骑士翠玉特殊召唤);
+            AddExecutor(ExecutorType.SpSummon, CardId.DaigustoEmeral, DaigustoEmeralSummon);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.十二兽牛犄, 十二兽牛犄超量召唤);
+            AddExecutor(ExecutorType.SpSummon, CardId.Broadbull, BroadbullXYZSummon);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.死者苏生, 死者苏生效果);
+            AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, MonsterRebornEffect);
 
-            AddExecutor(ExecutorType.SpSummon, (int)CardId.光子斩击者);
-            AddExecutor(ExecutorType.Summon, (int)CardId.十二兽蛇笞);
+            AddExecutor(ExecutorType.SpSummon, CardId.PhotonThrasher);
+            AddExecutor(ExecutorType.Summon, CardId.Whiptail);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.召唤魔术, 召唤魔术效果);
+            AddExecutor(ExecutorType.Activate, CardId.Invocation, InvocationEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽蛇笞, 十二兽蛇笞效果);
+            AddExecutor(ExecutorType.Activate, CardId.Whiptail, WhiptailEffect);
 
-            AddExecutor(ExecutorType.Activate, (int)CardId.十二兽的方合, 十二兽的方合效果);
+            AddExecutor(ExecutorType.Activate, CardId.ZoodiacCombo, ZoodiacComboEffect);
 
-            AddExecutor(ExecutorType.SpellSet, (int)CardId.十二兽的方合);
+            AddExecutor(ExecutorType.SpellSet, CardId.ZoodiacCombo);
 
             AddExecutor(ExecutorType.Repos, MonsterRepos);
         }
 
         public override bool OnSelectHand()
         {
-            // 抢先攻
+            // go first
             return true;
         }
 
         public override void OnNewTurn()
         {
-            // 回合开始时重置状况
-            已特殊召唤虎炮 = false;
-            已特殊召唤狗环 = false;
-            已特殊召唤牛犄 = false;
-            蛇笞发动次数 = 0;
+            // reset
+            TigermortarSpsummoned = false;
+            ChakanineSpsummoned = false;
+            BroadbullSpsummoned = false;
+            WhiptailEffectCount = 0;
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (defender.IsMonsterInvincible())
+            if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (defender.IsMonsterDangerous() || defender.IsDefense())
-                    return false;
+                if (attacker.HasType(CardType.Fusion) && Bot.HasInHand(CardId.AleisterTheInvoker))
+                    attacker.RealPower = attacker.RealPower + 1000;
             }
-            if (!(defender.Id == (int)CardId.闪光No39希望皇霍普电光皇))
-            {
-                //if (attacker.HasType(CardType.Fusion) && Bot.HasInHand((int)CardId.召唤师阿莱斯特))
-                //    attacker.RealPower = attacker.RealPower + 1000;
-                if (attacker.Id == (int)CardId.闪光No39希望皇霍普电光皇 && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, (int)CardId.No39希望皇霍普))
-                    attacker.RealPower = 5000;
-            }
-            return attacker.RealPower > defender.GetDefensePower();
+            return base.OnPreBattleBetween(attacker, defender);
         }
 
-
-        private bool 电光皇特殊召唤()
+        private bool PhotonThrasherSummon()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot, true);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy, false);
-            return selfBestAttack < oppoBestAttack;
+            return Bot.HasInHand(CardId.AleisterTheInvoker)
+                && !Bot.HasInHand(CardId.Ratpier)
+                && !Bot.HasInHand(CardId.Thoroughblade);
         }
 
-        private bool 光子斩击者特殊召唤()
-        {
-            return Bot.HasInHand((int)CardId.召唤师阿莱斯特)
-                && !Bot.HasInHand((int)CardId.十二兽鼠骑)
-                && !Bot.HasInHand((int)CardId.十二兽马剑);
-        }
-
-        private bool 召唤师阿莱斯特效果()
+        private bool AleisterTheInvokerEffect()
         {
             if (Card.Location == CardLocation.Hand)
             {
@@ -170,17 +157,23 @@ namespace WindBot.Game.AI.Decks
                     || Duel.Phase == DuelPhase.Damage))
                     return false;
                 return Duel.Player==0
-                    || AI.Utils.IsEnemyBetter(false, false);
+                    || AI.Utils.IsOneEnemyBetter();
             }
             return true;
         }
 
-        private bool 召唤魔术效果()
+        private bool InvocationEffect()
         {
             if (Card.Location == CardLocation.Grave)
                 return true;
             IList<ClientCard> materials0 = Bot.Graveyard;
             IList<ClientCard> materials1 = Enemy.Graveyard;
+            IList<ClientCard> mats = new List<ClientCard>();
+            ClientCard aleister = GetAleisterInGrave();
+            if (aleister != null)
+            {
+                mats.Add(aleister);
+            }
             ClientCard mat = null;
             foreach (ClientCard card in materials0)
             {
@@ -200,9 +193,9 @@ namespace WindBot.Game.AI.Decks
             }
             if (mat != null)
             {
-                AI.SelectCard((int)CardId.召唤兽梅尔卡巴);
-                选择墓地里的召唤师();
-                AI.SelectThirdCard(mat);
+                mats.Add(mat);
+                AI.SelectCard(CardId.InvokedMechaba);
+                AI.SelectMaterials(mats);
                 AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
             }
@@ -224,221 +217,209 @@ namespace WindBot.Game.AI.Decks
             }
             if (mat != null)
             {
-                AI.SelectCard((int)CardId.召唤兽墨瓦腊泥加);
-                选择墓地里的召唤师();
-                AI.SelectThirdCard(mat);
+                mats.Add(mat);
+                AI.SelectCard(CardId.InvokedMagellanica);
+                AI.SelectMaterials(mats);
                 AI.SelectPosition(CardPosition.FaceUpAttack);
                 return true;
             }
             return false;
         }
 
-        private void 选择墓地里的召唤师()
+        private ClientCard GetAleisterInGrave()
         {
-            IList<ClientCard> materials0 = Bot.Graveyard;
-            IList<ClientCard> materials1 = Enemy.Graveyard;
-            foreach (ClientCard card in materials1)
+            foreach (ClientCard card in Enemy.Graveyard)
             {
-                if (card.Id == (int)CardId.召唤师阿莱斯特)
+                if (card.IsCode(CardId.AleisterTheInvoker))
                 {
-                    AI.SelectNextCard(card);
-                    return;
+                    return card;
                 }
             }
-            foreach (ClientCard card in materials0)
+            foreach (ClientCard card in Bot.Graveyard)
             {
-                if (card.Id == (int)CardId.召唤师阿莱斯特)
+                if (card.IsCode(CardId.AleisterTheInvoker))
                 {
-                    AI.SelectNextCard(card);
-                    return;
+                    return card;
                 }
             }
-            AI.SelectNextCard((int)CardId.召唤师阿莱斯特);
+            return null;
         }
 
-        private bool 十二兽狗环特殊召唤()
+        private bool ChakanineSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤狗环)
+            if (Bot.HasInMonstersZone(CardId.Ratpier) && !ChakanineSpsummoned)
             {
-                AI.SelectCard((int)CardId.十二兽鼠骑);
+                AI.SelectMaterials(CardId.Ratpier);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
-                已特殊召唤狗环 = true;
+                ChakanineSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.十二兽牛犄) && !已特殊召唤狗环)
+            if (Bot.HasInMonstersZone(CardId.Broadbull) && !ChakanineSpsummoned)
             {
-                AI.SelectCard((int)CardId.十二兽牛犄);
+                AI.SelectMaterials(CardId.Broadbull);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
-                已特殊召唤狗环 = true;
+                ChakanineSpsummoned = true;
                 return true;
             }
             return false;
         }
 
-        private bool 十二兽狗环效果()
+        private bool ChakanineEffect()
         {
-            if (Bot.HasInGraveyard((int)CardId.十二兽蛇笞) || Bot.HasInGraveyard((int)CardId.十二兽马剑))
+            if (Bot.HasInGraveyard(CardId.Whiptail) || Bot.HasInGraveyard(CardId.Thoroughblade))
             {
-                AI.SelectCard(new[]
-                {
-                    (int)CardId.十二兽牛犄,
-                    (int)CardId.十二兽虎炮,
-                    (int)CardId.十二兽狗环,
-                    (int)CardId.十二兽马剑,
-                    (int)CardId.十二兽鼠骑,
-                    (int)CardId.十二兽蛇笞
-                });
-                AI.SelectNextCard(new[]
-                {
-                    (int)CardId.十二兽蛇笞,
-                    (int)CardId.十二兽马剑
-                });
+                AI.SelectCard(
+                    CardId.Broadbull,
+                    CardId.Tigermortar,
+                    CardId.Chakanine,
+                    CardId.Thoroughblade,
+                    CardId.Ratpier,
+                    CardId.Whiptail
+                    );
+                AI.SelectNextCard(
+                    CardId.Whiptail,
+                    CardId.Thoroughblade
+                    );
                 return true;
             }
             return false;
         }
 
-        private bool 十二兽虎炮特殊召唤()
+        private bool TigermortarSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.十二兽狗环) && !已特殊召唤虎炮)
+            if (Bot.HasInMonstersZone(CardId.Chakanine) && !TigermortarSpsummoned)
             {
-                AI.SelectCard((int)CardId.十二兽狗环);
+                AI.SelectMaterials(CardId.Chakanine);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
-                已特殊召唤虎炮 = true;
+                TigermortarSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤虎炮)
+            if (Bot.HasInMonstersZone(CardId.Ratpier) && !TigermortarSpsummoned)
             {
-                AI.SelectCard((int)CardId.十二兽鼠骑);
+                AI.SelectMaterials(CardId.Ratpier);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
-                已特殊召唤虎炮 = true;
+                TigermortarSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.十二兽马剑) && !已特殊召唤虎炮
-                && Bot.HasInGraveyard(new List<int>
+            if (Bot.HasInMonstersZone(CardId.Thoroughblade) && !TigermortarSpsummoned
+                && Bot.HasInGraveyard(new[]
                 {
-                    (int)CardId.十二兽蛇笞,
-                    (int)CardId.十二兽鼠骑
+                    CardId.Whiptail,
+                    CardId.Ratpier
                 }))
             {
-                AI.SelectCard((int)CardId.十二兽马剑);
+                AI.SelectMaterials(CardId.Thoroughblade);
                 AI.SelectYesNo(true);
-                已特殊召唤虎炮 = true;
+                TigermortarSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.十二兽蛇笞) && !已特殊召唤虎炮
-                && Bot.HasInGraveyard((int)CardId.十二兽鼠骑))
+            if (Bot.HasInMonstersZone(CardId.Whiptail) && !TigermortarSpsummoned
+                && Bot.HasInGraveyard(CardId.Ratpier))
             {
-                AI.SelectCard((int)CardId.十二兽蛇笞);
+                AI.SelectMaterials(CardId.Whiptail);
                 AI.SelectYesNo(true);
-                已特殊召唤虎炮 = true;
+                TigermortarSpsummoned = true;
                 return true;
             }
             return false;
         }
 
-        private bool 十二兽虎炮效果()
+        private bool TigermortarEffect()
         {
-            //if (Card.HasXyzMaterial((int)CardId.十二兽鼠骑) || !Bot.HasInGraveyard((int)CardId.十二兽鼠骑))
+            //if (Card.HasXyzMaterial(CardId.Ratpier) || !Bot.HasInGraveyard(CardId.Ratpier))
             //    return false;
-            AI.SelectCard((int)CardId.十二兽狗环);
-            AI.SelectNextCard((int)CardId.十二兽虎炮);
-            AI.SelectThirdCard(new[]
-                {
-                    (int)CardId.十二兽鼠骑,
-                    (int)CardId.十二兽蛇笞,
-                    (int)CardId.十二兽马剑
-                });
+            AI.SelectCard(CardId.Chakanine);
+            AI.SelectNextCard(CardId.Tigermortar);
+            AI.SelectThirdCard(CardId.Ratpier, CardId.Whiptail, CardId.Thoroughblade);
             return true;
         }
 
-        private bool 十二兽牛犄特殊召唤()
+        private bool BroadbullSummon()
         {
-            if (Bot.HasInMonstersZone((int)CardId.十二兽虎炮) && !已特殊召唤牛犄)
+            if (Bot.HasInMonstersZone(CardId.Tigermortar) && !BroadbullSpsummoned)
             {
-                AI.SelectCard((int)CardId.十二兽虎炮);
+                AI.SelectMaterials(CardId.Tigermortar);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
-                已特殊召唤牛犄 = true;
+                BroadbullSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.十二兽狗环) && !已特殊召唤牛犄)
+            if (Bot.HasInMonstersZone(CardId.Chakanine) && !BroadbullSpsummoned)
             {
-                AI.SelectCard((int)CardId.十二兽狗环);
+                AI.SelectMaterials(CardId.Chakanine);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
-                已特殊召唤牛犄 = true;
+                BroadbullSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.十二兽鼠骑) && !已特殊召唤牛犄)
+            if (Bot.HasInMonstersZone(CardId.Ratpier) && !BroadbullSpsummoned)
             {
-                AI.SelectCard((int)CardId.十二兽鼠骑);
+                AI.SelectMaterials(CardId.Ratpier);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
-                已特殊召唤牛犄 = true;
+                BroadbullSpsummoned = true;
                 return true;
             }
-            if (Bot.HasInMonstersZone((int)CardId.十二兽马剑) && !已特殊召唤牛犄)
+            if (Bot.HasInMonstersZone(CardId.Thoroughblade) && !BroadbullSpsummoned)
             {
-                AI.SelectCard((int)CardId.十二兽马剑);
+                AI.SelectMaterials(CardId.Thoroughblade);
                 AI.SelectYesNo(true);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
-                已特殊召唤牛犄 = true;
+                BroadbullSpsummoned = true;
                 return true;
             }
             return false;
         }
 
-        private bool 十二兽牛犄效果()
+        private bool BroadbullEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.十二兽虎炮,
-                    (int)CardId.十二兽狗环,
-                    (int)CardId.十二兽龙枪,
-                    (int)CardId.召唤师阿莱斯特,
-                    (int)CardId.光子斩击者
-                });
-            if (Bot.HasInHand((int)CardId.十二兽蛇笞) && !Bot.HasInHand((int)CardId.十二兽鼠骑))
-                AI.SelectNextCard((int)CardId.十二兽鼠骑);
+            AI.SelectCard(
+                CardId.Tigermortar,
+                CardId.Chakanine,
+                CardId.Drident,
+                CardId.AleisterTheInvoker,
+                CardId.PhotonThrasher
+                );
+            if (Bot.HasInHand(CardId.Whiptail) && !Bot.HasInHand(CardId.Ratpier))
+                AI.SelectNextCard(CardId.Ratpier);
             else
-                AI.SelectNextCard((int)CardId.十二兽蛇笞);
+                AI.SelectNextCard(CardId.Whiptail);
             return true;
         }
 
-        private bool 十二兽牛犄超量召唤()
+        private bool BroadbullXYZSummon()
         {
             AI.SelectYesNo(false);
             AI.SelectPosition(CardPosition.FaceUpDefence);
-            AI.SelectCard(new[]
+            AI.SelectMaterials(new[]
                 {
-                    (int)CardId.十二兽鼠骑,
-                    (int)CardId.光子斩击者,
-                    (int)CardId.十二兽蛇笞,
-                    (int)CardId.召唤师阿莱斯特
+                    CardId.Ratpier,
+                    CardId.PhotonThrasher,
+                    CardId.Whiptail,
+                    CardId.AleisterTheInvoker
                 });
             return true;
         }
 
-        private bool 十二兽龙枪特殊召唤()
+        private bool DridentSummon()
         {
-            AI.SelectCard(new[]
+            AI.SelectMaterials(new[]
                 {
-                    (int)CardId.十二兽牛犄,
-                    (int)CardId.十二兽虎炮,
-                    (int)CardId.十二兽狗环,
-                    (int)CardId.十二兽马剑
+                    CardId.Broadbull,
+                    CardId.Tigermortar,
+                    CardId.Chakanine,
+                    CardId.Thoroughblade
                 });
             return true;
         }
 
-        private bool 十二兽鼠骑素材效果()
+        private bool RatpierMaterialEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId((int)CardId.十二兽鼠骑, 1))
+            if (ActivateDescription == AI.Utils.GetStringId(CardId.Ratpier, 1))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -446,17 +427,17 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool 十二兽蛇笞效果()
+        private bool WhiptailEffect()
         {
             if (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2)
                 return false;
-            if (Card.IsDisabled() || 蛇笞发动次数 >= 3)
+            if (Card.IsDisabled() || WhiptailEffectCount >= 3)
                 return false;
             ClientCard target = null;
             List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
             {
-                if (monster.IsFaceup() && monster.Id == (int)CardId.十二兽龙枪 && !monster.HasXyzMaterial())
+                if (monster.IsFaceup() && monster.IsCode(CardId.Drident) && !monster.HasXyzMaterial())
                 {
                     target = monster;
                     break;
@@ -466,7 +447,7 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.IsFaceup() && monster.Type == (int)CardType.Xyz && monster.Id != (int)CardId.大薰风骑士翠玉 && !monster.HasXyzMaterial())
+                    if (monster.IsFaceup() && monster.Type == (int)CardType.Xyz && !monster.IsCode(CardId.DaigustoEmeral) && !monster.HasXyzMaterial())
                     {
                         target = monster;
                         break;
@@ -477,180 +458,137 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectCard(new[]
                     {
-                        (int)CardId.十二兽龙枪
+                        CardId.Drident
                     });
             }
-            蛇笞发动次数++;
+            WhiptailEffectCount++;
             return true;
         }
 
-        private bool 十二兽鼠骑效果()
+        private bool RatpierEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.十二兽的方合,
-                    (int)CardId.十二兽马剑,
-                    (int)CardId.十二兽的会局
-                });
+            AI.SelectCard(
+                CardId.ZoodiacCombo,
+                CardId.Thoroughblade,
+                CardId.ZoodiacBarrage
+                );
             return true;
         }
 
-        private bool 十二兽龙枪效果()
+        private bool DridentEffect()
         {
-            if (LastChainPlayer == 0)
+            if (Duel.LastChainPlayer == 0)
                 return false;
-            ClientCard target = AI.Utils.GetProblematicCard();
-            if (target == null)
-            {
-                List<ClientCard> monsters = Enemy.GetMonsters();
-                foreach (ClientCard monster in monsters)
-                {
-                    if (monster.IsFaceup())
-                    {
-                        target=monster;
-                        break;
-                    }
-                }
-            }
-            if (target == null)
-            {
-                List<ClientCard> spells = Enemy.GetSpells();
-                foreach (ClientCard spell in spells)
-                {
-                    if (spell.IsFaceup() && spell.IsSpellNegateAttack())
-                    {
-                        target = spell;
-                        break;
-                    }
-                }
-            }
-            if (target == null)
-            {
-                List<ClientCard> spells = Enemy.GetSpells();
-                foreach (ClientCard spell in spells)
-                {
-                    if (spell.IsFaceup() && (spell.HasType(CardType.Continuous)
-                        || spell.HasType(CardType.Equip)
-                        || spell.HasType(CardType.Field)
-                        || spell.HasType(CardType.Pendulum)))
-                    {
-                        target = spell;
-                        break;
-                    }
-                }
-            }
+            ClientCard target = AI.Utils.GetBestEnemyCard(true);
             if (target == null)
                 return false;
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.十二兽牛犄,
-                    (int)CardId.十二兽虎炮,
-                    (int)CardId.十二兽狗环,
-                    (int)CardId.十二兽马剑,
-                    (int)CardId.十二兽鼠骑,
-                    (int)CardId.十二兽蛇笞
-                });
+            AI.SelectCard(
+                CardId.Broadbull,
+                CardId.Tigermortar,
+                CardId.Chakanine,
+                CardId.Thoroughblade,
+                CardId.Ratpier,
+                CardId.Whiptail
+                );
             AI.SelectNextCard(target);
             return true;
         }
 
-        private bool 大薰风骑士翠玉特殊召唤()
+        private bool DaigustoEmeralSummon()
         {
+            AI.SelectMaterials(new[]
+                {
+                    CardId.PhotonThrasher,
+                    CardId.AleisterTheInvoker
+                });
             return Bot.GetGraveyardMonsters().Count >= 3;
         }
 
-        private bool 大薰风骑士翠玉效果()
+        private bool DaigustoEmeralEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.十二兽鼠骑,
-                    (int)CardId.召唤师阿莱斯特,
-                    (int)CardId.十二兽蛇笞
-                });
-            AI.SelectNextCard(new[]
-                {
-                    (int)CardId.十二兽鼠骑,
-                    (int)CardId.大薰风骑士翠玉
-                });
+            AI.SelectCard(
+                CardId.Ratpier,
+                CardId.AleisterTheInvoker,
+                CardId.Whiptail
+                );
+            AI.SelectNextCard(
+                CardId.Ratpier,
+                CardId.DaigustoEmeral
+                );
             return true;
         }
 
-        private bool 炎舞天玑效果()
+        private bool FireFormationTenkiEffect()
         {
-            if (Bot.HasInHand((int)CardId.十二兽的会局)
-               || Bot.HasInSpellZone((int)CardId.十二兽的会局)
-               || Bot.HasInHand((int)CardId.十二兽鼠骑))
+            if (Bot.HasInHand(CardId.ZoodiacBarrage)
+               || Bot.HasInSpellZone(CardId.ZoodiacBarrage)
+               || Bot.HasInHand(CardId.Ratpier))
             {
-                AI.SelectCard((int)CardId.十二兽蛇笞);
+                AI.SelectCard(CardId.Whiptail);
             }
             else
             {
-                AI.SelectCard((int)CardId.十二兽鼠骑);
+                AI.SelectCard(CardId.Ratpier);
             }
             AI.SelectYesNo(true);
             return true;
         }
 
-        private bool 十二兽的会局效果()
+        private bool ZoodiacBarrageEffect()
         {
-            IList<ClientCard> spells = Bot.GetSpells();
-            foreach (ClientCard spell in spells)
+            foreach (ClientCard spell in Bot.GetSpells())
             {
-                if (spell.Id == (int)CardId.十二兽的会局 && !Card.Equals(spell))
+                if (spell.IsCode(CardId.ZoodiacBarrage) && !Card.Equals(spell))
                     return false;
             }
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.炎舞天玑,
-                    (int)CardId.暴走魔法阵,
-                    (int)CardId.十二兽的会局
-                });
-            AI.SelectNextCard(new[]
-                {
-                    (int)CardId.十二兽鼠骑,
-                    (int)CardId.十二兽蛇笞,
-                    (int)CardId.十二兽马剑
-                });
+            AI.SelectCard(
+                CardId.FireFormationTenki,
+                CardId.MagicalMeltdown,
+                CardId.ZoodiacBarrage
+                );
+            AI.SelectNextCard(
+                CardId.Ratpier,
+                CardId.Whiptail,
+                CardId.Thoroughblade
+                );
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
 
-        private bool 十二兽的方合效果()
+        private bool ZoodiacComboEffect()
         {
-            if (CurrentChain.Count > 0)
+            if (Duel.CurrentChain.Count > 0)
                 return false;
             if (Card.Location != CardLocation.Grave)
             {
-                AI.SelectCard((int)CardId.十二兽龙枪);
-                AI.SelectNextCard(new[]
-                {
-                    (int)CardId.十二兽蛇笞,
-                    (int)CardId.十二兽鼠骑,
-                    (int)CardId.十二兽马剑
-                });
+                AI.SelectCard(CardId.Drident);
+                AI.SelectNextCard(
+                    CardId.Whiptail,
+                    CardId.Ratpier,
+                    CardId.Thoroughblade
+                    );
             }
             return true;
         }
 
-        private bool 死者苏生效果()
+        private bool MonsterRebornEffect()
         {
-            AI.SelectCard(new[]
-                {
-                    (int)CardId.十二兽鼠骑,
-                    (int)CardId.十二兽蛇笞,
-                    (int)CardId.召唤兽梅尔卡巴,
-                    (int)CardId.坏星坏兽席兹奇埃鲁,
-                    (int)CardId.召唤兽墨瓦腊泥加,
-                    (int)CardId.十二兽虎炮,
-                    (int)CardId.十二兽狗环,
-                    (int)CardId.十二兽牛犄
-                });
+            AI.SelectCard(
+                CardId.Ratpier,
+                CardId.Whiptail,
+                CardId.InvokedMechaba,
+                CardId.JizukirutheStarDestroyingKaiju,
+                CardId.InvokedMagellanica,
+                CardId.Tigermortar,
+                CardId.Chakanine,
+                CardId.Broadbull
+                );
             return true;
         }
 
         private bool MonsterRepos()
         {
-            if (Card.Id == (int)CardId.闪光No39希望皇霍普电光皇)
+            if (Card.IsCode(CardId.NumberS39UtopiatheLightning) && Card.IsAttack())
                 return false;
             return base.DefaultMonsterRepos();
         }

@@ -1,7 +1,7 @@
-﻿using YGOSharp.OCGWrapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using YGOSharp.OCGWrapper;
 
 namespace WindBot.Game
 {
@@ -83,8 +83,7 @@ namespace WindBot.Game
             }
             catch (Exception)
             {
-                if (reader != null)
-                    reader.Close();
+                reader?.Close();
                 return null;
             }
         }
