@@ -401,7 +401,7 @@ namespace WindBot.Game
         private void OnDraw(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            int count = packet.ReadByte();
+            int count = packet.ReadInt32();
             if (_debug)
                 Logger.WriteLine("(" + player.ToString() + " draw " + count.ToString() + " card)");
 
@@ -423,7 +423,7 @@ namespace WindBot.Game
         private void OnShuffleHand(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            packet.ReadByte();
+            packet.ReadInt32();
             foreach (ClientCard card in _duel.Fields[player].Hand)
                 card.SetId(packet.ReadInt32());
         }
@@ -431,7 +431,7 @@ namespace WindBot.Game
         private void OnShuffleExtra(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            packet.ReadByte();
+            packet.ReadInt32();
             foreach (ClientCard card in _duel.Fields[player].ExtraDeck)
             {
                 if (!card.IsFaceup())
@@ -465,10 +465,10 @@ namespace WindBot.Game
         private void OnTagSwap(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            int mcount = packet.ReadByte();
-            int ecount = packet.ReadByte();
-            /*int pcount = */ packet.ReadByte();
-            int hcount = packet.ReadByte();
+            int mcount = packet.ReadInt32();
+            int ecount = packet.ReadInt32();
+            /*int pcount = */ packet.ReadInt32();
+            int hcount = packet.ReadInt32();
             /*int topcode =*/ packet.ReadInt32();
             _duel.Fields[player].Deck.Clear();
             for (int i = 0; i < mcount; ++i)
@@ -708,7 +708,7 @@ namespace WindBot.Game
             /*int player =*/ GetLocalPlayer(packet.ReadByte());
             IList<ClientCard> originalCards = new List<ClientCard>();
             IList<ClientCard> cards = new List<ClientCard>();
-            int count = packet.ReadByte();
+            int count = packet.ReadInt32();
             for (int i = 0; i < count; ++i)
             {
                 int id = packet.ReadInt32();
@@ -812,7 +812,7 @@ namespace WindBot.Game
 
         private void OnBecomeTarget(BinaryReader packet)
         {
-            int count = packet.ReadByte();
+            int count = packet.ReadInt32();
             for (int i = 0; i < count; ++i)
             {
                 LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
@@ -831,7 +831,7 @@ namespace WindBot.Game
             _duel.BattlePhase = new BattlePhase();
             BattlePhase battle = _duel.BattlePhase;
 
-            int count = packet.ReadByte();
+            int count = packet.ReadInt32();
             for (int i = 0; i < count; ++i)
             {
                 packet.ReadInt32(); // card id
@@ -849,7 +849,7 @@ namespace WindBot.Game
                 }
             }
 
-            count = packet.ReadByte();
+            count = packet.ReadInt32();
             for (int i = 0; i < count; ++i)
             {
                 packet.ReadInt32(); // card id
@@ -887,11 +887,11 @@ namespace WindBot.Game
         {
             packet.ReadByte(); // player
             bool cancelable = packet.ReadByte() != 0;
-            int min = packet.ReadByte();
-            int max = packet.ReadByte();
+            int min = packet.ReadInt32();
+            int max = packet.ReadInt32();
 
             IList<ClientCard> cards = new List<ClientCard>();
-            int count = packet.ReadByte();
+            int count = packet.ReadInt32();
             for (int i = 0; i < count; ++i)
             {
                 int id = packet.ReadInt32();
@@ -950,11 +950,11 @@ namespace WindBot.Game
             packet.ReadByte(); // player
             bool finishable = packet.ReadByte() != 0;
             bool cancelable = packet.ReadByte() != 0 || finishable;
-            int min = packet.ReadByte();
-            int max = packet.ReadByte();
+            int min = packet.ReadInt32();
+            int max = packet.ReadInt32();
 
             IList<ClientCard> cards = new List<ClientCard>();
-            int count = packet.ReadByte();
+            int count = packet.ReadInt32();
             for (int i = 0; i < count; ++i)
             {
                 int id = packet.ReadInt32();
@@ -969,7 +969,7 @@ namespace WindBot.Game
                     card.SetId(id);
                 cards.Add(card);
             }
-            int count2 = packet.ReadByte();
+            int count2 = packet.ReadInt32();
             for (int i = 0; i < count2; ++i)
             {
                 int id = packet.ReadInt32();
@@ -1020,7 +1020,7 @@ namespace WindBot.Game
         private void OnSelectChain(BinaryReader packet)
         {
             packet.ReadByte(); // player
-            int count = packet.ReadByte();
+            int count = packet.ReadInt32();
             packet.ReadByte(); // specount
             bool forced = packet.ReadByte() != 0;
             packet.ReadInt32(); // hint1
@@ -1130,7 +1130,7 @@ namespace WindBot.Game
             int count;
             for (int k = 0; k < 5; k++)
             {
-                count = packet.ReadByte();
+                count = packet.ReadInt32();
                 for (int i = 0; i < count; ++i)
                 {
                     packet.ReadInt32(); // card id
@@ -1160,7 +1160,7 @@ namespace WindBot.Game
                     }
                 }
             }
-            count = packet.ReadByte();
+            count = packet.ReadInt32();
             for (int i = 0; i < count; ++i)
             {
                 packet.ReadInt32(); // card id
@@ -1309,8 +1309,8 @@ namespace WindBot.Game
             bool mode = packet.ReadByte() == 0;
             packet.ReadByte(); // player
             int sumval = packet.ReadInt32();
-            int min = packet.ReadByte();
-            int max = packet.ReadByte();
+            int min = packet.ReadInt32();
+            int max = packet.ReadInt32();
 
             if (max <= 0)
                 max = 99;
@@ -1320,7 +1320,7 @@ namespace WindBot.Game
 
             for (int j = 0; j < 2; ++j)
             {
-                int count = packet.ReadByte();
+                int count = packet.ReadInt32();
                 for (int i = 0; i < count; ++i)
                 {
                     int cardId = packet.ReadInt32();
