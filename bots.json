@@ -42,7 +42,17 @@
       },
       {
         "name": "复制梁龙",
-        "deck": "SkyStriker",
+        "deck": "Orcust",
+        "dialog": "anothercopy.zh-CN"
+      },
+      {
+        "name": "复制梁龙",
+        "deck": "Orcust",
+        "dialog": "anothercopy.zh-CN"
+      },
+      {
+        "name": "复制梁龙",
+        "deck": "Orcust",
         "dialog": "anothercopy.zh-CN"
       },
       {
