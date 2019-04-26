@@ -346,7 +346,7 @@ namespace WindBot.Game.AI
         {
             if (!Util.IsAllEnemyBetter(true))
                 return false;
-            ClientCard selected = Bot.Graveyard.OrderByDescending(card => card.Attack).FirstOrDefault();
+            ClientCard selected = Bot.Graveyard.GetMatchingCards(card => card.IsCanRevive()).OrderByDescending(card => card.Attack).FirstOrDefault();
             AI.SelectCard(selected);
             return true;
         }

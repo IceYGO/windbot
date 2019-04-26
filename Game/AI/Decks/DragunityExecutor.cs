@@ -253,7 +253,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterReborn()
         {
-            List<ClientCard> cards = new List<ClientCard>(Bot.Graveyard);
+            List<ClientCard> cards = new List<ClientCard>(Bot.Graveyard.GetMatchingCards(card => card.IsCanRevive()));
             cards.Sort(CardContainer.CompareCardAttack);
             ClientCard selectedCard = null;
             for (int i = cards.Count - 1; i >= 0; --i)
@@ -269,7 +269,7 @@ namespace WindBot.Game.AI.Decks
                     break;
                 }
             }
-            cards = new List<ClientCard>(Enemy.Graveyard);
+            cards = new List<ClientCard>(Enemy.Graveyard.GetMatchingCards(card => card.IsCanRevive()));
             cards.Sort(CardContainer.CompareCardAttack);
             for (int i = cards.Count - 1; i >= 0; --i)
             {
