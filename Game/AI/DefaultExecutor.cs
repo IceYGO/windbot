@@ -43,6 +43,7 @@ namespace WindBot.Game.AI
             public const int NumberS39UtopiaTheLightning = 56832966;
             public const int Number39Utopia = 84013237;
             public const int UltimayaTzolkin = 1686814;
+            public const int MekkKnightCrusadiaAstram = 21887175;
 
             public const int MoonMirrorShield = 19508728;
             public const int PhantomKnightsFogBlade = 25542642;
@@ -148,6 +149,9 @@ namespace WindBot.Game.AI
 
                 if (!defender.IsDisabled())
                 {
+                    if (defender.IsCode(_CardId.MekkKnightCrusadiaAstram) && defender.IsAttack() && attacker.IsSpecialSummoned)
+                        return false;
+
                     if (defender.IsCode(_CardId.CrystalWingSynchroDragon) && defender.IsAttack() && attacker.Level >= 5)
                         return false;
 
@@ -178,6 +182,9 @@ namespace WindBot.Game.AI
                     }
                 }
             }
+
+            if (Enemy.HasInMonstersZone(_CardId.MekkKnightCrusadiaAstram, true) && !(defender).IsCode(_CardId.MekkKnightCrusadiaAstram))
+                return false;
 
             if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && !(defender).IsCode(_CardId.DupeFrog))
                 return false;
