@@ -1,4 +1,5 @@
-﻿using YGOSharp.OCGWrapper.Enums;
+﻿using System;
+using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
@@ -61,7 +62,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.UnexpectedDai, UnexpectedDaiEffect);
 
-            AddExecutor(ExecutorType.Summon, CardId.RescueRabbit);
+            AddExecutor(ExecutorType.Summon, CardId.RescueRabbit, RescueRabbitSummon);
             AddExecutor(ExecutorType.Activate, CardId.RescueRabbit, RescueRabbitEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, DefaultPotOfDesires);
@@ -207,6 +208,13 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
+        private bool RescueRabbitSummon()
+        {
+            return AI.Utils.GetBotAvailZonesFromExtraDeck() > 0
+                || AI.Utils.GetMatchingCards(Enemy.MonsterZone, card => card.GetDefensePower() >= 1900).Count == 0
+                || AI.Utils.GetMatchingCards(Enemy.MonsterZone, card => card.GetDefensePower() < 1900).Count > AI.Utils.GetMatchingCards(Bot.MonsterZone, card => card.Attack >= 1900).Count;
+        }
+
         private bool RescueRabbitEffect()
         {
             if (AI.Utils.IsTurn1OrMain2())
@@ -255,7 +263,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool NormalSummon()
         {
-            return true;
+            return Card.Id != CardId.RescueRabbit;
         }
 
         private bool GagagaCowboySummon()
