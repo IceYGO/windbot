@@ -157,7 +157,7 @@ namespace WindBot.Game.AI.Decks
                     || Duel.Phase == DuelPhase.Damage))
                     return false;
                 return Duel.Player==0
-                    || AI.Utils.IsOneEnemyBetter();
+                    || Util.IsOneEnemyBetter();
             }
             return true;
         }
@@ -419,7 +419,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RatpierMaterialEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.Ratpier, 1))
+            if (ActivateDescription == Util.GetStringId(CardId.Ratpier, 1))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -479,7 +479,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.LastChainPlayer == 0)
                 return false;
-            ClientCard target = AI.Utils.GetBestEnemyCard(true);
+            ClientCard target = Util.GetBestEnemyCard(true);
             if (target == null)
                 return false;
             AI.SelectCard(

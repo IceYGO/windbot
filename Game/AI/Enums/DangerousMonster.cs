@@ -22,5 +22,6 @@
         EaterOfMillions = 63845230,
         ElShaddollConstruct = 20366274,
         ZushintheSleepingGiant = 67547370,
+        Heart_eartHDragon = 97403510,
     }
 }

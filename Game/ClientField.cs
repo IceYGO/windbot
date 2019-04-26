@@ -158,6 +158,11 @@ namespace WindBot.Game
             return GetMonsters().Where((card, i) => i < 5).ToList();
         }
 
+        public ClientCard GetFieldSpellCard()
+        {
+            return SpellZone[5];
+        }
+
         public bool HasInHand(int cardId)
         {
             return HasInCards(Hand, cardId);
