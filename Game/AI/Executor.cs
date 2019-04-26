@@ -170,7 +170,7 @@ namespace WindBot.Game.AI
             return -1;
         }
 
-        public virtual int OnSelectPlace(int cardId, int player, int location, int available)
+        public virtual int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
             // For overriding
             return 0;

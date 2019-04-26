@@ -479,7 +479,7 @@ namespace WindBot.Game
             return 0; // Always select the first option.
         }
 
-        public int OnSelectPlace(int cardId, int player, int location, int available)
+        public int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
             int selector_selected = m_place;
             m_place = 0;

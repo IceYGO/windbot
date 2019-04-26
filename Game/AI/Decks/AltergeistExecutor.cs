@@ -2815,15 +2815,15 @@ namespace WindBot.Game.AI.Decks
             return 0;
         }
 
-        public override int OnSelectPlace(int cardId, int player, int location, int available)
+        public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
             if (player == 0)
             {
-                if (location == (int)CardLocation.SpellZone)
+                if (location == CardLocation.SpellZone)
                 {
                     // unfinished
                 }
-                else if (location == (int)CardLocation.MonsterZone)
+                else if (location == CardLocation.MonsterZone)
                 {
                     if(cardId == CardId.Linkuriboh)
                     {
