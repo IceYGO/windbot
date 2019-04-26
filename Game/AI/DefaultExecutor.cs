@@ -458,9 +458,11 @@ namespace WindBot.Game.AI
         /// Default InfiniteImpermanence effect
         /// </summary>
         protected bool DefaultInfiniteImpermanence()
-        {            
+        {
             // TODO: disable s & t
-            return DefaultBreakthroughSkill();
+            if (!DefaultUniqueTrap())
+                return false;
+            return DefaultDisableMonster();
         }
         /// <summary>
         /// Chain the enemy monster, or disable monster like Rescue Rabbit.
@@ -469,7 +471,13 @@ namespace WindBot.Game.AI
         {
             if (!DefaultUniqueTrap())
                 return false;
-
+            return DefaultDisableMonster();
+        }
+        /// <summary>
+        /// Chain the enemy monster, or disable monster like Rescue Rabbit.
+        /// </summary>
+        protected bool DefaultDisableMonster()
+        {
             if (Duel.Player == 1)
             {
                 ClientCard target = Enemy.MonsterZone.GetShouldBeDisabledBeforeItUseEffectMonster();
