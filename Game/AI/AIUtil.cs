@@ -4,43 +4,17 @@ using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
 namespace WindBot.Game.AI
 {
-    public class AIFunctions
+    public class AIUtil
     {
         public Duel Duel { get; private set; }
         public ClientField Bot { get; private set; }
         public ClientField Enemy { get; private set; }
 
-        public AIFunctions(Duel duel)
+        public AIUtil(Duel duel)
         {
             Duel = duel;
             Bot = Duel.Fields[0];
             Enemy = Duel.Fields[1];
-        }
-
-        public static int CompareCardAttack(ClientCard cardA, ClientCard cardB)
-        {
-            if (cardA.Attack < cardB.Attack)
-                return -1;
-            if (cardA.Attack == cardB.Attack)
-                return 0;
-            return 1;
-        }
-
-        public static int CompareDefensePower(ClientCard cardA, ClientCard cardB)
-        {
-            if (cardA == null && cardB == null)
-                return 0;
-            if (cardA == null)
-                return -1;
-            if (cardB == null)
-                return 1;
-            int powerA = cardA.GetDefensePower();
-            int powerB = cardB.GetDefensePower();
-            if (powerA < powerB)
-                return -1;
-            if (powerA == powerB)
-                return 0;
-            return 1;
         }
 
         /// <summary>

@@ -139,31 +139,31 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            IList<ClientCard> result = AI.Utils.SelectPreferredCards(new[] {
+            IList<ClientCard> result = Util.SelectPreferredCards(new[] {
                 CardId.StarDrawing,
                 CardId.SolarWindJammer,
                 CardId.Goblindbergh
             }, cards, min, max);
-            return AI.Utils.CheckSelectCount(result, cards, min, max);
+            return Util.CheckSelectCount(result, cards, min, max);
         }
 
         private bool Number39Utopia()
         {
-            if (!AI.Utils.HasChainedTrap(0) && Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Card.HasXyzMaterial(2))
+            if (!Util.HasChainedTrap(0) && Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Card.HasXyzMaterial(2))
                 return true;
             return false;
         }
 
         private bool Number61Volcasaurus()
         {
-            return AI.Utils.IsOneEnemyBetterThanValue(2000, false);
+            return Util.IsOneEnemyBetterThanValue(2000, false);
         }
 
         private bool ZwLionArms()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.ZwLionArms, 0))
+            if (ActivateDescription == Util.GetStringId(CardId.ZwLionArms, 0))
                 return true;
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.ZwLionArms, 1))
+            if (ActivateDescription == Util.GetStringId(CardId.ZwLionArms, 1))
                 return !Card.IsDisabled();
             return false;
         }
@@ -234,7 +234,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool KagetokageEffect()
         {
-            var lastChainCard = AI.Utils.GetLastChainCard();
+            var lastChainCard = Util.GetLastChainCard();
             if (lastChainCard == null) return true;
             return !lastChainCard.IsCode(CardId.Goblindbergh, CardId.TinGoldfish);
         }

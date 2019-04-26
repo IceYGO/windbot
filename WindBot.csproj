@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <Compile Include="Game\AI\AIFunctions.cs" />
+    <Compile Include="Game\AI\AIUtil.cs" />
     <Compile Include="Game\AI\CardContainer.cs" />
     <Compile Include="Game\AI\CardExecutor.cs" />
     <Compile Include="Game\AI\CardExtension.cs" />

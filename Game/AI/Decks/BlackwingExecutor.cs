@@ -93,7 +93,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand && Bot.HasInSpellZone(Card.Id))
                 return false;
-            if (ActivateDescription == AI.Utils.GetStringId((int)Card.Id,0))
+            if (ActivateDescription == Util.GetStringId((int)Card.Id,0))
                 AI.SelectCard(CardId.GaleTheWhirlwind);
             return true;
         }

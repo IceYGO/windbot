@@ -14,6 +14,7 @@ namespace WindBot.Game.AI
         public Duel Duel { get; private set; }
         public IList<CardExecutor> Executors { get; private set; }
         public GameAI AI { get; private set; }
+        public AIUtil Util { get; private set; }
 
         protected MainPhase Main { get; private set; }
         protected BattlePhase Battle { get; private set; }
@@ -29,6 +30,7 @@ namespace WindBot.Game.AI
         {
             Duel = duel;
             AI = ai;
+            Util = new AIUtil(duel);
             Executors = new List<CardExecutor>();
 
             Bot = Duel.Fields[0];

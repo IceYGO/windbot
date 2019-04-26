@@ -97,7 +97,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             List<ClientCard> cards = new List<ClientCard>(Bot.Graveyard);
-            cards.Sort(AIFunctions.CompareCardAttack);
+            cards.Sort(CardContainer.CompareCardAttack);
             for (int i = cards.Count - 1; i >= 0; --i)
             {
                 ClientCard card = cards[i];
@@ -115,7 +115,7 @@ namespace WindBot.Game.AI.Decks
         private bool MonsterReborn()
         {
             List<ClientCard> cards = new List<ClientCard>(Bot.Graveyard);
-            cards.Sort(AIFunctions.CompareCardAttack);
+            cards.Sort(CardContainer.CompareCardAttack);
             ClientCard selectedCard = null;
             for (int i = cards.Count - 1; i >= 0; --i)
             {
@@ -129,7 +129,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             cards = new List<ClientCard>(Enemy.Graveyard);
-            cards.Sort(AIFunctions.CompareCardAttack);
+            cards.Sort(CardContainer.CompareCardAttack);
             for (int i = cards.Count - 1; i >= 0; --i)
             {
                 ClientCard card = cards[i];
@@ -152,7 +152,7 @@ namespace WindBot.Game.AI.Decks
         private bool WhiteNightDragon()
         {
             // We should summon Horus the Black Flame Dragon LV6 if he can lvlup.
-            if (Enemy.GetMonsterCount() != 0 && !AI.Utils.IsAllEnemyBetterThanValue(2300 - 1, false))
+            if (Enemy.GetMonsterCount() != 0 && !Util.IsAllEnemyBetterThanValue(2300 - 1, false))
                 foreach (ClientCard card in Main.SummonableCards)
                     if (card.IsCode(11224103))
                         return false;
@@ -170,7 +170,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> cards = new List<ClientCard>(Bot.GetMonsters());
             if (cards.Count == 0)
                 return false;
-            cards.Sort(AIFunctions.CompareCardAttack);
+            cards.Sort(CardContainer.CompareCardAttack);
             ClientCard tributeCard = null;
             foreach (ClientCard monster in cards)
             {
@@ -190,7 +190,7 @@ namespace WindBot.Game.AI.Decks
             cards.AddRange(Bot.Graveyard);
             if (cards.Count == 0)
                 return false;
-            cards.Sort(AIFunctions.CompareCardAttack);
+            cards.Sort(CardContainer.CompareCardAttack);
             ClientCard summonCard = null;
             for (int i = cards.Count - 1; i >= 0; --i)
             {
