@@ -181,6 +181,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (HaveOtherLV5OnField())
                 return true;
+            if (Util.GetBotAvailZonesFromExtraDeck() == 0)
+                return false;
             int lv5Count = 0;
             foreach (ClientCard card in Bot.Hand)
             {
@@ -216,11 +218,10 @@ namespace WindBot.Game.AI.Decks
                 return false;
             if (Bot.HasInHand(new[]
                 {
-                    CardId.MistArchfiend,
                     CardId.WindUpSoldier,
                     CardId.StarDrawing,
                     CardId.ChronomalyGoldenJet
-                }))
+                }) || (Bot.HasInHand(CardId.MistArchfiend) && NeedLV5()))
             {
                 NormalSummoned = false;
                 DoubleSummonUsed = true;
@@ -384,9 +385,10 @@ namespace WindBot.Game.AI.Decks
             {
                 if (monster.HasType(CardType.Monster) &&
                     !monster.HasType(CardType.Xyz) &&
+                    Util.GetBotAvailZonesFromExtraDeck(monster) > 0 &&
                     (monster.Level == 5
                     || monster.IsCode(CardId.StarDrawing)
-                    || (monster.IsCode(CardId.WindUpSoldier)) && !monster.Equals(Card)))
+                    || monster.IsCode(CardId.WindUpSoldier) && !monster.Equals(Card)))
                     return true;
             }
             return false;
