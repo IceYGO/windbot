@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
 namespace WindBot.Game.AI
@@ -242,6 +243,11 @@ namespace WindBot.Game.AI
                 return spells[0];
 
             return null;
+        }
+
+        public IList<ClientCard> GetMatchingCards(IList<ClientCard> cards, Func<ClientCard, bool> filter)
+        {
+            return cards.Where(card => card != null && filter(card)).ToList();
         }
 
         public ClientCard GetPZone(int player, int id)
