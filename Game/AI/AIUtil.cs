@@ -219,11 +219,6 @@ namespace WindBot.Game.AI
             return null;
         }
 
-        public IList<ClientCard> GetMatchingCards(IList<ClientCard> cards, Func<ClientCard, bool> filter)
-        {
-            return cards.Where(card => card != null && filter(card)).ToList();
-        }
-
         public ClientCard GetPZone(int player, int id)
         {
             if (Duel.IsNewRule)

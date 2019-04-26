@@ -116,6 +116,21 @@ namespace WindBot.Game.AI
             return cards.FirstOrDefault(card => card?.Data != null && card.IsFaceup() && filter.Invoke(card));
         }
 
+        public static IList<ClientCard> GetMatchingCards(this IEnumerable<ClientCard> cards, Func<ClientCard, bool> filter)
+        {
+            return cards.Where(card => card?.Data != null && filter.Invoke(card)).ToList();
+        }
+
+        public static int GetMatchingCardsCount(this IEnumerable<ClientCard> cards, Func<ClientCard, bool> filter)
+        {
+            return cards.Count(card => card?.Data != null && filter.Invoke(card));
+        }
+
+        public static bool IsExistingMatchingCard(this IEnumerable<ClientCard> cards, Func<ClientCard, bool> filter, int count = 1)
+        {
+            return cards.GetMatchingCardsCount(filter) >= count;
+        }
+
         public static ClientCard GetShouldBeDisabledBeforeItUseEffectMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = true)
         {
             return cards.FirstOrDefault(card => card?.Data != null && card.IsMonsterShouldBeDisabledBeforeItUseEffect() && card.IsFaceup() && (!canBeTarget || !card.IsShouldNotBeTarget()));
