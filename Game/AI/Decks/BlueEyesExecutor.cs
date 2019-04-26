@@ -266,7 +266,15 @@ namespace WindBot.Game.AI.Decks
                 UsedAlternativeWhiteDragon.Add(Card);
                 return true;
             }
-            if (CanDealWithUsedAlternativeWhiteDragon())
+            if (Util.GetBotAvailZonesFromExtraDeck(Card) > 0
+                && (Bot.HasInMonstersZone(new[]
+                {
+                    CardId.SageWithEyesOfBlue,
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
+                }) || Bot.GetCountCardInZone(Bot.MonsterZone, CardId.AlternativeWhiteDragon) >= 2))
             {
                 target = Util.GetBestEnemyMonster(false, true);
                 AI.SelectCard(target);
@@ -885,18 +893,6 @@ namespace WindBot.Game.AI.Decks
                     num++;
             }
             return num >= 2;
-        }
-
-        private bool CanDealWithUsedAlternativeWhiteDragon()
-        {
-            return Bot.HasInMonstersZone(new[]
-                {
-                    CardId.SageWithEyesOfBlue,
-                    CardId.WhiteStoneOfAncients,
-                    CardId.WhiteStoneOfLegend,
-                    CardId.WhiteDragon,
-                    CardId.DragonSpiritOfWhite
-                }) || Bot.GetCountCardInZone(Bot.MonsterZone, CardId.AlternativeWhiteDragon)>=2 ;
         }
 
         private bool HaveEnoughWhiteDragonInHand()
