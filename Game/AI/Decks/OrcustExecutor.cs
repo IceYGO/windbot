@@ -280,6 +280,15 @@ namespace WindBot.Game.AI.Decks
             return 0;
         }
 
+        private bool SkipSummonforKnightmare()
+        {
+            if (!Bot.HasInHand(CardId.SkyStrikerMechaEagleBooster))
+            {
+                return false;
+            }
+            return (Bot.HasInExtra(CardId.KnightmareMermaid) && (Bot.GetMonsterCount() == 2 || Bot.MonsterZone.GetFirstMatchingCard(card => card.HasSetcode(0x112)) != null));
+        }
+
         private bool TerraformingEffect()
         {
             AI.SelectCard(CardId.TrickstarLightStage);
@@ -356,6 +365,8 @@ namespace WindBot.Game.AI.Decks
                 needProtect = true;
             else if (Bot.HasInHand(CardId.TrickstarCandina))
                 needProtect = true;
+            else if (Bot.HasInHand(CardId.SkyStrikerMechaHornetDrones) && Bot.HasInExtra(CardId.SkyStrikerAceKagari))
+                needProtect = true;
             if (needProtect)
                 AI.SelectCard(CardId.SkyStrikerMechaEagleBooster);
             else
@@ -371,11 +382,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool DronesEffect()
         {
-            return !Bot.HasInHand(CardId.ArmageddonKnight);
+            return !(Bot.HasInHand(CardId.ArmageddonKnight) && !SkipSummonforKnightmare());
         }
 
         private bool CandinaSummon()
         {
+            if (SkipSummonforKnightmare())
+            {
+                return false;
+            }
             NormalSummoned = true;
             return true;
         }
@@ -388,6 +403,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool ArmageddonKnightSummon()
         {
+            if (SkipSummonforKnightmare())
+            {
+                return false;
+            }
             NormalSummoned = true;
             return true;
         }
@@ -403,6 +422,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool ScrapRecyclerSummon()
         {
+            if (SkipSummonforKnightmare())
+            {
+                return false;
+            }
             NormalSummoned = true;
             return true;
         }
@@ -418,6 +441,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool JetSynchronSummon()
         {
+            if (SkipSummonforKnightmare())
+            {
+                return false;
+            }
             if (Bot.GetMonsterCount() > 0)
             {
                 NormalSummoned = true;
@@ -434,6 +461,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool AlmirajSummon()
         {
+            if (SkipSummonforKnightmare())
+            {
+                return false;
+            }
             if (Bot.GetMonsterCount() > 1)
                 return false;
             ClientCard mat = Bot.GetMonsters().First();
@@ -800,10 +831,11 @@ namespace WindBot.Game.AI.Decks
                 }
                 return false;
             }
-            return Bot.HasInMonstersZoneOrInGraveyard(new[] {
+            return Bot.HasInGraveyard(new[] {
                 CardId.OrcustCymbalSkeleton,
                 CardId.OrcustHarpHorror,
-                CardId.OrcustKnightmare,
+                CardId.OrcustKnightmare
+            }) || Bot.HasInMonstersZone(new[] {
                 CardId.GalateaTheOrcustAutomaton,
                 CardId.LongirsuTheOrcustOrchestrator,
                 CardId.SheorcustDingirsu
