@@ -640,7 +640,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.ThePhantomKnightsofRustyBardiche, 0))
             {
-                ClientCard target = Util.GetBestEnemyCard(false, true);
+                ClientCard target = GetFogBladeTarget();
+                if (target == null)
+                    target = Util.GetBestEnemyCard(false, true);
                 if (target == null)
                     return false;
                 RustyBardicheTarget = target;
@@ -656,6 +658,11 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectNextCard(CardId.PhantomKnightsFogBlade);
                 return true;
             }
+        }
+
+        private ClientCard GetFogBladeTarget()
+        {
+            return Enemy.MonsterZone.GetFirstMatchingCard(card => card.OwnTargets.Any(cont => cont.IsCode(CardId.PhantomKnightsFogBlade)));
         }
 
         private bool CymbalSkeletonEffect()
@@ -695,6 +702,13 @@ namespace WindBot.Game.AI.Decks
         private bool SheorcustDingirsuEffect()
         {
             ClientCard target;
+            target = GetFogBladeTarget();
+            if (target != null && target != RustyBardicheTarget)
+            {
+                AI.SelectOption(0);
+                AI.SelectCard(target);
+                return true;
+            }
             target = Util.GetProblematicEnemyMonster();
             if (target != null && target != RustyBardicheTarget)
             {
