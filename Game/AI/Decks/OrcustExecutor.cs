@@ -208,6 +208,11 @@ namespace WindBot.Game.AI.Decks
             LightStageTarget = null;
         }
 
+        public override void OnChainEnd()
+        {
+            RustyBardicheTarget = null;
+        }
+
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
             YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
@@ -449,7 +454,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DestrudoSummon()
         {
-            return Bot.GetMonsterCount() > 0 && Bot.HasInExtra(new[] { CardId.CrystronNeedlefiber, CardId.KnightmarePhoenix });
+            return Bot.GetMonsterCount() < 3 && Bot.HasInExtra(new[] { CardId.CrystronNeedlefiber, CardId.KnightmarePhoenix });
         }
 
         private bool NeedlefiberSummonFirst()
@@ -589,7 +594,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!Bot.HasInGraveyard(CardId.OrcustHarpHorror))
             {
-                AI.SelectCard(CardId.GalateaTheOrcustAutomaton);
+                AI.SelectCard(Util.GetBestBotMonster());
                 AI.SelectNextCard(CardId.OrcustHarpHorror);
                 return true;
             }
@@ -728,8 +733,21 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(target);
                 return true;
             }
+            if (Bot.HasInBanished(CardId.OrcustCymbalSkeleton))
+            {
+                AI.SelectOption(1);
+                AI.SelectCard(CardId.OrcustCymbalSkeleton);
+                return true;
+            }
+            target = Enemy.MonsterZone.GetFirstMatchingCard(card => card != RustyBardicheTarget) ?? Enemy.SpellZone.GetFirstMatchingCard(card => card != RustyBardicheTarget);
+            if (target != null)
+            {
+                AI.SelectOption(0);
+                AI.SelectCard(target);
+                return true;
+            }
             AI.SelectOption(1);
-            AI.SelectCard(CardId.OrcustCymbalSkeleton);
+            //AI.SelectCard(); any card
             return true;
         }
 
