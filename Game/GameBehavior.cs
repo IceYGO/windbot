@@ -1115,6 +1115,14 @@ namespace WindBot.Game
             packet.ReadByte();
             int desc = packet.ReadInt32();
 
+            if (desc == 0 || desc == 221)
+            {
+                // 0: phase trigger effect
+                // 221: trigger effect
+                // for compatibility
+                desc = -1;
+            }
+
             ClientCard card = _duel.GetCard(player, loc, seq);
             if (card == null)
             {
