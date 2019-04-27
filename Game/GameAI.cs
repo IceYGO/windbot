@@ -371,7 +371,7 @@ namespace WindBot.Game
         {
             foreach (CardExecutor exec in Executor.Executors)
             {
-                if (ShouldExecute(exec, card, ExecutorType.Activate))
+                if (ShouldExecute(exec, card, ExecutorType.Activate, desc))
                     return true;
             }
             return false;

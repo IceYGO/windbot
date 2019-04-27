@@ -103,9 +103,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.TrickstarCandina, CandinaSummon);
             AddExecutor(ExecutorType.Activate, CardId.TrickstarCandina, CandinaEffect);
 
-            AddExecutor(ExecutorType.Summon, CardId.JetSynchron, OtherSummon);
-            AddExecutor(ExecutorType.Summon, CardId.ThePhantomKnightsofAncientCloak, OtherSummon);
-            AddExecutor(ExecutorType.Summon, CardId.ThePhantomKnightsofSilentBoots, OtherSummon);
+            AddExecutor(ExecutorType.Summon, CardId.JetSynchron, OneCardComboSummon);
+            AddExecutor(ExecutorType.Summon, CardId.ThePhantomKnightsofAncientCloak, OneCardComboSummon);
+            AddExecutor(ExecutorType.Summon, CardId.ThePhantomKnightsofSilentBoots, OneCardComboSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.SalamangreatAlmiraj, AlmirajSummon);
 
             AddExecutor(ExecutorType.Activate, CardId.ThePhantomKnightsofShadeBrigandine, ShadeBrigandineSummonFirst);
@@ -147,11 +147,13 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.ThePhantomKnightsofSilentBoots, SilentBootsEffect);
 
-            AddExecutor(ExecutorType.Summon, CardId.OrcustHarpHorror, OtherSummon);
+            AddExecutor(ExecutorType.Summon, CardId.GhostBelleHauntedMansion, TunerSummon);
+            AddExecutor(ExecutorType.Summon, CardId.AshBlossomJoyousSpring, TunerSummon);
             AddExecutor(ExecutorType.Summon, CardId.OrcustCymbalSkeleton, OtherSummon);
-            AddExecutor(ExecutorType.Summon, CardId.GhostBelleHauntedMansion, OtherSummon);
-            AddExecutor(ExecutorType.Summon, CardId.AshBlossomJoyousSpring, OtherSummon);
-            AddExecutor(ExecutorType.Summon, CardId.MaxxC, OtherSummon);
+            AddExecutor(ExecutorType.Summon, CardId.OrcustHarpHorror, OtherSummon);
+            AddExecutor(ExecutorType.Summon, CardId.ThePhantomKnightsofAncientCloak, LinkMaterialSummon);
+            AddExecutor(ExecutorType.Summon, CardId.MaxxC, LinkMaterialSummon);
+            AddExecutor(ExecutorType.Summon, CardId.ThePhantomKnightsofSilentBoots, LinkMaterialSummon);
 
             AddExecutor(ExecutorType.SpellSet, CardId.PhantomKnightsFogBlade);
             AddExecutor(ExecutorType.Activate, CardId.PhantomKnightsFogBlade, FogBladeEffect);
@@ -162,7 +164,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.SkyStrikerMechaEagleBooster, EagleBoosterEffect);
 
-            AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
+            AddExecutor(ExecutorType.Repos, MonsterRepos);
         }
 
         private bool NormalSummoned = false;
@@ -190,6 +192,12 @@ namespace WindBot.Game.AI.Decks
             CardId.GhostBelleHauntedMansion
         };
 
+        public override bool OnSelectHand()
+        {
+            // go first
+            return true;
+        }
+
         public override void OnNewTurn()
         {
             NormalSummoned = false;
@@ -198,6 +206,11 @@ namespace WindBot.Game.AI.Decks
             CymbalSkeletonUsed = false;
             RustyBardicheTarget = null;
             LightStageTarget = null;
+        }
+
+        public override void OnChainEnd()
+        {
+            RustyBardicheTarget = null;
         }
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
@@ -361,7 +374,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DronesEffect()
         {
-            return !Bot.HasInHand(CardId.ArmageddonKnight);
+            return !Bot.HasInHand(CardId.ArmageddonKnight) && !Bot.HasInHand(CardId.TrickstarCandina);
         }
 
         private bool CandinaSummon()
@@ -441,7 +454,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DestrudoSummon()
         {
-            return Bot.GetMonsterCount() > 0 && Bot.HasInExtra(new[] { CardId.CrystronNeedlefiber, CardId.KnightmarePhoenix });
+            return Bot.GetMonsterCount() < 3 && Bot.HasInExtra(new[] { CardId.CrystronNeedlefiber, CardId.KnightmarePhoenix });
         }
 
         private bool NeedlefiberSummonFirst()
@@ -581,7 +594,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!Bot.HasInGraveyard(CardId.OrcustHarpHorror))
             {
-                AI.SelectCard(CardId.GalateaTheOrcustAutomaton);
+                AI.SelectCard(Util.GetBestBotMonster());
                 AI.SelectNextCard(CardId.OrcustHarpHorror);
                 return true;
             }
@@ -632,7 +645,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.ThePhantomKnightsofRustyBardiche, 0))
             {
-                ClientCard target = Util.GetBestEnemyCard(false, true);
+                ClientCard target = GetFogBladeTarget();
+                if (target == null)
+                    target = Util.GetBestEnemyCard(false, true);
                 if (target == null)
                     return false;
                 RustyBardicheTarget = target;
@@ -650,11 +665,16 @@ namespace WindBot.Game.AI.Decks
             }
         }
 
+        private ClientCard GetFogBladeTarget()
+        {
+            return Enemy.MonsterZone.GetFirstMatchingCard(card => card.OwnTargets.Any(cont => cont.IsCode(CardId.PhantomKnightsFogBlade)));
+        }
+
         private bool CymbalSkeletonEffect()
         {
             int[] botTurnTargets = new[] { CardId.GalateaTheOrcustAutomaton, CardId.SheorcustDingirsu };
             int[] emenyTurnTargets = new[] { CardId.SheorcustDingirsu, CardId.GalateaTheOrcustAutomaton };
-            if (Duel.Player == 0 && Bot.HasInGraveyard(CardId.GalateaTheOrcustAutomaton) && !Bot.HasInMonstersZone(CardId.GalateaTheOrcustAutomaton))
+            if (Duel.Player == 0 && Bot.HasInGraveyard(CardId.GalateaTheOrcustAutomaton) && !Bot.HasInMonstersZone(CardId.GalateaTheOrcustAutomaton) && Bot.HasInExtra(CardId.SheorcustDingirsu) && !SheorcustDingirsuSummoned)
             {
                 AI.SelectCard(botTurnTargets);
                 CymbalSkeletonUsed = true;
@@ -686,7 +706,19 @@ namespace WindBot.Game.AI.Decks
 
         private bool SheorcustDingirsuEffect()
         {
+            if (ActivateDescription == 96)
+            {
+                // TODO: FogBlade lost target
+                return true;
+            }
             ClientCard target;
+            target = GetFogBladeTarget();
+            if (target != null && target != RustyBardicheTarget)
+            {
+                AI.SelectOption(0);
+                AI.SelectCard(target);
+                return true;
+            }
             target = Util.GetProblematicEnemyMonster();
             if (target != null && target != RustyBardicheTarget)
             {
@@ -701,8 +733,21 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(target);
                 return true;
             }
+            if (Bot.HasInBanished(CardId.OrcustCymbalSkeleton))
+            {
+                AI.SelectOption(1);
+                AI.SelectCard(CardId.OrcustCymbalSkeleton);
+                return true;
+            }
+            target = Enemy.MonsterZone.GetFirstMatchingCard(card => card != RustyBardicheTarget) ?? Enemy.SpellZone.GetFirstMatchingCard(card => card != RustyBardicheTarget);
+            if (target != null)
+            {
+                AI.SelectOption(0);
+                AI.SelectCard(target);
+                return true;
+            }
             AI.SelectOption(1);
-            AI.SelectCard(CardId.OrcustCymbalSkeleton);
+            //AI.SelectCard(); any card
             return true;
         }
 
@@ -731,6 +776,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShadeBrigandineSummonSecond()
         {
+            if (DefaultOnBecomeTarget())
+                return true;
             return (Bot.HasInMonstersZone(CardId.SalamangreatAlmiraj) && Bot.HasInExtra(CardId.KnightmarePhoenix)) ||
                 (Bot.HasInMonstersZone(CardId.JetSynchron) && Bot.HasInMonstersZone(CardId.ThePhantomKnightsofSilentBoots));
         }
@@ -755,6 +802,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.OrcustHarpHorror,
                     CardId.CrystronNeedlefiber,
                     CardId.SkyStrikerAceKagari,
+                    CardId.KnightmareMermaid,
                     CardId.ArmageddonKnight
                 });
                 return true;
@@ -803,6 +851,36 @@ namespace WindBot.Game.AI.Decks
         private bool ShadeBrigandineSummonFirst()
         {
             return Bot.GetMonsterCount() < 2;
+        }
+
+        private bool OneCardComboSummon()
+        {
+            if (Bot.HasInExtra(CardId.SalamangreatAlmiraj) && Bot.HasInExtra(new[] { CardId.CrystronNeedlefiber, CardId.KnightmarePhoenix }))
+            {
+                NormalSummoned = true;
+                return true;
+            }
+            return false;
+        }
+
+        private bool LinkMaterialSummon()
+        {
+            if (Bot.HasInExtra(CardId.KnightmarePhoenix) && Bot.GetMonsterCount() > 0)
+            {
+                NormalSummoned = true;
+                return true;
+            }
+            return false;
+        }
+
+        private bool TunerSummon()
+        {
+            if (Bot.HasInExtra(new[] { CardId.CrystronNeedlefiber, CardId.KnightmarePhoenix }) && Bot.GetMonsterCount() > 0)
+            {
+                NormalSummoned = true;
+                return true;
+            }
+            return false;
         }
 
         private bool OtherSummon()
@@ -860,6 +938,13 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
+        }
+
+        private bool MonsterRepos()
+        {
+            if (Card.IsFacedown())
+                return true;
+            return DefaultMonsterRepos();
         }
     }
 }

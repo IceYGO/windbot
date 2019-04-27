@@ -59,6 +59,8 @@ namespace WindBot.Game.AI
             public const int GhostOgreAndSnowRabbit = 59438930;
             public const int GhostBelle = 73642296;
             public const int EffectVeiler = 63845230;
+            public const int ArtifactLancea = 34267821;
+
             public const int CalledByTheGrave = 24224830;
             public const int InfiniteImpermanence = 10045474;
             public const int GalaxySoldier = 46659709;
@@ -439,7 +441,9 @@ namespace WindBot.Game.AI
                 _CardId.LockBird,
                 _CardId.GhostOgreAndSnowRabbit,
                 _CardId.AshBlossom,
-                _CardId.GhostBelle
+                _CardId.GhostBelle,
+                _CardId.EffectVeiler,
+                _CardId.ArtifactLancea
             };
             if (Duel.LastChainPlayer == 1)
             {
