@@ -912,9 +912,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             int[] matids = new[] {
-                CardId.SkyStrikerMechaHornetDronesToken,
                 CardId.OrcustKnightmare,
-                CardId.ThePhantomKnightsofShadeBrigandine,
                 CardId.ThePhantomKnightsofSilentBoots,
                 CardId.ThePhantomKnightsofAncientCloak,
                 CardId.OrcustCymbalSkeleton,
