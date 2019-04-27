@@ -79,9 +79,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Number61Volcasaurus);
 
             // Weapons
-            AddExecutor(ExecutorType.Activate, CardId.ZwTornadoBringer);
-            AddExecutor(ExecutorType.Activate, CardId.ZwLightningBlade);
-            AddExecutor(ExecutorType.Activate, CardId.ZwAsuraStrike);
+            AddExecutor(ExecutorType.Activate, CardId.ZwTornadoBringer, ZwWeapon);
+            AddExecutor(ExecutorType.Activate, CardId.ZwLightningBlade, ZwWeapon);
+            AddExecutor(ExecutorType.Activate, CardId.ZwAsuraStrike, ZwWeapon);
 
 
             // Special summons
@@ -120,6 +120,13 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.BreakthroughSkill, DefaultBreakthroughSkill);
             AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
             AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
+        }
+
+        private int ZwCount = 0;
+
+        public override void OnNewTurn()
+        {
+            ZwCount = 0;
         }
 
         public override bool OnSelectHand()
@@ -164,8 +171,14 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == Util.GetStringId(CardId.ZwLionArms, 0))
                 return true;
             if (ActivateDescription == Util.GetStringId(CardId.ZwLionArms, 1))
-                return !Card.IsDisabled();
+                return !Card.IsDisabled() && ZwWeapon();
             return false;
+        }
+
+        private bool ZwWeapon()
+        {
+            ZwCount++;
+            return ZwCount < 10;
         }
 
         private bool ReinforcementOfTheArmy()

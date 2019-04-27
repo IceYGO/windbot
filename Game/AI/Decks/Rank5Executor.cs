@@ -220,8 +220,9 @@ namespace WindBot.Game.AI.Decks
                 {
                     CardId.WindUpSoldier,
                     CardId.StarDrawing,
-                    CardId.ChronomalyGoldenJet
-                }) || (Bot.HasInHand(CardId.MistArchfiend) && NeedLV5()))
+                    CardId.ChronomalyGoldenJet,
+                    CardId.MistArchfiend
+                }))
             {
                 NormalSummoned = false;
                 DoubleSummonUsed = true;
