@@ -73,7 +73,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.ReinforcementofTheArmy, ReinforcementofTheArmyEffect);
             AddExecutor(ExecutorType.Activate, CardId.FoolishBurial, FoolishBurialEffect);
 
-            AddExecutor(ExecutorType.Activate, CardId.TrickstarLightStage, LightStageEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TrickstarLightStage, LightStageTargetEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TrickstarLightStage, LightStageSearchEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.SkyStrikerMobilizeEngage, EngageEffect);
             AddExecutor(ExecutorType.Activate, CardId.SkyStrikerMechaHornetDrones, DronesEffectFirst);
@@ -302,7 +303,19 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool LightStageEffect()
+        private bool LightStageTargetEffect()
+        {
+            if (Card.Location == CardLocation.Hand || Card.IsFacedown())
+            {
+                return false;
+            }
+            ClientCard target = Enemy.SpellZone.GetFirstMatchingCard(card => card.IsFacedown());
+            LightStageTarget = target;
+            AI.SelectCard(target);
+            return true;
+        }
+
+        private bool LightStageSearchEffect()
         {
             if (Card.Location == CardLocation.Hand || Card.IsFacedown())
             {
@@ -318,10 +331,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(CardId.TrickstarCandina);
                 return true;
             }
-            ClientCard target = Enemy.SpellZone.GetFirstMatchingCard(card => card.IsFacedown());
-            LightStageTarget = target;
-            AI.SelectCard(target);
-            return true;
+            return false;
         }
 
         private bool CarobeinSummon()
@@ -802,11 +812,20 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShadeBrigandineSummonFirst()
         {
+            if (Util.IsChainTarget(Card))
+            {
+                return true;
+            }
             return Bot.GetMonsterCount() < 2;
         }
 
         private bool OtherSummon()
         {
+            bool CanSpecialSummonFromEx = Bot.HasInExtra(CardId.CrystronNeedlefiber) || Bot.HasInExtra(CardId.KnightmarePhoenix);
+            if (Card.IsTuner() && (Bot.GetMonsterCount() == 0 || !CanSpecialSummonFromEx))
+            {
+                return false;
+            }
             NormalSummoned = true;
             return true;
         }
@@ -860,6 +879,12 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
+        }
+
+        public override bool OnSelectHand()
+        {
+            // go first
+            return true;
         }
     }
 }
