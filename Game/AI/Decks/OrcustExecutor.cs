@@ -701,6 +701,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool SheorcustDingirsuEffect()
         {
+            if (ActivateDescription == 96)
+            {
+                // TODO: FogBlade lost target
+                return true;
+            }
             ClientCard target;
             target = GetFogBladeTarget();
             if (target != null && target != RustyBardicheTarget)
