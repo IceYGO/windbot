@@ -506,6 +506,11 @@ namespace WindBot.Game
             _duel.Fields[1].BattlingMonster = null;
             _duel.Fields[0].UnderAttack = false;
             _duel.Fields[1].UnderAttack = false;
+            List<ClientCard> monsters = _duel.Fields[0].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                monster.Attacked = false;
+            }
             _select_hint = 0;
             _ai.OnNewPhase();
         }
