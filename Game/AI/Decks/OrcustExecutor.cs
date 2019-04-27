@@ -164,7 +164,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.SkyStrikerMechaEagleBooster, EagleBoosterEffect);
 
-            AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
+            AddExecutor(ExecutorType.Repos, MonsterRepos);
         }
 
         private bool NormalSummoned = false;
@@ -920,6 +920,13 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
+        }
+
+        private bool MonsterRepos()
+        {
+            if (Card.IsFacedown())
+                return true;
+            return DefaultMonsterRepos();
         }
     }
 }
