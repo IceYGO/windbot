@@ -261,7 +261,7 @@ namespace WindBot.Game.AI
                 if (Duel.Player == 0)
                     selected = spells.FirstOrDefault(card => card.IsFacedown());
                 if (Duel.Player == 1)
-                    selected = spells.FirstOrDefault(card => card.HasType(CardType.Continuous) || card.HasType(CardType.Equip));
+                    selected = spells.FirstOrDefault(card => card.HasType(CardType.Continuous) || card.HasType(CardType.Equip) || card.HasType(CardType.Field));
             }
 
             if (selected == null)
