@@ -80,7 +80,7 @@
         "deck": "CyberDragon",
         "dialog": "meon.zh-CN"
       },
-	{
+      {
         "name": "弥音",
         "deck": "Evilswarm",
         "dialog": "meon.zh-CN"
@@ -109,6 +109,16 @@
         "name": "彩音",
         "deck": "DarkMagician",
         "dialog": "ayane.zh-CN"
+      },
+      {
+        "name": "彩音",
+        "deck": "Orcust",
+        "dialog": "ayane.zh-CN"
+      },
+      {
+        "name": "朱露咲浅羽",
+        "deck": "Salamangreat",
+        "dialog": "nlch1.zh-CN"
       },
       {
         "name": "永远之魂",

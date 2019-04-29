@@ -130,7 +130,7 @@ namespace WindBot.Game.AI.Decks
         private bool GravekeepersDescendantEffect()
         {
             int bestatk = Bot.GetMonsters().GetHighestAttackMonster().Attack;
-            if (AI.Utils.IsOneEnemyBetterThanValue(bestatk, true))
+            if (Util.IsOneEnemyBetterThanValue(bestatk, true))
             {
                 AI.SelectCard(Enemy.GetMonsters().GetHighestAttackMonster());
                 return true;

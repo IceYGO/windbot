@@ -183,7 +183,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CardOfDemiseEffect()
         {
-            if (AI.Utils.IsTurn1OrMain2() && !ShouldPendulum())
+            if (Util.IsTurn1OrMain2() && !ShouldPendulum())
             {
                 CardOfDemiseUsed = true;
                 return true;
@@ -215,8 +215,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                ClientCard l = AI.Utils.GetPZone(0, 0);
-                ClientCard r = AI.Utils.GetPZone(0, 1);
+                ClientCard l = Util.GetPZone(0, 0);
+                ClientCard r = Util.GetPZone(0, 1);
                 if (l == null && r == null)
                     AI.SelectCard(CardId.Scout);
             }
@@ -227,8 +227,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location != CardLocation.Hand)
                 return false;
-            ClientCard l = AI.Utils.GetPZone(0, 0);
-            ClientCard r = AI.Utils.GetPZone(0, 1);
+            ClientCard l = Util.GetPZone(0, 0);
+            ClientCard r = Util.GetPZone(0, 1);
             if (l == null && r == null)
                 return true;
             if (l == null && r.RScale != Card.LScale)
@@ -252,8 +252,8 @@ namespace WindBot.Game.AI.Decks
             {
                 count++;
             }
-            ClientCard l = AI.Utils.GetPZone(0, 0);
-            ClientCard r = AI.Utils.GetPZone(0, 1);
+            ClientCard l = Util.GetPZone(0, 0);
+            ClientCard r = Util.GetPZone(0, 1);
             if (l == null && r == null)
             {
                 if (CardOfDemiseUsed)
@@ -316,7 +316,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetBestEnemyCard();
+            ClientCard target = Util.GetBestEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -329,7 +329,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetBestEnemyMonster();
+            ClientCard target = Util.GetBestEnemyMonster();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -342,7 +342,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
                 return false;
-            ClientCard target = AI.Utils.GetBestEnemySpell();
+            ClientCard target = Util.GetBestEnemySpell();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -353,8 +353,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShouldPendulum()
         {
-            ClientCard l = AI.Utils.GetPZone(0, 0);
-            ClientCard r = AI.Utils.GetPZone(0, 1);
+            ClientCard l = Util.GetPZone(0, 0);
+            ClientCard r = Util.GetPZone(0, 1);
             if (l != null && r != null && l.LScale != r.RScale)
             {
                 int count = 0;

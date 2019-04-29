@@ -514,6 +514,12 @@ namespace WindBot.Game
             _duel.Fields[1].BattlingMonster = null;
             _duel.Fields[0].UnderAttack = false;
             _duel.Fields[1].UnderAttack = false;
+            List<ClientCard> monsters = _duel.Fields[0].GetMonsters();
+            foreach (ClientCard monster in monsters)
+            {
+                monster.Attacked = false;
+            }
+            _select_hint = 0;
             _ai.OnNewPhase();
         }
 
@@ -990,7 +996,6 @@ namespace WindBot.Game
             }
 
             IList<ClientCard> selected = func(cards, (finishable ? 0 : 1), 1, _select_hint, cancelable);
-            _select_hint = 0;
 
             if (selected.Count == 0 && cancelable)
             {
@@ -1123,6 +1128,14 @@ namespace WindBot.Game
             packet.ReadByte();
             int desc = packet.ReadInt32();
 
+            if (desc == 0 || desc == 221)
+            {
+                // 0: phase trigger effect
+                // 221: trigger effect
+                // for compatibility
+                desc = -1;
+            }
+
             ClientCard card = _duel.GetCard(player, loc, seq);
             if (card == null)
             {
@@ -1218,48 +1231,44 @@ namespace WindBot.Game
             packet.ReadByte(); // min
             int field = ~packet.ReadInt32();
 
-            const int LOCATION_MZONE = 0x4;
-            const int LOCATION_SZONE = 0x8;
-            const int LOCATION_PZONE = 0x200;
-
             int player;
-            int location;
+            CardLocation location;
             int filter;
 
             if ((field & 0x7f) != 0)
             {
                 player = 0;
-                location = LOCATION_MZONE;
+                location = CardLocation.MonsterZone;
                 filter = field & Zones.MonsterZones;
             }
             else if ((field & 0x1f00) != 0)
             {
                 player = 0;
-                location = LOCATION_SZONE;
+                location = CardLocation.SpellZone;
                 filter = (field >> 8) & Zones.SpellZones;
             }
             else if ((field & 0xc000) != 0)
             {
                 player = 0;
-                location = LOCATION_PZONE;
+                location = CardLocation.PendulumZone;
                 filter = (field >> 14) & Zones.PendulumZones;
             }
             else if ((field & 0x7f0000) != 0)
             {
                 player = 1;
-                location = LOCATION_MZONE;
+                location = CardLocation.MonsterZone;
                 filter = (field >> 16) & Zones.MonsterZones;
             }
             else if ((field & 0x1f000000) != 0)
             {
                 player = 1;
-                location = LOCATION_SZONE;
+                location = CardLocation.SpellZone;
                 filter = (field >> 24) & Zones.SpellZones;
             }
             else
             {
                 player = 1;
-                location = LOCATION_PZONE;
+                location = CardLocation.PendulumZone;
                 filter = (field >> 30) & Zones.PendulumZones;
             }
 
@@ -1269,7 +1278,7 @@ namespace WindBot.Game
             byte[] resp = new byte[3];
             resp[0] = (byte)GetLocalPlayer(player);
 
-            if (location != LOCATION_PZONE)
+            if (location != CardLocation.PendulumZone)
             {
                 resp[1] = (byte)location;
                 if ((selected & filter) > 0)
@@ -1285,7 +1294,7 @@ namespace WindBot.Game
             }
             else
             {
-                resp[1] = (byte)LOCATION_SZONE;
+                resp[1] = (byte)CardLocation.SpellZone;
                 if ((selected & filter) > 0)
                     filter &= selected;
 
