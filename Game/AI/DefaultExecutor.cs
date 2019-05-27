@@ -1065,7 +1065,7 @@ namespace WindBot.Game.AI
         {
             int selfCount = Bot.GetMonsters().Count(monster => !monster.Equals(Card) && monster.IsSpecialSummoned && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack);
             int oppoCount = Enemy.GetMonsters().Count(monster => monster.IsSpecialSummoned && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack);
-            return selfCount <= oppoCount || oppoCount >= 3;
+            return selfCount <= oppoCount && oppoCount > 0 || oppoCount >= 3;
         }
 
         /// <summary>
