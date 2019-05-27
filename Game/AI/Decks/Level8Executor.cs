@@ -62,8 +62,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Raigeki);
             AddExecutor(ExecutorType.Activate, CardId.HarpiesFeatherDuster);
 
+            AddExecutor(ExecutorType.Repos, CardId.Number41BagooskaTheTerriblyTiredTapir, MonsterRepos);
+
             AddExecutor(ExecutorType.Activate, CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragonEffect);
             AddExecutor(ExecutorType.Activate, CardId.BorreloadSavageDragon, BorreloadSavageDragonEffect);
+            AddExecutor(ExecutorType.Activate, CardId.ScrapGolem, ScrapGolemEffect);
 
             // empty field
             AddExecutor(ExecutorType.Activate, CardId.UnexpectedDai, UnexpectedDaiFirst);
@@ -83,7 +86,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.ScrapWyvern, ScrapWyvernSummon);
             AddExecutor(ExecutorType.Activate, CardId.ScrapWyvern, ScrapWyvernEffect);
 
-            AddExecutor(ExecutorType.Activate, CardId.ScrapGolem, ScrapGolemEffect);
             AddExecutor(ExecutorType.Activate, CardId.JetSynchron, JetSynchronEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.CrystronNeedlefiber, CrystronNeedlefiberSummon);
             AddExecutor(ExecutorType.Activate, CardId.CrystronNeedlefiber, CrystronNeedlefiberEffect);
@@ -169,6 +171,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.BlackRoseMoonlightDragon);
 
             AddExecutor(ExecutorType.SpSummon, CardId.Number41BagooskaTheTerriblyTiredTapir, Number41BagooskaTheTerriblyTiredTapirSummon);
+
+            AddExecutor(ExecutorType.Summon, CardId.ScrapGolem, ScrapGolemSummon);
 
             AddExecutor(ExecutorType.SpellSet, CardId.CalledbyTheGrave);
             AddExecutor(ExecutorType.SpellSet, CardId.SolemnStrike);
@@ -322,9 +326,9 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             AI.SelectCard(new[] {
-                CardId.PhotonThrasher,
                 CardId.Goblindbergh,
-                CardId.RaidenHandofTheLightsworn
+                CardId.RaidenHandofTheLightsworn,
+                CardId.PhotonThrasher
             });
             return true;
         }
@@ -450,6 +454,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool ScrapGolemEffect()
         {
+            if (Bot.GetMonstersInMainZone().Count == 5)
+                return false;
             AI.SelectCard(CardId.ScrapRecycler);
             AI.SelectOption(0);
             return true;
@@ -558,7 +564,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard target = Util.GetBestEnemyCard();
                 if (target == null)
                     return false;
-                AI.SelectNextCard(target);
+                AI.SelectCard(target);
                 return true;
             }
         }
@@ -647,6 +653,11 @@ namespace WindBot.Game.AI.Decks
         private bool WorldCarrotweightChampionEffect()
         {
             return !Bot.HasInMonstersZone(L4NonTuners);
+        }
+
+        private bool ScrapGolemSummon()
+        {
+            return Bot.GetMonsterCount() <= 2 && Bot.HasInMonstersZoneOrInGraveyard(CardId.ScrapRecycler);
         }
 
         private bool BorreloadSavageDragonSummon()
