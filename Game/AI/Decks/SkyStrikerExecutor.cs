@@ -213,7 +213,8 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard target in Enemy.GetSpells())
                 {
-                    targets.Add(target);
+                    if (target.IsFacedown() || target.HasType(CardType.Continuous) || target.HasType(CardType.Pendulum))
+                        targets.Add(target);
                     if (targets.Count >= 2)
                         break;
                 }
