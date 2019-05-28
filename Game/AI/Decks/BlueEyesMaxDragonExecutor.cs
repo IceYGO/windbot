@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("BlueEyesMaxDragon", "AI_BlueEyesMaxDragon", "Normal")]
+    [Deck("BlueEyesMaxDragon", "AI_BlueEyesMaxDragon")]
     public class BlueEyesMaxDragonExecutor : DefaultExecutor
     {
         public class CardId
