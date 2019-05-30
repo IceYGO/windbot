@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Phantasm", "AI_Phantasm", "Normal")]
+    [Deck("Phantasm", "AI_Phantasm")]
     public class PhantasmExecutor : DefaultExecutor
     {
         public class CardId

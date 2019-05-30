@@ -65,7 +65,11 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 **Normal**:
 
+* Altergeist
+
 * Blue-Eyes
+
+* BlueEyesMaxDragon
 
 * ChainBurn
 
@@ -73,11 +77,23 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * Dragunity
 
+* GrenMajuThunderBoarder
+
+* Level VIII
+
+* LightswornShaddoldinosour
+
+* Orcust
+
+* Phantasm
+
 * Qliphort
 
 * Rainbow
 
 * Rank V
+
+* Salamangreat
 
 * SkyStriker
 
@@ -106,8 +122,6 @@ WindBot can run as a "server", provide a http interface to create bot.
 * Graydle
 
 * Lightsworn
-
-* LightswornShaddoldinosour
 
 * Nekroz
 
