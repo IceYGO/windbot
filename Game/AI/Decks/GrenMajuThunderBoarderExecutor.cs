@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("GrenMajuThunderBoarder", "AI_GrenMajuThunderBoarder", "Normal")]
+    [Deck("GrenMajuThunderBoarder", "AI_GrenMajuThunderBoarder")]
     public class GrenMajuThunderBoarderExecutor : DefaultExecutor
     {
         public class CardId

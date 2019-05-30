@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("ChainBurn", "AI_ChainBurn", "Normal")]
+    [Deck("ChainBurn", "AI_ChainBurn")]
     public class ChainBurnExecutor : DefaultExecutor
     {
         public class CardId

@@ -6,8 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    // NOT FINISHED YET
-    [Deck("LightswornShaddoldinosour", "AI_LightswornShaddoldinosour", "ver0.5")]
+    [Deck("LightswornShaddoldinosour", "AI_LightswornShaddoldinosour")]
     public class LightswornShaddoldinosour : DefaultExecutor
     {
         public class CardId

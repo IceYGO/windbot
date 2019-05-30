@@ -819,7 +819,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == 96)
             {
-                // TODO: FogBlade lost target
+                // TODO: more FogBlade lost target
+                if ((Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2) && Duel.CurrentChain.Count == 0)
+                    return false;
                 AI.SelectCard(CardId.OrcustCymbalSkeleton);
                 return true;
             }
@@ -1123,7 +1125,23 @@ namespace WindBot.Game.AI.Decks
             {
                 return Duel.LastChainPlayer == 1;
             }
-            // TODO
+            else if (Duel.Phase == DuelPhase.End)
+            {
+                ClientCard target = null;
+                target = Bot.Banished.GetFirstMatchingFaceupCard(card=>card.IsCode(CardId.OrcustCymbalSkeleton));
+                if (target == null)
+                    target = Bot.Banished.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.OrcustHarpHorror));
+                if (target != null)
+                {
+                    AI.SelectCard(target);
+                    return true;
+                }
+                if(!Bot.HasInHand(CardId.OrcustHarpHorror) && Bot.GetRemainingCount(CardId.OrcustHarpHorror, 2) > 1)
+                {
+                    AI.SelectCard(CardId.OrcustHarpHorror);
+                    return true;
+                }
+            }
             return false;
         }
 
