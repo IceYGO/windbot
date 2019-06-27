@@ -45,8 +45,8 @@ namespace WindBot.Game
 
             Connection.Connected += OnConnected;
             Connection.PacketReceived += OnPacketReceived;
-
-            Connection.Connect(IPAddress.Parse(_serverHost), _serverPort);
+            IPHostEntry _hostEntry = Dns.GetHostEntry(_serverHost);
+            Connection.Connect(_hostEntry.AddressList[0], _serverPort);
         }
 
         private void OnConnected()
