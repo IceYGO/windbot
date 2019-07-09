@@ -47,10 +47,10 @@ namespace WindBot.Game
             Connection.PacketReceived += OnPacketReceived;
             IPAddress target_address;
             try { 
+                target_address = IPAddress.Parse(_serverHost);
+            } catch (System.Exception e) {
                 IPHostEntry _hostEntry = Dns.GetHostEntry(_serverHost);
                 target_address = _hostEntry.AddressList[0];
-            } catch (System.Exception e) {
-                target_address = IPAddress.Parse(_serverHost);
             }
             Connection.Connect(target_address, _serverPort);
         }
