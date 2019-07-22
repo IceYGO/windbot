@@ -170,7 +170,7 @@ namespace WindBot.Game.AI.Decks
                         break;
                     }
                 }
-                if (!hasRealMonster || AI.Utils.GetProblematicCard() != null)*/
+                if (!hasRealMonster || Util.GetProblematicCard() != null)*/
                 needId = CardId.DragunityDux;
             }
 
@@ -200,7 +200,7 @@ namespace WindBot.Game.AI.Decks
             else
                 option = 1;
 
-            if (ActivateDescription != AI.Utils.GetStringId(CardId.DragonRavine, option))
+            if (ActivateDescription != Util.GetStringId(CardId.DragonRavine, option))
                 return false;
 
             AI.SelectCard(tributeId);
@@ -253,8 +253,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterReborn()
         {
-            List<ClientCard> cards = new List<ClientCard>(Bot.Graveyard);
-            cards.Sort(AIFunctions.CompareCardAttack);
+            List<ClientCard> cards = new List<ClientCard>(Bot.Graveyard.GetMatchingCards(card => card.IsCanRevive()));
+            cards.Sort(CardContainer.CompareCardAttack);
             ClientCard selectedCard = null;
             for (int i = cards.Count - 1; i >= 0; --i)
             {
@@ -269,8 +269,8 @@ namespace WindBot.Game.AI.Decks
                     break;
                 }
             }
-            cards = new List<ClientCard>(Enemy.Graveyard);
-            cards.Sort(AIFunctions.CompareCardAttack);
+            cards = new List<ClientCard>(Enemy.Graveyard.GetMatchingCards(card => card.IsCanRevive()));
+            cards.Sort(CardContainer.CompareCardAttack);
             for (int i = cards.Count - 1; i >= 0; --i)
             {
                 ClientCard card = cards[i];
@@ -333,16 +333,16 @@ namespace WindBot.Game.AI.Decks
 
         private bool ScrapDragonSummon()
         {
-            //if (AI.Utils.IsOneEnemyBetterThanValue(2500, true))
+            //if (Util.IsOneEnemyBetterThanValue(2500, true))
             //    return true;
-            ClientCard invincible = AI.Utils.GetProblematicEnemyCard(3000);
+            ClientCard invincible = Util.GetProblematicEnemyCard(3000);
             return invincible != null;
         }
 
         private bool ScrapDragonEffect()
         {
-            ClientCard invincible = AI.Utils.GetProblematicEnemyCard(3000);
-            if (invincible == null && !AI.Utils.IsOneEnemyBetterThanValue(2800 - 1, false))
+            ClientCard invincible = Util.GetProblematicEnemyCard(3000);
+            if (invincible == null && !Util.IsOneEnemyBetterThanValue(2800 - 1, false))
                 return false;
 
             int tributeId = -1;
@@ -362,7 +362,7 @@ namespace WindBot.Game.AI.Decks
                 tributeId = CardId.DragonRavine;
 
             List<ClientCard> monsters = Enemy.GetMonsters();
-            monsters.Sort(AIFunctions.CompareCardAttack);
+            monsters.Sort(CardContainer.CompareCardAttack);
 
             ClientCard destroyCard = invincible;
             if (destroyCard == null)
@@ -430,7 +430,15 @@ namespace WindBot.Game.AI.Decks
                 && Bot.HasInGraveyard(CardId.DragunityPhalanx))
                 || Bot.HasInMonstersZone(CardId.DragunityPhalanx)
                 || Bot.HasInHand(CardId.DragunitySpearOfDestiny))
-                return true;
+            {
+                List<ClientCard> monster_sorted = Bot.GetMonsters();
+                monster_sorted.Sort(CardContainer.CompareCardAttack);
+                foreach (ClientCard monster in monster_sorted)
+                {
+                    AI.SelectMaterials(monster);
+                    return true;
+                }
+            }
             return false;
         }
 

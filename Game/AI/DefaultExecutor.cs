@@ -43,6 +43,7 @@ namespace WindBot.Game.AI
             public const int NumberS39UtopiaTheLightning = 56832966;
             public const int Number39Utopia = 84013237;
             public const int UltimayaTzolkin = 1686814;
+            public const int MekkKnightCrusadiaAstram = 21887175;
 
             public const int MoonMirrorShield = 19508728;
             public const int PhantomKnightsFogBlade = 25542642;
@@ -58,6 +59,8 @@ namespace WindBot.Game.AI
             public const int GhostOgreAndSnowRabbit = 59438930;
             public const int GhostBelle = 73642296;
             public const int EffectVeiler = 63845230;
+            public const int ArtifactLancea = 34267821;
+
             public const int CalledByTheGrave = 24224830;
             public const int InfiniteImpermanence = 10045474;
             public const int GalaxySoldier = 46659709;
@@ -148,6 +151,9 @@ namespace WindBot.Game.AI
 
                 if (!defender.IsDisabled())
                 {
+                    if (defender.IsCode(_CardId.MekkKnightCrusadiaAstram) && defender.IsAttack() && attacker.IsSpecialSummoned)
+                        return false;
+
                     if (defender.IsCode(_CardId.CrystalWingSynchroDragon) && defender.IsAttack() && attacker.Level >= 5)
                         return false;
 
@@ -178,6 +184,9 @@ namespace WindBot.Game.AI
                     }
                 }
             }
+
+            if (Enemy.HasInMonstersZone(_CardId.MekkKnightCrusadiaAstram, true) && !(defender).IsCode(_CardId.MekkKnightCrusadiaAstram))
+                return false;
 
             if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && !(defender).IsCode(_CardId.DupeFrog))
                 return false;
@@ -216,7 +225,7 @@ namespace WindBot.Game.AI
             if (Bot.BattlingMonster == null)
                 return false;
             List<ClientCard> defenders = new List<ClientCard>(Duel.Fields[1].GetMonsters());
-            defenders.Sort(AIFunctions.CompareDefensePower);
+            defenders.Sort(CardContainer.CompareDefensePower);
             defenders.Reverse();
             BattlePhaseAction result = OnSelectAttackTarget(Bot.BattlingMonster, defenders);
             if (result != null && result.Action == BattlePhaseAction.BattleAction.Attack)
@@ -252,7 +261,7 @@ namespace WindBot.Game.AI
                 if (Duel.Player == 0)
                     selected = spells.FirstOrDefault(card => card.IsFacedown());
                 if (Duel.Player == 1)
-                    selected = spells.FirstOrDefault(card => card.HasType(CardType.Continuous) || card.HasType(CardType.Equip));
+                    selected = spells.FirstOrDefault(card => card.HasType(CardType.Continuous) || card.HasType(CardType.Equip) || card.HasType(CardType.Field));
             }
 
             if (selected == null)
@@ -285,7 +294,7 @@ namespace WindBot.Game.AI
 
             if (Card.Location == CardLocation.Grave)
             {
-                selected = AI.Utils.GetBestEnemySpell(true);
+                selected = Util.GetBestEnemySpell(true);
             }
             else
             {
@@ -304,7 +313,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultBookOfMoon()
         {
-            if (AI.Utils.IsAllEnemyBetter(true))
+            if (Util.IsAllEnemyBetter(true))
             {
                 ClientCard monster = Enemy.GetMonsters().GetHighestAttackMonster(true);
                 if (monster != null && monster.HasType(CardType.Effect) && !monster.HasType(CardType.Link) && (monster.HasType(CardType.Xyz) || monster.Level > 4))
@@ -321,15 +330,15 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultCompulsoryEvacuationDevice()
         {
-            ClientCard target = AI.Utils.GetProblematicEnemyMonster(0, true);
+            ClientCard target = Util.GetProblematicEnemyMonster(0, true);
             if (target != null)
             {
                 AI.SelectCard(target);
                 return true;
             }
-            if (AI.Utils.IsChainTarget(Card))
+            if (Util.IsChainTarget(Card))
             {
-                ClientCard monster = AI.Utils.GetBestEnemyMonster(false, true);
+                ClientCard monster = Util.GetBestEnemyMonster(false, true);
                 if (monster != null)
                 {
                     AI.SelectCard(monster);
@@ -344,9 +353,9 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultCallOfTheHaunted()
         {
-            if (!AI.Utils.IsAllEnemyBetter(true))
+            if (!Util.IsAllEnemyBetter(true))
                 return false;
-            ClientCard selected = Bot.Graveyard.OrderByDescending(card => card.Attack).FirstOrDefault();
+            ClientCard selected = Bot.Graveyard.GetMatchingCards(card => card.IsCanRevive()).OrderByDescending(card => card.Attack).FirstOrDefault();
             AI.SelectCard(selected);
             return true;
         }
@@ -370,7 +379,7 @@ namespace WindBot.Game.AI
                     _CardId.UltimateAncientGearGolem,
                     _CardId.RedDragonArchfiend
                 }, true)) return false;
-                if (AI.Utils.GetTotalAttackingMonsterAttack(1) >= Bot.LifePoints) return true;
+                if (Util.GetTotalAttackingMonsterAttack(1) >= Bot.LifePoints) return true;
             }
             return false;
         }
@@ -391,7 +400,7 @@ namespace WindBot.Game.AI
                 _CardId.UpstartGoblin,
                 _CardId.CyberEmergency
             };
-            if (AI.Utils.GetLastChainCard().IsCode(ignoreList))
+            if (Util.GetLastChainCard().IsCode(ignoreList))
                 return false;
             return Duel.LastChainPlayer == 1;
         }
@@ -400,7 +409,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultGhostOgreAndSnowRabbit()
         {
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsDisabled())
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsDisabled())
                 return false;
             return DefaultTrap();
         }
@@ -416,8 +425,8 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultEffectVeiler()
         {
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsCode(_CardId.GalaxySoldier) && Enemy.Hand.Count >= 3) return false;
-            if (AI.Utils.ChainContainsCard(_CardId.EffectVeiler))
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsCode(_CardId.GalaxySoldier) && Enemy.Hand.Count >= 3) return false;
+            if (Util.ChainContainsCard(_CardId.EffectVeiler))
                 return false;
             return DefaultBreakthroughSkill();
         }
@@ -432,13 +441,15 @@ namespace WindBot.Game.AI
                 _CardId.LockBird,
                 _CardId.GhostOgreAndSnowRabbit,
                 _CardId.AshBlossom,
-                _CardId.GhostBelle
+                _CardId.GhostBelle,
+                _CardId.EffectVeiler,
+                _CardId.ArtifactLancea
             };
             if (Duel.LastChainPlayer == 1)
             {
                 foreach (int id in targetList)
                 {
-                    if (AI.Utils.GetLastChainCard().IsCode(id))
+                    if (Util.GetLastChainCard().IsCode(id))
                     {
                         AI.SelectCard(id);
                         return UniqueFaceupSpell();
@@ -451,9 +462,11 @@ namespace WindBot.Game.AI
         /// Default InfiniteImpermanence effect
         /// </summary>
         protected bool DefaultInfiniteImpermanence()
-        {            
+        {
             // TODO: disable s & t
-            return DefaultBreakthroughSkill();
+            if (!DefaultUniqueTrap())
+                return false;
+            return DefaultDisableMonster();
         }
         /// <summary>
         /// Chain the enemy monster, or disable monster like Rescue Rabbit.
@@ -462,7 +475,13 @@ namespace WindBot.Game.AI
         {
             if (!DefaultUniqueTrap())
                 return false;
-
+            return DefaultDisableMonster();
+        }
+        /// <summary>
+        /// Chain the enemy monster, or disable monster like Rescue Rabbit.
+        /// </summary>
+        protected bool DefaultDisableMonster()
+        {
             if (Duel.Player == 1)
             {
                 ClientCard target = Enemy.MonsterZone.GetShouldBeDisabledBeforeItUseEffectMonster();
@@ -473,7 +492,7 @@ namespace WindBot.Game.AI
                 }
             }
 
-            ClientCard LastChainCard = AI.Utils.GetLastChainCard();
+            ClientCard LastChainCard = Util.GetLastChainCard();
 
             if (LastChainCard != null && LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone &&
                 !LastChainCard.IsDisabled() && !LastChainCard.IsShouldNotBeTarget() && !LastChainCard.IsShouldNotBeSpellTrapTarget())
@@ -506,7 +525,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnJudgment()
         {
-            return !AI.Utils.IsChainTargetOnly(Card) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
+            return !Util.IsChainTargetOnly(Card) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
         }
 
         /// <summary>
@@ -530,7 +549,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTorrentialTribute()
         {
-            return !AI.Utils.HasChainedTrap(0) && AI.Utils.IsAllEnemyBetter(true);
+            return !Util.HasChainedTrap(0) && Util.IsAllEnemyBetter(true);
         }
 
         /// <summary>
@@ -554,7 +573,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultHammerShot()
         {
-            return AI.Utils.IsOneEnemyBetter(true);
+            return Util.IsOneEnemyBetter(true);
         }
 
         /// <summary>
@@ -562,7 +581,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultDarkHole()
         {
-            return AI.Utils.IsOneEnemyBetter();
+            return Util.IsOneEnemyBetter();
         }
 
         /// <summary>
@@ -570,7 +589,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultRaigeki()
         {
-            return AI.Utils.IsOneEnemyBetter();
+            return Util.IsOneEnemyBetter();
         }
 
         /// <summary>
@@ -578,7 +597,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSmashingGround()
         {
-            return AI.Utils.IsOneEnemyBetter();
+            return Util.IsOneEnemyBetter();
         }
 
         /// <summary>
@@ -639,7 +658,7 @@ namespace WindBot.Game.AI
                 (4000 - Card.Defense) * 2 > (4000 - Card.Attack))
                 return true;
 
-            bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
+            bool enemyBetter = Util.IsAllEnemyBetter(true);
             if (Card.IsAttack() && enemyBetter)
                 return true;
             if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
@@ -677,7 +696,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultOnBecomeTarget()
         {
-            if (AI.Utils.IsChainTarget(Card)) return true;
+            if (Util.IsChainTarget(Card)) return true;
             int[] destroyAllList =
             {
                 _CardId.EvilswarmExcitonKnight,
@@ -691,7 +710,7 @@ namespace WindBot.Game.AI
                 _CardId.DarkMagicAttack
             };
 
-            if (AI.Utils.ChainContainsCard(destroyAllList)) return true;
+            if (Util.ChainContainsCard(destroyAllList)) return true;
             if (Enemy.HasInSpellZone(destroyAllOpponentList, true)) return true;
             // TODO: ChainContainsCard(id, player)
             return false;
@@ -709,7 +728,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultUniqueTrap()
         {
-            if (AI.Utils.HasChainedTrap(0))
+            if (Util.HasChainedTrap(0))
                 return false;
 
             return UniqueFaceupSpell();
@@ -750,9 +769,9 @@ namespace WindBot.Game.AI
                 return false;
             if (Bot.LifePoints <= 1000)
                 return false;
-            if (Bot.LifePoints <= Enemy.LifePoints && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 0))
+            if (Bot.LifePoints <= Enemy.LifePoints && ActivateDescription == Util.GetStringId(_CardId.ChickenGame, 0))
                 return true;
-            if (Bot.LifePoints > Enemy.LifePoints && ActivateDescription == AI.Utils.GetStringId(_CardId.ChickenGame, 1))
+            if (Bot.LifePoints > Enemy.LifePoints && ActivateDescription == Util.GetStringId(_CardId.ChickenGame, 1))
                 return true;
             return false;
         }
@@ -819,7 +838,7 @@ namespace WindBot.Game.AI
                     return true;
                 }
             }
-            ClientCard lastchaincard = AI.Utils.GetLastChainCard();
+            ClientCard lastchaincard = Util.GetLastChainCard();
             if (Duel.LastChainPlayer == 1 && lastchaincard != null && !lastchaincard.IsDisabled())
             {
                 if (lastchaincard.HasType(CardType.Ritual))
@@ -848,7 +867,7 @@ namespace WindBot.Game.AI
                     return true;
                 }
             }
-            if (AI.Utils.IsChainTarget(Card))
+            if (Util.IsChainTarget(Card))
             {
                 AI.SelectOption(XYZ);
                 return true;
@@ -933,7 +952,7 @@ namespace WindBot.Game.AI
                 AI.SelectCard(card);
                 return true;
             }
-            card = AI.Utils.GetOneEnemyBetterThanValue(Card.GetDefensePower());
+            card = Util.GetOneEnemyBetterThanValue(Card.GetDefensePower());
             if (card != null)
             {
                 AI.SelectCard(card);
@@ -947,8 +966,8 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultNumberS39UtopiaTheLightningSummon()
         {
-            int bestBotAttack = AI.Utils.GetBestAttack(Bot);
-            return AI.Utils.IsOneEnemyBetterThanValue(bestBotAttack, false);
+            int bestBotAttack = Util.GetBestAttack(Bot);
+            return Util.IsOneEnemyBetterThanValue(bestBotAttack, false);
         }
 
         /// <summary>
@@ -991,9 +1010,9 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultStardustDragonSummon()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
-            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
-            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 2500) || AI.Utils.IsTurn1OrMain2();
+            int selfBestAttack = Util.GetBestAttack(Bot);
+            int oppoBestAttack = Util.GetBestPower(Enemy);
+            return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 2500) || Util.IsTurn1OrMain2();
         }
 
         /// <summary>
@@ -1009,7 +1028,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultCastelTheSkyblasterMusketeerSummon()
         {
-            return AI.Utils.GetProblematicEnemyCard() != null;
+            return Util.GetProblematicEnemyCard() != null;
         }
 
         /// <summary>
@@ -1017,9 +1036,9 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultCastelTheSkyblasterMusketeerEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(_CardId.CastelTheSkyblasterMusketeer, 0))
+            if (ActivateDescription == Util.GetStringId(_CardId.CastelTheSkyblasterMusketeer, 0))
                 return false;
-            ClientCard target = AI.Utils.GetProblematicEnemyCard();
+            ClientCard target = Util.GetProblematicEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(0);
@@ -1034,8 +1053,8 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultScarlightRedDragonArchfiendSummon()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
-            int oppoBestAttack = AI.Utils.GetBestPower(Enemy);
+            int selfBestAttack = Util.GetBestAttack(Bot);
+            int oppoBestAttack = Util.GetBestPower(Enemy);
             return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || DefaultScarlightRedDragonArchfiendEffect();
         }
 
@@ -1046,7 +1065,7 @@ namespace WindBot.Game.AI
         {
             int selfCount = Bot.GetMonsters().Count(monster => !monster.Equals(Card) && monster.IsSpecialSummoned && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack);
             int oppoCount = Enemy.GetMonsters().Count(monster => monster.IsSpecialSummoned && monster.HasType(CardType.Effect) && monster.Attack <= Card.Attack);
-            return selfCount <= oppoCount || oppoCount >= 3;
+            return selfCount <= oppoCount && oppoCount > 0 || oppoCount >= 3;
         }
 
         /// <summary>
@@ -1061,7 +1080,7 @@ namespace WindBot.Game.AI
                     || ((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Defense) && (Bot.BattlingMonster.Attack + Enemy.BattlingMonster.Attack > Enemy.BattlingMonster.Defense)));
             }
 
-            if (AI.Utils.IsTurn1OrMain2() && HonestEffectCount <= 5)
+            if (Util.IsTurn1OrMain2() && HonestEffectCount <= 5)
             {
                 HonestEffectCount++;
                 return true;

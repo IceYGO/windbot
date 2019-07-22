@@ -126,7 +126,7 @@ namespace WindBot.Game.AI.Decks
         private bool EvolutionBurstEffect()
         {
             ClientCard bestMy = Bot.GetMonsters().GetHighestAttackMonster();
-            if (bestMy == null || !AI.Utils.IsOneEnemyBetterThanValue(bestMy.Attack, false))
+            if (bestMy == null || !Util.IsOneEnemyBetterThanValue(bestMy.Attack, false))
                 return false;
             else
                 AI.SelectCard(Enemy.MonsterZone.GetHighestAttackMonster());
@@ -142,7 +142,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ArmoredCybernSet()
         {
-            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand(CardId.CyberDragonDrei) || Bot.HasInHand(CardId.CyberPhoenix)) && !AI.Utils.IsOneEnemyBetterThanValue(1800,true))
+            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand(CardId.CyberDragonDrei) || Bot.HasInHand(CardId.CyberPhoenix)) && !Util.IsOneEnemyBetterThanValue(1800,true))
                 return false;
             return true;
         }
@@ -151,7 +151,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.GetCountCardInZone(Bot.Hand, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragonCore) >= 1 && Bot.HasInHand(CardId.Polymerization) || Bot.GetCountCardInZone(Bot.Hand, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.Graveyard, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.Graveyard, CardId.CyberDragonCore) >= 1 && Bot.HasInHand(CardId.PowerBond))
                 return true;
-            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand(CardId.CyberDragonDrei) || Bot.HasInHand(CardId.CyberPhoenix)) && !AI.Utils.IsOneEnemyBetterThanValue(1800, true))
+            if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand(CardId.CyberDragonDrei) || Bot.HasInHand(CardId.CyberPhoenix)) && !Util.IsOneEnemyBetterThanValue(1800, true))
                 return false;
             return true;
         }
@@ -167,8 +167,8 @@ namespace WindBot.Game.AI.Decks
                 return true;
             else if (Card.Location == CardLocation.SpellZone)
             {
-                if (AI.Utils.IsOneEnemyBetterThanValue(Bot.GetMonsters().GetHighestAttackMonster().Attack, true))
-                    if (ActivateDescription == AI.Utils.GetStringId(CardId.ArmoredCybern, 2))
+                if (Util.IsOneEnemyBetterThanValue(Bot.GetMonsters().GetHighestAttackMonster().Attack, true))
+                    if (ActivateDescription == Util.GetStringId(CardId.ArmoredCybern, 2))
                         return true;
                 return false;
             }

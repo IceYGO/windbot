@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("GrenMajuThunderBoarder", "AI_GrenMajuThunderBoarder", "Normal")]
+    [Deck("GrenMajuThunderBoarder", "AI_GrenMajuThunderBoarder")]
     public class GrenMajuThunderBoarderExecutor : DefaultExecutor
     {
         public class CardId
@@ -183,14 +183,14 @@ namespace WindBot.Game.AI.Decks
                     targets.Add(check);
                 
             }
-            if (AI.Utils.GetPZone(1, 0) != null && AI.Utils.GetPZone(1, 0).Type == 16777218)
+            if (Util.GetPZone(1, 0) != null && Util.GetPZone(1, 0).Type == 16777218)
             {
-                targets.Add(AI.Utils.GetPZone(1, 0));
+                targets.Add(Util.GetPZone(1, 0));
                 
             }
-            if (AI.Utils.GetPZone(1, 1) != null && AI.Utils.GetPZone(1, 1).Type == 16777218)
+            if (Util.GetPZone(1, 1) != null && Util.GetPZone(1, 1).Type == 16777218)
             {
-                targets.Add(AI.Utils.GetPZone(1, 1));               
+                targets.Add(Util.GetPZone(1, 1));               
             }
             foreach (ClientCard check in Enemy.GetSpells())
             {
@@ -208,9 +208,9 @@ namespace WindBot.Game.AI.Decks
                 if (check.Type == 16777218)
                     count++;
             }
-            if(AI.Utils.GetLastChainCard()!=null && 
-                (AI.Utils.GetLastChainCard().HasType(CardType.Continuous)||
-                AI.Utils.GetLastChainCard().HasType(CardType.Field) || count==2) &&
+            if(Util.GetLastChainCard()!=null && 
+                (Util.GetLastChainCard().HasType(CardType.Continuous)||
+                Util.GetLastChainCard().HasType(CardType.Field) || count==2) &&
                 Duel.LastChainPlayer==1)               
                 {
                 AI.SelectCard(targets);
@@ -235,9 +235,9 @@ namespace WindBot.Game.AI.Decks
             }
             if(count==2)
             {
-                if (AI.Utils.GetPZone(1, 1) != null && AI.Utils.GetPZone(1, 1).Type == 16777218)
+                if (Util.GetPZone(1, 1) != null && Util.GetPZone(1, 1).Type == 16777218)
                 {
-                    card=AI.Utils.GetPZone(1, 1);
+                    card=Util.GetPZone(1, 1);
                 }
             }
                 
@@ -251,27 +251,27 @@ namespace WindBot.Game.AI.Decks
 
         private bool DarkBribeeff()
         {
-            if (AI.Utils.GetLastChainCard()!=null && AI.Utils.GetLastChainCard().IsCode(CardId.UpstartGoblin))
+            if (Util.GetLastChainCard()!=null && Util.GetLastChainCard().IsCode(CardId.UpstartGoblin))
                 return false;
             return true;
 
         }
         private bool ImperialOrderfirst()
         {
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsCode(CardId.UpstartGoblin))
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsCode(CardId.UpstartGoblin))
                 return false;
-            return DefaultOnBecomeTarget() && AI.Utils.GetLastChainCard().HasType(CardType.Spell);
+            return DefaultOnBecomeTarget() && Util.GetLastChainCard().HasType(CardType.Spell);
         }
 
         private bool ImperialOrdereff()
         {
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsCode(CardId.UpstartGoblin))
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsCode(CardId.UpstartGoblin))
                 return false;
             if (Duel.LastChainPlayer == 1)
             {
                 foreach(ClientCard check in Enemy.GetSpells())
                 {
-                    if (AI.Utils.GetLastChainCard() == check)
+                    if (Util.GetLastChainCard() == check)
                         return true;
                 }
             }
@@ -284,7 +284,7 @@ namespace WindBot.Game.AI.Decks
                 if(Enemy.BattlingMonster.Attack-Bot.LifePoints>=1000)
                     return DefaultUniqueTrap();
             }
-            if (AI.Utils.GetTotalAttackingMonsterAttack(1) >= Bot.LifePoints)
+            if (Util.GetTotalAttackingMonsterAttack(1) >= Bot.LifePoints)
                 return DefaultUniqueTrap();
             if (Enemy.GetMonsterCount() >= 2)
                 return DefaultUniqueTrap();
@@ -307,7 +307,7 @@ namespace WindBot.Game.AI.Decks
                 if (card.HasType(CardType.Monster))
                     count++;
             }
-            if(AI.Utils.GetBestEnemyMonster()!=null && AI.Utils.GetBestEnemyMonster().Attack>=1900)
+            if(Util.GetBestEnemyMonster()!=null && Util.GetBestEnemyMonster().Attack>=1900)
                 AI.SelectCard(
                     CardId.EaterOfMillions,
                     CardId.PotOfDesires,
@@ -473,7 +473,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 return true;
             };
-            ClientCard BestEnemy = AI.Utils.GetBestEnemyMonster(true);
+            ClientCard BestEnemy = Util.GetBestEnemyMonster(true);
             ClientCard WorstBot = Bot.GetMonsters().GetLowestAttackMonster();
             if (BestEnemy == null || BestEnemy.HasPosition(CardPosition.FaceDown)) return false;
             if (WorstBot == null || WorstBot.HasPosition(CardPosition.FaceDown)) return false;
@@ -493,9 +493,9 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectPlace(Zones.z4);
             if (Enemy.HasInMonstersZone(CardId.KnightmareGryphon, true)) return false;
             if (Bot.HasInMonstersZone(CardId.InspectBoarder) && !eater_eff) return false;           
-            if (AI.Utils.GetProblematicEnemyMonster() == null && Bot.ExtraDeck.Count < 5) return false;
+            if (Util.GetProblematicEnemyMonster() == null && Bot.ExtraDeck.Count < 5) return false;
             if (Bot.GetMonstersInMainZone().Count >= 5) return false;
-            if (AI.Utils.IsTurn1OrMain2()) return false;
+            if (Util.IsTurn1OrMain2()) return false;
             AI.SelectPosition(CardPosition.FaceUpAttack);
             IList<ClientCard> targets = new List<ClientCard>();            
             foreach (ClientCard e_c in Bot.ExtraDeck)
@@ -588,7 +588,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Linkuriboheff()
         {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;           
+            if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;           
             return true;
         }
         private bool MonsterRepos()

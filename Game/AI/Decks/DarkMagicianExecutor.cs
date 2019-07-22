@@ -6,8 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    // NOT FINISHED YET
-    [Deck("DarkMagician", "AI_DarkMagician", "NotFinished")]
+    [Deck("DarkMagician", "AI_DarkMagician")]
     public class DarkMagicianExecutor : DefaultExecutor
     {
         public class CardId
@@ -235,7 +234,7 @@ namespace WindBot.Game.AI.Decks
         bool CrystalWingSynchroDragon_used = false;
         public override void OnNewPhase()
         {
-            //AI.Utils.UpdateLinkedZone();
+            //Util.UpdateLinkedZone();
             //Logger.DebugWriteLine("Zones.CheckLinkedPointZones= " + Zones.CheckLinkedPointZones);
             //Logger.DebugWriteLine("Zones.CheckMutualEnemyZoneCount= " + Zones.CheckMutualEnemyZoneCount);
             plan_C = false;
@@ -478,12 +477,12 @@ namespace WindBot.Game.AI.Decks
         private bool OddEyesAbsoluteDragoneff()
         {
             Logger.DebugWriteLine("OddEyesAbsoluteDragonef 1");
-            if (Card.Location == CardLocation.MonsterZone/*ActivateDescription == AI.Utils.GetStringId(CardId.OddEyesAbsoluteDragon, 0)*/)
+            if (Card.Location == CardLocation.MonsterZone/*ActivateDescription == Util.GetStringId(CardId.OddEyesAbsoluteDragon, 0)*/)
             {
                 Logger.DebugWriteLine("OddEyesAbsoluteDragonef 2");
                 return Duel.Player == 1;
             }
-            else if (Card.Location == CardLocation.Grave/*ActivateDescription == AI.Utils.GetStringId(CardId.OddEyesAbsoluteDragon, 0)*/)
+            else if (Card.Location == CardLocation.Grave/*ActivateDescription == Util.GetStringId(CardId.OddEyesAbsoluteDragon, 0)*/)
             {
                 Logger.DebugWriteLine("OddEyesAbsoluteDragonef 3");
                 AI.SelectCard(CardId.OddEyesWingDragon);
@@ -501,8 +500,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool ChainEnemy()
         {
-            if (AI.Utils.GetLastChainCard() != null &&
-                AI.Utils.GetLastChainCard().IsCode(CardId.UpstartGoblin))
+            if (Util.GetLastChainCard() != null &&
+                Util.GetLastChainCard().IsCode(CardId.UpstartGoblin))
                 return false;
             return Duel.LastChainPlayer == 1;
         }
@@ -589,7 +588,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Linkuriboheff()
         {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
+            if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             if (Bot.HasInMonstersZone(CardId.WindwitchSnowBell)) return false;
             return true;
         }
@@ -617,7 +616,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 return true;
             };
-            ClientCard BestEnemy = AI.Utils.GetBestEnemyMonster(true,true);            
+            ClientCard BestEnemy = Util.GetBestEnemyMonster(true,true);            
             if (BestEnemy == null || BestEnemy.HasPosition(CardPosition.FaceDown)) return false;
             AI.SelectCard(BestEnemy);
             return true;  
@@ -641,12 +640,12 @@ namespace WindBot.Game.AI.Decks
                     magician.Add(check);
                 }
             }
-            if (AI.Utils.IsChainTarget(Card) && Bot.GetMonsterCount() == 0)
+            if (Util.IsChainTarget(Card) && Bot.GetMonsterCount() == 0)
             {
                 AI.SelectYesNo(false);
                 return true;
             }
-            if (AI.Utils.ChainCountPlayer(0) > 0) return false;
+            if (Util.ChainCountPlayer(0) > 0) return false;
 
             if (Enemy.HasInSpellZone(CardId.HarpiesFeatherDuster) && Card.IsFacedown())
                 return false;
@@ -782,7 +781,7 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard check in Enemy.GetSpells())
                 {
-                    if (AI.Utils.GetLastChainCard() == check)
+                    if (Util.GetLastChainCard() == check)
                     {
                         spell.Add(check);
                         spell_act = true;
@@ -804,11 +803,11 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(spell);
                 return true;
             }
-            if (AI.Utils.IsChainTarget(Card))
+            if (Util.IsChainTarget(Card))
             {
                 AI.SelectPlace(Zones.z0 | Zones.z4);
                 AI.SelectCard(CardId.DarkMagician);
-                ClientCard check = AI.Utils.GetOneEnemyBetterThanValue(2500, true);
+                ClientCard check = Util.GetOneEnemyBetterThanValue(2500, true);
                 if (check != null)
                     AI.SelectNextCard(CardId.ApprenticeLllusionMagician, CardId.DarkMagician, CardId.MagicianOfLllusion);
                 else
@@ -820,7 +819,7 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectPlace(Zones.z0 | Zones.z4);
                 AI.SelectCard(CardId.DarkMagician);
-                ClientCard check = AI.Utils.GetOneEnemyBetterThanValue(2500, true);
+                ClientCard check = Util.GetOneEnemyBetterThanValue(2500, true);
                 if (check != null)
                     AI.SelectNextCard(CardId.ApprenticeLllusionMagician, CardId.DarkMagician, CardId.MagicianOfLllusion);
                 else
@@ -832,7 +831,7 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectPlace(Zones.z0 | Zones.z4);
                 AI.SelectCard(CardId.DarkMagician);
-                ClientCard check = AI.Utils.GetOneEnemyBetterThanValue(2500, true);
+                ClientCard check = Util.GetOneEnemyBetterThanValue(2500, true);
                 if (check != null)
                     AI.SelectNextCard(CardId.ApprenticeLllusionMagician, CardId.DarkMagician, CardId.MagicianOfLllusion);
                 else
@@ -846,7 +845,7 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectPlace(Zones.z0 | Zones.z4);
                 AI.SelectCard(CardId.DarkMagician);
-                ClientCard check = AI.Utils.GetOneEnemyBetterThanValue(2500, true);
+                ClientCard check = Util.GetOneEnemyBetterThanValue(2500, true);
                 if (check != null)
                     AI.SelectNextCard(CardId.ApprenticeLllusionMagician, CardId.DarkMagician, CardId.MagicianOfLllusion);
                 else
@@ -860,7 +859,7 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectPlace(Zones.z0 | Zones.z4);
                 AI.SelectCard(CardId.DarkMagician);
-                ClientCard check = AI.Utils.GetOneEnemyBetterThanValue(2500, true);
+                ClientCard check = Util.GetOneEnemyBetterThanValue(2500, true);
                 if (check != null)
                     AI.SelectNextCard(CardId.ApprenticeLllusionMagician, CardId.DarkMagician, CardId.MagicianOfLllusion);
                 else
@@ -884,9 +883,9 @@ namespace WindBot.Game.AI.Decks
             {
                 if (magician_sp)
                 {
-                    AI.SelectCard(AI.Utils.GetBestEnemyCard(false, true));
-                    if (AI.Utils.GetBestEnemyCard(false, true) != null)
-                        Logger.DebugWriteLine("*************SelectCard= " + AI.Utils.GetBestEnemyCard(false, true).Id);
+                    AI.SelectCard(Util.GetBestEnemyCard(false, true));
+                    if (Util.GetBestEnemyCard(false, true) != null)
+                        Logger.DebugWriteLine("*************SelectCard= " + Util.GetBestEnemyCard(false, true).Id);
                     magician_sp = false;
                 }
             }
@@ -932,7 +931,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (ghost_count != ghost_done)
                 {
-                    if (Duel.CurrentChain.Count >= 2 && AI.Utils.GetLastChainCard().IsCode(0))
+                    if (Duel.CurrentChain.Count >= 2 && Util.GetLastChainCard().IsCode(0))
                     {
                         AI.SelectCard(CardId.MagiciansRod);
                         AI.SelectNextCard(CardId.DarkMagician, CardId.DarkMagician);
@@ -942,7 +941,7 @@ namespace WindBot.Game.AI.Decks
                 int count = 0;
                 foreach (ClientCard m in Bot.GetMonsters())
                 {
-                    if (AI.Utils.IsChainTarget(m))
+                    if (Util.IsChainTarget(m))
                     {
                         count++;
                         target = m;
@@ -1128,14 +1127,14 @@ namespace WindBot.Game.AI.Decks
                 if (Duel.Turn != 1)
                 {
                     if (Duel.Phase == DuelPhase.Main1 && Enemy.GetSpellCountWithoutField() == 0 &&
-                    AI.Utils.GetBestEnemyMonster(true, true) == null)
+                    Util.GetBestEnemyMonster(true, true) == null)
                         return false;
                     if (Duel.Phase == DuelPhase.Main1 && Enemy.GetSpellCountWithoutField() == 0 &&
-                        AI.Utils.GetBestEnemyMonster().IsFacedown())
+                        Util.GetBestEnemyMonster().IsFacedown())
                         return true;
                     if (Duel.Phase == DuelPhase.Main1 && Enemy.GetSpellCountWithoutField() == 0 &&
-                        AI.Utils.GetBestBotMonster(true) != null &&
-                        AI.Utils.GetBestBotMonster(true).Attack > AI.Utils.GetBestEnemyMonster(true).Attack)
+                        Util.GetBestBotMonster(true) != null &&
+                        Util.GetBestBotMonster(true).Attack > Util.GetBestEnemyMonster(true).Attack)
                         return false;
                 }
                 return true;
@@ -1209,7 +1208,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ApprenticeLllusionMagicianeff()
         {
-            if (AI.Utils.ChainContainsCard(CardId.ApprenticeLllusionMagician)) return false;
+            if (Util.ChainContainsCard(CardId.ApprenticeLllusionMagician)) return false;
             if (Duel.Phase == DuelPhase.Battle ||
                 Duel.Phase == DuelPhase.BattleStart ||
                 Duel.Phase == DuelPhase.BattleStep ||
@@ -1434,9 +1433,9 @@ namespace WindBot.Game.AI.Decks
                 IList<ClientCard> list_1 = new List<ClientCard>();
                 foreach (ClientCard monster in Bot.GetMonsters())
                 {
-                    if (AI.Utils.GetWorstBotMonster(true) != null)
+                    if (Util.GetWorstBotMonster(true) != null)
                     {
-                        if (monster.IsAttack() && monster.Id != AI.Utils.GetWorstBotMonster(true).Id)
+                        if (monster.IsAttack() && monster.Id != Util.GetWorstBotMonster(true).Id)
                             list_1.Add(monster);
                     }
                 }
@@ -1477,7 +1476,7 @@ namespace WindBot.Game.AI.Decks
         private bool BigEyesp()
         {
             if (plan_C) return false;
-            if (AI.Utils.IsOneEnemyBetterThanValue(2500, false) &&
+            if (Util.IsOneEnemyBetterThanValue(2500, false) &&
                 !Bot.HasInHandOrHasInMonstersZone(CardId.ApprenticeLllusionMagician))
             {
                 //AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
@@ -1489,7 +1488,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool BigEyeeff()
         {
-            ClientCard target = AI.Utils.GetBestEnemyMonster(false, true);
+            ClientCard target = Util.GetBestEnemyMonster(false, true);
             if (target != null && target.Attack >= 2500)
             {
                 AI.SelectCard(CardId.DarkMagician);
@@ -1502,7 +1501,7 @@ namespace WindBot.Game.AI.Decks
         private bool Dracossacksp()
         {
             if (plan_C) return false;
-            if (AI.Utils.IsOneEnemyBetterThanValue(2500, false) &&
+            if (Util.IsOneEnemyBetterThanValue(2500, false) &&
                 !Bot.HasInHandOrHasInMonstersZone(CardId.ApprenticeLllusionMagician))
             {
                 //AI.SelectPlace(Zones.z5, Zones.ExtraMonsterZones);
@@ -1514,13 +1513,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool Dracossackeff()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.Dracossack, 0))
+            if (ActivateDescription == Util.GetStringId(CardId.Dracossack, 0))
             {
                 AI.SelectCard(CardId.DarkMagician);
                 return true;
 
             }
-            ClientCard target = AI.Utils.GetBestEnemyCard(false, true);
+            ClientCard target = Util.GetBestEnemyCard(false, true);
             if (target != null)
             {
                 AI.SelectCard(CardId.Dracossack + 1);
@@ -1624,11 +1623,11 @@ namespace WindBot.Game.AI.Decks
                     Logger.DebugWriteLine("++++++++SpellZone[" + i + "]= " + Bot.SpellZone[i].Id);
             }*/
 
-            if ((Duel.CurrentChain.Count >= 1 && AI.Utils.GetLastChainCard().Id == 0) ||
-                (Duel.CurrentChain.Count == 2 && !AI.Utils.ChainContainPlayer(0) && Duel.CurrentChain[0].Id == 0))
+            if ((Duel.CurrentChain.Count >= 1 && Util.GetLastChainCard().Id == 0) ||
+                (Duel.CurrentChain.Count == 2 && !Util.ChainContainPlayer(0) && Duel.CurrentChain[0].Id == 0))
             {
                 Logger.DebugWriteLine("current chain = " + Duel.CurrentChain.Count);
-                Logger.DebugWriteLine("******last chain card= " + AI.Utils.GetLastChainCard().Id);
+                Logger.DebugWriteLine("******last chain card= " + Util.GetLastChainCard().Id);
                 int maxxc_count = 0;
                 foreach (ClientCard check in Enemy.Graveyard)
                 {
@@ -1637,7 +1636,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (maxxc_count != maxxc_done)
                 {
-                    Logger.DebugWriteLine("************************last chain card= " + AI.Utils.GetLastChainCard().Id);
+                    Logger.DebugWriteLine("************************last chain card= " + Util.GetLastChainCard().Id);
                     maxxc_used = true;
                 }
                 int lockbird_count = 0;
@@ -1648,7 +1647,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (lockbird_count != lockbird_done)
                 {
-                    Logger.DebugWriteLine("************************last chain card= " + AI.Utils.GetLastChainCard().Id);
+                    Logger.DebugWriteLine("************************last chain card= " + Util.GetLastChainCard().Id);
                     lockbird_used = true;
                 }
                 int ghost_count = 0;
@@ -1659,10 +1658,10 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (ghost_count != ghost_done)
                 {
-                    Logger.DebugWriteLine("************************last chain card= " + AI.Utils.GetLastChainCard().Id);
+                    Logger.DebugWriteLine("************************last chain card= " + Util.GetLastChainCard().Id);
                     ghost_used = true;
                 }
-                if (ghost_used && AI.Utils.ChainContainsCard(CardId.WindwitchGlassBell))
+                if (ghost_used && Util.ChainContainsCard(CardId.WindwitchGlassBell))
                 {
                     AI.SelectCard(CardId.WindwitchIceBell);
                     Logger.DebugWriteLine("***********WindwitchGlassBell*********************");

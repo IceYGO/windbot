@@ -159,7 +159,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DecisiveArmorEffect()
         {
-            if (AI.Utils.IsAllEnemyBetterThanValue(3300, true))
+            if (Util.IsAllEnemyBetterThanValue(3300, true))
             {
                 AI.SelectCard(CardId.DecisiveArmor);
                 return true;
@@ -176,7 +176,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GungnirEffect()
         {
-            if (AI.Utils.IsOneEnemyBetter(true) && Duel.Phase == DuelPhase.Main1)
+            if (Util.IsOneEnemyBetter(true) && Duel.Phase == DuelPhase.Main1)
             {
                 AI.SelectCard(Enemy.GetMonsters().GetHighestAttackMonster());
                 return true;
@@ -196,12 +196,12 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.Mirror);
                 return true;
             }
-            else if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand(CardId.Trishula))
+            else if (Util.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand(CardId.Trishula))
             {
                 AI.SelectCard(CardId.Trishula);
                 return true;
             }
-            else if (AI.Utils.IsAllEnemyBetterThanValue(2700,true) && !Bot.HasInHand(CardId.DecisiveArmor))
+            else if (Util.IsAllEnemyBetterThanValue(2700,true) && !Bot.HasInHand(CardId.DecisiveArmor))
             {
                 AI.SelectCard(CardId.DecisiveArmor);
                 return true;
@@ -221,12 +221,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool ThousandHandsEffect()
         {
-            if (AI.Utils.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand(CardId.Trishula))
+            if (Util.IsOneEnemyBetterThanValue(3300, true) && !Bot.HasInHand(CardId.Trishula))
             {
                 AI.SelectCard(CardId.Trishula);
                 return true;
             }
-            else if (AI.Utils.IsAllEnemyBetterThanValue(2700, true) && !Bot.HasInHand(CardId.DecisiveArmor))
+            else if (Util.IsAllEnemyBetterThanValue(2700, true) && !Bot.HasInHand(CardId.DecisiveArmor))
             {
                 AI.SelectCard(CardId.DecisiveArmor);
                 return true;
@@ -277,7 +277,7 @@ namespace WindBot.Game.AI.Decks
 
                 foreach (int Id in NekrozCard)
                 {
-                    if (Id == CardId.Trishula && AI.Utils.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand(CardId.DecisiveArmor))
+                    if (Id == CardId.Trishula && Util.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand(CardId.DecisiveArmor))
                     {
                         AI.SelectCard(CardId.Trishula);
                         return true;

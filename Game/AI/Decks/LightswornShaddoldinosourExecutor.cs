@@ -6,8 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    // NOT FINISHED YET
-    [Deck("LightswornShaddoldinosour", "AI_LightswornShaddoldinosour", "ver0.5")]
+    [Deck("LightswornShaddoldinosour", "AI_LightswornShaddoldinosour")]
     public class LightswornShaddoldinosour : DefaultExecutor
     {
         public class CardId
@@ -479,7 +478,7 @@ namespace WindBot.Game.AI.Decks
         
         private bool FairyTailSnowsummon()
         {
-            ClientCard target = AI.Utils.GetBestEnemyMonster(true, true);
+            ClientCard target = Util.GetBestEnemyMonster(true, true);
             if(target != null)
             {
                 return true;
@@ -493,7 +492,7 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.Location == CardLocation.MonsterZone)
             {
-                AI.SelectCard(AI.Utils.GetBestEnemyMonster(true, true));
+                AI.SelectCard(Util.GetBestEnemyMonster(true, true));
                 return true;
             }
             else
@@ -524,14 +523,14 @@ namespace WindBot.Game.AI.Decks
                         all.Add(check);
                     }
                 }
-                if (AI.Utils.ChainContainsCard(CardId.FairyTailSnow)) return false;
+                if (Util.ChainContainsCard(CardId.FairyTailSnow)) return false;
 
                 if ( Duel.Player == 1  && Duel.Phase == DuelPhase.BattleStart && Bot.BattlingMonster == null && Enemy_atk >=Bot.LifePoints ||
                     Duel.Player == 0 && Duel.Phase==DuelPhase.BattleStart && Enemy.BattlingMonster == null && Enemy.LifePoints<=1850
                     )
                 {                  
                     AI.SelectCard(all);
-                    AI.SelectNextCard(AI.Utils.GetBestEnemyMonster());
+                    AI.SelectNextCard(Util.GetBestEnemyMonster());
                     return true;
                 }
             }
@@ -602,7 +601,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.UltimateConductorTytanno);
                 return true;
             }
-            if (!AI.Utils.IsOneEnemyBetter(true)) return false;
+            if (!Util.IsOneEnemyBetter(true)) return false;
             IList<int> targets = new[] {                    
                     CardId.ElShaddollConstruct,
                     CardId.DogorantheMadFlameKaiju,
@@ -752,7 +751,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
             }
-            if (!AI.Utils.IsOneEnemyBetter()) return false;
+            if (!Util.IsOneEnemyBetter()) return false;
 
 
             foreach (ClientCard monster in Bot.Hand)
@@ -830,7 +829,7 @@ namespace WindBot.Game.AI.Decks
             ShaddollSquamata_used = true;
             if (Card.Location != CardLocation.MonsterZone)
             {
-                if(AI.Utils.ChainContainsCard(CardId.ElShaddollConstruct))
+                if(Util.ChainContainsCard(CardId.ElShaddollConstruct))
                 {
                     if (!Bot.HasInHand(CardId.ShaddollFusion) && Bot.HasInGraveyard(CardId.ShaddollFusion))
                     AI.SelectNextCard(CardId.ShaddollCore);
@@ -851,7 +850,7 @@ namespace WindBot.Game.AI.Decks
             else
             {
                 if (Enemy.GetMonsterCount() == 0) return false;
-                ClientCard target = AI.Utils.GetBestEnemyMonster();
+                ClientCard target = Util.GetBestEnemyMonster();
                 AI.SelectCard(target);
             }
             return true;
@@ -890,7 +889,7 @@ namespace WindBot.Game.AI.Decks
             ShaddollHedgehog_used = true;
             if (Card.Location != CardLocation.MonsterZone)
             {
-                if (AI.Utils.ChainContainsCard(CardId.ElShaddollConstruct))
+                if (Util.ChainContainsCard(CardId.ElShaddollConstruct))
                 {
                     AI.SelectNextCard(
                         CardId.ShaddollFalco,
@@ -924,14 +923,14 @@ namespace WindBot.Game.AI.Decks
             ShaddollDragon_used = true;
             if (Card.Location == CardLocation.MonsterZone)
             {
-                ClientCard target = AI.Utils.GetBestEnemyCard();
+                ClientCard target = Util.GetBestEnemyCard();
                 AI.SelectCard(target);
                 return true;
             }
             else
             {
                 if (Enemy.GetSpellCount() == 0) return false;
-                ClientCard target = AI.Utils.GetBestEnemySpell();
+                ClientCard target = Util.GetBestEnemySpell();
                 AI.SelectCard(target);
                 return true;
             }
@@ -996,7 +995,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Grave)
                 return true;
             if (Bot.LifePoints <= 1000) return false;
-            ClientCard select = AI.Utils.GetBestEnemyCard();
+            ClientCard select = Util.GetBestEnemyCard();
             if (select == null) return false;
             if(select!=null)
             {
@@ -1018,10 +1017,10 @@ namespace WindBot.Game.AI.Decks
             {
                 IList<ClientCard> targets = new List<ClientCard>();
 
-                ClientCard target1 = AI.Utils.GetBestEnemyMonster();
+                ClientCard target1 = Util.GetBestEnemyMonster();
                 if (target1 != null)
                     targets.Add(target1);
-                ClientCard target2 = AI.Utils.GetBestEnemySpell();
+                ClientCard target2 = Util.GetBestEnemySpell();
                 if (target2 != null)
                     targets.Add(target2);
 
@@ -1106,16 +1105,16 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             
-            else if (DarkHole || AI.Utils.IsChainTarget(Card) || AI.Utils.GetProblematicEnemySpell() != null)
+            else if (DarkHole || Util.IsChainTarget(Card) || Util.GetProblematicEnemySpell() != null)
             {
                 AI.SelectCard(CardId.TG_WonderMagician);
                 return true;
             }
                 
-            else if (Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && AI.Utils.IsOneEnemyBetterThanValue(1500, true))
+            else if (Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Util.IsOneEnemyBetterThanValue(1500, true))
             {
                 AI.SelectCard(CardId.TG_WonderMagician);
-                if (AI.Utils.IsOneEnemyBetterThanValue(1900, true))
+                if (Util.IsOneEnemyBetterThanValue(1900, true))
                 {
                     AI.SelectPosition(CardPosition.FaceUpDefence);
                 }
@@ -1136,7 +1135,7 @@ namespace WindBot.Game.AI.Decks
         private bool ScarlightRedDragoneff()
         {
             IList<ClientCard> targets = new List<ClientCard>();
-            ClientCard target1 = AI.Utils.GetBestEnemyMonster();
+            ClientCard target1 = Util.GetBestEnemyMonster();
             if (target1 != null)
             {
                 targets.Add(target1);
@@ -1160,8 +1159,8 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(Useless_List());
                 return true;
             }
-            //if (ActivateDescription == AI.Utils.GetStringId(CardId.snake, 2)) return true;
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.snake, 1))
+            //if (ActivateDescription == Util.GetStringId(CardId.snake, 2)) return true;
+            if (ActivateDescription == Util.GetStringId(CardId.snake, 1))
             {
                 foreach (ClientCard hand in Bot.Hand)
                 {
@@ -1186,7 +1185,7 @@ namespace WindBot.Game.AI.Decks
         private bool BlackRoseMoonlightDragoneff()
         {
             IList<ClientCard> targets = new List<ClientCard>();
-            ClientCard target1 = AI.Utils.GetBestEnemyMonster();
+            ClientCard target1 = Util.GetBestEnemyMonster();
             if (target1 != null)
             {
                 targets.Add(target1);
@@ -1224,18 +1223,18 @@ namespace WindBot.Game.AI.Decks
                 return true;
             IList<ClientCard> targets = new List<ClientCard>();
 
-            ClientCard target1 = AI.Utils.GetBestEnemyMonster();
+            ClientCard target1 = Util.GetBestEnemyMonster();
             if (target1 != null)
                 targets.Add(target1);
-            ClientCard target2 = AI.Utils.GetBestEnemySpell();
+            ClientCard target2 = Util.GetBestEnemySpell();
             if (target2 != null)
                 targets.Add(target2);
-            else if (AI.Utils.IsChainTarget(Card) || AI.Utils.GetProblematicEnemySpell() != null)
+            else if (Util.IsChainTarget(Card) || Util.GetProblematicEnemySpell() != null)
             {
                 AI.SelectCard(targets);
                 return true;
             }
-            else if (Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && AI.Utils.IsOneEnemyBetterThanValue(2400, true))
+            else if (Duel.Player == 1 && Duel.Phase == DuelPhase.BattleStart && Util.IsOneEnemyBetterThanValue(2400, true))
             {
                 AI.SelectCard(targets);
                 return true;

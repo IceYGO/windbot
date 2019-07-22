@@ -59,7 +59,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <Compile Include="Game\AI\AIFunctions.cs" />
+    <Compile Include="Game\AI\AIUtil.cs" />
     <Compile Include="Game\AI\CardContainer.cs" />
     <Compile Include="Game\AI\CardExecutor.cs" />
     <Compile Include="Game\AI\CardExtension.cs" />
@@ -68,8 +68,11 @@
     <Compile Include="Game\AI\DecksManager.cs" />
     <Compile Include="Game\AI\Decks\AltergeistExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
+    <Compile Include="Game\AI\Decks\Level8Executor.cs" />
+    <Compile Include="Game\AI\Decks\SalamangreatExecutor.cs" />
     <Compile Include="Game\AI\Decks\CyberDragonExecutor.cs" />
     <Compile Include="Game\AI\Decks\DarkMagicianExecutor.cs" />
+    <Compile Include="Game\AI\Decks\OrcustExecutor.cs" />
     <Compile Include="Game\AI\Decks\SkyStrikerExecutor.cs" />
     <Compile Include="Game\AI\Decks\MokeyMokeyKingExecutor.cs" />
     <Compile Include="Game\AI\Decks\MokeyMokeyExecutor.cs" />

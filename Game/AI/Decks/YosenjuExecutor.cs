@@ -181,8 +181,8 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            IList<ClientCard> result = AI.Utils.SelectPreferredCards(CardId.YosenjuTsujik, cards, min, max);
-            return AI.Utils.CheckSelectCount(result, cards, min, max);
+            IList<ClientCard> result = Util.SelectPreferredCards(CardId.YosenjuTsujik, cards, min, max);
+            return Util.CheckSelectCount(result, cards, min, max);
         }
 
         private bool PotOfDualityEffect()
@@ -227,7 +227,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CardOfDemiseEffect()
         {
-            if (AI.Utils.IsTurn1OrMain2())
+            if (Util.IsTurn1OrMain2())
             {
                 CardOfDemiseUsed = true;
                 return true;
@@ -292,15 +292,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool DarkRebellionXyzDragonSummon()
         {
-            int selfBestAttack = AI.Utils.GetBestAttack(Bot);
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy);
+            int selfBestAttack = Util.GetBestAttack(Bot);
+            int oppoBestAttack = Util.GetBestAttack(Enemy);
             return selfBestAttack <= oppoBestAttack;
         }
 
         private bool DarkRebellionXyzDragonEffect()
         {
-            int oppoBestAttack = AI.Utils.GetBestAttack(Enemy);
-            ClientCard target = AI.Utils.GetOneEnemyBetterThanValue(oppoBestAttack, true);
+            int oppoBestAttack = Util.GetBestAttack(Enemy);
+            ClientCard target = Util.GetOneEnemyBetterThanValue(oppoBestAttack, true);
             if (target != null)
             {
                 AI.SelectCard(0);
