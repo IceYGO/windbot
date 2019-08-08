@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("BlueEyesMaxDragon", "AI_BlueEyesMaxDragon", "Normal")]
+    [Deck("BlueEyesMaxDragon", "AI_BlueEyesMaxDragon")]
     public class BlueEyesMaxDragonExecutor : DefaultExecutor
     {
         public class CardId
@@ -128,32 +128,32 @@ namespace WindBot.Game.AI.Decks
         {
             if(Duel.LastChainPlayer==1)
             {
-                ClientCard lastCard = AI.Utils.GetLastChainCard();
+                ClientCard lastCard = Util.GetLastChainCard();
                 if (lastCard.IsCode(CardId.MaxxC))
                 {
                     AI.SelectCard(CardId.MaxxC);
-                    if(AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
+                    if(Util.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
                         AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
                 if (lastCard.IsCode(CardId.LockBird))
                 {
                     AI.SelectCard(CardId.LockBird);
-                    if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
+                    if (Util.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
                         AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
                 if (lastCard.IsCode(CardId.Ghost))
                 {
                     AI.SelectCard(CardId.Ghost);
-                    if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
+                    if (Util.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
                         AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
                 if (lastCard.IsCode(CardId.AshBlossom))
                 {
                     AI.SelectCard(CardId.AshBlossom);
-                    if (AI.Utils.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
+                    if (Util.ChainContainsCard(CardId.TheMelodyOfAwakeningDragon))
                         AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                     return UniqueFaceupSpell();
                 }
@@ -170,9 +170,9 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if(AI.Utils.GetProblematicEnemyMonster(3000,true)!=null)
+                if(Util.GetProblematicEnemyMonster(3000,true)!=null)
                 {
-                    AI.SelectCard(AI.Utils.GetProblematicEnemyMonster(3000, true));
+                    AI.SelectCard(Util.GetProblematicEnemyMonster(3000, true));
                     return true;
                 }
             }
@@ -464,7 +464,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Linkuriboheff()
         {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
+            if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             return true;
         }
         private bool BirrelswordDragonsp()
@@ -498,11 +498,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool BirrelswordDragoneff()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.BirrelswordDragon, 0))
+            if (ActivateDescription == Util.GetStringId(CardId.BirrelswordDragon, 0))
             {                
-                if (AI.Utils.IsChainTarget(Card) && AI.Utils.GetBestEnemyMonster(true, true) != null)
+                if (Util.IsChainTarget(Card) && Util.GetBestEnemyMonster(true, true) != null)
                 {
-                    AI.SelectCard(AI.Utils.GetBestEnemyMonster(true, true));
+                    AI.SelectCard(Util.GetBestEnemyMonster(true, true));
                     return true;
                 }
                 if (Duel.Player == 1 && Bot.BattlingMonster == Card)

@@ -116,7 +116,7 @@ namespace WindBot.Game.AI.Decks
                     break;
             }
             
-            return AI.Utils.CheckSelectCount(result, cards, min, max);
+            return Util.CheckSelectCount(result, cards, min, max);
         }
 
         private bool ReinforcementOfTheArmyEffect()
@@ -222,10 +222,10 @@ namespace WindBot.Game.AI.Decks
             {
                 IList<ClientCard> targets = new List<ClientCard>();
 
-                ClientCard target1 = AI.Utils.GetBestEnemyMonster();
+                ClientCard target1 = Util.GetBestEnemyMonster();
                 if (target1 != null)
                     targets.Add(target1);
-                ClientCard target2 = AI.Utils.GetBestEnemySpell();
+                ClientCard target2 = Util.GetBestEnemySpell();
                 if (target2 != null)
                     targets.Add(target2);
 

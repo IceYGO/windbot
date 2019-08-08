@@ -120,13 +120,13 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
-            IList<ClientCard> result = AI.Utils.SelectPreferredCards(new[] {
+            IList<ClientCard> result = Util.SelectPreferredCards(new[] {
                 CardId.MistArchfiend,
                 CardId.PanzerDragon,
                 CardId.SolarWindJammer,
                 CardId.StarDrawing
             }, cards, min, max);
-            return AI.Utils.CheckSelectCount(result, cards, min, max);
+            return Util.CheckSelectCount(result, cards, min, max);
         }
 
         private bool NormalSummon()
@@ -181,6 +181,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (HaveOtherLV5OnField())
                 return true;
+            if (Util.GetBotAvailZonesFromExtraDeck() == 0)
+                return false;
             int lv5Count = 0;
             foreach (ClientCard card in Bot.Hand)
             {
@@ -216,10 +218,10 @@ namespace WindBot.Game.AI.Decks
                 return false;
             if (Bot.HasInHand(new[]
                 {
-                    CardId.MistArchfiend,
                     CardId.WindUpSoldier,
                     CardId.StarDrawing,
-                    CardId.ChronomalyGoldenJet
+                    CardId.ChronomalyGoldenJet,
+                    CardId.MistArchfiend
                 }))
             {
                 NormalSummoned = false;
@@ -236,7 +238,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CyberDragonNovaEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.CyberDragonNova, 0))
+            if (ActivateDescription == Util.GetStringId(CardId.CyberDragonNova, 0))
             {
                 return true;
             }
@@ -282,12 +284,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool Number61VolcasaurusSummon()
         {
-            return AI.Utils.IsOneEnemyBetterThanValue(2000, false);
+            return Util.IsOneEnemyBetterThanValue(2000, false);
         }
 
         private bool Number61VolcasaurusEffect()
         {
-            ClientCard target = AI.Utils.GetProblematicEnemyMonster(2000);
+            ClientCard target = Util.GetProblematicEnemyMonster(2000);
             if (target != null)
             {
                 AI.SelectCard(CardId.CyberDragon);
@@ -300,9 +302,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool TirasKeeperOfGenesisEffect()
         {
-            ClientCard target = AI.Utils.GetProblematicEnemyCard();
+            ClientCard target = Util.GetProblematicEnemyCard();
             if (target == null)
-                target = AI.Utils.GetBestEnemyCard();
+                target = Util.GetBestEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -357,7 +359,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool PanzerDragonEffect()
         {
-            ClientCard target = AI.Utils.GetBestEnemyCard();
+            ClientCard target = Util.GetBestEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -384,9 +386,10 @@ namespace WindBot.Game.AI.Decks
             {
                 if (monster.HasType(CardType.Monster) &&
                     !monster.HasType(CardType.Xyz) &&
+                    Util.GetBotAvailZonesFromExtraDeck(monster) > 0 &&
                     (monster.Level == 5
                     || monster.IsCode(CardId.StarDrawing)
-                    || (monster.IsCode(CardId.WindUpSoldier)) && !monster.Equals(Card)))
+                    || monster.IsCode(CardId.WindUpSoldier) && !monster.Equals(Card)))
                     return true;
             }
             return false;

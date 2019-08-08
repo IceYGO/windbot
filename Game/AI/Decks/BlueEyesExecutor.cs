@@ -143,7 +143,7 @@ namespace WindBot.Game.AI.Decks
                 if (!Bot.HasInHand(CardId.WhiteDragon))
                     result.AddRange(cards.Where(card => card.IsCode(CardId.WhiteDragon)).Take(1));
                 result.AddRange(cards.Where(card => card.IsCode(CardId.AlternativeWhiteDragon)));
-                return AI.Utils.CheckSelectCount(result, cards, min, max);
+                return Util.CheckSelectCount(result, cards, min, max);
             }
             Logger.DebugWriteLine("Use default.");
             return null;
@@ -152,8 +152,8 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
         {
             Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
-            IList<ClientCard> result = AI.Utils.SelectPreferredCards(UsedAlternativeWhiteDragon, cards, min, max);
-            return AI.Utils.CheckSelectCount(result, cards, min, max);
+            IList<ClientCard> result = Util.SelectPreferredCards(UsedAlternativeWhiteDragon, cards, min, max);
+            return Util.CheckSelectCount(result, cards, min, max);
         }
 
         public override IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)
@@ -259,16 +259,24 @@ namespace WindBot.Game.AI.Decks
 
         private bool AlternativeWhiteDragonEffect()
         {
-            ClientCard target = AI.Utils.GetProblematicEnemyMonster(Card.GetDefensePower());
+            ClientCard target = Util.GetProblematicEnemyMonster(Card.GetDefensePower());
             if (target != null)
             {
                 AI.SelectCard(target);
                 UsedAlternativeWhiteDragon.Add(Card);
                 return true;
             }
-            if (CanDealWithUsedAlternativeWhiteDragon())
+            if (Util.GetBotAvailZonesFromExtraDeck(Card) > 0
+                && (Bot.HasInMonstersZone(new[]
+                {
+                    CardId.SageWithEyesOfBlue,
+                    CardId.WhiteStoneOfAncients,
+                    CardId.WhiteStoneOfLegend,
+                    CardId.WhiteDragon,
+                    CardId.DragonSpiritOfWhite
+                }) || Bot.GetCountCardInZone(Bot.MonsterZone, CardId.AlternativeWhiteDragon) >= 2))
             {
-                target = AI.Utils.GetBestEnemyMonster(false, true);
+                target = Util.GetBestEnemyMonster(false, true);
                 AI.SelectCard(target);
                 UsedAlternativeWhiteDragon.Add(Card);
                 return true;
@@ -389,7 +397,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == -1)
             {
-                ClientCard target = AI.Utils.GetBestEnemySpell();
+                ClientCard target = Util.GetBestEnemySpell();
                 AI.SelectCard(target);
                 return true;
             }
@@ -405,7 +413,7 @@ namespace WindBot.Game.AI.Decks
                         && !Bot.HasInGraveyard(CardId.DragonSpiritOfWhite)
                         && !Bot.HasInGraveyard(CardId.WhiteDragon);
                 }
-                if (AI.Utils.IsChainTarget(Card))
+                if (Util.IsChainTarget(Card))
                 {
                     return true;
                 }
@@ -415,7 +423,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool BlueEyesSpiritDragonEffect()
         {
-            if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId(CardId.BlueEyesSpiritDragon, 0))
+            if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.BlueEyesSpiritDragon, 0))
             {
                 return Duel.LastChainPlayer == 1;
             }
@@ -426,7 +434,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if (AI.Utils.IsChainTarget(Card))
+                if (Util.IsChainTarget(Card))
                 {
                     AI.SelectCard(CardId.AzureEyesSilverDragon);
                     return true;
@@ -437,7 +445,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HopeHarbingerDragonTitanicGalaxyEffect()
         {
-            if (ActivateDescription == -1 || ActivateDescription == AI.Utils.GetStringId(CardId.HopeHarbingerDragonTitanicGalaxy, 0))
+            if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.HopeHarbingerDragonTitanicGalaxy, 0))
             {
                 return Duel.LastChainPlayer == 1;
             }
@@ -446,7 +454,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool WhiteStoneOfAncientsEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.WhiteStoneOfAncients, 0))
+            if (ActivateDescription == Util.GetStringId(CardId.WhiteStoneOfAncients, 0))
             {
                 if (Bot.HasInHand(CardId.TradeIn)
                     && !Bot.HasInHand(CardId.WhiteDragon)
@@ -538,7 +546,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (AI.Utils.IsOneEnemyBetterThanValue(2999, false))
+            if (Util.IsOneEnemyBetterThanValue(2999, false))
             {
                 return true;
             }
@@ -561,7 +569,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Bot.HasInMonstersZone(CardId.GalaxyEyesPrimePhotonDragon))
             {
-                if (!AI.Utils.IsOneEnemyBetterThanValue(4000, false))
+                if (!Util.IsOneEnemyBetterThanValue(4000, false))
                 {
                     AI.SelectCard(CardId.GalaxyEyesPrimePhotonDragon);
                     return true;
@@ -572,7 +580,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GalaxyEyesCipherBladeDragonSummon()
         {
-            if (Bot.HasInMonstersZone(CardId.GalaxyEyesFullArmorPhotonDragon) && AI.Utils.GetProblematicEnemyCard() != null)
+            if (Bot.HasInMonstersZone(CardId.GalaxyEyesFullArmorPhotonDragon) && Util.GetProblematicEnemyCard() != null)
             {
                 AI.SelectCard(CardId.GalaxyEyesFullArmorPhotonDragon);
                 return true;
@@ -622,13 +630,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool GalaxyEyesFullArmorPhotonDragonEffect()
         {
-            ClientCard target = AI.Utils.GetProblematicEnemySpell();
+            ClientCard target = Util.GetProblematicEnemySpell();
             if (target != null)
             {
                 AI.SelectCard(target);
                 return true;
             }
-            target = AI.Utils.GetProblematicEnemyMonster();
+            target = Util.GetProblematicEnemyMonster();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -679,7 +687,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return true;
             }
-            ClientCard target = AI.Utils.GetProblematicEnemyCard();
+            ClientCard target = Util.GetProblematicEnemyCard();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -737,8 +745,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Phase != DuelPhase.Main1 || Duel.Turn == 1 || SoulChargeUsed)
                 return false;
-            int bestSelfAttack = AI.Utils.GetBestAttack(Bot);
-            int bestEnemyAttack = AI.Utils.GetBestPower(Enemy);
+            int bestSelfAttack = Util.GetBestAttack(Bot);
+            int bestEnemyAttack = Util.GetBestPower(Enemy);
             return bestSelfAttack <= bestEnemyAttack && bestEnemyAttack > 2500 && bestEnemyAttack <= 3100;
         }
 
@@ -856,7 +864,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Repos()
         {
-            bool enemyBetter = AI.Utils.IsAllEnemyBetter(true);
+            bool enemyBetter = Util.IsAllEnemyBetter(true);
 
             if (Card.IsAttack() && enemyBetter)
                 return true;
@@ -885,18 +893,6 @@ namespace WindBot.Game.AI.Decks
                     num++;
             }
             return num >= 2;
-        }
-
-        private bool CanDealWithUsedAlternativeWhiteDragon()
-        {
-            return Bot.HasInMonstersZone(new[]
-                {
-                    CardId.SageWithEyesOfBlue,
-                    CardId.WhiteStoneOfAncients,
-                    CardId.WhiteStoneOfLegend,
-                    CardId.WhiteDragon,
-                    CardId.DragonSpiritOfWhite
-                }) || Bot.GetCountCardInZone(Bot.MonsterZone, CardId.AlternativeWhiteDragon)>=2 ;
         }
 
         private bool HaveEnoughWhiteDragonInHand()

@@ -87,7 +87,7 @@ namespace WindBot.Game.AI.Decks
         private bool SwapFrogSummon()
         {
             int atk = Card.Attack + GetSpellBonus();
-            if (AI.Utils.IsAllEnemyBetterThanValue(atk, true))
+            if (Util.IsAllEnemyBetterThanValue(atk, true))
                 return false;
 
             AI.SelectCard(CardId.Ronintoadin);
@@ -120,7 +120,7 @@ namespace WindBot.Game.AI.Decks
             {
                 m_flipFlopFrogSummoned = -1;
                 List<ClientCard> monsters = Enemy.GetMonsters();
-                monsters.Sort(AIFunctions.CompareCardAttack);
+                monsters.Sort(CardContainer.CompareCardAttack);
                 monsters.Reverse();
                 AI.SelectCard(monsters);
                 return true;
@@ -144,7 +144,7 @@ namespace WindBot.Game.AI.Decks
         {
             int atk = Card.Attack + GetSpellBonus();
 
-            if (AI.Utils.IsOneEnemyBetterThanValue(atk, true))
+            if (Util.IsOneEnemyBetterThanValue(atk, true))
                 return false;
 
             if (Card.IsCode(CardId.SwapFrog))
@@ -156,7 +156,7 @@ namespace WindBot.Game.AI.Decks
         {
             List<int> cards = new List<int>();
             
-            if (AI.Utils.IsOneEnemyBetter())
+            if (Util.IsOneEnemyBetter())
             {
                 cards.Add(CardId.FlipFlopFrog);
             }
@@ -213,7 +213,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.IsCode(CardId.DewdarkOfTheIceBarrier))
                 return Card.IsDefense();
 
-            bool enemyBetter = AI.Utils.IsOneEnemyBetterThanValue(Card.Attack + (Card.IsFacedown() ? GetSpellBonus() : 0), true);
+            bool enemyBetter = Util.IsOneEnemyBetterThanValue(Card.Attack + (Card.IsFacedown() ? GetSpellBonus() : 0), true);
             if (Card.Attack < 800)
                 enemyBetter = true;
             bool result = false;

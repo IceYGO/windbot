@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("SkyStriker", "AI_SkyStriker", "NotFinished")]
+    [Deck("SkyStriker", "AI_SkyStriker")]
     public class SkyStrikerExecutor : DefaultExecutor
     {
         public class CardId
@@ -114,7 +114,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.Hayate, HayateSummon);
             AddExecutor(ExecutorType.Activate, CardId.Hayate, HayateEffect);
 
-            AddExecutor(ExecutorType.SpSummon, CardId.TopologicBomberDragon, AI.Utils.IsTurn1OrMain2);
+            AddExecutor(ExecutorType.SpSummon, CardId.TopologicBomberDragon, Util.IsTurn1OrMain2);
 
             AddExecutor(ExecutorType.Summon, CardId.Raye, RayeSummon);
 
@@ -160,15 +160,15 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnSelectYesNo(int desc)
         {
-            if (desc == AI.Utils.GetStringId(CardId.SummonSorceress, 2)) // summon to the field of opponent?
+            if (desc == Util.GetStringId(CardId.SummonSorceress, 2)) // summon to the field of opponent?
                 return false;
-            if (desc == AI.Utils.GetStringId(CardId.Engage, 0)) // draw card?
+            if (desc == Util.GetStringId(CardId.Engage, 0)) // draw card?
                 return true;
-            if (desc == AI.Utils.GetStringId(CardId.WidowAnchor, 0)) // get control?
+            if (desc == Util.GetStringId(CardId.WidowAnchor, 0)) // get control?
                 return true;
-            if (desc == AI.Utils.GetStringId(CardId.JammingWave, 0)) // destroy monster?
+            if (desc == Util.GetStringId(CardId.JammingWave, 0)) // destroy monster?
             {
-                ClientCard target = AI.Utils.GetBestEnemyMonster();
+                ClientCard target = Util.GetBestEnemyMonster();
                 if (target != null)
                 {
                     AI.SelectCard(target);
@@ -177,9 +177,9 @@ namespace WindBot.Game.AI.Decks
                 else
                     return false;
             }
-            if (desc == AI.Utils.GetStringId(CardId.Afterburners, 0)) // destroy spell & trap?
+            if (desc == Util.GetStringId(CardId.Afterburners, 0)) // destroy spell & trap?
             {
-                ClientCard target = AI.Utils.GetBestEnemySpell();
+                ClientCard target = Util.GetBestEnemySpell();
                 if (target != null)
                 {
                     AI.SelectCard(target);
@@ -199,7 +199,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TwinTwistersEffect()
         {
-            if (AI.Utils.ChainContainsCard(CardId.TwinTwisters))
+            if (Util.ChainContainsCard(CardId.TwinTwisters))
                 return false;
             IList<ClientCard> targets = new List<ClientCard>();
             foreach (ClientCard target in Enemy.GetSpells())
@@ -213,7 +213,8 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard target in Enemy.GetSpells())
                 {
-                    targets.Add(target);
+                    if (target.IsFacedown() || target.HasType(CardType.Continuous) || target.HasType(CardType.Pendulum))
+                        targets.Add(target);
                     if (targets.Count >= 2)
                         break;
                 }
@@ -261,7 +262,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool AfterburnersEffect()
         {
-            ClientCard target = AI.Utils.GetBestEnemyMonster(true);
+            ClientCard target = Util.GetBestEnemyMonster(true, true);
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -291,9 +292,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool WidowAnchorEffectFirst()
         {
-            if (AI.Utils.ChainContainsCard(CardId.WidowAnchor))
+            if (Util.ChainContainsCard(CardId.WidowAnchor))
                 return false;
-            ClientCard target = AI.Utils.GetProblematicEnemyMonster();
+            ClientCard target = Util.GetProblematicEnemyMonster(0, true);
             if (target != null)
             {
                 WidowAnchorTarget = target;
@@ -359,7 +360,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 if (Bot.HasInMonstersZone(CardId.TopologicBomberDragon) && Enemy.GetMonsterCount() > 1)
                     return true;
-                if (!AI.Utils.IsTurn1OrMain2())
+                if (!Util.IsTurn1OrMain2())
                 {
                     foreach (ClientCard card in Bot.Hand)
                     {
@@ -375,14 +376,14 @@ namespace WindBot.Game.AI.Decks
         {
             if (DefaultBreakthroughSkill())
             {
-                WidowAnchorTarget = AI.Utils.GetLastChainCard();
+                WidowAnchorTarget = Util.GetLastChainCard();
                 return true;
             }
 
-            if (!HaveThreeSpellsInGrave() || Duel.Player == 1 || Duel.Phase < DuelPhase.Main1 || Duel.Phase >= DuelPhase.Main2 || AI.Utils.ChainContainsCard(CardId.WidowAnchor))
+            if (!HaveThreeSpellsInGrave() || Duel.Player == 1 || Duel.Phase < DuelPhase.Main1 || Duel.Phase >= DuelPhase.Main2 || Util.ChainContainsCard(CardId.WidowAnchor))
                 return false;
 
-            ClientCard target = AI.Utils.GetBestEnemyMonster(true);
+            ClientCard target = Util.GetBestEnemyMonster(true, true);
             if (target != null && !target.IsDisabled() && !target.HasType(CardType.Normal))
             {
                 WidowAnchorTarget = target;
@@ -410,9 +411,9 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if (AI.Utils.IsTurn1OrMain2())
+                if (Util.IsTurn1OrMain2())
                     return false;
-                ClientCard bestBotMonster = AI.Utils.GetBestBotMonster(true);
+                ClientCard bestBotMonster = Util.GetBestBotMonster(true);
                 if (bestBotMonster != null)
                 {
                     int bestPower = bestBotMonster.Attack;
@@ -527,7 +528,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (AI.Utils.IsChainTarget(Card))
+            if (Util.IsChainTarget(Card))
             {
                 RayeSelectTarget();
                 return true;
@@ -582,11 +583,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool KagariEffect()
         {
-            if (EmptyMainMonsterZone() && AI.Utils.GetProblematicEnemyMonster() != null && Bot.HasInGraveyard(CardId.Afterburners))
+            if (EmptyMainMonsterZone() && Util.GetProblematicEnemyMonster() != null && Bot.HasInGraveyard(CardId.Afterburners))
             {
                 AI.SelectCard(CardId.Afterburners);
             }
-            else if (EmptyMainMonsterZone() && AI.Utils.GetProblematicEnemySpell() != null && Bot.HasInGraveyard(CardId.JammingWave))
+            else if (EmptyMainMonsterZone() && Util.GetProblematicEnemySpell() != null && Bot.HasInGraveyard(CardId.JammingWave))
             {
                 AI.SelectCard(CardId.JammingWave);
             }
@@ -597,7 +598,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShizukuSummon()
         {
-            if (AI.Utils.IsTurn1OrMain2())
+            if (Util.IsTurn1OrMain2())
             {
                 ShizukuSummoned = true;
                 return true;
@@ -617,7 +618,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HayateSummon()
         {
-            if (AI.Utils.IsTurn1OrMain2())
+            if (Util.IsTurn1OrMain2())
                 return false;
             HayateSummoned = true;
             return true;
@@ -641,14 +642,14 @@ namespace WindBot.Game.AI.Decks
                 CardId.EffectVeiler,
                 CardId.GhostRabbit,
                 CardId.JetSynchron
-            }) && !AI.Utils.IsTurn1OrMain2()
+            }) && !Util.IsTurn1OrMain2()
                && Bot.GetMonsterCount() > 0
                && Bot.HasInExtra(CardId.CrystronNeedlefiber);
         }
 
         private bool CrystronNeedlefiberSummon()
         {
-            return !AI.Utils.IsTurn1OrMain2();
+            return !Util.IsTurn1OrMain2();
         }
 
         private bool CrystronNeedlefiberEffect()
@@ -701,15 +702,15 @@ namespace WindBot.Game.AI.Decks
             {
                 return CardId.HornetDrones;
             }
-            else if (AI.Utils.GetProblematicEnemyMonster() != null && Bot.GetRemainingCount(CardId.WidowAnchor, 3) > 0)
+            else if (Util.GetProblematicEnemyMonster() != null && Bot.GetRemainingCount(CardId.WidowAnchor, 3) > 0)
             {
                 return CardId.WidowAnchor;
             }
-            else if (EmptyMainMonsterZone() && AI.Utils.GetProblematicEnemyMonster() != null && Bot.GetRemainingCount(CardId.Afterburners, 1) > 0)
+            else if (EmptyMainMonsterZone() && Util.GetProblematicEnemyMonster() != null && Bot.GetRemainingCount(CardId.Afterburners, 1) > 0)
             {
                 return CardId.Afterburners;
             }
-            else if (EmptyMainMonsterZone() && AI.Utils.GetProblematicEnemySpell() != null && Bot.GetRemainingCount(CardId.JammingWave, 1) > 0)
+            else if (EmptyMainMonsterZone() && Util.GetProblematicEnemySpell() != null && Bot.GetRemainingCount(CardId.JammingWave, 1) > 0)
             {
                 return CardId.JammingWave;
             }

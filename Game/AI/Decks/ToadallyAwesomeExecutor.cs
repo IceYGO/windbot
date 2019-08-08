@@ -413,7 +413,7 @@ namespace WindBot.Game.AI.Decks
         private bool CatSharkSummon()
         {
             if (Bot.HasInMonstersZone(CardId.ToadallyAwesome)
-                && ((AI.Utils.IsOneEnemyBetter(true)
+                && ((Util.IsOneEnemyBetter(true)
                     && !Bot.HasInMonstersZone(new[]
                         {
                             CardId.CatShark,
@@ -470,8 +470,8 @@ namespace WindBot.Game.AI.Decks
                     num++;
                 }
             }
-            return AI.Utils.IsOneEnemyBetter(true)
-                   && AI.Utils.GetBestAttack(Enemy) > 2200
+            return Util.IsOneEnemyBetter(true)
+                   && Util.GetBestAttack(Enemy) > 2200
                    && num < 4
                    && !Bot.HasInMonstersZone(new[]
                         {
@@ -496,7 +496,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     defence += monster.GetDefensePower();
                 }
-                if (attack - 2000 - defence > Enemy.LifePoints && !AI.Utils.IsOneEnemyBetter(true))
+                if (attack - 2000 - defence > Enemy.LifePoints && !Util.IsOneEnemyBetter(true))
                     return true;
             }
             return false;
@@ -512,7 +512,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.IsFacedown())
                 return true;
-            if (Card.IsDefense() && !AI.Utils.IsAllEnemyBetter(true) && Card.Attack >= Card.Defense)
+            if (Card.IsDefense() && !Util.IsAllEnemyBetter(true) && Card.Attack >= Card.Defense)
                 return true;
             return false;
         }

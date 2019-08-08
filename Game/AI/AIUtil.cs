@@ -1,45 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
 namespace WindBot.Game.AI
 {
-    public class AIFunctions
+    public class AIUtil
     {
         public Duel Duel { get; private set; }
         public ClientField Bot { get; private set; }
         public ClientField Enemy { get; private set; }
 
-        public AIFunctions(Duel duel)
+        public AIUtil(Duel duel)
         {
             Duel = duel;
             Bot = Duel.Fields[0];
             Enemy = Duel.Fields[1];
-        }
-
-        public static int CompareCardAttack(ClientCard cardA, ClientCard cardB)
-        {
-            if (cardA.Attack < cardB.Attack)
-                return -1;
-            if (cardA.Attack == cardB.Attack)
-                return 0;
-            return 1;
-        }
-
-        public static int CompareDefensePower(ClientCard cardA, ClientCard cardB)
-        {
-            if (cardA == null && cardB == null)
-                return 0;
-            if (cardA == null)
-                return -1;
-            if (cardB == null)
-                return 1;
-            int powerA = cardA.GetDefensePower();
-            int powerB = cardB.GetDefensePower();
-            if (powerA < powerB)
-                return -1;
-            if (powerA == powerB)
-                return 0;
-            return 1;
         }
 
         /// <summary>
@@ -117,7 +92,7 @@ namespace WindBot.Game.AI
                 .OrderByDescending(card => card.GetDefensePower())
                 .FirstOrDefault();
         }
-		
+
         public ClientCard GetWorstBotMonster(bool onlyATK = false)
         {
             return Bot.MonsterZone.GetMonsters()
@@ -129,7 +104,7 @@ namespace WindBot.Game.AI
         public ClientCard GetOneEnemyBetterThanValue(int value, bool onlyATK = false, bool canBeTarget = false)
         {
             return Enemy.MonsterZone.GetMonsters()
-                .FirstOrDefault(card => card.GetDefensePower() > value && (!onlyATK || card.IsAttack()) && (!canBeTarget || !card.IsShouldNotBeTarget()));
+                .FirstOrDefault(card => card.GetDefensePower() >= value && (!onlyATK || card.IsAttack()) && (!canBeTarget || !card.IsShouldNotBeTarget()));
         }
 
         public ClientCard GetOneEnemyBetterThanMyBest(bool onlyATK = false, bool canBeTarget = false)
@@ -248,11 +223,11 @@ namespace WindBot.Game.AI
         {
             if (Duel.IsNewRule)
             {
-                return Duel.Fields[player].SpellZone[id*4];
+                return Duel.Fields[player].SpellZone[id * 4];
             }
             else
             {
-                return Duel.Fields[player].SpellZone[6+id];
+                return Duel.Fields[player].SpellZone[6 + id];
             }
         }
 
@@ -266,57 +241,70 @@ namespace WindBot.Game.AI
             return Duel.Turn == 1 || Duel.Phase == DuelPhase.Main2;
         }
 
-        internal bool inListOrNull(ClientCard card, IList<ClientCard> list)
-        {
-            return card == null || list.Contains(card);
-        }
-
         public int GetBotAvailZonesFromExtraDeck(IList<ClientCard> remove)
         {
+            ClientCard[] BotMZone = (ClientCard[])Bot.MonsterZone.Clone();
+            ClientCard[] EnemyMZone = (ClientCard[])Enemy.MonsterZone.Clone();
+            for (int i = 0; i < 7; i++)
+            {
+                if (remove.Contains(BotMZone[i])) BotMZone[i] = null;
+                if (remove.Contains(EnemyMZone[i])) EnemyMZone[i] = null;
+            }
+
             if (!Duel.IsNewRule)
                 return Zones.MainMonsterZones;
-            int result = 0;
-            
-            if (inListOrNull(Bot.MonsterZone[5], remove) && inListOrNull(Bot.MonsterZone[6], remove) &&
-                (inListOrNull(Enemy.MonsterZone[5], remove) || inListOrNull(Enemy.MonsterZone[6], remove)))
-                result |= Zones.ExtraMonsterZones;
 
-            if (inListOrNull(Bot.MonsterZone[0], remove) &&
-                (!inListOrNull(Bot.MonsterZone[1], remove) && Bot.MonsterZone[1].HasLinkMarker(CardLinkMarker.Left) ||
-                 !inListOrNull(Bot.MonsterZone[5], remove) && Bot.MonsterZone[5].HasLinkMarker(CardLinkMarker.BottomLeft) ||
-                 !inListOrNull(Enemy.MonsterZone[6], remove) && Enemy.MonsterZone[6].HasLinkMarker(CardLinkMarker.TopRight)))
-                result += Zones.z0;
-            if (inListOrNull(Bot.MonsterZone[1], remove) &&
-                (!inListOrNull(Bot.MonsterZone[0], remove) && Bot.MonsterZone[0].HasLinkMarker(CardLinkMarker.Right) ||
-                 !inListOrNull(Bot.MonsterZone[2], remove) && Bot.MonsterZone[2].HasLinkMarker(CardLinkMarker.Left) ||
-                 !inListOrNull(Bot.MonsterZone[5], remove) && Bot.MonsterZone[5].HasLinkMarker(CardLinkMarker.Bottom) ||
-                 !inListOrNull(Enemy.MonsterZone[6], remove) && Enemy.MonsterZone[6].HasLinkMarker(CardLinkMarker.Top)))
-                result += Zones.z1;
-            if (inListOrNull(Bot.MonsterZone[2], remove) &&
-                (!inListOrNull(Bot.MonsterZone[1], remove) && Bot.MonsterZone[1].HasLinkMarker(CardLinkMarker.Right) ||
-                 !inListOrNull(Bot.MonsterZone[3], remove) && Bot.MonsterZone[3].HasLinkMarker(CardLinkMarker.Left) ||
-                 !inListOrNull(Bot.MonsterZone[5], remove) && Bot.MonsterZone[5].HasLinkMarker(CardLinkMarker.BottomRight) ||
-                 !inListOrNull(Enemy.MonsterZone[6], remove) && Enemy.MonsterZone[6].HasLinkMarker(CardLinkMarker.TopLeft) ||
-                 !inListOrNull(Bot.MonsterZone[6], remove) && Bot.MonsterZone[6].HasLinkMarker(CardLinkMarker.BottomLeft) ||
-                 !inListOrNull(Enemy.MonsterZone[5], remove) && Enemy.MonsterZone[5].HasLinkMarker(CardLinkMarker.TopRight)))
-                result += Zones.z2;
-            if (inListOrNull(Bot.MonsterZone[3], remove) &&
-                (!inListOrNull(Bot.MonsterZone[2], remove) && Bot.MonsterZone[2].HasLinkMarker(CardLinkMarker.Right) ||
-                 !inListOrNull(Bot.MonsterZone[4], remove) && Bot.MonsterZone[4].HasLinkMarker(CardLinkMarker.Left) ||
-                 !inListOrNull(Bot.MonsterZone[6], remove) && Bot.MonsterZone[6].HasLinkMarker(CardLinkMarker.Bottom) ||
-                 !inListOrNull(Enemy.MonsterZone[5], remove) && Enemy.MonsterZone[5].HasLinkMarker(CardLinkMarker.Top)))
-                result += Zones.z3;
-            if (inListOrNull(Bot.MonsterZone[4], remove) &&
-                (!inListOrNull(Bot.MonsterZone[3], remove) && Bot.MonsterZone[3].HasLinkMarker(CardLinkMarker.Right) ||
-                 !inListOrNull(Bot.MonsterZone[6], remove) && Bot.MonsterZone[6].HasLinkMarker(CardLinkMarker.BottomRight) ||
-                 !inListOrNull(Enemy.MonsterZone[5], remove) && Enemy.MonsterZone[5].HasLinkMarker(CardLinkMarker.TopLeft)))
-                result += Zones.z4;
+            int result = 0;
+
+            if (BotMZone[5] == null && BotMZone[6] == null)
+            {
+                if (EnemyMZone[5] == null)
+                    result |= Zones.z6;
+                if (EnemyMZone[6] == null)
+                    result |= Zones.z5;
+            }
+
+            if (BotMZone[0] == null &&
+                ((BotMZone[1]?.HasLinkMarker(CardLinkMarker.Left) ?? false) ||
+                 (BotMZone[5]?.HasLinkMarker(CardLinkMarker.BottomLeft) ?? false) ||
+                 (EnemyMZone[6]?.HasLinkMarker(CardLinkMarker.TopRight) ?? false)))
+                result |= Zones.z0;
+
+            if (BotMZone[1] == null &&
+                ((BotMZone[0]?.HasLinkMarker(CardLinkMarker.Right) ?? false) ||
+                 (BotMZone[2]?.HasLinkMarker(CardLinkMarker.Left) ?? false) ||
+                 (BotMZone[5]?.HasLinkMarker(CardLinkMarker.Bottom) ?? false) ||
+                 (EnemyMZone[6]?.HasLinkMarker(CardLinkMarker.Top) ?? false)))
+                result |= Zones.z1;
+
+            if (BotMZone[2] == null &&
+                ((BotMZone[1]?.HasLinkMarker(CardLinkMarker.Right) ?? false) ||
+                 (BotMZone[3]?.HasLinkMarker(CardLinkMarker.Left) ?? false) ||
+                 (BotMZone[5]?.HasLinkMarker(CardLinkMarker.BottomRight) ?? false) ||
+                 (EnemyMZone[6]?.HasLinkMarker(CardLinkMarker.TopLeft) ?? false) ||
+                 (BotMZone[6]?.HasLinkMarker(CardLinkMarker.BottomLeft) ?? false) ||
+                 (EnemyMZone[5]?.HasLinkMarker(CardLinkMarker.TopRight) ?? false)))
+                result |= Zones.z2;
+
+            if (BotMZone[3] == null &&
+                ((BotMZone[2]?.HasLinkMarker(CardLinkMarker.Right) ?? false) ||
+                 (BotMZone[4]?.HasLinkMarker(CardLinkMarker.Left) ?? false) ||
+                 (BotMZone[6]?.HasLinkMarker(CardLinkMarker.Bottom) ?? false) ||
+                 (EnemyMZone[5]?.HasLinkMarker(CardLinkMarker.Top) ?? false)))
+                result |= Zones.z3;
+
+            if (BotMZone[4] == null &&
+                ((BotMZone[3]?.HasLinkMarker(CardLinkMarker.Right) ?? false) ||
+                 (BotMZone[6]?.HasLinkMarker(CardLinkMarker.BottomRight) ?? false) ||
+                 (EnemyMZone[5]?.HasLinkMarker(CardLinkMarker.TopLeft) ?? false)))
+                result |= Zones.z4;
+
             return result;
         }
 
         public int GetBotAvailZonesFromExtraDeck(ClientCard remove)
         {
-            return GetBotAvailZonesFromExtraDeck(new [] { remove });
+            return GetBotAvailZonesFromExtraDeck(new[] { remove });
         }
 
         public int GetBotAvailZonesFromExtraDeck()
