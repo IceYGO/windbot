@@ -367,18 +367,19 @@ namespace WindBot.Game.AI.Decks
 
         private bool WindwitchSnowBellsp()
         {
+            if (maxxc_used) return false;
             if (Bot.HasInMonstersZone(CardId.WindwitchIceBell) &&
                 Bot.HasInMonstersZone(CardId.WindwitchGlassBell))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
             }
-
             return false;
         }
 
         private bool WindwitchWinterBellsp()
         {
+            if (maxxc_used) return false;
             if (Bot.HasInMonstersZone(CardId.WindwitchIceBell) &&
                  Bot.HasInMonstersZone(CardId.WindwitchGlassBell) &&
                  Bot.HasInMonstersZone(CardId.WindwitchSnowBell))
@@ -1622,7 +1623,8 @@ namespace WindBot.Game.AI.Decks
                 if (Bot.SpellZone[i] != null)
                     Logger.DebugWriteLine("++++++++SpellZone[" + i + "]= " + Bot.SpellZone[i].Id);
             }*/
-
+            if (Util.ChainContainsCard(CardId.MaxxC))
+                maxxc_used = true;
             if ((Duel.CurrentChain.Count >= 1 && Util.GetLastChainCard().Id == 0) ||
                 (Duel.CurrentChain.Count == 2 && !Util.ChainContainPlayer(0) && Duel.CurrentChain[0].Id == 0))
             {
@@ -1638,7 +1640,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     Logger.DebugWriteLine("************************last chain card= " + Util.GetLastChainCard().Id);
                     maxxc_used = true;
-                }
+                }               
                 int lockbird_count = 0;
                 foreach (ClientCard check in Enemy.Graveyard)
                 {
