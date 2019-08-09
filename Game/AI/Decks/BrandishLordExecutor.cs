@@ -314,8 +314,8 @@ namespace WindBot.Game.AI.Decks
              Bot.HasInExtra(CardId.BrandishMaidenHayate) &&
              Bot.HasInExtra(CardId.CrystronNeedlefiber) &&
              Bot.HasInExtra(CardId.BirrelswordDragon) &&
-             AI.Utils.GetOneEnemyBetterThanValue(1500, true) != null &&             
-             (AI.Utils.GetOneEnemyBetterThanValue(1500, true).Attack - 1500) < Bot.LifePoints &&
+             Util.GetOneEnemyBetterThanValue(1500, true) != null &&             
+             (Util.GetOneEnemyBetterThanValue(1500, true).Attack - 1500) < Bot.LifePoints &&
              EnemyMonsterSafe_AA1A2())
                 return true;
             return false;
@@ -461,7 +461,7 @@ namespace WindBot.Game.AI.Decks
         {
             if(Enemy.GetMonsterCount()==0)
             {
-                if(AI.Utils.GetTotalAttackingMonsterAttack(0)>=Enemy.LifePoints)
+                if(Util.GetTotalAttackingMonsterAttack(0)>=Enemy.LifePoints)
                 {                   
                     return true;
                 }
@@ -496,9 +496,9 @@ namespace WindBot.Game.AI.Decks
                 return false;
             /*if (Duel.LastSummonMonster != null && Duel.LastSummonMonster.Id == CardId.Linkuriboh)
                 return false;*/
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == CardId.Linkuriboh)
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().Id == CardId.Linkuriboh)
                 return false;
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == CardId.GalaxySoldier && Enemy.Hand.Count >= 3)
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().Id == CardId.GalaxySoldier && Enemy.Hand.Count >= 3)
                 return false;
             return DefaultSolemnStrike();
         }
@@ -717,7 +717,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool BirrelswordDragoneff()
         {           
-            if(ActivateDescription == AI.Utils.GetStringId(CardId.BirrelswordDragon, 0))
+            if(ActivateDescription == Util.GetStringId(CardId.BirrelswordDragon, 0))
             {                
                 if(Plan_A || Plan_A_1 || Plan_A_2)
                 {
@@ -735,9 +735,9 @@ namespace WindBot.Game.AI.Decks
                     }
                     return false;
                 }
-                if(AI.Utils.IsChainTarget(Card) && AI.Utils.GetBestEnemyMonster(true,true)!=null)
+                if(Util.IsChainTarget(Card) && Util.GetBestEnemyMonster(true,true)!=null)
                 {
-                    AI.SelectCard(AI.Utils.GetBestEnemyMonster(true, true));
+                    AI.SelectCard(Util.GetBestEnemyMonster(true, true));
                     return true;
                 }
                 if(Duel.Player==1 && Bot.BattlingMonster==Card)
@@ -770,9 +770,9 @@ namespace WindBot.Game.AI.Decks
         private bool WidowAnchorEffect_A2()
         {
             if (!Plan_A_2) return false;
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.ChainContainsCard(CardId.BrandishMaidenKagari))
+            if (Util.GetLastChainCard() != null && Util.ChainContainsCard(CardId.BrandishMaidenKagari))
                 return false;
-            AI.SelectCard(AI.Utils.GetBestEnemyMonster(true, true).Id);
+            AI.SelectCard(Util.GetBestEnemyMonster(true, true).Id);
             return UniqueFaceupSpell();
         }
         //plan b
@@ -1203,9 +1203,9 @@ namespace WindBot.Game.AI.Decks
         private bool WidowAnchorEffect_B3B5()
         {
             if (!(Plan_B_3 || Plan_B_5)) return false;
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.ChainContainsCard(CardId.BrandishMaidenKagari))
+            if (Util.GetLastChainCard() != null && Util.ChainContainsCard(CardId.BrandishMaidenKagari))
                 return false;
-            AI.SelectCard(AI.Utils.GetBestEnemyMonster(true, true).Id);            
+            AI.SelectCard(Util.GetBestEnemyMonster(true, true).Id);            
             return UniqueFaceupSpell();
         }
        
@@ -1265,8 +1265,8 @@ namespace WindBot.Game.AI.Decks
                 
         private bool GhostRabbitsummon()
         {
-            if (AI.Utils.GetLastChainCard() != null &&
-                AI.Utils.GetLastChainCard().Id == CardId.AreaZero &&
+            if (Util.GetLastChainCard() != null &&
+                Util.GetLastChainCard().Id == CardId.AreaZero &&
                 !BrandishMonsterExist() && !BrandishMonsterRestart() && Bot.GetMonsterCount() == 0)
                 return true;
             return false;
@@ -1274,10 +1274,10 @@ namespace WindBot.Game.AI.Decks
        
         private bool InfiniteImpermanenceeff()
         {
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsDisabled())
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsDisabled())
                 return false;
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == CardId.GalaxySoldier && Enemy.Hand.Count >= 3) return false;
-            if (AI.Utils.ChainContainsCard(CardId.WidowAnchor))
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().Id == CardId.GalaxySoldier && Enemy.Hand.Count >= 3) return false;
+            if (Util.ChainContainsCard(CardId.WidowAnchor))
                 return false;
             return DefaultInfiniteImpermanence();
         }
@@ -1301,7 +1301,7 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 total_atk += check.Attack;
             }
-            ClientCard m = AI.Utils.GetBestEnemyMonster(true, true);
+            ClientCard m = Util.GetBestEnemyMonster(true, true);
             if(m!=null && m.HasType(CardType.Effect) && (total_damage-total_atk+m.Attack)>=Enemy.LifePoints)
             {
                 AI.SelectCard(m.Id);
@@ -1325,16 +1325,16 @@ namespace WindBot.Game.AI.Decks
         private bool WidowAnchorEffect()
         {
             Widow_control = true;
-            if(DefaultOnBecomeTarget() && AI.Utils.GetBestEnemyMonster(true,true)!=null)
+            if(DefaultOnBecomeTarget() && Util.GetBestEnemyMonster(true,true)!=null)
             {
                 //AI.SelectPlace(Zones.z2, 2);
-                AI.SelectCard(AI.Utils.GetBestEnemyMonster(true, true));
+                AI.SelectCard(Util.GetBestEnemyMonster(true, true));
                 return true;
             }
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().IsDisabled())
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsDisabled())
                 return false;
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == CardId.GalaxySoldier && Enemy.Hand.Count >= 3) return false;
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.GetLastChainCard().Id == CardId.InfiniteImpermanence)
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().Id == CardId.GalaxySoldier && Enemy.Hand.Count >= 3) return false;
+            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().Id == CardId.InfiniteImpermanence)
                 return false;
             if (Duel.LastChainPlayer == 0) return false;
             if(Duel.Player==0 && Enemy.HasInMonstersZone(CardId.ElShaddollWinda,true))
@@ -1401,7 +1401,7 @@ namespace WindBot.Game.AI.Decks
                Enemy.BattlingMonster.Attack > Bot.LifePoints)
             {
                 //AI.SelectPlace(Zones.z2, 2);
-                AI.SelectCard(AI.Utils.GetBestEnemyMonster(true,true));
+                AI.SelectCard(Util.GetBestEnemyMonster(true,true));
                 return UniqueFaceupSpell();
             }
 
@@ -1416,7 +1416,7 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard check in Enemy.GetMonsters())
                 {
-                    if (AI.Utils.GetLastChainCard() == check)
+                    if (Util.GetLastChainCard() == check)
                     {
                         target = check;
                         break;
@@ -1454,7 +1454,7 @@ namespace WindBot.Game.AI.Decks
                 Bot.GetMonstersExtraZoneCount()==0 &&
                 Duel.Player==0 &&
                 Duel.Phase>=DuelPhase.Main1 &&
-                AI.Utils.ChainCountPlayer(0) == 0 &&
+                Util.ChainCountPlayer(0) == 0 &&
                 Bot.GetRemainingCount(CardId.BrandishMaidenRei, 3) > 0 &&
                 !(Bot.HasInHand(CardId.BrandishMaidenRei) && !summon_used))
             {
@@ -1486,7 +1486,7 @@ namespace WindBot.Game.AI.Decks
         private bool Typhooneffcounter()
         {
             
-            if (AI.Utils.ChainContainsCard(CardId.TwinTwisters)) return false;
+            if (Util.ChainContainsCard(CardId.TwinTwisters)) return false;
             IList<ClientCard> targets = new List<ClientCard>();
             if(Bot.HasInSpellZone(CardId.HerculesBase) && !Bot.HasInSpellZone(CardId.AreaZero)
                 && !Bot.HasInSpellZone(CardId.MultiRoll))
@@ -1502,7 +1502,7 @@ namespace WindBot.Game.AI.Decks
             }
             if(count==2)
             {
-                targets.Add(AI.Utils.GetPZone(1, 1));
+                targets.Add(Util.GetPZone(1, 1));
                 AI.SelectCard(targets);
                 return UniqueFaceupSpell();
             }             
@@ -1530,10 +1530,10 @@ namespace WindBot.Game.AI.Decks
         private bool TwinTwistersEffect()
         {
             int count=0;
-            if (AI.Utils.ChainContainsCard(CardId.Typhoon) ||
-                AI.Utils.ChainContainsCard(CardId.TwinTwisters) ||
-                AI.Utils.ChainContainsCard(CardId.BrandishSkillJammingWave) ||
-                AI.Utils.ChainContainsCard(CardId.BrandishSkillAfterburner))
+            if (Util.ChainContainsCard(CardId.Typhoon) ||
+                Util.ChainContainsCard(CardId.TwinTwisters) ||
+                Util.ChainContainsCard(CardId.BrandishSkillJammingWave) ||
+                Util.ChainContainsCard(CardId.BrandishSkillAfterburner))
                 return false;
             IList<ClientCard> targets = new List<ClientCard>();
             foreach (ClientCard check in Enemy.GetSpells())
@@ -1563,9 +1563,9 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(targets);
                 return true;
             }
-            if (AI.Utils.GetLastChainCard() != null &&
-                (AI.Utils.GetLastChainCard().HasType(CardType.Continuous) ||
-                AI.Utils.GetLastChainCard().HasType(CardType.Field)) &&
+            if (Util.GetLastChainCard() != null &&
+                (Util.GetLastChainCard().HasType(CardType.Continuous) ||
+                Util.GetLastChainCard().HasType(CardType.Field)) &&
                 Duel.LastChainPlayer == 1)
             {
                 //AI.SelectPlace(Zones.z2, 2);
@@ -1670,7 +1670,7 @@ namespace WindBot.Game.AI.Decks
             if (Plan_C_1 && Enemy.GetMonsterCount() == 2 && 
                 Duel.Phase==DuelPhase.Main1 &&
                 Bot.HasInMonstersZone(CardId.BirrelswordDragon)) return false;
-            ClientCard target = AI.Utils.GetProblematicEnemyMonster(0, true);
+            ClientCard target = Util.GetProblematicEnemyMonster(0, true);
                 if (target != null)
             {
                 //AI.SelectPlace(Zones.z2, 2);
@@ -1679,14 +1679,14 @@ namespace WindBot.Game.AI.Decks
             }
 
             if(SpellsCountInGrave()>=3 && Enemy.GetSpellCount()>=1 && Enemy.GetMonsterCount()>=1 &&
-                 AI.Utils.GetBestEnemyMonster(true, true)!=null)
+                 Util.GetBestEnemyMonster(true, true)!=null)
             {
                 //AI.SelectPlace(Zones.z2, 2);
-                AI.SelectCard(AI.Utils.GetBestEnemyMonster(true, true));
+                AI.SelectCard(Util.GetBestEnemyMonster(true, true));
                 return true;
             }
 
-            target = AI.Utils.GetBestEnemyMonster(true, true);
+            target = Util.GetBestEnemyMonster(true, true);
             if (target != null)
             {
                 if (Enemy.GetMonsterCount() >= 2 && target.Attack>=1600)
@@ -1818,8 +1818,8 @@ namespace WindBot.Game.AI.Decks
             if (Bot.GetMonstersExtraZoneCount() == 0) return false;
             if (Plan_B || Plan_B_1 || Plan_B_2)
             {
-                if (AI.Utils.GetLastChainCard() != null && 
-                    (AI.Utils.ChainContainsCard(CardId.AreaZero)|| AI.Utils.ChainContainsCard(CardId.BrandishMaidenKagari)))
+                if (Util.GetLastChainCard() != null && 
+                    (Util.ChainContainsCard(CardId.AreaZero)|| Util.ChainContainsCard(CardId.BrandishMaidenKagari)))
                     return false;
                 if (Bot.MonsterZone[5] != null)
                     AI.SelectPlace(Zones.z2);
@@ -1832,8 +1832,8 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Phase != DuelPhase.Main1) return false;
             if (Plan_B_3 || Plan_B_5)
             {
-                if (AI.Utils.GetLastChainCard() != null &&
-                    (AI.Utils.ChainContainsCard(CardId.AreaZero) || AI.Utils.ChainContainsCard(CardId.BrandishMaidenKagari)))
+                if (Util.GetLastChainCard() != null &&
+                    (Util.ChainContainsCard(CardId.AreaZero) || Util.ChainContainsCard(CardId.BrandishMaidenKagari)))
                     return false;
                 if (Bot.MonsterZone[5] != null)
                     AI.SelectPlace(Zones.z2);
@@ -1850,7 +1850,7 @@ namespace WindBot.Game.AI.Decks
                 {                   
                     return false;
                 }
-                if (AI.Utils.GetLastChainCard() != null && AI.Utils.ChainContainsCard(CardId.AreaZero))
+                if (Util.GetLastChainCard() != null && Util.ChainContainsCard(CardId.AreaZero))
                     return false;
                 if (Bot.MonsterZone[5] != null)
                     AI.SelectPlace(Zones.z0);
@@ -1862,7 +1862,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool HornetBitEffect()
         {            
-            if (AI.Utils.GetLastChainCard() != null && AI.Utils.ChainContainsCard(CardId.AreaZero))
+            if (Util.GetLastChainCard() != null && Util.ChainContainsCard(CardId.AreaZero))
                 return false;
             if (Bot.HasInMonstersZone(CardId.TopologicBomberDragon))
                 return false;
@@ -1875,7 +1875,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Phase < DuelPhase.Main1) return false;
             if (Duel.CurrentChain.Count > 0) return false;
             if (Duel.LastChainPlayer == 0 || Duel.Player==1 ||               
-                AI.Utils.ChainContainsCard(CardId.BrandishMaidenRei)) return false;
+                Util.ChainContainsCard(CardId.BrandishMaidenRei)) return false;
             if (Bot.GetMonstersExtraZoneCount() >= 1) return false;
             if (!BrandishMonsterExist())
             {                
@@ -1899,8 +1899,8 @@ namespace WindBot.Game.AI.Decks
                 if (GetPlan())
                     return false;
                 if(Duel.Phase==DuelPhase.Main1 && Bot.HasInMonstersZone(CardId.BrandishMaidenKagari) &&
-                    HayateSummoned && AI.Utils.GetWorstEnemyMonster()!=null &&
-                    AI.Utils.GetWorstEnemyMonster().GetDefensePower()<AI.Utils.GetBestBotMonster().Attack)
+                    HayateSummoned && Util.GetWorstEnemyMonster()!=null &&
+                    Util.GetWorstEnemyMonster().GetDefensePower()<Util.GetBestBotMonster().Attack)
                 {
                     Logger.DebugWriteLine("***********base_draw_first");
                     base_draw_first = true;
@@ -2159,9 +2159,9 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (AI.Utils.IsChainTarget(Card) || 
-                AI.Utils.ChainContainsCard(CardId.DarkHole) ||
-                AI.Utils.ChainContainsCard(_CardId.UltimateConductorTytanno))
+            if (Util.IsChainTarget(Card) || 
+                Util.ChainContainsCard(CardId.DarkHole) ||
+                Util.ChainContainsCard(_CardId.UltimateConductorTytanno))
             {
                 //AI.SelectPlace(Zones.z5, 3);
                 Rei_eff_used = true;
@@ -2180,7 +2180,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             bool change = false;
-            if (AI.Utils.GetWorstEnemyMonster(true) != null && AI.Utils.GetWorstEnemyMonster(true).Attack >= 1500)
+            if (Util.GetWorstEnemyMonster(true) != null && Util.GetWorstEnemyMonster(true).Attack >= 1500)
                 change = true;
             if ((Card.Attacked || change)&& Duel.Phase == DuelPhase.BattleStart)
             {
@@ -2318,7 +2318,7 @@ namespace WindBot.Game.AI.Decks
                     !(check.IsShouldNotBeSpellTrapTarget() || check.IsShouldNotBeTarget()))
                     m_count++;
             }
-            if (AI.Utils.GetProblematicEnemyMonster(2000,true) != null && Bot.HasInGraveyard(CardId.BrandishSkillAfterburner))
+            if (Util.GetProblematicEnemyMonster(2000,true) != null && Bot.HasInGraveyard(CardId.BrandishSkillAfterburner))
             {
                 if (Bot.HasInGraveyard(CardId.BrandishStartUpEngage) &&
                     Bot.GetRemainingCount(CardId.BrandishSkillAfterburner, 2) > 0 &&
@@ -2381,7 +2381,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Bot.HasInMonstersZone(CardId.CrystronNeedlefiber) && Bot.HasInMonstersZone(CardId.BrandishMaidenHayate))
                 return false;
-            if (AI.Utils.IsTurn1OrMain2())
+            if (Util.IsTurn1OrMain2())
             {
                 //AI.SelectPlace(Zones.z5, 3);
                 ShizukuSummoned = true;
@@ -2434,7 +2434,7 @@ namespace WindBot.Game.AI.Decks
                 HayateSummoned = true;
                 return true;
             }
-            if (AI.Utils.IsTurn1OrMain2())
+            if (Util.IsTurn1OrMain2())
                 return false;
             if (Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon,true) && !KagariSummoned)
             {
@@ -2515,25 +2515,25 @@ namespace WindBot.Game.AI.Decks
             if(Bot.HasInSpellZone(CardId.HerculesBase))
             {
                 AI.SelectCard(CardId.HerculesBase);
-                AI.SelectNextCard(AI.Utils.GetBestEnemyCard(false, true));
+                AI.SelectNextCard(Util.GetBestEnemyCard(false, true));
                 return true;
             }
             if (GetNotBotMonster()!=null)
             {
                 AI.SelectCard(GetNotBotMonster().Id);
-                AI.SelectNextCard(AI.Utils.GetBestEnemyCard(false, true));
+                AI.SelectNextCard(Util.GetBestEnemyCard(false, true));
                 return true;
             }
             if (Bot.HasInSpellZone(CardId.MetalfoesFusion))
             {
                 AI.SelectCard(CardId.MetalfoesFusion);
-                AI.SelectNextCard(AI.Utils.GetBestEnemyCard(false, true));
+                AI.SelectNextCard(Util.GetBestEnemyCard(false, true));
                 return true;
             }
             if (Bot.HasInSpellZone(CardId.Typhoon) && enemy_no_used_spell)
             {
                 AI.SelectCard(CardId.Typhoon);
-                AI.SelectNextCard(AI.Utils.GetBestEnemyCard(false, true));
+                AI.SelectNextCard(Util.GetBestEnemyCard(false, true));
                 return true;
             }
             return false;
@@ -2617,7 +2617,7 @@ namespace WindBot.Game.AI.Decks
                 return CardId.BrandishStartUpEngage;
             if (HerculesBaseSearch() && Bot.GetRemainingCount(CardId.HerculesBase, 1) > 0)
                 return CardId.HerculesBase;
-            if (AI.Utils.GetProblematicEnemyMonster(2400, true) != null &&
+            if (Util.GetProblematicEnemyMonster(2400, true) != null &&
                 Bot.GetRemainingCount(CardId.BrandishSkillAfterburner, 2) > 0 &&
                 !Bot.HasInGraveyard(CardId.BrandishSkillAfterburner))
                 return CardId.BrandishSkillAfterburner;
@@ -2629,7 +2629,7 @@ namespace WindBot.Game.AI.Decks
                 !Bot.HasInSpellZone(CardId.MultiRoll) &&
                 Bot.GetRemainingCount(CardId.MultiRoll,2)>0)
                 return CardId.MultiRoll;                  
-            if (AI.Utils.GetProblematicEnemyMonster(1600, true) != null &&
+            if (Util.GetProblematicEnemyMonster(1600, true) != null &&
                 Bot.GetRemainingCount(CardId.BrandishSkillAfterburner, 2) > 0)
                 return CardId.BrandishSkillAfterburner;            
             if (!Bot.HasInHandOrInSpellZoneOrInGraveyard(CardId.AreaZero))
@@ -2659,7 +2659,7 @@ namespace WindBot.Game.AI.Decks
                SpellsCountInGrave() >= 2 &&
                Bot.GetRemainingCount(CardId.BrandishSkillJammingWave, 1) > 0)
                 return CardId.BrandishSkillJammingWave;
-            if (AI.Utils.GetProblematicEnemyMonster(2400, true) != null &&
+            if (Util.GetProblematicEnemyMonster(2400, true) != null &&
                 Bot.GetRemainingCount(CardId.BrandishSkillAfterburner, 2) > 0)
                 return CardId.BrandishSkillAfterburner;
             if (!Bot.HasInHandOrInSpellZone(CardId.WidowAnchor) &&
@@ -2863,7 +2863,7 @@ namespace WindBot.Game.AI.Decks
                 Bot.HasInHandOrInGraveyard(CardId.LordOfTheLair) &&
                 !lord_sp_used && !lord_eff_used &&
                 !Rei_eff_used && !Rei_grave_used &&
-                AI.Utils.IsOneEnemyBetterThanValue(1500, true) &&
+                Util.IsOneEnemyBetterThanValue(1500, true) &&
                 (attacker.Id == CardId.BrandishMaidenHayate ||
                 attacker.Id == CardId.BrandishMaidenKagari ||
                 attacker.Id == CardId.BrandishMaidenShizuku)
@@ -2895,7 +2895,7 @@ namespace WindBot.Game.AI.Decks
                         if (check.IsAttack() && !check.IsMonsterDangerous() && check.Attack >= 1500)
                             Hayatecheck.Add(check);
                     }
-                    Hayatecheck.Sort(AIFunctions.CompareDefensePower);
+                    Hayatecheck.Sort(CardContainer.CompareDefensePower);
                     HayateTarget = Hayatecheck[0];
 
                     Logger.DebugWriteLine("******HayateTarget= " + HayateTarget.Name);
@@ -2965,11 +2965,11 @@ namespace WindBot.Game.AI.Decks
                 }                    
                 return true;
             }
-            if (desc == AI.Utils.GetStringId(CardId.SummonSorceress, 2)) // summon to the field of opponent?
+            if (desc == Util.GetStringId(CardId.SummonSorceress, 2)) // summon to the field of opponent?
                 return false;
-            if (desc == AI.Utils.GetStringId(CardId.BrandishStartUpEngage, 0)) // draw card?
+            if (desc == Util.GetStringId(CardId.BrandishStartUpEngage, 0)) // draw card?
                 return true;
-            if (desc == AI.Utils.GetStringId(CardId.WidowAnchor, 0)) // get control?
+            if (desc == Util.GetStringId(CardId.WidowAnchor, 0)) // get control?
             {
                 if (Enemy.HasInMonstersZone(CardId.ElShaddollWinda) && Duel.Player==0)
                     return false;
@@ -2977,9 +2977,9 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 return false;
             }            
-            if (desc == AI.Utils.GetStringId(CardId.BrandishSkillJammingWave, 0)) // destroy monster?
+            if (desc == Util.GetStringId(CardId.BrandishSkillJammingWave, 0)) // destroy monster?
             {
-                ClientCard target = AI.Utils.GetBestEnemyMonster();
+                ClientCard target = Util.GetBestEnemyMonster();
                 if (target != null)
                 {
                     AI.SelectCard(target);
@@ -2988,7 +2988,7 @@ namespace WindBot.Game.AI.Decks
                 else
                     return false;
             }
-            if (desc == AI.Utils.GetStringId(CardId.BrandishSkillAfterburner, 0)) // destroy spell & trap?
+            if (desc == Util.GetStringId(CardId.BrandishSkillAfterburner, 0)) // destroy spell & trap?
             {
                 if(Bot.HasInSpellZone(CardId.AreaZero) && 
                     Bot.GetMonsterCount()==0 && 
@@ -2999,15 +2999,15 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(CardId.AreaZero);
                     return true;
                 }
-                if (AI.Utils.GetPZone(1, 0) != null && AI.Utils.GetPZone(1, 0).Type == 16777218)
+                if (Util.GetPZone(1, 0) != null && Util.GetPZone(1, 0).Type == 16777218)
                 {
                     
-                    AI.SelectCard(AI.Utils.GetPZone(1, 0));
+                    AI.SelectCard(Util.GetPZone(1, 0));
                     return UniqueFaceupSpell();
                 }
-                if (AI.Utils.GetPZone(1, 1) != null && AI.Utils.GetPZone(1, 1).Type == 16777218)
+                if (Util.GetPZone(1, 1) != null && Util.GetPZone(1, 1).Type == 16777218)
                 {                    
-                    AI.SelectCard(AI.Utils.GetPZone(1,1));
+                    AI.SelectCard(Util.GetPZone(1,1));
                     return UniqueFaceupSpell();
                 }
                 if(Bot.HasInSpellZone(CardId.HerculesBase))
@@ -3020,7 +3020,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(CardId.MetalfoesFusion);
                     return true;
                 }
-                ClientCard target = AI.Utils.GetBestEnemySpell();
+                ClientCard target = Util.GetBestEnemySpell();
                 if (target != null)
                 {
                     AI.SelectCard(target);
@@ -3049,7 +3049,7 @@ namespace WindBot.Game.AI.Decks
             CheckPlan();
             if(Plan_A || Plan_A_1 || Plan_A_2 || Plan_A_3)
             {
-                if(AI.Utils.GetOneEnemyBetterThanValue(1500, true) == null)
+                if(Util.GetOneEnemyBetterThanValue(1500, true) == null)
                 {
                     Plan_A = false;
                     Plan_A_1 = false;
@@ -3060,11 +3060,11 @@ namespace WindBot.Game.AI.Decks
             foreach(ClientCard check in Bot.GetMonsters())
             {               
             }
-            if (AI.Utils.GetPZone(1, 0) != null && AI.Utils.GetPZone(1, 0).Type == 16777218)
+            if (Util.GetPZone(1, 0) != null && Util.GetPZone(1, 0).Type == 16777218)
             {
                 IsPendulumDeck = true;
             }
-            if (AI.Utils.GetPZone(1, 1) != null && AI.Utils.GetPZone(1, 1).Type == 16777218)
+            if (Util.GetPZone(1, 1) != null && Util.GetPZone(1, 1).Type == 16777218)
             {
                 IsPendulumDeck = true;
             }
@@ -3074,9 +3074,9 @@ namespace WindBot.Game.AI.Decks
                 !Enemy.HasInBanished(CardId.HeavymetalfoesElectrumite) &&
                 !Enemy.HasInMonstersZone(CardId.HeavymetalfoesElectrumite))
                 WaitHeavymetalfoes = true;
-            if (AI.Utils.ChainContainsCard(CardId.MaxxC))
+            if (Util.ChainContainsCard(CardId.MaxxC))
                 MaxxC_used = true;
-            if (AI.Utils.ChainContainsCard(CardId.LockBird))
+            if (Util.ChainContainsCard(CardId.LockBird))
                 Lockbird_used = true;
             base.OnChainEnd();
         }
