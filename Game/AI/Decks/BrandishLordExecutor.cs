@@ -116,21 +116,7 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)            
         {
             
-            //counter 
-            AddExecutor(ExecutorType.Activate, CardId.Typhoon, Typhooneffcounter);
-            AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, TorrentialTributeeff);
-            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, SolemnStrikeeff);
-            AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
-            AddExecutor(ExecutorType.Activate, CardId.EffectVeiler, DefaultEffectVeiler);
-            AddExecutor(ExecutorType.Activate, CardId.WidowAnchor, WidowAnchorEffectFirst);
-            AddExecutor(ExecutorType.Activate, CardId.AshBlossom, DefaultAshBlossomAndJoyousSpring);
-            AddExecutor(ExecutorType.Activate, CardId.GhostRabbit, DefaultGhostOgreAndSnowRabbit);
-            AddExecutor(ExecutorType.Activate, CardId.MaxxC, DefaultMaxxC);
-            AddExecutor(ExecutorType.Activate, CardId.Sharkcannon, Sharkcannoneff);
-            AddExecutor(ExecutorType.Activate, CardId.WidowAnchor, WidowAnchorEffect);
-            AddExecutor(ExecutorType.Activate, CardId.InfiniteImpermanence,InfiniteImpermanenceeff);            
-            AddExecutor(ExecutorType.Activate, CardId.TwinTwisters, TwinTwistersEffect);            
+                
                      
             //first set
             AddExecutor(ExecutorType.SpellSet, CardId.HerculesBase, BaseSetFirst);
@@ -215,6 +201,21 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.BrandishMaidenHayate, HayateSp_B2);
             AddExecutor(ExecutorType.SpSummon, CardId.BrandishMaidenShizuku, ShizukuSp_B2);
 
+            //counter 
+            AddExecutor(ExecutorType.Activate, CardId.Typhoon, Typhooneffcounter);
+            AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, TorrentialTributeeff);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, SolemnStrikeeff);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
+            AddExecutor(ExecutorType.Activate, CardId.EffectVeiler, DefaultEffectVeiler);
+            AddExecutor(ExecutorType.Activate, CardId.WidowAnchor, WidowAnchorEffectFirst);
+            AddExecutor(ExecutorType.Activate, CardId.AshBlossom, DefaultAshBlossomAndJoyousSpring);
+            AddExecutor(ExecutorType.Activate, CardId.GhostRabbit, DefaultGhostOgreAndSnowRabbit);
+            AddExecutor(ExecutorType.Activate, CardId.MaxxC, DefaultMaxxC);
+            AddExecutor(ExecutorType.Activate, CardId.Sharkcannon, Sharkcannoneff);
+            AddExecutor(ExecutorType.Activate, CardId.WidowAnchor, WidowAnchorEffect);
+            AddExecutor(ExecutorType.Activate, CardId.InfiniteImpermanence, InfiniteImpermanenceeff);
+            AddExecutor(ExecutorType.Activate, CardId.TwinTwisters, TwinTwistersEffect);
             //To battle phase
             AddExecutor(ExecutorType.GoToBattlePhase, GoToBattlePhase);
             //card control           
@@ -1589,7 +1590,8 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInSpellZoneOrInGraveyard(CardId.MetalfoesFusion))
                 return false;
             AI.SelectCard(new[]{
-                CardId.MetalfoesFusion,               
+                CardId.MetalfoesFusion,
+                CardId.BrandishStartUpEngage
             });
             //AI.SelectPlace(Zones.z2, 2);
             return true;
@@ -2416,6 +2418,7 @@ namespace WindBot.Game.AI.Decks
                 summon_used && !Rei_eff_used && Duel.Phase == DuelPhase.Main1 &&
                 Enemy.GetMonsterCount() == 0 && Duel.Turn > 1)
                 return false;
+            if (Bot.HasInMonstersZone(CardId.BrandishMaidenKagari) && !KagariSummoned) return false;
             if (Enemy.LifePoints<=1500 && Duel.Phase == DuelPhase.Main1)
             {
                 //AI.SelectPlace(Zones.z5, 3);
