@@ -969,7 +969,7 @@ namespace WindBot.Game.AI.Decks
             return 0;
         }
 
-        public override bool OnSelectYesNo(int desc)
+        public override bool OnSelectYesNo(long desc)
         {
             if (desc == Util.GetStringId(CardId.Sanctuary, 0))
             {

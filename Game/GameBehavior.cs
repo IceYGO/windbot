@@ -1067,7 +1067,7 @@ namespace WindBot.Game
         {
             packet.ReadByte(); // player
             int type = packet.ReadInt16();
-            int quantity = packet.ReadInt16();
+            int quantity = packet.ReadInt32();
 
             IList<ClientCard> cards = new List<ClientCard>();
             IList<int> counters = new List<int>();
@@ -1314,8 +1314,8 @@ namespace WindBot.Game
 
         private void OnSelectSum(BinaryReader packet)
         {
-            bool mode = packet.ReadByte() == 0;
             packet.ReadByte(); // player
+            bool mode = packet.ReadByte() == 0;
             int sumval = packet.ReadInt32();
             int min = packet.ReadInt32();
             int max = packet.ReadInt32();

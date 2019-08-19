@@ -91,12 +91,7 @@ namespace WindBot.Game
             if ((flag & (int)Query.Code) != 0)
                 SetId(packet.ReadInt32());
             if ((flag & (int)Query.Position) != 0)
-            {
-                Controller = duel.GetLocalPlayer(packet.ReadByte());
-                Location = (CardLocation)packet.ReadByte();
-                Sequence = packet.ReadByte();
-                Position = packet.ReadByte();
-            }
+                Position = (packet.ReadInt32() >> 24) & 0xff;
             if ((flag & (int)Query.Alias) != 0)
                 Alias = packet.ReadInt32();
             if ((flag & (int)Query.Type) != 0)
@@ -151,6 +146,8 @@ namespace WindBot.Game
                 Disabled = status & STATUS_DISABLED;
                 ProcCompleted = status & STATUS_PROC_COMPLETE;
             }
+            if ((flag & (int)Query.IsPublic) != 0)
+                packet.ReadInt32();
             if ((flag & (int)Query.LScale) != 0)
                 LScale = packet.ReadInt32();
             if ((flag & (int)Query.RScale) != 0)
