@@ -937,7 +937,7 @@ namespace WindBot.Game
                         break;
                     }
                 }
-                result[i + 2] = (byte)id;
+                result[i + 8] = (byte)id;
             }
 
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
