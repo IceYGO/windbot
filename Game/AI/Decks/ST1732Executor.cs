@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("ST1732", "AI_ST1732", "Normal")]
+    [Deck("ST1732", "AI_ST1732")]
     public class ST1732Executor : DefaultExecutor
     {
         public class CardId
@@ -189,7 +189,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MindControlEffect()
         {
-            ClientCard target = AI.Utils.GetBestEnemyMonster();
+            ClientCard target = Util.GetBestEnemyMonster();
             if (target != null)
             {
                 AI.SelectCard(target);
@@ -461,8 +461,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool LinkSummon()
         {
-            return (AI.Utils.IsTurn1OrMain2() || AI.Utils.IsOneEnemyBetter())
-                && AI.Utils.GetBestAttack(Bot) < Card.Attack;
+            return (Util.IsTurn1OrMain2() || Util.IsOneEnemyBetter())
+                && Util.GetBestAttack(Bot) < Card.Attack;
         }
     }
 }

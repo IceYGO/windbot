@@ -1,4 +1,5 @@
-﻿using YGOSharp.OCGWrapper.Enums;
+﻿using System;
+using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
@@ -61,7 +62,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.UnexpectedDai, UnexpectedDaiEffect);
 
-            AddExecutor(ExecutorType.Summon, CardId.RescueRabbit);
+            AddExecutor(ExecutorType.Summon, CardId.RescueRabbit, RescueRabbitSummon);
             AddExecutor(ExecutorType.Activate, CardId.RescueRabbit, RescueRabbitEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, DefaultPotOfDesires);
@@ -173,7 +174,7 @@ namespace WindBot.Game.AI.Decks
                     break;
             }
             
-            return AI.Utils.CheckSelectCount(result, cards, min, max);
+            return Util.CheckSelectCount(result, cards, min, max);
         }
 
         private bool UnexpectedDaiEffect()
@@ -184,7 +185,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.PhantomGryphon,
                     CardId.MegalosmasherX
                     );
-            else if (AI.Utils.IsTurn1OrMain2())
+            else if (Util.IsTurn1OrMain2())
             {
                 if (Bot.HasInHand(CardId.MysteryShellDragon))
                     AI.SelectCard(CardId.MysteryShellDragon);
@@ -207,9 +208,16 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
+        private bool RescueRabbitSummon()
+        {
+            return Util.GetBotAvailZonesFromExtraDeck() > 0
+                || !Enemy.MonsterZone.IsExistingMatchingCard(card => card.GetDefensePower() >= 1900)
+                || Enemy.MonsterZone.GetMatchingCardsCount(card => card.GetDefensePower() < 1900) > Bot.MonsterZone.GetMatchingCardsCount(card => card.Attack >= 1900);
+        }
+
         private bool RescueRabbitEffect()
         {
-            if (AI.Utils.IsTurn1OrMain2())
+            if (Util.IsTurn1OrMain2())
             {
                 AI.SelectCard(
                     CardId.MegalosmasherX,
@@ -255,7 +263,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool NormalSummon()
         {
-            return true;
+            return Card.Id != CardId.RescueRabbit;
         }
 
         private bool GagagaCowboySummon()
@@ -270,15 +278,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool IgnisterProminenceTheBlastingDracoslayerSummon()
         {
-            return AI.Utils.GetProblematicEnemyCard() != null;
+            return Util.GetProblematicEnemyCard() != null;
         }
 
         private bool IgnisterProminenceTheBlastingDracoslayerEffect()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.IgnisterProminenceTheBlastingDracoslayer, 1))
+            if (ActivateDescription == Util.GetStringId(CardId.IgnisterProminenceTheBlastingDracoslayer, 1))
                 return true;
             ClientCard target1 = null;
-            ClientCard target2 = AI.Utils.GetProblematicEnemyCard();
+            ClientCard target2 = Util.GetProblematicEnemyCard();
             List<ClientCard> spells = Enemy.GetSpells();
             foreach (ClientCard spell in spells)
             {
@@ -325,7 +333,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Number37HopeWovenDragonSpiderSharkSummon()
         {
-            return AI.Utils.IsAllEnemyBetterThanValue(1700, false) && !AI.Utils.IsOneEnemyBetterThanValue(3600, true);
+            return Util.IsAllEnemyBetterThanValue(1700, false) && !Util.IsOneEnemyBetterThanValue(3600, true);
         }
 
         private bool LightningChidoriSummon()
@@ -345,12 +353,12 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            return AI.Utils.GetProblematicEnemyCard() != null;
+            return Util.GetProblematicEnemyCard() != null;
         }
 
         private bool LightningChidoriEffect()
         {
-            ClientCard problematicCard = AI.Utils.GetProblematicEnemyCard();
+            ClientCard problematicCard = Util.GetProblematicEnemyCard();
             AI.SelectCard(0);
             AI.SelectNextCard(problematicCard);
             return true;
@@ -358,12 +366,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool EvolzarLaggiaSummon()
         {
-            return (AI.Utils.IsAllEnemyBetterThanValue(2000, false) && !AI.Utils.IsOneEnemyBetterThanValue(2400, true)) || AI.Utils.IsTurn1OrMain2();
+            return (Util.IsAllEnemyBetterThanValue(2000, false) && !Util.IsOneEnemyBetterThanValue(2400, true)) || Util.IsTurn1OrMain2();
         }
 
         private bool EvilswarmNightmareSummon()
         {
-            if (AI.Utils.IsTurn1OrMain2())
+            if (Util.IsTurn1OrMain2())
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -373,7 +381,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TraptrixRafflesiaSummon()
         {
-            if (AI.Utils.IsTurn1OrMain2() && (Bot.GetRemainingCount(CardId.BottomlessTrapHole, 1) + Bot.GetRemainingCount(CardId.TraptrixTrapHoleNightmare, 1)) > 0)
+            if (Util.IsTurn1OrMain2() && (Bot.GetRemainingCount(CardId.BottomlessTrapHole, 1) + Bot.GetRemainingCount(CardId.TraptrixTrapHoleNightmare, 1)) > 0)
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -384,14 +392,14 @@ namespace WindBot.Game.AI.Decks
         private bool Number59CrookedCookSummon()
         {
             return ((Bot.GetMonsterCount() + Bot.GetSpellCount() - 2) <= 1) &&
-                ((AI.Utils.IsOneEnemyBetter() && !AI.Utils.IsOneEnemyBetterThanValue(2300, true)) || AI.Utils.IsTurn1OrMain2());
+                ((Util.IsOneEnemyBetter() && !Util.IsOneEnemyBetterThanValue(2300, true)) || Util.IsTurn1OrMain2());
         }
 
         private bool Number59CrookedCookEffect()
         {
             if (Duel.Player == 0)
             {
-                if (AI.Utils.IsChainTarget(Card))
+                if (Util.IsChainTarget(Card))
                     return true;
             }
             else
@@ -414,7 +422,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool StarliegePaladynamoEffect()
         {
-            ClientCard result = AI.Utils.GetOneEnemyBetterThanValue(2000, true);
+            ClientCard result = Util.GetOneEnemyBetterThanValue(2000, true);
             if (result != null)
             {
                 AI.SelectCard(0);

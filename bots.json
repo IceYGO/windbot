@@ -26,6 +26,16 @@
         "dialog": "swordsman.zh-CN"
       },
       {
+        "name": "谜之剑士LV4",
+        "deck": "Level VIII",
+        "dialog": "swordsman.zh-CN"
+      },
+      {
+        "name": "谜之剑士LV4",
+        "deck": "Level VIII",
+        "dialog": "swordsman.zh-CN"
+      },
+      {
         "name": "复制植物",
         "deck": "Blue-Eyes",
         "dialog": "copy.zh-CN"
@@ -42,7 +52,12 @@
       },
       {
         "name": "复制梁龙",
-        "deck": "SkyStriker",
+        "deck": "Orcust",
+        "dialog": "anothercopy.zh-CN"
+      },
+      {
+        "name": "复制梁龙",
+        "deck": "Salamangreat",
         "dialog": "anothercopy.zh-CN"
       },
       {
@@ -108,16 +123,6 @@
       {
         "name": "MAX龍果",
         "deck": "BlueEyesMaxDragon",
-        "dialog": "kiwi.zh-TW"
-      },
-      {
-        "name": "MAX龍果",
-        "deck": "BlueEyesMaxDragon",
-        "dialog": "kiwi.zh-TW"
-      },
-      {
-        "name": "幻煌果",
-        "deck": "Phantasm",
         "dialog": "kiwi.zh-TW"
       },
       {

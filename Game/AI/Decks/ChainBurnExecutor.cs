@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("ChainBurn", "AI_ChainBurn", "Normal")]
+    [Deck("ChainBurn", "AI_ChainBurn")]
     public class ChainBurnExecutor : DefaultExecutor
     {
         public class CardId
@@ -415,7 +415,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool must_chain()
         {
-            if (AI.Utils.IsChainTarget(Card)) return true;
+            if (Util.IsChainTarget(Card)) return true;
             foreach (ClientCard card in Enemy.GetSpells())
             {
                 if (card.IsCode(CardId.HarpiesFeatherDuster)&&card.IsFaceup())
@@ -509,7 +509,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BattleFadereff()
         {
-            if (AI.Utils.ChainContainsCard(CardId.BlazingMirrorForce) || AI.Utils.ChainContainsCard(CardId.MagicCylinder))
+            if (Util.ChainContainsCard(CardId.BlazingMirrorForce) || Util.ChainContainsCard(CardId.MagicCylinder))
                 return false;
             if (prevent_used || Duel.Player == 0) return false;
             AI.SelectPosition(CardPosition.FaceUpDefence);
@@ -545,11 +545,11 @@ namespace WindBot.Game.AI.Decks
         }
         public bool Ring_act()
         {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard() != null ) return false;
-            ClientCard target = AI.Utils.GetProblematicEnemyMonster();
-            if (target == null && AI.Utils.IsChainTarget(Card))
+            if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard() != null ) return false;
+            ClientCard target = Util.GetProblematicEnemyMonster();
+            if (target == null && Util.IsChainTarget(Card))
             {
-                target = AI.Utils.GetBestEnemyMonster(true, true);
+                target = Util.GetBestEnemyMonster(true, true);
             }
             if (target != null)
             {
@@ -569,7 +569,7 @@ namespace WindBot.Game.AI.Decks
                     count++;
 
             }           
-            bool Demiseused = AI.Utils.ChainContainsCard(CardId.CardOfDemise);
+            bool Demiseused = Util.ChainContainsCard(CardId.CardOfDemise);
             if (drawfirst) return UniqueFaceupSpell();
             if (DefaultOnBecomeTarget() && count > 1) return true;
             if (Demiseused) return false;             
@@ -724,8 +724,8 @@ namespace WindBot.Game.AI.Decks
                 return true;
             if (GetTotalATK(newlist) / 2 >= Enemy.LifePoints && Bot.HasInSpellZone(CardId.BlazingMirrorForce))
                 return false;
-            if (AI.Utils.GetLastChainCard() == null) return true;
-            if (AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
+            if (Util.GetLastChainCard() == null) return true;
+            if (Util.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             return true;
         }
         public bool MonsterRepos()

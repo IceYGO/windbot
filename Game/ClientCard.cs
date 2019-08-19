@@ -34,6 +34,7 @@ namespace WindBot.Game
         public int Owner { get; private set; }
         public int Controller { get; private set; }
         public int Disabled { get; private set; }
+        public int ProcCompleted { get; private set; }
         public int SelectSeq { get; set; }
         public int OpParam1 { get; set; }
         public int OpParam2 { get; set; }
@@ -145,7 +146,10 @@ namespace WindBot.Game
                 Owner = duel.GetLocalPlayer(packet.ReadInt32());
             if ((flag & (int)Query.Status) != 0) {
                 int status = packet.ReadInt32();
-                Disabled = status & 0x0001;
+                const int STATUS_DISABLED = 0x0001;
+                const int STATUS_PROC_COMPLETE = 0x0008;
+                Disabled = status & STATUS_DISABLED;
+                ProcCompleted = status & STATUS_PROC_COMPLETE;
             }
             if ((flag & (int)Query.LScale) != 0)
                 LScale = packet.ReadInt32();
@@ -310,6 +314,11 @@ namespace WindBot.Game
         public bool IsDisabled()
         {
             return Disabled != 0;
+        }
+
+        public bool IsCanRevive()
+        {
+            return ProcCompleted != 0 || !(IsExtraCard() || HasType(CardType.Ritual) || HasType(CardType.SpSummon));
         }
 
         public bool IsCode(int id)

@@ -10,7 +10,6 @@ namespace WindBot.Game
         public GameClient Game { get; private set; }
         public Duel Duel { get; private set; }
         public Executor Executor { get; set; }
-        public AIFunctions Utils { get; private set; }
 
         private Dialogs _dialogs;
 
@@ -18,7 +17,6 @@ namespace WindBot.Game
         {
             Game = game;
             Duel = duel;
-            Utils = new AIFunctions(duel);
 
             _dialogs = new Dialogs(game);
         }
@@ -165,11 +163,11 @@ namespace WindBot.Game
 
             // Sort the attackers and defenders, make monster with higher attack go first.
             List<ClientCard> attackers = new List<ClientCard>(battle.AttackableCards);
-            attackers.Sort(AIFunctions.CompareCardAttack);
+            attackers.Sort(CardContainer.CompareCardAttack);
             attackers.Reverse();
 
             List<ClientCard> defenders = new List<ClientCard>(Duel.Fields[1].GetMonsters());
-            defenders.Sort(AIFunctions.CompareDefensePower);
+            defenders.Sort(CardContainer.CompareDefensePower);
             defenders.Reverse();
 
             // Let executor decide which card should attack first.
@@ -373,7 +371,7 @@ namespace WindBot.Game
         {
             foreach (CardExecutor exec in Executor.Executors)
             {
-                if (ShouldExecute(exec, card, ExecutorType.Activate))
+                if (ShouldExecute(exec, card, ExecutorType.Activate, desc))
                     return true;
             }
             return false;
@@ -440,7 +438,7 @@ namespace WindBot.Game
                     }
                     if (ShouldExecute(exec, card, ExecutorType.SummonOrSet))
                     {
-                        if (Utils.IsAllEnemyBetter(true) && Utils.IsAllEnemyBetterThanValue(card.Attack + 300, false) &&
+                        if (Executor.Util.IsAllEnemyBetter(true) && Executor.Util.IsAllEnemyBetterThanValue(card.Attack + 300, false) &&
                             main.MonsterSetableCards.Contains(card))
                         {
                             _dialogs.SendSetMonster();
@@ -481,7 +479,7 @@ namespace WindBot.Game
             return 0; // Always select the first option.
         }
 
-        public int OnSelectPlace(int cardId, int player, int location, int available)
+        public int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
             int selector_selected = m_place;
             m_place = 0;
@@ -702,7 +700,7 @@ namespace WindBot.Game
             // Always choose the minimum and lowest atk.
             List<ClientCard> sorted = new List<ClientCard>();
             sorted.AddRange(cards);
-            sorted.Sort(AIFunctions.CompareCardAttack);
+            sorted.Sort(CardContainer.CompareCardAttack);
 
             IList<ClientCard> selected = new List<ClientCard>();
 

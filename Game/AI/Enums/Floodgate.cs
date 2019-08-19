@@ -80,6 +80,7 @@
         CyberDragonInfinity = 10443957,
         ImperialCustom = 9995766,
         InspectorBoarder = 15397015,
-        Mashoudou = 76375976
+        Mashoudou = 76375976,
+        EternalSoul = 48680970
     }
 }

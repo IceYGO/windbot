@@ -7,6 +7,41 @@ namespace WindBot.Game.AI
 {
     public static class CardContainer
     {
+        public static int CompareCardAttack(ClientCard cardA, ClientCard cardB)
+        {
+            if (cardA.Attack < cardB.Attack)
+                return -1;
+            if (cardA.Attack == cardB.Attack)
+                return 0;
+            return 1;
+        }
+
+        public static int CompareCardLevel(ClientCard cardA, ClientCard cardB)
+        {
+            if (cardA.Level < cardB.Level)
+                return -1;
+            if (cardA.Level == cardB.Level)
+                return 0;
+            return 1;
+        }
+
+        public static int CompareDefensePower(ClientCard cardA, ClientCard cardB)
+        {
+            if (cardA == null && cardB == null)
+                return 0;
+            if (cardA == null)
+                return -1;
+            if (cardB == null)
+                return 1;
+            int powerA = cardA.GetDefensePower();
+            int powerB = cardB.GetDefensePower();
+            if (powerA < powerB)
+                return -1;
+            if (powerA == powerB)
+                return 0;
+            return 1;
+        }
+
         public static ClientCard GetHighestAttackMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = false)
         {
             return cards
@@ -88,6 +123,21 @@ namespace WindBot.Game.AI
         public static ClientCard GetFirstMatchingFaceupCard(this IEnumerable<ClientCard> cards, Func<ClientCard, bool> filter)
         {
             return cards.FirstOrDefault(card => card?.Data != null && card.IsFaceup() && filter.Invoke(card));
+        }
+
+        public static IList<ClientCard> GetMatchingCards(this IEnumerable<ClientCard> cards, Func<ClientCard, bool> filter)
+        {
+            return cards.Where(card => card?.Data != null && filter.Invoke(card)).ToList();
+        }
+
+        public static int GetMatchingCardsCount(this IEnumerable<ClientCard> cards, Func<ClientCard, bool> filter)
+        {
+            return cards.Count(card => card?.Data != null && filter.Invoke(card));
+        }
+
+        public static bool IsExistingMatchingCard(this IEnumerable<ClientCard> cards, Func<ClientCard, bool> filter, int count = 1)
+        {
+            return cards.GetMatchingCardsCount(filter) >= count;
         }
 
         public static ClientCard GetShouldBeDisabledBeforeItUseEffectMonster(this IEnumerable<ClientCard> cards, bool canBeTarget = true)

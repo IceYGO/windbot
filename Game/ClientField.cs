@@ -150,12 +150,17 @@ namespace WindBot.Game
 
         public List<ClientCard> GetMonstersInExtraZone()
         {
-            return GetMonsters().Where((card, i) => i >= 5).ToList();
+            return GetMonsters().Where(card => card.Sequence >= 5).ToList();
         }
 
         public List<ClientCard> GetMonstersInMainZone()
         {
-            return GetMonsters().Where((card, i) => i < 5).ToList();
+            return GetMonsters().Where(card => card.Sequence < 5).ToList();
+        }
+
+        public ClientCard GetFieldSpellCard()
+        {
+            return SpellZone[5];
         }
 
         public bool HasInHand(int cardId)

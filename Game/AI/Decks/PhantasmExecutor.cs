@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Phantasm", "AI_Phantasm", "Normal")]
+    [Deck("Phantasm", "AI_Phantasm")]
     public class PhantasmExecutor : DefaultExecutor
     {
         public class CardId
@@ -117,11 +117,13 @@ namespace WindBot.Game.AI.Decks
         bool summon_used = false;
         bool CardOfDemiseeff_used = false;
         bool SeaStealthAttackeff_used = false;
+        int City_count = 0;
         public override void OnNewTurn()
         {            
             summon_used = false;
             CardOfDemiseeff_used = false;
             SeaStealthAttackeff_used = false;
+            City_count = 0;
             base.OnNewTurn();
         }
         private bool PreventFeatherDustereff()
@@ -133,7 +135,7 @@ namespace WindBot.Game.AI.Decks
         {           
             if (Enemy.GetMonsterCount() == 0)
             {
-                if (AI.Utils.GetTotalAttackingMonsterAttack(0) >= Enemy.LifePoints)
+                if (Util.GetTotalAttackingMonsterAttack(0) >= Enemy.LifePoints)
                 {                   
                     return true;
                 }
@@ -145,7 +147,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (DefaultOnBecomeTarget() && Card.Location==CardLocation.SpellZone)
             {
-                AI.SelectCard(AI.Utils.GetBestEnemyCard(false,true));
+                AI.SelectCard(Util.GetBestEnemyCard(false,true));
                 return true;
             }
             if(Enemy.HasInSpellZone(CardId.EternalSoul))
@@ -159,17 +161,17 @@ namespace WindBot.Game.AI.Decks
                 return UniqueFaceupSpell();
             }
             if (Bot.GetMonsterCount() > 0 && !Bot.HasInSpellZone(CardId.SeaStealthAttack) &&
-                AI.Utils.IsOneEnemyBetterThanValue(2000, false) && Duel.Phase==DuelPhase.BattleStart)
+                Util.IsOneEnemyBetterThanValue(2000, false) && Duel.Phase==DuelPhase.BattleStart)
             {
-                AI.SelectCard(AI.Utils.GetBestEnemyMonster(true,true));
+                AI.SelectCard(Util.GetBestEnemyMonster(true,true));
                 return UniqueFaceupSpell();
             }
-            if (AI.Utils.GetProblematicEnemyCard(9999,true)!=null)
+            if (Util.GetProblematicEnemyCard(9999,true)!=null)
             {
-                if (AI.Utils.GetProblematicEnemyCard(9999, true).IsCode(CardId.ElShaddollWinda) &&
-                    !AI.Utils.GetProblematicEnemyCard(9999, true).IsDisabled())
+                if (Util.GetProblematicEnemyCard(9999, true).IsCode(CardId.ElShaddollWinda) &&
+                    !Util.GetProblematicEnemyCard(9999, true).IsDisabled())
                     return false;
-                AI.SelectCard(AI.Utils.GetProblematicEnemyCard(9999, true));                
+                AI.SelectCard(Util.GetProblematicEnemyCard(9999, true));                
                 return UniqueFaceupSpell();
             }
             return false;
@@ -201,7 +203,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (m.IsAttack()) count++;                    
             }
-            if (AI.Utils.GetTotalAttackingMonsterAttack(1) >= Bot.LifePoints)
+            if (Util.GetTotalAttackingMonsterAttack(1) >= Bot.LifePoints)
                 return true;
             return count >= 2;
         }
@@ -239,7 +241,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SkillDraineff()
         {
-            if (Duel.LastChainPlayer == 1 && AI.Utils.GetLastChainCard().Location == CardLocation.MonsterZone)
+            if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard().Location == CardLocation.MonsterZone)
                 return UniqueFaceupSpell();
             return false;
         }
@@ -354,6 +356,9 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                if (City_count > 10)
+                    return false;
+
                 ClientCard target = null;
                 foreach(ClientCard s in Bot.GetSpells())
                 {
@@ -369,12 +374,13 @@ namespace WindBot.Game.AI.Decks
                     {
                         if (target != null && !SeaStealthAttackeff_used)
                         {
-                            if (AI.Utils.IsChainTarget(Card) || AI.Utils.IsChainTarget(target))
+                            if (Util.IsChainTarget(Card) || Util.IsChainTarget(target))
                                 return false;
                         }
                         break;
                     }
-                }                
+                }
+                City_count++;
                 AI.SelectPlace(Zones.z1 | Zones.z3);
                 AI.SelectCard(CardId.PhantasmSprialBattle);
                 return true;
@@ -421,11 +427,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool BorrelswordDragoneff()
         {
-            if (ActivateDescription == AI.Utils.GetStringId(CardId.BorrelswordDragon, 0))
+            if (ActivateDescription == Util.GetStringId(CardId.BorrelswordDragon, 0))
             {               
-                if (AI.Utils.IsChainTarget(Card) && AI.Utils.GetBestEnemyMonster(true, true) != null)
+                if (Util.IsChainTarget(Card) && Util.GetBestEnemyMonster(true, true) != null)
                 {
-                    AI.SelectCard(AI.Utils.GetBestEnemyMonster(true, true));
+                    AI.SelectCard(Util.GetBestEnemyMonster(true, true));
                     return true;
                 }
                 if (Duel.Player == 1 && Bot.BattlingMonster == Card)
@@ -461,9 +467,9 @@ namespace WindBot.Game.AI.Decks
             else
                 AI.SelectPlace(Zones.z3);
             if (Enemy.HasInMonstersZone(CardId.KnightmareGryphon, true)) return false;         
-            if (AI.Utils.GetProblematicEnemyMonster() == null && Bot.ExtraDeck.Count < 5) return false;
+            if (Util.GetProblematicEnemyMonster() == null && Bot.ExtraDeck.Count < 5) return false;
             if (Bot.GetMonstersInMainZone().Count >= 5) return false;
-            if (AI.Utils.IsTurn1OrMain2()) return false;
+            if (Util.IsTurn1OrMain2()) return false;
             AI.SelectPosition(CardPosition.FaceUpAttack);
             IList<ClientCard> material_list = new List<ClientCard>();
             if(Bot.HasInExtra(CardId.BorreloadDragon))
@@ -538,7 +544,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Linkuriboheff()
         {
-            if (Duel.LastChainPlayer == 0 && AI.Utils.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
+            if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             return true;
         }
         private bool SeaStealthAttackeff()
@@ -591,12 +597,12 @@ namespace WindBot.Game.AI.Decks
                     if (s.IsCode(CardId.PacifisThePhantasmCity))
                         target = s;
                 }
-                if (target != null && AI.Utils.IsChainTarget(target))
+                if (target != null && Util.IsChainTarget(target))
                 {
                     SeaStealthAttackeff_used = true;
                     return true;
                 }                
-                target = AI.Utils.GetLastChainCard();
+                target = Util.GetLastChainCard();
                 if(target!=null)
                 {
                     if(target.IsCode(CardId.BrandishSkillAfterburner))
