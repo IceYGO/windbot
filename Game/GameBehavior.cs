@@ -921,15 +921,11 @@ namespace WindBot.Game
                 return;
             }
 
-            byte[] result = new byte[selected.Count + 8];
-            result[0] = 0;
-            result[1] = 1;
-            result[2] = 0;
-            result[3] = 0;
-            result[4] = (byte)(selected.Count & 0xff);
-            result[5] = (byte)((selected.Count >> 4) & 0xff);
-            result[6] = (byte)((selected.Count >> 8) & 0xff);
-            result[7] = (byte)((selected.Count >> 16) & 0xff);
+            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
+
+            reply.Write((int)0);
+            reply.Write((int)selected.Count);
+
             for (int i = 0; i < selected.Count; ++i)
             {
                 int id = 0;
@@ -942,11 +938,8 @@ namespace WindBot.Game
                         break;
                     }
                 }
-                result[i + 8] = (byte)id;
+                reply.Write((int)id);
             }
-
-            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
-            reply.Write(result);
             Connection.Send(reply);
         }
 
