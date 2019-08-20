@@ -989,8 +989,8 @@ namespace WindBot.Game
                 return;
             }
 
-            byte[] result = new byte[selected.Count + 1];
-            result[0] = (byte)selected.Count;
+            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
+            reply.Write(selected.Count);
             for (int i = 0; i < selected.Count; ++i)
             {
                 int id = 0;
@@ -1003,11 +1003,10 @@ namespace WindBot.Game
                         break;
                     }
                 }
-                result[i + 1] = (byte)id;
+                reply.Write(id);
+                break;
             }
 
-            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
-            reply.Write(result);
             Connection.Send(reply);
         }
 
