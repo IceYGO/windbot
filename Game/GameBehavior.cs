@@ -181,12 +181,12 @@ namespace WindBot.Game
             BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
             deck.Write(Deck.Cards.Count + Deck.ExtraCards.Count);
             deck.Write(Deck.SideCards.Count);
-            foreach (NamedCard card in Deck.Cards)
-                deck.Write(card.Id);
-            foreach (NamedCard card in Deck.ExtraCards)
-                deck.Write(card.Id);
-            foreach (NamedCard card in Deck.SideCards)
-                deck.Write(card.Id);
+            foreach (int card in Deck.Cards)
+                deck.Write(card);
+            foreach (int card in Deck.ExtraCards)
+                deck.Write(card);
+            foreach (int card in Deck.SideCards)
+                deck.Write(card);
             Connection.Send(deck);
             _ai.OnJoinGame();
         }
@@ -196,12 +196,12 @@ namespace WindBot.Game
             BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
             deck.Write(Deck.Cards.Count + Deck.ExtraCards.Count);
             deck.Write(Deck.SideCards.Count);
-            foreach (NamedCard card in Deck.Cards)
-                deck.Write(card.Id);
-            foreach (NamedCard card in Deck.ExtraCards)
-                deck.Write(card.Id);
-            foreach (NamedCard card in Deck.SideCards)
-                deck.Write(card.Id);
+            foreach (int card in Deck.Cards)
+                deck.Write(card);
+            foreach (int card in Deck.ExtraCards)
+                deck.Write(card);
+            foreach (int card in Deck.SideCards)
+                deck.Write(card);
             Connection.Send(deck);
             _ai.OnJoinGame();
         }

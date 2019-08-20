@@ -7,35 +7,25 @@ namespace WindBot.Game
 {
     public class Deck
     {
-        public IList<NamedCard> Cards { get; private set; }
-        public IList<NamedCard> ExtraCards { get; private set; }
-        public IList<NamedCard> SideCards { get; private set; }
+        public IList<int> Cards { get; private set; }
+        public IList<int> ExtraCards { get; private set; }
+        public IList<int> SideCards { get; private set; }
 
         public Deck()
         {
-            Cards = new List<NamedCard>();
-            ExtraCards = new List<NamedCard>();
-            SideCards = new List<NamedCard>();
+            Cards = new List<int>();
+            ExtraCards = new List<int>();
+            SideCards = new List<int>();
         }
 
-        private void AddNewCard(int cardId, bool sideDeck)
+        private void AddNewCard(int cardId, bool mainDeck, bool sideDeck)
         {
-            NamedCard newCard = NamedCard.Get(cardId);
-            if (newCard == null)
-                return;
-
-            if (!sideDeck)
-                AddCard(newCard);
+            if (sideDeck)
+                SideCards.Add(cardId);
+            else if(mainDeck)
+                Cards.Add(cardId);
             else
-                SideCards.Add(newCard);
-        }
-
-        private void AddCard(NamedCard card)
-        {
-            if (card.IsExtraCard())
-                ExtraCards.Add(card);
-            else
-                Cards.Add(card);
+                ExtraCards.Add(cardId);
         }
 
         public static Deck Load(string name)
@@ -46,6 +36,7 @@ namespace WindBot.Game
                 reader = new StreamReader(new FileStream("Decks/" + name + ".ydk", FileMode.Open, FileAccess.Read));
 
                 Deck deck = new Deck();
+                bool main = true;
                 bool side = false;
 
                 while (!reader.EndOfStream)
@@ -55,7 +46,9 @@ namespace WindBot.Game
                         continue;
 
                     line = line.Trim();
-                    if (line.StartsWith("#"))
+                    if (line.Equals("#extra"))
+                        main = false;
+                    else if (line.StartsWith("#"))
                         continue;
                     if (line.Equals("!side"))
                     {
@@ -67,17 +60,10 @@ namespace WindBot.Game
                     if (!int.TryParse(line, out id))
                         continue;
 
-                    deck.AddNewCard(id, side);
+                    deck.AddNewCard(id, main, side);
                 }
 
                 reader.Close();
-
-                if (deck.Cards.Count > 60)
-                    return null;
-                if (deck.ExtraCards.Count > 15)
-                    return null;
-                if (deck.SideCards.Count > 15)
-                    return null;
 
                 return deck;
             }
