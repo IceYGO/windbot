@@ -91,10 +91,13 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, PotOfDesireseff);
             AddExecutor(ExecutorType.Activate, CardId.CardOfDemise, CardOfDemiseeff);
             //sp
-           
+            AddExecutor(ExecutorType.Activate, CardId.Linkuriboh, Linkuriboheff);
+            AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh, Linkuribohsp);
+            AddExecutor(ExecutorType.SpSummon, CardId.KnightmareCerberus,Knightmaresp);
+            AddExecutor(ExecutorType.SpSummon, CardId.KnightmarePhoenix, Knightmaresp);
             AddExecutor(ExecutorType.SpSummon, CardId.MissusRadiant, MissusRadiantsp);
             AddExecutor(ExecutorType.Activate, CardId.MissusRadiant, MissusRadianteff);
-            AddExecutor(ExecutorType.Activate, CardId.Linkuriboh, Linkuriboheff);
+            
             AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh, Linkuribohsp);
             AddExecutor(ExecutorType.SpSummon, CardId.LinkSpider);
             AddExecutor(ExecutorType.SpSummon, CardId.BorreloadDragon, BorreloadDragonsp);
@@ -444,15 +447,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool BorreloadDragonsp()
         {
-            if (!Bot.HasInMonstersZone(CardId.MissusRadiant)) return false;
+            if (!(Bot.HasInMonstersZone(CardId.MissusRadiant) || Bot.HasInMonstersZone(new[] { CardId.KnightmareCerberus, CardId.KnightmarePhoenix }))) return false;
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.IsCode(CardId.MissusRadiant, CardId.LinkSpider, CardId.Linkuriboh))
+                if (monster.IsCode(CardId.MissusRadiant, CardId.KnightmareCerberus, CardId.KnightmarePhoenix, CardId.LinkSpider, CardId.Linkuriboh))
                     material_list.Add(monster);
                 if (material_list.Count == 3) break;
             }
-            if(material_list.Count>=3)
+            if (material_list.Count >= 3)
             {
                 AI.SelectMaterials(material_list);
                 return true;
@@ -461,11 +464,11 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BorreloadDragonspsecond()
         {
-            if (!Bot.HasInMonstersZone(CardId.MissusRadiant)) return false;
+            if (!(Bot.HasInMonstersZone(CardId.MissusRadiant) || Bot.HasInMonstersZone(new[] { CardId.KnightmareCerberus,CardId.KnightmarePhoenix }))) return false;
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.IsCode(CardId.MissusRadiant, CardId.LinkSpider, CardId.Linkuriboh))
+                if (monster.IsCode(CardId.MissusRadiant, CardId.KnightmareCerberus, CardId.KnightmarePhoenix, CardId.LinkSpider, CardId.Linkuriboh))
                     material_list.Add(monster);
                 if (material_list.Count == 3) break;
             }
@@ -619,9 +622,10 @@ namespace WindBot.Game.AI.Decks
         }
 
         private bool Linkuribohsp()
-        {            
+        {
+            
             foreach (ClientCard c in Bot.GetMonsters())
-            {
+            {               
                 if (!c.IsCode(CardId.EaterOfMillions, CardId.Linkuriboh) && c.Level==1)
                 {
                     AI.SelectMaterials(c);
@@ -631,6 +635,23 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
+        private bool Knightmaresp()
+        {
+            int[] firstMats = new[] {
+              CardId.KnightmareCerberus,
+              CardId.KnightmarePhoenix
+            };
+            if (Bot.MonsterZone.GetMatchingCardsCount(card => card.IsCode(firstMats)) >= 1)return false;
+            foreach (ClientCard c in Bot.GetMonsters())
+            {
+                if (!c.IsCode(CardId.EaterOfMillions) && c.Level == 1)
+                {
+                    AI.SelectMaterials(c);
+                    return true;
+                }
+            }
+            return false;
+        }
         private bool Linkuriboheff()
         {
             if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;           
