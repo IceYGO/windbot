@@ -904,6 +904,8 @@ namespace WindBot.Game
                 ClientCard card;
                 if (((int)info.location & (int)CardLocation.Overlay) != 0)
                     card = new ClientCard(id, CardLocation.Overlay, -1);
+                else if (info.location == 0)
+                    card = new ClientCard(id, 0, 0);
                 else
                     card = _duel.GetCard(info.controler, (CardLocation)info.location, info.sequence);
                 if (card == null) continue;
@@ -960,6 +962,8 @@ namespace WindBot.Game
                 ClientCard card;
                 if (((int)info.location & (int)CardLocation.Overlay) != 0)
                     card = new ClientCard(id, CardLocation.Overlay, -1);
+                else if (info.location == 0)
+                    card = new ClientCard(id, 0, 0);
                 else
                     card = _duel.GetCard(info.controler, (CardLocation)info.location, info.sequence);
                 if (card == null) continue;
@@ -997,7 +1001,6 @@ namespace WindBot.Game
                     }
                 }
                 reply.Write(id);
-                break;
             }
 
             Connection.Send(reply);
