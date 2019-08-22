@@ -19,6 +19,8 @@ namespace WindBot
 
             Config.Load(args);
 
+            Logger.WriteLine(Config.GetString("Deck"));
+
             string databasePath = Config.GetString("DbPath", "cards.cdb");
 
             InitDatas(databasePath);
