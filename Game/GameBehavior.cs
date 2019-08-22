@@ -888,7 +888,7 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, _ai.OnSelectBattleCmd(battle).ToValue());
         }
 
-        private void InternalOnSelectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func)
+        private void InternalOnSelectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func, bool tribute = false)
         {
             packet.ReadByte(); // player
             bool cancelable = packet.ReadByte() != 0;
@@ -900,7 +900,14 @@ namespace WindBot.Game
             for (int i = 0; i < count; ++i)
             {
                 int id = packet.ReadInt32();
-                LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
+                LocationInfo info = tribute ? new LocationInfo(packet, _duel.IsFirst) : new LocationInfo();
+                if (tribute)
+                {
+                    info.controler = packet.ReadByte();
+                    info.location = packet.ReadByte();
+                    info.sequence = packet.ReadInt32();
+                    packet.ReadByte();
+                }
                 ClientCard card;
                 if (((int)info.location & (int)CardLocation.Overlay) != 0)
                     card = new ClientCard(id, CardLocation.Overlay, -1);
@@ -1395,7 +1402,7 @@ namespace WindBot.Game
 
         private void OnSelectTribute(BinaryReader packet)
         {
-            InternalOnSelectCard(packet, _ai.OnSelectTribute);
+            InternalOnSelectCard(packet, _ai.OnSelectTribute, true);
         }
 
         private void OnSelectYesNo(BinaryReader packet)
