@@ -33,7 +33,7 @@ namespace WindBot.Game.AI.Decks
             public const int HeavyStormDuster = 23924608;
             public const int DrowningMirrorForce = 47475363;
             public const int MacroCosmos = 30241314;
-            public const int Crackdown = 25704359;
+            public const int Crackdown = 36975314;
             public const int AntiSpellFragrance = 58921041;
             public const int ImperialOrder = 61740673;
             public const int PhatomKnightsSword = 61936647;
