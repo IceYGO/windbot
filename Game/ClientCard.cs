@@ -85,77 +85,128 @@ namespace WindBot.Game
             }
         }
 
-        public void Update(BinaryReader packet, Duel duel)
+        public long Update(BinaryReader packet, Duel duel)
         {
-            int flag = packet.ReadInt32();
-            if ((flag & (int)Query.Code) != 0)
-                SetId(packet.ReadInt32());
-            if ((flag & (int)Query.Position) != 0)
-                Position = (packet.ReadInt32() >> 24) & 0xff;
-            if ((flag & (int)Query.Alias) != 0)
-                Alias = packet.ReadInt32();
-            if ((flag & (int)Query.Type) != 0)
-                Type = packet.ReadInt32();
-            if ((flag & (int)Query.Level) != 0)
-                Level = packet.ReadInt32();
-            if ((flag & (int)Query.Rank) != 0)
-                Rank = packet.ReadInt32();
-            if ((flag & (int)Query.Attribute) != 0)
-                Attribute = packet.ReadInt32();
-            if ((flag & (int)Query.Race) != 0)
-                Race = packet.ReadInt32();
-            if ((flag & (int)Query.Attack) != 0)
-                Attack = packet.ReadInt32();
-            if ((flag & (int)Query.Defence) != 0)
-                Defense = packet.ReadInt32();
-            if ((flag & (int)Query.BaseAttack) != 0)
-                BaseAttack = packet.ReadInt32();
-            if ((flag & (int)Query.BaseDefence) != 0)
-                BaseDefense = packet.ReadInt32();
-            if ((flag & (int)Query.Reason) != 0)
-                packet.ReadInt32();
-            if ((flag & (int)Query.ReasonCard) != 0)
-                packet.ReadChars(10); // Int8 * 2 + Int32 * 2
-            if ((flag & (int)Query.EquipCard) != 0)
-                packet.ReadChars(10); // Int8 * 2 + Int32 * 2
-            if ((flag & (int)Query.TargetCard) != 0)
+            long pos = packet.BaseStream.Position;
+            while (true)
             {
-                int count = packet.ReadInt32();
-                for (int i = 0; i < count; ++i)
-                    packet.ReadChars(10); // Int8 * 2 + Int32 * 2
-            }
-            if ((flag & (int)Query.OverlayCard) != 0)
-            {
-                Overlays.Clear();
-                int count = packet.ReadInt32();
-                for (int i = 0; i < count; ++i)
-                    Overlays.Add(packet.ReadInt32());
-            }
-            if ((flag & (int)Query.Counters) != 0)
-            {
-                int count = packet.ReadInt32();
-                for (int i = 0; i < count; ++i)
-                    packet.ReadInt32(); // Int16 * 2
-            }
-            if ((flag & (int)Query.Owner) != 0)
-                Owner = duel.GetLocalPlayer(packet.ReadInt32());
-            if ((flag & (int)Query.Status) != 0) {
-                int status = packet.ReadInt32();
-                const int STATUS_DISABLED = 0x0001;
-                const int STATUS_PROC_COMPLETE = 0x0008;
-                Disabled = status & STATUS_DISABLED;
-                ProcCompleted = status & STATUS_PROC_COMPLETE;
-            }
-            if ((flag & (int)Query.IsPublic) != 0)
-                packet.ReadInt32();
-            if ((flag & (int)Query.LScale) != 0)
-                LScale = packet.ReadInt32();
-            if ((flag & (int)Query.RScale) != 0)
-                RScale = packet.ReadInt32();
-            if ((flag & (int)Query.Link) != 0)
-            {
-                LinkCount = packet.ReadInt32();
-                LinkMarker = packet.ReadInt32();
+                int size = packet.ReadInt16();
+                if (size == 0)
+                    return packet.BaseStream.Position - pos;
+                uint flag = packet.ReadUInt32();
+                switch (flag)
+                {
+                    case (uint)Query.Reason:
+                    case (uint)Query.ReasonCard:
+                    case (uint)Query.EquipCard:
+                    case (uint)Query.TargetCard:
+                    case (uint)Query.Counters:
+                    case (uint)Query.IsPublic:
+                        {
+                            packet.ReadChars(size);
+                            break;
+                        }
+                    case (uint)Query.Code:
+                        {
+                            SetId(packet.ReadInt32());
+                            break;
+                        }
+                    case (uint)Query.Position:
+                        {
+                            Position = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.Alias:
+                        {
+                            Alias = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.Type:
+                        {
+                            Type = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.Level:
+                        {
+                            Level = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.Rank:
+                        {
+                            Rank = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.Attribute:
+                        {
+                            Attribute = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.Race:
+                        {
+                            Race = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.Attack:
+                        {
+                            Attack = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.Defence:
+                        {
+                            Defense = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.BaseAttack:
+                        {
+                            BaseAttack = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.BaseDefence:
+                        {
+                            BaseDefense = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.OverlayCard:
+                        {
+                            Overlays.Clear();
+                            int count = packet.ReadInt32();
+                            for (int i = 0; i < count; ++i)
+                                Overlays.Add(packet.ReadInt32());
+                        }
+                        break;
+                    case (uint)Query.Owner:
+                        {
+                            Owner = duel.GetLocalPlayer(packet.ReadInt32());
+                            break;
+                        }
+                    case (uint)Query.Status:
+                        {
+                            int status = packet.ReadInt32();
+                            const int STATUS_DISABLED = 0x0001;
+                            const int STATUS_PROC_COMPLETE = 0x0008;
+                            Disabled = status & STATUS_DISABLED;
+                            ProcCompleted = status & STATUS_PROC_COMPLETE;
+                            break;
+                        }
+                    case (uint)Query.LScale:
+                        {
+                            LScale = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.RScale:
+                        {
+                            RScale = packet.ReadInt32();
+                            break;
+                        }
+                    case (uint)Query.Link:
+                        {
+                            LinkCount = packet.ReadInt32();
+                            LinkMarker = packet.ReadInt32();
+                            break;
+                        }
+                    case 0x80000000: //Query.End
+                        return packet.BaseStream.Position - pos;
+                }
             }
         }
 

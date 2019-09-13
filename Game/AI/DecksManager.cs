@@ -59,7 +59,10 @@ namespace WindBot.Game.AI
             string deck = ai.Game.Deck;
 
             if (deck != null && _decks.ContainsKey(deck))
+            {
                 infos = _decks[deck];
+                Logger.WriteLine("Deck found, loading " + infos.Deck);
+            }
             else
             {
                 do
@@ -67,6 +70,7 @@ namespace WindBot.Game.AI
                     infos = _list[_rand.Next(_list.Count)];
                 }
                 while (infos.Level != "Normal");
+                Logger.WriteLine("Deck not found, loading random: " + infos.Deck);
             }
 
             Executor executor = (Executor)Activator.CreateInstance(infos.Type, ai, duel);

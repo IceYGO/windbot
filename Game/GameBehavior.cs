@@ -766,8 +766,6 @@ namespace WindBot.Game
             int loc = packet.ReadByte();
             int seq = packet.ReadByte();
 
-            packet.ReadInt32(); // ???
-
             ClientCard card = _duel.GetCard(player, (CardLocation)loc, seq);
 
             card?.Update(packet, _duel);
@@ -804,13 +802,12 @@ namespace WindBot.Game
             }
             if (cards != null)
             {
+                /*int size = */packet.ReadInt32();
                 foreach (ClientCard card in cards)
                 {
-                    int len = packet.ReadInt32();
                     long pos = packet.BaseStream.Position;
-                    if (len > 8)
-                      card.Update(packet, _duel);
-                    packet.BaseStream.Position = pos + len - 4;
+                    long len = card.Update(packet, _duel);
+                    packet.BaseStream.Position = pos + len;
                 }
             }
         }
