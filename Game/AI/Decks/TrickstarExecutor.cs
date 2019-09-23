@@ -642,6 +642,8 @@ namespace WindBot.Game.AI.Decks
         public bool Hand_act_eff()
         {
             if (GraveCall_count > 0 && GraveCall_id == Card.Id) return false;
+            if (Card.IsCode(CardId.Urara) && Util.GetLastChainCard().HasSetcode(0x11e) && Util.GetLastChainCard().Location == CardLocation.Hand) // Danger! archtype hand effect
+                return false;
             if (Card.IsCode(CardId.Urara) && Bot.HasInHand(CardId.LockBird) && Bot.HasInSpellZone(CardId.Re)) return false;
             if (Card.IsCode(CardId.Ghost) && Card.Location == CardLocation.Hand && Bot.HasInMonstersZone(CardId.Ghost)) return false;
             return (Duel.LastChainPlayer == 1);
