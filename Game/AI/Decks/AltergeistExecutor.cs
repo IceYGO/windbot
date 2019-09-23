@@ -811,6 +811,8 @@ namespace WindBot.Game.AI.Decks
 
         public bool Hand_act_eff()
         {
+            if (Card.IsCode(CardId.AB_JS) && Util.GetLastChainCard().HasSetcode(0x11e) && Util.GetLastChainCard().Location == CardLocation.Hand) // Danger! archtype hand effect
+                return false;
             if (Card.IsCode(CardId.GO_SR) && Card.Location == CardLocation.Hand && Bot.HasInMonstersZone(CardId.GO_SR)) return false;
             return (Duel.LastChainPlayer == 1);
         }
