@@ -96,16 +96,6 @@ namespace WindBot.Game
                 uint flag = packet.ReadUInt32();
                 switch (flag)
                 {
-                    case (uint)Query.Reason:
-                    case (uint)Query.ReasonCard:
-                    case (uint)Query.EquipCard:
-                    case (uint)Query.TargetCard:
-                    case (uint)Query.Counters:
-                    case (uint)Query.IsPublic:
-                        {
-                            packet.ReadChars(size);
-                            break;
-                        }
                     case (uint)Query.Code:
                         {
                             SetId(packet.ReadInt32());
@@ -176,7 +166,7 @@ namespace WindBot.Game
                         break;
                     case (uint)Query.Owner:
                         {
-                            Owner = duel.GetLocalPlayer(packet.ReadInt32());
+                            Owner = duel.GetLocalPlayer(packet.ReadByte());
                             break;
                         }
                     case (uint)Query.Status:
@@ -206,6 +196,11 @@ namespace WindBot.Game
                         }
                     case 0x80000000: //Query.End
                         return packet.BaseStream.Position - pos;
+                    default:
+                        {
+                            packet.ReadChars(size - sizeof(uint));
+                            break;
+                        }
                 }
             }
         }
