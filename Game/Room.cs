@@ -6,12 +6,14 @@
         public string[] Names { get; set; }
         public bool[] IsReady { get; set; }
         public int Position { get; set; }
+        public int Players { get; set; }
 
         public Room()
         {
             Names = new string[8];
             IsReady = new bool[8];
             Position = -1;
+            Players = 0;
         }
     }
 }

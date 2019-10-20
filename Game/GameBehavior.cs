@@ -177,7 +177,30 @@ namespace WindBot.Game
             /*int rule = */ packet.ReadByte();
             /*int mode = */ packet.ReadByte();
             int duel_rule = packet.ReadByte();
-            _ai.Duel.IsNewRule = (duel_rule == 4);
+            /*bool nocheck deck =*/ packet.ReadByte();
+            /*bool noshuffle deck =*/ packet.ReadByte();
+            /*align*/ packet.ReadBytes(3);
+            /*int start_lp =(int)*/ packet.ReadUInt32();
+            /*int start_hand =*/ packet.ReadByte();
+            /*int draw_count =*/ packet.ReadByte();
+            /*int time_limit =*/ packet.ReadUInt16();
+            /*align =*/ packet.ReadByte();
+            const ulong SERVER_HANDSHAKE = 4903489263569811227;
+            ulong handshake = packet.ReadUInt64();
+            if (handshake != SERVER_HANDSHAKE)
+            {
+                Connection.Close();
+                return;
+            }
+            int team1 = packet.ReadInt32();
+            int team2 = packet.ReadInt32();
+            /*int best_of =*/ packet.ReadInt32();
+            int duel_flag = packet.ReadInt32();
+            /*int forbidden_types =*/ packet.ReadInt32();
+            /*int extra_rules =*/ packet.ReadInt32();
+            _room.Players = team1 + team2;
+            const int DUEL_EMZONE = 0x2000;
+            _ai.Duel.IsNewRule = (duel_flag & DUEL_EMZONE) != 0;
             BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
             deck.Write(Deck.Cards.Count + Deck.ExtraCards.Count);
             deck.Write(Deck.SideCards.Count);
