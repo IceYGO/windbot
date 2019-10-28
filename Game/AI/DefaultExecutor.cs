@@ -402,6 +402,8 @@ namespace WindBot.Game.AI
             };
             if (Util.GetLastChainCard().IsCode(ignoreList))
                 return false;
+            if (Util.GetLastChainCard().HasSetcode(0x11e) && Util.GetLastChainCard().Location == CardLocation.Hand) // Danger! archtype hand effect
+                return false;
             return Duel.LastChainPlayer == 1;
         }
         /// <summary>
