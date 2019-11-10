@@ -1,0 +1,9 @@
+language: csharp
+solution: WindBot.sln
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: bin
+  github_token: $DEPLOY_TOKEN
+  repo: $DEPLOY_REPO
+  target_branch: $DEPLOY_BRANCH
