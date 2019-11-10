@@ -1,6 +1,10 @@
 os: windows
-language: csharp
-solution: WindBot.sln
+language: cpp
+git:
+  depth: 1
+script:
+- export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
+- msbuild.exe -m -p:Configuration=Release WindBot.sln
 after_success:
 - cd bin/Release
 - git init
