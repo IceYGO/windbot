@@ -1,9 +1,12 @@
+os: windows
 language: csharp
 solution: WindBot.sln
-deploy:
-  provider: pages
-  skip_cleanup: true
-  local_dir: bin
-  github_token: $DEPLOY_TOKEN
-  repo: $DEPLOY_REPO
-  target_branch: $DEPLOY_BRANCH
+after_success:
+- cd bin/Release
+- git init
+- git checkout --orphan $DEPLOY_BRANCH
+- git config user.email deploy@travis-ci.org
+- git config user.name "Deployment Bot (from Travis CI)"
+- git add -A .
+- git commit -qm "Deploy $DEPLOY_REPO to $DEPLOY_REPO:$DEPLOY_BRANCH"
+- git push --force https://$DEPLOY_TOKEN@github.com/$DEPLOY_REPO.git $DEPLOY_BRANCH:$DEPLOY_BRANCH
