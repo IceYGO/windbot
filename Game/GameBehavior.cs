@@ -500,14 +500,16 @@ namespace WindBot.Game
             _duel.Fields[player].ExtraDeck.Clear();
             for (int i = 0; i < ecount; ++i)
             {
-                int code = packet.ReadInt32() & 0x7fffffff;
+                int code = packet.ReadInt32();
                 _duel.Fields[player].ExtraDeck.Add(new ClientCard(code, CardLocation.Extra, -1));
+                packet.ReadInt32(); // position
             }
             _duel.Fields[player].Hand.Clear();
             for (int i = 0; i < hcount; ++i)
             {
                 int code = packet.ReadInt32();
                 _duel.Fields[player].Hand.Add(new ClientCard(code, CardLocation.Hand,-1));
+                packet.ReadInt32(); // position
             }
         }
 
@@ -828,9 +830,12 @@ namespace WindBot.Game
                 /*int size = */packet.ReadInt32();
                 foreach (ClientCard card in cards)
                 {
-                    long pos = packet.BaseStream.Position;
-                    long len = card.Update(packet, _duel);
-                    packet.BaseStream.Position = pos + len;
+                    if (card != null)
+                    {
+                        long pos = packet.BaseStream.Position;
+                        long len = card.Update(packet, _duel);
+                        packet.BaseStream.Position = pos + len;
+                    }
                 }
             }
         }
@@ -864,6 +869,7 @@ namespace WindBot.Game
                 CardLocation loc = (CardLocation)packet.ReadByte();
                 int seq = packet.ReadInt32();
                 long desc = packet.ReadInt64();
+                packet.ReadByte(); // operation type
 
                 ClientCard card = _duel.GetCard(con, loc, seq);
                 if (card != null)
@@ -1046,18 +1052,17 @@ namespace WindBot.Game
         private void OnSelectChain(BinaryReader packet)
         {
             packet.ReadByte(); // player
-            int count = packet.ReadInt32();
             packet.ReadByte(); // specount
             bool forced = packet.ReadByte() != 0;
             packet.ReadInt32(); // hint1
             packet.ReadInt32(); // hint2
+            int count = packet.ReadInt32();
 
             IList<ClientCard> cards = new List<ClientCard>();
             IList<long> descs = new List<long>();
 
             for (int i = 0; i < count; ++i)
             {
-                packet.ReadByte(); // flag
                 packet.ReadInt32(); // card id
                 LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
 
@@ -1068,6 +1073,7 @@ namespace WindBot.Game
                 }
                 cards.Add(_duel.GetCard(info.controler, info.location, info.sequence, info.position));
                 descs.Add(desc);
+                packet.ReadByte(); // operation type
             }
 
             if (cards.Count == 0)
@@ -1202,6 +1208,7 @@ namespace WindBot.Game
                 CardLocation loc = (CardLocation)packet.ReadByte();
                 int seq = packet.ReadInt32();
                 long desc = packet.ReadInt64();
+                packet.ReadByte(); // operation type
 
                 ClientCard card = _duel.GetCard(con, loc, seq);
                 if (card == null) continue;
