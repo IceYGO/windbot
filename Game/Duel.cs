@@ -7,6 +7,7 @@ namespace WindBot.Game
     {
         public bool IsFirst { get; set; }
         public bool IsNewRule { get; set; }
+        public bool IsNewRule2020 { get; set; }
 
         public ClientField[] Fields { get; private set; }
 
