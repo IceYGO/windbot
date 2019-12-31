@@ -251,7 +251,7 @@ namespace WindBot.Game.AI
                 if (remove.Contains(EnemyMZone[i])) EnemyMZone[i] = null;
             }
 
-            if (!Duel.IsNewRule)
+            if (!Duel.IsNewRule || Duel.IsNewRule2020)
                 return Zones.MainMonsterZones;
 
             int result = 0;
