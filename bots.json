@@ -11,6 +11,16 @@
         "dialog": "cirno.zh-CN"
       },
       {
+        "name": "琪露诺",
+        "deck": "Toadally Awesome",
+        "dialog": "cirno.zh-CN"
+      },
+      {
+        "name": "琪露诺",
+        "deck": "Toadally Awesome",
+        "dialog": "cirno.zh-CN"
+      },
+      {
         "name": "谜之剑士LV4",
         "deck": "Dragunity",
         "dialog": "swordsman.zh-CN"
@@ -23,6 +33,11 @@
       {
         "name": "谜之剑士LV4",
         "deck": "Zexal Weapons",
+        "dialog": "swordsman.zh-CN"
+      },
+      {
+        "name": "谜之剑士LV4",
+        "deck": "Level VIII",
         "dialog": "swordsman.zh-CN"
       },
       {
@@ -118,6 +133,11 @@
       {
         "name": "朱露咲浅羽",
         "deck": "Salamangreat",
+        "dialog": "nlch.zh-CN"
+      },
+      {
+        "name": "朱露咲浅羽",
+        "deck": "Dragun",
         "dialog": "nlch.zh-CN"
       },
       {
