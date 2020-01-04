@@ -306,10 +306,11 @@ namespace WindBot.Game
         public int GetRemainingCount(int cardId, int initialCount)
         {
             int remaining = initialCount;
-            remaining = remaining - Hand.Count(card => card != null && card.IsCode(cardId));
-            remaining = remaining - SpellZone.Count(card => card != null && card.IsCode(cardId));
-            remaining = remaining - Graveyard.Count(card => card != null && card.IsCode(cardId));
-            remaining = remaining - Banished.Count(card => card != null && card.IsCode(cardId));
+            remaining = remaining - Hand.Count(card => card != null && card.IsOriginalCode(cardId));
+            remaining = remaining - SpellZone.Count(card => card != null && card.IsOriginalCode(cardId));
+            remaining = remaining - MonsterZone.Count(card => card != null && card.IsOriginalCode(cardId));
+            remaining = remaining - Graveyard.Count(card => card != null && card.IsOriginalCode(cardId));
+            remaining = remaining - Banished.Count(card => card != null && card.IsOriginalCode(cardId));
             return (remaining < 0) ? 0 : remaining;
         }
 
