@@ -184,7 +184,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RedEyesFusionEffect()
         {
-            if (Bot.HasInMonstersZone(CardId.DragunofRedEyes))
+            if (Bot.HasInMonstersZone(new[] { CardId.DragunofRedEyes, CardId.RedEyesBDragon }))
             { // you don't want to use DragunofRedEyes which is treated as RedEyesBDragon as fusion material
                 if (Util.GetBotAvailZonesFromExtraDeck() == 0)
                     return false;
@@ -319,7 +319,15 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                // TODO
+                int[] costs = new[] {
+                    CardId.RedEyesInsight,
+                    CardId.RedEyesFusion
+                };
+                if (Bot.HasInHand(costs))
+                {
+                    AI.SelectCard(costs);
+                    return true;
+                }
                 return false;
             }
         }
@@ -354,7 +362,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MagicalizedFusionEffect()
         {
-            if (Bot.HasInMonstersZone(CardId.DragunofRedEyes))
+            if (Bot.HasInMonstersZone(new[] { CardId.DragunofRedEyes, CardId.RedEyesBDragon }))
             { // you don't want to use DragunofRedEyes which is treated as RedEyesBDragon as fusion material
                 if (Util.GetBotAvailZonesFromExtraDeck() == 0)
                     return false;
@@ -367,6 +375,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool PredaplantVerteAnacondaEffect()
         {
+            if (ActivateDescription == Util.GetStringId(CardId.PredaplantVerteAnaconda, 0))
+                return false;
             AI.SelectCard(CardId.RedEyesFusion);
             AI.SelectMaterials(CardLocation.Deck);
             return true;
@@ -450,7 +460,6 @@ namespace WindBot.Game.AI.Decks
                 CardId.AshBlossomJoyousSpring,
                 CardId.SeaMonsterofTheseus,
                 CardId.MechaPhantomBeastOLionToken,
-                CardId.RedEyesBDragon,
                 CardId.DarkMagician,
                 CardId.ImdukTheWorldChaliceDragon,
                 CardId.Sangan,
@@ -486,7 +495,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TrapSet()
         {
-            if (Bot.HasInMonstersZone(CardId.DragunofRedEyes) && Bot.GetHandCount() == 1)
+            if (Bot.HasInMonstersZone(new[] { CardId.DragunofRedEyes, CardId.RedEyesBDragon }) && Bot.GetHandCount() == 1)
                 return false;
             AI.SelectPlace(Zones.z0 + Zones.z1 + Zones.z3 + Zones.z4);
             return true;
