@@ -1,5 +1,6 @@
 ﻿using System;
 using WindBot.Game.AI.Enums;
+using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI
 {
@@ -34,7 +35,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public static bool IsShouldNotBeTarget(this ClientCard card)
         {
-            return !card.IsDisabled() && Enum.IsDefined(typeof(ShouldNotBeTarget), card.Id);
+            return !card.IsDisabled() && !card.HasType(CardType.Normal) && Enum.IsDefined(typeof(ShouldNotBeTarget), card.Id);
         }
 
         /// <summary>
