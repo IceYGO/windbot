@@ -75,6 +75,8 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * DarkMagician
 
+* Dragun
+
 * Dragunity
 
 * GrenMajuThunderBoarder
@@ -99,7 +101,7 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * ST1732
 
-* Toadally Awesome (old lflist, master rule 3 only)
+* Toadally Awesome
 
 * Trickstar
 
@@ -107,7 +109,7 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * Zexal Weapons
 
-* Zoodiac (old lflist, master rule 3 only)
+* Zoodiac
 
 ### Unfinished decks
 
