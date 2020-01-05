@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Zoodiac", "AI_Zoodiac", "OutDated")]
+    [Deck("Zoodiac", "AI_Zoodiac")]
     class ZoodiacExecutor : DefaultExecutor
     {
         public class CardId
