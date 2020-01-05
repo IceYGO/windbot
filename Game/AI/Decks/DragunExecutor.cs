@@ -36,7 +36,7 @@ namespace WindBot.Game.AI.Decks
             public const int InfiniteImpermanence = 10045474;
             public const int SolemnStrike = 40605147;
 
-            public const int DragunofRedEyes = 100259001;
+            public const int DragunofRedEyes = 37818794;
             public const int SeaMonsterofTheseus = 96334243;
             public const int ThousandEyesRestrict = 63519819;
             public const int CrystronHalqifibrax = 50588353;
