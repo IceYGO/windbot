@@ -46,6 +46,8 @@
         RaidraptorUltimateFalcon = 86221741,
         DisdainfulBirdofParadise = 27240101,
         DarkestDiabolosLordOfTheLair = 50383626,
-        Blackwing_FullArmoredWing = 54082269
+        Blackwing_FullArmoredWing = 54082269,
+        DragunofRedEyes = 37818794,
+        RedEyesBDragon = 74677422, // sometimes the name of DragunofRedEyes will be changed to RedEyesBDragon
     }
 }

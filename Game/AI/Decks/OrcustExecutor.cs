@@ -181,6 +181,7 @@ namespace WindBot.Game.AI.Decks
         private bool CymbalSkeletonUsed = false;
         private bool BorrelswordDragonUsed = false;
         private ClientCard RustyBardicheTarget = null;
+        private int ShootingRiserDragonCount = 0;
 
         private int[] HandCosts = new[]
         {
@@ -214,6 +215,7 @@ namespace WindBot.Game.AI.Decks
             CymbalSkeletonUsed = false;
             BorrelswordDragonUsed = false;
             RustyBardicheTarget = null;
+            ShootingRiserDragonCount = 0;
         }
 
         public override void OnChainEnd()
@@ -609,7 +611,10 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                return Duel.LastChainPlayer != 0;
+                if (Duel.LastChainPlayer == 0)
+                    return false;
+                ShootingRiserDragonCount++;
+                return ShootingRiserDragonCount <= 10;
             }
         }
 
