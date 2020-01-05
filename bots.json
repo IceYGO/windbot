@@ -1,144 +1,224 @@
-{
-    "windbots": [
-      {
-        "name": "琪露诺",
-        "deck": "Rainbow",
-        "dialog": "cirno.zh-CN"
-      },
-      {
-        "name": "琪露诺",
-        "deck": "Rainbow",
-        "dialog": "cirno.zh-CN"
-      },
-      {
-        "name": "谜之剑士LV4",
-        "deck": "Dragunity",
-        "dialog": "swordsman.zh-CN"
-      },
-      {
-        "name": "谜之剑士LV4",
-        "deck": "Rank V",
-        "dialog": "swordsman.zh-CN"
-      },
-      {
-        "name": "谜之剑士LV4",
-        "deck": "Zexal Weapons",
-        "dialog": "swordsman.zh-CN"
-      },
-      {
-        "name": "谜之剑士LV4",
-        "deck": "Level VIII",
-        "dialog": "swordsman.zh-CN"
-      },
-      {
-        "name": "谜之剑士LV4",
-        "deck": "Level VIII",
-        "dialog": "swordsman.zh-CN"
-      },
-      {
-        "name": "复制植物",
-        "deck": "Blue-Eyes",
-        "dialog": "copy.zh-CN"
-      },
-      {
-        "name": "复制植物",
-        "deck": "Blue-Eyes",
-        "dialog": "copy.zh-CN"
-      },
-      {
-        "name": "复制梁龙",
-        "deck": "SkyStriker",
-        "dialog": "anothercopy.zh-CN"
-      },
-      {
-        "name": "复制梁龙",
-        "deck": "Orcust",
-        "dialog": "anothercopy.zh-CN"
-      },
-      {
-        "name": "复制梁龙",
-        "deck": "Salamangreat",
-        "dialog": "anothercopy.zh-CN"
-      },
-      {
-        "name": "尼亚",
-        "deck": "Yosenju",
-        "dialog": "near.zh-CN"
-      },
-      {
-        "name": "尼亚",
-        "deck": "Qliphort",
-        "dialog": "near.zh-CN"
-      },
-      {
-        "name": "尼亚",
-        "deck": "Trickstar",
-        "dialog": "near.zh-CN"
-      },
-      {
-        "name": "尼亚",
+[
+    {
+        "name": "Altergeist",
         "deck": "Altergeist",
-        "dialog": "near.zh-CN"
-      },
-      {
-        "name": "试作型机器人1732",
-        "deck": "ST1732",
-        "dialog": "default"
-      },
-      {
-        "name": "试作型机器人1732",
-        "deck": "ST1732",
-        "dialog": "default"
-      },
-      {
-        "name": "永远之魂",
-        "deck": "Burn",
-        "dialog": "soul.zh-CN"
-      },
-      {
-        "name": "永远之魂",
-        "deck": "Frog",
-        "dialog": "soul.zh-CN"
-      },
-      {
-        "name": "永远之魂",
-        "deck": "Horus",
-        "dialog": "soul.zh-CN"
-      },
-      {
-        "name": "奇異果",
-        "deck": "LightswornShaddoldinosour",
-        "dialog": "kiwi.zh-TW"
-      },
-      {
-        "name": "奇異果",
-        "deck": "LightswornShaddoldinosour",
-        "dialog": "kiwi.zh-TW"
-      },
-      {
-        "name": "奇魔果",
-        "deck": "DarkMagician",
-        "dialog": "kiwi.zh-TW"
-      },
-      {
-        "name": "MAX龍果",
+        "flags": [
+            "AI_LV3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Blue-Eyes",
+        "deck": "Blue-Eyes",
+        "flags": [
+            "AI_LV3",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Blue-Eyes Ritual",
         "deck": "BlueEyesMaxDragon",
-        "dialog": "kiwi.zh-TW"
-      },
-      {
-        "name": "幻煌果",
-        "deck": "Phantasm",
-        "dialog": "kiwi.zh-TW"
-      },
-      {
-        "name": "報社鬥士",
-        "deck": "GrenMajuThunderBoarder",
-        "dialog": "kiwi.zh-TW"
-      },
-      {
-        "name": "燃血鬥士",
+        "flags": [
+            "AI_LV2",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Burn",
+        "deck": "Burn",
+        "flags": [
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Chain Burn",
         "deck": "ChainBurn",
-        "dialog": "kiwi.zh-TW"
-      }
-    ]
-}
+        "flags": [
+            "AI_ANTI_META",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+	{
+        "name": "Cyberse",
+        "deck": "ST1732",
+        "flags": [
+            "AI_LV2",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Dark Magician",
+        "deck": "DarkMagician",
+        "flags": [
+            "AI_LV3",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Dragunity",
+        "deck": "Dragunity",
+        "flags": [
+            "AI_LV2",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Frog",
+        "deck": "Frog",
+        "flags": [
+            "AI_LV1",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Gren Maju Stun",
+        "deck": "GrenMajuThunderBoarder",
+        "flags": [
+            "AI_ANTI_META",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Horus",
+        "deck": "Horus",
+        "flags": [
+            "AI_LV1",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Lightsworn Shaddoll Dino",
+        "deck": "LightswornShaddoldinosour",
+        "flags": [
+            "AI_LV3",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Normal Monster Mash",
+        "deck": "MokeyMokey",
+        "flags": [
+            "AI_LV1",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Normal Monster Mash II",
+        "deck": "MokeyMokeyKing",
+        "flags": [
+            "AI_LV1",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Orcust",
+        "deck": "Orcust",
+        "flags": [
+            "AI_LV3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Qliphort",
+        "deck": "Qliphort",
+        "flags": [
+            "AI_ANTI_META",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "R5NK",
+        "deck": "'Rank V'",
+        "flags": [
+            "AI_LV2",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Rainbow",
+        "deck": "Rainbow",
+        "flags": [
+            "AI_LV2",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Rose Scrap Synchro",
+        "deck": "'Level VIII'",
+        "flags": [
+            "AI_LV2",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Salamangreat",
+        "deck": "Salamangreat",
+        "flags": [
+            "AI_LV3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Sky Striker",
+        "deck": "SkyStriker",
+        "flags": [
+            "AI_LV3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Toadally Awesome",
+        "deck": "'Toadally Awesome'",
+        "flags": [
+            "SUPPORT_MASTER_RULE_3"
+        ]
+    },
+    {
+        "name": "Trickstar",
+        "deck": "Trickstar",
+        "flags": [
+            "AI_LV3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Yosenju",
+        "deck": "Yosenju",
+        "flags": [
+            "AI_ANTI_META",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "ZEXAL Weapon",
+        "deck": "'Zexal Weapons'",
+        "flags": [
+            "AI_LV2",
+            "SUPPORT_MASTER_RULE_3",
+            "SUPPORT_MASTER_RULE_4"
+        ]
+    },
+    {
+        "name": "Zoodiac",
+        "deck": "Zoodiac",
+        "flags": [
+            "SUPPORT_MASTER_RULE_3"
+        ]
+    }
+]
