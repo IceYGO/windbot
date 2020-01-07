@@ -362,7 +362,7 @@ namespace WindBot.Game
                 else
                     _ai.OnDeckError("DECK");
             }
-            //Connection.Close();
+            Connection.Close();
         }
 
         private void OnRetry(BinaryReader packet)
