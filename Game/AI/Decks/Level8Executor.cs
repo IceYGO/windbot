@@ -184,6 +184,7 @@ namespace WindBot.Game.AI.Decks
         private bool JetSynchronUsed = false;
         private bool ScrapWyvernUsed = false;
         private bool MaskedChameleonUsed = false;
+        private int ShootingRiserDragonCount = 0;
 
         private int[] HandCosts = new[]
         {
@@ -217,6 +218,7 @@ namespace WindBot.Game.AI.Decks
             JetSynchronUsed = false;
             ScrapWyvernUsed = false;
             MaskedChameleonUsed = false;
+            ShootingRiserDragonCount = 0;
         }
 
         public override void OnChainEnd()
@@ -843,12 +845,15 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                if (Duel.LastChainPlayer == 0 || ShootingRiserDragonCount >= 10)
+                    return false;
+                ShootingRiserDragonCount++;
                 AI.SelectCard(new[] {
                     CardId.BlackRoseMoonlightDragon,
                     CardId.ScrapDragon,
                     CardId.PSYFramelordOmega
                 });
-                return Duel.LastChainPlayer != 0;
+                return true;
             }
         }
 

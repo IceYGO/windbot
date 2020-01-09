@@ -54,5 +54,6 @@
         PyroxeneFusion = 55824220,
         FragmentFusion = 72029628,
         NecroFusion = 81223446,
+        PredaplantVerteAnaconda = 70369116,
     }
 }

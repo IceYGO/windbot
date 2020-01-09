@@ -379,6 +379,11 @@ namespace WindBot.Game
             return ids.Contains(Id) || Alias != 0 && ids.Contains(Alias);
         }
 
+        public bool IsOriginalCode(int id)
+        {
+            return Id == id || Alias - Id < 10 && Alias == id;
+        }
+
         public bool HasXyzMaterial()
         {
             return Overlays.Count > 0;

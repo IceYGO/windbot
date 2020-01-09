@@ -2,223 +2,163 @@
     {
         "name": "Altergeist",
         "deck": "Altergeist",
-        "flags": [
-            "AI_LV3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 3,
+        "masterRules": [4, 5]
     },
     {
         "name": "Blue-Eyes",
         "deck": "Blue-Eyes",
-        "flags": [
-            "AI_LV3",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 3,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Blue-Eyes Ritual",
         "deck": "BlueEyesMaxDragon",
-        "flags": [
-            "AI_LV2",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 2,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Burn",
         "deck": "Burn",
-        "flags": [
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 0,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Chain Burn",
         "deck": "ChainBurn",
-        "flags": [
-            "AI_ANTI_META",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 0,
+        "masterRules": [3, 4, 5]
     },
 	{
         "name": "Cyberse",
         "deck": "ST1732",
-        "flags": [
-            "AI_LV2",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 2,
+        "masterRules": [4, 5]
     },
     {
         "name": "Dark Magician",
         "deck": "DarkMagician",
-        "flags": [
-            "AI_LV3",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 3,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Dragunity",
         "deck": "Dragunity",
-        "flags": [
-            "AI_LV2",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 2,
+        "masterRules": [3, 4, 5]
+    },
+    {
+        "name": "Dragun of Red-Eyes",
+        "deck": "Dragun",
+        "difficulty": 3,
+        "masterRules": [4, 5]
     },
     {
         "name": "Frog",
         "deck": "Frog",
-        "flags": [
-            "AI_LV1",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 1,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Gren Maju Stun",
         "deck": "GrenMajuThunderBoarder",
-        "flags": [
-            "AI_ANTI_META",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 0,
+        "masterRules": [4, 5]
     },
     {
         "name": "Horus",
         "deck": "Horus",
-        "flags": [
-            "AI_LV1",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 1,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Lightsworn Shaddoll Dino",
         "deck": "LightswornShaddoldinosour",
-        "flags": [
-            "AI_LV3",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 3,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Normal Monster Mash",
         "deck": "MokeyMokey",
-        "flags": [
-            "AI_LV1",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 1,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Normal Monster Mash II",
         "deck": "MokeyMokeyKing",
-        "flags": [
-            "AI_LV1",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 1,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Orcust",
         "deck": "Orcust",
-        "flags": [
-            "AI_LV3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 3,
+        "masterRules": [4, 5]
     },
     {
         "name": "Qliphort",
         "deck": "Qliphort",
-        "flags": [
-            "AI_ANTI_META",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 0,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "R5NK",
         "deck": "'Rank V'",
-        "flags": [
-            "AI_LV2",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 2,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Rainbow",
         "deck": "Rainbow",
-        "flags": [
-            "AI_LV2",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 2,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Rose Scrap Synchro",
         "deck": "'Level VIII'",
-        "flags": [
-            "AI_LV2",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 2,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Salamangreat",
         "deck": "Salamangreat",
-        "flags": [
-            "AI_LV3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 3,
+        "masterRules": [4, 5]
     },
     {
         "name": "Sky Striker",
         "deck": "SkyStriker",
-        "flags": [
-            "AI_LV3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 3,
+        "masterRules": [4, 5]
     },
     {
         "name": "Toadally Awesome",
         "deck": "'Toadally Awesome'",
-        "flags": [
-            "SUPPORT_MASTER_RULE_3"
-        ]
+        "difficulty": 2,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Trickstar",
         "deck": "Trickstar",
-        "flags": [
-            "AI_LV3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 3,
+        "masterRules": [4, 5]
     },
     {
         "name": "Yosenju",
         "deck": "Yosenju",
-        "flags": [
-            "AI_ANTI_META",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 0,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "ZEXAL Weapon",
         "deck": "'Zexal Weapons'",
-        "flags": [
-            "AI_LV2",
-            "SUPPORT_MASTER_RULE_3",
-            "SUPPORT_MASTER_RULE_4"
-        ]
+        "difficulty": 2,
+        "masterRules": [3, 4, 5]
     },
     {
         "name": "Zoodiac",
         "deck": "Zoodiac",
-        "flags": [
-            "SUPPORT_MASTER_RULE_3"
-        ]
+        "difficulty": 3,
+        "masterRules": [3, 4, 5]
     }
 ]

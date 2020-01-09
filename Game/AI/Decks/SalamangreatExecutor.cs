@@ -1096,6 +1096,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Phase != DuelPhase.Main1) return false;
             if (Duel.Turn == 1) return false;
+            if (wasStallioActivated) return false;
 
             List<ClientCard> material_list = new List<ClientCard>();
             List<ClientCard> bot_monster = Bot.GetMonsters();
