@@ -6,11 +6,12 @@ script:
 - export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
 - msbuild.exe -m -p:Configuration=Release WindBot.sln
 after_success:
-- cd bin/Release
+- cd bin
+- mv Release WindBot
 - git init
 - git checkout --orphan $DEPLOY_BRANCH
 - git config user.email deploy@travis-ci.org
 - git config user.name "Deployment Bot (from Travis CI)"
-- git add -A .
+- git add -A WindBot
 - git commit -qm "Deploy $DEPLOY_REPO to $DEPLOY_REPO:$DEPLOY_BRANCH"
-- git push --force https://$DEPLOY_TOKEN@github.com/$DEPLOY_REPO.git $DEPLOY_BRANCH:$DEPLOY_BRANCH
+- git push -qf https://$DEPLOY_TOKEN@github.com/$DEPLOY_REPO.git $DEPLOY_BRANCH:$DEPLOY_BRANCH
