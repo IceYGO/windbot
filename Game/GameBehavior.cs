@@ -746,8 +746,8 @@ namespace WindBot.Game
             {
                 int id = packet.ReadInt32();
                 int controler = GetLocalPlayer(packet.ReadByte());
-                CardLocation loc = (CardLocation)packet.ReadByte();
-                int seq = packet.ReadByte();
+                CardLocation loc = (CardLocation)packet.ReadInt32();
+                int seq = packet.ReadInt32();
                 ClientCard card;
                 if (((int)loc & (int)CardLocation.Overlay) != 0)
                     card = new ClientCard(id, CardLocation.Overlay, -1);
