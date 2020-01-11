@@ -1398,7 +1398,7 @@ namespace WindBot.Game
 
             IList<ClientCard> selected = _ai.OnSelectSum(cards, sumval, min, max, _select_hint, mode);
             _select_hint = 0;
-            byte[] result = new byte[mandatoryCards.Count + selected.Count + 1];
+            byte[] result = new byte[mandatoryCards.Count + selected.Count + 16];
             result[0] = 0;
             result[1] = 1;
             result[2] = 0;
