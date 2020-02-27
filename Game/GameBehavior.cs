@@ -839,6 +839,10 @@ namespace WindBot.Game
                         long len = card.Update(packet, _duel);
                         packet.BaseStream.Position = pos + len;
                     }
+                    else
+                    {
+                        packet.BaseStream.Position += 2;
+                    }
                 }
             }
         }
