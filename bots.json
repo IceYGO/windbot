@@ -103,7 +103,7 @@
     },
     {
         "name": "R5NK",
-        "deck": "'Rank V'",
+        "deck": "Rank V",
         "difficulty": 2,
         "masterRules": [3, 4, 5]
     },
@@ -115,7 +115,7 @@
     },
     {
         "name": "Rose Scrap Synchro",
-        "deck": "'Level VIII'",
+        "deck": "Level VIII",
         "difficulty": 2,
         "masterRules": [3, 4, 5]
     },
@@ -133,7 +133,7 @@
     },
     {
         "name": "Toadally Awesome",
-        "deck": "'Toadally Awesome'",
+        "deck": "Toadally Awesome",
         "difficulty": 2,
         "masterRules": [3, 4, 5]
     },
@@ -151,7 +151,7 @@
     },
     {
         "name": "ZEXAL Weapon",
-        "deck": "'Zexal Weapons'",
+        "deck": "Zexal Weapons",
         "difficulty": 2,
         "masterRules": [3, 4, 5]
     },
