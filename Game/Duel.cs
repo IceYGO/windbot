@@ -99,25 +99,25 @@ namespace WindBot.Game
             switch (loc)
             {
                 case CardLocation.Hand:
-                    Fields[player].Hand.Add(new ClientCard(cardId, loc, -1, pos));
+                    Fields[player].Hand.Add(new ClientCard(cardId, loc, -1, pos, player));
                     break;
                 case CardLocation.Grave:
-                    Fields[player].Graveyard.Add(new ClientCard(cardId, loc,-1, pos));
+                    Fields[player].Graveyard.Add(new ClientCard(cardId, loc,-1, pos, player));
                     break;
                 case CardLocation.Removed:
-                    Fields[player].Banished.Add(new ClientCard(cardId, loc, -1, pos));
+                    Fields[player].Banished.Add(new ClientCard(cardId, loc, -1, pos, player));
                     break;
                 case CardLocation.MonsterZone:
-                    Fields[player].MonsterZone[seq] = new ClientCard(cardId, loc, seq, pos);
+                    Fields[player].MonsterZone[seq] = new ClientCard(cardId, loc, seq, pos, player);
                     break;
                 case CardLocation.SpellZone:
-                    Fields[player].SpellZone[seq] = new ClientCard(cardId, loc, seq, pos);
+                    Fields[player].SpellZone[seq] = new ClientCard(cardId, loc, seq, pos, player);
                     break;
                 case CardLocation.Deck:
-                    Fields[player].Deck.Add(new ClientCard(cardId, loc, -1, pos));
+                    Fields[player].Deck.Add(new ClientCard(cardId, loc, -1, pos, player));
                     break;
                 case CardLocation.Extra:
-                    Fields[player].ExtraDeck.Add(new ClientCard(cardId, loc, -1, pos));
+                    Fields[player].ExtraDeck.Add(new ClientCard(cardId, loc, -1, pos, player));
                     break;
             }
         }
@@ -127,6 +127,7 @@ namespace WindBot.Game
             card.Location = loc;
             card.Sequence = seq;
             card.Position = pos;
+            card.Controller = player;
             card.SetId(id);
             switch (loc)
             {

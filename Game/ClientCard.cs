@@ -32,7 +32,7 @@ namespace WindBot.Game
         public int RealPower { get; set; }
         public List<int> Overlays { get; private set; }
         public int Owner { get; private set; }
-        public int Controller { get; private set; }
+        public int Controller { get; set; }
         public int Disabled { get; private set; }
         public int ProcCompleted { get; private set; }
         public int SelectSeq { get; set; }
@@ -53,16 +53,17 @@ namespace WindBot.Game
         public int[] ActionIndex { get; set; }
         public IDictionary<long, int> ActionActivateIndex { get; private set; }
 
-        public ClientCard(int id, CardLocation loc, int sequence)
-            : this(id, loc, -1 , 0)
+        public ClientCard(int id, CardLocation loc, int sequence, int controller)
+            : this(id, loc, -1 , 0, controller)
         {
         }
 
-        public ClientCard(int id, CardLocation loc, int sequence, int position)
+        public ClientCard(int id, CardLocation loc, int sequence, int position, int controller)
         {
             SetId(id);
             Sequence = sequence;
             Position = position;
+            Controller = controller;
             Overlays = new List<int>();
             EquipCards = new List<ClientCard>();
             OwnTargets = new List<ClientCard>();

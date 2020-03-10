@@ -433,7 +433,7 @@ namespace WindBot.Game
             for (int i = 0; i < count; ++i)
             {
                 _duel.Fields[player].Deck.RemoveAt(_duel.Fields[player].Deck.Count - 1);
-                _duel.Fields[player].Hand.Add(new ClientCard(0, CardLocation.Hand, -1));
+                _duel.Fields[player].Hand.Add(new ClientCard(0, CardLocation.Hand, -1, player));
             }
             _ai.OnDraw(player);
         }
@@ -498,20 +498,20 @@ namespace WindBot.Game
             _duel.Fields[player].Deck.Clear();
             for (int i = 0; i < mcount; ++i)
             {
-                _duel.Fields[player].Deck.Add(new ClientCard(0, CardLocation.Deck, -1));
+                _duel.Fields[player].Deck.Add(new ClientCard(0, CardLocation.Deck, -1, player));
             }
             _duel.Fields[player].ExtraDeck.Clear();
             for (int i = 0; i < ecount; ++i)
             {
                 int code = packet.ReadInt32();
-                _duel.Fields[player].ExtraDeck.Add(new ClientCard(code, CardLocation.Extra, -1));
+                _duel.Fields[player].ExtraDeck.Add(new ClientCard(code, CardLocation.Extra, -1, player));
                 packet.ReadInt32(); // position
             }
             _duel.Fields[player].Hand.Clear();
             for (int i = 0; i < hcount; ++i)
             {
                 int code = packet.ReadInt32();
-                _duel.Fields[player].Hand.Add(new ClientCard(code, CardLocation.Hand,-1));
+                _duel.Fields[player].Hand.Add(new ClientCard(code, CardLocation.Hand,-1, player));
                 packet.ReadInt32(); // position
             }
         }
@@ -738,7 +738,7 @@ namespace WindBot.Game
 
         private void OnCardSorting(BinaryReader packet)
         {
-            /*int player =*/ GetLocalPlayer(packet.ReadByte());
+            int player = GetLocalPlayer(packet.ReadByte());
             IList<ClientCard> originalCards = new List<ClientCard>();
             IList<ClientCard> cards = new List<ClientCard>();
             int count = packet.ReadInt32();
@@ -750,7 +750,7 @@ namespace WindBot.Game
                 int seq = packet.ReadInt32();
                 ClientCard card;
                 if (((int)loc & (int)CardLocation.Overlay) != 0)
-                    card = new ClientCard(id, CardLocation.Overlay, -1);
+                    card = new ClientCard(id, CardLocation.Overlay, -1, player);
                 else
                     card = _duel.GetCard(controler, loc, seq);
                 if (card == null) continue;
@@ -923,7 +923,7 @@ namespace WindBot.Game
 
         private void InternalOnSelectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func, bool tribute = false)
         {
-            packet.ReadByte(); // player
+            int player = packet.ReadByte();
             bool cancelable = packet.ReadByte() != 0;
             int min = packet.ReadInt32();
             int max = packet.ReadInt32();
@@ -943,9 +943,9 @@ namespace WindBot.Game
                 }
                 ClientCard card;
                 if (((int)info.location & (int)CardLocation.Overlay) != 0)
-                    card = new ClientCard(id, CardLocation.Overlay, -1);
+                    card = new ClientCard(id, CardLocation.Overlay, -1, player);
                 else if (info.location == 0)
-                    card = new ClientCard(id, 0, 0);
+                    card = new ClientCard(id, 0, 0, player);
                 else
                     card = _duel.GetCard(info.controler, (CardLocation)info.location, info.sequence);
                 if (card == null) continue;
@@ -987,7 +987,7 @@ namespace WindBot.Game
 
         private void InternalOnSelectUnselectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func)
         {
-            packet.ReadByte(); // player
+            int player = packet.ReadByte();
             bool finishable = packet.ReadByte() != 0;
             bool cancelable = packet.ReadByte() != 0 || finishable;
             int min = packet.ReadInt32();
@@ -1001,9 +1001,9 @@ namespace WindBot.Game
                 LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
                 ClientCard card;
                 if (((int)info.location & (int)CardLocation.Overlay) != 0)
-                    card = new ClientCard(id, CardLocation.Overlay, -1);
+                    card = new ClientCard(id, CardLocation.Overlay, -1, player);
                 else if (info.location == 0)
-                    card = new ClientCard(id, 0, 0);
+                    card = new ClientCard(id, 0, 0, player);
                 else
                     card = _duel.GetCard(info.controler, (CardLocation)info.location, info.sequence);
                 if (card == null) continue;
