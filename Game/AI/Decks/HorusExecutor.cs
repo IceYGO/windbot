@@ -28,7 +28,7 @@ namespace WindBot.Game.AI.Decks
             public const int FoolishBurial = 81439173;
             public const int MonsterReborn = 83764718;
             public const int MysticalSpaceTyphoon = 5318639;
-            public const int BellowOfTheSilverDragon = 80600103;
+            public const int SilversCry = 87025064;
             public const int Mountain = 50913601;
             public const int DragonsRebirth = 20638610;
             public const int MirrorForce = 44095762;
@@ -52,7 +52,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.HammerShot, DefaultHammerShot);
             AddExecutor(ExecutorType.Activate, CardId.Fissure);
 
-            AddExecutor(ExecutorType.Activate, CardId.BellowOfTheSilverDragon, BellowOfTheSilverDragon);
+            AddExecutor(ExecutorType.Activate, CardId.SilversCry, SilversCry);
             AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, MonsterReborn);
 
             AddExecutor(ExecutorType.Summon, CardId.WhiteNightDragon, WhiteNightDragon);
@@ -89,7 +89,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool BellowOfTheSilverDragon()
+        private bool SilversCry()
         {
             if (Duel.Player == 0 && (Duel.Phase == DuelPhase.Draw || Duel.Phase == DuelPhase.Standby))
                 return false;
