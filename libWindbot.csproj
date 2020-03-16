@@ -118,8 +118,8 @@
     <Compile Include="Game\MainPhaseAction.cs" />
     <Compile Include="Game\Room.cs" />
     <Compile Include="Logger.cs" />
+    <Compile Include="Properties\AssemblyInfoLib.cs" />
     <Compile Include="WindBot.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WindBotInfo.cs" />
     <Compile Include="YGOSharp.Network\AsyncBinaryClient.cs" />
     <Compile Include="YGOSharp.Network\AsyncNetworkServer.cs" />

@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.28307.960
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindBot", "WindBot.csproj", "{3E7FAF67-A27D-4A61-B161-93AD4414183E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotWrapper", "BotWrapper\BotWrapper.csproj", "{0665CA3B-C14F-40EC-ABFB-AD46A695F5A3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libWindbot", "libWindbot.csproj", "{5BCF813B-671E-4B2C-B01E-3EACDC536B65}"
 EndProject
 Global
@@ -23,11 +21,6 @@ Global
 		{3E7FAF67-A27D-4A61-B161-93AD4414183E}.Release|Any CPU.ActiveCfg = Release|x86
 		{3E7FAF67-A27D-4A61-B161-93AD4414183E}.Release|x86.ActiveCfg = Release|x86
 		{3E7FAF67-A27D-4A61-B161-93AD4414183E}.Release|x86.Build.0 = Release|x86
-		{0665CA3B-C14F-40EC-ABFB-AD46A695F5A3}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{0665CA3B-C14F-40EC-ABFB-AD46A695F5A3}.Debug|x86.ActiveCfg = Debug|x86
-		{0665CA3B-C14F-40EC-ABFB-AD46A695F5A3}.Debug|x86.Build.0 = Debug|x86
-		{0665CA3B-C14F-40EC-ABFB-AD46A695F5A3}.Release|Any CPU.ActiveCfg = Release|x86
-		{0665CA3B-C14F-40EC-ABFB-AD46A695F5A3}.Release|x86.ActiveCfg = Release|x86
 		{5BCF813B-671E-4B2C-B01E-3EACDC536B65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5BCF813B-671E-4B2C-B01E-3EACDC536B65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BCF813B-671E-4B2C-B01E-3EACDC536B65}.Debug|x86.ActiveCfg = Debug|Any CPU
