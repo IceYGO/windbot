@@ -54,7 +54,7 @@ namespace WindBot.Game
         public IDictionary<long, int> ActionActivateIndex { get; private set; }
 
         public ClientCard(int id, CardLocation loc, int sequence, int controller)
-            : this(id, loc, -1 , 0, controller)
+            : this(id, loc, -1, 0, controller)
         {
         }
 
