@@ -37,6 +37,10 @@
   <PropertyGroup>
     <ApplicationIcon>WindBot.ico</ApplicationIcon>
   </PropertyGroup>
+    <PropertyGroup>
+		<BaseOutputPath>$(MSBuildProjectDirectory)/out/$(MSBuildProjectName)/bin</BaseOutputPath>
+		<BaseIntermediateOutputPath>$(MSBuildProjectDirectory)/out/$(MSBuildProjectName)/obj</BaseIntermediateOutputPath>
+	</PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Data.Sqlite">
       <HintPath>.\Mono.Data.Sqlite.dll</HintPath>
