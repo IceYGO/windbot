@@ -933,7 +933,7 @@ namespace WindBot.Game
             for (int i = 0; i < count; ++i)
             {
                 int id = packet.ReadInt32();
-                LocationInfo info = tribute ? new LocationInfo(packet, _duel.IsFirst) : new LocationInfo();
+                LocationInfo info = !tribute ? new LocationInfo(packet, _duel.IsFirst) : new LocationInfo();
                 if (tribute)
                 {
                     info.controler = packet.ReadByte();
