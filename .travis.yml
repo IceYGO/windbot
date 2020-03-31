@@ -4,7 +4,7 @@ git:
   depth: 1
 script:
 - export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
-- msbuild.exe -m -p:Configuration=Release WindBot.sln
+- dotnet build WindBot.csproj --configuration=Release
 after_success:
 - cd bin
 - mv Release WindBot
