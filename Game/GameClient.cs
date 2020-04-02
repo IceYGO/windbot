@@ -18,7 +18,7 @@ namespace WindBot.Game
         public bool _chat;
         private string _serverHost;
         private int _serverPort;
-        private short _proVersion;
+        private int _proVersion;
 
         private string _roomInfo;
 
@@ -57,9 +57,10 @@ namespace WindBot.Game
 
             byte[] junk = { 0xCC, 0xCC, 0x00, 0x00, 0x00, 0x00 };
             packet = GamePacketFactory.Create(CtosMessage.JoinGame);
-            packet.Write(_proVersion);
+            packet.Write((short)_proVersion);
             packet.Write(junk);
-            packet.WriteUnicode(_roomInfo, 30);
+            packet.WriteUnicode(_roomInfo, 20);
+            packet.Write(_proVersion);
             Connection.Send(packet);
         }
 
