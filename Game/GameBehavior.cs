@@ -185,7 +185,7 @@ namespace WindBot.Game
             /*int draw_count =*/ packet.ReadByte();
             /*int time_limit =*/ packet.ReadUInt16();
             /*align =*/ packet.ReadBytes(4);
-            const ulong SERVER_HANDSHAKE = 4903489263569811227;
+            const ulong SERVER_HANDSHAKE = 4680591157758091777;
             ulong handshake = packet.ReadUInt64();
             if (handshake != SERVER_HANDSHAKE)
             {
