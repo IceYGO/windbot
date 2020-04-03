@@ -35,7 +35,7 @@ namespace WindBot.Game
             _serverHost = Info.Host;
             _serverPort = Info.Port;
             _roomInfo = Info.HostInfo;
-            _proVersion = (short)Info.Version;
+            _proVersion = Info.Version;
         }
 
         public void Start()
