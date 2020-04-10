@@ -1167,7 +1167,7 @@ namespace WindBot.Game.AI.Decks
             base.OnChainEnd();
         }
 
-        public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
+        public override int OnSelectPlace(long cardId, int player, CardLocation location, int available)
         {
             if (player == 0)
             {

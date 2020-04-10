@@ -223,13 +223,13 @@ namespace WindBot.Game
         /// <param name="hint">The hint message of the select.</param>
         /// <param name="cancelable">True if you can return an empty list.</param>
         /// <returns>A new list containing the selected cards.</returns>
-        public IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        public IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, long hint, bool cancelable)
         {
-            const int HINTMSG_FMATERIAL = 511;
-            const int HINTMSG_SMATERIAL = 512;
-            const int HINTMSG_XMATERIAL = 513;
-            const int HINTMSG_LMATERIAL = 533;
-            const int HINTMSG_SPSUMMON = 509;
+            const long HINTMSG_FMATERIAL = 511;
+            const long HINTMSG_SMATERIAL = 512;
+            const long HINTMSG_XMATERIAL = 513;
+            const long HINTMSG_LMATERIAL = 533;
+            const long HINTMSG_SPSUMMON = 509;
 
             // Check for the executor.
             IList<ClientCard> result = Executor.OnSelectCard(cards, min, max, hint, cancelable);
@@ -479,7 +479,7 @@ namespace WindBot.Game
             return 0; // Always select the first option.
         }
 
-        public int OnSelectPlace(int cardId, int player, CardLocation location, int available)
+        public int OnSelectPlace(long cardId, int player, CardLocation location, int available)
         {
             int selector_selected = m_place;
             m_place = 0;
@@ -526,10 +526,10 @@ namespace WindBot.Game
         /// <param name="max">Maximum cards.</param>
         /// <param name="mode">True for exact equal.</param>
         /// <returns></returns>
-        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, int hint, bool mode)
+        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, long hint, bool mode)
         {
-            const int HINTMSG_RELEASE = 500;
-            const int HINTMSG_SMATERIAL = 512;
+            const long HINTMSG_RELEASE = 500;
+            const long HINTMSG_SMATERIAL = 512;
 
             IList<ClientCard> selected = Executor.OnSelectSum(cards, sum, min, max, hint, mode);
             if (selected != null)
@@ -695,7 +695,7 @@ namespace WindBot.Game
         /// <param name="hint">The hint message of the select.</param>
         /// <param name="cancelable">True if you can return an empty list.</param>
         /// <returns>A new list containing the tributed cards.</returns>
-        public IList<ClientCard> OnSelectTribute(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        public IList<ClientCard> OnSelectTribute(IList<ClientCard> cards, int min, int max, long hint, bool cancelable)
         {
             // Always choose the minimum and lowest atk.
             List<ClientCard> sorted = new List<ClientCard>();

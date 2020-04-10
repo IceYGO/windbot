@@ -26,7 +26,7 @@ namespace WindBot.Game
         private Duel _duel;
         private int _hand;
         private bool _debug;        
-        private int _select_hint;
+        private long _select_hint;
         private GameMessage _lastMessage;
         public class LocationInfo
         {
@@ -378,7 +378,7 @@ namespace WindBot.Game
         {
             int type = packet.ReadByte();
             int player = packet.ReadByte();
-            int data = packet.ReadInt32();
+            long data = packet.ReadInt64();
             if (type == 1) // HINT_EVENT
             {
                 if (data == 24) // battling
@@ -921,7 +921,7 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, _ai.OnSelectBattleCmd(battle).ToValue());
         }
 
-        private void InternalOnSelectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func, bool tribute = false)
+        private void InternalOnSelectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, long, bool, IList<ClientCard>> func, bool tribute = false)
         {
             int player = packet.ReadByte();
             bool cancelable = packet.ReadByte() != 0;
@@ -985,7 +985,7 @@ namespace WindBot.Game
             Connection.Send(reply);
         }
 
-        private void InternalOnSelectUnselectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func)
+        private void InternalOnSelectUnselectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, long, bool, IList<ClientCard>> func)
         {
             int player = packet.ReadByte();
             bool finishable = packet.ReadByte() != 0;

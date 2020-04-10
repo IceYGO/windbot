@@ -211,7 +211,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool isAltergeist(int id)
+        public bool isAltergeist(long id)
         {
             return (id == CardId.Marionetter || id == CardId.Hexstia || id == CardId.Protocol
                 || id == CardId.Multifaker || id == CardId.Meluseek || id == CardId.Kunquery
@@ -2745,10 +2745,10 @@ namespace WindBot.Game.AI.Decks
             return null;
         }
 
-        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, long hint, bool cancelable)
         {
 
-            int HIINT_TOGRAVE = 504;
+            long HIINT_TOGRAVE = 504;
             if (max == 1 && cards[0].Location == CardLocation.Deck 
                 && Util.GetLastChainCard() != null && Util.GetLastChainCard().IsCode(23002292) && Bot.GetRemainingCount(CardId.WakingtheDragon,1) > 0)
             {
@@ -2817,7 +2817,7 @@ namespace WindBot.Game.AI.Decks
             return 0;
         }
 
-        public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
+        public override int OnSelectPlace(long cardId, int player, CardLocation location, int available)
         {
             if (player == 0)
             {

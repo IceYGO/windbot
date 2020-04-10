@@ -106,13 +106,13 @@ namespace WindBot.Game.AI
             // Some AI need do something on draw
         }
 
-        public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, long hint, bool cancelable)
         {
             // For overriding
             return null;
         }
 
-        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, int hint, bool mode)
+        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, long hint, bool mode)
         {
             // For overriding
             return null;
@@ -170,7 +170,7 @@ namespace WindBot.Game.AI
             return -1;
         }
 
-        public virtual int OnSelectPlace(int cardId, int player, CardLocation location, int available)
+        public virtual int OnSelectPlace(long cardId, int player, CardLocation location, int available)
         {
             // For overriding
             return 0;
