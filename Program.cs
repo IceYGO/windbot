@@ -50,11 +50,18 @@ namespace WindBot
         {
             Rand = new Random();
             DecksManager.Init();
-            string[] dbPaths = {
+
+            string[] dbPaths;
+            //If databasePath is an absolute path like "‪C:/ProjectIgnis/expansions/cards.cdb",
+            //then Path.GetFullPath("../‪C:/ProjectIgnis/expansions/cards.cdb" would give an error,
+            //due to containing a colon that's not part of a volume identifier.
+            if (Path.IsPathRooted(databasePath)) dbPaths = new string[] { databasePath };
+            else dbPaths = new string[]{
                 Path.GetFullPath(databasePath),
                 Path.GetFullPath("../" + databasePath),
                 Path.GetFullPath("../expansions/" + databasePath)
             };
+
             foreach (var absPath in dbPaths)
             {
                 if (File.Exists(absPath))
