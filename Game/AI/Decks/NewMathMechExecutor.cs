@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("NewMathMech", "AI_Mathmech", "NotFinished")]
+    [Deck("NewMathMech", "AI_Mathmech")]
     public class NewMathmechExecutor : DefaultExecutor
     {
         public class CardID
