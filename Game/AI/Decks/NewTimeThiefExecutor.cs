@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("NewTimeThief", "AI_TimeThief")]
+    [Deck("NewTimeThief", "AI_Timethief")]
     public class NewTimeThiefExecutor : DefaultExecutor
     {
         public class Monsters
