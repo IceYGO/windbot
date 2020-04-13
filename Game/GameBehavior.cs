@@ -937,6 +937,8 @@ namespace WindBot.Game
                 if (tribute)
                 {
                     info.controler = packet.ReadByte();
+                    if (!_duel.IsFirst)
+                        info.controler = 1 - info.controler;
                     info.location = packet.ReadByte();
                     info.sequence = packet.ReadInt32();
                     packet.ReadByte();
