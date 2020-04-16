@@ -64,6 +64,8 @@
         NumberF0UtopicFutureFutureSlash = 43490025,
         NumberF0UtopicFuture = 65305468,
         GoukiTheGiantOgre = 47946130,
-        BorrelswordDragon = 85289965
+        BorrelswordDragon = 85289965,
+        NumberF0UtopicFutureDragon = 26973555,
+        BorrelendDragon = 98630720
     }
 }
