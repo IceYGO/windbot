@@ -121,6 +121,26 @@
         "dialog": "default"
       },
       {
+        "name": "比特机灵",
+        "deck": "MathMech",
+        "dialog": "zh-CN"
+      },
+      {
+        "name": "比特机灵",
+        "deck": "TimeThief",
+        "dialog": "zh-CN"
+      },
+      {
+        "name": "比特机灵",
+        "deck": "PureWinds",
+        "dialog": "zh-CN"
+      },
+      {
+        "name": "比特机灵",
+        "deck": "PureWinds",
+        "dialog": "zh-CN"
+      },
+      {
         "name": "永远之魂",
         "deck": "Burn",
         "dialog": "soul.zh-CN"
