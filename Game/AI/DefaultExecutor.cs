@@ -46,6 +46,7 @@ namespace WindBot.Game.AI
             public const int Number39Utopia = 84013237;
             public const int UltimayaTzolkin = 1686814;
             public const int MekkKnightCrusadiaAstram = 21887175;
+            public const int HamonLordofStrikingThunder = 32491822;
 
             public const int MoonMirrorShield = 19508728;
             public const int PhantomKnightsFogBlade = 25542642;
@@ -198,6 +199,9 @@ namespace WindBot.Game.AI
                 return false;
 
             if (defender.IsCode(_CardId.UltimayaTzolkin) && !defender.IsDisabled() && Enemy.GetMonsters().Any(monster => !monster.Equals(defender) && monster.HasType(CardType.Synchro)))
+                return false;
+
+            if (Enemy.GetMonsters().Any(monster => !monster.Equals(defender) && monster.IsCode(_CardId.HamonLordofStrikingThunder) && !monster.IsDisabled() && monster.IsDefense()))
                 return false;
 
             if (defender.OwnTargets.Any(card => card.IsCode(_CardId.PhantomKnightsFogBlade) && !card.IsDisabled()))
