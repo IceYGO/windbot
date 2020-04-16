@@ -23,5 +23,6 @@
         ElShaddollConstruct = 20366274,
         ZushintheSleepingGiant = 67547370,
         Heart_eartHDragon = 97403510,
+        DaigustoSphreeze = 29552709,
     }
 }
