@@ -38,6 +38,8 @@ namespace WindBot.Game.AI
             public const int CosmicCyclone = 8267140;
             public const int ChickenGame = 67616300;
 
+            public const int SantaClaws = 46565218;
+
             public const int CastelTheSkyblasterMusketeer = 82633039;
             public const int CrystalWingSynchroDragon = 50954680;
             public const int NumberS39UtopiaTheLightning = 56832966;
@@ -87,6 +89,7 @@ namespace WindBot.Game.AI
             : base(ai, duel)
         {
             AddExecutor(ExecutorType.Activate, _CardId.ChickenGame, DefaultChickenGame);
+            AddExecutor(ExecutorType.Activate, _CardId.SantaClaws);
         }
 
         /// <summary>
