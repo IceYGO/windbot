@@ -82,6 +82,24 @@
         InspectorBoarder = 15397015,
         Mashoudou = 76375976,
         EternalSoul = 48680970,
-        MarincessBattleOcean = 91027843
+        MarincessBattleOcean = 91027843,
+        TopologicZeroboros = 66403530,
+        GladiatorBeastDomitianus = 33652635,
+        SerzielWatcheroftheEvilEye = 82466274,
+        ZerrzielRuleroftheEvilEyed = 17739335,
+        GorgonEmpressoftheEvilEyed = 29357687,
+        UnchainedSoulofRage = 67680512,
+        DracoBerserkeroftheTenyi = 5041348,
+        NidhoggGeneraiderBossofIce = 49275969,
+        UtgardaGeneraiderBossofDelusion = 744887,
+        FrodiGeneraiderBossofSwords = 40998517,
+        HoarrGeneraiderBossofRumbling = 68199168,
+        GodPhoenixGearfried = 22091647,
+        BrotherhoodoftheFireFistEland = 61472381,
+        PredaplantVerteAnaconda = 70369116,
+        RedSupernovaDragon = 99585850,
+        NumberF0UtopicFutureDragon = 26973555,
+        InvokedAugoeides = 97300502,
+        DragonmaidStrahl = 24799107
     }
 }

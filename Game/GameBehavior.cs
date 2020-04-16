@@ -691,12 +691,14 @@ namespace WindBot.Game
 
         private void OnChaining(BinaryReader packet)
         {
-            packet.ReadInt32(); // card id
+            int cardId = packet.ReadInt32();
             int pcc = GetLocalPlayer(packet.ReadByte());
             int pcl = packet.ReadByte();
             int pcs = packet.ReadSByte();
             int subs = packet.ReadSByte();
             ClientCard card = _duel.GetCard(pcc, pcl, pcs, subs);
+            if (card.Id == 0)
+                card.SetId(cardId);
             int cc = GetLocalPlayer(packet.ReadByte());
             if (_debug)
                 if (card != null) Logger.WriteLine("(" + cc.ToString() + " 's " + (card.Name ?? "UnKnowCard") + " activate effect)");

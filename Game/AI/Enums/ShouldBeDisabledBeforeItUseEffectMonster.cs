@@ -44,6 +44,12 @@
         PaladinofDarkDragon = 71408082,
         PaladinofPhotonDragon = 85346853,
         TwinPhotonLizard = 29455728,
+        TimeThiefRegulator = 19891131,
+        MathmechNabla = 53577438,
+        NidhoggGeneraiderBossofIce = 49275969,
+        HoarrGeneraiderBossofRumbling = 68199168,
+        RedFamiliar = 8372133,
+        AccesscodeTalker = 86066372,
 
         CosmoBrain = 85679527,
         ShiranuiSolitaire = 94801854,
