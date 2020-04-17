@@ -220,10 +220,10 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             //counter
-            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, base.DefaultSolemnStrike);
             AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, base.DefaultSolemnWarning);
             AddExecutor(ExecutorType.Activate, CardId.ForbiddenChalice, ForbiddenChaliceeff);
             AddExecutor(ExecutorType.Activate, CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragoneff);
+            AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, base.DefaultSolemnStrike);
             AddExecutor(ExecutorType.Activate, CardId.GustoGulldo, GustoGulldoeff);
             AddExecutor(ExecutorType.Activate, CardId.GustoEgul, GustoEguleff);
             AddExecutor(ExecutorType.Activate, CardId.WindaPriestessOfGusto, WindaPriestessOfGustoeff);
