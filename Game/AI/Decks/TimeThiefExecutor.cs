@@ -69,16 +69,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet,Traps.TimeThiefRetrograte);
             AddExecutor(ExecutorType.SpellSet,Traps.TimeThiefFlyBack);
             
-            //special summons
-            AddExecutor(ExecutorType.SpSummon,Monsters.PhotonTrasher ,SummonToDef);
-            AddExecutor(ExecutorType.SpSummon,Monsters.TimeThiefRegulator, SummonToDef);
-            AddExecutor(ExecutorType.SpSummon,Monsters.TimeThiefWinder, SummonToDef);
-            AddExecutor(ExecutorType.SpSummon,Monsters.PerformTrickClown, SummonToDef);
-            AddExecutor(ExecutorType.SpSummon,Monsters.TimeThiefCronocorder, SummonToDef);
-            AddExecutor(ExecutorType.SpSummon,Monsters.TimeThiefBezelShip, SummonToDef);
-            
             //normal summons
             AddExecutor(ExecutorType.Summon,Monsters.TimeThiefRegulator  );
+            AddExecutor(ExecutorType.SpSummon, Monsters.PhotonTrasher, SummonToDef );
             AddExecutor(ExecutorType.Summon,Monsters.TimeThiefWinder );
             AddExecutor(ExecutorType.Summon,Monsters.TimeThiefBezelShip );
             AddExecutor(ExecutorType.Summon,Monsters.PerformTrickClown );
@@ -100,12 +93,9 @@ namespace WindBot.Game.AI.Decks
             //monster effects
             AddExecutor(ExecutorType.Activate,Monsters.TimeThiefRegulator , RegulatorEffect);
             AddExecutor(ExecutorType.Activate,Monsters.TimeThiefWinder);
-            AddExecutor(ExecutorType.Activate,Monsters.PhotonTrasher);
             AddExecutor(ExecutorType.Activate,Monsters.TimeThiefCronocorder);
-            AddExecutor(ExecutorType.Activate,Monsters.PerformTrickClown);
-            AddExecutor(ExecutorType.Activate,Monsters.TimeThiefBezelShip);
-                  
-            
+            AddExecutor(ExecutorType.Activate,Monsters.PerformTrickClown, TrickClownEffect);
+            AddExecutor(ExecutorType.Activate,Monsters.TimeThiefBezelShip);   
         }
 
         private bool SummonToDef()
@@ -278,8 +268,18 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
         
+        private bool TrickClownEffect()
+        {
+            if (Bot.LifePoints <= 1000)
+            {
+                return false;
+            }
+            AI.SelectPosition(CardPosition.FaceUpDefence);
+            return true;
+        }
 
-        
+
+
     }
 
 }

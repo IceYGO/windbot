@@ -364,6 +364,16 @@ namespace WindBot.Game.AI.Decks
             }
         }
 
+        public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
+        {
+            if (cardId == CardID.MathmechFinalSigma)
+            {
+                if ((Zones.z5 & available) > 0) return Zones.z5;
+                if ((Zones.z6 & available) > 0) return Zones.z6;
+            }
+            return base.OnSelectPlace(cardId, player, location, available);
+        }
+
     }
 
 }
