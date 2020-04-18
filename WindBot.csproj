@@ -68,6 +68,8 @@
     <Compile Include="Game\AI\DecksManager.cs" />
     <Compile Include="Game\AI\Decks\AltergeistExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
+    <Compile Include="Game\AI\Decks\MathMechExecutor.cs" />
+    <Compile Include="Game\AI\Decks\PureWindsExecutor.cs" />
     <Compile Include="Game\AI\Decks\DragunExecutor.cs" />
     <Compile Include="Game\AI\Decks\Level8Executor.cs" />
     <Compile Include="Game\AI\Decks\SalamangreatExecutor.cs" />
@@ -77,6 +79,7 @@
     <Compile Include="Game\AI\Decks\SkyStrikerExecutor.cs" />
     <Compile Include="Game\AI\Decks\MokeyMokeyKingExecutor.cs" />
     <Compile Include="Game\AI\Decks\MokeyMokeyExecutor.cs" />
+    <Compile Include="Game\AI\Decks\TimeThiefExecutor.cs" />
     <Compile Include="Game\AI\Decks\ToadallyAwesomeExecutor.cs" />
     <Compile Include="Game\AI\Decks\NekrozExecutor.cs" />
     <Compile Include="Game\AI\Decks\GravekeeperExecutor.cs" />
