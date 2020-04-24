@@ -84,13 +84,13 @@
       {
         "name": "悠悠",
         "deck": "MokeyMokey",
-        "dialog": "mokey.zh-CN“,
+        "dialog": "mokey.zh-CN",
         "hidden": true
       },
       {
         "name": "悠悠王",
         "deck": "MokeyMokeyKing",
-        "dialog": "mokey.zh-CN“,
+        "dialog": "mokey.zh-CN",
         "hidden": true
       },
       {
