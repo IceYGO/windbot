@@ -1188,6 +1188,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (CheckRecyclableCount(false, true) > 0 && Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.HasSetcode(Witchcraft_setcode)) == null)
             {
+                summoned = true;
                 return true;
             }
             return false;
@@ -1200,6 +1201,8 @@ namespace WindBot.Game.AI.Decks
         {
             // reject advance summon
             if (Card.Level >= 5) return false;
+            summoned = true;
+
             if (BorrelswordDragonSummonCheck(Card).Count >= 3)
             {
                 Logger.DebugWriteLine("Summon for BorrelswordDragon.");
@@ -1230,6 +1233,8 @@ namespace WindBot.Game.AI.Decks
                 Logger.DebugWriteLine("Summon for SalamangreatAlmiraj.");
                 return true;
             }
+
+            summoned = false;
             return false;
         }
 
