@@ -16,11 +16,6 @@
         "dialog": "cirno.zh-CN"
       },
       {
-        "name": "琪露诺",
-        "deck": "Toadally Awesome",
-        "dialog": "cirno.zh-CN"
-      },
-      {
         "name": "谜之剑士LV4",
         "deck": "Dragunity",
         "dialog": "swordsman.zh-CN"
@@ -156,24 +151,27 @@
         "dialog": "zh-CN"
       },
       {
+        "name": "兔明",
+        "deck": "Witchcraft",
+        "dialog": "zh-CN"
+      },
+      {
         "name": "永远之魂",
         "deck": "Burn",
-        "dialog": "soul.zh-CN"
+        "dialog": "soul.zh-CN",
+        "hidden": true
       },
       {
         "name": "永远之魂",
         "deck": "Frog",
-        "dialog": "soul.zh-CN"
+        "dialog": "soul.zh-CN",
+        "hidden": true
       },
       {
         "name": "永远之魂",
         "deck": "Horus",
-        "dialog": "soul.zh-CN"
-      },
-      {
-        "name": "奇異果",
-        "deck": "LightswornShaddoldinosour",
-        "dialog": "kiwi.zh-TW"
+        "dialog": "soul.zh-CN",
+        "hidden": true
       },
       {
         "name": "MAX龍果",
@@ -198,12 +196,14 @@
       {
         "name": "報社鬥士",
         "deck": "GrenMajuThunderBoarder",
-        "dialog": "kiwi.zh-TW"
+        "dialog": "kiwi.zh-TW",
+        "hidden": true
       },
       {
         "name": "燃血鬥士",
         "deck": "ChainBurn",
-        "dialog": "kiwi.zh-TW"
+        "dialog": "kiwi.zh-TW",
+        "hidden": true
       }
     ]
 }
