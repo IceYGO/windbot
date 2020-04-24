@@ -16,11 +16,6 @@
         "dialog": "cirno.zh-CN"
       },
       {
-        "name": "琪露诺",
-        "deck": "Toadally Awesome",
-        "dialog": "cirno.zh-CN"
-      },
-      {
         "name": "谜之剑士LV4",
         "deck": "Dragunity",
         "dialog": "swordsman.zh-CN"
@@ -56,14 +51,19 @@
         "dialog": "smart.zh-CN"
       },
       {
-        "name": "我太帅了",
-        "deck": "Dragun",
-        "dialog": "smart.zh-CN"
+        "name": "玻璃女巫",
+        "deck": "Witchcraft",
+        "dialog": "verre.zh-CN"
       },
       {
-        "name": "我太帅了",
-        "deck": "Dragun",
-        "dialog": "smart.zh-CN"
+        "name": "玻璃女巫",
+        "deck": "Witchcraft",
+        "dialog": "verre.zh-CN"
+      },
+      {
+        "name": "玻璃女巫",
+        "deck": "Witchcraft",
+        "dialog": "verre.zh-CN"
       },
       {
         "name": "复制植物",
@@ -74,6 +74,24 @@
         "name": "复制植物",
         "deck": "Blue-Eyes",
         "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "复制植物",
+        "deck": "Zoodiac",
+        "dialog": "copy.zh-CN",
+        "hidden": true
+      },
+      {
+        "name": "悠悠",
+        "deck": "MokeyMokey",
+        "dialog": "mokey.zh-CN“,
+        "hidden": true
+      },
+      {
+        "name": "悠悠王",
+        "deck": "MokeyMokeyKing",
+        "dialog": "mokey.zh-CN“,
+        "hidden": true
       },
       {
         "name": "复制梁龙",
@@ -116,26 +134,6 @@
         "dialog": "default"
       },
       {
-        "name": "试作型机器人1732",
-        "deck": "ST1732",
-        "dialog": "default"
-      },
-      {
-        "name": "比特机灵",
-        "deck": "MathMech",
-        "dialog": "zh-CN"
-      },
-      {
-        "name": "比特机灵",
-        "deck": "TimeThief",
-        "dialog": "zh-CN"
-      },
-      {
-        "name": "比特机灵",
-        "deck": "PureWinds",
-        "dialog": "zh-CN"
-      },
-      {
         "name": "比特机灵",
         "deck": "PureWinds",
         "dialog": "zh-CN"
@@ -143,22 +141,20 @@
       {
         "name": "永远之魂",
         "deck": "Burn",
-        "dialog": "soul.zh-CN"
+        "dialog": "soul.zh-CN",
+        "hidden": true
       },
       {
         "name": "永远之魂",
         "deck": "Frog",
-        "dialog": "soul.zh-CN"
+        "dialog": "soul.zh-CN",
+        "hidden": true
       },
       {
         "name": "永远之魂",
         "deck": "Horus",
-        "dialog": "soul.zh-CN"
-      },
-      {
-        "name": "奇異果",
-        "deck": "LightswornShaddoldinosour",
-        "dialog": "kiwi.zh-TW"
+        "dialog": "soul.zh-CN",
+        "hidden": true
       },
       {
         "name": "奇異果",
@@ -183,12 +179,14 @@
       {
         "name": "報社鬥士",
         "deck": "GrenMajuThunderBoarder",
-        "dialog": "kiwi.zh-TW"
+        "dialog": "kiwi.zh-TW",
+        "hidden": true
       },
       {
         "name": "燃血鬥士",
         "deck": "ChainBurn",
-        "dialog": "kiwi.zh-TW"
+        "dialog": "kiwi.zh-TW",
+        "hidden": true
       }
     ]
 }
