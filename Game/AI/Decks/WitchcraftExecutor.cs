@@ -46,7 +46,7 @@ namespace WindBot.Game.AI.Decks
             public const int MagicianRightHand = 87769556;
             public const int InfiniteImpermanence = 10045474;
             public const int Masterpiece = 55072170;
-            public const int Witchcrafter Patronus = 94553671;
+            public const int Patronus = 94553671;
             public const int BorreloadSavageDragon = 27548199;
             public const int DracoBerserkeroftheTenyi = 5041348;
             public const int PSYOmega = 74586817;
@@ -129,7 +129,7 @@ namespace WindBot.Game.AI.Decks
 
             // witchcraft summon
             AddExecutor(ExecutorType.Activate, CardId.Masterpiece, MasterpieceActivate);
-            AddExecutor(ExecutorType.Activate, CardId.Witchcrafter Patronus, Witchcrafter PatronusActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Patronus, PatronusActivate);
             AddExecutor(ExecutorType.Activate, CardId.MagiciansRestage, MagiciansRestageActivate);
             AddExecutor(ExecutorType.Activate, CardId.Holiday, HolidayActivate);
             AddExecutor(ExecutorType.Activate, CardId.Schmietta, DeckSSWitchcraft);
@@ -309,7 +309,7 @@ namespace WindBot.Game.AI.Decks
         // overwrite OnSelectCard to act normally in SelectUnselect
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            // Witchcrafter Patronus HINTMSG_ATOHAND
+            // Patronus HINTMSG_ATOHAND
             if (hint == 506)
             {
                 bool flag = true;
@@ -323,7 +323,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (flag)
                 {
-                    Logger.DebugWriteLine("** Witchcrafter Patronus recycle.");
+                    Logger.DebugWriteLine("** Patronus recycle.");
                     // select all
                     IList<ClientCard> selected = new List<ClientCard>();
                     for (int i = 1; i <= max; ++i)
@@ -353,7 +353,7 @@ namespace WindBot.Game.AI.Decks
                                 checked_card[i] = card;
                             }
                         }
-                        // Witchcrafter Patronus also special summon from deck
+                        // Patronus also special summon from deck
                         if (!levels.Contains(card.Level))
                         {
                             levels.Add(card.Level);
@@ -755,8 +755,8 @@ namespace WindBot.Game.AI.Decks
                     return Bot.GetRemainingCount(CardId.InfiniteImpermanence, 3);
                 case CardId.Masterpiece:
                     return Bot.GetRemainingCount(CardId.Masterpiece, 1);
-                case CardId.Witchcrafter Patronus:
-                    return Bot.GetRemainingCount(CardId.Witchcrafter Patronus, 2);
+                case CardId.Patronus:
+                    return Bot.GetRemainingCount(CardId.Patronus, 2);
                 default:
                     return 0;
             }
@@ -904,7 +904,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (Card.Id == CardId.Witchcrafter Patronus)
+            if (Card.Id == CardId.Patronus)
             {
                 int count = Bot.Banished.GetMatchingCardsCount(card => card.HasSetcode(Witchcraft_setcode));
                 if (count == 0)
@@ -1672,7 +1672,7 @@ namespace WindBot.Game.AI.Decks
             
             // safe check
             if (CheckProblematicCards() == null){
-                int[] checklist = {CardId.Witchcrafter Patronus, CardId.GolemAruru};
+                int[] checklist = {CardId.Patronus, CardId.GolemAruru};
                 foreach (int cardid in checklist){
                     if (Bot.HasInGraveyard(cardid)){
                         AI.SelectCard(cardid);
@@ -2263,7 +2263,7 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 List<ClientCard> tobanish_spells = CardListShuffle(Bot.Graveyard.GetMatchingCards(card => card.IsSpell() && !card.HasSetcode(Witchcraft_setcode) && card.Id != CardId.MetalfoesFusion).ToList());
-                if (Bot.HasInGraveyard(CardId.Witchcrafter Patronus))
+                if (Bot.HasInGraveyard(CardId.Patronus))
                 {
                     List<ClientCard> witchcraft_spells = CardListShuffle(Bot.Graveyard.GetMatchingCards(card => card.IsSpell() && card.HasSetcode(Witchcraft_setcode)).ToList());
                     tobanish_spells = witchcraft_spells.Union(tobanish_spells).ToList();
@@ -2327,11 +2327,11 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        // activate of Witchcrafter Patronus
-        public bool Witchcrafter PatronusActivate()
+        // activate of Patronus
+        public bool PatronusActivate()
         {
             // search
-            //if (ActivateDescription == Util.GetStringId(CardId.Witchcrafter Patronus, 0))
+            //if (ActivateDescription == Util.GetStringId(CardId.Patronus, 0))
             if (Card.Location == CardLocation.SpellZone)
             {
                 if (NegatedCheck(true) || Duel.LastChainPlayer == 0) return false;
@@ -2489,7 +2489,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     AI.SelectCard(CardId.CalledbytheGrave, CardId.CrossoutDesignator,
                         CardId.MaxxC, CardId.AshBlossom_JoyousSpring,
-                        CardId.MagicianRightHand, CardId.MagiciansLeftHand, CardId.MagiciansRestage, CardId.Witchcrafter Patronus, 
+                        CardId.MagicianRightHand, CardId.MagiciansLeftHand, CardId.MagiciansRestage, CardId.Patronus, 
                         CardId.LightningStorm, CardId.Reasoning);
                     return true;
                 }
