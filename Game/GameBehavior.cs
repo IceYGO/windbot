@@ -522,14 +522,17 @@ namespace WindBot.Game
             int final = _duel.Fields[player].LifePoints - packet.ReadInt32();
             if (final < 0) final = 0;
             if (_debug)
-                Logger.WriteLine("(" + player.ToString() + " got damage , LifePoint left= " + final.ToString() + ")");
+                Logger.WriteLine("(" + player.ToString() + " got damage , LifePoint left = " + final.ToString() + ")");
             _duel.Fields[player].LifePoints = final;
         }
 
         private void OnRecover(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            _duel.Fields[player].LifePoints += packet.ReadInt32();
+            int final = _duel.Fields[player].LifePoints + packet.ReadInt32();
+            if (_debug)
+                Logger.WriteLine("(" + player.ToString() + " got healed , LifePoint left = " + final.ToString() + ")");
+            _duel.Fields[player].LifePoints = final;
         }
 
         private void OnLpUpdate(BinaryReader packet)

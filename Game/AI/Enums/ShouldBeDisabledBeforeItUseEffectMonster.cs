@@ -50,6 +50,7 @@
         HoarrGeneraiderBossofRumbling = 68199168,
         RedFamiliar = 8372133,
         AccesscodeTalker = 86066372,
+        ChaosSummoningBeast = 27439792,
 
         CosmoBrain = 85679527,
         ShiranuiSolitaire = 94801854,

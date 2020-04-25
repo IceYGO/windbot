@@ -193,12 +193,7 @@ namespace WindBot.Game.AI.Decks
 
         public int SelectSTPlace()
         {
-            List<int> list = new List<int>();
-            list.Add(0);
-            list.Add(1);
-            list.Add(2);
-            list.Add(3);
-            list.Add(4);
+            List<int> list = new List<int> { 0, 1, 2, 3, 4 };
             int n = list.Count;
             while (n-- > 1)
             {
