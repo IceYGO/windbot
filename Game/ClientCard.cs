@@ -251,6 +251,11 @@ namespace WindBot.Game
             return (Attribute & (int)attribute) != 0;
         }
 
+        public bool HasRace(CardRace race)
+        {
+            return (Race & (int)race) != 0;
+        }
+
         public bool HasSetcode(int setcode)
         {
             if (Data == null) return false;
