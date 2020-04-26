@@ -1272,6 +1272,8 @@ namespace WindBot.Game.AI.Decks
             bool lesssummon = false;
             int extra_attack = CheckPlusAttackforMadameVerre(true, false, true);
             int best_power = Util.GetBestAttack(Bot);
+            if (CheckRemainInDeck(CardId.Haine) > 0 && best_power < 2400) best_power = 2400;
+            Logger.DebugWriteLine("less summon check: " + (best_power + extra_attack - 1000).ToString() + " to " + (best_power + extra_attack).ToString());
             if (Util.GetOneEnemyBetterThanValue(best_power) != null 
                 && Util.GetOneEnemyBetterThanValue(best_power + extra_attack) == null
                 && Util.GetOneEnemyBetterThanValue(best_power + extra_attack - 1000) != null)
@@ -1294,6 +1296,11 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+
+            // check whether continue to ss
+            bool should_attack = Util.GetOneEnemyBetterThanValue(Card.Attack) == null;
+            if ((should_attack ^ Card.IsDefense()) && Duel.Player == 1) return false;
+            if (CheckRemainInDeck(CardId.Haine, CardId.MadameVerre, CardId.GolemAruru) == 0) return false;
 
             // SS higer level
             if (Bot.HasInMonstersZone(CardId.Haine) || (lesssummon && !Bot.HasInMonstersZone(CardId.MadameVerre, true)))
