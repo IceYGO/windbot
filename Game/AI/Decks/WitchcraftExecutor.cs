@@ -1759,22 +1759,27 @@ namespace WindBot.Game.AI.Decks
             {
                 if (hand.IsMonster() && hand.Level <= 4 && hand.Attack > bestPower) bestPower = hand.Attack;
             }
+
+            int opt = -1;
             // destroy monster
             if (Enemy.MonsterZone.GetFirstMatchingCard(card => card.IsFloodgate() && card.IsAttack()) != null
-                || Enemy.MonsterZone.GetMatchingCardsCount(card => card.IsAttack() && card.Attack >= bestPower) >= 2)
-            {
-                AI.SelectOption(Util.GetStringId(CardId.LightningStorm, 0));
-                SelectSTPlace(null, true);
-                return true;
-            }
+                || Enemy.MonsterZone.GetMatchingCardsCount(card => card.IsAttack() && card.Attack >= bestPower) >= 2) opt = 0;
             // destroy spell/trap
-            if (Enemy.GetSpellCount() >= 2 || Util.GetProblematicEnemySpell() != null)
+            else if (Enemy.GetSpellCount() >= 2 || Util.GetProblematicEnemySpell() != null) opt = 1;
+
+            if (opt == -1) return false;
+
+            // only one selection
+            if (Enemy.MonsterZone.GetFirstMatchingCard(card => card.IsAttack()) == null 
+                || Enemy.GetSpellCount() == 0)
             {
-                AI.SelectOption(Util.GetStringId(CardId.LightningStorm, 1));
+                AI.SelectOption(0);
                 SelectSTPlace(null, true);
                 return true;
             }
-            return false;
+            AI.SelectOption(opt);
+            SelectSTPlace(null, true);
+            return true;
         }
 
         // activate of PotofExtravagance
