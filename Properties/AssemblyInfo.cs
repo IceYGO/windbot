@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("WindBot")]
 [assembly: AssemblyDescription("A C# bot for YGOPro.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("IceYGO")]
-[assembly: AssemblyProduct("WindBot")]
-[assembly: AssemblyCopyright("Copyright © IceYGO 2015-2017")]
+[assembly: AssemblyCompany("Project Ignis")]
+[assembly: AssemblyProduct("WindBot Ignite")]
+[assembly: AssemblyCopyright("Copyright (C) 2020 edo9300 and others")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
