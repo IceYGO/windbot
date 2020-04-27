@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 
 namespace WindBot.Game.AI
@@ -45,18 +46,29 @@ namespace WindBot.Game.AI
                     }
                 }
             }
-            Assembly assembly = Assembly.LoadFrom("Altergeist.dll");
-            Type[] types2 = assembly.GetTypes();
-            foreach (Type type in types2)
+            string[] files = Directory.GetFiles("Executors", "*.dll", SearchOption.TopDirectoryOnly);
+            foreach (string file in files)
             {
-                MemberInfo info = type;
-                object[] attributes = info.GetCustomAttributes(false);
-                foreach (object attribute in attributes)
+                Assembly assembly = Assembly.LoadFrom(file);
+                Type[] types2 = assembly.GetTypes();
+                foreach (Type type in types2)
                 {
-                    if (attribute is DeckAttribute)
+                    try
                     {
-                        DeckAttribute deck = (DeckAttribute)attribute;
-                        _decks.Add(deck.Name, new DeckInstance(deck.File, type, deck.Level));
+                        MemberInfo info = type;
+                        object[] attributes = info.GetCustomAttributes(false);
+                        foreach (object attribute in attributes)
+                        {
+                            if (attribute is DeckAttribute)
+                            {
+                                DeckAttribute deck = (DeckAttribute)attribute;
+                                _decks.Add(deck.Name, new DeckInstance(deck.File, type, deck.Level));
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.WriteErrorLine("Executor loading (" + file + ") error: " + ex);
                     }
                 }
             }
