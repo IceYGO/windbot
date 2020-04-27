@@ -69,8 +69,10 @@ namespace WindBot.Game
             Connection.Update();
         }
 
-        public void Chat(string message)
+        public void Chat(string message, bool forced)
         {
+            if (!forced && !_chat)
+                return;
             byte[] content = Encoding.Unicode.GetBytes(message + "\0");
             BinaryWriter chat = GamePacketFactory.Create(CtosMessage.Chat);
             chat.Write(content);

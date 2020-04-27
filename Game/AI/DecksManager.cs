@@ -45,6 +45,21 @@ namespace WindBot.Game.AI
                     }
                 }
             }
+            Assembly assembly = Assembly.LoadFrom("Altergeist.dll");
+            Type[] types2 = assembly.GetTypes();
+            foreach (Type type in types2)
+            {
+                MemberInfo info = type;
+                object[] attributes = info.GetCustomAttributes(false);
+                foreach (object attribute in attributes)
+                {
+                    if (attribute is DeckAttribute)
+                    {
+                        DeckAttribute deck = (DeckAttribute)attribute;
+                        _decks.Add(deck.Name, new DeckInstance(deck.File, type, deck.Level));
+                    }
+                }
+            }
 
             _list = new List<DeckInstance>();
             _list.AddRange(_decks.Values);
@@ -52,11 +67,9 @@ namespace WindBot.Game.AI
             Logger.WriteLine("Decks initialized, " + _decks.Count + " found.");
         }
 
-        public static Executor Instantiate(GameAI ai, Duel duel)
+        public static Executor Instantiate(GameAI ai, Duel duel, string deck)
         {
             DeckInstance infos;
-
-            string deck = ai.Game.Deck;
 
             if (deck != null && _decks.ContainsKey(deck))
             {
