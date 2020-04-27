@@ -6,7 +6,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Altergsasaseist", "AI_Altergeist")]
+    [Deck("Altergeist", "AI_Altergeist")]
     public class AltergeistExecutor : DefaultExecutor
     {
 
