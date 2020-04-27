@@ -110,6 +110,7 @@ namespace WindBot.Game
             _packets.Add(StocMessage.Chat, OnChat);
             _packets.Add(StocMessage.ChangeSide, OnChangeSide);
             _packets.Add(StocMessage.ErrorMsg, OnErrorMsg);
+            _packets.Add(StocMessage.Rematch, OnRematch);
 
             _messages.Add(GameMessage.Retry, OnRetry);
             _messages.Add(GameMessage.Start, OnStart);
@@ -229,6 +230,11 @@ namespace WindBot.Game
                 deck.Write(card);
             Connection.Send(deck);
             _ai.OnJoinGame();
+        }
+
+        private void OnRematch(BinaryReader packet)
+        {
+            Connection.Send(CtosMessage.RematchResponse, (byte)(1));
         }
 
         private void OnTypeChange(BinaryReader packet)

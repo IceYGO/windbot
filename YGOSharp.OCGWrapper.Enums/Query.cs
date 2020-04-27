@@ -1,6 +1,6 @@
 ﻿namespace YGOSharp.OCGWrapper.Enums
 {
-    public enum Query
+    public enum Query : uint
     {
         Code = 0x01,
         Position = 0x02,
@@ -24,6 +24,7 @@
         Status = 0x80000,
         LScale = 0x200000,
         RScale = 0x400000,
-        Link = 0x800000
+        Link = 0x800000,
+        End = 0x80000000
     }
 }

@@ -195,7 +195,7 @@ namespace WindBot.Game
                             LinkMarker = packet.ReadInt32();
                             break;
                         }
-                    case 0x80000000: //Query.End
+                    case (uint)Query.End: //Query.End
                         return packet.BaseStream.Position - pos;
                     default:
                         {

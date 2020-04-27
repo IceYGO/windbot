@@ -18,6 +18,7 @@
         HsReady = 0x22,
         HsNotReady = 0x23,
         HsKick = 0x24,
-        HsStart = 0x25
+        HsStart = 0x25,
+        RematchResponse = 0xf0
     }
 }
