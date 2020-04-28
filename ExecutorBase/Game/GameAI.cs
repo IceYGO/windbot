@@ -20,7 +20,7 @@ namespace WindBot.Game
             Error
         }
 
-        public void Log(string message, LogLevel level)
+        public void Log(LogLevel level, string message)
         {
             _log(message, (int)level);
         }
@@ -633,7 +633,7 @@ namespace WindBot.Game
 
                     foreach (IEnumerable<ClientCard> combo in combos)
                     {
-                        Log("--", LogLevel.Debug);
+                        Log(LogLevel.Debug, "--");
                         s1 = 0;
                         s2 = 0;
                         foreach (ClientCard card in combo)
@@ -680,7 +680,7 @@ namespace WindBot.Game
 
                     foreach (IEnumerable<ClientCard> combo in combos)
                     {
-                        Log("----", LogLevel.Debug);
+                        Log(LogLevel.Debug, "----");
                         int s1 = 0, s2 = 0;
                         foreach (ClientCard card in combo)
                         {
@@ -696,7 +696,7 @@ namespace WindBot.Game
                 }
             }
 
-            Log("Fail to select sum.", LogLevel.Error);
+            Log(LogLevel.Error, "Fail to select sum.");
             return new List<ClientCard>();
         }
 
@@ -812,7 +812,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectNextCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(card));
@@ -822,7 +822,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectNextCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cards));
@@ -832,7 +832,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectNextCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cardId));
@@ -842,7 +842,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectNextCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -852,7 +852,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectNextCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -862,7 +862,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectNextCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(loc));
@@ -872,7 +872,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectThirdCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(card));
@@ -882,7 +882,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectThirdCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cards));
@@ -892,7 +892,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectThirdCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cardId));
@@ -902,7 +902,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectThirdCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -912,7 +912,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectThirdCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -922,7 +922,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Log("Error: Call SelectThirdCard() before SelectCard()", LogLevel.Error);
+                Log(LogLevel.Error, "Error: Call SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(loc));
