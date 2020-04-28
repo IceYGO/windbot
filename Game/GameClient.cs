@@ -69,12 +69,29 @@ namespace WindBot.Game
             Connection.Update();
         }
 
-        public void Chat(string message)
+        public void Chat(string message, bool forced)
         {
+            if (!forced && !_chat)
+                return;
             byte[] content = Encoding.Unicode.GetBytes(message + "\0");
             BinaryWriter chat = GamePacketFactory.Create(CtosMessage.Chat);
             chat.Write(content);
             Connection.Send(chat);
+        }
+
+        public void Log(string message, int type)
+        {
+            if(type == 0)
+            {
+                Logger.WriteLine(message);
+            } else if (type == 1)
+            {
+                Logger.DebugWriteLine(message);
+            }
+            else if (type == 2)
+            {
+                Logger.WriteErrorLine(message);
+            }
         }
 
         private void OnPacketReceived(BinaryReader reader)
