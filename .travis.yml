@@ -2,16 +2,27 @@ os: windows
 language: cpp
 git:
   depth: 1
+env:
+  global:
+  - ARTIFACT="WindBotIgnite-$(date +%Y-%m-%d)-$TRAVIS_COMMIT.zip"
 script:
 - export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
 - dotnet build WindBot.csproj --configuration=Release
-after_success:
+before_deploy:
 - cd bin
 - mv Release WindBot
-- git init
-- git checkout --orphan $DEPLOY_BRANCH
-- git config user.email deploy@travis-ci.org
-- git config user.name "Deployment Bot (from Travis CI)"
-- git add -A WindBot
-- git commit -qm "Deploy $DEPLOY_REPO to $DEPLOY_REPO:$DEPLOY_BRANCH"
-- git push -qf https://$DEPLOY_TOKEN@github.com/$DEPLOY_REPO.git $DEPLOY_BRANCH:$DEPLOY_BRANCH
+- 7z a -tzip "$ARTIFACT" WindBot
+- cd ..
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: bash ./ci/deploy.sh
+  on:
+    repo: ProjectIgnis/windbot
+- provider: releases
+  skip_cleanup: true
+  api_key: $DEPLOY_TOKEN
+  file:
+    - bin/$ARTIFACT
+  on:
+    tags: true

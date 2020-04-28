@@ -241,7 +241,7 @@ namespace WindBot.Game
         {
             int type = packet.ReadByte();
             int pos = type & 0xF;
-            if (pos < 0 || pos > 3)
+            if (pos < 0 || pos >= _room.Players)
             {
                 Connection.Close();
                 return;
@@ -265,7 +265,7 @@ namespace WindBot.Game
             int change = packet.ReadByte();
             int pos = (change >> 4) & 0xF;
             int state = change & 0xF;
-            if (pos > 3)
+            if (pos >= _room.Players)
                 return;
             if (state < 8)
             {
@@ -391,6 +391,9 @@ namespace WindBot.Game
                 {
                     _duel.Fields[0].UnderAttack = false;
                     _duel.Fields[1].UnderAttack = false;
+                } else if (data == 23) //Main Phase end
+                {
+                    _duel.MainPhaseEnd = true;
                 }
             }
             if (type == 3) // HINT_SELECTMSG
@@ -565,6 +568,7 @@ namespace WindBot.Game
             {
                 monster.Attacked = false;
             }
+            _duel.MainPhaseEnd = false;
             _select_hint = 0;
             _ai.OnNewPhase();
         }
@@ -735,6 +739,7 @@ namespace WindBot.Game
 
         private void OnChainEnd(BinaryReader packet)
         {
+            _duel.MainPhaseEnd = false;
             _ai.OnChainEnd();
             _duel.LastChainPlayer = -1;
             _duel.CurrentChain.Clear();
