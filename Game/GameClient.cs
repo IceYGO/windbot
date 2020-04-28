@@ -79,6 +79,21 @@ namespace WindBot.Game
             Connection.Send(chat);
         }
 
+        public void Log(string message, int type)
+        {
+            if(type == 0)
+            {
+                Logger.WriteLine(message);
+            } else if (type == 1)
+            {
+                Logger.DebugWriteLine(message);
+            }
+            else if (type == 2)
+            {
+                Logger.WriteErrorLine(message);
+            }
+        }
+
         private void OnPacketReceived(BinaryReader reader)
         {
             _behavior.OnPacket(reader);

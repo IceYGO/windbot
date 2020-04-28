@@ -45,7 +45,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Game\AI\DecksManager.cs" />
     <Compile Include="Game\AI\Decks\AltergeistExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlueEyesExecutor.cs" />
@@ -83,20 +82,12 @@
     <Compile Include="Game\AI\Decks\YosenjuExecutor.cs" />
     <Compile Include="Game\AI\Decks\ZexalWeaponsExecutor.cs" />
     <Compile Include="Game\AI\Decks\ZoodiacExecutor.cs" />
-    <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
-    <Compile Include="Game\AI\Enums\Floodgate.cs" />
-    <Compile Include="Game\AI\Enums\FusionSpell.cs" />
-    <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
-    <Compile Include="Game\AI\Enums\OneForXyz.cs" />
-    <Compile Include="Game\AI\Enums\PreventActivationEffectInBattle.cs" />
-    <Compile Include="Game\AI\Enums\ShouldBeDisabledBeforeItUseEffectMonster.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeMonsterTarget.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeSpellTarget.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeTarget.cs" />
+    <Compile Include="Game\DecksManager.cs" />
     <Compile Include="Game\GameBehavior.cs" />
     <Compile Include="Game\GameClient.cs" />
     <Compile Include="Game\GamePacketFactory.cs" />
     <Compile Include="Game\Room.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Properties\AssemblyInfoLib.cs" />
     <Compile Include="WindBot.cs" />
     <Compile Include="WindBotInfo.cs" />
