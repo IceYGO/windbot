@@ -5,6 +5,12 @@ using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game
 {
+    public enum LogLevel : int
+    {
+        Info,
+        Debug,
+        Error
+    }
     public class GameAI
     {
         public Duel Duel { get; private set; }
@@ -12,13 +18,6 @@ namespace WindBot.Game
 
         public Dialogs _dialogs;
         private System.Action<string, int> _log;
-
-        public enum LogLevel : int
-        {
-            Info,
-            Debug,
-            Error
-        }
 
         public void Log(LogLevel level, string message)
         {
