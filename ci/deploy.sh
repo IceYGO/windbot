@@ -5,7 +5,6 @@
 set -euo pipefail
 
 cd bin
-mv Release WindBot
 git init
 git checkout --orphan $DEPLOY_BRANCH
 git config user.email deploy@travis-ci.org
