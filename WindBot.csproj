@@ -92,16 +92,6 @@
     <Compile Include="Game\AI\Decks\Rank5Executor.cs" />
     <Compile Include="Game\AI\Decks\ZoodiacExecutor.cs" />
     <Compile Include="Game\AI\Decks\ZexalWeaponsExecutor.cs" />
-    <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
-    <Compile Include="Game\AI\Enums\FusionSpell.cs" />
-    <Compile Include="Game\AI\Enums\ShouldBeDisabledBeforeItUseEffectMonster.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeSpellTarget.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeMonsterTarget.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeTarget.cs" />
-    <Compile Include="Game\AI\Enums\PreventActivationEffectInBattle.cs" />
-    <Compile Include="Game\AI\Enums\OneForXyz.cs" />
-    <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
-    <Compile Include="Game\AI\Enums\Floodgate.cs" />
     <Compile Include="Game\GameBehavior.cs" />
     <Compile Include="Game\GameClient.cs" />
     <Compile Include="Game\GamePacketFactory.cs" />
