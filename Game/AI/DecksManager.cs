@@ -46,31 +46,38 @@ namespace WindBot.Game.AI
                     }
                 }
             }
-            string[] files = Directory.GetFiles("Executors", "*.dll", SearchOption.TopDirectoryOnly);
-            foreach (string file in files)
+            try
             {
-                Assembly assembly = Assembly.LoadFrom(file);
-                Type[] types2 = assembly.GetTypes();
-                foreach (Type type in types2)
+                string[] files = Directory.GetFiles("Executors", "*.dll", SearchOption.TopDirectoryOnly);
+                foreach (string file in files)
                 {
-                    try
+                    Assembly assembly = Assembly.LoadFrom(file);
+                    Type[] types2 = assembly.GetTypes();
+                    foreach (Type type in types2)
                     {
-                        MemberInfo info = type;
-                        object[] attributes = info.GetCustomAttributes(false);
-                        foreach (object attribute in attributes)
+                        try
                         {
-                            if (attribute is DeckAttribute)
+                            MemberInfo info = type;
+                            object[] attributes = info.GetCustomAttributes(false);
+                            foreach (object attribute in attributes)
                             {
-                                DeckAttribute deck = (DeckAttribute)attribute;
-                                _decks.Add(deck.Name, new DeckInstance(deck.File, type, deck.Level));
+                                if (attribute is DeckAttribute)
+                                {
+                                    DeckAttribute deck = (DeckAttribute)attribute;
+                                    _decks.Add(deck.Name, new DeckInstance(deck.File, type, deck.Level));
+                                }
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.WriteErrorLine("Executor loading (" + file + ") error: " + ex);
+                        catch (Exception ex)
+                        {
+                            Logger.WriteErrorLine("Executor loading (" + file + ") error: " + ex);
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteErrorLine(ex.ToString());
             }
 
             _list = new List<DeckInstance>();
