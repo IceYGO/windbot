@@ -241,7 +241,7 @@ namespace WindBot.Game
         {
             int type = packet.ReadByte();
             int pos = type & 0xF;
-            if (pos < 0 || pos > 3)
+            if (pos < 0 || pos >= _room.Players)
             {
                 Connection.Close();
                 return;
@@ -265,7 +265,7 @@ namespace WindBot.Game
             int change = packet.ReadByte();
             int pos = (change >> 4) & 0xF;
             int state = change & 0xF;
-            if (pos > 3)
+            if (pos >= _room.Players)
                 return;
             if (state < 8)
             {
