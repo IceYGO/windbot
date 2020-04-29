@@ -2353,8 +2353,12 @@ namespace WindBot.Game.AI.Decks
         // activate of Patronus
         public bool PatronusActivate()
         {
+            // activate immediately
+            if (ActivateDescription == 94)
+            {
+                return true;
+            }
             // search
-            //if (ActivateDescription == Util.GetStringId(CardId.Patronus, 0))
             if (Card.Location == CardLocation.SpellZone)
             {
                 if (NegatedCheck(true) || Duel.LastChainPlayer == 0) return false;
