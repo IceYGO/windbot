@@ -70,7 +70,6 @@
     <Compile Include="Game\BattlePhaseAction.cs" />
     <Compile Include="Game\ClientCard.cs" />
     <Compile Include="Game\ClientField.cs" />
-    <Compile Include="Game\Deck.cs" />
     <Compile Include="Game\Dialogs.cs" />
     <Compile Include="Game\Duel.cs" />
     <Compile Include="Game\GameAI.cs" />
