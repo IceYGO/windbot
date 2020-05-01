@@ -100,6 +100,12 @@
         RedSupernovaDragon = 99585850,
         NumberF0UtopicFutureDragon = 26973555,
         InvokedAugoeides = 97300502,
-        DragonmaidStrahl = 24799107
+        DragonmaidStrahl = 24799107,
+        RavenousCrocodragonArchethys = 87188910,
+        AdamancipatorRisenRaptite = 73079836,
+        AdamancipatorRisenDragite = 9464441,
+        TeardroptheRikkaQueen = 33779875,
+        CeruleanSkyFire = 54828837,
+        SacredBeastAwakening = 53701259
     }
 }

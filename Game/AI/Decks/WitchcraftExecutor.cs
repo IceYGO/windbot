@@ -88,6 +88,10 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.RelinquishedAnima);
 
             // counter & quick effect
+            AddExecutor(ExecutorType.Activate, CardId.Schmietta, DeckSSWitchcraft);
+            AddExecutor(ExecutorType.Activate, CardId.Pittore, DeckSSWitchcraft);
+            AddExecutor(ExecutorType.Activate, CardId.Potterie, DeckSSWitchcraft);
+            AddExecutor(ExecutorType.Activate, CardId.Genni, DeckSSWitchcraft);
             AddExecutor(ExecutorType.Activate, CardId.PSYGamma, PSYGammaActivate);
             AddExecutor(ExecutorType.Activate, CardId.MaxxC, MaxxCActivate);
             AddExecutor(ExecutorType.Activate, CardId.GolemAruru, GolemAruruActivate);
@@ -132,10 +136,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Patronus, PatronusActivate);
             AddExecutor(ExecutorType.Activate, CardId.MagiciansRestage, MagiciansRestageActivate);
             AddExecutor(ExecutorType.Activate, CardId.Holiday, HolidayActivate);
-            AddExecutor(ExecutorType.Activate, CardId.Schmietta, DeckSSWitchcraft);
-            AddExecutor(ExecutorType.Activate, CardId.Pittore, DeckSSWitchcraft);
-            AddExecutor(ExecutorType.Activate, CardId.Potterie, DeckSSWitchcraft);
-            AddExecutor(ExecutorType.Activate, CardId.Genni, DeckSSWitchcraft);
 
             // summon
             AddExecutor(ExecutorType.Summon, CardId.Schmietta, WitchcraftSummon);
@@ -227,7 +227,7 @@ namespace WindBot.Game.AI.Decks
             // MagiciansLeftHand / MagicianRightHand
             if (!MagicianRightHand_used && card.IsSpell() && card.Controller == 1)
             {
-                if (Bot.MonsterZone.GetFirstMatchingCard(c => (c.Race & (int)CardRace.SpellCaster) != 0) != null
+                if (Bot.MonsterZone.GetFirstMatchingCard(c => c.HasRace(CardRace.SpellCaster)) != null
                     && Bot.HasInSpellZone(CardId.MagicianRightHand, true))
                 {
                     Logger.DebugWriteLine("MagicianRightHand negate: " + card.Name ?? "???");
@@ -236,7 +236,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (!MagiciansLeftHand_used && card.IsTrap() && card.Controller == 1)
             {
-                if (Bot.MonsterZone.GetFirstMatchingCard(c => (c.Race & (int)CardRace.SpellCaster) != 0) != null
+                if (Bot.MonsterZone.GetFirstMatchingCard(c => c.HasRace(CardRace.SpellCaster)) != null
                     && Bot.HasInSpellZone(CardId.MagiciansLeftHand, true))
                 {
                     Logger.DebugWriteLine("MagiciansLeftHand negate: " + card.Name ?? "???");
@@ -422,7 +422,8 @@ namespace WindBot.Game.AI.Decks
             {
                 return base.OnSelectPosition(cardId, positions);
             }
-            if ((Duel.Player == 1 && (cardId == CardId.MadameVerre ||
+            if (!Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon) 
+                && (Duel.Player == 1 && (cardId == CardId.MadameVerre ||
                 Util.GetOneEnemyBetterThanValue(Data.Attack + 1) != null))
                 || cardId == CardId.MaxxC || cardId == CardId.AshBlossom_JoyousSpring)
             {
@@ -490,7 +491,7 @@ namespace WindBot.Game.AI.Decks
             int discardable_hands = 0;
             int count_witchcraftspell = Bot.Hand.GetMatchingCardsCount(card => (card.IsSpell() && (card.HasSetcode(Witchcraft_setcode)) && card != except));
             int count_remainhands = CheckRemainInDeck(CardId.MagiciansLeftHand, CardId.MagicianRightHand);
-            int count_MagiciansRestage = Bot.Hand.GetCardCount(CardId.MagiciansRestage);
+            int count_MagiciansRestage = Bot.Hand.GetMatchingCardsCount(card => card.Id == CardId.MagiciansRestage && card != except);
             int count_MetalfoesFusion = Bot.Hand.GetCardCount(CardId.MetalfoesFusion);
             int count_WitchcrafterBystreet = Bot.SpellZone.GetMatchingCardsCount(card => card.IsFaceup() && card.Id == CardId.WitchcrafterBystreet && !card.IsDisabled());
             if (count_MagiciansRestage > 0)
@@ -859,12 +860,7 @@ namespace WindBot.Game.AI.Decks
         /// <param name="avoid_list">Whether need to avoid set in this place</param>
         public void SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false, List<int> avoid_list=null)
         {
-            List<int> list = new List<int>();
-            list.Add(0);
-            list.Add(1);
-            list.Add(2);
-            list.Add(3);
-            list.Add(4);
+            List<int> list = new List<int> { 0, 1, 2, 3, 4 };
             int n = list.Count;
             while (n-- > 1)
             {
@@ -890,6 +886,7 @@ namespace WindBot.Game.AI.Decks
         // Spell&trap's set
         public bool SpellSet(){
             if (Duel.Phase == DuelPhase.Main1 && Bot.HasAttackingMonster() && Duel.Turn > 1) return false;
+            if (Card.Id == CardId.CrossoutDesignator && Duel.Turn >= 5) return false;
 
             // set condition
             int[] activate_with_condition = { CardId.Masterpiece, CardId.Draping };
@@ -1118,7 +1115,14 @@ namespace WindBot.Game.AI.Decks
             if (SpellNegatable()) return false;
             if (CheckDiscardableSpellCount() <= 1) return false;
             if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && CheckWhetherWillbeRemoved()) return false;
-
+            if (Card.Id == CardId.MagiciansLeftHand || Card.Id == CardId.MagicianRightHand)
+            {
+                if (Bot.MonsterZone.GetFirstMatchingCard(card => card.HasRace(CardRace.SpellCaster)) == null
+                    && (summoned || Bot.Hand.GetFirstMatchingCard(card => card.HasRace(CardRace.SpellCaster) && card.Level <= 4) == null))
+                {
+                    return false;
+                }
+            }
             SelectSTPlace(Card, true);
             return true;
         }
@@ -1132,12 +1136,11 @@ namespace WindBot.Game.AI.Decks
             if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && CheckWhetherWillbeRemoved()) return false;
             if (Card.Id == CardId.MagiciansLeftHand || Card.Id == CardId.MagicianRightHand)
             {
-                if (Bot.MonsterZone.GetFirstMatchingCard(card => (card.Race & (int)CardRace.SpellCaster) != 0) == null
-                    && (summoned || Bot.Hand.GetFirstMatchingCard(card => (card.Race & (int)CardRace.SpellCaster) != 0) == null))
+                if (Bot.MonsterZone.GetFirstMatchingCard(card => card.HasRace(CardRace.SpellCaster)) == null
+                    && (summoned || Bot.Hand.GetFirstMatchingCard(card => card.HasRace(CardRace.SpellCaster) && card.Level <= 4) == null))
                 {
                     return false;
                 }
-
             }
             SelectSTPlace(Card, true);
             return true;
@@ -1301,6 +1304,7 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectNextCard(CardId.Haine, CardId.MadameVerre, CardId.GolemAruru);
             }
+            UseSSEffect.Add(Card.Id);
             return true;
         }
 
@@ -1919,7 +1923,7 @@ namespace WindBot.Game.AI.Decks
                     int code = Util.GetLastChainCard().Id;
                     if (code == 0) return false;
                     if (CheckCalledbytheGrave(code) > 0 || CrossoutDesignatorTarget == code) return false;
-                    if (Enemy.Graveyard.GetFirstMatchingCard(card => card.IsMonster() && card.Id == code) != null)
+                    if (Enemy.Graveyard.GetFirstMatchingCard(card => card.IsMonster() && card.IsOriginalCode(code)) != null)
                     {
                         if (!(Card.Location == CardLocation.SpellZone))
                         {
@@ -2011,9 +2015,11 @@ namespace WindBot.Game.AI.Decks
         {
             if (NegatedCheck(true) || CheckLastChainNegated()) return false;
             // negate 
-            if (Duel.LastChainPlayer == 1)
+            if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard() != null)
             {
                 int code = Util.GetLastChainCard().Id;
+                int alias = Util.GetLastChainCard().Alias;
+                if (alias != 0 && alias - code < 10) code = alias;
                 if (code == 0) return false;
                 if (CheckCalledbytheGrave(code) > 0 || CrossoutDesignatorTarget == code) return false;
                 if (CheckRemainInDeck(code) > 0)
@@ -2065,7 +2071,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (Bot.MonsterZone.GetFirstMatchingCard(card => (card.Race & (int)CardRace.SpellCaster) != 0) == null)
+            if (Bot.MonsterZone.GetFirstMatchingCard(card => card.HasRace(CardRace.SpellCaster)) == null)
             {
                 return false;
             }
@@ -2204,7 +2210,7 @@ namespace WindBot.Game.AI.Decks
 
             // negate monsters
             if ((LastChainCard == null || LastChainCard.Controller != 1 || LastChainCard.Location != CardLocation.MonsterZone
-                || LastChainCard.IsDisabled() || LastChainCard.IsShouldNotBeTarget() || LastChainCard.IsShouldNotBeSpellTrapTarget()))
+                || CheckLastChainNegated() || LastChainCard.IsShouldNotBeTarget() || LastChainCard.IsShouldNotBeSpellTrapTarget()))
                 return false;
             if (Card.Location == CardLocation.SpellZone)
             {
@@ -2468,7 +2474,7 @@ namespace WindBot.Game.AI.Decks
             // banish hands
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (Duel.Player == 1 || Bot.HasInMonstersZone(CardId.PSYLambda))
+                if (Duel.Player == 1 || Bot.HasInMonstersZone(CardId.PSYLambda) || (Util.IsChainTarget(Card)) )
                 {
                     return true;
                 } else
