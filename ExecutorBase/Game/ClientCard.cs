@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using YGOSharp.OCGWrapper;
@@ -293,6 +293,11 @@ namespace WindBot.Game
         public bool HasAttribute(CardAttribute attribute)
         {
             return (Attribute & (int)attribute) != 0;
+        }
+
+        public bool HasRace(CardRace race)
+        {
+            return (Race & (int)race) != 0;
         }
 
         public bool HasSetcode(int setcode)

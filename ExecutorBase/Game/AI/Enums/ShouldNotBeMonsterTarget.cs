@@ -13,6 +13,7 @@
         CXyzSimontheGreatMoralLeader = 41147577,
         PaleozoicAnomalocaris = 61307542,
         PaleozoicOpabinia = 37649320,
-        BorreloadDragon = 31833038
+        BorreloadDragon = 31833038,
+        BorrelendDragon = 98630720
     }
 }

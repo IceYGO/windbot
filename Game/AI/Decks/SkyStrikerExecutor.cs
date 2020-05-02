@@ -58,8 +58,8 @@ namespace WindBot.Game.AI.Decks
         public SkyStrikerExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, CardId.AshBlossom, DefaultTrap);
-            AddExecutor(ExecutorType.Activate, CardId.GhostRabbit, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.AshBlossom, DefaultAshBlossomAndJoyousSpring);
+            AddExecutor(ExecutorType.Activate, CardId.GhostRabbit, DefaultGhostOgreAndSnowRabbit);
             AddExecutor(ExecutorType.Activate, CardId.EffectVeiler, DefaultBreakthroughSkill);
             AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
             AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
