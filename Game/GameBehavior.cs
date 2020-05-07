@@ -226,6 +226,10 @@ namespace WindBot.Game
             {
                 _room.IsReady[pos] = false;
                 _room.Names[pos] = null;
+                if (state == (int)PlayerChange.Leave && Config.GetBool("AutoQuit", false)) {
+                    Connection.Close();
+                    return;
+                }
             }
 
             if (_room.IsHost && _room.IsReady[0] && _room.IsReady[1])
@@ -286,8 +290,12 @@ namespace WindBot.Game
             string message = packet.ReadUnicode(256);
             string myName = (player != 0) ? _room.Names[1] : _room.Names[0];
             string otherName = (player == 0) ? _room.Names[1] : _room.Names[0];
-            if (player < 4)
-                Logger.DebugWriteLine(otherName + " say to " + myName + ": " + message);
+			if (_debug) {
+				if (player < 4)
+					Logger.WriteLine(otherName + " say to " + myName + ": " + message);
+				else
+					Logger.WriteLine("Server say to " + myName + ": " + message);
+			}
         }
 
         private void OnErrorMsg(BinaryReader packet)
