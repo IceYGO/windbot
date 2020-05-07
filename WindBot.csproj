@@ -147,9 +147,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="bots.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Decks\*.ydk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

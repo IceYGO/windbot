@@ -171,10 +171,7 @@ namespace WindBot.Game.AI
         {
             string message = string.Format(array[Program.Rand.Next(array.Count)], opts);
             if (message != "")
-			{
                 _game.Chat(message);
-				Logger.WriteLine("Error: " + message);
-			}
         }
     }
 }
