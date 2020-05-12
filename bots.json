@@ -6,6 +6,12 @@
         "masterRules": [4, 5]
     },
     {
+        "name": "ABC-Dragon Buster",
+        "deck": "ABC",
+        "difficulty": 3,
+        "masterRules": [5]
+    },
+    {
         "name": "Blue-Eyes",
         "deck": "Blue-Eyes",
         "difficulty": 3,
