@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -186,13 +186,14 @@ namespace WindBot.Game
             /*int draw_count =*/ packet.ReadByte();
             /*int time_limit =*/ packet.ReadUInt16();
             /*align =*/ packet.ReadBytes(4);
-            const ulong SERVER_HANDSHAKE = 4680591157758091777;
-            ulong handshake = packet.ReadUInt64();
+            const uint SERVER_HANDSHAKE = 4043399681u;
+            uint handshake = packet.ReadUInt32();
             if (handshake != SERVER_HANDSHAKE)
             {
                 Connection.Close();
                 return;
             }
+            /*int version =*/ packet.ReadUInt32();
             int team1 = packet.ReadInt32();
             int team2 = packet.ReadInt32();
             /*int best_of =*/ packet.ReadInt32();
