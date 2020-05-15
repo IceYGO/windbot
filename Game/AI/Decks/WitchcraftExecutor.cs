@@ -1272,6 +1272,8 @@ namespace WindBot.Game.AI.Decks
             bool lesssummon = false;
             int extra_attack = CheckPlusAttackforMadameVerre(true, false, true);
             int best_power = Util.GetBestAttack(Bot);
+            if (CheckRemainInDeck(CardId.Haine) > 0 && best_power < 2400) best_power = 2400;
+            Logger.DebugWriteLine("less summon check: " + (best_power + extra_attack - 1000).ToString() + " to " + (best_power + extra_attack).ToString());
             if (Util.GetOneEnemyBetterThanValue(best_power) != null 
                 && Util.GetOneEnemyBetterThanValue(best_power + extra_attack) == null
                 && Util.GetOneEnemyBetterThanValue(best_power + extra_attack - 1000) != null)
@@ -1294,6 +1296,11 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+
+            // check whether continue to ss
+            bool should_attack = Util.GetOneEnemyBetterThanValue(Card.Attack) == null;
+            if ((should_attack ^ Card.IsDefense()) && Duel.Player == 1) return false;
+            if (CheckRemainInDeck(CardId.Haine, CardId.MadameVerre, CardId.GolemAruru) == 0) return false;
 
             // SS higer level
             if (Bot.HasInMonstersZone(CardId.Haine) || (lesssummon && !Bot.HasInMonstersZone(CardId.MadameVerre, true)))
@@ -1759,22 +1766,27 @@ namespace WindBot.Game.AI.Decks
             {
                 if (hand.IsMonster() && hand.Level <= 4 && hand.Attack > bestPower) bestPower = hand.Attack;
             }
+
+            int opt = -1;
             // destroy monster
             if (Enemy.MonsterZone.GetFirstMatchingCard(card => card.IsFloodgate() && card.IsAttack()) != null
-                || Enemy.MonsterZone.GetMatchingCardsCount(card => card.IsAttack() && card.Attack >= bestPower) >= 2)
-            {
-                AI.SelectOption(Util.GetStringId(CardId.LightningStorm, 0));
-                SelectSTPlace(null, true);
-                return true;
-            }
+                || Enemy.MonsterZone.GetMatchingCardsCount(card => card.IsAttack() && card.Attack >= bestPower) >= 2) opt = 0;
             // destroy spell/trap
-            if (Enemy.GetSpellCount() >= 2 || Util.GetProblematicEnemySpell() != null)
+            else if (Enemy.GetSpellCount() >= 2 || Util.GetProblematicEnemySpell() != null) opt = 1;
+
+            if (opt == -1) return false;
+
+            // only one selection
+            if (Enemy.MonsterZone.GetFirstMatchingCard(card => card.IsAttack()) == null 
+                || Enemy.GetSpellCount() == 0)
             {
-                AI.SelectOption(Util.GetStringId(CardId.LightningStorm, 1));
+                AI.SelectOption(0);
                 SelectSTPlace(null, true);
                 return true;
             }
-            return false;
+            AI.SelectOption(opt);
+            SelectSTPlace(null, true);
+            return true;
         }
 
         // activate of PotofExtravagance
@@ -2341,8 +2353,12 @@ namespace WindBot.Game.AI.Decks
         // activate of Patronus
         public bool PatronusActivate()
         {
+            // activate immediately
+            if (ActivateDescription == 94)
+            {
+                return true;
+            }
             // search
-            //if (ActivateDescription == Util.GetStringId(CardId.Patronus, 0))
             if (Card.Location == CardLocation.SpellZone)
             {
                 if (NegatedCheck(true) || Duel.LastChainPlayer == 0) return false;
