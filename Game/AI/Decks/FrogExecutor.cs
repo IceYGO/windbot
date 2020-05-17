@@ -49,7 +49,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.DupeFrog, DupeFrog);
             AddExecutor(ExecutorType.Activate, CardId.FlipFlopFrog, FlipFlopFrog);
             AddExecutor(ExecutorType.Activate, CardId.Ronintoadin, Ronintoadin);
-            AddExecutor(ExecutorType.Activate, CardId.TreebornFrog);
+            AddExecutor(ExecutorType.Activate, CardId.TreebornFrog, TreebornFrog);
             AddExecutor(ExecutorType.Activate, CardId.Unifrog);
 
             AddExecutor(ExecutorType.Summon, CardId.CryomancerOfTheIceBarrier, SummonFrog);
@@ -83,6 +83,19 @@ namespace WindBot.Game.AI.Decks
 
         private int m_swapFrogSummoned;
         private int m_flipFlopFrogSummoned;
+        private int m_treebornFrogCount = 0;
+
+        public override void OnNewTurn()
+        {
+            m_treebornFrogCount = 0;
+            base.OnNewTurn();
+        }
+
+        private bool TreebornFrog()
+        {
+            m_treebornFrogCount++;
+            return m_treebornFrogCount <= 5;
+        }
 
         private bool SwapFrogSummon()
         {

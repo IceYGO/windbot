@@ -298,7 +298,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (!MadameVerreGainedATK && Bot.HasInMonstersZone(CardId.MadameVerre, true, false, true) && attacker.HasSetcode(Witchcraft_setcode)) 
+                if (!MadameVerreGainedATK && Bot.HasInMonstersZone(CardId.MadameVerre, true, false, true) && attacker.HasSetcode(Witchcraft_setcode))
                 {
                     attacker.RealPower += CheckPlusAttackforMadameVerre();
                 }
@@ -365,7 +365,7 @@ namespace WindBot.Game.AI.Decks
                         break;
                     }
                 }
-                
+
                 // only special summon advance monster
                 if (flag && levels.Count > 1)
                 {
@@ -380,7 +380,7 @@ namespace WindBot.Game.AI.Decks
                         {
                             result.Add(checked_card[1]);
                             return result;
-                        } 
+                        }
                     }
                     for (int i = 0; i < 3; ++i)
                     {
@@ -422,7 +422,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return base.OnSelectPosition(cardId, positions);
             }
-            if (!Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon) 
+            if (!Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon)
                 && (Duel.Player == 1 && (cardId == CardId.MadameVerre ||
                 Util.GetOneEnemyBetterThanValue(Data.Attack + 1) != null))
                 || cardId == CardId.MaxxC || cardId == CardId.AshBlossom_JoyousSpring)
@@ -464,7 +464,7 @@ namespace WindBot.Game.AI.Decks
         // check enemy's dangerous card in grave
         public List<ClientCard> CheckDangerousCardinEnemyGrave(bool onlyMonster = false)
         {
-            List<ClientCard> result = Enemy.Graveyard.GetMatchingCards(card => 
+            List<ClientCard> result = Enemy.Graveyard.GetMatchingCards(card =>
             (!onlyMonster || card.IsMonster()) && card.HasSetcode(0x11b)).ToList();
             return result;
         }
@@ -529,7 +529,7 @@ namespace WindBot.Game.AI.Decks
         {
             // material count check
             if (list.Count < MaterialCount) return false;
-            
+
             // link marker check
             int linkcount = 0;
             foreach(ClientCard card in list)
@@ -618,7 +618,7 @@ namespace WindBot.Game.AI.Decks
             }
             int max_hand = spells_id.Count() >= 6 ? 6 : spells_id.Count();
             return max_hand * 1000;
-            
+
         }
 
         /// <summary>
@@ -1272,13 +1272,15 @@ namespace WindBot.Game.AI.Decks
             bool lesssummon = false;
             int extra_attack = CheckPlusAttackforMadameVerre(true, false, true);
             int best_power = Util.GetBestAttack(Bot);
-            if (Util.GetOneEnemyBetterThanValue(best_power) != null 
+            if (CheckRemainInDeck(CardId.Haine) > 0 && best_power < 2400) best_power = 2400;
+            Logger.DebugWriteLine("less summon check: " + (best_power + extra_attack - 1000).ToString() + " to " + (best_power + extra_attack).ToString());
+            if (Util.GetOneEnemyBetterThanValue(best_power) != null
                 && Util.GetOneEnemyBetterThanValue(best_power + extra_attack) == null
                 && Util.GetOneEnemyBetterThanValue(best_power + extra_attack - 1000) != null)
             {
                 lesssummon = true;
             }
-            
+
             // SS lower 4
             if (!enemy_activate_MaxxC && !lesssummon && discardable_hands >= 2 && Duel.Player == 0)
             {
@@ -1294,6 +1296,11 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+
+            // check whether continue to ss
+            bool should_attack = Util.GetOneEnemyBetterThanValue(Card.Attack) == null;
+            if ((should_attack ^ Card.IsDefense()) && Duel.Player == 1) return false;
+            if (CheckRemainInDeck(CardId.Haine, CardId.MadameVerre, CardId.GolemAruru) == 0) return false;
 
             // SS higer level
             if (Bot.HasInMonstersZone(CardId.Haine) || (lesssummon && !Bot.HasInMonstersZone(CardId.MadameVerre, true)))
@@ -1369,7 +1376,7 @@ namespace WindBot.Game.AI.Decks
                 // negate battle related effect
                 if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
                 {
-                    if (Enemy.MonsterZone.GetFirstMatchingCard(card => 
+                    if (Enemy.MonsterZone.GetFirstMatchingCard(card =>
                         card.IsMonsterDangerous() || (Duel.Player == 0) && card.IsMonsterInvincible()) != null)
                     {
                         SelectDiscardSpell();
@@ -1472,7 +1479,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
             }
-            
+
 
             // end check
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.End)
@@ -1532,7 +1539,7 @@ namespace WindBot.Game.AI.Decks
 
             bool can_find_Holiday = Bot.HasInHandOrInSpellZone(CardId.Holiday) || (can_recycle && Bot.HasInGraveyard(CardId.Holiday) && !(ActivatedCards.Contains(CardId.Holiday)));
             // monster check
-            if (Bot.HasInHand(important_witchcraft)  && !Bot.HasInGraveyard(CardId.Pittore) 
+            if (Bot.HasInHand(important_witchcraft)  && !Bot.HasInGraveyard(CardId.Pittore)
                 && !ActivatedCards.Contains(CardId.Pittore) && CheckRemainInDeck(CardId.Pittore) > 0 && can_find_Holiday){
                 AI.SelectCard(CardId.Pittore);
                 ActivatedCards.Add(CardId.Schmietta);
@@ -1678,7 +1685,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
             }
-            
+
             // safe check
             if (CheckProblematicCards() == null){
                 int[] checklist = {CardId.Patronus, CardId.GolemAruru};
@@ -1759,22 +1766,27 @@ namespace WindBot.Game.AI.Decks
             {
                 if (hand.IsMonster() && hand.Level <= 4 && hand.Attack > bestPower) bestPower = hand.Attack;
             }
+
+            int opt = -1;
             // destroy monster
             if (Enemy.MonsterZone.GetFirstMatchingCard(card => card.IsFloodgate() && card.IsAttack()) != null
-                || Enemy.MonsterZone.GetMatchingCardsCount(card => card.IsAttack() && card.Attack >= bestPower) >= 2)
+                || Enemy.MonsterZone.GetMatchingCardsCount(card => card.IsAttack() && card.Attack >= bestPower) >= 2) opt = 0;
+            // destroy spell/trap
+            else if (Enemy.GetSpellCount() >= 2 || Util.GetProblematicEnemySpell() != null) opt = 1;
+
+            if (opt == -1) return false;
+
+            // only one selection
+            if (Enemy.MonsterZone.GetFirstMatchingCard(card => card.IsAttack()) == null
+                || Enemy.GetSpellCount() == 0)
             {
                 AI.SelectOption(0);
                 SelectSTPlace(null, true);
                 return true;
             }
-            // destroy spell/trap
-            if (Enemy.GetSpellCount() >= 2 || Util.GetProblematicEnemySpell() != null)
-            {
-                AI.SelectOption(1);
-                SelectSTPlace(null, true);
-                return true;
-            }
-            return false;
+            AI.SelectOption(opt);
+            SelectSTPlace(null, true);
+            return true;
         }
 
         // activate of PotofExtravagance
@@ -1935,7 +1947,7 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
-                
+
                 // banish target
                 foreach (ClientCard cards in Enemy.Graveyard)
                 {
@@ -2014,7 +2026,7 @@ namespace WindBot.Game.AI.Decks
         public bool CrossoutDesignatorActivate()
         {
             if (NegatedCheck(true) || CheckLastChainNegated()) return false;
-            // negate 
+            // negate
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard() != null)
             {
                 int code = Util.GetLastChainCard().Id;
@@ -2147,10 +2159,10 @@ namespace WindBot.Game.AI.Decks
             // negate before monster's effect's used
             foreach (ClientCard m in Enemy.GetMonsters())
             {
-                if (!m.IsDisabled() && Duel.LastChainPlayer != 0 && 
+                if (!m.IsDisabled() && Duel.LastChainPlayer != 0 &&
                     ((m.IsMonsterShouldBeDisabledBeforeItUseEffect() || m.IsFloodgate())
-                    || (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2 && 
-                        (m.IsMonsterDangerous() || m.IsMonsterInvincible() 
+                    || (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2 &&
+                        (m.IsMonsterDangerous() || m.IsMonsterInvincible()
                         || (m.IsMonsterHasPreventActivationEffectInBattle() && Bot.HasInMonstersZone(CardId.MadameVerre)))
                      )))
                 {
@@ -2341,8 +2353,12 @@ namespace WindBot.Game.AI.Decks
         // activate of Patronus
         public bool PatronusActivate()
         {
+            // activate immediately
+            if (ActivateDescription == 94)
+            {
+                return true;
+            }
             // search
-            //if (ActivateDescription == Util.GetStringId(CardId.Patronus, 0))
             if (Card.Location == CardLocation.SpellZone)
             {
                 if (NegatedCheck(true) || Duel.LastChainPlayer == 0) return false;
@@ -2500,7 +2516,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     AI.SelectCard(CardId.CalledbytheGrave, CardId.CrossoutDesignator,
                         CardId.MaxxC, CardId.AshBlossom_JoyousSpring,
-                        CardId.MagicianRightHand, CardId.MagiciansLeftHand, CardId.MagiciansRestage, CardId.Patronus, 
+                        CardId.MagicianRightHand, CardId.MagiciansLeftHand, CardId.MagiciansRestage, CardId.Patronus,
                         CardId.LightningStorm, CardId.Reasoning);
                     return true;
                 }
@@ -2652,7 +2668,7 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
-        
+
         // check whether summon KnightmarePhoenix
         public List<ClientCard> KnightmarePhoenixSummonCheck(ClientCard included = null)
         {
