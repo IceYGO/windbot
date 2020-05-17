@@ -376,9 +376,8 @@ namespace WindBot.Game
 
         private void OnRetry(BinaryReader packet)
         {
-            _ai.OnRetry();
-            Connection.Close();
-            throw new Exception("Got MSG_RETRY. Last message is " + _lastMessage);
+            string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
+            Logger.DebugWriteLine("Duel finished against " + otherName + " because of MsgRetry");
         }
 
         private void OnHint(BinaryReader packet)
