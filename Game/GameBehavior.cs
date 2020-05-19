@@ -355,11 +355,13 @@ namespace WindBot.Game
             packet.ReadByte();
             packet.ReadByte();
             packet.ReadByte();
-            int pcode = packet.ReadInt32();
             if (msg == 2) //ERRMSG_DECKERROR
             {
-                int code = pcode & 0xFFFFFFF;
-                int flag = pcode >> 28;
+                int flag = packet.ReadInt32();
+                packet.ReadInt32();
+                packet.ReadInt32();
+                packet.ReadInt32();
+                int code = packet.ReadInt32();
                 if (flag <= 5) //DECKERROR_CARDCOUNT
                 {
                     NamedCard card = NamedCard.Get(code);
