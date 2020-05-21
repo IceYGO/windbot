@@ -69,7 +69,11 @@ namespace WindBot.Game
             _room = new Room();
             _duel = new Duel();
 
-            _ai = new GameAI(_duel, Game.Dialog, Game.Chat, Game.Log);
+#if LIBWINDBOT
+            _ai = new GameAI(_duel, Game.Dialog, Game.Chat, Game.Log, WindBot.AssetPath);
+#else
+            _ai = new GameAI(_duel, Game.Dialog, Game.Chat, Game.Log, "");
+#endif
             _ai.Executor = DecksManager.Instantiate(_ai, _duel, Game.Deck);
             Deck = Deck.Load(_ai.Executor.Deck);
 

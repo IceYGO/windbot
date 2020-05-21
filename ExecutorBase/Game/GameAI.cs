@@ -24,11 +24,11 @@ namespace WindBot.Game
             _log(message, (int)level);
         }
 
-        public GameAI(Duel duel, string dialog, System.Action<string, bool> chat, System.Action<string, int> log)
+        public GameAI(Duel duel, string dialog, System.Action<string, bool> chat, System.Action<string, int> log, string path)
         {
             Duel = duel;
             _log = log;
-            _dialogs = new Dialogs(dialog, chat);
+            _dialogs = new Dialogs(dialog, chat, path);
         }
 
         /// <summary>

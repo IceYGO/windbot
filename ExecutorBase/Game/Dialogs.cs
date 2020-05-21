@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -57,15 +57,11 @@ namespace WindBot.Game.AI
 
         private static Random Rand = new Random();
 
-        public Dialogs(string dialogfilename, Action<string, bool> chat)
+        public Dialogs(string dialogfilename, Action<string, bool> chat, string path)
         {
             Chat = chat;
             DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(DialogsData));
-#if !LIBWINDBOT
-            using (FileStream fs = File.OpenRead("Dialogs/" + dialogfilename + ".json"))
-#else
-            using (FileStream fs = File.OpenRead(Path.Combine(WindBot.AssetPath, "Dialogs/", dialogfilename + ".json")))
-#endif
+            using (FileStream fs = File.OpenRead(Path.Combine(path, "Dialogs/", dialogfilename + ".json")))
             {
                 DialogsData data = (DialogsData)serializer.ReadObject(fs);
                 _welcome = data.welcome;
