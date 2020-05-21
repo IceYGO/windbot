@@ -13,6 +13,7 @@ jobs:
   include:
   - name: "Desktop exe"
     script: dotnet build WindBot.csproj --configuration=Release
+    env: DESKTOP_BUILD=1
     before_deploy:
     - cd bin && mv Release WindBot
     - 7z a -tzip "$ARTIFACT" WindBot
@@ -34,6 +35,7 @@ deploy:
   script: bash ./ci/deploy.sh
   on:
     repo: ProjectIgnis/windbot
+    if: $DESKTOP_BUILD == 1
 - provider: releases
   skip_cleanup: true
   api_key: $RELEASES_TOKEN
