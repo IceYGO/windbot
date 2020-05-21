@@ -5,14 +5,29 @@ git:
 env:
   global:
   - ARTIFACT="WindBotIgnite-$(date +%Y-%m-%d)-$TRAVIS_COMMIT.zip"
-script:
-- export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
-- dotnet build WindBot.csproj --configuration=Release
-before_deploy:
-- cd bin
-- mv Release WindBot
-- 7z a -tzip "$ARTIFACT" WindBot
-- cd ..
+  # Visual Studio Installer location for the Android SDK
+  - ANDROID_SDK_ROOT='C:\Program Files (x86)\Android\android-sdk'
+  # Visual Studio Installer location for an OpenJDK for Android development
+  - JAVA_HOME='C:\Program Files\Android\jdk\microsoft_dist_openjdk_1.8.0.25'
+jobs:
+  include:
+  - name: "Desktop exe"
+    script: dotnet build WindBot.csproj --configuration=Release
+    before_deploy:
+    - cd bin && mv Release WindBot
+    - 7z a -tzip "$ARTIFACT" WindBot
+    - mv $ARTIFACT .. && cd ..
+  - name: "Android aar"
+    install:
+    - choco install nuget.commandline visualstudio2017-workload-xamarinbuildtools visualstudio2017-workload-nativemobile visualstudio2017-workload-netcrossplat
+    - ./ci/install-sdk-ndk.sh
+    - choco install mono --x86  # Unspecified dependency for Embeddinator; 64-bit does not work
+    script:
+    - export PATH="/c/Program Files (x86)/Microsoft Visual Studio/2017/BuildTools/MSBuild/15.0/Bin":$PATH
+    - nuget restore WindBot.sln
+    - msbuild.exe -m -p:Configuration=Release WindBot.sln
+    before_deploy:
+    - mv output/libWindbot.aar .
 deploy:
 - provider: script
   skip_cleanup: true
@@ -21,8 +36,9 @@ deploy:
     repo: ProjectIgnis/windbot
 - provider: releases
   skip_cleanup: true
-  api_key: $DEPLOY_TOKEN
+  api_key: $RELEASES_TOKEN
   file:
-    - bin/$ARTIFACT
+    - $ARTIFACT
+    - libWindbot.aar
   on:
     tags: true
