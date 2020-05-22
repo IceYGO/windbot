@@ -4,7 +4,7 @@ git:
   depth: 1
 env:
   global:
-  - ARTIFACT="WindBotIgnite-$(date +%Y-%m-%d)-$TRAVIS_COMMIT.zip"
+  - ARTIFACT="WindBotIgnite-Release-$(date +%Y%m%d)-$TRAVIS_COMMIT.zip"
   # Visual Studio Installer location for the Android SDK
   - ANDROID_SDK_ROOT='C:\Program Files (x86)\Android\android-sdk'
   # Visual Studio Installer location for an OpenJDK for Android development
@@ -28,19 +28,24 @@ jobs:
     - nuget restore WindBot.sln
     - msbuild.exe -m -p:Configuration=Release WindBot.sln
     before_deploy:
-    - mv output/libWindbot.aar .
+    - cd bin && mkdir -p WindBot
+    - cp -r Release/COPYING Release/LICENSE Release/bots.json Release/Decks/ Release/Dialogs/ WindBot/
+    - 7z a WindBotIgnite-Resources.7z WindBot && cd ..
+    - mv output/libWindbot.aar bin/WindBotIgnite-Resources.7z .
+before_script: cp Dialogs/default.json .
 deploy:
 - provider: script
   skip_cleanup: true
   script: bash ./ci/deploy.sh
   on:
     repo: ProjectIgnis/windbot
-    if: $DESKTOP_BUILD == 1
+    condition: $DESKTOP_BUILD == 1
 - provider: releases
   skip_cleanup: true
   api_key: $RELEASES_TOKEN
   file:
     - $ARTIFACT
     - libWindbot.aar
+    - WindBotIgnite-Resources.7z
   on:
     tags: true
