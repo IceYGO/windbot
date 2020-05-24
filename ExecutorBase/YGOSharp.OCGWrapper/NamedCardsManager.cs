@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Data;
 using Mono.Data.Sqlite;
 using System;
@@ -8,7 +8,7 @@ namespace YGOSharp.OCGWrapper
 {
     public static class NamedCardsManager
     {
-        private static IDictionary<int, NamedCard> _cards;
+        private static IDictionary<int, NamedCard> _cards = new Dictionary<int, NamedCard>();
 
         public static void Init(string databaseFullPath)
         {
@@ -18,8 +18,6 @@ namespace YGOSharp.OCGWrapper
                 {
                     throw new Exception("Could not find the cards database.");
                 }
-
-                _cards = new Dictionary<int, NamedCard>();
 
                 using (SqliteConnection connection = new SqliteConnection("Data Source=" + databaseFullPath))
                 {

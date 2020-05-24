@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,6 +19,7 @@ namespace WindBot
             Program.Rand = new Random();
             AssetPath = assetPath;
             DecksManager.Init();
+            NamedCardsManager.Init(assetPath);
         }
 
         private static IList<string> ParseArgs(string arg)
