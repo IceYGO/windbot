@@ -19,7 +19,14 @@ namespace WindBot
             Program.Rand = new Random();
             AssetPath = assetPath;
             DecksManager.Init();
-            NamedCardsManager.Init(assetPath);
+            try
+            {
+                NamedCardsManager.Init(assetPath + "/cards.cdb");
+            }
+            catch (Exception e)
+            {
+                Logger.WriteErrorLine(e.ToString());
+            }
         }
 
         private static IList<string> ParseArgs(string arg)
