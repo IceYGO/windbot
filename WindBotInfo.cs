@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace WindBot
 {
@@ -22,7 +22,7 @@ namespace WindBot
             Host = "127.0.0.1";
             Port = 7911;
             HostInfo = "";
-            Version = 38|8<<16;
+            Version = 38|1<<8|8<<16;
             Hand = 0;
             Debug = false;
             Chat = true;
