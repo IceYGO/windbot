@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # WindBot
 
 A C# bot for YGOPro, compatible with the [YGOSharp](https://github.com/IceYGO/ygosharp) and [SRVPro](https://github.com/moecube/srvpro) server.
@@ -271,3 +272,6 @@ The parameters are same as commandlines, but low cased.
 * Update the known card enums
 
 * More default common cards executor
+=======
+# WindbotTempleteGenerator
+>>>>>>> Initial commit
