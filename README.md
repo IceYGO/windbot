@@ -127,6 +127,10 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * Nekroz
 
+### AI Templete Generator link
+
+ * https://github.com/Levyaton/WindbotTempleteGenerator.git
+ 
 ### Server mode
 
 WindBot can run as a "server", provide a http interface to create bot.
