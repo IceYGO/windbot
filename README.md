@@ -127,6 +127,11 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 * Nekroz
 
+### AI Template Generator
+
+A Java program which generate executor code from deck, made by Levyaton.
+https://github.com/Levyaton/WindbotTemplateGenerator
+ 
 ### Server mode
 
 WindBot can run as a "server", provide a http interface to create bot.
