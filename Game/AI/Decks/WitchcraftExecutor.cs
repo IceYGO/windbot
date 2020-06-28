@@ -197,6 +197,7 @@ namespace WindBot.Game.AI.Decks
         bool MagicianRightHand_used = false;
         ClientCard MagiciansLeftHand_negate = null;
         ClientCard MagicianRightHand_negate = null;
+        int PSYOmega_count = 0;
 
         // go first
         public override bool OnSelectHand()
@@ -282,7 +283,8 @@ namespace WindBot.Game.AI.Decks
             FirstCheckSS.Clear();
             UseSSEffect.Clear();
             ActivatedCards.Clear();
-            // CalledbytheGrave刷新
+            int PSYOmega_count = 0;
+            // CalledbytheGrave refrest
             List<int> key_list = CalledbytheGraveCount.Keys.ToList();
             foreach (int dic in key_list)
             {
@@ -2501,15 +2503,20 @@ namespace WindBot.Game.AI.Decks
             // recycle from grave
             if (Card.Location == CardLocation.Grave)
             {
+                if (PSYOmega_count >= 5){
+                    return false;
+                }
                 List<ClientCard> enemy_danger = CheckDangerousCardinEnemyGrave();
                 if (enemy_danger.Count > 0)
                 {
                     AI.SelectCard(enemy_danger);
+                    PSYOmega_count ++;
                     return true;
                 }
                 if (!Bot.HasInHandOrInSpellZoneOrInGraveyard(CardId.Holiday) && Bot.HasInGraveyard(important_witchcraft))
                 {
                     AI.SelectCard(important_witchcraft);
+                    PSYOmega_count ++;
                     return true;
                 }
                 if (CheckProblematicCards() == null)
@@ -2518,6 +2525,7 @@ namespace WindBot.Game.AI.Decks
                         CardId.MaxxC, CardId.AshBlossom_JoyousSpring,
                         CardId.MagicianRightHand, CardId.MagiciansLeftHand, CardId.MagiciansRestage, CardId.Patronus, 
                         CardId.LightningStorm, CardId.Reasoning);
+                    PSYOmega_count ++;
                     return true;
                 }
             }
