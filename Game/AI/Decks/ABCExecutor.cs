@@ -436,6 +436,30 @@ namespace WindBot.Game.AI.Decks
                 34408491,   //Beelze of the Diabolic Dragons
                 8763963,    //Beelzeus of the Diabolic Dragons
                 74586817,   //PSY-Framelord Omega
+                29353756,   //ZW - Eagle Claw
+            };
+            int[] HandMZone =
+            {
+                93969023,   //Black Metal Dragon
+                81471108,   //ZW - Tornado Bringer
+                45082499,   //ZW - Lightning Blade
+                2648201,    //ZW - Sleipnir Mail
+                40941889,   //ZW - Asura Strike
+                6330307,    //DZW - Chimera Clad
+                14235211,   //Rider of the Storm Winds
+                38210374,   //Explossum
+                38601126,   //Robot Buster Destruction Sword
+                2602411,    //Wizard Buster Destruction Sword
+                76218313,   //Dragon Buster Destruction Sword
+            };
+            int[] Hand =
+            {
+                94573223,   //Inzektor Giga-Mantis
+                21977828,   //Inzektor Giga-Weevil
+                89132148,   //Photon Orbital
+                76080032,   //ZW - Unicorn Spear
+                87008374,   //ZW - Phoenix Bow
+                12927849,   //SZW - Fenrir Sword
             };
             ClientCard LastChainCard = Util.GetLastChainCard();
             if (LastChainCard.IsCode(57774843) && (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2))
@@ -446,6 +470,12 @@ namespace WindBot.Game.AI.Decks
                 return false;   //Water Gizmek
             if (LastChainCard.HasSetcode(0x11e) && (LastChainCard.Location == CardLocation.Hand))
                 return false;   //Danger!
+            if (LastChainCard.HasSetcode(0x109a) && (LastChainCard.Location == CardLocation.Hand || LastChainCard.Location == CardLocation.MonsterZone) && (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2))
+                return false;   //Superheavy Samurai Soul
+            if (LastChainCard.IsCode(HandMZone) && (LastChainCard.Location == CardLocation.Hand || LastChainCard.Location == CardLocation.MonsterZone))
+                return false;   //Equip effects from hand or monster zone
+            if (LastChainCard.IsCode(Hand) && LastChainCard.Location == CardLocation.Hand)
+                return false;   //Equip effects from hand
             if (LastChainCard.IsCode(Blacklist))
                 return false;
             return true;
