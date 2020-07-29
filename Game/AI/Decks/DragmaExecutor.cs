@@ -1,9 +1,14 @@
 using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 
+/* Translation Guide
+ * Dragma = Dogmatika
+ * Bastard = Titaniklad the Ash Dragon
+ */
+
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Dragma", "AI_Dragma")]
+    [Deck("Dogmatika", "AI_Dogmatika")]
     class DragmaExecutor : DefaultExecutor
     {
         public class CardId
