@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading;
 using System.Net;
@@ -11,6 +11,8 @@ namespace WindBot
 {
     public class Program
     {
+        public static string AssetPath;
+
         internal static Random Rand;
 
         internal static void Main(string[] args)
@@ -20,6 +22,8 @@ namespace WindBot
             Config.Load(args);
 
             Logger.WriteLine(Config.GetString("Deck"));
+
+            AssetPath = Config.GetString("AssetPath", "");
 
             string databasePath = Config.GetString("DbPath", "cards.cdb");
 
