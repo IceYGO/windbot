@@ -271,6 +271,7 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             CrossoutDesignatorTarget = 0;
+            PSYOmega_count = 0;
             MadameVerreGainedATK = false;
             summoned = false;
             enemy_activate_MaxxC = false;
@@ -283,8 +284,7 @@ namespace WindBot.Game.AI.Decks
             FirstCheckSS.Clear();
             UseSSEffect.Clear();
             ActivatedCards.Clear();
-            int PSYOmega_count = 0;
-            // CalledbytheGrave refrest
+            // CalledbytheGrave refresh
             List<int> key_list = CalledbytheGraveCount.Keys.ToList();
             foreach (int dic in key_list)
             {
@@ -436,6 +436,17 @@ namespace WindBot.Game.AI.Decks
                 return CardPosition.FaceUpDefence;
             }
             return base.OnSelectPosition(cardId, positions);
+        }
+
+        /// <summary>
+        /// Override for CrossoutDesignator
+        /// </summary>
+        /// <param name="opcodes">Operation codes for limitation.</param>
+        /// <param name="preAnnouced">Card's id prepared to annouce.</param>
+        /// <returns>Card's id to annouce.</returns>
+        public override int OnAnnounceCard(IList<int> opcodes, int preAnnouced)
+        {
+            return base.OnAnnounceCard(opcodes, preAnnouced);
         }
 
         // shuffle List<ClientCard>
@@ -976,8 +987,6 @@ namespace WindBot.Game.AI.Decks
             // check
             bool have_FiveRainbow = false;
             List<ClientCard> list = new List<ClientCard>();
-            ClientCard l = null;
-            ClientCard r = null;
             if (Duel.IsNewRule || Duel.IsNewRule2020)
             {
                 list.Add(Enemy.SpellZone[0]);

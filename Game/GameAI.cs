@@ -734,12 +734,14 @@ namespace WindBot.Game
         /// <summary>
         /// Called when the AI has to declare a card.
         /// </summary>
+        /// <param name="opcodes">Operation lists.</param>
         /// <returns>Id of the selected card.</returns>
-        public int OnAnnounceCard()
+        public int OnAnnounceCard(IList<int> opcodes)
         {
             if (m_announce == 0)
-                return 89631139; // Blue-eyes white dragon
-            return m_announce;
+                m_announce = 89631139; // Blue-eyes white dragon
+
+            return Executor.OnAnnounceCard(opcodes, m_announce);
         }
 
         // _ Others functions _

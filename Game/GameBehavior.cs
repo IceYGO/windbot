@@ -1441,8 +1441,15 @@ namespace WindBot.Game
 
         private void OnAnnounceCard(BinaryReader packet)
         {
+            IList<int> opcodes = new List<int>();
+            packet.ReadByte(); // player
+            int count = packet.ReadByte();
+            for (int i = 0; i < count; ++i)
+            {
+                opcodes.Add(packet.ReadInt32());
+            }
             // not fully implemented
-            Connection.Send(CtosMessage.Response, _ai.OnAnnounceCard());
+            Connection.Send(CtosMessage.Response, _ai.OnAnnounceCard(opcodes));
         }
 
         private void OnAnnounceNumber(BinaryReader packet)
