@@ -739,7 +739,7 @@ namespace WindBot.Game
         public int OnAnnounceCard(IList<int> opcodes)
         {
             if (m_announce == 0)
-                m_announce = 89631139; // Blue-eyes white dragon
+                return Executor.OnAnnounceCard(opcodes, 89631139); // Blue-eyes white dragon
 
             return Executor.OnAnnounceCard(opcodes, m_announce);
         }
