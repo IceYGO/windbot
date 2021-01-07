@@ -1505,7 +1505,7 @@ namespace WindBot.Game
             packet.ReadByte(); // player
             int count = packet.ReadByte();
             for (int i = 0; i < count; ++i)
-                numbers.Add(packet.ReadInt32());
+                numbers.Add((int)packet.ReadInt64());
             Connection.Send(CtosMessage.Response, _ai.OnAnnounceNumber(numbers));
         }
 
