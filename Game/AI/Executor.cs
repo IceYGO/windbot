@@ -189,16 +189,14 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// Called when bot is going to annouce a card, to check whether it's legel(to avoid error)
-        /// For full implement of opcodes, see ygopro-core/playerop.cpp#is_declarable
+        /// Called when bot is going to annouce a card
         /// </summary>
-        /// <param name="opcodes">Operation codes for limitation.</param>
-        /// <param name="preAnnouced">Card's id prepared to annouce.</param>
+        /// <param name="avail">Available card's ids.</param>
         /// <returns>Card's id to annouce.</returns>
-        public virtual int OnAnnounceCard(IList<int> opcodes, int preAnnouced)
+        public virtual int OnAnnounceCard(IList<int> avail)
         {
             // For overriding
-            return preAnnouced;
+            return 0;
         }
 
         public void SetMain(MainPhase main)

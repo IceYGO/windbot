@@ -438,32 +438,6 @@ namespace WindBot.Game.AI.Decks
             return base.OnSelectPosition(cardId, positions);
         }
 
-        /// <summary>
-        /// Override for CrossoutDesignator
-        /// </summary>
-        /// <param name="opcodes">Operation codes for limitation.</param>
-        /// <param name="preAnnouced">Card's id prepared to annouce.</param>
-        /// <returns>Card's id to annouce.</returns>
-        public override int OnAnnounceCard(IList<int> opcodes, int preAnnouced)
-        {
-            const int OPCODE_OR = 0x40000005;
-            const int OPCODE_ISCODE = 0x40000100;
-            IList<int> codes = new List<int>();
-            foreach (int opcode in opcodes) {
-                if (opcode != OPCODE_OR && opcode != OPCODE_ISCODE)
-                {
-                    codes.Add(opcode);
-                }
-            }
-            // if annouced card not in required list, return random card from list.
-            if (!codes.Contains(preAnnouced))
-            {
-                Logger.DebugWriteLine("No annouced card in required list, annouce randomly.");
-                return codes[Program.Rand.Next(codes.Count)];
-            }
-            return base.OnAnnounceCard(opcodes, preAnnouced);
-        }
-
         // shuffle List<ClientCard>
         public List<ClientCard> CardListShuffle(List<ClientCard> list)
         {
