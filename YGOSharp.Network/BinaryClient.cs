@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -19,7 +19,7 @@ namespace YGOSharp.Network
         private NetworkClient _client;
 
         private List<byte> _receiveBuffer = new List<byte>();
-        private Queue<byte[]> _pendingPackets = new Queue<byte[]>();
+        private LinkedList<byte[]> _pendingPackets = new LinkedList<byte[]>();
         private byte[] _lengthBuffer = new byte[16];
 
         private int _pendingLength;
@@ -121,7 +121,8 @@ namespace YGOSharp.Network
                 {
                     if (_pendingPackets.Count > 0)
                     {
-                        packet = _pendingPackets.Dequeue();
+                        packet = _pendingPackets.First.Value;
+                        _pendingPackets.RemoveFirst();
                     }
                 }
                 hasReceived = false;
@@ -218,7 +219,7 @@ namespace YGOSharp.Network
 
                 lock (_pendingPackets)
                 {
-                    _pendingPackets.Enqueue(packet);
+                    _pendingPackets.AddLast(packet);
                 }
 
                 return true;
