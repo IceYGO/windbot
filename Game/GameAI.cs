@@ -12,6 +12,7 @@ namespace WindBot.Game
         public Executor Executor { get; set; }
 
         private Dialogs _dialogs;
+        private bool[] noreply;
 
         public GameAI(GameClient game, Duel duel)
         {
@@ -19,6 +20,7 @@ namespace WindBot.Game
             Duel = duel;
 
             _dialogs = new Dialogs(game);
+            noreply = new bool[16];
         }
 
         /// <summary>
@@ -48,6 +50,31 @@ namespace WindBot.Game
         public void OnStart()
         {
             _dialogs.SendDuelStart();
+            for (int i = 0; i < 16; i += 1)
+            {
+                noreply[i] = false;
+            }
+        }
+
+        /// <summary>
+        /// Called when player send chat message
+        /// </summary>
+        public void OnChat(int player ,string msg,string myname,string speaker)
+        {
+            if (noreply[player])
+                return;
+            if (Duel.Turn > 0 && (player > 0 && !Duel.IsFirst) || (Duel.IsFirst && player == 0))
+            {
+                noreply[player] = true;
+                return;
+            }
+            // if duel has started and speaker is bot itself then do not reply. 
+            if (msg.Contains("[AI]:"))
+            {
+                noreply[player] = true;
+                return;
+            }
+            _dialogs.SendChatReply(Executor.OnChat(player, msg, myname, speaker));
         }
 
         /// <summary>

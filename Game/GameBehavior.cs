@@ -28,6 +28,7 @@ namespace WindBot.Game
         private bool _debug;        
         private int _select_hint;
         private GameMessage _lastMessage;
+        /*private bool _has_started;*/
 
         public GameBehavior(GameClient game)
         {
@@ -47,6 +48,7 @@ namespace WindBot.Game
             Deck = Deck.Load(_ai.Executor.Deck);
 
             _select_hint = 0;
+            /*_has_started = false;*/
         }
 
         public int GetLocalPlayer(int player)
@@ -284,10 +286,26 @@ namespace WindBot.Game
         {
             int player = packet.ReadInt16();
             string message = packet.ReadUnicode(256);
+            int real_index = 16;
+            // not start yet
+            if (_duel.Turn == 0) real_index = player;
+            // not tag duel
+            else if (_room.Names[3] == null) real_index = (player > 1) ? player : (
+                    ((_duel.IsFirst ^ (_room.Position == 1))) ? player : player ^ 1);
+            // tag duel
+            else real_index = (player > 3) ? player : (
+                    ((_duel.IsFirst ^ (_room.Position > 1))) ? player : player ^ 2);
+            string speaker = (real_index < 4) ? _room.Names[real_index] : "Unknown";
             string myName = (player != 0) ? _room.Names[1] : _room.Names[0];
             string otherName = (player == 0) ? _room.Names[1] : _room.Names[0];
-            if (player < 4)
-                Logger.DebugWriteLine(otherName + " say to " + myName + ": " + message);
+            Logger.DebugWriteLine(speaker + "(" + real_index.ToString() + ")" + ": " + message);
+            //chat
+            //not reply to bot it self if duel not started. 
+            if (/*!_has_started && */_duel.Turn == 0 && real_index == _room.Position)
+                return;
+            //reply if speaker is not bot itself. 
+
+            _ai.OnChat(player,message,myName,speaker);
         }
 
         private void OnErrorMsg(BinaryReader packet)
@@ -361,6 +379,7 @@ namespace WindBot.Game
 
             Logger.DebugWriteLine("Duel started: " + _room.Names[0] + " versus " + _room.Names[1]);
             _ai.OnStart();
+            /*_has_started = true;*/
         }
 
         private void OnWin(BinaryReader packet)

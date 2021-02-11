@@ -247,6 +247,12 @@ namespace WindBot.Game.AI
             HonestEffectCount = 0;
         }
 
+        public override IList<string> OnChat(int player, string msg, string myname, string speakername)
+        {
+            string[] reply ={ "OK. I got it~"};
+            return reply;
+        }
+
         /// <summary>
         /// Destroy face-down cards first, in our turn.
         /// </summary>
