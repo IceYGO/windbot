@@ -76,7 +76,7 @@ Android aar artifact, you will need the following EXACT setup. You _will_ have a
 bad day otherwise and this has been kept concise.
 
 - The postbuild event runs on Windows only.
-- You must use Visual Studio 2017. Visual Studio 2019 does not work.
+- You must use Visual Studio 2017 or Visual Studio 2019.
 - You need Visual Studio workloads for Android (Xamarin and native development).
 - You must install the 32-bit Mono SDK. The 64-bit version does not work.
 - In the Visual Studio 2017 `Tools > Options > Xamarin > Android Settings`,
