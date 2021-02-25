@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -14,6 +15,7 @@ namespace WindBot
     {
         public static void InitAndroid(string assetPath)
         {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Program.Rand = new Random();
             Program.AssetPath = assetPath;
             DecksManager.Init();
@@ -34,6 +36,7 @@ namespace WindBot
 
         public static void RunAndroid(string arg)
         {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             IList<string> args = ParseArgs(arg);
             WindBotInfo Info = new WindBotInfo();
             foreach (string param in args)
@@ -57,6 +60,7 @@ namespace WindBot
 
         private static void Run(object o)
         {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
 #if !DEBUG
             try
             {
