@@ -107,7 +107,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh, Linkuribohsp);
             AddExecutor(ExecutorType.SpSummon, CardId.LinkSpider);
             AddExecutor(ExecutorType.SpSummon, CardId.BorreloadDragon, BorreloadDragonsp);
-            AddExecutor(ExecutorType.Activate, CardId.BorreloadDragon, BorreloadDragoneff);            
+            AddExecutor(ExecutorType.Activate, CardId.BorreloadDragon, BorreloadDragoneff);  
+            AddExecutor(ExecutorType.SpSummon, CardId.BirrelswordDragon, BirrelswordDragonsp);
+            AddExecutor(ExecutorType.Activate, CardId.BirrelswordDragon, BirrelswordDragoneff);			
             // normal summon
             AddExecutor(ExecutorType.Summon, CardId.InspectBoarder, InspectBoardersummon);
             AddExecutor(ExecutorType.Summon, CardId.GrenMajuDaEizo, GrenMajuDaEizosummon);
@@ -329,6 +331,70 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+		
+		private bool BirrelswordDragonsp()
+        {
+            IList<ClientCard> material_list = new List<ClientCard>();
+            foreach (ClientCard m in Bot.GetMonsters())
+            {
+                if (m.IsCode(CardId.KnightmareCerberus, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP))
+                {
+                    material_list.Add(m);
+                    break;
+                }
+            }
+            foreach (ClientCard m in Bot.GetMonsters())
+            {
+                if (m.IsCode(CardId.Linkuriboh) || m.Level==1)
+                {
+                    material_list.Add(m);
+                    if (material_list.Count == 3)
+                        break;
+                }
+            }
+            if (material_list.Count == 3)
+            {
+                AI.SelectMaterials(material_list);
+                return true;
+            }
+            return false;
+        }
+
+        private bool BirrelswordDragoneff()
+        {
+            if (ActivateDescription == Util.GetStringId(CardId.BirrelswordDragon, 0))
+            {                
+                if (Util.IsChainTarget(Card) && Util.GetBestEnemyMonster(true, true) != null)
+                {
+                    AI.SelectCard(Util.GetBestEnemyMonster(true, true));
+                    return true;
+                }
+                if (Duel.Player == 1 && Bot.BattlingMonster == Card)
+                {
+                    AI.SelectCard(Enemy.BattlingMonster);
+                    return true;
+                }
+                if (Duel.Player == 1 && Bot.BattlingMonster != null &&
+                    (Enemy.BattlingMonster.Attack - Bot.BattlingMonster.Attack) >= Bot.LifePoints)
+                {
+                    AI.SelectCard(Enemy.BattlingMonster);
+                    return true;
+                }
+                if (Duel.Player == 0 && Duel.Phase == DuelPhase.BattleStart)
+                {
+                    foreach (ClientCard check in Enemy.GetMonsters())
+                    {
+                        if (check.IsAttack())
+                        {
+                            AI.SelectCard(check);
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
+            return true;
+        }
 
         private bool MetalSnakesp()
         {
@@ -545,20 +611,6 @@ namespace WindBot.Game.AI.Decks
             if (Card.HasType(CardType.Trap))
                 return Bot.GetSpellCountWithoutField() < 4;
 			return false;
-        }
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
-        {
-            if (Bot.HasInMonstersZone(CardId.InspectBoarder) && !attacker.IsDisabled())
-            {
-                attacker.RealPower = 9999;
-                return true;
-            }
-            if (!Bot.HasInMonstersZone(CardId.InspectBoarder) && !attacker.IsDisabled())
-            {
-                attacker.RealPower = 9999;
-                return true;
-            }            
-            return base.OnPreBattleBetween(attacker, defender);
         }
         public override ClientCard OnSelectAttacker(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
