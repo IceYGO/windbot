@@ -15,6 +15,16 @@
         "deck": "Toadally Awesome",
         "dialog": "cirno.zh-CN"
       },
+	  {
+        "name": "VI-1911",
+        "deck": "FamiliarPossessed",
+        "dialog": "VI-1911.zh-CN"
+      },
+	  {
+        "name": "VI-1911",
+        "deck": "Altergeist",
+        "dialog": "VI-1911.zh-CN"
+      },
       {
         "name": "谜之剑士LV4",
         "deck": "Dragunity",
