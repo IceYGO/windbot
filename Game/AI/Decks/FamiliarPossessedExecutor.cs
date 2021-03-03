@@ -1,5 +1,4 @@
-﻿using YGOSharp.OCGWrapper;
-using YGOSharp.OCGWrapper.Enums;
+﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
@@ -78,7 +77,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
 			AddExecutor(ExecutorType.Activate, CardId.SkillDrain, SkillDrainEffect);
 			AddExecutor(ExecutorType.Activate, CardId.Mistake, DefaultUniqueTrap);
-			AddExecutor(ExecutorType.Activate, CardId.Awakening, DefaultUniqueSpell);
+			AddExecutor(ExecutorType.Activate, CardId.Awakening);
 			AddExecutor(ExecutorType.Activate, CardId.Unpossessed, UnpossessedEffect);
             //first do
             AddExecutor(ExecutorType.Activate, CardId.HarpieFeatherDuster, DefaultHarpiesFeatherDusterFirst);
@@ -219,7 +218,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool BorreloadDragonsp()
         {
-            if (!(Bot.HasInMonstersZone(CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP) || Bot.HasInMonstersZone(new[] { CardId.KnightmareCerberus, CardId.KnightmarePhoenix }))) return false;
+            if (!(Bot.HasInMonstersZone(CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP) || Bot.HasInMonstersZone(new[] {CardId.KnightmareCerberus, CardId.KnightmarePhoenix }))) return false;
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -236,7 +235,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BorreloadDragonspsecond()
         {
-            if (!(Bot.HasInMonstersZone(CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP) || Bot.HasInMonstersZone(new[] { CardId.KnightmareCerberus,CardId.KnightmarePhoenix }))) return false;
+            if (!(Bot.HasInMonstersZone(CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP) || Bot.HasInMonstersZone(new[] {CardId.KnightmareCerberus,CardId.KnightmarePhoenix }))) return false;
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
