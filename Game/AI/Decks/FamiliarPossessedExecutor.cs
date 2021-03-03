@@ -1,4 +1,5 @@
-﻿using YGOSharp.OCGWrapper.Enums;
+﻿using YGOSharp.OCGWrapper;
+using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
@@ -96,7 +97,7 @@ namespace WindBot.Game.AI.Decks
 			AddExecutor(ExecutorType.SpSummon, CardId.HiitaP, HiitaPsp);
             AddExecutor(ExecutorType.Activate, CardId.HiitaP, HiitaPeff);
 			AddExecutor(ExecutorType.SpSummon, CardId.LynaP, LynaPsp);
-            AddExecutor(ExecutorType.Activate, CardId.LynaP, LynaP);
+            AddExecutor(ExecutorType.Activate, CardId.LynaP, LynaPeff);
             
             AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh, Linkuribohsp);
             AddExecutor(ExecutorType.SpSummon, CardId.LinkSpider);
@@ -105,7 +106,6 @@ namespace WindBot.Game.AI.Decks
             // normal summon
             AddExecutor(ExecutorType.Summon, CardId.InspectBoarder, InspectBoardersummon);
             AddExecutor(ExecutorType.Summon, CardId.GrenMajuDaEizo, GrenMajuDaEizosummon);
-            AddExecutor(ExecutorType.Summon, CardId.ThunderKingRaiOh, ThunderKingRaiOhsummon);
             AddExecutor(ExecutorType.SpSummon, CardId.BorreloadDragon, BorreloadDragonspsecond);
 			
 			AddExecutor(ExecutorType.Summon, CardId.Aussa, FamiliarPossessedsummon);
@@ -153,8 +153,7 @@ namespace WindBot.Game.AI.Decks
         }
 
         private bool PotOfDesireseff()
-        {
-            if (CardOfDemiseeff_used) return false;          
+        {       
             return Bot.Deck.Count > 14 && !DefaultSpellWillBeNegated();
         }
 
@@ -163,7 +162,6 @@ namespace WindBot.Game.AI.Decks
         {
             // won't activate if it'll be negate
             if (SpellNegatable()) return false;
-
             SelectSTPlace(Card, true);
             AI.SelectOption(1);
             return true;
@@ -178,14 +176,13 @@ namespace WindBot.Game.AI.Decks
 		
 		private bool SkillDrainEffect()
         {
-			if (!(Bot.HasInMonstersZone(CardId.InspectBoarder) || !(Bot.HasInMonstersZone(CardId.GrenMajuDaEizo))))
+			if (!(Bot.HasInMonstersZone(CardId.InspectBoarder) || (Bot.HasInMonstersZone(CardId.GrenMajuDaEizo))))
             return (Bot.LifePoints > 1000) && DefaultUniqueTrap();
         }
 		
-		private bool UnpossessedEffectEffect()
+		private bool UnpossessedEffect()
         {
 			AI.SelectCard(CardId.Lyna, CardId.Hiita, CardId.Wynn, CardId.Eria, CardId.Aussa);
-            return ture;
         }
 
         private bool InspectBoardersummon()
@@ -218,7 +215,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool BorreloadDragonsp()
         {
-            if (!(Bot.HasInMonstersZone(CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP) || Bot.HasInMonstersZone(new[] {CardId.KnightmareCerberus, CardId.KnightmarePhoenix }))) return false;
+            if (!(Bot.HasInMonstersZone(new[] {CardId.KnightmareCerberus, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP }))) return false;
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -235,7 +232,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BorreloadDragonspsecond()
         {
-            if (!(Bot.HasInMonstersZone(CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP) || Bot.HasInMonstersZone(new[] {CardId.KnightmareCerberus,CardId.KnightmarePhoenix }))) return false;
+            if (!(Bot.HasInMonstersZone(new[] {CardId.KnightmareCerberus,CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP }))) return false;
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -399,7 +396,7 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool HittaPeff()
+        private bool HiitaPeff()
         {
             AI.SelectCard(CardId.Hiita);
             return true;
@@ -486,10 +483,6 @@ namespace WindBot.Game.AI.Decks
         {
             int count = 0;
             foreach(ClientCard check in Bot.Hand)
-            {
-                if (check.IsCode(CardId.CardOfDemise))
-                    count++;
-            }
             if (count == 2 && Bot.Hand.Count == 2 && Bot.GetSpellCountWithoutField() <= 2)
                 return true;            
             if (Card.IsCode(CardId.MacroCosmos) && Bot.HasInSpellZone(CardId.MacroCosmos)) return false;
