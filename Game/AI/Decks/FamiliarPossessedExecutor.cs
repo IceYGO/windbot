@@ -26,6 +26,12 @@ namespace WindBot.Game.AI.Decks
 			public const int Lyna = 40542825;
 			public const int Awakening = 62256492;
 			public const int Unpossessed = 25704359;
+			
+			public const int NaturalExterio = 99916754;
+            public const int NaturalBeast = 33198837;
+            public const int ImperialOrder = 61740673;
+            public const int SwordsmanLV7 = 37267041;
+            public const int RoyalDecreel = 51452091;
 
             public const int HarpieFeatherDuster = 18144506;
             public const int PotOfDesires = 35261759;
@@ -123,7 +129,56 @@ namespace WindBot.Game.AI.Decks
             //set
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
- 
+
+		public void SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false, List<int> avoid_list=null)
+        {
+            List<int> list = new List<int> { 0, 1, 2, 3, 4 };
+            int n = list.Count;
+            while (n-- > 1)
+            {
+                int index = Program.Rand.Next(n + 1);
+                int temp = list[index];
+                list[index] = list[n];
+                list[n] = temp;
+            }
+            foreach (int seq in list)
+            {
+                int zone = (int)System.Math.Pow(2, seq);
+                if (Bot.SpellZone[seq] == null)
+                {
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (avoid_list != null && avoid_list.Contains(seq)) continue;
+                    AI.SelectPlace(zone);
+                    return;
+                };
+            }
+            AI.SelectPlace(0);
+        }
+		
+		public bool SpellNegatable(bool isCounter = false, ClientCard target = null)
+        {
+            // target default set
+            if (target == null) target = Card;
+            if (target.Id == CrossoutDesignatorTarget) return true;
+            // won't negate if not on field
+            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
+
+            // negate judge
+            if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !isCounter) return true;
+            if (target.IsSpell())
+            {
+                if (Enemy.HasInMonstersZone(CardId.NaturalBeast, true)) return true;
+                if (Enemy.HasInSpellZone(CardId.ImperialOrder, true) || Bot.HasInSpellZone(CardId.ImperialOrder, true)) return true;
+                if (Enemy.HasInMonstersZone(CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(CardId.SwordsmanLV7, true)) return true;
+            }
+            if (target.IsTrap())
+            {
+                if (Enemy.HasInSpellZone(CardId.RoyalDecreel, true) || Bot.HasInSpellZone(CardId.RoyalDecreel, true)) return true;
+            }
+            // how to get here?
+            return false;
+        }
+
         private bool MacroCosmoseff()
         {
            
@@ -176,13 +231,19 @@ namespace WindBot.Game.AI.Decks
 		
 		private bool SkillDrainEffect()
         {
-			if (!(Bot.HasInMonstersZone(CardId.InspectBoarder) || (Bot.HasInMonstersZone(CardId.GrenMajuDaEizo))))
             return (Bot.LifePoints > 1000) && DefaultUniqueTrap();
         }
 		
 		private bool UnpossessedEffect()
         {
-			AI.SelectCard(CardId.Lyna, CardId.Hiita, CardId.Wynn, CardId.Eria, CardId.Aussa);
+			AI.SelectCard(new List<int>() {
+                CardId.Lyna, 
+				CardId.Hiita, 
+				CardId.Wynn, 
+				CardId.Eria, 
+				CardId.Aussa
+            });
+            return true;
         }
 
         private bool InspectBoardersummon()
@@ -480,11 +541,7 @@ namespace WindBot.Game.AI.Decks
         }
 
         private bool SpellSet()
-        {
-            int count = 0;
-            foreach(ClientCard check in Bot.Hand)
-            if (count == 2 && Bot.Hand.Count == 2 && Bot.GetSpellCountWithoutField() <= 2)
-                return true;            
+        {     
             if (Card.IsCode(CardId.MacroCosmos) && Bot.HasInSpellZone(CardId.MacroCosmos)) return false;
 			if (Card.IsCode(CardId.Unpossessed) && Bot.HasInSpellZone(CardId.Unpossessed)) return false;
 			if (Card.IsCode(CardId.Crackdown) && Bot.HasInSpellZone(CardId.Crackdown)) return false;
