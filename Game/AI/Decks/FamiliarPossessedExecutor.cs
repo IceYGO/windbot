@@ -124,7 +124,7 @@ namespace WindBot.Game.AI.Decks
             //spell
             AddExecutor(ExecutorType.Activate, CardId.Crackdown, Crackdowneff);
             AddExecutor(ExecutorType.Activate, CardId.Scapegoat, DefaultScapegoat);
-            AddExecutor(ExecutorType.Repos, MonsterRepos);
+            AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
             //set
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
@@ -522,11 +522,6 @@ namespace WindBot.Game.AI.Decks
             if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;           
             return true;
         }
-        private bool MonsterRepos()
-        {
-            if (Card.IsAttack()) return false;
-            return DefaultMonsterRepos();
-        }
 		
 		private bool GagagaCowboySummon()
         {
@@ -537,7 +532,6 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
-
         private bool SpellSet()
         {     
             if (Card.IsCode(CardId.MacroCosmos) && Bot.HasInSpellZone(CardId.MacroCosmos)) return false;
