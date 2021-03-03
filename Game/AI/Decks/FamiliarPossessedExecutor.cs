@@ -367,7 +367,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.HasAttribute(CardAttribute.Earth) && monster.Level==1 && !Card.IsCode(CardId.KnightmareCerberus, CardId.InspectBoarder, CardId.GrenMajuDaEizo, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP, CardId.KnightmareUnicorn, CardId.KnightmareGryphon, CardId.BorreloadDragon, CardId.BirrelswordDragon))
+                if (monster.HasAttribute(CardAttribute.Earth) && !monster.IsCode(CardId.KnightmareCerberus, CardId.InspectBoarder, CardId.GrenMajuDaEizo, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP, CardId.KnightmareUnicorn, CardId.KnightmareGryphon, CardId.BorreloadDragon, CardId.BirrelswordDragon))
                     material_list.Add(monster);
                 if (material_list.Count == 2) break;
             }
@@ -392,7 +392,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.HasAttribute(CardAttribute.Water) && !Card.IsCode(CardId.KnightmareCerberus, CardId.InspectBoarder, CardId.GrenMajuDaEizo, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP, CardId.KnightmareUnicorn, CardId.KnightmareGryphon, CardId.BorreloadDragon, CardId.BirrelswordDragon))
+                if (monster.HasAttribute(CardAttribute.Water) && !monster.IsCode(CardId.KnightmareCerberus, CardId.InspectBoarder, CardId.GrenMajuDaEizo, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP, CardId.KnightmareUnicorn, CardId.KnightmareGryphon, CardId.BorreloadDragon, CardId.BirrelswordDragon))
                     material_list.Add(monster);
                 if (material_list.Count == 2) break;
             }
@@ -417,7 +417,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.HasAttribute(CardAttribute.Wind) && !Card.IsCode(CardId.KnightmareCerberus, CardId.InspectBoarder, CardId.GrenMajuDaEizo, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP, CardId.KnightmareUnicorn, CardId.KnightmareGryphon, CardId.BorreloadDragon, CardId.BirrelswordDragon))
+                if (monster.HasAttribute(CardAttribute.Wind) && !monster.IsCode(CardId.KnightmareCerberus, CardId.InspectBoarder, CardId.GrenMajuDaEizo, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP, CardId.KnightmareUnicorn, CardId.KnightmareGryphon, CardId.BorreloadDragon, CardId.BirrelswordDragon))
                     material_list.Add(monster);
                 if (material_list.Count == 2) break;
             }
@@ -442,7 +442,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.HasAttribute(CardAttribute.Fire) && !Card.IsCode(CardId.KnightmareCerberus, CardId.InspectBoarder, CardId.GrenMajuDaEizo, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP, CardId.KnightmareUnicorn, CardId.KnightmareGryphon, CardId.BorreloadDragon, CardId.BirrelswordDragon))
+                if (monster.HasAttribute(CardAttribute.Fire) && !monster.IsCode(CardId.KnightmareCerberus, CardId.InspectBoarder, CardId.GrenMajuDaEizo, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP, CardId.KnightmareUnicorn, CardId.KnightmareGryphon, CardId.BorreloadDragon, CardId.BirrelswordDragon))
                     material_list.Add(monster);
                 if (material_list.Count == 2) break;
             }
@@ -467,7 +467,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
-                if (monster.HasAttribute(CardAttribute.Light) && !Card.IsCode(CardId.KnightmareCerberus, CardId.InspectBoarder, CardId.GrenMajuDaEizo, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP, CardId.KnightmareUnicorn, CardId.KnightmareGryphon, CardId.BorreloadDragon, CardId.BirrelswordDragon))
+                if (monster.HasAttribute(CardAttribute.Light) && !monster.IsCode(CardId.KnightmareCerberus, CardId.InspectBoarder, CardId.GrenMajuDaEizo, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP, CardId.KnightmareUnicorn, CardId.KnightmareGryphon, CardId.BorreloadDragon, CardId.BirrelswordDragon))
                     material_list.Add(monster);
                 if (material_list.Count == 2) break;
             }
