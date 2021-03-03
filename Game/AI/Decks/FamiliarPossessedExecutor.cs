@@ -29,7 +29,6 @@ namespace WindBot.Game.AI.Decks
 			
 			public const int NaturalExterio = 99916754;
             public const int NaturalBeast = 33198837;
-            public const int ImperialOrder = 61740673;
             public const int SwordsmanLV7 = 37267041;
             public const int RoyalDecreel = 51452091;
 
