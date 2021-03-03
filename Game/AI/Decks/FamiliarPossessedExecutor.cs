@@ -145,7 +145,7 @@ namespace WindBot.Game.AI.Decks
                 int zone = (int)System.Math.Pow(2, seq);
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence) continue;
                     if (avoid_list != null && avoid_list.Contains(seq)) continue;
                     AI.SelectPlace(zone);
                     return;
@@ -158,7 +158,6 @@ namespace WindBot.Game.AI.Decks
         {
             // target default set
             if (target == null) target = Card;
-            if (target.Id == CrossoutDesignatorTarget) return true;
             // won't negate if not on field
             if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
 
@@ -550,6 +549,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             if (Card.HasType(CardType.Trap))
                 return Bot.GetSpellCountWithoutField() < 4;
+			return false;
         }
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
