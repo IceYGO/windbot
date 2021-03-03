@@ -255,7 +255,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool GrenMajuDaEizosummon()
         {
-            if (Duel.Turn == 1) return false;           
+            if (Duel.Turn == 1) return false;   
+			if (Bot.HasInSpellZone(CardId.SkillDrain) || Enemy.HasInSpellZone(CardId.SkillDrain)) return false;			
             if (Bot.MonsterZone[0] == null)
                 AI.SelectPlace(Zones.z0);
             else
