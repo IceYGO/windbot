@@ -188,6 +188,17 @@ namespace WindBot.Game.AI
             return false;
         }
 
+        /// <summary>
+        /// Called when bot is going to annouce a card
+        /// </summary>
+        /// <param name="avail">Available card's ids.</param>
+        /// <returns>Card's id to annouce.</returns>
+        public virtual int OnAnnounceCard(IList<int> avail)
+        {
+            // For overriding
+            return 0;
+        }
+
         public void SetMain(MainPhase main)
         {
             Main = main;

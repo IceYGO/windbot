@@ -95,6 +95,7 @@ namespace WindBot.Game
             m_materialSelector = null;
             m_option = -1;
             m_yesno = -1;
+            m_announce = 0;
            
             m_place = 0;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
@@ -734,12 +735,18 @@ namespace WindBot.Game
         /// <summary>
         /// Called when the AI has to declare a card.
         /// </summary>
+        /// <param name="avail">Available card's ids.</param>
         /// <returns>Id of the selected card.</returns>
-        public int OnAnnounceCard()
+        public int OnAnnounceCard(IList<int> avail)
         {
-            if (m_announce == 0)
-                return 89631139; // Blue-eyes white dragon
-            return m_announce;
+            int selected = Executor.OnAnnounceCard(avail);
+            if (avail.Contains(selected))
+                return selected;
+            if (avail.Contains(m_announce))
+                return m_announce;
+            else if (m_announce > 0)
+                Logger.WriteErrorLine("Pre-announced card cant be used: " + m_announce);
+            return avail[0];
         }
 
         // _ Others functions _

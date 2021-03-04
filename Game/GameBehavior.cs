@@ -1441,8 +1441,156 @@ namespace WindBot.Game
 
         private void OnAnnounceCard(BinaryReader packet)
         {
-            // not fully implemented
-            Connection.Send(CtosMessage.Response, _ai.OnAnnounceCard());
+            IList<int> opcodes = new List<int>();
+            packet.ReadByte(); // player
+            int count = packet.ReadByte();
+            for (int i = 0; i < count; ++i)
+                opcodes.Add(packet.ReadInt32());
+
+            IList<int> avail = new List<int>();
+            IList<NamedCard> all = NamedCardsManager.GetAllCards();
+            foreach (NamedCard card in all)
+            {
+                if (card.HasType(CardType.Token) || (card.Alias > 0 && card.Id - card.Alias < 10)) continue;
+                Stack<int> stack = new Stack<int>();
+                for (int i = 0; i < opcodes.Count; i++)
+                {
+                    switch (opcodes[i])
+                    {
+                        case Opcodes.OPCODE_ADD:
+                            if (stack.Count >= 2)
+                            {
+                                int rhs = stack.Pop();
+                                int lhs = stack.Pop();
+                                stack.Push(lhs + rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_SUB:
+                            if (stack.Count >= 2)
+                            {
+                                int rhs = stack.Pop();
+                                int lhs = stack.Pop();
+                                stack.Push(lhs - rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_MUL:
+                            if (stack.Count >= 2)
+                            {
+                                int rhs = stack.Pop();
+                                int lhs = stack.Pop();
+                                stack.Push(lhs * rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_DIV:
+                            if (stack.Count >= 2)
+                            {
+                                int rhs = stack.Pop();
+                                int lhs = stack.Pop();
+                                stack.Push(lhs / rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_AND:
+                            if (stack.Count >= 2)
+                            {
+                                int rhs = stack.Pop();
+                                int lhs = stack.Pop();
+                                bool b0 = rhs != 0;
+                                bool b1 = lhs != 0;
+                                if (b0 && b1)
+                                    stack.Push(1);
+                                else
+                                    stack.Push(0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_OR:
+                            if (stack.Count >= 2)
+                            {
+                                int rhs = stack.Pop();
+                                int lhs = stack.Pop();
+                                bool b0 = rhs != 0;
+                                bool b1 = lhs != 0;
+                                if (b0 || b1)
+                                    stack.Push(1);
+                                else
+                                    stack.Push(0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_NEG:
+                            if (stack.Count >= 1)
+                            {
+                                int rhs = stack.Pop();
+                                stack.Push(-rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_NOT:
+                            if (stack.Count >= 1)
+                            {
+                                int rhs = stack.Pop();
+                                bool b0 = rhs != 0;
+                                if (b0)
+                                    stack.Push(0);
+                                else
+                                    stack.Push(1);
+                            }
+                            break;
+                        case Opcodes.OPCODE_ISCODE:
+                            if (stack.Count >= 1)
+                            {
+                                int code = stack.Pop();
+                                bool b0 = code == card.Id;
+                                if (b0)
+                                    stack.Push(1);
+                                else
+                                    stack.Push(0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_ISSETCARD:
+                            if (stack.Count >= 1)
+                            {
+                                if (card.HasSetcode(stack.Pop()))
+                                    stack.Push(1);
+                                else
+                                    stack.Push(0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_ISTYPE:
+                            if (stack.Count >= 1)
+                            {
+                                if ((stack.Pop() & card.Type) > 0)
+                                    stack.Push(1);
+                                else
+                                    stack.Push(0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_ISRACE:
+                            if (stack.Count >= 1)
+                            {
+                                if ((stack.Pop() & card.Race) > 0)
+                                    stack.Push(1);
+                                else
+                                    stack.Push(0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_ISATTRIBUTE:
+                            if (stack.Count >= 1)
+                            {
+                                if ((stack.Pop() & card.Attribute) > 0)
+                                    stack.Push(1);
+                                else
+                                    stack.Push(0);
+                            }
+                            break;
+                        default:
+                            stack.Push(opcodes[i]);
+                            break;
+                    }
+                }
+                if (stack.Count == 1 && stack.Pop() != 0)
+                    avail.Add(card.Id);
+            }
+            if (avail.Count == 0)
+                throw new Exception("No avail card found for announce!");
+            Connection.Send(CtosMessage.Response, _ai.OnAnnounceCard(avail));
         }
 
         private void OnAnnounceNumber(BinaryReader packet)
