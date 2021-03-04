@@ -77,12 +77,13 @@ namespace WindBot.Game.AI.Decks
         {
             // executors
             //Spell activate
-            AddExecutor(ExecutorType.Activate,Spells.UpstartGoblin);
 			AddExecutor(ExecutorType.Activate,Spells.Raigeki,DefaultDarkHole);
             AddExecutor(ExecutorType.Activate,Spells.FoolishBurial,FoolishBurialTarget);
             AddExecutor(ExecutorType.Activate,Spells.TimeThiefStartup,TimeThiefStartupEffect);
             AddExecutor(ExecutorType.Activate,Spells.TimeThiefHack);  
-			AddExecutor(ExecutorType.Activate, CardId.PotofExtravagance, PotofExtravaganceActivate);
+			AddExecutor(ExecutorType.Activate,Spells.PotofExtravagance, PotofExtravaganceActivate);
+			AddExecutor(ExecutorType.Activate,Spells.HarpieFeatherDuster, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate,Spells.PotOfDesires, PotOfDesireseff);
             // trap executors set
             AddExecutor(ExecutorType.SpellSet,Traps.PhantomKnightsShade);
             AddExecutor(ExecutorType.SpellSet,Traps.TimeThiefRetrograte);
@@ -90,7 +91,7 @@ namespace WindBot.Game.AI.Decks
 			AddExecutor(ExecutorType.Activate, Traps.SolemnWarning);
             AddExecutor(ExecutorType.Activate, Traps.SolemStrike);
 			AddExecutor(ExecutorType.Activate, Traps.SolemnJudgment);
-			AddExecutor(ExecutorType.Activate, CardId.Crackdown);
+			AddExecutor(ExecutorType.Activate, Traps.Crackdown);
             //normal summons
             AddExecutor(ExecutorType.Summon,Monsters.TimeThiefRegulator);
             AddExecutor(ExecutorType.SpSummon, Monsters.PhotonTrasher, SummonToDef);
@@ -107,15 +108,15 @@ namespace WindBot.Game.AI.Decks
 			AddExecutor(ExecutorType.SpSummon, XYZs.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
             AddExecutor(ExecutorType.SpSummon, XYZs.NumberS39UtopiaOne);
             AddExecutor(ExecutorType.SpSummon, XYZs.NumberS39UtopiatheLightning);
-			AddExecutor(ExecutorType.SpSummon, XYZS.DarkRebellionXyzDragon, DarkRebellionXyzDragonSummon);
+			AddExecutor(ExecutorType.SpSummon, XYZs.DarkRebellionXyzDragon, DarkRebellionXyzDragonSummon);
             //activate trap
             AddExecutor(ExecutorType.Activate,Traps.PhantomKnightsShade);
             AddExecutor(ExecutorType.Activate,Traps.TimeThiefRetrograte , RetrograteEffect);
             AddExecutor(ExecutorType.Activate,Traps.TimeThiefFlyBack);
-			AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
-            AddExecutor(ExecutorType.Activate, CardId.SolemStrike, DefaultSolemnStrike);
-			AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
-            AddExecutor(ExecutorType.Activate, CardId.Crackdown, Crackdowneff);
+			AddExecutor(ExecutorType.Activate, Traps.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, Traps.SolemStrike, DefaultSolemnStrike);
+			AddExecutor(ExecutorType.Activate, Traps.SolemnJudgment, DefaultSolemnJudgment);
+            AddExecutor(ExecutorType.Activate, Traps.Crackdown, Crackdowneff);
             //xyz effects
             AddExecutor(ExecutorType.Activate, XYZs.TimeThiefRedoer,RedoerEffect);
             AddExecutor(ExecutorType.Activate, XYZs.TimeThiefPerpetua , PerpertuaEffect);
