@@ -67,7 +67,6 @@ namespace WindBot.Game.AI.Decks
 			public const int NumberS39UtopiatheLightning = 56832966;
             public const int NumberS39UtopiaOne = 86532744;
             public const int DarkRebellionXyzDragon = 16195942;
-            public const int Number39Utopia = 84013237;
 			public const int EvilswarmExcitonKnight = 46772449;
         }
         
