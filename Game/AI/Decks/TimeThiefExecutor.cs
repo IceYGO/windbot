@@ -239,16 +239,6 @@ namespace WindBot.Game.AI.Decks
 
             try
             {
-                if (Bot.HasInSpellZone(Traps.XyzReborn))
-                {
-                    return false;
-                }
-
-                if (Bot.HasInSpellZone(Traps.XyzExtreme))
-                {
-                    return false;
-                }
-
                 for (int i = 0; i < enemy.Count; i++)
                 {
                     _totalAttack += enemy[i].Attack;
