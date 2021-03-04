@@ -230,9 +230,6 @@ namespace WindBot.Game.AI.Decks
         }
         private bool UnendingNightmareeff()
         {
-            if (Card.IsDisabled()){
-                return false;
-            }
             ClientCard card = null;
             foreach(ClientCard check in Enemy.GetSpells())
             {

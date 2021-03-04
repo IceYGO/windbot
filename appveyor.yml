@@ -1,0 +1,31 @@
+version: '{build}'
+
+platform: x86
+configuration: Release
+
+build: 
+    project: WindBot.sln
+    parallel: true
+
+after_build:
+  - mv -f bin\Release WindBot
+  - rm -rf WindBot\WindBot.exe.config
+  - mv -f BotWrapper\bin\Release\Bot.exe .
+  - mv -f BotWrapper\bin\Release\bot.conf .
+  - 7z a -mx9 WindBot.7z WindBot Bot.exe bot.conf
+test: off
+
+artifacts:
+  - path: WindBot.7z
+    name: WindBot
+
+#deploy:
+  #release: latest
+  #description: 'Automatic build commit $(APPVEYOR_REPO_COMMIT) $(APPVEYOR_REPO_COMMIT_TIMESTAMP)'
+  #provider: GitHub
+  #force_update: true
+  #auth_token:
+   # secure: EQ9miMjfX/QAoBvgc6D+JLmHatLyxOEKZ/uo68QijxWW5Gp4MzB/pOH9+u2GlDVO
+  #on:
+    #branch: master
+

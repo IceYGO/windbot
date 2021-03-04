@@ -215,7 +215,6 @@ namespace WindBot.Game.AI.Decks
         private bool Summon_used;
         private bool Pilica_eff;
         private bool plan_A;
-        private int SnowBell_count = 0;
         //TODO: reset the flags when they should reset ( public override void OnNewTurn() )
         public PureWindsExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -294,16 +293,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.SuperTeamBuddyForceUnite, SuperTeamBuddyForceUniteeff);
 
             AddExecutor(ExecutorType.Repos, MonsterRepos);
-        }
-
-        public override void OnNewTurn()
-        {
-            WindwitchGlassBelleff_used = false;
-            Summon_used = false;
-            Pilica_eff = false;
-            plan_A = false;
-            SnowBell_count = 0;
-            base.OnNewTurn();
         }
         private bool windaset()
         {
@@ -770,7 +759,6 @@ namespace WindBot.Game.AI.Decks
 
         private bool WindwitchSnowBellsp()
         {
-            if (SnowBell_count >= 5) return false;
             if ((Bot.HasInMonstersZone(CardId.CrystalWingSynchroDragon) ||
                 Bot.HasInMonstersZone(CardId.DaigustoSphreez) ||
                 Bot.HasInMonstersZone(CardId.MistWurm)) &&
@@ -785,8 +773,7 @@ namespace WindBot.Game.AI.Decks
                 Bot.HasInMonstersZone(CardId.WindwitchSnowBell) &&
                 (Util.GetBotAvailZonesFromExtraDeck() == 0))
                 return false;
-            AI.SelectPosition(CardPosition.FaceUpDefence);
-            SnowBell_count++;
+                AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
         private bool DaigustoSphreezsp()

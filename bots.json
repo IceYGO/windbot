@@ -1,0 +1,219 @@
+{
+    "windbots": [
+      {
+        "name": "琪露诺",
+        "deck": "Toadally Awesome",
+        "dialog": "cirno.zh-CN"
+      },
+      {
+        "name": "琪露诺",
+        "deck": "Rainbow",
+        "dialog": "cirno.zh-CN"
+      },
+      {
+        "name": "琪露诺",
+        "deck": "Toadally Awesome",
+        "dialog": "cirno.zh-CN"
+      },
+	  {
+        "name": "VI-1911",
+        "deck": "FamiliarPossessed",
+        "dialog": "VI-1911.zh-CN"
+      },
+	  {
+        "name": "VI-1911",
+        "deck": "TimeThief",
+        "dialog": "VI-1911.zh-CN"
+      },
+      {
+        "name": "谜之剑士LV4",
+        "deck": "Dragunity",
+        "dialog": "swordsman.zh-CN"
+      },
+      {
+        "name": "谜之剑士LV4",
+        "deck": "Rank V",
+        "dialog": "swordsman.zh-CN"
+      },
+      {
+        "name": "谜之剑士LV4",
+        "deck": "Zexal Weapons",
+        "dialog": "swordsman.zh-CN"
+      },
+      {
+        "name": "谜之剑士LV4",
+        "deck": "Level VIII",
+        "dialog": "swordsman.zh-CN"
+      },
+      {
+        "name": "复制植物",
+        "deck": "Zoodiac",
+        "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "复制植物",
+        "deck": "Blue-Eyes",
+        "dialog": "copy.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Yosenju",
+        "dialog": "near.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Qliphort",
+        "dialog": "near.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Trickstar",
+        "dialog": "near.zh-CN"
+      },
+      {
+        "name": "尼亚",
+        "deck": "Altergeist",
+        "dialog": "near.zh-CN"
+      },
+      {
+        "name": "千奈",
+        "deck": "Nekroz",
+        "dialog": "sennai.zh-CN"
+      },
+      {
+        "name": "千奈",
+        "deck": "ST1732",
+        "dialog": "sennai.zh-CN"
+      },
+      {
+        "name": "千奈",
+        "deck": "Lightsworn",
+        "dialog": "sennai.zh-CN"
+      },
+      {
+        "name": "弥音",
+        "deck": "Blackwing",
+        "dialog": "meon.zh-CN"
+      },
+      {
+        "name": "弥音",
+        "deck": "CyberDragon",
+        "dialog": "meon.zh-CN"
+      },
+      {
+        "name": "弥音",
+        "deck": "Evilswarm",
+        "dialog": "meon.zh-CN"
+      },
+      {
+        "name": "早苗",
+        "deck": "Gravekeeper",
+        "dialog": "sanae.zh-CN"
+      },
+      {
+        "name": "早苗",
+        "deck": "Graydle",
+        "dialog": "sanae.zh-CN"
+      },
+      {
+        "name": "早苗",
+        "deck": "Old School",
+        "dialog": "sanae.zh-CN"
+      },
+      {
+        "name": "彩音",
+        "deck": "SkyStriker",
+        "dialog": "ayane.zh-CN"
+      },
+      {
+        "name": "彩音",
+        "deck": "DarkMagician",
+        "dialog": "ayane.zh-CN"
+      },
+      {
+        "name": "朱露咲浅羽",
+        "deck": "Orcust",
+        "dialog": "nlch.zh-CN"
+      },
+      {
+        "name": "朱露咲浅羽",
+        "deck": "Salamangreat",
+        "dialog": "nlch.zh-CN"
+      },
+      {
+        "name": "朱露咲浅羽",
+        "deck": "Dragun",
+        "dialog": "nlch.zh-CN"
+      },
+      {
+        "name": "兔明",
+        "deck": "MathMech",
+        "dialog": "zh-CN"
+      },
+      {
+        "name": "兔明",
+        "deck": "TimeThief",
+        "dialog": "zh-CN"
+      },
+      {
+        "name": "兔明",
+        "deck": "PureWinds",
+        "dialog": "zh-CN"
+      },
+      {
+        "name": "姬城碧海",
+        "deck": "Witchcraft",
+        "dialog": "zh-CN"
+      },
+      {
+        "name": "永远之魂",
+        "deck": "Burn",
+        "dialog": "soul.zh-CN",
+        "hidden": true
+      },
+      {
+        "name": "永远之魂",
+        "deck": "Frog",
+        "dialog": "soul.zh-CN",
+        "hidden": true
+      },
+      {
+        "name": "永远之魂",
+        "deck": "Horus",
+        "dialog": "soul.zh-CN",
+        "hidden": true
+      },
+      {
+        "name": "MAX龍果",
+        "deck": "BlueEyesMaxDragon",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "MAX龍果",
+        "deck": "BlueEyesMaxDragon",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "幻煌果",
+        "deck": "Phantasm",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "幻煌果",
+        "deck": "Phantasm",
+        "dialog": "kiwi.zh-TW"
+      },
+      {
+        "name": "報社鬥士",
+        "deck": "GrenMajuThunderBoarder",
+        "dialog": "kiwi.zh-TW",
+        "hidden": true
+      },
+      {
+        "name": "燃血鬥士",
+        "deck": "ChainBurn",
+        "dialog": "kiwi.zh-TW",
+        "hidden": true
+      }
+    ]
+}

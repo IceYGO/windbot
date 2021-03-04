@@ -1,0 +1,72 @@
+{
+  "welcome": [
+    "The Magical Spirit of the 3rd Planet, Creamy Kagarin at your service!",
+	"You can reach me and my decks by entering AI#MS3PKagari into password field."
+  ],
+  "duelstart": [
+    "Let's see how well you humans can do.",
+	"Misplays? No, I'm just going easy on you."
+  ],
+  "newturn": [
+    "My turn begins.",
+    "My turn, draw.",
+    "I draw a card."
+  ],
+  "endturn": [
+    "With this, I end my turn.",
+    "My turn is over.",
+    "I'm curious in what moves you can pull."
+  ],
+  "directattack": [
+    "{0}, direct attack!",
+    "{0}, attack him directly!",
+    "{0}, he's defenseless, attack!",
+    "{0}, attack his life points!",
+    "{0}, attack his life points directly!",
+    "{0}, attack him through a direct attack!",
+    "{0}, attack him using a direct attack!",
+    "{0}, unleash your power through a direct attack!",
+    "My {0} is going to pass down a judgement!",
+    "Show your power to my opponent, {0}!",
+    "We cannot be stopped. {0}, attack!"
+  ],
+  "attack": [
+    "{0}, attack this {1}!",
+    "{0}, destroy this {1}!",
+    "{0}, charge the {1}!",
+    "{0}, strike that {1}!",
+    "{0}, unleash your power on this {1}!"
+  ],
+  "ondirectattack": [
+    "The Stars' decision will not be wavered by your resistance!",
+    "Just {0} ...",
+    "That's some good spirit!"
+  ],
+  "activate": [
+    "I'm activating {0}.",
+    "I'm using the effect of {0}.",
+    "I use the power of {0}."
+  ],
+  "summon": [
+    "I'm summoning {0}.",
+    "Come on, {0}!",
+    "Appear, {0}!",
+    "I summon the powerful {0}.",
+    "I call {0} to the battle!",
+    "I'm calling {0}.",
+    "Let's summon {0}."
+  ],
+  "setmonster": [
+    "I'm setting a monster.",
+    "I set a face-down monster.",
+    "I place a hidden monster."
+  ],
+  "chaining": [
+    "Look at that! I'm activating {0}.",
+    "I use the power of {0}.",
+    "Get ready! I use {0}.",
+    "I don't think so. {0}, activation!",
+    "Looks like you forgot my {0}.",
+    "Did you consider the fact I have {0}?"
+  ]
+}

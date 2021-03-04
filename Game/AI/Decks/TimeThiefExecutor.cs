@@ -88,10 +88,10 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet,Traps.PhantomKnightsShade);
             AddExecutor(ExecutorType.SpellSet,Traps.TimeThiefRetrograte);
             AddExecutor(ExecutorType.SpellSet,Traps.TimeThiefFlyBack);
-			AddExecutor(ExecutorType.Activate, Traps.SolemnWarning);
-            AddExecutor(ExecutorType.Activate, Traps.SolemStrike);
-			AddExecutor(ExecutorType.Activate, Traps.SolemnJudgment);
-			AddExecutor(ExecutorType.Activate, Traps.Crackdown);
+			AddExecutor(ExecutorType.SpellSet, Traps.SolemnWarning);
+            AddExecutor(ExecutorType.SpellSet, Traps.SolemStrike);
+			AddExecutor(ExecutorType.SpellSet, Traps.SolemnJudgment);
+			AddExecutor(ExecutorType.SpellSet, Traps.Crackdown);
             //normal summons
             AddExecutor(ExecutorType.Summon,Monsters.TimeThiefRegulator);
             AddExecutor(ExecutorType.SpSummon, Monsters.PhotonTrasher, SummonToDef);

@@ -197,7 +197,6 @@ namespace WindBot.Game.AI.Decks
         bool MagicianRightHand_used = false;
         ClientCard MagiciansLeftHand_negate = null;
         ClientCard MagicianRightHand_negate = null;
-        int PSYOmega_count = 0;
 
         // go first
         public override bool OnSelectHand()
@@ -271,7 +270,6 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             CrossoutDesignatorTarget = 0;
-            PSYOmega_count = 0;
             MadameVerreGainedATK = false;
             summoned = false;
             enemy_activate_MaxxC = false;
@@ -284,7 +282,7 @@ namespace WindBot.Game.AI.Decks
             FirstCheckSS.Clear();
             UseSSEffect.Clear();
             ActivatedCards.Clear();
-            // CalledbytheGrave refresh
+            // CalledbytheGrave刷新
             List<int> key_list = CalledbytheGraveCount.Keys.ToList();
             foreach (int dic in key_list)
             {
@@ -976,6 +974,8 @@ namespace WindBot.Game.AI.Decks
             // check
             bool have_FiveRainbow = false;
             List<ClientCard> list = new List<ClientCard>();
+            ClientCard l = null;
+            ClientCard r = null;
             if (Duel.IsNewRule || Duel.IsNewRule2020)
             {
                 list.Add(Enemy.SpellZone[0]);
@@ -1272,8 +1272,6 @@ namespace WindBot.Game.AI.Decks
             bool lesssummon = false;
             int extra_attack = CheckPlusAttackforMadameVerre(true, false, true);
             int best_power = Util.GetBestAttack(Bot);
-            if (CheckRemainInDeck(CardId.Haine) > 0 && best_power < 2400) best_power = 2400;
-            Logger.DebugWriteLine("less summon check: " + (best_power + extra_attack - 1000).ToString() + " to " + (best_power + extra_attack).ToString());
             if (Util.GetOneEnemyBetterThanValue(best_power) != null 
                 && Util.GetOneEnemyBetterThanValue(best_power + extra_attack) == null
                 && Util.GetOneEnemyBetterThanValue(best_power + extra_attack - 1000) != null)
@@ -1296,11 +1294,6 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
-
-            // check whether continue to ss
-            bool should_attack = Util.GetOneEnemyBetterThanValue(Card.Attack) == null;
-            if ((should_attack ^ Card.IsDefense()) && Duel.Player == 1) return false;
-            if (CheckRemainInDeck(CardId.Haine, CardId.MadameVerre, CardId.GolemAruru) == 0) return false;
 
             // SS higer level
             if (Bot.HasInMonstersZone(CardId.Haine) || (lesssummon && !Bot.HasInMonstersZone(CardId.MadameVerre, true)))
@@ -1766,27 +1759,22 @@ namespace WindBot.Game.AI.Decks
             {
                 if (hand.IsMonster() && hand.Level <= 4 && hand.Attack > bestPower) bestPower = hand.Attack;
             }
-
-            int opt = -1;
             // destroy monster
             if (Enemy.MonsterZone.GetFirstMatchingCard(card => card.IsFloodgate() && card.IsAttack()) != null
-                || Enemy.MonsterZone.GetMatchingCardsCount(card => card.IsAttack() && card.Attack >= bestPower) >= 2) opt = 0;
-            // destroy spell/trap
-            else if (Enemy.GetSpellCount() >= 2 || Util.GetProblematicEnemySpell() != null) opt = 1;
-
-            if (opt == -1) return false;
-
-            // only one selection
-            if (Enemy.MonsterZone.GetFirstMatchingCard(card => card.IsAttack()) == null 
-                || Enemy.GetSpellCount() == 0)
+                || Enemy.MonsterZone.GetMatchingCardsCount(card => card.IsAttack() && card.Attack >= bestPower) >= 2)
             {
-                AI.SelectOption(0);
+                AI.SelectOption(Util.GetStringId(CardId.LightningStorm, 0));
                 SelectSTPlace(null, true);
                 return true;
             }
-            AI.SelectOption(opt);
-            SelectSTPlace(null, true);
-            return true;
+            // destroy spell/trap
+            if (Enemy.GetSpellCount() >= 2 || Util.GetProblematicEnemySpell() != null)
+            {
+                AI.SelectOption(Util.GetStringId(CardId.LightningStorm, 1));
+                SelectSTPlace(null, true);
+                return true;
+            }
+            return false;
         }
 
         // activate of PotofExtravagance
@@ -2353,12 +2341,8 @@ namespace WindBot.Game.AI.Decks
         // activate of Patronus
         public bool PatronusActivate()
         {
-            // activate immediately
-            if (ActivateDescription == 94)
-            {
-                return true;
-            }
             // search
+            //if (ActivateDescription == Util.GetStringId(CardId.Patronus, 0))
             if (Card.Location == CardLocation.SpellZone)
             {
                 if (NegatedCheck(true) || Duel.LastChainPlayer == 0) return false;
@@ -2501,20 +2485,15 @@ namespace WindBot.Game.AI.Decks
             // recycle from grave
             if (Card.Location == CardLocation.Grave)
             {
-                if (PSYOmega_count >= 5){
-                    return false;
-                }
                 List<ClientCard> enemy_danger = CheckDangerousCardinEnemyGrave();
                 if (enemy_danger.Count > 0)
                 {
                     AI.SelectCard(enemy_danger);
-                    PSYOmega_count ++;
                     return true;
                 }
                 if (!Bot.HasInHandOrInSpellZoneOrInGraveyard(CardId.Holiday) && Bot.HasInGraveyard(important_witchcraft))
                 {
                     AI.SelectCard(important_witchcraft);
-                    PSYOmega_count ++;
                     return true;
                 }
                 if (CheckProblematicCards() == null)
@@ -2523,7 +2502,6 @@ namespace WindBot.Game.AI.Decks
                         CardId.MaxxC, CardId.AshBlossom_JoyousSpring,
                         CardId.MagicianRightHand, CardId.MagiciansLeftHand, CardId.MagiciansRestage, CardId.Patronus, 
                         CardId.LightningStorm, CardId.Reasoning);
-                    PSYOmega_count ++;
                     return true;
                 }
             }

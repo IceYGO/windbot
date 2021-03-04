@@ -1,0 +1,8 @@
+{
+  "name": "windbot-server",
+  "interpreter": "/usr/bin/mono",
+  "script": "WindBot.exe",
+  "args": "servermode=true serverport=2399",
+  "error_file": "error.log",
+  "out_file": "log.log"
+}
