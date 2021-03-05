@@ -20,20 +20,20 @@ namespace WindBot.Game.AI.Decks
             public const int TimeThiefRegulator = 19891131;
             public const int PhotonTrasher = 65367484;
             public const int PerformTrickClown = 67696066;
-			public const int ThunderKingRaiOh = 71564252;
-			public const int MaxxC = 23434538;
-            public const int AshBlossomAndJoyousSpring =14558127;
+            public const int ThunderKingRaiOh = 71564252;
+            public const int MaxxC = 23434538;
+            public const int AshBlossomAndJoyousSpring = 14558127;
         }
-		
-		public class CardId
+
+        public class CardId
         {
-			public const int ImperialOrder = 61740673;
-			public const int NaturalExterio = 99916754;
+            public const int ImperialOrder = 61740673;
+            public const int NaturalExterio = 99916754;
             public const int NaturalBeast = 33198837;
             public const int SwordsmanLV7 = 37267041;
             public const int RoyalDecreel = 51452091;
-		}
-        
+        }
+
         public class Spells
         {
             // spells
@@ -41,20 +41,20 @@ namespace WindBot.Game.AI.Decks
             public const int FoolishBurial = 81439173;
             public const int TimeThiefStartup = 10877309;
             public const int TimeThiefHack = 81670445;
-			public const int HarpieFeatherDuster = 18144506;
+            public const int HarpieFeatherDuster = 18144506;
             public const int PotOfDesires = 35261759;
-			public const int PotofExtravagance = 49238328;
+            public const int PotofExtravagance = 49238328;
         }
         public class Traps
         {
             //traps
             public const int SolemnWarning = 84749824;
-            public const int SolemStrike= 40605147;
+            public const int SolemStrike = 40605147;
             public const int SolemnJudgment = 41420027;
             public const int TimeThiefRetrograte = 76587747;
             public const int PhantomKnightsShade = 98827725;
             public const int TimeThiefFlyBack = 18678554;
-			public const int Crackdown = 36975314;
+            public const int Crackdown = 36975314;
         }
         public class XYZs
         {
@@ -62,81 +62,81 @@ namespace WindBot.Game.AI.Decks
             public const int TimeThiefRedoer = 55285840;
             public const int TimeThiefPerpetua = 59208943;
             public const int CrazyBox = 42421606;
-			public const int GagagaCowboy = 12014404;
-			public const int Number39Utopia = 84013237;
-			public const int NumberS39UtopiatheLightning = 56832966;
+            public const int GagagaCowboy = 12014404;
+            public const int Number39Utopia = 84013237;
+            public const int NumberS39UtopiatheLightning = 56832966;
             public const int NumberS39UtopiaOne = 86532744;
             public const int DarkRebellionXyzDragon = 16195942;
-			public const int EvilswarmExcitonKnight = 46772449;
+            public const int EvilswarmExcitonKnight = 46772449;
         }
-        
 
-        
+
+
         public TimeThiefExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
             // executors
             //Spell activate
-			AddExecutor(ExecutorType.Activate,Spells.Raigeki,DefaultDarkHole);
-            AddExecutor(ExecutorType.Activate,Spells.FoolishBurial,FoolishBurialTarget);
-            AddExecutor(ExecutorType.Activate,Spells.TimeThiefStartup,TimeThiefStartupEffect);
-            AddExecutor(ExecutorType.Activate,Spells.TimeThiefHack);  
-			AddExecutor(ExecutorType.Activate,Spells.PotofExtravagance, PotofExtravaganceActivate);
-			AddExecutor(ExecutorType.Activate,Spells.HarpieFeatherDuster, DefaultHarpiesFeatherDusterFirst);
-            AddExecutor(ExecutorType.Activate,Spells.PotOfDesires, PotOfDesireseff);
+            AddExecutor(ExecutorType.Activate, Spells.Raigeki, DefaultDarkHole);
+            AddExecutor(ExecutorType.Activate, Spells.FoolishBurial, FoolishBurialTarget);
+            AddExecutor(ExecutorType.Activate, Spells.TimeThiefStartup, TimeThiefStartupEffect);
+            AddExecutor(ExecutorType.Activate, Spells.TimeThiefHack);
+            AddExecutor(ExecutorType.Activate, Spells.PotofExtravagance, PotofExtravaganceActivate);
+            AddExecutor(ExecutorType.Activate, Spells.HarpieFeatherDuster, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, Spells.PotOfDesires, PotOfDesireseff);
             // trap executors set
-            AddExecutor(ExecutorType.SpellSet,Traps.PhantomKnightsShade);
-            AddExecutor(ExecutorType.SpellSet,Traps.TimeThiefRetrograte);
-            AddExecutor(ExecutorType.SpellSet,Traps.TimeThiefFlyBack);
-			AddExecutor(ExecutorType.SpellSet, Traps.SolemnWarning);
+            AddExecutor(ExecutorType.SpellSet, Traps.PhantomKnightsShade);
+            AddExecutor(ExecutorType.SpellSet, Traps.TimeThiefRetrograte);
+            AddExecutor(ExecutorType.SpellSet, Traps.TimeThiefFlyBack);
+            AddExecutor(ExecutorType.SpellSet, Traps.SolemnWarning);
             AddExecutor(ExecutorType.SpellSet, Traps.SolemStrike);
-			AddExecutor(ExecutorType.SpellSet, Traps.SolemnJudgment);
-			AddExecutor(ExecutorType.SpellSet, Traps.Crackdown);
+            AddExecutor(ExecutorType.SpellSet, Traps.SolemnJudgment);
+            AddExecutor(ExecutorType.SpellSet, Traps.Crackdown);
             //normal summons
-            AddExecutor(ExecutorType.Summon,Monsters.TimeThiefRegulator);
+            AddExecutor(ExecutorType.Summon, Monsters.TimeThiefRegulator);
             AddExecutor(ExecutorType.SpSummon, Monsters.PhotonTrasher, SummonToDef);
-            AddExecutor(ExecutorType.Summon,Monsters.TimeThiefWinder);
-            AddExecutor(ExecutorType.Summon,Monsters.TimeThiefBezelShip);
-            AddExecutor(ExecutorType.Summon,Monsters.PerformTrickClown);
-            AddExecutor(ExecutorType.Summon,Monsters.TimeThiefCronocorder);
-			AddExecutor(ExecutorType.Summon,Monsters.ThunderKingRaiOh, ThunderKingRaiOhsummon);
+            AddExecutor(ExecutorType.Summon, Monsters.TimeThiefWinder);
+            AddExecutor(ExecutorType.Summon, Monsters.TimeThiefBezelShip);
+            AddExecutor(ExecutorType.Summon, Monsters.PerformTrickClown);
+            AddExecutor(ExecutorType.Summon, Monsters.TimeThiefCronocorder);
+            AddExecutor(ExecutorType.Summon, Monsters.ThunderKingRaiOh, ThunderKingRaiOhsummon);
             //xyz summons
             AddExecutor(ExecutorType.SpSummon, XYZs.TimeThiefRedoer);
             AddExecutor(ExecutorType.SpSummon, XYZs.TimeThiefPerpetua);
-			AddExecutor(ExecutorType.SpSummon, XYZs.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
+            AddExecutor(ExecutorType.SpSummon, XYZs.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
             AddExecutor(ExecutorType.SpSummon, XYZs.GagagaCowboy, GagagaCowboySummon);
-			AddExecutor(ExecutorType.SpSummon, XYZs.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, XYZs.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
             AddExecutor(ExecutorType.SpSummon, XYZs.NumberS39UtopiaOne);
             AddExecutor(ExecutorType.SpSummon, XYZs.NumberS39UtopiatheLightning);
-			AddExecutor(ExecutorType.SpSummon, XYZs.DarkRebellionXyzDragon, DarkRebellionXyzDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, XYZs.DarkRebellionXyzDragon, DarkRebellionXyzDragonSummon);
             //activate trap
-            AddExecutor(ExecutorType.Activate,Traps.PhantomKnightsShade);
-            AddExecutor(ExecutorType.Activate,Traps.TimeThiefRetrograte , RetrograteEffect);
-            AddExecutor(ExecutorType.Activate,Traps.TimeThiefFlyBack);
-			AddExecutor(ExecutorType.Activate, Traps.SolemnWarning, DefaultSolemnWarning);
+            AddExecutor(ExecutorType.Activate, Traps.PhantomKnightsShade);
+            AddExecutor(ExecutorType.Activate, Traps.TimeThiefRetrograte, RetrograteEffect);
+            AddExecutor(ExecutorType.Activate, Traps.TimeThiefFlyBack);
+            AddExecutor(ExecutorType.Activate, Traps.SolemnWarning, DefaultSolemnWarning);
             AddExecutor(ExecutorType.Activate, Traps.SolemStrike, DefaultSolemnStrike);
-			AddExecutor(ExecutorType.Activate, Traps.SolemnJudgment, DefaultSolemnJudgment);
+            AddExecutor(ExecutorType.Activate, Traps.SolemnJudgment, DefaultSolemnJudgment);
             AddExecutor(ExecutorType.Activate, Traps.Crackdown, Crackdowneff);
             //xyz effects
-            AddExecutor(ExecutorType.Activate, XYZs.TimeThiefRedoer,RedoerEffect);
-            AddExecutor(ExecutorType.Activate, XYZs.TimeThiefPerpetua , PerpertuaEffect);
-			AddExecutor(ExecutorType.Activate, XYZs.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
+            AddExecutor(ExecutorType.Activate, XYZs.TimeThiefRedoer, RedoerEffect);
+            AddExecutor(ExecutorType.Activate, XYZs.TimeThiefPerpetua, PerpertuaEffect);
+            AddExecutor(ExecutorType.Activate, XYZs.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
             AddExecutor(ExecutorType.Activate, XYZs.GagagaCowboy);
-			AddExecutor(ExecutorType.Activate, XYZs.NumberS39UtopiatheLightning, DefaultNumberS39UtopiaTheLightningEffect);
+            AddExecutor(ExecutorType.Activate, XYZs.NumberS39UtopiatheLightning, DefaultNumberS39UtopiaTheLightningEffect);
             AddExecutor(ExecutorType.Activate, XYZs.DarkRebellionXyzDragon, DarkRebellionXyzDragonEffect);
-            
+
             //monster effects
-            AddExecutor(ExecutorType.Activate,Monsters.TimeThiefRegulator , RegulatorEffect);
-            AddExecutor(ExecutorType.Activate,Monsters.TimeThiefWinder);
-            AddExecutor(ExecutorType.Activate,Monsters.TimeThiefCronocorder);
-            AddExecutor(ExecutorType.Activate,Monsters.PerformTrickClown, TrickClownEffect);
-            AddExecutor(ExecutorType.Activate,Monsters.TimeThiefBezelShip);   
-			AddExecutor(ExecutorType.Activate,Monsters.ThunderKingRaiOh, ThunderKingRaiOheff);
-			AddExecutor(ExecutorType.Activate,Monsters.AshBlossomAndJoyousSpring, DefaultAshBlossomAndJoyousSpring);
-            AddExecutor(ExecutorType.Activate,Monsters.MaxxC, DefaultMaxxC);
+            AddExecutor(ExecutorType.Activate, Monsters.TimeThiefRegulator, RegulatorEffect);
+            AddExecutor(ExecutorType.Activate, Monsters.TimeThiefWinder);
+            AddExecutor(ExecutorType.Activate, Monsters.TimeThiefCronocorder);
+            AddExecutor(ExecutorType.Activate, Monsters.PerformTrickClown, TrickClownEffect);
+            AddExecutor(ExecutorType.Activate, Monsters.TimeThiefBezelShip);
+            AddExecutor(ExecutorType.Activate, Monsters.ThunderKingRaiOh, ThunderKingRaiOheff);
+            AddExecutor(ExecutorType.Activate, Monsters.AshBlossomAndJoyousSpring, DefaultAshBlossomAndJoyousSpring);
+            AddExecutor(ExecutorType.Activate, Monsters.MaxxC, DefaultMaxxC);
         }
 
-		public void SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false, List<int> avoid_list=null)
+        public void SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false, List<int> avoid_list = null)
         {
             List<int> list = new List<int> { 0, 1, 2, 3, 4 };
             int n = list.Count;
@@ -160,8 +160,8 @@ namespace WindBot.Game.AI.Decks
             }
             AI.SelectPlace(0);
         }
-		
-		public bool SpellNegatable(bool isCounter = false, ClientCard target = null)
+
+        public bool SpellNegatable(bool isCounter = false, ClientCard target = null)
         {
             // target default set
             if (target == null) target = Card;
@@ -230,10 +230,10 @@ namespace WindBot.Game.AI.Decks
 
             List<ClientCard> enemy = Enemy.GetMonstersInMainZone();
             List<int> units = Card.Overlays;
-            if (Duel.Phase == DuelPhase.Standby && (AI.Executor.Util.GetStringId(XYZs.TimeThiefRedoer,0) ==
+            if (Duel.Phase == DuelPhase.Standby && (AI.Executor.Util.GetStringId(XYZs.TimeThiefRedoer, 0) ==
                                                     ActivateDescription))
             {
-                
+
                 return true;
             }
 
@@ -253,8 +253,8 @@ namespace WindBot.Game.AI.Decks
                 {
                     return false;
                 }
-                
-            
+
+
 
                 foreach (var t in enemy)
                 {
@@ -264,12 +264,12 @@ namespace WindBot.Game.AI.Decks
                         AI.SelectCard(t.Id);
                         AI.SelectCard(t.Id);
                     }
-                    catch{}
+                    catch { }
 
                     return true;
                 }
             }
-            catch{}
+            catch { }
 
             if (Bot.UnderAttack)
             {
@@ -278,16 +278,16 @@ namespace WindBot.Game.AI.Decks
             }
 
             return false;
-            
+
         }
         private bool RetrograteEffect()
         {
-            if (Card.Owner== 1)
+            if (Card.Owner == 1)
             {
                 return true;
             }
             return false;
-            
+
         }
         private bool TimeThiefStartupEffect()
         {
@@ -298,13 +298,13 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(Monsters.TimeThiefRegulator);
                     return true;
                 }
-                if(Bot.HasInHand(Monsters.TimeThiefWinder) && Bot.GetMonsterCount()>1)
+                if (Bot.HasInHand(Monsters.TimeThiefWinder) && Bot.GetMonsterCount() > 1)
                 {
                     AI.SelectCard(Monsters.TimeThiefWinder);
                     return true;
                 }
                 return true;
-                
+
             }
             if (Card.Location == CardLocation.Grave)
             {
@@ -313,16 +313,16 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(Traps.TimeThiefFlyBack);
                 return true;
             }
- 
-                return false;
-            
+
+            return false;
+
         }
         private bool FoolishBurialTarget()
         {
             AI.SelectCard(Monsters.PerformTrickClown);
             return true;
         }
-        
+
         private bool TrickClownEffect()
         {
             if (Bot.LifePoints <= 1000)
@@ -332,9 +332,9 @@ namespace WindBot.Game.AI.Decks
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
-		private bool GagagaCowboySummon()
+        private bool GagagaCowboySummon()
         {
-            if (Enemy.LifePoints <= 800 || (Bot.GetMonsterCount()>=4 && Enemy.LifePoints <= 1600))
+            if (Enemy.LifePoints <= 800 || (Bot.GetMonsterCount() >= 4 && Enemy.LifePoints <= 1600))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -359,9 +359,9 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(target);
             }
             return true;
-		}
+        }
         private bool ThunderKingRaiOhsummon()
-        { 
+        {
             if (Bot.MonsterZone[0] == null)
                 AI.SelectPlace(Zones.z0);
             else
@@ -370,24 +370,24 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ThunderKingRaiOheff()
         {
-           if(Duel.SummoningCards.Count > 0)
-           {
-                foreach(ClientCard m in Duel.SummoningCards)
+            if (Duel.SummoningCards.Count > 0)
+            {
+                foreach (ClientCard m in Duel.SummoningCards)
                 {
                     if (m.Attack >= 1900)
                         return true;
                 }
-           }            
+            }
             return false;
         }
-		private bool Crackdowneff()
+        private bool Crackdowneff()
         {
             if (Util.GetOneEnemyBetterThanMyBest(true, true) != null && Bot.UnderAttack)
                 AI.SelectCard(Util.GetOneEnemyBetterThanMyBest(true, true));
             return Util.GetOneEnemyBetterThanMyBest(true, true) != null && Bot.UnderAttack;
         }
-		private bool PotOfDesireseff()
-        {       
+        private bool PotOfDesireseff()
+        {
             return Bot.Deck.Count > 14 && !DefaultSpellWillBeNegated();
         }
 
