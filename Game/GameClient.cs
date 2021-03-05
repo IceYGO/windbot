@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using YGOSharp.Network;
@@ -54,7 +55,7 @@ namespace WindBot.Game
             catch (System.Exception)
             {
                 IPHostEntry _hostEntry = Dns.GetHostEntry(_serverHost);
-                target_address = _hostEntry.AddressList[0];
+                target_address = _hostEntry.AddressList.FirstOrDefault(findIPv4 => findIPv4.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
             }
 
             Connection.Connect(target_address, _serverPort);
