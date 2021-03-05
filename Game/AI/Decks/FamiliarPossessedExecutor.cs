@@ -15,58 +15,58 @@ namespace WindBot.Game.AI.Decks
         {
             public const int MetalSnake = 71197066;
             public const int InspectBoarder = 15397015;
-            public const int AshBlossomAndJoyousSpring =14558127;
+            public const int AshBlossomAndJoyousSpring = 14558127;
             public const int GrenMajuDaEizo = 36584821;
             public const int MaxxC = 23434538;
-			
-			public const int Aussa = 31887906;
-			public const int Eria = 68881650;
-			public const int Wynn = 31764354;
-			public const int Hiita = 4376659;
-			public const int Lyna = 40542825;
-			public const int Awakening = 62256492;
-			public const int Unpossessed = 25704359;
-			
-			public const int NaturalExterio = 99916754;
+
+            public const int Aussa = 31887906;
+            public const int Eria = 68881650;
+            public const int Wynn = 31764354;
+            public const int Hiita = 4376659;
+            public const int Lyna = 40542825;
+            public const int Awakening = 62256492;
+            public const int Unpossessed = 25704359;
+
+            public const int NaturalExterio = 99916754;
             public const int NaturalBeast = 33198837;
             public const int SwordsmanLV7 = 37267041;
             public const int RoyalDecreel = 51452091;
 
             public const int HarpieFeatherDuster = 18144506;
             public const int PotOfDesires = 35261759;
-			public const int PotofExtravagance = 49238328;
+            public const int PotofExtravagance = 49238328;
             public const int Scapegoat = 73915051;
             public const int MacroCosmos = 30241314;
             public const int Crackdown = 36975314;
             public const int ImperialOrder = 61740673;
             public const int SolemnWarning = 84749824;
-            public const int SolemStrike= 40605147;
+            public const int SolemStrike = 40605147;
             public const int SolemnJudgment = 41420027;
-			public const int SkillDrain = 82732705;
-			public const int Mistake = 59305593;
+            public const int SkillDrain = 82732705;
+            public const int Mistake = 59305593;
 
             public const int BorreloadDragon = 31833038;
             public const int BirrelswordDragon = 85289965;
-			public const int KnightmareGryphon = 65330383;
+            public const int KnightmareGryphon = 65330383;
             public const int KnightmareUnicorn = 38342335;
             public const int KnightmarePhoenix = 2857636;
             public const int KnightmareCerberus = 75452921;
             public const int LinkSpider = 98978921;
             public const int Linkuriboh = 41999284;
-			public const int GagagaCowboy = 12014404;
-			
-			public const int AussaP = 97661969;
-			public const int EriaP = 73309655;
-			public const int WynnP = 30674956;
-			public const int HiitaP = 48815792;
-			public const int LynaP = 9839945;
-            
+            public const int GagagaCowboy = 12014404;
+
+            public const int AussaP = 97661969;
+            public const int EriaP = 73309655;
+            public const int WynnP = 30674956;
+            public const int HiitaP = 48815792;
+            public const int LynaP = 9839945;
+
         }
 
         public FamiliarPossessedExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-			// do first
+            // do first
             AddExecutor(ExecutorType.Activate, CardId.PotofExtravagance, PotofExtravaganceActivate);
             // burn if enemy's LP is below 800
             AddExecutor(ExecutorType.SpSummon, CardId.GagagaCowboy, GagagaCowboySummon);
@@ -75,51 +75,51 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.MacroCosmos, MacroCosmoseff);
             //counter
             AddExecutor(ExecutorType.Activate, CardId.AshBlossomAndJoyousSpring, DefaultAshBlossomAndJoyousSpring);
-            AddExecutor(ExecutorType.Activate, CardId.MaxxC, DefaultMaxxC);            
+            AddExecutor(ExecutorType.Activate, CardId.MaxxC, DefaultMaxxC);
             AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
             AddExecutor(ExecutorType.Activate, CardId.SolemStrike, DefaultSolemnStrike);
             AddExecutor(ExecutorType.Activate, CardId.ImperialOrder, ImperialOrderfirst);
             AddExecutor(ExecutorType.Activate, CardId.ImperialOrder, ImperialOrdereff);
             AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
-			AddExecutor(ExecutorType.Activate, CardId.SkillDrain, SkillDrainEffect);
-			AddExecutor(ExecutorType.Activate, CardId.Mistake, DefaultUniqueTrap);
-			AddExecutor(ExecutorType.Activate, CardId.Awakening);
-			AddExecutor(ExecutorType.Activate, CardId.Unpossessed, UnpossessedEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SkillDrain, SkillDrainEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Mistake, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.Awakening);
+            AddExecutor(ExecutorType.Activate, CardId.Unpossessed, UnpossessedEffect);
             //first do
             AddExecutor(ExecutorType.Activate, CardId.HarpieFeatherDuster, DefaultHarpiesFeatherDusterFirst);
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, PotOfDesireseff);
             //sp
             AddExecutor(ExecutorType.Activate, CardId.Linkuriboh, Linkuriboheff);
             AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh, Linkuribohsp);
-            AddExecutor(ExecutorType.SpSummon, CardId.KnightmareCerberus,Knightmaresp);
+            AddExecutor(ExecutorType.SpSummon, CardId.KnightmareCerberus, Knightmaresp);
             AddExecutor(ExecutorType.SpSummon, CardId.KnightmarePhoenix, Knightmaresp);
             AddExecutor(ExecutorType.SpSummon, CardId.AussaP, AussaPsp);
             AddExecutor(ExecutorType.Activate, CardId.AussaP, AussaPeff);
-			AddExecutor(ExecutorType.SpSummon, CardId.EriaP, EriaPsp);
+            AddExecutor(ExecutorType.SpSummon, CardId.EriaP, EriaPsp);
             AddExecutor(ExecutorType.Activate, CardId.EriaP, EriaPeff);
-			AddExecutor(ExecutorType.SpSummon, CardId.WynnP, WynnPsp);
+            AddExecutor(ExecutorType.SpSummon, CardId.WynnP, WynnPsp);
             AddExecutor(ExecutorType.Activate, CardId.WynnP, WynnPeff);
-			AddExecutor(ExecutorType.SpSummon, CardId.HiitaP, HiitaPsp);
+            AddExecutor(ExecutorType.SpSummon, CardId.HiitaP, HiitaPsp);
             AddExecutor(ExecutorType.Activate, CardId.HiitaP, HiitaPeff);
-			AddExecutor(ExecutorType.SpSummon, CardId.LynaP, LynaPsp);
+            AddExecutor(ExecutorType.SpSummon, CardId.LynaP, LynaPsp);
             AddExecutor(ExecutorType.Activate, CardId.LynaP, LynaPeff);
-            
+
             AddExecutor(ExecutorType.SpSummon, CardId.Linkuriboh, Linkuribohsp);
             AddExecutor(ExecutorType.SpSummon, CardId.LinkSpider);
             AddExecutor(ExecutorType.SpSummon, CardId.BorreloadDragon, BorreloadDragonsp);
-            AddExecutor(ExecutorType.Activate, CardId.BorreloadDragon, BorreloadDragoneff);  
+            AddExecutor(ExecutorType.Activate, CardId.BorreloadDragon, BorreloadDragoneff);
             AddExecutor(ExecutorType.SpSummon, CardId.BirrelswordDragon, BirrelswordDragonsp);
-            AddExecutor(ExecutorType.Activate, CardId.BirrelswordDragon, BirrelswordDragoneff);			
+            AddExecutor(ExecutorType.Activate, CardId.BirrelswordDragon, BirrelswordDragoneff);
             // normal summon
             AddExecutor(ExecutorType.Summon, CardId.InspectBoarder, InspectBoardersummon);
             AddExecutor(ExecutorType.Summon, CardId.GrenMajuDaEizo, GrenMajuDaEizosummon);
             AddExecutor(ExecutorType.SpSummon, CardId.BorreloadDragon, BorreloadDragonspsecond);
-			
-			AddExecutor(ExecutorType.Summon, CardId.Aussa, FamiliarPossessedsummon);
-			AddExecutor(ExecutorType.Summon, CardId.Eria, FamiliarPossessedsummon);
-			AddExecutor(ExecutorType.Summon, CardId.Wynn, FamiliarPossessedsummon);
-			AddExecutor(ExecutorType.Summon, CardId.Hiita, FamiliarPossessedsummon);
-			AddExecutor(ExecutorType.Summon, CardId.Lyna, FamiliarPossessedsummon);
+
+            AddExecutor(ExecutorType.Summon, CardId.Aussa, FamiliarPossessedsummon);
+            AddExecutor(ExecutorType.Summon, CardId.Eria, FamiliarPossessedsummon);
+            AddExecutor(ExecutorType.Summon, CardId.Wynn, FamiliarPossessedsummon);
+            AddExecutor(ExecutorType.Summon, CardId.Hiita, FamiliarPossessedsummon);
+            AddExecutor(ExecutorType.Summon, CardId.Lyna, FamiliarPossessedsummon);
 
             AddExecutor(ExecutorType.Activate, CardId.MetalSnake, MetalSnakesp);
             AddExecutor(ExecutorType.Activate, CardId.MetalSnake, MetalSnakeeff);
@@ -131,7 +131,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
 
-		public void SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false, List<int> avoid_list=null)
+        public void SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false, List<int> avoid_list = null)
         {
             List<int> list = new List<int> { 0, 1, 2, 3, 4 };
             int n = list.Count;
@@ -155,8 +155,8 @@ namespace WindBot.Game.AI.Decks
             }
             AI.SelectPlace(0);
         }
-		
-		public bool SpellNegatable(bool isCounter = false, ClientCard target = null)
+
+        public bool SpellNegatable(bool isCounter = false, ClientCard target = null)
         {
             // target default set
             if (target == null) target = Card;
@@ -181,7 +181,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MacroCosmoseff()
         {
-           
+
             return (Duel.LastChainPlayer == 1 || Duel.LastSummonPlayer == 1 || Duel.Player == 0) && UniqueFaceupSpell();
         }
 
@@ -198,7 +198,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             if (Duel.LastChainPlayer == 1)
             {
-                foreach(ClientCard check in Enemy.GetSpells())
+                foreach (ClientCard check in Enemy.GetSpells())
                 {
                     if (Util.GetLastChainCard() == check)
                         return true;
@@ -208,7 +208,7 @@ namespace WindBot.Game.AI.Decks
         }
 
         private bool PotOfDesireseff()
-        {       
+        {
             return Bot.Deck.Count > 14 && !DefaultSpellWillBeNegated();
         }
 
@@ -228,26 +228,26 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(Util.GetOneEnemyBetterThanMyBest(true, true));
             return Util.GetOneEnemyBetterThanMyBest(true, true) != null && Bot.UnderAttack;
         }
-		
-		private bool SkillDrainEffect()
+
+        private bool SkillDrainEffect()
         {
             return (Bot.LifePoints > 1000) && DefaultUniqueTrap();
         }
-		
-		private bool UnpossessedEffect()
+
+        private bool UnpossessedEffect()
         {
-			AI.SelectCard(new List<int>() {
-                CardId.Lyna, 
-				CardId.Hiita, 
-				CardId.Wynn, 
-				CardId.Eria, 
-				CardId.Aussa
+            AI.SelectCard(new List<int>() {
+                CardId.Lyna,
+                CardId.Hiita,
+                CardId.Wynn,
+                CardId.Eria,
+                CardId.Aussa
             });
             return true;
         }
 
         private bool InspectBoardersummon()
-        {           
+        {
             if (Bot.MonsterZone[0] == null)
                 AI.SelectPlace(Zones.z0);
             else
@@ -257,17 +257,17 @@ namespace WindBot.Game.AI.Decks
 
         private bool GrenMajuDaEizosummon()
         {
-            if (Duel.Turn == 1) return false;   
-			if (Bot.HasInSpellZone(CardId.SkillDrain) || Enemy.HasInSpellZone(CardId.SkillDrain)) return false;			
+            if (Duel.Turn == 1) return false;
+            if (Bot.HasInSpellZone(CardId.SkillDrain) || Enemy.HasInSpellZone(CardId.SkillDrain)) return false;
             if (Bot.MonsterZone[0] == null)
                 AI.SelectPlace(Zones.z0);
             else
                 AI.SelectPlace(Zones.z4);
             return Bot.Banished.Count >= 6;
         }
-		
-		private bool FamiliarPossessedsummon()
-        {           
+
+        private bool FamiliarPossessedsummon()
+        {
             if (Bot.MonsterZone[0] == null)
                 AI.SelectPlace(Zones.z0);
             else
@@ -277,7 +277,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool BorreloadDragonsp()
         {
-            if (!(Bot.HasInMonstersZone(new[] {CardId.KnightmareCerberus, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP }))) return false;
+            if (!(Bot.HasInMonstersZone(new[] { CardId.KnightmareCerberus, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP }))) return false;
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -294,7 +294,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BorreloadDragonspsecond()
         {
-            if (!(Bot.HasInMonstersZone(new[] {CardId.KnightmareCerberus,CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP }))) return false;
+            if (!(Bot.HasInMonstersZone(new[] { CardId.KnightmareCerberus, CardId.KnightmarePhoenix, CardId.LynaP, CardId.HiitaP, CardId.WynnP, CardId.EriaP, CardId.AussaP }))) return false;
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -311,7 +311,7 @@ namespace WindBot.Game.AI.Decks
         }
         public bool BorreloadDragoneff()
         {
-            if (ActivateDescription == -1 && (Duel.Phase==DuelPhase.BattleStart||Duel.Phase==DuelPhase.End))
+            if (ActivateDescription == -1 && (Duel.Phase == DuelPhase.BattleStart || Duel.Phase == DuelPhase.End))
             {
                 ClientCard enemy_monster = Enemy.BattlingMonster;
                 if (enemy_monster != null && enemy_monster.HasPosition(CardPosition.Attack))
@@ -331,8 +331,8 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
-		
-		private bool BirrelswordDragonsp()
+
+        private bool BirrelswordDragonsp()
         {
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard m in Bot.GetMonsters())
@@ -345,7 +345,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (ClientCard m in Bot.GetMonsters())
             {
-                if (m.IsCode(CardId.Linkuriboh) || m.Level==1)
+                if (m.IsCode(CardId.Linkuriboh) || m.Level == 1)
                 {
                     material_list.Add(m);
                     if (material_list.Count == 3)
@@ -363,7 +363,7 @@ namespace WindBot.Game.AI.Decks
         private bool BirrelswordDragoneff()
         {
             if (ActivateDescription == Util.GetStringId(CardId.BirrelswordDragon, 0))
-            {                
+            {
                 if (Util.IsChainTarget(Card) && Util.GetBestEnemyMonster(true, true) != null)
                 {
                     AI.SelectCard(Util.GetBestEnemyMonster(true, true));
@@ -400,11 +400,11 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == Util.GetStringId(CardId.MetalSnake, 0) && !Bot.HasInMonstersZone(CardId.MetalSnake))
             {
-                if(Duel.Player == 1 && Duel.Phase >= DuelPhase.BattleStart )
+                if (Duel.Player == 1 && Duel.Phase >= DuelPhase.BattleStart)
                     return Bot.Deck.Count >= 12;
-                if(Duel.Player == 0 && Duel.Phase >= DuelPhase.Main1)
+                if (Duel.Player == 0 && Duel.Phase >= DuelPhase.Main1)
                     return Bot.Deck.Count >= 12;
-            }              
+            }
             return false;
         }
 
@@ -414,22 +414,22 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == Util.GetStringId(CardId.MetalSnake, 1) && target != null)
             {
                 AI.SelectCard(new[]
-                {                    
-				CardId.LynaP, 
-				CardId.HiitaP, 
-				CardId.WynnP, 
-				CardId.EriaP, 
-				CardId.KnightmareGryphon
-                });    
+                {
+                CardId.LynaP,
+                CardId.HiitaP,
+                CardId.WynnP,
+                CardId.EriaP,
+                CardId.KnightmareGryphon
+                });
                 AI.SelectNextCard(target);
                 return true;
             }
-            return false;    
-            
+            return false;
+
         }
 
         private bool AussaPsp()
-        {                       
+        {
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -452,9 +452,9 @@ namespace WindBot.Game.AI.Decks
             AI.SelectCard(CardId.MaxxC, CardId.Aussa);
             return true;
         }
-		
-		private bool EriaPsp()
-        {                       
+
+        private bool EriaPsp()
+        {
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -477,9 +477,9 @@ namespace WindBot.Game.AI.Decks
             AI.SelectCard(CardId.Eria);
             return true;
         }
-		
-		private bool WynnPsp()
-        {                       
+
+        private bool WynnPsp()
+        {
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -502,9 +502,9 @@ namespace WindBot.Game.AI.Decks
             AI.SelectCard(CardId.Wynn);
             return true;
         }
-		
-		       private bool HiitaPsp()
-        {                       
+
+        private bool HiitaPsp()
+        {
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -527,9 +527,9 @@ namespace WindBot.Game.AI.Decks
             AI.SelectCard(CardId.Hiita);
             return true;
         }
-		
-		private bool LynaPsp()
-        {                       
+
+        private bool LynaPsp()
+        {
             IList<ClientCard> material_list = new List<ClientCard>();
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -552,13 +552,13 @@ namespace WindBot.Game.AI.Decks
             AI.SelectCard(CardId.Lyna);
             return true;
         }
-		
+
         private bool Linkuribohsp()
         {
-            
+
             foreach (ClientCard c in Bot.GetMonsters())
-            {               
-                if (c.Level==1)
+            {
+                if (c.Level == 1)
                 {
                     AI.SelectMaterials(c);
                     return true;
@@ -573,7 +573,7 @@ namespace WindBot.Game.AI.Decks
               CardId.KnightmareCerberus,
               CardId.KnightmarePhoenix
             };
-            if (Bot.MonsterZone.GetMatchingCardsCount(card => card.IsCode(firstMats)) >= 1)return false;
+            if (Bot.MonsterZone.GetMatchingCardsCount(card => card.IsCode(firstMats)) >= 1) return false;
             foreach (ClientCard c in Bot.GetMonsters())
             {
                 if (c.Level == 1)
@@ -586,13 +586,13 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Linkuriboheff()
         {
-            if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;           
+            if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             return true;
         }
-		
-		private bool GagagaCowboySummon()
+
+        private bool GagagaCowboySummon()
         {
-            if (Enemy.LifePoints <= 800 || (Bot.GetMonsterCount()>=4 && Enemy.LifePoints <= 1600))
+            if (Enemy.LifePoints <= 800 || (Bot.GetMonsterCount() >= 4 && Enemy.LifePoints <= 1600))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;
@@ -600,17 +600,17 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
         private bool SpellSet()
-        {     
+        {
             if (Card.IsCode(CardId.MacroCosmos) && Bot.HasInSpellZone(CardId.MacroCosmos)) return false;
-			if (Card.IsCode(CardId.Unpossessed) && Bot.HasInSpellZone(CardId.Unpossessed)) return false;
-			if (Card.IsCode(CardId.Crackdown) && Bot.HasInSpellZone(CardId.Crackdown)) return false;
-			if (Card.IsCode(CardId.SkillDrain) && Bot.HasInSpellZone(CardId.SkillDrain)) return false;
-			if (Card.IsCode(CardId.Mistake) && Bot.HasInSpellZone(CardId.Mistake)) return false;
+            if (Card.IsCode(CardId.Unpossessed) && Bot.HasInSpellZone(CardId.Unpossessed)) return false;
+            if (Card.IsCode(CardId.Crackdown) && Bot.HasInSpellZone(CardId.Crackdown)) return false;
+            if (Card.IsCode(CardId.SkillDrain) && Bot.HasInSpellZone(CardId.SkillDrain)) return false;
+            if (Card.IsCode(CardId.Mistake) && Bot.HasInSpellZone(CardId.Mistake)) return false;
             if (Card.IsCode(CardId.Scapegoat))
                 return true;
             if (Card.HasType(CardType.Trap))
                 return Bot.GetSpellCountWithoutField() < 4;
-			return false;
+            return false;
         }
         public override ClientCard OnSelectAttacker(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
@@ -624,6 +624,6 @@ namespace WindBot.Game.AI.Decks
         public override bool OnSelectHand()
         {
             return true;
-        }        
+        }
     }
 }
