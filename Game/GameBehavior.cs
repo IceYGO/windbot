@@ -153,7 +153,9 @@ namespace WindBot.Game
         private BinaryWriter buildUpdateDeck(Deck targetDeck) {
             BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
             deck.Write(targetDeck.Cards.Count + targetDeck.ExtraCards.Count);
+            //Logger.WriteLine("Main + Extra: " + targetDeck.Cards.Count + targetDeck.ExtraCards.Count);
             deck.Write(targetDeck.SideCards.Count);
+            //Logger.WriteLine("Side: " + targetDeck.SideCards.Count);
             foreach (NamedCard card in targetDeck.Cards)
                 deck.Write(card.Id);
             foreach (NamedCard card in targetDeck.ExtraCards)
@@ -171,18 +173,21 @@ namespace WindBot.Game
             int duel_rule = packet.ReadByte();
             _ai.Duel.IsNewRule = (duel_rule >= 4);
             _ai.Duel.IsNewRule2020 = (duel_rule >= 5);
-            BinaryWriter deck = buildUpdateDeck(Deck);
+            BinaryWriter deck = buildUpdateDeck(pickDeckOnResult());
             Connection.Send(deck);
             _ai.OnJoinGame();
         }
         
         private Deck pickDeckOnResult() {
             if(lastDuelResult == 0 && DeckForWin != null) {
+                //Logger.WriteLine("Using deck for win: " + DeckForWin.SideCards[2].Name);
                 return DeckForWin;
             }
             if(lastDuelResult == 1 && DeckForLose != null) {
+                //Logger.WriteLine("Using deck for lose: " + DeckForLose.SideCards[2].Name);
                 return DeckForLose;
             }
+            //Logger.WriteLine("Using default deck.");
             return Deck;
         }
 
@@ -306,6 +311,7 @@ namespace WindBot.Game
         private void OnErrorMsg(BinaryReader packet)
         {
             int msg = packet.ReadByte();
+            Logger.WriteLine("Got error: " + msg);
             // align
             packet.ReadByte();
             packet.ReadByte();

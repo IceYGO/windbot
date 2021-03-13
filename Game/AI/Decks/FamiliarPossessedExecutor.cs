@@ -61,6 +61,13 @@ namespace WindBot.Game.AI.Decks
             public const int HiitaP = 48815792;
             public const int LynaP = 9839945;
 
+            // side
+            public const int Raigeki = 12580477;
+            public const int lightningStorm = 14532163;
+            public const int CosmicCyclone = 8267140;
+            public const int CalledByTheGrave = 24224830;
+            public const int CrossoutDesignator = 65681983;
+            public const int InfiniteImpermanence = 10045474;
         }
 
         public FamiliarPossessedExecutor(GameAI ai, Duel duel)
@@ -74,6 +81,9 @@ namespace WindBot.Game.AI.Decks
             //Sticker
             AddExecutor(ExecutorType.Activate, CardId.MacroCosmos, MacroCosmoseff);
             //counter
+            AddExecutor(ExecutorType.Activate, CardId.CalledByTheGrave, DefaultCalledByTheGrave);
+            // AddExecutor(ExecutorType.Activate, CardId.CrossoutDesignator, DefaultCalledByTheGrave);
+            AddExecutor(ExecutorType.Activate, CardId.InfiniteImpermanence, DefaultInfiniteImpermanence);
             AddExecutor(ExecutorType.Activate, CardId.AshBlossomAndJoyousSpring, DefaultAshBlossomAndJoyousSpring);
             AddExecutor(ExecutorType.Activate, CardId.MaxxC, DefaultMaxxC);
             AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
@@ -86,7 +96,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Awakening);
             AddExecutor(ExecutorType.Activate, CardId.Unpossessed, UnpossessedEffect);
             //first do
+            AddExecutor(ExecutorType.Activate, CardId.lightningStorm, DefaultLightingStorm);
             AddExecutor(ExecutorType.Activate, CardId.HarpieFeatherDuster, DefaultHarpiesFeatherDusterFirst);
+            AddExecutor(ExecutorType.Activate, CardId.CosmicCyclone, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.Raigeki, DefaultRaigeki);
+            
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, PotOfDesireseff);
             //sp
             AddExecutor(ExecutorType.Activate, CardId.Linkuriboh, Linkuriboheff);

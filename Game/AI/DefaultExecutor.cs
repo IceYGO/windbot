@@ -101,6 +101,8 @@ namespace WindBot.Game.AI
             public const int ImperialOrder = 61740673;
             public const int NaturiaBeast = 33198837;
             public const int AntiSpellFragrance = 58921041;
+
+            public const int lightningStorm = 14532163;
         }
 
         int HonestEffectCount = 0;
@@ -1115,6 +1117,21 @@ namespace WindBot.Game.AI
             }
 
             return false;
+        }
+
+        protected bool DefaultLightingStorm()
+        {
+            if ((Enemy.MonsterZone.ToList().Count > Enemy.SpellZone.ToList().Count ) && Enemy.MonsterZone.ToList().Count>3)
+            {
+                AI.SelectPlace(Zones.MonsterZones);
+                return true;
+            }
+            else
+            {
+                AI.SelectPlace(Zones.SpellZones);
+                return true;
+            }
+
         }
     }
 }
