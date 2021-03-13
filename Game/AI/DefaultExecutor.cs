@@ -36,8 +36,27 @@ namespace WindBot.Game.AI
             public const int DarkMagicAttack = 2314238;
             public const int MysticalSpaceTyphoon = 5318639;
             public const int CosmicCyclone = 8267140;
-            public const int ChickenGame = 67616300;
+            public const int GalaxyCyclone = 5133471;
+            public const int BookOfMoon = 14087893;
+            public const int CompulsoryEvacuationDevice = 94192409;
+            public const int CallOfTheHaunted = 97077563;
+            public const int Scapegoat = 73915051;
+            public const int BreakthroughSkill = 78474168;
+            public const int SolemnJudgment = 41420027;
+            public const int SolemnWarning = 84749824;
+            public const int SolemnStrike = 40605147;
+            public const int TorrentialTribute = 53582587;
+            public const int HeavyStorm = 19613556;
+            public const int HammerShot = 26412047;
+            public const int DarkHole = 53129443;
+            public const int Raigeki = 12580477;
+            public const int SmashingGround = 97169186;
+            public const int PotOfDesires = 35261759;
+            public const int AllureofDarkness = 1475311;
+            public const int DimensionalBarrier = 83326048;
+            public const int InterruptedKaijuSlumber = 99330325;
 
+            public const int ChickenGame = 67616300;
             public const int SantaClaws = 46565218;
 
             public const int CastelTheSkyblasterMusketeer = 82633039;
