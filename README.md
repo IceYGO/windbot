@@ -20,6 +20,11 @@ The nickname for the bot.
 `Deck`  
 The deck to be used by the bot. Available decks are listed below. Keep empty to use random deck.
 
+`DeckFile`  
+The deck file (.ydk) to be used by the bot. Will be set by `Deck` automatically, but you can override it.
+
+Note: Most cards not in the original deck are unknown to the bot, and won't be summoned or activated in the duel.
+
 `Dialog`  
 The dialog texts to be used by the bot. See Dialogs folder for list.
 

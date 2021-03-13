@@ -13,6 +13,7 @@ namespace WindBot.Game
         public YGOClient Connection { get; private set; }
         public string Username;
         public string Deck;
+        public string DeckFile;
         public string Dialog;
         public int Hand;
         public bool Debug;
@@ -29,6 +30,7 @@ namespace WindBot.Game
         {
             Username = Info.Name;
             Deck = Info.Deck;
+            DeckFile = Info.DeckFile;
             Dialog = Info.Dialog;
             Hand = Info.Hand;
             Debug = Info.Debug;
