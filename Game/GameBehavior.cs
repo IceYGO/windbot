@@ -16,6 +16,8 @@ namespace WindBot.Game
         public GameClient Game { get; private set; }
         public YGOClient Connection { get; private set; }
         public Deck Deck { get; private set; }
+        public Deck DeckForWin { get; private set; }
+        public Deck DeckForLose { get; private set; }
 
         private GameAI _ai;
 
@@ -45,8 +47,10 @@ namespace WindBot.Game
 
             _ai = new GameAI(Game, _duel);
             _ai.Executor = DecksManager.Instantiate(_ai, _duel);
-            Deck = Deck.Load(Game.DeckFile ?? _ai.Executor.Deck);
-
+            string deckName = Game.DeckFile ?? _ai.Executor.Deck;
+            Deck = Deck.Load(deckName);
+            DeckForWin = Deck.Load("Win/" + deckName);
+            DeckForLose = Deck.Load("Lose/" + deckName);
             _select_hint = 0;
             lastDuelResult = 2;
         }
@@ -171,10 +175,20 @@ namespace WindBot.Game
             Connection.Send(deck);
             _ai.OnJoinGame();
         }
+        
+        private Deck pickDeckOnResult() {
+            if(lastDuelResult == 0 && DeckForWin != null) {
+                return DeckForWin;
+            }
+            if(lastDuelResult == 1 && DeckForLose != null) {
+                return DeckForLose;
+            }
+            return Deck;
+        }
 
         private void OnChangeSide(BinaryReader packet)
         {
-            BinaryWriter deck = buildUpdateDeck(Deck);
+            BinaryWriter deck = buildUpdateDeck(pickDeckOnResult());
             Connection.Send(deck);
             _ai.OnJoinGame();
         }
