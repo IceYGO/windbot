@@ -951,6 +951,11 @@ namespace WindBot.Game
             m_materialSelector = null;
         }
 
+        public bool HaveSelectedCards()
+        {
+            return m_selector.Count > 0 || m_materialSelector != null;
+        }
+
         public CardSelector GetSelectedCards()
         {
             CardSelector selected = null;

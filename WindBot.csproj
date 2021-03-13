@@ -72,6 +72,7 @@
     <Compile Include="Game\AI\Decks\AltergeistExecutor.cs" />
     <Compile Include="Game\AI\Decks\FamiliarPossessedExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
+    <Compile Include="Game\AI\Decks\LuckyExecutor.cs" />
     <Compile Include="Game\AI\Decks\MathMechExecutor.cs" />
     <Compile Include="Game\AI\Decks\PureWindsExecutor.cs" />
     <Compile Include="Game\AI\Decks\DragunExecutor.cs" />
