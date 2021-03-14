@@ -18,6 +18,7 @@ namespace WindBot.Game
         public Deck Deck { get; private set; }
         public Deck DeckForWin { get; private set; }
         public Deck DeckForLose { get; private set; }
+        public string DeckCode { get; private set; }
 
         private GameAI _ai;
 
@@ -47,10 +48,15 @@ namespace WindBot.Game
 
             _ai = new GameAI(Game, _duel);
             _ai.Executor = DecksManager.Instantiate(_ai, _duel);
-            string deckName = Game.DeckFile ?? _ai.Executor.Deck;
-            Deck = Deck.Load(deckName);
-            DeckForWin = Deck.Load("Win/" + deckName);
-            DeckForLose = Deck.Load("Lose/" + deckName);
+            if(Game.DeckCode != null) {
+                DeckCode = Game.DeckCode;
+            } else {
+                DeckCode = null;
+                string deckName = Game.DeckFile ?? _ai.Executor.Deck;
+                Deck = Deck.Load(deckName);
+                DeckForWin = Deck.Load("Win/" + deckName);
+                DeckForLose = Deck.Load("Lose/" + deckName);
+            }
             _select_hint = 0;
             lastDuelResult = 2;
         }
@@ -152,6 +158,15 @@ namespace WindBot.Game
 
         private BinaryWriter buildUpdateDeck(Deck targetDeck) {
             BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
+            if(DeckCode != null) {
+                try {
+                    byte[] deckContent = Convert.FromBase64String(DeckCode);
+                    deck.Write(deckContent);
+                } catch {
+                    _ai.OnDeckError("base64 decode");
+                }
+                return deck;
+            }
             deck.Write(targetDeck.Cards.Count + targetDeck.ExtraCards.Count);
             //Logger.WriteLine("Main + Extra: " + targetDeck.Cards.Count + targetDeck.ExtraCards.Count);
             deck.Write(targetDeck.SideCards.Count);
@@ -179,6 +194,9 @@ namespace WindBot.Game
         }
         
         private Deck pickDeckOnResult() {
+            if(DeckCode != null) {
+                return null;
+            }
             if(lastDuelResult == 0 && DeckForWin != null) {
                 //Logger.WriteLine("Using deck for win: " + DeckForWin.SideCards[2].Name);
                 return DeckForWin;

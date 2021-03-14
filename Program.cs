@@ -69,6 +69,7 @@ namespace WindBot
             Info.Name = Config.GetString("Name", Info.Name);
             Info.Deck = Config.GetString("Deck", Info.Deck);
             Info.DeckFile = Config.GetString("DeckFile", Info.DeckFile);
+            Info.DeckCode = Config.GetString("DeckCode", Info.DeckCode);
             Info.Dialog = Config.GetString("Dialog", Info.Dialog);
             Info.Host = Config.GetString("Host", Info.Host);
             Info.Port = Config.GetInt("Port", Info.Port);
@@ -108,6 +109,9 @@ namespace WindBot
                     string deckfile = HttpUtility.ParseQueryString(RawUrl).Get("deckfile");
                     if (deckfile != null)
                         Info.DeckFile = deckfile;
+                    string deckcode = HttpUtility.ParseQueryString(RawUrl).Get("deckcode");
+                    if (deckcode != null)
+                        Info.DeckCode = deckcode;
                     string dialog = HttpUtility.ParseQueryString(RawUrl).Get("dialog");
                     if (dialog != null)
                         Info.Dialog = dialog;

@@ -14,6 +14,7 @@ namespace WindBot.Game
         public string Username;
         public string Deck;
         public string DeckFile;
+        public string DeckCode;
         public string Dialog;
         public int Hand;
         public bool Debug;
@@ -31,6 +32,7 @@ namespace WindBot.Game
             Username = Info.Name;
             Deck = Info.Deck;
             DeckFile = Info.DeckFile;
+            DeckCode = Info.DeckCode;
             Dialog = Info.Dialog;
             Hand = Info.Hand;
             Debug = Info.Debug;
