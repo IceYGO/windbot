@@ -781,6 +781,8 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultDontChainMyself()
         {
+            if (Type != ExecutorType.Activate)
+                return true;
             if (Executors.Any(exec => exec.Type == Type && exec.CardId == Card.Id))
                 return false;
             return Duel.LastChainPlayer != 0;

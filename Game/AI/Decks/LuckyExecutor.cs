@@ -12,9 +12,14 @@ namespace WindBot.Game.AI.Decks
         public LuckyExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.SpSummon, ImFeelingLucky);
             AddExecutor(ExecutorType.Activate, ImFeelingLucky);
+            AddExecutor(ExecutorType.SpSummon, ImFeelingLucky);
             AddExecutor(ExecutorType.SummonOrSet, ImFeelingLucky);
+
+            AddExecutor(ExecutorType.SpSummon, ImFeelingUnlucky);
+            AddExecutor(ExecutorType.SummonOrSet, ImFeelingUnlucky);
+            AddExecutor(ExecutorType.Activate, ImFeelingUnlucky);
+
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
 
@@ -103,7 +108,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool ImFeelingLucky()
         {
-            return Program.Rand.Next(9) >= 3 && DefaultDontChainMyself();
+            return Program.Rand.Next(9) >= 6 && DefaultDontChainMyself();
+        }
+
+        private bool ImFeelingUnlucky()
+        {
+            return DefaultDontChainMyself();
         }
     }
 }
