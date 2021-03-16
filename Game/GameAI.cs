@@ -13,12 +13,16 @@ namespace WindBot.Game
 
         private Dialogs _dialogs;
 
+        // record activated count to prevent infinite actions
+        private Dictionary<int, int> _activatedCards;
+
         public GameAI(GameClient game, Duel duel)
         {
             Game = game;
             Duel = duel;
 
             _dialogs = new Dialogs(game);
+            _activatedCards = new Dictionary<int, int>();
         }
 
         /// <summary>
@@ -81,6 +85,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnNewTurn()
         {
+            _activatedCards.Clear();
             Executor.OnNewTurn();
         }
 
@@ -1107,11 +1112,28 @@ namespace WindBot.Game
 
         private bool ShouldExecute(CardExecutor exec, ClientCard card, ExecutorType type, int desc = -1)
         {
+            if (card.Id != 0 && type == ExecutorType.Activate &&
+                _activatedCards.ContainsKey(card.Id) && _activatedCards[card.Id] >= 9)
+            {
+                return false;
+            }
             Executor.SetCard(type, card, desc);
-            return card != null &&
-                   exec.Type == type &&
-                   (exec.CardId == -1 || exec.CardId == card.Id) &&
-                   (exec.Func == null || exec.Func());
+            bool result = card != null && exec.Type == type &&
+                (exec.CardId == -1 || exec.CardId == card.Id) &&
+                (exec.Func == null || exec.Func());
+            if (card.Id != 0 && type == ExecutorType.Activate && result)
+            {
+                int count = card.IsDisabled() ? 3 : 1;
+                if (!_activatedCards.ContainsKey(card.Id))
+                {
+                    _activatedCards.Add(card.Id, count);
+                }
+                else
+                {
+                    _activatedCards[card.Id] += count;
+                }
+            }
+            return result;
         }
     }
 }

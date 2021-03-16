@@ -100,6 +100,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.Goblindbergh);
             AddExecutor(ExecutorType.Summon, CardId.TinGoldfish);
             AddExecutor(ExecutorType.Summon, CardId.SummonerMonk);
+            AddExecutor(ExecutorType.Summon, CardId.Honest);
 
             // Summons: Effects
             AddExecutor(ExecutorType.Activate, CardId.Goblindbergh, GoblindberghEffect);
@@ -120,13 +121,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.BreakthroughSkill, DefaultBreakthroughSkill);
             AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
             AddExecutor(ExecutorType.Activate, CardId.SolemnStrike, DefaultSolemnStrike);
-        }
-
-        private int ZwCount = 0;
-
-        public override void OnNewTurn()
-        {
-            ZwCount = 0;
         }
 
         public override bool OnSelectHand()
@@ -177,8 +171,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ZwWeapon()
         {
-            ZwCount++;
-            return ZwCount < 10;
+            return true;
         }
 
         private bool ReinforcementOfTheArmy()

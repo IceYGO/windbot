@@ -230,7 +230,6 @@ namespace WindBot.Game.AI.Decks
         }
         int Ultimate_ss = 0;
         int Enemy_atk = 0;
-        int TG_WonderMagician_count = 0;
         bool Pillused = false;
         bool CrystronNeedlefibereff_used = false;
         bool OvertexCoatlseff_used = false;
@@ -275,7 +274,6 @@ namespace WindBot.Game.AI.Decks
             ShaddollSquamata_used = false;
             ShaddollDragon_used = false;
             ShaddollHedgehog_used = false;
-            TG_WonderMagician_count = 0;
         }
 
         private bool Luminasummon()
@@ -576,8 +574,7 @@ namespace WindBot.Game.AI.Decks
        
         private bool TG_WonderMagicianeff()
         {
-            TG_WonderMagician_count++;
-            return TG_WonderMagician_count <= 10;
+            return true;
         }
         private bool AllureofDarkness()
         {

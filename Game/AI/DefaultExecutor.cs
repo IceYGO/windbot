@@ -103,8 +103,6 @@ namespace WindBot.Game.AI
             public const int AntiSpellFragrance = 58921041;
         }
 
-        int HonestEffectCount = 0;
-
         protected DefaultExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
@@ -263,7 +261,7 @@ namespace WindBot.Game.AI
 
         public override void OnNewTurn()
         {
-            HonestEffectCount = 0;
+
         }
 
         /// <summary>
@@ -1110,13 +1108,7 @@ namespace WindBot.Game.AI
                     || ((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Defense) && (Bot.BattlingMonster.Attack + Enemy.BattlingMonster.Attack > Enemy.BattlingMonster.Defense)));
             }
 
-            if (Util.IsTurn1OrMain2() && HonestEffectCount <= 5)
-            {
-                //HonestEffectCount++;
-                return true;
-            }
-
-            return false;
+            return Util.IsTurn1OrMain2();
         }
     }
 }
