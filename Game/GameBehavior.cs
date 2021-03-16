@@ -1048,7 +1048,7 @@ namespace WindBot.Game
             for (int i = 0; i < count; ++i)
             {
                 packet.ReadByte(); // flag
-                packet.ReadInt32(); // card id
+                int id = packet.ReadInt32();
                 int con = GetLocalPlayer(packet.ReadByte());
                 int loc = packet.ReadByte();
                 int seq = packet.ReadByte();
@@ -1059,7 +1059,12 @@ namespace WindBot.Game
                 {
                     desc = 0;
                 }
-                cards.Add(_duel.GetCard(con, loc, seq, sseq));
+
+                ClientCard card = _duel.GetCard(con, loc, seq, sseq);
+                if (card.Id == 0)
+                    card.SetId(id);
+
+                cards.Add(card);
                 descs.Add(desc);
             }
 
