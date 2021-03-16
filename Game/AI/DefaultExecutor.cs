@@ -795,6 +795,8 @@ namespace WindBot.Game.AI
         {
             if (Executors.Count(exec => exec.Type == Type && exec.CardId == Card.Id) > 1)
                 return false;
+            if (Card.IsFacedown())
+                return true;
             if (Bot.LifePoints <= 1000)
                 return false;
             if (Bot.LifePoints <= Enemy.LifePoints && ActivateDescription == Util.GetStringId(_CardId.ChickenGame, 0))
@@ -1110,7 +1112,7 @@ namespace WindBot.Game.AI
 
             if (Util.IsTurn1OrMain2() && HonestEffectCount <= 5)
             {
-                HonestEffectCount++;
+                //HonestEffectCount++;
                 return true;
             }
 
