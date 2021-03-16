@@ -14,12 +14,11 @@ namespace WindBot.Game.AI.Decks
         {
             AddExecutor(ExecutorType.Activate, ImFeelingLucky);
             AddExecutor(ExecutorType.SpSummon, ImFeelingLucky);
-            AddExecutor(ExecutorType.SummonOrSet, ImFeelingLucky);
 
             AddExecutor(ExecutorType.SpSummon, ImFeelingUnlucky);
-            AddExecutor(ExecutorType.SummonOrSet, ImFeelingUnlucky);
             AddExecutor(ExecutorType.Activate, ImFeelingUnlucky);
 
+            AddExecutor(ExecutorType.SummonOrSet, DefaultMonsterSummon);
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
 

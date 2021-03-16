@@ -259,9 +259,12 @@ namespace WindBot.Game.AI
             return false;
         }
 
-        public override void OnNewTurn()
+        /// <summary>
+        /// Set when this card can't beat the enemies
+        /// </summary>
+        public override bool OnSelectMonsterSummonOrSet(ClientCard card)
         {
-
+            return card.Level <= 4 && Util.IsAllEnemyBetter(true) && Util.IsAllEnemyBetterThanValue(card.Attack + 300, false);
         }
 
         /// <summary>
@@ -643,10 +646,13 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// Summon with tributes ATK lower.
+        /// Summon with no tribute, or with tributes ATK lower.
         /// </summary>
-        protected bool DefaultTributeSummon()
+        protected bool DefaultMonsterSummon()
         {
+            if (Card.Level <= 4)
+                return true;
+
             if (!UniqueFaceupMonster())
                 return false;
             int tributecount = (int)Math.Ceiling((Card.Level - 4.0d) / 2.0d);

@@ -189,6 +189,16 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Called when the executor type is SummonOrSet
+        /// </summary>
+        /// <returns>True if select to set the monster.</returns>
+        public virtual bool OnSelectMonsterSummonOrSet(ClientCard card)
+        {
+            // Overrided in DefalultExecutor
+            return false;
+        }
+
+        /// <summary>
         /// Called when bot is going to annouce a card
         /// </summary>
         /// <param name="avail">Available card's ids.</param>

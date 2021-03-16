@@ -444,8 +444,7 @@ namespace WindBot.Game
                     }
                     if (ShouldExecute(exec, card, ExecutorType.SummonOrSet))
                     {
-                        if (Executor.Util.IsAllEnemyBetter(true) && Executor.Util.IsAllEnemyBetterThanValue(card.Attack + 300, false) &&
-                            main.MonsterSetableCards.Contains(card))
+                        if (main.MonsterSetableCards.Contains(card) && Executor.OnSelectMonsterSummonOrSet(card))
                         {
                             _dialogs.SendSetMonster();
                             return new MainPhaseAction(MainPhaseAction.MainAction.SetMonster, card.ActionIndex);
@@ -453,7 +452,7 @@ namespace WindBot.Game
                         _dialogs.SendSummon(card.Name);
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
-                }                
+                }
                 foreach (ClientCard card in main.SpellSetableCards)
                 {
                     if (ShouldExecute(exec, card, ExecutorType.SpellSet))
