@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
@@ -693,8 +693,13 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultMonsterRepos()
         {
-            if (Card.IsFaceup() && Card.IsDefense() && Card.Attack == 0)
-                return false;
+            if (Card.Attack == 0)
+            {
+                if (Card.IsFaceup() && Card.IsAttack())
+                    return true;
+                if (Card.IsFaceup() && Card.IsDefense())
+                    return false;
+            }
 
             if (Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon, true) &&
                 Card.IsAttack() && (4000 - Card.Defense) * 2 > (4000 - Card.Attack))
