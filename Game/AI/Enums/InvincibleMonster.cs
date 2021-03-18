@@ -1,9 +1,36 @@
 ﻿namespace WindBot.Game.AI.Enums
 {
     /// <summary>
+    /// Cards that are invincible to battle and should always attack to use effect.
+    /// </summary>
+    public enum InvincibleBotMonster
+    {
+        YubelTheUltimateNightmare = 31764700,
+        YubelTerrorIncarnate = 4779091,
+        SandaionTheTimelord = 33015627,
+        GabrionTheTimelord = 6616912,
+        MichionTheTimelord = 7733560,
+        ZaphionTheTimelord = 28929131,
+        HailonTheTimelord = 34137269,
+        RaphionTheTimelord = 60222213,
+        SadionTheTimelord = 65314286,
+        MetaionTheTimelord = 74530899,
+        KamionTheTimelord = 91712985,
+        LazionTheTimelord = 92435533,
+        TimelordProgenitorVorpgate = 67508932,
+        RocketWarrior = 30860696,
+        GoDDDDivineZeroKingRage = 40227329,
+        BloomDivaTheMelodiousChoir = 84988419,
+        BlackwingArmorMaster = 69031175,
+        DaigustoSphreez = 29552709,
+        Number92HearteartHDragon = 97403510,
+        NumberC96DarkStorm = 77205367,
+        Number54LionHeart = 54366836
+    }
+    /// <summary>
     /// Cards that are invincible to battle.
     /// </summary>
-    public enum InvincibleMonster
+    public enum InvincibleEnemyMonster
     {
         SpiritReaper = 23205979,
         YubelTheUltimateNightmare = 31764700,

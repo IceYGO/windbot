@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
@@ -20,6 +20,17 @@ namespace WindBot.Game.AI
             public const int KumongoustheStickyStringKaiju = 29726552;
             public const int GamecieltheSeaTurtleKaiju = 55063751;
             public const int SuperAntiKaijuWarMachineMechaDogoran = 84769941;
+
+            public const int SandaionTheTimelord = 33015627;
+            public const int GabrionTheTimelord = 6616912;
+            public const int MichionTheTimelord = 7733560;
+            public const int ZaphionTheTimelord = 28929131;
+            public const int HailonTheTimelord = 34137269;
+            public const int RaphionTheTimelord = 60222213;
+            public const int SadionTheTimelord = 65314286;
+            public const int MetaionTheTimelord = 74530899;
+            public const int KamionTheTimelord = 91712985;
+            public const int LazionTheTimelord = 92435533;
 
             public const int UltimateConductorTytanno = 18940556;
             public const int ElShaddollConstruct = 20366274;
@@ -144,9 +155,6 @@ namespace WindBot.Game.AI
         /// <returns>false if the attack shouldn't be done.</returns>
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            if (attacker.RealPower <= 0)
-                return false;
-
             if (!attacker.IsMonsterHasPreventActivationEffectInBattle())
             {
                 if (defender.IsMonsterInvincible() && defender.IsDefense())
@@ -196,6 +204,12 @@ namespace WindBot.Game.AI
             {
                 if (attacker.IsCode(_CardId.NumberS39UtopiaTheLightning) && !attacker.IsDisabled() && attacker.HasXyzMaterial(2, _CardId.Number39Utopia))
                     attacker.RealPower = 5000;
+
+                if (attacker.IsCode(_CardId.EaterOfMillions) && !attacker.IsDisabled())
+                    attacker.RealPower = 9999;
+
+                if (attacker.IsMonsterInvincible())
+                    attacker.RealPower = 9999;
 
                 foreach (ClientCard equip in attacker.EquipCards)
                 {
