@@ -19,7 +19,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, ImFeelingUnlucky);
             AddExecutor(ExecutorType.Activate, ImFeelingUnlucky);
 
-            AddExecutor(ExecutorType.SummonOrSet, DefaultMonsterSummon);
+            AddExecutor(ExecutorType.SummonOrSet, ImFeelingLazy);
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
 
@@ -64,6 +64,17 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpSummon, _CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
             AddExecutor(ExecutorType.Activate, _CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
+
+            AddExecutor(ExecutorType.Summon, _CardId.SandaionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.GabrionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.MichionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.ZaphionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.HailonTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.RaphionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.SadionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.MetaionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.KamionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.LazionTheTimelord);
         }
 
         private List<int> HintMsgForRemove = new List<int>
@@ -133,6 +144,18 @@ namespace WindBot.Game.AI.Decks
         private bool ImFeelingUnlucky()
         {
             return DefaultDontChainMyself();
+        }
+
+        private bool ImFeelingLazy()
+        {
+            if (Executors.Any(exec => (exec.Type == ExecutorType.SummonOrSet || exec.Type == ExecutorType.Summon || exec.Type == ExecutorType.MonsterSet) && exec.CardId == Card.Id))
+                return false;
+            return DefaultMonsterSummon();
+        }
+
+        private bool JustDontIt()
+        {
+            return false;
         }
     }
 }
