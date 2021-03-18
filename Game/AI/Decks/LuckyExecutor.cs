@@ -67,8 +67,8 @@ namespace WindBot.Game.AI.Decks
 
         public List<int> REMOVE_HINTMSG = new List<int>
         {
-            HintMsg.HINTMSG_RELEASE, HintMsg.HINTMSG_DESTROY, HintMsg.HINTMSG_REMOVE, HintMsg.HINTMSG_TOGRAVE,
-            HintMsg.HINTMSG_RTOHAND, HintMsg.HINTMSG_TODECK, HintMsg.HINTMSG_DISABLE
+            HintMsg.Release, HintMsg.Destroy, HintMsg.Remove, HintMsg.ToGrave,
+            HintMsg.ReturnToHand, HintMsg.ToDeck, HintMsg.Disable
         };
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> _cards, int min, int max, int hint, bool cancelable)

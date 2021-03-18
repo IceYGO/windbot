@@ -310,7 +310,7 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             // Patronus
-            if (hint == HintMsg.HINTMSG_ATOHAND)
+            if (hint == HintMsg.AddToHand)
             {
                 bool flag = true;
                 foreach(ClientCard card in cards)
@@ -335,7 +335,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             // MaxxC solution
-            if (hint == HintMsg.HINTMSG_SPSUMMON && enemy_activate_MaxxC)
+            if (hint == HintMsg.SpSummon && enemy_activate_MaxxC)
             {
                 // check whether SS from deck while using effect
                 bool flag = true;
@@ -393,7 +393,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             // MadameVerre
-            if (hint == HintMsg.HINTMSG_CONFIRM)
+            if (hint == HintMsg.Confirm)
             {
                 Logger.DebugWriteLine("** min-max: " + min.ToString() + " / " + max.ToString());
                 foreach (ClientCard card in cards)

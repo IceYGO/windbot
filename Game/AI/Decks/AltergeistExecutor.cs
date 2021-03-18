@@ -2762,7 +2762,7 @@ namespace WindBot.Game.AI.Decks
                 Logger.DebugWriteLine("EvenlyMatched: min=" + min.ToString() + ", max=" + max.ToString());
             }
             else if (cards[0].Location == CardLocation.Hand && cards[cards.Count - 1].Location == CardLocation.Hand
-                && (hint == HintMsg.HINTMSG_DISCARD || hint == HintMsg.HINTMSG_TOGRAVE) && min == max)
+                && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) && min == max)
             {
                 if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.OneForOne)) return null;
                 Logger.DebugWriteLine("Hand drop except OneForOne");
