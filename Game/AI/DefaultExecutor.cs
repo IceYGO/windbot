@@ -32,6 +32,12 @@ namespace WindBot.Game.AI
             public const int KamionTheTimelord = 91712985;
             public const int LazionTheTimelord = 92435533;
 
+            public const int LeftArmofTheForbiddenOne = 7902349;
+            public const int RightLegofTheForbiddenOne = 8124921;
+            public const int LeftLegofTheForbiddenOne = 44519536;
+            public const int RightArmofTheForbiddenOne = 70903634;
+            public const int ExodiaTheForbiddenOne = 33396948;
+
             public const int UltimateConductorTytanno = 18940556;
             public const int ElShaddollConstruct = 20366274;
             public const int AllyOfJusticeCatastor = 26593852;

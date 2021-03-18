@@ -75,6 +75,12 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, _CardId.MetaionTheTimelord);
             AddExecutor(ExecutorType.Summon, _CardId.KamionTheTimelord);
             AddExecutor(ExecutorType.Summon, _CardId.LazionTheTimelord);
+
+            AddExecutor(ExecutorType.Summon, _CardId.LeftArmofTheForbiddenOne, JustDontIt);
+            AddExecutor(ExecutorType.Summon, _CardId.RightLegofTheForbiddenOne, JustDontIt);
+            AddExecutor(ExecutorType.Summon, _CardId.LeftLegofTheForbiddenOne, JustDontIt);
+            AddExecutor(ExecutorType.Summon, _CardId.RightArmofTheForbiddenOne, JustDontIt);
+            AddExecutor(ExecutorType.Summon, _CardId.ExodiaTheForbiddenOne, JustDontIt);
         }
 
         private List<int> HintMsgForRemove = new List<int>
@@ -138,7 +144,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ImFeelingLucky()
         {
-            return Program.Rand.Next(9) >= 6 && DefaultDontChainMyself();
+            return Program.Rand.Next(10) >= 5 && DefaultDontChainMyself();
         }
 
         private bool ImFeelingUnlucky()
