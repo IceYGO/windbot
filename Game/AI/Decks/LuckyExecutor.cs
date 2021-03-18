@@ -65,6 +65,12 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, _CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
         }
 
+        public List<int> REMOVE_HINTMSG = new List<int>
+        {
+            HintMsg.HINTMSG_RELEASE, HintMsg.HINTMSG_DESTROY, HintMsg.HINTMSG_REMOVE, HintMsg.HINTMSG_TOGRAVE,
+            HintMsg.HINTMSG_RTOHAND, HintMsg.HINTMSG_TODECK, HintMsg.HINTMSG_DISABLE
+        };
+
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> _cards, int min, int max, int hint, bool cancelable)
         {
             if (Duel.Phase == DuelPhase.BattleStart)
@@ -72,18 +78,50 @@ namespace WindBot.Game.AI.Decks
             if (AI.HaveSelectedCards())
                 return null;
 
-            IList<ClientCard> cards = new List<ClientCard>(_cards);
             IList<ClientCard> selected = new List<ClientCard>();
-
+            IList<ClientCard> cards = new List<ClientCard>(_cards);
             if (max > cards.Count)
                 max = cards.Count;
 
-            // select random cards
-            while (selected.Count < max)
+            if (REMOVE_HINTMSG.Contains(hint))
             {
-                ClientCard card = cards[Program.Rand.Next(cards.Count)];
-                selected.Add(card);
-                cards.Remove(card);
+                IList<ClientCard> selfCards = new List<ClientCard>();
+                IList<ClientCard> enemyCards = new List<ClientCard>();
+                foreach (ClientCard card in cards)
+                {
+                    if (card?.Controller == 0)
+                    {
+                        selfCards.Add(card);
+                    } else
+                    {
+                        enemyCards.Add(card);
+                    }
+                }
+
+                // select enemy's card first
+                while (enemyCards.Count > 0 && selected.Count < max)
+                {
+                    ClientCard card = enemyCards[Program.Rand.Next(enemyCards.Count)];
+                    selected.Add(card);
+                    enemyCards.Remove(card);
+                }
+
+                while (selfCards.Count > 0 && selected.Count < max)
+                {
+                    ClientCard card = selfCards[Program.Rand.Next(selfCards.Count)];
+                    selected.Add(card);
+                    selfCards.Remove(card);
+                }
+
+            } else
+            {
+                // select random cards
+                while (selected.Count < max)
+                {
+                    ClientCard card = cards[Program.Rand.Next(cards.Count)];
+                    selected.Add(card);
+                    cards.Remove(card);
+                }
             }
 
             return selected;

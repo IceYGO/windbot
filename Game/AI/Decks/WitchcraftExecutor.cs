@@ -309,8 +309,8 @@ namespace WindBot.Game.AI.Decks
         // overwrite OnSelectCard to act normally in SelectUnselect
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            // Patronus HINTMSG_ATOHAND
-            if (hint == 506)
+            // Patronus
+            if (hint == HintMsg.HINTMSG_ATOHAND)
             {
                 bool flag = true;
                 foreach(ClientCard card in cards)
@@ -334,8 +334,8 @@ namespace WindBot.Game.AI.Decks
                     return selected;
                 }
             }
-            // MaxxC HINTMSG_SPSUMMON
-            if (hint == 509 && enemy_activate_MaxxC)
+            // MaxxC solution
+            if (hint == HintMsg.HINTMSG_SPSUMMON && enemy_activate_MaxxC)
             {
                 // check whether SS from deck while using effect
                 bool flag = true;
@@ -392,8 +392,8 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
-            // MadameVerre HINTMSG_CONFIRM
-            if (hint == 526)
+            // MadameVerre
+            if (hint == HintMsg.HINTMSG_CONFIRM)
             {
                 Logger.DebugWriteLine("** min-max: " + min.ToString() + " / " + max.ToString());
                 foreach (ClientCard card in cards)
