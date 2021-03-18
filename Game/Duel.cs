@@ -96,30 +96,8 @@ namespace WindBot.Game
 
         public void AddCard(CardLocation loc, int cardId, int player, int seq, int pos)
         {
-            switch (loc)
-            {
-                case CardLocation.Hand:
-                    Fields[player].Hand.Add(new ClientCard(cardId, loc, -1, pos));
-                    break;
-                case CardLocation.Grave:
-                    Fields[player].Graveyard.Add(new ClientCard(cardId, loc,-1, pos));
-                    break;
-                case CardLocation.Removed:
-                    Fields[player].Banished.Add(new ClientCard(cardId, loc, -1, pos));
-                    break;
-                case CardLocation.MonsterZone:
-                    Fields[player].MonsterZone[seq] = new ClientCard(cardId, loc, seq, pos);
-                    break;
-                case CardLocation.SpellZone:
-                    Fields[player].SpellZone[seq] = new ClientCard(cardId, loc, seq, pos);
-                    break;
-                case CardLocation.Deck:
-                    Fields[player].Deck.Add(new ClientCard(cardId, loc, -1, pos));
-                    break;
-                case CardLocation.Extra:
-                    Fields[player].ExtraDeck.Add(new ClientCard(cardId, loc, -1, pos));
-                    break;
-            }
+            ClientCard card = new ClientCard(cardId, loc, seq, pos);
+            AddCard(loc, card, player, seq, pos, cardId);
         }
 
         public void AddCard(CardLocation loc, ClientCard card, int player, int seq, int pos, int id)
@@ -127,6 +105,7 @@ namespace WindBot.Game
             card.Location = loc;
             card.Sequence = seq;
             card.Position = pos;
+            card.Controller = player;
             card.SetId(id);
             switch (loc)
             {
