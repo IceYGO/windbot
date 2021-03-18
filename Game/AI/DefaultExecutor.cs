@@ -662,7 +662,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSpellSet()
         {
-            return (Card.IsTrap() || Card.HasType(CardType.QuickPlay)) && Bot.GetSpellCountWithoutField() < 4;
+            return (Card.IsTrap() || Card.HasType(CardType.QuickPlay) || DefaultSpellMustSetFirst()) && Bot.GetSpellCountWithoutField() < 4;
         }
 
         /// <summary>
@@ -737,15 +737,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSpellMustSetFirst()
         {
-            ClientCard card = null;
-            foreach (ClientCard check in Bot.GetSpells())
-            {
-                if (check.IsCode(_CardId.AntiSpellFragrance) && !check.IsDisabled())
-                    card = check;
-            }
-            if (card != null && card.IsFaceup())
-                return true;
-            return Bot.HasInSpellZone(_CardId.AntiSpellFragrance, true, true) ||  Enemy.HasInSpellZone(_CardId.AntiSpellFragrance, true);
+            return Bot.HasInSpellZone(_CardId.AntiSpellFragrance, true, true) || Enemy.HasInSpellZone(_CardId.AntiSpellFragrance, true);
         }
 
         /// <summary>
