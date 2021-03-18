@@ -718,7 +718,7 @@ namespace WindBot.Game.AI
             bool enemyBetter = Util.IsAllEnemyBetter(true);
             if (Card.IsAttack() && enemyBetter)
                 return true;
-            if (Card.IsDefense() && !enemyBetter && Card.Attack >= Card.Defense)
+            if (Card.IsDefense() && !enemyBetter && (Card.Attack >= Card.Defense || Card.Attack >= Util.GetBestPower(Enemy)))
                 return true;
 
             return false;
