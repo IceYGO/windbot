@@ -308,7 +308,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public override bool OnSelectMonsterSummonOrSet(ClientCard card)
         {
-            return card.Level <= 4 && Util.IsAllEnemyBetter(true) && Util.IsAllEnemyBetterThanValue(card.Attack + 300, false);
+            return card.Level <= 4 && Bot.GetMonsters().Count(m => m.IsFaceup()) == 0 && Util.IsAllEnemyBetterThanValue(card.Attack, true);
         }
 
         /// <summary>
