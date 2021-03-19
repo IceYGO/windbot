@@ -198,8 +198,7 @@ namespace WindBot.Game
                 for (int i = attackers.Count - 1; i >= 0; --i)
                 {
                     ClientCard attacker = attackers[i];
-                    if (attacker.Attack > 0)
-                        return Attack(attacker, null);
+                    Attack(attacker, null);
                 }
             }
             else
