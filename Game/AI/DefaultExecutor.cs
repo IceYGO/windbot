@@ -1143,6 +1143,11 @@ namespace WindBot.Game.AI
             return (selfBestAttack <= oppoBestAttack && oppoBestAttack <= 3000) || DefaultScarlightRedDragonArchfiendEffect();
         }
 
+        protected bool DefaultTimelordSummon()
+        {
+            return Bot.GetMonsterCount() == 0;
+        }
+
         /// <summary>
         /// Activate when we have less monsters than enemy, or when enemy have more than 3 monsters.
         /// </summary>
