@@ -266,7 +266,7 @@ namespace WindBot.Game.AI
                     ))
                 return false;
             if ((card.Location == CardLocation.Hand || card.Location == CardLocation.SpellZone && card.IsFacedown()) &&
-                (Card.IsSpell() && DefaultSpellWillBeNegated() || card.IsTrap() && DefaultTrapWillBeNegated()))
+                (card.IsSpell() && DefaultSpellWillBeNegated() || card.IsTrap() && DefaultTrapWillBeNegated()))
                 return false;
             return true;
         }
