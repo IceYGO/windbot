@@ -94,6 +94,11 @@ namespace WindBot.Game.AI.Decks
             HintMsg.SpSummon, HintMsg.ToGrave, HintMsg.Remove, HintMsg.AddToHand, HintMsg.FusionMaterial
         };
 
+        private List<int> HintMsgForMaxSelect = new List<int>
+        {
+            HintMsg.SpSummon, HintMsg.ToGrave, HintMsg.AddToHand, HintMsg.FusionMaterial, HintMsg.Destroy
+        };
+
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> _cards, int min, int max, int hint, bool cancelable)
         {
             if (Duel.Phase == DuelPhase.BattleStart)
@@ -140,6 +145,17 @@ namespace WindBot.Game.AI.Decks
                 ClientCard card = cards[Program.Rand.Next(cards.Count)];
                 selected.Add(card);
                 cards.Remove(card);
+            }
+
+            if (HintMsgForMaxSelect.Contains(hint))
+            {
+                // select max cards
+                while (selected.Count < max)
+                {
+                    ClientCard card = cards[Program.Rand.Next(cards.Count)];
+                    selected.Add(card);
+                    cards.Remove(card);
+                }
             }
 
             return selected;
