@@ -89,6 +89,11 @@ namespace WindBot.Game.AI.Decks
             HintMsg.FusionMaterial, HintMsg.SynchroMaterial, HintMsg.XyzMaterial, HintMsg.LinkMaterial, HintMsg.Disable
         };
 
+        private List<int> HintMsgForDeck = new List<int>
+        {
+            HintMsg.SpSummon, HintMsg.ToGrave, HintMsg.Remove, HintMsg.AddToHand, HintMsg.FusionMaterial
+        };
+
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> _cards, int min, int max, int hint, bool cancelable)
         {
             if (Duel.Phase == DuelPhase.BattleStart)
@@ -111,6 +116,20 @@ namespace WindBot.Game.AI.Decks
                     ClientCard card = enemyCards[Program.Rand.Next(enemyCards.Count)];
                     selected.Add(card);
                     enemyCards.Remove(card);
+                    cards.Remove(card);
+                }
+            }
+
+            if (HintMsgForDeck.Contains(hint))
+            {
+                IList<ClientCard> deckCards = cards.Where(card => card.Location == CardLocation.Deck).ToList();
+
+                // select deck's card first
+                while (deckCards.Count > 0 && selected.Count < max)
+                {
+                    ClientCard card = deckCards[Program.Rand.Next(deckCards.Count)];
+                    selected.Add(card);
+                    deckCards.Remove(card);
                     cards.Remove(card);
                 }
             }
