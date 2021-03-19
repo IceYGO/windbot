@@ -739,7 +739,7 @@ namespace WindBot.Game.AI
                 (4000 - Card.Defense) * 2 > (4000 - Card.Attack))
                 return true;
 
-            bool enemyBetter = Util.IsAllEnemyBetter(true);
+            bool enemyBetter = Util.IsAllEnemyBetter();
             if (Card.IsAttack() && enemyBetter)
                 return true;
             if (Card.IsDefense() && !enemyBetter && (Card.Attack >= Card.Defense || Card.Attack >= Util.GetBestPower(Enemy)))
