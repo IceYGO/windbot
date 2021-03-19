@@ -73,13 +73,19 @@ namespace WindBot.Game.AI
 
         public virtual BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
         {
-            // Overrided in DefalultExecutor
+            // Overrided in DefaultExecutor
             return null;
         }
 
         public virtual bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
-            // Overrided in DefalultExecutor
+            // Overrided in DefaultExecutor
+            return true;
+        }
+
+        public virtual bool OnPreActivate(ClientCard card)
+        {
+            // Overrided in DefaultExecutor
             return true;
         }
 
@@ -178,13 +184,13 @@ namespace WindBot.Game.AI
 
         public virtual CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
-            // Overrided in DefalultExecutor
+            // Overrided in DefaultExecutor
             return 0;
         }
 
         public virtual bool OnSelectBattleReplay()
         {
-            // Overrided in DefalultExecutor
+            // Overrided in DefaultExecutor
             return false;
         }
 
@@ -194,7 +200,7 @@ namespace WindBot.Game.AI
         /// <returns>True if select to set the monster.</returns>
         public virtual bool OnSelectMonsterSummonOrSet(ClientCard card)
         {
-            // Overrided in DefalultExecutor
+            // Overrided in DefaultExecutor
             return false;
         }
 

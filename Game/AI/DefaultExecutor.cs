@@ -116,6 +116,7 @@ namespace WindBot.Game.AI
             public const int RedDragonArchfiend = 70902743;
 
             public const int ImperialOrder = 61740673;
+            public const int RoyalDecreel = 51452091;
             public const int NaturiaBeast = 33198837;
             public const int AntiSpellFragrance = 58921041;
         }
@@ -244,6 +245,29 @@ namespace WindBot.Game.AI
             if (defender.OwnTargets.Any(card => card.IsCode(_CardId.PhantomKnightsFogBlade) && !card.IsDisabled()))
                 return false;
 
+            return true;
+        }
+
+        public override bool OnPreActivate(ClientCard card)
+        {
+            ClientCard LastChainCard = Util.GetLastChainCard();
+            if (LastChainCard != null && Duel.Phase == DuelPhase.Standby &&
+                LastChainCard.IsCode(
+                    _CardId.SandaionTheTimelord,
+                    _CardId.GabrionTheTimelord,
+                    _CardId.MichionTheTimelord,
+                    _CardId.ZaphionTheTimelord,
+                    _CardId.HailonTheTimelord,
+                    _CardId.RaphionTheTimelord,
+                    _CardId.SadionTheTimelord,
+                    _CardId.MetaionTheTimelord,
+                    _CardId.KamionTheTimelord,
+                    _CardId.LazionTheTimelord
+                    ))
+                return false;
+            if ((card.Location == CardLocation.Hand || card.Location == CardLocation.SpellZone && card.IsFacedown()) &&
+                (Card.IsSpell() && DefaultSpellWillBeNegated() || card.IsTrap() && DefaultTrapWillBeNegated()))
+                return false;
             return true;
         }
 
@@ -729,7 +753,15 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSpellWillBeNegated()
         {
-            return Bot.HasInSpellZone(_CardId.ImperialOrder, true, true) || Enemy.HasInSpellZone(_CardId.ImperialOrder, true) || Enemy.HasInMonstersZone(_CardId.NaturiaBeast, true);
+            return (Bot.HasInSpellZone(_CardId.ImperialOrder, true, true) || Enemy.HasInSpellZone(_CardId.ImperialOrder, true)) && !Util.ChainContainsCard(_CardId.ImperialOrder);
+        }
+
+        /// <summary>
+        /// If trap will be negated
+        /// </summary>
+        protected bool DefaultTrapWillBeNegated()
+        {
+            return (Bot.HasInSpellZone(_CardId.RoyalDecreel, true, true) || Enemy.HasInSpellZone(_CardId.RoyalDecreel, true)) && !Util.ChainContainsCard(_CardId.RoyalDecreel);
         }
 
         /// <summary>
