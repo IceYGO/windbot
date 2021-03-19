@@ -13,12 +13,16 @@ namespace WindBot.Game
 
         private Dialogs _dialogs;
 
+        // record activated count to prevent infinite actions
+        private Dictionary<int, int> _activatedCards;
+
         public GameAI(GameClient game, Duel duel)
         {
             Game = game;
             Duel = duel;
 
             _dialogs = new Dialogs(game);
+            _activatedCards = new Dictionary<int, int>();
         }
 
         /// <summary>
@@ -81,6 +85,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnNewTurn()
         {
+            _activatedCards.Clear();
             Executor.OnNewTurn();
         }
 
@@ -226,18 +231,12 @@ namespace WindBot.Game
         /// <returns>A new list containing the selected cards.</returns>
         public IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            const int HINTMSG_FMATERIAL = 511;
-            const int HINTMSG_SMATERIAL = 512;
-            const int HINTMSG_XMATERIAL = 513;
-            const int HINTMSG_LMATERIAL = 533;
-            const int HINTMSG_SPSUMMON = 509;
-
             // Check for the executor.
             IList<ClientCard> result = Executor.OnSelectCard(cards, min, max, hint, cancelable);
             if (result != null)
                 return result;
 
-            if (hint == HINTMSG_SPSUMMON && min == 1 && max > min) // pendulum summon
+            if (hint == HintMsg.SpSummon && min == 1 && max > min) // pendulum summon
             {
                 result = Executor.OnSelectPendulumSummon(cards, max);
                 if (result != null)
@@ -245,7 +244,7 @@ namespace WindBot.Game
             }
 
             CardSelector selector = null;
-            if (hint == HINTMSG_FMATERIAL || hint == HINTMSG_SMATERIAL || hint == HINTMSG_XMATERIAL || hint == HINTMSG_LMATERIAL)
+            if (hint == HintMsg.FusionMaterial || hint == HintMsg.SynchroMaterial || hint == HintMsg.XyzMaterial || hint == HintMsg.LinkMaterial)
             {
                 if (m_materialSelector != null)
                 {
@@ -254,13 +253,13 @@ namespace WindBot.Game
                 }
                 else
                 {
-                    if (hint == HINTMSG_FMATERIAL)
+                    if (hint == HintMsg.FusionMaterial)
                         result = Executor.OnSelectFusionMaterial(cards, min, max);
-                    if (hint == HINTMSG_SMATERIAL)
+                    if (hint == HintMsg.SynchroMaterial)
                         result = Executor.OnSelectSynchroMaterial(cards, 0, min, max);
-                    if (hint == HINTMSG_XMATERIAL)
+                    if (hint == HintMsg.XyzMaterial)
                         result = Executor.OnSelectXyzMaterial(cards, min, max);
-                    if (hint == HINTMSG_LMATERIAL)
+                    if (hint == HintMsg.LinkMaterial)
                         result = Executor.OnSelectLinkMaterial(cards, min, max);
 
                     if (result != null)
@@ -439,8 +438,7 @@ namespace WindBot.Game
                     }
                     if (ShouldExecute(exec, card, ExecutorType.SummonOrSet))
                     {
-                        if (Executor.Util.IsAllEnemyBetter(true) && Executor.Util.IsAllEnemyBetterThanValue(card.Attack + 300, false) &&
-                            main.MonsterSetableCards.Contains(card))
+                        if (main.MonsterSetableCards.Contains(card) && Executor.OnSelectMonsterSummonOrSet(card))
                         {
                             _dialogs.SendSetMonster();
                             return new MainPhaseAction(MainPhaseAction.MainAction.SetMonster, card.ActionIndex);
@@ -448,7 +446,7 @@ namespace WindBot.Game
                         _dialogs.SendSummon(card.Name);
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
-                }                
+                }
                 foreach (ClientCard card in main.SpellSetableCards)
                 {
                     if (ShouldExecute(exec, card, ExecutorType.SpellSet))
@@ -529,16 +527,13 @@ namespace WindBot.Game
         /// <returns></returns>
         public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, int hint, bool mode)
         {
-            const int HINTMSG_RELEASE = 500;
-            const int HINTMSG_SMATERIAL = 512;
-
             IList<ClientCard> selected = Executor.OnSelectSum(cards, sum, min, max, hint, mode);
             if (selected != null)
             {
                 return selected;
             }
 
-            if (hint == HINTMSG_RELEASE || hint == HINTMSG_SMATERIAL)
+            if (hint == HintMsg.Release || hint == HintMsg.SynchroMaterial)
             {
                 if (m_materialSelector != null)
                 {
@@ -548,10 +543,10 @@ namespace WindBot.Game
                 {
                     switch (hint)
                     {
-                        case HINTMSG_SMATERIAL:
+                        case HintMsg.SynchroMaterial:
                             selected = Executor.OnSelectSynchroMaterial(cards, sum, min, max);
                             break;
-                        case HINTMSG_RELEASE:
+                        case HintMsg.Release:
                             selected = Executor.OnSelectRitualTribute(cards, sum, min, max);
                             break;
                     }
@@ -1107,11 +1102,30 @@ namespace WindBot.Game
 
         private bool ShouldExecute(CardExecutor exec, ClientCard card, ExecutorType type, int desc = -1)
         {
+            if (card.Id != 0 && type == ExecutorType.Activate)
+            {
+                if (_activatedCards.ContainsKey(card.Id) && _activatedCards[card.Id] >= 9)
+                    return false;
+                if (!Executor.OnPreActivate(card))
+                    return false;
+            }
             Executor.SetCard(type, card, desc);
-            return card != null &&
-                   exec.Type == type &&
-                   (exec.CardId == -1 || exec.CardId == card.Id) &&
-                   (exec.Func == null || exec.Func());
+            bool result = card != null && exec.Type == type &&
+                (exec.CardId == -1 || exec.CardId == card.Id) &&
+                (exec.Func == null || exec.Func());
+            if (card.Id != 0 && type == ExecutorType.Activate && result)
+            {
+                int count = card.IsDisabled() ? 3 : 1;
+                if (!_activatedCards.ContainsKey(card.Id))
+                {
+                    _activatedCards.Add(card.Id, count);
+                }
+                else
+                {
+                    _activatedCards[card.Id] += count;
+                }
+            }
+            return result;
         }
     }
 }

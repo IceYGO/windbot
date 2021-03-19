@@ -83,18 +83,10 @@ namespace WindBot.Game.AI.Decks
 
         private int m_swapFrogSummoned;
         private int m_flipFlopFrogSummoned;
-        private int m_treebornFrogCount = 0;
-
-        public override void OnNewTurn()
-        {
-            m_treebornFrogCount = 0;
-            base.OnNewTurn();
-        }
 
         private bool TreebornFrog()
         {
-            m_treebornFrogCount++;
-            return m_treebornFrogCount <= 5;
+            return true;
         }
 
         private bool SwapFrogSummon()

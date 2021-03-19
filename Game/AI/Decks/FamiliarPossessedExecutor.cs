@@ -60,8 +60,7 @@ namespace WindBot.Game.AI.Decks
             public const int WynnP = 30674956;
             public const int HiitaP = 48815792;
             public const int LynaP = 9839945;
-
-            // side
+// side
             public const int Raigeki = 12580477;
             public const int lightningStorm = 14532163;
             public const int CosmicCyclone = 8267140;
@@ -100,7 +99,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.HarpieFeatherDuster, DefaultHarpiesFeatherDusterFirst);
             AddExecutor(ExecutorType.Activate, CardId.CosmicCyclone, DefaultMysticalSpaceTyphoon);
             AddExecutor(ExecutorType.Activate, CardId.Raigeki, DefaultRaigeki);
-            
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, PotOfDesireseff);
             //sp
             AddExecutor(ExecutorType.Activate, CardId.Linkuriboh, Linkuriboheff);

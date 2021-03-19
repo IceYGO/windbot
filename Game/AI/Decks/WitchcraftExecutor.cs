@@ -197,7 +197,6 @@ namespace WindBot.Game.AI.Decks
         bool MagicianRightHand_used = false;
         ClientCard MagiciansLeftHand_negate = null;
         ClientCard MagicianRightHand_negate = null;
-        int PSYOmega_count = 0;
 
         // go first
         public override bool OnSelectHand()
@@ -271,7 +270,6 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             CrossoutDesignatorTarget = 0;
-            PSYOmega_count = 0;
             MadameVerreGainedATK = false;
             summoned = false;
             enemy_activate_MaxxC = false;
@@ -311,8 +309,8 @@ namespace WindBot.Game.AI.Decks
         // overwrite OnSelectCard to act normally in SelectUnselect
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            // Patronus HINTMSG_ATOHAND
-            if (hint == 506)
+            // Patronus
+            if (hint == HintMsg.AddToHand)
             {
                 bool flag = true;
                 foreach(ClientCard card in cards)
@@ -336,8 +334,8 @@ namespace WindBot.Game.AI.Decks
                     return selected;
                 }
             }
-            // MaxxC HINTMSG_SPSUMMON
-            if (hint == 509 && enemy_activate_MaxxC)
+            // MaxxC solution
+            if (hint == HintMsg.SpSummon && enemy_activate_MaxxC)
             {
                 // check whether SS from deck while using effect
                 bool flag = true;
@@ -394,8 +392,8 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
-            // MadameVerre HINTMSG_CONFIRM
-            if (hint == 526)
+            // MadameVerre
+            if (hint == HintMsg.Confirm)
             {
                 Logger.DebugWriteLine("** min-max: " + min.ToString() + " / " + max.ToString());
                 foreach (ClientCard card in cards)
@@ -2501,20 +2499,15 @@ namespace WindBot.Game.AI.Decks
             // recycle from grave
             if (Card.Location == CardLocation.Grave)
             {
-                if (PSYOmega_count >= 5){
-                    return false;
-                }
                 List<ClientCard> enemy_danger = CheckDangerousCardinEnemyGrave();
                 if (enemy_danger.Count > 0)
                 {
                     AI.SelectCard(enemy_danger);
-                    PSYOmega_count ++;
                     return true;
                 }
                 if (!Bot.HasInHandOrInSpellZoneOrInGraveyard(CardId.Holiday) && Bot.HasInGraveyard(important_witchcraft))
                 {
                     AI.SelectCard(important_witchcraft);
-                    PSYOmega_count ++;
                     return true;
                 }
                 if (CheckProblematicCards() == null)
@@ -2523,7 +2516,6 @@ namespace WindBot.Game.AI.Decks
                         CardId.MaxxC, CardId.AshBlossom_JoyousSpring,
                         CardId.MagicianRightHand, CardId.MagiciansLeftHand, CardId.MagiciansRestage, CardId.Patronus, 
                         CardId.LightningStorm, CardId.Reasoning);
-                    PSYOmega_count ++;
                     return true;
                 }
             }

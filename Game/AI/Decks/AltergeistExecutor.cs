@@ -2742,8 +2742,6 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-
-            int HIINT_TOGRAVE = 504;
             if (max == 1 && cards[0].Location == CardLocation.Deck 
                 && Util.GetLastChainCard() != null && Util.GetLastChainCard().IsCode(23002292) && Bot.GetRemainingCount(CardId.WakingtheDragon,1) > 0)
             {
@@ -2764,7 +2762,7 @@ namespace WindBot.Game.AI.Decks
                 Logger.DebugWriteLine("EvenlyMatched: min=" + min.ToString() + ", max=" + max.ToString());
             }
             else if (cards[0].Location == CardLocation.Hand && cards[cards.Count - 1].Location == CardLocation.Hand
-                && (hint == 501 || hint == HIINT_TOGRAVE) && min == max)
+                && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) && min == max)
             {
                 if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.OneForOne)) return null;
                 Logger.DebugWriteLine("Hand drop except OneForOne");

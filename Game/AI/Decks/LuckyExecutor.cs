@@ -1,5 +1,6 @@
 ﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
+using System.Linq;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -12,10 +13,14 @@ namespace WindBot.Game.AI.Decks
         public LuckyExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.SpSummon, ImFeelingLucky);
             AddExecutor(ExecutorType.Activate, ImFeelingLucky);
-            AddExecutor(ExecutorType.SummonOrSet, ImFeelingLucky);
-            AddExecutor(ExecutorType.SpellSet, ImFeelingLucky);
+            AddExecutor(ExecutorType.SpSummon, ImFeelingLucky);
+
+            AddExecutor(ExecutorType.SpSummon, ImFeelingUnlucky);
+            AddExecutor(ExecutorType.Activate, ImFeelingUnlucky);
+
+            AddExecutor(ExecutorType.SummonOrSet, ImFeelingLazy);
+            AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
 
             AddExecutor(ExecutorType.Activate, _CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
@@ -59,7 +64,30 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpSummon, _CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
             AddExecutor(ExecutorType.Activate, _CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
+
+            AddExecutor(ExecutorType.Summon, _CardId.SandaionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.GabrionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.MichionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.ZaphionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.HailonTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.RaphionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.SadionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.MetaionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.KamionTheTimelord);
+            AddExecutor(ExecutorType.Summon, _CardId.LazionTheTimelord);
+
+            AddExecutor(ExecutorType.Summon, _CardId.LeftArmofTheForbiddenOne, JustDontIt);
+            AddExecutor(ExecutorType.Summon, _CardId.RightLegofTheForbiddenOne, JustDontIt);
+            AddExecutor(ExecutorType.Summon, _CardId.LeftLegofTheForbiddenOne, JustDontIt);
+            AddExecutor(ExecutorType.Summon, _CardId.RightArmofTheForbiddenOne, JustDontIt);
+            AddExecutor(ExecutorType.Summon, _CardId.ExodiaTheForbiddenOne, JustDontIt);
         }
+
+        private List<int> HintMsgForRemove = new List<int>
+        {
+            HintMsg.Release, HintMsg.Destroy, HintMsg.Remove, HintMsg.ToGrave, HintMsg.ReturnToHand, HintMsg.ToDeck,
+            HintMsg.FusionMaterial, HintMsg.SynchroMaterial, HintMsg.XyzMaterial, HintMsg.LinkMaterial, HintMsg.Disable
+        };
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> _cards, int min, int max, int hint, bool cancelable)
         {
@@ -68,14 +96,27 @@ namespace WindBot.Game.AI.Decks
             if (AI.HaveSelectedCards())
                 return null;
 
-            IList<ClientCard> cards = new List<ClientCard>(_cards);
             IList<ClientCard> selected = new List<ClientCard>();
-
+            IList<ClientCard> cards = new List<ClientCard>(_cards);
             if (max > cards.Count)
                 max = cards.Count;
 
+            if (HintMsgForRemove.Contains(hint))
+            {
+                IList<ClientCard> enemyCards = cards.Where(card => card.Controller == 1).ToList();
+
+                // select enemy's card first
+                while (enemyCards.Count > 0 && selected.Count < max)
+                {
+                    ClientCard card = enemyCards[Program.Rand.Next(enemyCards.Count)];
+                    selected.Add(card);
+                    enemyCards.Remove(card);
+                    cards.Remove(card);
+                }
+            }
+
             // select random cards
-            while (selected.Count < max)
+            while (selected.Count < min)
             {
                 ClientCard card = cards[Program.Rand.Next(cards.Count)];
                 selected.Add(card);
@@ -90,9 +131,39 @@ namespace WindBot.Game.AI.Decks
             return Program.Rand.Next(options.Count);
         }
 
+        public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
+        {
+            YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
+            if (cardData != null)
+            {
+                if (cardData.Attack < 0)
+                    return CardPosition.FaceUpAttack;
+                if (cardData.Attack <= 1000)
+                    return CardPosition.FaceUpDefence;
+            }
+            return 0;
+        }
+
         private bool ImFeelingLucky()
         {
-            return Program.Rand.Next(9) >= 3 && DefaultDontChainMyself();
+            return Program.Rand.Next(10) >= 5 && DefaultDontChainMyself();
+        }
+
+        private bool ImFeelingUnlucky()
+        {
+            return DefaultDontChainMyself();
+        }
+
+        private bool ImFeelingLazy()
+        {
+            if (Executors.Any(exec => (exec.Type == ExecutorType.SummonOrSet || exec.Type == ExecutorType.Summon || exec.Type == ExecutorType.MonsterSet) && exec.CardId == Card.Id))
+                return false;
+            return DefaultMonsterSummon();
+        }
+
+        private bool JustDontIt()
+        {
+            return false;
         }
     }
 }

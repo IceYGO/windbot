@@ -32,7 +32,7 @@ namespace WindBot.Game
         public int RealPower { get; set; }
         public List<int> Overlays { get; private set; }
         public int Owner { get; private set; }
-        public int Controller { get; private set; }
+        public int Controller { get; set; }
         public int Disabled { get; private set; }
         public int ProcCompleted { get; private set; }
         public int SelectSeq { get; set; }

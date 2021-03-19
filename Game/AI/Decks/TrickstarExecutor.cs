@@ -73,7 +73,6 @@ namespace WindBot.Game.AI.Decks
         bool snake_four_s = false;
         bool tuner_eff_used = false;
         bool crystal_eff_used = false;
-        int red_ss_count = 0;
         bool white_eff_used = false;
         bool lockbird_useful = false;
         bool lockbird_used = false;
@@ -758,7 +757,6 @@ namespace WindBot.Game.AI.Decks
 
         public bool Red_ss()
         {
-            if (red_ss_count >= 6) return false;
             if ((Util.ChainContainsCard(CardId.DarkHole) || Util.ChainContainsCard(99330325) || Util.ChainContainsCard(53582587)) && Util.ChainContainsCard(CardId.Red)) return false;
             if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Red))
             {
@@ -766,7 +764,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (Util.IsChainTarget(m) && IsTrickstar(m.Id))
                     {
-                        red_ss_count += 1;
                         AI.SelectCard(m);
                         Red_SelectPos();
                         return true;
@@ -789,7 +786,6 @@ namespace WindBot.Game.AI.Decks
                             {
                                 AI.SelectCard(c);
                                 Red_SelectPos(c);
-                                red_ss_count += 1;
                                 return true;
                             }
                             if (c.IsCode(CardId.Pink)) return false;
@@ -800,14 +796,12 @@ namespace WindBot.Game.AI.Decks
                                     if (tosolve_enemy.Attack > 3200) AI.SelectPosition(CardPosition.FaceUpDefence);
                                     AI.SelectCard(c);
                                     Red_SelectPos(c);
-                                    red_ss_count += 1;
                                     return true;
                                 }
                                 if (!Bot.HasInHand(CardId.White) && tosolve_enemy.Attack <= 3200 && c.IsCode(CardId.White))
                                 {
                                     AI.SelectCard(c);
                                     Red_SelectPos(c);
-                                    red_ss_count += 1;
                                     return true;
                                 }
                                 if (!Bot.HasInHand(CardId.White) && c.Attack < tosolve_enemy.Attack)
@@ -824,7 +818,6 @@ namespace WindBot.Game.AI.Decks
                                     if (tosolve_enemy.Attack > 1600) AI.SelectPosition(CardPosition.FaceUpDefence);
                                     AI.SelectCard(c);
                                     Red_SelectPos(c);
-                                    red_ss_count += 1;
                                     return true;
                                 }
                             }
@@ -845,7 +838,6 @@ namespace WindBot.Game.AI.Decks
                             {
                                 AI.SelectCard(card);
                                 Red_SelectPos(card);
-                                red_ss_count += 1;
                                 return true;
                             }
                         }
@@ -1710,7 +1702,6 @@ namespace WindBot.Game.AI.Decks
             pink_ss = false;
             snake_four_s = false;
             crystal_eff_used = false;
-            red_ss_count = 0;
             white_eff_used = false;
             lockbird_useful = false;
             lockbird_used = false;

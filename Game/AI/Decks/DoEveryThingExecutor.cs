@@ -20,7 +20,7 @@ namespace WindBot.Game.AI.Decks
         {
             AddExecutor(ExecutorType.SpSummon);
             AddExecutor(ExecutorType.Activate, DefaultDontChainMyself);
-            AddExecutor(ExecutorType.SummonOrSet);
+            AddExecutor(ExecutorType.SummonOrSet, DefaultMonsterSummon);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
             AddExecutor(ExecutorType.SpellSet);
         }
