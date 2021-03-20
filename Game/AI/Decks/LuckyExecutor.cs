@@ -83,7 +83,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, _CardId.ExodiaTheForbiddenOne, JustDontIt);
         }
 
-        private List<int> HintMsgForRemove = new List<int>
+        private List<int> HintMsgForEnemy = new List<int>
         {
             HintMsg.Release, HintMsg.Destroy, HintMsg.Remove, HintMsg.ToGrave, HintMsg.ReturnToHand, HintMsg.ToDeck,
             HintMsg.FusionMaterial, HintMsg.SynchroMaterial, HintMsg.XyzMaterial, HintMsg.LinkMaterial, HintMsg.Disable
@@ -92,6 +92,16 @@ namespace WindBot.Game.AI.Decks
         private List<int> HintMsgForDeck = new List<int>
         {
             HintMsg.SpSummon, HintMsg.ToGrave, HintMsg.Remove, HintMsg.AddToHand, HintMsg.FusionMaterial
+        };
+
+        private List<int> HintMsgForSelf = new List<int>
+        {
+            HintMsg.Equip
+        };
+
+        private List<int> HintMsgForMaterial = new List<int>
+        {
+            HintMsg.FusionMaterial, HintMsg.SynchroMaterial, HintMsg.XyzMaterial, HintMsg.LinkMaterial, HintMsg.Release
         };
 
         private List<int> HintMsgForMaxSelect = new List<int>
@@ -111,7 +121,7 @@ namespace WindBot.Game.AI.Decks
             if (max > cards.Count)
                 max = cards.Count;
 
-            if (HintMsgForRemove.Contains(hint))
+            if (HintMsgForEnemy.Contains(hint))
             {
                 IList<ClientCard> enemyCards = cards.Where(card => card.Controller == 1).ToList();
 
@@ -135,6 +145,34 @@ namespace WindBot.Game.AI.Decks
                     ClientCard card = deckCards[Program.Rand.Next(deckCards.Count)];
                     selected.Add(card);
                     deckCards.Remove(card);
+                    cards.Remove(card);
+                }
+            }
+
+            if (HintMsgForSelf.Contains(hint))
+            {
+                IList<ClientCard> botCards = cards.Where(card => card.Controller == 0).ToList();
+
+                // select bot's card first
+                while (botCards.Count > 0 && selected.Count < max)
+                {
+                    ClientCard card = botCards[Program.Rand.Next(botCards.Count)];
+                    selected.Add(card);
+                    botCards.Remove(card);
+                    cards.Remove(card);
+                }
+            }
+
+            if (HintMsgForMaterial.Contains(hint))
+            {
+                IList<ClientCard> materials = cards.OrderBy(card => card.Attack).ToList();
+
+                // select low attack first
+                while (materials.Count > 0 && selected.Count < min)
+                {
+                    ClientCard card = materials[0];
+                    selected.Add(card);
+                    materials.Remove(card);
                     cards.Remove(card);
                 }
             }
