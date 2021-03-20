@@ -195,11 +195,8 @@ namespace WindBot.Game
             if (defenders.Count == 0)
             {
                 // Attack with the monster with the lowest attack first
-                for (int i = attackers.Count - 1; i >= 0; --i)
-                {
-                    ClientCard attacker = attackers[i];
-                    Attack(attacker, null);
-                }
+                ClientCard attacker = attackers[attackers.Count - 1];
+                return Attack(attacker, null);
             }
             else
             {
