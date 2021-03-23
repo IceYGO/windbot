@@ -723,6 +723,9 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultMonsterRepos()
         {
+            if (Card.IsMonsterInvincible())
+                return Card.IsDefense();
+
             if (Card.Attack == 0)
             {
                 if (Card.IsFaceup() && Card.IsAttack())
