@@ -66,9 +66,21 @@
         "masterRules": [4, 5]
     },
     {
+        "name": "Familiar Possessed",
+        "deck": "FamiliarPossessed",
+        "difficulty": 0,
+        "masterRules": [3, 4, 5]
+    },
+    {
         "name": "Frog",
         "deck": "Frog",
         "difficulty": 1,
+        "masterRules": [3, 4, 5]
+    },
+    {
+        "name": "Feelin' Lucky",
+        "deck": "Lucky",
+        "difficulty": 0,
         "masterRules": [3, 4, 5]
     },
     {
@@ -111,6 +123,11 @@
         "name": "Orcust",
         "deck": "Orcust",
         "difficulty": 3,
+        "masterRules": [4, 5]
+    },
+        "name": "Phantasm",
+        "deck": "Phantasm",
+        "difficulty": 0,
         "masterRules": [4, 5]
     },
     {

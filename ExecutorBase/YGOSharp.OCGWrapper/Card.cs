@@ -1,4 +1,4 @@
-﻿using YGOSharp.OCGWrapper.Enums;
+using YGOSharp.OCGWrapper.Enums;
 using System.Data;
 
 namespace YGOSharp.OCGWrapper
@@ -49,9 +49,23 @@ namespace YGOSharp.OCGWrapper
             return ((Type & (int)type) != 0);
         }
 
+        public bool HasSetcode(int setcode)
+        {
+            long setcodes = Setcode;
+            int settype = setcode & 0xfff;
+            int setsubtype = setcode & 0xf000;
+            while (setcodes > 0)
+            {
+                long check_setcode = setcodes & 0xffff;
+                setcodes >>= 16;
+                if ((check_setcode & 0xfff) == settype && (check_setcode & 0xf000 & setsubtype) == setsubtype) return true;
+            }
+            return false;
+        }
+
         public bool IsExtraCard()
         {
-            return (HasType(CardType.Fusion) || HasType(CardType.Synchro) || HasType(CardType.Xyz) || HasType(CardType.Link));
+            return (HasType(CardType.Fusion) || HasType(CardType.Synchro) || HasType(CardType.Xyz) || (HasType(CardType.Link) && HasType(CardType.Monster)));
         }
 
         internal Card(IDataRecord reader)

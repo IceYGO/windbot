@@ -244,22 +244,5 @@ namespace WindBot
     }
 #endif
         }
-
-        public static FileStream ReadFile(string directory, string filename, string extension)
-        {
-            string tryfilename = filename + "." + extension;
-            string fullpath = Path.Combine(directory, tryfilename);
-            if (!File.Exists(fullpath))
-                fullpath = filename;
-            if (!File.Exists(fullpath))
-                fullpath = Path.Combine("../", filename);
-            if (!File.Exists(fullpath))
-                fullpath = Path.Combine("../deck/", filename);
-            if (!File.Exists(fullpath))
-                fullpath = Path.Combine("../", tryfilename);
-            if (!File.Exists(fullpath))
-                fullpath = Path.Combine("../deck/", tryfilename);
-            return new FileStream(fullpath, FileMode.Open, FileAccess.Read);
-        }
     }
 }

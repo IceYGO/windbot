@@ -63,6 +63,8 @@
     <Compile Include="Game\AI\Enums\ShouldNotBeSpellTarget.cs" />
     <Compile Include="Game\AI\Enums\ShouldNotBeTarget.cs" />
     <Compile Include="Game\AI\Executor.cs" />
+    <Compile Include="Game\AI\HintMsg.cs" />
+    <Compile Include="Game\AI\Opcodes.cs" />
     <Compile Include="Game\AI\ExecutorType.cs" />
     <Compile Include="Game\AI\Zones.cs" />
     <Compile Include="Game\BattlePhase.cs" />

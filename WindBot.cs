@@ -49,6 +49,7 @@ namespace WindBot
                 p[1] = p[1].Replace("'", "");
                 if (p[0] == "Name") Info.Name = p[1];
                 if (p[0] == "Deck") Info.Deck = p[1];
+                if (p[0] == "DeckFile") Info.DeckFile = p[1];
                 if (p[0] == "Dialog") Info.Dialog = p[1];
                 if (p[0] == "Port") Info.Port = int.Parse(p[1]);
                 if (p[0] == "Hand") Info.Hand = int.Parse(p[1]);

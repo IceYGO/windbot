@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
@@ -233,7 +233,7 @@ namespace WindBot.Game.AI
 
         public long GetStringId(long id, int option)
         {
-            return (option & 0xfffff) | (id << 20);
+            return (long)(option & 0xfffff) | (id << 20);
         }
 
         public bool IsTurn1OrMain2()

@@ -48,7 +48,9 @@
     <Compile Include="Game\AI\Deck.cs" />
     <Compile Include="Game\AI\Decks\ABCExecutor.cs" />
     <Compile Include="Game\AI\Decks\AltergeistExecutor.cs" />
+    <Compile Include="Game\AI\Decks\FamiliarPossessedExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
+    <Compile Include="Game\AI\Decks\LuckyExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlueEyesExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlueEyesMaxDragonExecutor.cs" />
     <Compile Include="Game\AI\Decks\BurnExecutor.cs" />

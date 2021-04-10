@@ -1,4 +1,4 @@
-﻿namespace WindBot.Game.AI
+namespace WindBot.Game.AI
 {
     public static class HintMsg
     {
@@ -55,8 +55,6 @@
         Zone = 569,
         DisableZone = 570,
         ToZone = 571,
-        Counter = 572,
-        Disable = 573,
-        OperateCard = 574;
+        Counter = 572;
     }
 }

@@ -71,7 +71,7 @@ namespace WindBot.Game
 
             _ai = new GameAI(_duel, Game.Dialog, Game.Chat, Game.Log, Program.AssetPath);
             _ai.Executor = DecksManager.Instantiate(_ai, _duel, Game.Deck);
-            Deck = Deck.Load(_ai.Executor.Deck);
+            Deck = Deck.Load(Game.DeckFile ?? _ai.Executor.Deck);
 
             _select_hint = 0;
         }
@@ -1090,7 +1090,7 @@ namespace WindBot.Game
 
             for (int i = 0; i < count; ++i)
             {
-                packet.ReadInt32(); // card id
+                int id = packet.ReadInt32();
                 LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
 
                 long desc = packet.ReadInt64();
@@ -1098,7 +1098,12 @@ namespace WindBot.Game
                 {
                     desc = 0;
                 }
-                cards.Add(_duel.GetCard(info.controler, info.location, info.sequence, info.position));
+
+                ClientCard card = _duel.GetCard(info.controler, info.location, info.sequence, info.position);
+                if (card.Id == 0)
+                    card.SetId(id);
+
+                cards.Add(card);
                 descs.Add(desc);
                 packet.ReadByte(); // operation type
             }
@@ -1495,8 +1500,248 @@ namespace WindBot.Game
 
         private void OnAnnounceCard(BinaryReader packet)
         {
-            // not fully implemented
-            Connection.Send(CtosMessage.Response, _ai.OnAnnounceCard());
+            IList<long> opcodes = new List<long>();
+            packet.ReadByte(); // player
+            int count = packet.ReadByte();
+            bool token = false;
+            bool alias = false;
+            for (int i = 0; i < count; ++i)
+            {
+                long opcode = packet.ReadInt64();
+                if (opcode == Opcodes.OPCODE_ALLOW_ALIASES)
+                    alias = true;
+                else if (opcode == Opcodes.OPCODE_ALLOW_TOKENS)
+                    token = true;
+                else
+                    opcodes.Add(opcode);
+            }
+
+            IList<int> avail = new List<int>();
+            IList<NamedCard> all = NamedCardsManager.GetAllCards();
+            foreach (NamedCard card in all)
+            {
+                if (card.HasType(CardType.Token) && !token)
+                    continue;
+                if ((card.Alias > 0 && card.Id - card.Alias < 10) && !alias)
+                    continue;
+                LinkedList<long> stack = new LinkedList<long>();
+                for (int i = 0; i < opcodes.Count; i++)
+                {
+                    switch (opcodes[i])
+                    {
+                        case Opcodes.OPCODE_ADD:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(lhs + rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_SUB:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(lhs - rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_MUL:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(lhs * rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_DIV:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(lhs / rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_AND:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(((rhs & lhs) != 0) ? 1 : 0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_OR:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(((rhs | lhs) != 0) ? 1 : 0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_NEG:
+                            if (stack.Count >= 1)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(-rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_NOT:
+                            if (stack.Count >= 1)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast((rhs != 0) ? 0 : 1);
+                            }
+                            break;
+                        case Opcodes.OPCODE_BAND:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(rhs & lhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_BOR:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(rhs | lhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_BNOT:
+                            if (stack.Count >= 1)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(~rhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_BXOR:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(rhs ^ lhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_LSHIFT:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(rhs << (int)lhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_RSHIFT:
+                            if (stack.Count >= 2)
+                            {
+                                long rhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                long lhs = stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(rhs >> (int)lhs);
+                            }
+                            break;
+                        case Opcodes.OPCODE_ISCODE:
+                            if (stack.Count >= 1)
+                            {
+                                uint code = (uint)stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast((code == card.Id) ? 1 : 0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_ISSETCARD:
+                            if (stack.Count >= 1)
+                            {
+                                int set = (int)stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast((card.HasSetcode(set)) ? 1 : 0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_ISTYPE:
+                            if (stack.Count >= 1)
+                            {
+                                int type = (int)stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(((type & card.Type) != 0) ? 1 : 0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_ISRACE:
+                            if (stack.Count >= 1)
+                            {
+                                int race = (int)stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(((race & card.Race) != 0) ? 1 : 0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_ISATTRIBUTE:
+                            if (stack.Count >= 1)
+                            {
+                                int attr = (int)stack.Last.Value;
+                                stack.RemoveLast();
+                                stack.AddLast(((attr & card.Attribute) != 0) ? 1 : 0);
+                            }
+                            break;
+                        case Opcodes.OPCODE_GETCODE:
+                            if (stack.Count >= 1)
+                            {
+                                stack.AddLast(card.Id);
+                            }
+                            break;
+                        case Opcodes.OPCODE_GETTYPE:
+                            if (stack.Count >= 1)
+                            {
+                                stack.AddLast(card.Type);
+                            }
+                            break;
+                        case Opcodes.OPCODE_GETRACE:
+                            if (stack.Count >= 1)
+                            {
+                                stack.AddLast(card.Race);
+                            }
+                            break;
+                        case Opcodes.OPCODE_GETATTRIBUTE:
+                            if (stack.Count >= 1)
+                            {
+                                stack.AddLast(card.Attribute);
+                            }
+                            break;
+                        default:
+                            stack.AddLast(opcodes[i]);
+                            break;
+                    }
+                }
+                if (stack.Count == 1) {
+                    long val = stack.Last.Value;
+                    stack.RemoveLast();
+                    if (val != 0)
+                        avail.Add(card.Id);
+                }
+            }
+            if (avail.Count == 0)
+                throw new Exception("No avail card found for announce!");
+            Connection.Send(CtosMessage.Response, _ai.OnAnnounceCard(avail));
         }
 
         private void OnAnnounceNumber(BinaryReader packet)
