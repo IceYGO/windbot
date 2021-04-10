@@ -28,7 +28,14 @@ namespace WindBot
 
         public static void AddDatabase(string databasePath)
         {
-            NamedCardsManager.LoadDatabase(databasePath);
+            try
+            {
+                NamedCardsManager.LoadDatabase(databasePath);
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteErrorLine("Failed loading database: " + databasePath + " error: " + ex);
+            }
         }
 
         public static void RunAndroid(string arg)
