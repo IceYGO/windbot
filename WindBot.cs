@@ -19,19 +19,16 @@ namespace WindBot
             Program.Rand = new Random();
             Program.AssetPath = assetPath;
             DecksManager.Init();
-            try
-            {
-                NamedCardsManager.Init(assetPath + "/cards.cdb");
-            }
-            catch (Exception e)
-            {
-                Logger.WriteErrorLine(e.ToString());
-            }
         }
 
         private static IList<string> ParseArgs(string arg)
         {
             return Regex.Split(arg, "(?<=^[^\']*(?:\'[^\']*\'[^\']*)*) (?=(?:[^\']*\'[^\']*\')*[^\']*$)").ToList(); // https://stackoverflow.com/questions/4780728/regex-split-string-preserving-quotes/
+        }
+
+        public static void AddDatabase(string databasePath)
+        {
+            NamedCardsManager.LoadDatabase(databasePath);
         }
 
         public static void RunAndroid(string arg)

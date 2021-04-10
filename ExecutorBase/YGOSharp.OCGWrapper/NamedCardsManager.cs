@@ -10,7 +10,7 @@ namespace YGOSharp.OCGWrapper
     {
         private static IDictionary<int, NamedCard> _cards = new Dictionary<int, NamedCard>();
 
-        public static void Init(string databaseFullPath)
+        public static void LoadDatabase(string databaseFullPath)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace YGOSharp.OCGWrapper
         private static void LoadCard(IDataRecord reader)
         {
             NamedCard card = new NamedCard(reader);
-            _cards.Add(card.Id, card);
+            _cards[card.Id] = card;
         }
     }
 }

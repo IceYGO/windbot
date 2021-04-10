@@ -6,6 +6,7 @@ using System.Web;
 using WindBot.Game;
 using WindBot.Game.AI;
 using YGOSharp.OCGWrapper;
+using System.Runtime.Serialization.Json;
 
 namespace WindBot
 {
@@ -25,9 +26,11 @@ namespace WindBot
 
             AssetPath = Config.GetString("AssetPath", "");
 
-            string databasePath = Config.GetString("DbPath", "cards.cdb");
+            string databasePath = Config.GetString("DbPath");
 
-            InitDatas(databasePath);
+            string databasePaths = Config.GetString("DbPaths");
+
+            InitDatas(databasePath, databasePaths);
 
             bool serverMode = Config.GetBool("ServerMode", false);
 
@@ -50,32 +53,61 @@ namespace WindBot
             }
         }
 
-        public static void InitDatas(string databasePath)
+        public static void InitDatas(string databasePath, string databasePaths)
         {
             Rand = new Random();
             DecksManager.Init();
 
-            string[] dbPaths;
-            //If databasePath is an absolute path like "‪C:/ProjectIgnis/expansions/cards.cdb",
-            //then Path.GetFullPath("../‪C:/ProjectIgnis/expansions/cards.cdb" would give an error,
-            //due to containing a colon that's not part of a volume identifier.
-            if (Path.IsPathRooted(databasePath)) dbPaths = new string[] { databasePath };
-            else dbPaths = new string[]{
+            string[] dbPaths = null;
+            try
+            {
+                if (databasePath == null && databasePaths != null)
+                {
+                    MemoryStream json = new MemoryStream(Convert.FromBase64String(databasePaths));
+                    DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(string[]));
+                    dbPaths = serializer.ReadObject(json) as string[];
+                }
+            }
+            catch (Exception)
+            {
+            }
+
+            if (dbPaths == null)
+            {
+                if (databasePath == null)
+                    databasePath = "cards.cdb";
+                //If databasePath is an absolute path like "‪C:/ProjectIgnis/expansions/cards.cdb",
+                //then Path.GetFullPath("../‪C:/ProjectIgnis/expansions/cards.cdb" would give an error,
+                //due to containing a colon that's not part of a volume identifier.
+                if (Path.IsPathRooted(databasePath)) dbPaths = new string[] { databasePath };
+                else dbPaths = new string[]{
                 Path.GetFullPath(databasePath),
                 Path.GetFullPath("../" + databasePath),
                 Path.GetFullPath("../expansions/" + databasePath)
             };
+            }
 
+            bool loadedone = false;
             foreach (var absPath in dbPaths)
             {
-                if (File.Exists(absPath))
+                try
                 {
-                    NamedCardsManager.Init(absPath);
-                    return;
+                    if (File.Exists(absPath))
+                    {
+                        NamedCardsManager.LoadDatabase(absPath);
+                        Logger.DebugWriteLine("Loaded database: " + absPath + ".");
+                        loadedone = true;
+                    }
+                } catch (Exception ex)
+                {
+                    Logger.WriteErrorLine("Failed loading database: " + absPath + " error: " + ex);
                 }
             }
-            Logger.WriteErrorLine("Can't find cards database file.");
-            Logger.WriteErrorLine("Please place cards.cdb next to WindBot.exe or Bot.exe .");
+            if (!loadedone)
+            {
+                Logger.WriteErrorLine("Can't find cards database file.");
+                Logger.WriteErrorLine("Please place cards.cdb next to WindBot.exe or Bot.exe .");
+            }
         }
 
         private static void RunFromArgs()
