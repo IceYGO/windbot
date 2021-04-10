@@ -117,13 +117,11 @@ namespace WindBot.Game.AI.Decks
         bool summon_used = false;
         bool CardOfDemiseeff_used = false;
         bool SeaStealthAttackeff_used = false;
-        int City_count = 0;
         public override void OnNewTurn()
         {            
             summon_used = false;
             CardOfDemiseeff_used = false;
             SeaStealthAttackeff_used = false;
-            City_count = 0;
             base.OnNewTurn();
         }
         private bool PreventFeatherDustereff()
@@ -356,9 +354,6 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if (City_count > 10)
-                    return false;
-
                 ClientCard target = null;
                 foreach(ClientCard s in Bot.GetSpells())
                 {
@@ -380,7 +375,6 @@ namespace WindBot.Game.AI.Decks
                         break;
                     }
                 }
-                City_count++;
                 AI.SelectPlace(Zones.z1 | Zones.z3);
                 AI.SelectCard(CardId.PhantasmSprialBattle);
                 return true;

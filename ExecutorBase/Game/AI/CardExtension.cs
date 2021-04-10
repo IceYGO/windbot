@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using WindBot.Game.AI.Enums;
 using YGOSharp.OCGWrapper.Enums;
 
@@ -11,7 +11,9 @@ namespace WindBot.Game.AI
         /// </summary>
         public static bool IsMonsterInvincible(this ClientCard card)
         {
-            return !card.IsDisabled() && Enum.IsDefined(typeof(InvincibleMonster), card.Id);
+            return !card.IsDisabled() &&
+                (card.Controller == 0 && Enum.IsDefined(typeof(InvincibleBotMonster), card.Id) ||
+                 card.Controller == 1 && Enum.IsDefined(typeof(InvincibleEnemyMonster), card.Id));
         }
 
         /// <summary>

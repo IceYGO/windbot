@@ -56,7 +56,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, MonsterReborn);
 
             AddExecutor(ExecutorType.Summon, CardId.WhiteNightDragon, WhiteNightDragon);
-            AddExecutor(ExecutorType.Summon, CardId.HorusTheBlackFlameDragonLv6, DefaultTributeSummon);
+            AddExecutor(ExecutorType.Summon, CardId.HorusTheBlackFlameDragonLv6, DefaultMonsterSummon);
             AddExecutor(ExecutorType.Summon, CardId.AlexandriteDragon);
             AddExecutor(ExecutorType.SummonOrSet, CardId.AxeDragonute);
             AddExecutor(ExecutorType.SummonOrSet, CardId.DodgerDragon);
@@ -157,7 +157,7 @@ namespace WindBot.Game.AI.Decks
                     if (card.IsCode(11224103))
                         return false;
 
-            return DefaultTributeSummon();
+            return DefaultMonsterSummon();
         }
 
         private bool HorusTheBlackFlameDragonLv8()
