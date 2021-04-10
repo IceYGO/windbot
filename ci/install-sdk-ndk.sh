@@ -16,15 +16,15 @@ set -euxo pipefail
 # INSTALLATION_ID=$(grep InstallationID= "$VSROOT/Common7/IDE/devenv.isolation.ini" | cut -f2 -d=)
 # Thus for now, the installation ID after 15.0_ must be manually updated if Travis CI updates the Windows runner
 # Visual Studio id for github actions 2019 16.0_f8634e6a
-# Visual Studio id for github actions 2016 15.0_b9353d59
+# Visual Studio id for github actions 2016 15.0_c0f5f13d
 # Visual Studio id for travis ci 15.0_09147932
 
 # These registry entries are normally set through the GUI: Tools\Options\Xamarin\Android Settings
-reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\15.0_b9353d59\Android' -v AndroidSdkDirectory -t REG_SZ -d "$ANDROID_SDK_ROOT" -f
+reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\15.0_c0f5f13d\Android' -v AndroidSdkDirectory -t REG_SZ -d "$ANDROID_SDK_ROOT" -f
 # Sometimes installed by Microsoft in C:\ProgramData\Microsoft\AndroidNDK64 but not present on CI
-reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\15.0_b9353d59\Android' -v AndroidNdkDirectory -t REG_SZ -d "C:\android-ndk-r15c" -f
+reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\15.0_c0f5f13d\Android' -v AndroidNdkDirectory -t REG_SZ -d "C:\android-ndk-r15c" -f
 # Visual Studio Installer provides this JDK for Android development
-reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\15.0_b9353d59\Android' -v JavaSdkDirectory -t REG_SZ -d "$JAVA_HOME" -f
+reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\15.0_c0f5f13d\Android' -v JavaSdkDirectory -t REG_SZ -d "$JAVA_HOME" -f
 
 # Manually install Android SDK Platform 24, the most recent version that still works with Embeddinator 0.4.0
 # cd "$ANDROID_SDK_ROOT"
