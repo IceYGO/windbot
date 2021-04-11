@@ -88,6 +88,8 @@ namespace WindBot
                     catch (Exception ex)
                     {
                         Logger.WriteErrorLine("Tick Error: " + ex);
+                        client.Chat("I crashed", true);
+                        return;
                     }
 #endif
                 }
