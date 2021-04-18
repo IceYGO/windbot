@@ -79,7 +79,7 @@
     },
     {
         "name": "Feelin' Lucky",
-        "deck": "",
+        "deck": "Lucky",
         "difficulty": 0,
         "masterRules": [3, 4, 5]
     },
