@@ -29,11 +29,11 @@ KEY=$(echo $(reg query 'HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVers
 INSTALLATION_ID="$VS_PREFIX${KEY##*.}"
 
 # These registry entries are normally set through the GUI: Tools\Options\Xamarin\Android Settings
-reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\$INSTALLATION_ID\Android' -v AndroidSdkDirectory -t REG_SZ -d "$ANDROID_SDK_ROOT" -f
+reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\'$INSTALLATION_ID'\Android' -v AndroidSdkDirectory -t REG_SZ -d "$ANDROID_SDK_ROOT" -f
 # Sometimes installed by Microsoft in C:\ProgramData\Microsoft\AndroidNDK64 but not present on CI
-reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\$INSTALLATION_ID\Android' -v AndroidNdkDirectory -t REG_SZ -d "C:\android-ndk-r15c" -f
+reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\'$INSTALLATION_ID'\Android' -v AndroidNdkDirectory -t REG_SZ -d "C:\android-ndk-r15c" -f
 # Visual Studio Installer provides this JDK for Android development
-reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\$INSTALLATION_ID\Android' -v JavaSdkDirectory -t REG_SZ -d "$JAVA_HOME" -f
+reg add 'HKCU\SOFTWARE\Xamarin\VisualStudio\'$INSTALLATION_ID'\Android' -v JavaSdkDirectory -t REG_SZ -d "$JAVA_HOME" -f
 
 # Manually install Android SDK Platform 24, the most recent version that still works with Embeddinator 0.4.0
 # cd "$ANDROID_SDK_ROOT"
