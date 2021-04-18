@@ -101,6 +101,8 @@ jobs:
         choco install mono --x86
     - name: Install ndk 15
       shell: bash
+      env:
+        VS_PREFIX: "15.0_"
       run: |
         ./ci/install-sdk-ndk.sh
     - name: Build
