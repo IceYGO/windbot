@@ -8,6 +8,9 @@ using System.Threading;
 using WindBot.Game;
 using WindBot.Game.AI;
 using YGOSharp.OCGWrapper;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Json;
+using System.Text;
 
 namespace WindBot
 {
@@ -19,11 +22,6 @@ namespace WindBot
             Program.Rand = new Random();
             Program.AssetPath = assetPath;
             DecksManager.Init();
-        }
-
-        private static IList<string> ParseArgs(string arg)
-        {
-            return Regex.Split(arg, "(?<=^[^\']*(?:\'[^\']*\'[^\']*)*) (?=(?:[^\']*\'[^\']*\')*[^\']*$)").ToList(); // https://stackoverflow.com/questions/4780728/regex-split-string-preserving-quotes/
         }
 
         public static void AddDatabase(string databasePath)
@@ -38,26 +36,57 @@ namespace WindBot
             }
         }
 
+        [DataContract]
+        public class LaunchData
+        {
+            [DataMember]
+            public string Name { get; set; }
+            [DataMember]
+            public string Deck { get; set; }
+            [DataMember]
+            public string DeckFile { get; set; }
+            [DataMember]
+            public string Dialog { get; set; }
+            [DataMember]
+            public string Host { get; set; }
+            [DataMember]
+            public string Port { get; set; }
+            [DataMember]
+            public string HostInfo { get; set; }
+            [DataMember]
+            public string Version { get; set; }
+            [DataMember]
+            public string Hand { get; set; }
+            [DataMember]
+            public string Debug { get; set; }
+            [DataMember]
+            public string Chat { get; set; }
+        }
+
         public static void RunAndroid(string arg)
         {
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-            IList<string> args = ParseArgs(arg);
             WindBotInfo Info = new WindBotInfo();
-            foreach (string param in args)
+            try
             {
-                string[] p = Regex.Split(param, "[=]");
-                p[1] = p[1].Replace("'", "");
-                if (p[0] == "Name") Info.Name = p[1];
-                if (p[0] == "Deck") Info.Deck = p[1];
-                if (p[0] == "DeckFile") Info.DeckFile = p[1];
-                if (p[0] == "Dialog") Info.Dialog = p[1];
-                if (p[0] == "Port") Info.Port = int.Parse(p[1]);
-                if (p[0] == "Hand") Info.Hand = int.Parse(p[1]);
-                if (p[0] == "Host") Info.Host = p[1];
-                if (p[0] == "HostInfo") Info.HostInfo = p[1];
-                if (p[0] == "Version") Info.Version = int.Parse(p[1]);
-                if (p[0] == "Chat") Info.Chat = int.Parse(p[1]) != 0;
-                if (p[0] == "Debug") Info.Debug = int.Parse(p[1]) != 0;
+                DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(LaunchData));
+                MemoryStream json = new MemoryStream(Encoding.Unicode.GetBytes(arg));
+                LaunchData data = (LaunchData)serializer.ReadObject(json);
+                if (data.Name != null) Info.Name = data.Name;
+                if (data.Deck != null) Info.Deck = data.Deck;
+                if (data.DeckFile != null) Info.DeckFile = data.DeckFile;
+                if (data.Dialog != null) Info.Dialog = data.Dialog;
+                if (data.Port != null) Info.Port = int.Parse(data.Port);
+                if (data.Hand != null) Info.Hand = int.Parse(data.Hand);
+                if (data.Host != null) Info.Host = data.Host;
+                if (data.HostInfo != null) Info.HostInfo = data.HostInfo;
+                if (data.Version != null) Info.Version = int.Parse(data.Version);
+                if (data.Chat != null) Info.Chat = int.Parse(data.Chat) != 0;
+                if (data.Debug != null) Info.Debug = int.Parse(data.Debug) != 0;
+            }
+            catch (Exception ex)
+            {
+                Logger.WriteErrorLine("Argument parsing error: " + ex);
             }
             Thread workThread = new Thread(new ParameterizedThreadStart(Run));
             workThread.Start(Info);
