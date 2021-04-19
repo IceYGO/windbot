@@ -117,7 +117,11 @@ namespace WindBot
                     catch (Exception ex)
                     {
                         Logger.WriteErrorLine("Tick Error: " + ex);
-                        client.Chat("I crashed", true);
+                        client.Chat("I crashed, check the crash.log file in the WindBot folder", true);
+                        using (StreamWriter sw = File.AppendText(Path.Combine(Program.AssetPath, "crash.log")))
+                        {
+                            sw.WriteLine("[" + DateTime.Now.ToString("yy-MM-dd HH:mm:ss") + "] Tick Error: " + ex);
+                        }
                         return;
                     }
 #endif
