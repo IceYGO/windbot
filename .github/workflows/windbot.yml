@@ -108,7 +108,7 @@ jobs:
     - name: Build
       shell: bash
       run: |
-        nuget restore WindBot.sln
+        msbuild.exe -t:restore WindBot.sln
         msbuild.exe -m -p:Configuration=Release WindBot.sln
     - name: Predeploy
       shell: bash
