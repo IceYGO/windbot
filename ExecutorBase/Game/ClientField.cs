@@ -39,6 +39,30 @@ namespace WindBot.Game
                 ExtraDeck.Add(new ClientCard(0, CardLocation.Extra, -1, 0));
         }
 
+        public void SwapDeckAndGrave(System.Collections.BitArray extra_buf)
+        {
+            IList<ClientCard> oldgrave = Graveyard;
+            Graveyard = Deck;
+            Deck = oldgrave;
+            foreach(ClientCard card in Graveyard)
+                card.Location = CardLocation.Grave;
+            int i = 0;
+            foreach (ClientCard card in Deck.ToList()) {
+                if (extra_buf[i])
+                {
+                    card.Position = (int)CardPosition.FaceDown;
+                    card.Location = CardLocation.Extra;
+                    Deck.Remove(card);
+                    ExtraDeck.Insert(0, card);
+                }
+                else
+                {
+                    card.Location = CardLocation.Deck;
+                }
+                i++;
+            }
+        }
+
         public int GetMonstersExtraZoneCount()
         {
             int count = 0;

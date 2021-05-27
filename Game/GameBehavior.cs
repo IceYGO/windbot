@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.RegularExpressions;
+using System.Collections;
 using WindBot.Game.AI;
 using YGOSharp.Network;
 using YGOSharp.Network.Enums;
@@ -120,6 +120,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.ShuffleDeck, OnShuffleDeck);
             _messages.Add(GameMessage.ShuffleHand, OnShuffleHand);
             _messages.Add(GameMessage.ShuffleExtra, OnShuffleExtra);
+            _messages.Add(GameMessage.SwapGraveDeck, OnSwapGraveDeck);
             _messages.Add(GameMessage.ShuffleSetCard, OnShuffleSetCard);
             _messages.Add(GameMessage.TagSwap, OnTagSwap);
             _messages.Add(GameMessage.NewTurn, OnNewTurn);
@@ -473,6 +474,15 @@ namespace WindBot.Game
                 if (!card.IsFaceup())
                     card.SetId(packet.ReadInt32());
             }
+        }
+
+        private void OnSwapGraveDeck(BinaryReader packet)
+        {
+            int player = GetLocalPlayer(packet.ReadByte());
+            /*int main_size = */packet.ReadInt32();
+            int extra_buffer_size = packet.ReadInt32();
+            BitArray extra_buffer = new BitArray(packet.ReadBytes(extra_buffer_size));
+            _duel.Fields[player].SwapDeckAndGrave(extra_buffer);
         }
 
         private void OnShuffleSetCard(BinaryReader packet)
