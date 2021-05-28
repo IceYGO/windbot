@@ -479,10 +479,10 @@ namespace WindBot.Game
         private void OnSwapGraveDeck(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            /*int main_size = */packet.ReadInt32();
+            int extra_insert_off = packet.ReadInt32();
             int extra_buffer_size = packet.ReadInt32();
             BitArray extra_buffer = new BitArray(packet.ReadBytes(extra_buffer_size));
-            _duel.Fields[player].SwapDeckAndGrave(extra_buffer);
+            _duel.Fields[player].SwapDeckAndGrave(extra_buffer, extra_insert_off);
         }
 
         private void OnShuffleSetCard(BinaryReader packet)

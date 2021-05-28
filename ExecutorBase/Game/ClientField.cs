@@ -39,7 +39,7 @@ namespace WindBot.Game
                 ExtraDeck.Add(new ClientCard(0, CardLocation.Extra, -1, 0));
         }
 
-        public void SwapDeckAndGrave(System.Collections.BitArray extra_buf)
+        public void SwapDeckAndGrave(System.Collections.BitArray extra_buf, int extra_insert_off)
         {
             IList<ClientCard> oldgrave = Graveyard;
             Graveyard = Deck;
@@ -53,7 +53,7 @@ namespace WindBot.Game
                     card.Position = (int)CardPosition.FaceDown;
                     card.Location = CardLocation.Extra;
                     Deck.Remove(card);
-                    ExtraDeck.Insert(0, card);
+                    ExtraDeck.Insert(extra_insert_off++, card);
                 }
                 else
                 {
