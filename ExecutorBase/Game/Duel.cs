@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game
@@ -39,6 +39,20 @@ namespace WindBot.Game
             LastSummonPlayer = -1;
             SummoningCards = new List<ClientCard>();
             LastSummonedCards = new List<ClientCard>();
+        }
+
+        public void Clear()
+        {
+            Fields[0].Clear();
+            Fields[1].Clear();
+            LastChainPlayer = -1;
+            MainPhaseEnd = false;
+            CurrentChain.Clear();
+            ChainTargets.Clear();
+            ChainTargetOnly.Clear();
+            LastSummonPlayer = -1;
+            SummoningCards.Clear();
+            LastSummonedCards.Clear();
         }
 
         public ClientCard GetCard(int player, CardLocation loc, int seq)

@@ -39,6 +39,17 @@ namespace WindBot.Game
                 ExtraDeck.Add(new ClientCard(0, CardLocation.Extra, -1, 0));
         }
 
+        public void Clear()
+        {
+            Deck.Clear();
+            ExtraDeck.Clear();
+            Hand.Clear();
+            Banished.Clear();
+            Graveyard.Clear();
+            MonsterZone = new ClientCard[7];
+            SpellZone = new ClientCard[8];
+        }
+
         public void SwapDeckAndGrave(System.Collections.BitArray extra_buf, int extra_insert_off)
         {
             IList<ClientCard> oldgrave = Graveyard;

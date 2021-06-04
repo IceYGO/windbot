@@ -123,6 +123,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.SwapGraveDeck, OnSwapGraveDeck);
             _messages.Add(GameMessage.ShuffleSetCard, OnShuffleSetCard);
             _messages.Add(GameMessage.TagSwap, OnTagSwap);
+            _messages.Add(GameMessage.ReloadField, OnReloadField);
             _messages.Add(GameMessage.NewTurn, OnNewTurn);
             _messages.Add(GameMessage.NewPhase, OnNewPhase);
             _messages.Add(GameMessage.Damage, OnDamage);
@@ -534,6 +535,74 @@ namespace WindBot.Game
                 int code = packet.ReadInt32();
                 _duel.Fields[player].Hand.Add(new ClientCard(code, CardLocation.Hand,-1, player));
                 packet.ReadInt32(); // position
+            }
+        }
+
+        private void OnReloadField(BinaryReader packet)
+        {
+            /*int opts = */ packet.ReadInt32();
+            _duel.Clear();
+            for (int player = 0; player < 2; player++)
+            {
+                int i = GetLocalPlayer(player);
+                _duel.Fields[i].LifePoints = packet.ReadInt32();
+                for (int seq = 0; seq < 7; ++seq)
+                {
+                    if (packet.ReadByte() == 0)
+                        continue;
+                    int position = packet.ReadByte();
+                    _duel.AddCard(CardLocation.MonsterZone, 0, i, seq, position);
+                    var card = _duel.GetCard(i, CardLocation.MonsterZone, seq);
+                    int overlay_count = packet.ReadInt32();
+                    for (int xyz = 0; xyz < overlay_count; ++xyz)
+                    {
+                        card.Overlays.Add(0);
+                    }
+                }
+                for (int seq = 0; seq < 8; ++seq)
+                {
+                    if (packet.ReadByte() == 0)
+                        continue;
+                    int position = packet.ReadByte();
+                    _duel.AddCard(CardLocation.SpellZone, 0, i, seq, position);
+                    var card = _duel.GetCard(i, CardLocation.SpellZone, seq);
+                    int overlay_count = packet.ReadInt32();
+                    for (int xyz = 0; xyz < overlay_count; ++xyz)
+                    {
+                        card.Overlays.Add(0);
+                    }
+                }
+                int deck_size = packet.ReadInt32();
+                for(int seq = 0; seq < deck_size; ++seq)
+                    _duel.AddCard(CardLocation.Deck, 0, i, seq, (int)CardPosition.FaceDown);
+                int hand_size = packet.ReadInt32();
+                for(int seq = 0; seq < hand_size; ++seq)
+                    _duel.AddCard(CardLocation.Hand, 0, i, seq, (int)CardPosition.FaceDown);
+                int grave_size = packet.ReadInt32();
+                for(int seq = 0; seq < grave_size; ++seq)
+                    _duel.AddCard(CardLocation.Grave, 0, i, seq, (int)CardPosition.FaceDown);
+                int removed_size = packet.ReadInt32();
+                for(int seq = 0; seq < removed_size; ++seq)
+                    _duel.AddCard(CardLocation.Removed, 0, i, seq, (int)CardPosition.FaceDown);
+                int extra_deck_size = packet.ReadInt32();
+                for(int seq = 0; seq < extra_deck_size; ++seq)
+                    _duel.AddCard(CardLocation.Extra, 0, i, seq, (int)CardPosition.FaceDown);
+                /*int extra_p_count = */ packet.ReadInt32();
+            }
+            int chain_count = packet.ReadInt32();
+            for (int i = 0; i < chain_count; i++)
+            {
+                int cardId = packet.ReadInt32();
+                LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
+                int chain_player = packet.ReadByte();
+                /*int chain_location = */packet.ReadByte();
+                /*int chain_sequence = */packet.ReadInt32();
+                /*long chain_description = */packet.ReadInt64();
+                _duel.LastChainPlayer = chain_player;
+                ClientCard card = _duel.GetCard(info.controler, info.location, info.sequence, info.position);
+                if (card.Id == 0)
+                    card.SetId(cardId);
+                _duel.CurrentChain.Add(card);
             }
         }
 
