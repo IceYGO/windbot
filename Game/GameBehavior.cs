@@ -71,6 +71,8 @@ namespace WindBot.Game
 
             _ai = new GameAI(_duel, Game.Dialog, Game.Chat, Game.Log, Program.AssetPath);
             _ai.Executor = DecksManager.Instantiate(_ai, _duel, Game.Deck);
+            if(Game.DeckFile != null)
+                Logger.WriteLine("Custom deck provided, loading: " + Game.DeckFile + ".");
             Deck = Deck.Load(Game.DeckFile ?? _ai.Executor.Deck);
 
             _select_hint = 0;
