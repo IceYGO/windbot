@@ -29,6 +29,16 @@ namespace YGOSharp.Network
             }
         }
 
+        public void Send(CtosMessage message, byte value)
+        {
+            using (BinaryWriter writer = new BinaryWriter(new MemoryStream()))
+            {
+                writer.Write((byte)message);
+                writer.Write(value);
+                Send(writer);
+            }
+        }
+
         public void Send(CtosMessage message, int value)
         {
             using (BinaryWriter writer = new BinaryWriter(new MemoryStream()))
