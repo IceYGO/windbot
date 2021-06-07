@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -19,6 +20,7 @@ namespace WindBot.Game
         public bool Debug;
         public bool _chat;
         public int RoomId;
+        public CreateGameInfo CreateGame;
         private string _serverHost;
         private int _serverPort;
         private int _proVersion;
@@ -37,6 +39,7 @@ namespace WindBot.Game
             Debug = Info.Debug;
             _chat = Info.Chat;
             RoomId = Info.RoomId;
+            CreateGame = Info.CreateGame;
             _serverHost = Info.Host;
             _serverPort = Info.Port;
             _roomInfo = Info.HostInfo;
@@ -70,14 +73,64 @@ namespace WindBot.Game
             BinaryWriter packet = GamePacketFactory.Create(CtosMessage.PlayerInfo);
             packet.WriteUnicode(Username, 20);
             Connection.Send(packet);
-
             byte[] padding2 = { 0xAA, 0xBB };
-            packet = GamePacketFactory.Create(CtosMessage.JoinGame);
-            packet.Write((short)_proVersion);
+            if(CreateGame == null)
+            {
+                packet = GamePacketFactory.Create(CtosMessage.JoinGame);
+                packet.Write((short)_proVersion);
+                packet.Write(padding2);
+                packet.Write(RoomId);
+                packet.WriteUnicode(_roomInfo, 20);
+                packet.Write(_proVersion);
+                Connection.Send(packet);
+                return;
+            }
+            byte[] unused = { 0x00, 0x00 };
+            byte[] padding3 = { 0xAA, 0xBB, 0xCC };
+            packet = GamePacketFactory.Create(CtosMessage.CreateGame);
+            // hostInfo
+            packet.Write(CreateGame.banlistHash);
+            packet.Write(CreateGame.allowed);
+            packet.Write(unused); // mode & duelRule
+            packet.Write((byte)(CreateGame.dontCheckDeck ? 1 : 0));
+            packet.Write((byte)(CreateGame.dontShuffleDeck ? 1 : 0));
+            packet.Write(padding3);
+            packet.Write(CreateGame.startingLP);
+            packet.Write(CreateGame.startingDrawCount);
+            packet.Write(CreateGame.drawCountPerTurn);
+            packet.Write(CreateGame.timeLimitInSeconds);
+            packet.Write((uint)((CreateGame.duelFlags >> 32) & 0xFFFFFFFF));
+            packet.Write((uint)4043399681); // handshake
+            packet.Write(_proVersion); // version
+            packet.Write(CreateGame.t0Count);
+            packet.Write(CreateGame.t1Count);
+            packet.Write(CreateGame.bestOf);
+            packet.Write((uint)(CreateGame.duelFlags & 0xFFFFFFFF));
+            packet.Write(CreateGame.forb);
+            packet.Write(CreateGame.extraRules);
             packet.Write(padding2);
-            packet.Write(RoomId);
+            // name
+            packet.WriteUnicode("", 20); // UNUSED
+            // pass
             packet.WriteUnicode(_roomInfo, 20);
-            packet.Write(_proVersion);
+            // notes
+            const int MAX_NOTES_LENGTH = 200;
+            try
+            {
+                // Write notes in UTF8 format making sure to always write exactly
+                // MAX_NOTES_LENGTH bytes.
+                byte[] content = Encoding.Default.GetBytes(CreateGame.notes + "\0");
+                if(content.Length > MAX_NOTES_LENGTH)
+                    throw new Exception();
+                packet.Write(content);
+                for(int i = MAX_NOTES_LENGTH - content.Length; i > 0; i--)
+                    packet.Write((byte)0);
+            }
+            catch(Exception)
+            {
+                Logger.WriteErrorLine("Warning: Unable to encode CreateGame.notes, sending empty string instead.");
+                for (int i = 0; i < (MAX_NOTES_LENGTH / 8); i++) packet.Write((ulong)0);
+            }
             Connection.Send(packet);
         }
 
