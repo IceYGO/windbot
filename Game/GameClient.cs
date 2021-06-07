@@ -18,6 +18,7 @@ namespace WindBot.Game
         public int Hand;
         public bool Debug;
         public bool _chat;
+        public int RoomId;
         private string _serverHost;
         private int _serverPort;
         private int _proVersion;
@@ -35,6 +36,7 @@ namespace WindBot.Game
             Hand = Info.Hand;
             Debug = Info.Debug;
             _chat = Info.Chat;
+            RoomId = Info.RoomId;
             _serverHost = Info.Host;
             _serverPort = Info.Port;
             _roomInfo = Info.HostInfo;
@@ -69,10 +71,11 @@ namespace WindBot.Game
             packet.WriteUnicode(Username, 20);
             Connection.Send(packet);
 
-            byte[] junk = { 0xCC, 0xCC, 0x00, 0x00, 0x00, 0x00 };
+            byte[] padding2 = { 0xAA, 0xBB };
             packet = GamePacketFactory.Create(CtosMessage.JoinGame);
             packet.Write((short)_proVersion);
-            packet.Write(junk);
+            packet.Write(padding2);
+            packet.Write(RoomId);
             packet.WriteUnicode(_roomInfo, 20);
             packet.Write(_proVersion);
             Connection.Send(packet);

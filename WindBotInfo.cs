@@ -15,6 +15,7 @@ namespace WindBot
         public int Hand { get; set; }
         public bool Debug { get; set; }
         public bool Chat { get; set; }
+        public int RoomId { get; set; }
         public WindBotInfo()
         {
             Name = "WindBot";
@@ -28,6 +29,7 @@ namespace WindBot
             Hand = 0;
             Debug = false;
             Chat = true;
+            RoomId = 0;
         }
     }
 }

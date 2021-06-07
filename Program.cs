@@ -124,6 +124,7 @@ namespace WindBot
             Info.Hand = Config.GetInt("Hand", Info.Hand);
             Info.Debug = Config.GetBool("Debug", Info.Debug);
             Info.Chat = Config.GetBool("Chat", Info.Chat);
+            Info.RoomId = Config.GetInt("RoomId", Info.RoomId);
             Run(Info);
         }
 
