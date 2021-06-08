@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -119,7 +119,7 @@ namespace WindBot.Game
             {
                 // Write notes in UTF8 format making sure to always write exactly
                 // MAX_NOTES_LENGTH bytes.
-                byte[] content = Encoding.Default.GetBytes(CreateGame.notes + "\0");
+                byte[] content = Encoding.UTF8.GetBytes(CreateGame.notes + "\0");
                 if(content.Length > MAX_NOTES_LENGTH)
                     throw new Exception();
                 packet.Write(content);
