@@ -4,12 +4,18 @@ using Mono.Data.Sqlite;
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Concurrent;
 
 namespace YGOSharp.OCGWrapper
 {
     public static class NamedCardsManager
     {
         private static IDictionary<int, NamedCard> _cards = new Dictionary<int, NamedCard>();
+
+        public static void SetThreadSafe()
+        {
+            _cards = new ConcurrentDictionary<int, NamedCard>();
+        }
 
         public static void LoadDatabase(string databaseFullPath)
         {

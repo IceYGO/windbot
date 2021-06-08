@@ -18,6 +18,7 @@ namespace WindBot
     {
         public static void InitAndroid(string assetPath)
         {
+            NamedCardsManager.SetThreadSafe();
             Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
             Program.Rand = new Random();
             Program.AssetPath = assetPath;
