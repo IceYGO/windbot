@@ -78,7 +78,6 @@ namespace WindBot.Game
             }
             catch (Exception ex)
             {
-                Logger.WriteErrorLine(ex.ToString());
             }
 
             _list = new List<DeckInstance>();
