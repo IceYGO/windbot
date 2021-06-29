@@ -1603,7 +1603,7 @@ namespace WindBot.Game
             {
                 if (card.HasType(CardType.Token) && !token)
                     continue;
-                if ((card.Alias > 0 && card.Id - card.Alias < 10) && !alias)
+                if (card.Alias > 0 && !alias)
                     continue;
                 LinkedList<long> stack = new LinkedList<long>();
                 for (int i = 0; i < opcodes.Count; i++)
