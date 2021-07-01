@@ -31,11 +31,11 @@ namespace WindBot.Game
         public static Deck Load(string name)
         {
             StreamReader reader = null;
+            Deck deck = new Deck();
             try
             {
                 reader = new StreamReader(new FileStream(Path.IsPathRooted(name) ? name : Path.Combine(Program.AssetPath, "Decks/", name + ".ydk"), FileMode.Open, FileAccess.Read));
 
-                Deck deck = new Deck();
                 bool main = true;
                 bool side = false;
 
@@ -64,14 +64,13 @@ namespace WindBot.Game
                 }
 
                 reader.Close();
-
-                return deck;
             }
             catch (Exception)
             {
+                Logger.WriteLine("Failed to load deck: " + name + ".");
                 reader?.Close();
-                return null;
             }
+            return deck;
         }
     }
 }
