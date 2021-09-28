@@ -248,6 +248,11 @@ namespace WindBot.Game
             return HasInHand(cardId) || HasInGraveyard(cardId);
         }
 
+        public bool HasInGraveyardOrInBanished(int cardId)
+        {
+            return HasInBanished(cardId) || HasInGraveyard(cardId);
+        }
+
         public bool HasInMonstersZoneOrInGraveyard(int cardId)
         {
             return HasInMonstersZone(cardId) || HasInGraveyard(cardId);

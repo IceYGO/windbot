@@ -498,8 +498,9 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultEffectVeiler()
         {
-            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsCode(_CardId.GalaxySoldier) && Enemy.Hand.Count >= 3) return false;
-            if (Util.ChainContainsCard(_CardId.EffectVeiler))
+            ClientCard LastChainCard = Util.GetLastChainCard();
+            if (LastChainCard != null && (LastChainCard.IsCode(_CardId.GalaxySoldier) && Enemy.Hand.Count >= 3
+                                    || LastChainCard.IsCode(_CardId.EffectVeiler, _CardId.InfiniteImpermanence)))
                 return false;
             return DefaultBreakthroughSkill();
         }
@@ -537,7 +538,9 @@ namespace WindBot.Game.AI
         protected bool DefaultInfiniteImpermanence()
         {
             // TODO: disable s & t
-            if (!DefaultUniqueTrap())
+            ClientCard LastChainCard = Util.GetLastChainCard();
+            if (LastChainCard != null && (LastChainCard.IsCode(_CardId.GalaxySoldier) && Enemy.Hand.Count >= 3
+                                    || LastChainCard.IsCode(_CardId.EffectVeiler, _CardId.InfiniteImpermanence)))
                 return false;
             return DefaultDisableMonster();
         }
