@@ -992,6 +992,7 @@ namespace WindBot.Game
                 int seq = packet.ReadByte();
                 packet.ReadByte(); // pos
             }
+            if (count2 == 0) cancelable = false;
 
             IList<ClientCard> selected = func(cards, (finishable ? 0 : 1), 1, _select_hint, cancelable);
 

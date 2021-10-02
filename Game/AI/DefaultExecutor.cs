@@ -106,6 +106,7 @@ namespace WindBot.Game.AI
             public const int MacroCosmos = 30241314;
             public const int UpstartGoblin = 70368879;
             public const int CyberEmergency = 60600126;
+            public const int TheAgentOfCreationVenus = 64734921;
 
             public const int EaterOfMillions = 63845230;
 
@@ -469,7 +470,8 @@ namespace WindBot.Game.AI
             int[] ignoreList = {
                 _CardId.MacroCosmos,
                 _CardId.UpstartGoblin,
-                _CardId.CyberEmergency
+                _CardId.CyberEmergency,
+                _CardId.TheAgentOfCreationVenus
             };
             if (Util.GetLastChainCard().IsCode(ignoreList))
                 return false;
@@ -791,14 +793,14 @@ namespace WindBot.Game.AI
                 _CardId.JudgmentDragon,
                 _CardId.TopologicTrisbaena
             };
-            int[] destroyAllOpponentList =
+            int[] destroyAllOpponentSpellList =
             {
                 _CardId.HarpiesFeatherDuster,
                 _CardId.DarkMagicAttack
             };
 
             if (Util.ChainContainsCard(destroyAllList)) return true;
-            if (Enemy.HasInSpellZone(destroyAllOpponentList, true)) return true;
+            if (Enemy.HasInSpellZone(destroyAllOpponentSpellList, true) && Card.Location == CardLocation.SpellZone) return true;
             // TODO: ChainContainsCard(id, player)
             return false;
         }

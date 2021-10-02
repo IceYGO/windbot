@@ -53,6 +53,7 @@ namespace WindBot.Game.AI.Decks
 
             public const int BraveToken = 3285552;
             public const int MechaPhantomBeastToken = 31533705;
+            public const int PrimalBeingToken = 27204312;
         }
 
         public BraveExecutor(GameAI ai, Duel duel)
@@ -146,7 +147,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.NemesesCorridor, SummonForMaterial);
             AddExecutor(ExecutorType.Summon, CardId.DestinyHeroCelestial, SummonForMaterial);
 
-            AddExecutor(ExecutorType.Activate, CardId.DestinyHeroDasher);
+            AddExecutor(ExecutorType.Activate, CardId.DestinyHeroDasher, DestinyHeroDasherEffect);
             AddExecutor(ExecutorType.Activate, CardId.DestinyHeroCelestial, DestinyHeroCelestialEffect);
 
             AddExecutor(ExecutorType.Repos, MonsterRepos);
@@ -163,6 +164,8 @@ namespace WindBot.Game.AI.Decks
         private bool JetSynchronUsed = false;
         private bool FusionDestinyUsed = false;
         private bool BaronessDeFleurUsed = false;
+        private ClientCard PhoenixTarget = null;
+        private int PhoenixSelectingTarget = 0;
 
         public override bool OnSelectHand()
         {
@@ -175,6 +178,8 @@ namespace WindBot.Game.AI.Decks
             BeastOLionUsed = false;
             JetSynchronUsed = false;
             FusionDestinyUsed = false;
+            PhoenixTarget = null;
+            PhoenixSelectingTarget = 0;
         }
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
@@ -183,6 +188,8 @@ namespace WindBot.Game.AI.Decks
             if (cardData != null)
             {
                 if (cardData.Attack <= 1000)
+                    return CardPosition.FaceUpDefence;
+                if (Util.IsTurn1OrMain2() && cardData.Attack <= 2500)
                     return CardPosition.FaceUpDefence;
             }
             return 0;
@@ -207,6 +214,9 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
+            if (hint != HintMsg.Destroy)
+                PhoenixSelectingTarget = 0;
+
             if (hint == HintMsg.AddToHand && max == 1)
             {
                 foreach (ClientCard card in cards)
@@ -233,6 +243,23 @@ namespace WindBot.Game.AI.Decks
                     if (card.IsCode(CardId.DestinyHeroDestroyPhoenixEnforcer))
                         return new List<ClientCard>(new[] { card });
                 }
+            }
+            if (hint == HintMsg.Destroy && max == 1)
+            {
+                PhoenixSelectingTarget++;
+                if (PhoenixSelectingTarget >= 2 && !cards.Contains(PhoenixTarget))
+                {
+                    ClientCard target = Util.GetProblematicEnemyCard();
+                    if (target == null || !cards.Contains(target))
+                        target = Util.GetBestEnemyCard();
+                    if (target != null && cards.Contains(target))
+                        return new List<ClientCard>(new[] { target });
+                }
+            }
+            if (hint == HintMsg.LinkMaterial && cancelable && min == 0)
+            {
+                // TODO: not working
+                return new List<ClientCard>();
             }
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
@@ -341,6 +368,7 @@ namespace WindBot.Game.AI.Decks
                     || (Duel.Player == 0 && Util.IsTurn1OrMain2())
                     || (Duel.Player == 1 && Enemy.GetMonsterCount() >= 2))
                 {
+                    PhoenixTarget = target;
                     AI.SelectCard(CardId.DestinyHeroDestroyPhoenixEnforcer);
                     AI.SelectNextCard(target);
                     return true;
@@ -432,10 +460,19 @@ namespace WindBot.Game.AI.Decks
             else
             {
                 // search rider or aquamancer
-                if (Bot.GetRemainingCount(CardId.WanderingGryphonRider, 1) == 0 && Bot.HasInHandOrInMonstersZoneOrInGraveyard(CardId.AquamancerOfTheSanctuary))
-                    return false;
-                AI.SelectCard(CardId.WanderingGryphonRider);
-                AI.SelectNextCard(GetHandCost());
+                if (Bot.GetRemainingCount(CardId.WanderingGryphonRider, 1) == 0 || Bot.GetHandCount() == 0 || !Bot.HasInMonstersZone(CardId.BraveToken))
+                {
+                    AI.SelectCard(CardId.AquamancerOfTheSanctuary);
+                    if (Bot.HasInHandOrInMonstersZoneOrInGraveyard(CardId.AquamancerOfTheSanctuary))
+                        AI.SelectNextCard(CardId.AquamancerOfTheSanctuary);
+                    else
+                        AI.SelectNextCard(GetHandCost());
+                }
+                else
+                {
+                    AI.SelectCard(CardId.WanderingGryphonRider);
+                    AI.SelectNextCard(GetHandCost());
+                }
                 return true;
             }
         }
@@ -494,6 +531,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             List<int> materials = new List<int>{
                 CardId.Sangan,
+                _CardId.GamecieltheSeaTurtleKaiju,
                 CardId.PredaplantVerteAnaconda,
                 CardId.SalamangreatAlmiraj,
                 CardId.LinkSpider,
@@ -647,8 +685,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool SalamangreatAlmirajSummon()
         {
+            if (PhoenixNotAvail())
+                return false;
             int[] materials = new[] {
-                CardId.Sangan,
                 CardId.MechaPhantomBeastOLion,
                 CardId.JetSynchron
             };
@@ -668,6 +707,10 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInMonstersZone(CardId.BraveToken) || !Bot.HasInMonstersZone(CardId.WanderingGryphonRider))
             {
                 materials.Add(CardId.BraveToken);
+            }
+            if (Bot.GetMonsters().Any(card => card.IsCode(CardId.PrimalBeingToken) && card.Attack <= 4000))
+            {
+                materials.Add(CardId.PrimalBeingToken);
             }
             if (Bot.MonsterZone.GetMatchingCardsCount(card => card.IsCode(materials)) == 0)
                 return false;
@@ -700,7 +743,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool PhoenixNotAvail()
         {
-            return Bot.GetRemainingCount(CardId.FusionDestiny, 3) == 0 || Bot.HasInHand(CardId.FusionDestiny)
+            return Bot.LifePoints <= 2000 || Bot.GetRemainingCount(CardId.FusionDestiny, 3) == 0 || Bot.HasInHand(CardId.FusionDestiny)
                 || !Bot.HasInExtra(CardId.PredaplantVerteAnaconda) || !Bot.HasInExtra(CardId.DestinyHeroDestroyPhoenixEnforcer)
                 || (Bot.GetRemainingCount(CardId.DestinyHeroCelestial, 1) == 0 && !Bot.HasInHand(CardId.DestinyHeroCelestial))
                 || (Bot.GetRemainingCount(CardId.DestinyHeroDasher, 1) == 0 && !Bot.HasInHand(CardId.DestinyHeroDasher));
@@ -712,6 +755,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             List<int> materials = new List<int>{
+                _CardId.GamecieltheSeaTurtleKaiju,
                 CardId.AquamancerOfTheSanctuary,
                 CardId.Sangan,
                 CardId.SalamangreatAlmiraj,
@@ -807,6 +851,11 @@ namespace WindBot.Game.AI.Decks
             }
         }
 
+        private bool DestinyHeroDasherEffect()
+        {
+            return Bot.Hand.Count(card => card.IsMonster()) > 1;
+        }
+
         private bool DestinyHeroCelestialEffect()
         {
             if (!Bot.HasInGraveyard(CardId.DestinyHeroDasher))
@@ -860,6 +909,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool BaronessDeFleurEffect()
         {
+            if (Duel.LastChainPlayer == 0)
+            {
+                return false;
+            }
             if (Duel.LastChainPlayer == 1)
             {
                 BaronessDeFleurUsed = true;
@@ -886,6 +939,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool VirtualWorldKyubiShenshenSummon()
         {
+            if (Bot.HasInMonstersZone(CardId.DestinyHeroDestroyPhoenixEnforcer))
+                return false;
+
             int[] materials = new[] {
                 CardId.CoralDragon,
 
