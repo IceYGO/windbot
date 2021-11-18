@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI.Decks {
@@ -35,7 +34,7 @@ namespace WindBot.Game.AI.Decks {
             public const int PotOfDesires = 35261759;
 
             // tenyi support
-            public const int VesselForDragonCycle = 65124425;         
+            public const int VesselForDragonCycle = 65124425;
 
             // extra deck
             public const int SwordsoulChengying = 96633955;
@@ -57,7 +56,7 @@ namespace WindBot.Game.AI.Decks {
             // token
             public const int SwordsoulToken = 20001444;
         }
-      
+
         private readonly int[] Wyrms =
         {
             CardId.TenyiAshuna,
@@ -101,10 +100,10 @@ namespace WindBot.Game.AI.Decks {
         #region Activate Effect Flags
 
         private enum ActivatedEffect {
-            None =   0b000,
-            First =  0b001,
+            None = 0b000,
+            First = 0b001,
             Second = 0b010,
-            Third =  0b100
+            Third = 0b100
         }
 
         private bool NormalSummonUsed = false;
@@ -170,14 +169,14 @@ namespace WindBot.Game.AI.Decks {
             AddExecutor(ExecutorType.Activate, CardId.AshBlossomAndJoyousSpring, DefaultAshBlossomAndJoyousSpring);
             AddExecutor(ExecutorType.Activate, CardId.InfiniteImpermanence, DefaultInfiniteImpermanence);
             AddExecutor(ExecutorType.Activate, CardId.ForbiddenChalice, DefaultDisableMonster);
-            AddExecutor(ExecutorType.Activate, CardId.BaronneDeFluer, ActivateBaronneNegate);                              
+            AddExecutor(ExecutorType.Activate, CardId.BaronneDeFluer, ActivateBaronneNegate);
 
             // triggers
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulChengying, ActivateChengyingEffects);
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulChixiao, ActivateChixiaoSearch);
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulEmergence, ActivateEmergencLevelDown);
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulSummit, ActivateSummitLevelDown);
-            AddExecutor(ExecutorType.Activate, CardId.VesselForDragonCycle, ActivateVesselSearch);         
+            AddExecutor(ExecutorType.Activate, CardId.VesselForDragonCycle, ActivateVesselSearch);
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulTaia, ActivateTaiaMill);
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulLongYuan, ActivateLongyuanDamage);
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulMoYe, ActivateMoYeDraw);
@@ -193,7 +192,7 @@ namespace WindBot.Game.AI.Decks {
             AddExecutor(ExecutorType.Activate, CardId.BlackRoseDragon, ActivateBlackroseDestroy);
             AddExecutor(ExecutorType.Activate, CardId.BaronneDeFluer, ActivateBaronneDestroy);
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulBlackout, BlackoutActivateDestroy);
-            AddExecutor(ExecutorType.Activate, CardId.TenyiVishuda, ActivateVishudaInGrave);        
+            AddExecutor(ExecutorType.Activate, CardId.TenyiVishuda, ActivateVishudaInGrave);
 
             // other activations
             AddExecutor(ExecutorType.Activate, CardId.TenyiAshuna, SpecialSummonAshuna);
@@ -205,7 +204,7 @@ namespace WindBot.Game.AI.Decks {
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulTaia, ActivateTaiaSummon);
             AddExecutor(ExecutorType.Activate, CardId.YangZingBaxia, BaxiaActivatedRevive);
             AddExecutor(ExecutorType.Activate, CardId.YangZingBaxia, BaxiaActivatedShuffle);
-            AddExecutor(ExecutorType.Activate, CardId.SwordsoulLongYuan, ActivateLongYuanSummon);        
+            AddExecutor(ExecutorType.Activate, CardId.SwordsoulLongYuan, ActivateLongYuanSummon);
 
             // special summons
             AddExecutor(ExecutorType.SpSummon, CardId.IncredibleEcclesia, SpecialSummonEcclesia);
@@ -232,7 +231,7 @@ namespace WindBot.Game.AI.Decks {
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulEmergence, ActivateEmergenceSearch);
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulSummit, ActivateSummit);
             AddExecutor(ExecutorType.Activate, CardId.PotOfDesires, ActivatePotOfDesires);
-            
+
             // set traps
             AddExecutor(ExecutorType.SpellSet, CardId.SwordsoulBlackout, SetBlackout);
             AddExecutor(ExecutorType.SpellSet, CardId.InfiniteImpermanence, DefaultSpellSet);
@@ -244,7 +243,7 @@ namespace WindBot.Game.AI.Decks {
 
         public override bool OnSelectHand() {
             return true;
-        }                        
+        }
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, long hint, bool cancelable) {
             ClientCard currentCard = GetCurrentSearchCardFromChain();
@@ -280,7 +279,7 @@ namespace WindBot.Game.AI.Decks {
                 if(selected == null)
                     return base.OnSelectCard(cards, min, max, hint, cancelable);
 
-                return new List<ClientCard>() { selected };              
+                return new List<ClientCard>() { selected };
             }
 
             if(currentCard.Id == CardId.VesselForDragonCycle && VesselActivated.HasFlag(ActivatedEffect.First)) {
@@ -542,7 +541,7 @@ namespace WindBot.Game.AI.Decks {
             if(shouldTriggerAdhara || shouldTriggerVishuda)
                 return true;
 
-            if(Bot.HasInMonstersZone(CardId.SwordsoulToken)) { 
+            if(Bot.HasInMonstersZone(CardId.SwordsoulToken)) {
                 bool hasMaterial = Bot.HasInMonstersZone(CardId.SwordsoulTaia) || Bot.HasInMonstersZone(CardId.SwordsoulMoYe);
                 if(!hasMaterial)
                     return false;
@@ -559,7 +558,7 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.Grave))
                 return false;
 
-            if(!ShouldActivateGraveAshuna()) 
+            if(!ShouldActivateGraveAshuna())
                 return false;
 
             AshunaActivated |= ActivatedEffect.Second;
@@ -636,6 +635,12 @@ namespace WindBot.Game.AI.Decks {
                 return false;
 
             if(ShouldSummonYazi())
+                return false;
+
+            if(ShouldSummonBaronne())
+                return false;
+
+            if(CanSummonChenying())
                 return false;
 
             if(CanActivateYaziDestruction())
@@ -787,7 +792,7 @@ namespace WindBot.Game.AI.Decks {
 
         private bool SummonDraco() {
             if(!Card.Location.HasFlag(CardLocation.Extra))
-                return false;            
+                return false;
 
             if(!ShouldSpecialSummonDraco())
                 return false;
@@ -941,17 +946,26 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.Extra))
                 return false;
 
+            if(!CanSummonChenying())
+                return false;
+
+            AI.SelectMaterials(GetSynchroMaterials(TargetSynchroLevel.Level_10));
+            return true;
+        }
+
+        private bool CanSummonChenying() {
+            if(!Bot.ExtraDeck.ContainsCardWithId(CardId.SwordsoulChengying))
+                return false;
+
             if(ShouldSummonBaronne())
                 return false;
 
             if(ShouldSummonRuddyRose())
                 return false;
 
-            List<ClientCard> materials = GetSynchroMaterials(TargetSynchroLevel.Level_10);
-            if(materials == null)
+            if(GetSynchroMaterials(TargetSynchroLevel.Level_10) == null)
                 return false;
 
-            AI.SelectMaterials(materials);
             return true;
         }
 
@@ -961,7 +975,7 @@ namespace WindBot.Game.AI.Decks {
         }
 
         private List<ClientCard> SelectChengyingTargets(IList<ClientCard> cards) {
-            if(cards.Count == 0) 
+            if(cards.Count == 0)
                 return null;
 
             if(cards[0].Location.HasFlag(CardLocation.Grave) && cards[0].Owner == 0)
@@ -1013,7 +1027,7 @@ namespace WindBot.Game.AI.Decks {
         }
 
         private List<ClientCard> SelectChengyingBanish(IList<ClientCard> cards) {
-            if (cards.Count < 1)
+            if(cards.Count < 1)
                 return null;
 
             ClientCard card = SelectAnEnemyCardForRemoval();
@@ -1282,7 +1296,7 @@ namespace WindBot.Game.AI.Decks {
                 AI.SelectCard(CardId.SwordsoulBlackout);
                 TaiaActivated |= ActivatedEffect.First;
                 return true;
-            }           
+            }
 
             if(Bot.HasInGraveyard(CardId.SwordsoulTaia)) {
                 AI.SelectCard(CardId.SwordsoulTaia);
@@ -1335,7 +1349,7 @@ namespace WindBot.Game.AI.Decks {
             bool canSeedAdhara = !Bot.HasInGraveyard(CardId.TenyiAdhara) && cards.IsExistingMatchingCard(card => card.Id == CardId.TenyiAdhara);
             bool canActivateAdhara = AdharaActivated.HasFlag(ActivatedEffect.Second);
             if(canSeedAdhara && canActivateAdhara)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAdhara);           
+                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAdhara);
 
             return cards[Rand.Next(cards.Count)];
         }
@@ -1589,9 +1603,19 @@ namespace WindBot.Game.AI.Decks {
             if(Enemy.GetFieldCount() < 2)
                 return false;
 
+            if(CanSummonChenying())
+                return false;
+
+            if(ShouldSummonBaronne())
+                return false;
+
+            if(ShouldSummonChixiao())
+                return false;
+
             int[] disallowedTargets = new int[] {
                 CardId.SwordsoulChixiao,
-                CardId.TenyiDracoBeserker
+                CardId.TenyiDracoBeserker,
+                CardId.YangZingChaofeng
             };
 
             List<ClientCard> targets = new List<ClientCard>();
@@ -1866,7 +1890,7 @@ namespace WindBot.Game.AI.Decks {
                 return false;
 
             if(ShouldSummonRuddyRose())
-                return false;     
+                return false;
 
             if(!ShouldSummonBaronne())
                 return false;
@@ -1927,7 +1951,7 @@ namespace WindBot.Game.AI.Decks {
             if(BaronneActivated.HasFlag(ActivatedEffect.Second))
                 return false;
 
-            if(DefaultTrap()) { 
+            if(DefaultTrap()) {
                 BaronneActivated |= ActivatedEffect.Second;
                 return true;
             }
@@ -2261,26 +2285,26 @@ namespace WindBot.Game.AI.Decks {
 
         private ClientCard SelectAnEnemyCardForRemoval(List<ClientCard> exclude) {
             ClientCard bestTarget = Util.GetProblematicEnemyCard(canBeTarget: true);
-            if(bestTarget != null) 
+            if(bestTarget != null)
                 return bestTarget;
 
-            IList<ClientCard> monsters = Enemy.GetMonsters().GetMatchingCards(card => !exclude.Contains(card));
-            if(monsters.Count > 0) 
+            IList<ClientCard> monsters = Enemy.GetMonsters().GetMatchingCards(card => !card.IsFacedown() && !exclude.Contains(card));
+            if(monsters.Count > 0)
                 return monsters.OrderByDescending(card => card.Attack).First();
 
             // facedowns can't be filtered normally, so try again for facedowns
-            monsters = Enemy.GetMonsters().Where(card => !exclude.Contains(card)).ToList();
-            if(monsters.Count > 0) 
-                return monsters[Rand.Next(monsters.Count)];      
+            monsters = Enemy.GetMonsters().Where(card => card.IsFacedown() && !exclude.Contains(card)).ToList();
+            if(monsters.Count > 0)
+                return monsters[Rand.Next(monsters.Count)];
 
-            IList<ClientCard> spells = Enemy.GetSpells().GetMatchingCards(card => !exclude.Contains(card));
+            IList<ClientCard> spells = Enemy.GetSpells().GetMatchingCards(card => !card.IsFacedown() && !exclude.Contains(card) && !card.IsShouldNotBeTarget() && !card.HasType(CardType.QuickPlay));
             if(spells.Count > 0)
                 return spells[Rand.Next(spells.Count)];
 
             // check the spell facedowns
             spells = Enemy.GetSpells().Where(card => !exclude.Contains(card) && card.IsFacedown()).ToList();
-            if(spells.Count > 0) 
-                return spells[Rand.Next(spells.Count)];           
+            if(spells.Count > 0)
+                return spells[Rand.Next(spells.Count)];
 
             return null;
         }
