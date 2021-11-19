@@ -649,6 +649,12 @@ namespace WindBot.Game.AI.Decks {
             if(Enemy.GetMonsters().Count == 0)
                 return false;
 
+            ClientCard target = SelectAnEnemyMonsterForRemoval();
+            if(target == null)
+                return false;
+
+            AI.SelectCard(target);
+
             VishudaActivated |= ActivatedEffect.Second;
             return true;
         }
@@ -2283,9 +2289,13 @@ namespace WindBot.Game.AI.Decks {
             return SelectAnEnemyCardForRemoval(new List<ClientCard>());
         }
 
-        private ClientCard SelectAnEnemyCardForRemoval(List<ClientCard> exclude) {
+        private ClientCard SelectAnEnemyMonsterForRemoval() {
+            return SelectEnemyMonsterForRemoval(new List<ClientCard>());
+        }
+
+        private ClientCard SelectEnemyMonsterForRemoval(List<ClientCard> exclude) {
             ClientCard bestTarget = Util.GetProblematicEnemyCard(canBeTarget: true);
-            if(bestTarget != null)
+            if(bestTarget != null && bestTarget.IsMonster())
                 return bestTarget;
 
             IList<ClientCard> monsters = Enemy.GetMonsters().GetMatchingCards(card => !card.IsFacedown() && !exclude.Contains(card));
@@ -2296,6 +2306,18 @@ namespace WindBot.Game.AI.Decks {
             monsters = Enemy.GetMonsters().Where(card => card.IsFacedown() && !exclude.Contains(card)).ToList();
             if(monsters.Count > 0)
                 return monsters[Rand.Next(monsters.Count)];
+
+            return null;
+        }
+
+        private ClientCard SelectAnEnemyCardForRemoval(List<ClientCard> exclude) {
+            ClientCard bestTarget = Util.GetProblematicEnemyCard(canBeTarget: true);
+            if(bestTarget != null)
+                return bestTarget;
+
+            ClientCard monster = SelectEnemyMonsterForRemoval(exclude);
+            if(monster != null)
+                return monster;
 
             IList<ClientCard> spells = Enemy.GetSpells().GetMatchingCards(card => !card.IsFacedown() && !exclude.Contains(card) && !card.IsShouldNotBeTarget() && !card.HasType(CardType.QuickPlay));
             if(spells.Count > 0)
