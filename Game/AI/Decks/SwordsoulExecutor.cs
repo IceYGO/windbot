@@ -330,6 +330,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.Hand))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             // on turn one we want to avoid breaking deck combos if we have plays
             if(Duel.Turn == 1) {
                 if(ShouldActivateGraveAshuna())
@@ -631,6 +634,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.Grave))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(!HasNonEffectMonster())
                 return false;
 
@@ -916,6 +922,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(EcclesiaActivated.HasFlag(ActivatedEffect.Second))
                 return false;
 
@@ -976,6 +985,9 @@ namespace WindBot.Game.AI.Decks {
         }
 
         private bool ActivateChengyingEffects() {
+            if(Card.IsDisabled())
+                return false;
+
             // always activate either of Chegnying effects
             return Card.Location.HasFlag(CardLocation.MonsterZone);
         }
@@ -1033,7 +1045,7 @@ namespace WindBot.Game.AI.Decks {
         }
 
         private List<ClientCard> SelectChengyingBanish(IList<ClientCard> cards) {
-            if(cards.Count < 1)
+            if(cards.Count == 0)
                 return null;
 
             ClientCard card = SelectAnEnemyCardForRemoval();
@@ -1089,6 +1101,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(!InPostSummonEffect(CardId.SwordsoulChixiao))
                 return false;
 
@@ -1101,6 +1116,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool ActivateChixiaoNegate() {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             if(InPostSummonEffect(CardId.SwordsoulChixiao))
@@ -1204,6 +1222,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.Hand))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(LongYuanActivated.HasFlag(ActivatedEffect.First))
                 return false;
 
@@ -1268,6 +1289,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.Grave))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(LongYuanActivated.HasFlag(ActivatedEffect.Second))
                 return false;
 
@@ -1281,6 +1305,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool ActivateTaiaSummon() {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             if(!CanActivateTaiaFromField())
@@ -1329,6 +1356,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool ActivateTaiaMill() {
             if(!Card.Location.HasFlag(CardLocation.Grave))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             TaiaActivated |= ActivatedEffect.Second;
@@ -1477,6 +1507,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(!CanActivateMoYeFromHand())
                 return false;
 
@@ -1488,6 +1521,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool ActivateMoYeDraw() {
             if(!Card.Location.HasFlag(CardLocation.Grave))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             if(MoYeActivated.HasFlag(ActivatedEffect.Second))
@@ -1547,6 +1583,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.Hand))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(EmergenceActivated.HasFlag(ActivatedEffect.First))
                 return false;
 
@@ -1573,6 +1612,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool ActivateEmergencLevelDown() {
             if(!Card.Location.HasFlag(CardLocation.Removed))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             if(EmergenceActivated.HasFlag(ActivatedEffect.Second))
@@ -1604,6 +1646,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool BlackoutActivateDestroy() {
             if(!Card.Location.HasFlag(CardLocation.SpellZone))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             if(Enemy.GetFieldCount() < 2)
@@ -1654,6 +1699,9 @@ namespace WindBot.Game.AI.Decks {
         }
 
         private bool BlackoutActivateSummon() {
+            if(Card.IsDisabled())
+                return false;
+
             return Card.Location.HasFlag(CardLocation.Removed);
         }
 
@@ -1663,6 +1711,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool ActivateSummit() {
             if(!Card.Location.HasFlag(CardLocation.Hand))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             if(SummitActivated.HasFlag(ActivatedEffect.First))
@@ -1682,6 +1733,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool ActivateSummitLevelDown() {
             if(!Card.Location.HasFlag(CardLocation.Removed))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             if(SummitActivated.HasFlag(ActivatedEffect.Second))
@@ -1870,6 +1924,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(!InPostSummonEffect(CardId.RuddyRoseDragon))
                 return false;
 
@@ -1878,6 +1935,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool ActivateRuddyRoseNegate() {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             if(Util.GetLastChainCard() == null)
@@ -1925,6 +1985,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             bool inMain = Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main1;
             if(!inMain)
                 return false;
@@ -1951,6 +2014,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(Util.GetLastChainCard() == null)
                 return false;
 
@@ -1967,6 +2033,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool ActivateBaronneRevive() {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             if(!BaronneActivated.HasFlag(ActivatedEffect.Second))
@@ -2029,6 +2098,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(!CanActivateYaziDestruction())
                 return false;
 
@@ -2052,6 +2124,9 @@ namespace WindBot.Game.AI.Decks {
         }
 
         private bool ActivateYaziSearch() {
+            if(Card.IsDisabled())
+                return false;
+
             return Card.Location.HasFlag(CardLocation.Grave);
         }
 
@@ -2121,6 +2196,9 @@ namespace WindBot.Game.AI.Decks {
         }
 
         private bool ActivateChaofengSearchEffects() {
+            if(Card.IsDisabled())
+                return false;
+
             AI.SelectYesNo(true);
             return true;
         }
@@ -2205,6 +2283,9 @@ namespace WindBot.Game.AI.Decks {
             if(!Card.Location.HasFlag(CardLocation.MonsterZone))
                 return false;
 
+            if(Card.IsDisabled())
+                return false;
+
             if(Util.GetLastChainCard() == null)
                 return false;
 
@@ -2241,6 +2322,9 @@ namespace WindBot.Game.AI.Decks {
 
         private bool ActivateBlackroseDestroy() {
             if(!Bot.HasInMonstersZone(CardId.BlackRoseDragon))
+                return false;
+
+            if(Card.IsDisabled())
                 return false;
 
             if(Enemy.GetFieldCount() - Bot.GetFieldCount() < 3)
