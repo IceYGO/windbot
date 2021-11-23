@@ -95,6 +95,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnNewTurn()
         {
+            _activatedCards.Clear();
             Executor.OnNewTurn();
         }
 
