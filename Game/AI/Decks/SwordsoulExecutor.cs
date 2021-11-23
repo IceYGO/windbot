@@ -154,7 +154,12 @@ namespace WindBot.Game.AI.Decks {
             BaxiaActivated = ActivatedEffect.None;
 
             BaronneActivated &= ActivatedEffect.Second;
-        }
+
+            EffectChain.Clear();
+
+            // activation counts do not get reset between sessions so we can only activate the same card 9 times before the game prevents the AI from selecting the card
+            ResetActivatedCount();
+        }    
 
         #endregion Activate Effect Flags
 
@@ -250,7 +255,7 @@ namespace WindBot.Game.AI.Decks {
             if(currentCard == null)
                 return base.OnSelectCard(cards, min, max, hint, cancelable);
 
-            if(currentCard.Id == CardId.SwordsoulChixiao && ChixiaoActivated.HasFlag(ActivatedEffect.First)) {
+            if(currentCard.IsCode(CardId.SwordsoulChixiao) && ChixiaoActivated.HasFlag(ActivatedEffect.First)) {
                 ClientCard selected = ChixiaoSearchSelection(cards);
                 if(selected == null)
                     return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -258,7 +263,7 @@ namespace WindBot.Game.AI.Decks {
                 return new List<ClientCard>() { selected };
             }
 
-            if(currentCard.Id == CardId.SwordsoulTaia && TaiaActivated.HasFlag(ActivatedEffect.Second)) {
+            if(currentCard.IsCode(CardId.SwordsoulTaia) && TaiaActivated.HasFlag(ActivatedEffect.Second)) {
                 ClientCard selected = TaiaMillSelection(cards);
                 if(selected == null)
                     return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -266,7 +271,7 @@ namespace WindBot.Game.AI.Decks {
                 return new List<ClientCard>() { selected };
             }
 
-            if(currentCard.Id == CardId.IncredibleEcclesia && EcclesiaActivated.HasFlag(ActivatedEffect.Second)) {
+            if(currentCard.IsCode(CardId.IncredibleEcclesia) && EcclesiaActivated.HasFlag(ActivatedEffect.Second)) {
                 ClientCard selected = EcclesiaSearchSelection(cards);
                 if(selected == null)
                     return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -274,7 +279,7 @@ namespace WindBot.Game.AI.Decks {
                 return new List<ClientCard>() { selected };
             }
 
-            if(currentCard.Id == CardId.TenyiAshuna && AshunaActivated.HasFlag(ActivatedEffect.Second)) {
+            if(currentCard.IsCode(CardId.TenyiAshuna) && AshunaActivated.HasFlag(ActivatedEffect.Second)) {
                 ClientCard selected = AshunaSearchSelection(cards);
                 if(selected == null)
                     return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -282,7 +287,7 @@ namespace WindBot.Game.AI.Decks {
                 return new List<ClientCard>() { selected };
             }
 
-            if(currentCard.Id == CardId.VesselForDragonCycle && VesselActivated.HasFlag(ActivatedEffect.First)) {
+            if(currentCard.IsCode(CardId.VesselForDragonCycle) && VesselActivated.HasFlag(ActivatedEffect.First)) {
                 ClientCard selected = VesselMillSelection(cards);
                 if(selected == null)
                     return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -290,7 +295,7 @@ namespace WindBot.Game.AI.Decks {
                 return new List<ClientCard>() { selected };
             }
 
-            if(currentCard.Id == CardId.VesselForDragonCycle && VesselActivated.HasFlag(ActivatedEffect.Second)) {
+            if(currentCard.IsCode(CardId.VesselForDragonCycle) && VesselActivated.HasFlag(ActivatedEffect.Second)) {
                 ClientCard selected = VesselSearchSelection(cards);
                 if(selected == null)
                     return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -298,7 +303,7 @@ namespace WindBot.Game.AI.Decks {
                 return new List<ClientCard>() { selected };
             }
 
-            if(currentCard.Id == CardId.SwordsoulChengying) {
+            if(currentCard.IsCode(CardId.SwordsoulChengying)) {
                 List<ClientCard> selected = SelectChengyingTargets(cards);
                 if(selected == null)
                     return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -306,7 +311,7 @@ namespace WindBot.Game.AI.Decks {
                 return selected;
             }
 
-            if(currentCard.Id == CardId.YangZingYazi) {
+            if(currentCard.IsCode(CardId.YangZingYazi)) {
                 ClientCard selected = YaziSearchSelection(cards);
                 if(selected == null)
                     return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -314,8 +319,16 @@ namespace WindBot.Game.AI.Decks {
                 return new List<ClientCard>() { selected };
             }
 
-            if(currentCard.Id == CardId.YangZingChaofeng) {
+            if(currentCard.IsCode(CardId.YangZingChaofeng)) {
                 ClientCard selected = SelectChaofengTarget(cards);
+                if(selected == null)
+                    return base.OnSelectCard(cards, min, max, hint, cancelable);
+
+                return new List<ClientCard>() { selected };
+            }
+
+            if(currentCard.IsCode(CardId.BaronneDeFluer)) {
+                ClientCard selected = BaronneDestroyTarget(cards);
                 if(selected == null)
                     return base.OnSelectCard(cards, min, max, hint, cancelable);
 
@@ -415,50 +428,50 @@ namespace WindBot.Game.AI.Decks {
             bool shouldSearch = true;
 
             // Make sure there are materials for ashuna in the deck while we are searching for mill
-            if(Bot.Hand.ContainsCardWithId(CardId.TenyiVishuda) && cards.GetMatchingCardsCount(card => card.Id == CardId.TenyiAdhara) == 1)
+            if(Bot.Hand.ContainsCardWithId(CardId.TenyiVishuda) && cards.GetMatchingCardsCount(card => card.IsCode(CardId.TenyiAdhara)) == 1)
                 shouldSearch = false;
 
-            if(Bot.Hand.ContainsCardWithId(CardId.TenyiAdhara) && cards.GetMatchingCardsCount(card => card.Id == CardId.TenyiVishuda) == 1)
+            if(Bot.Hand.ContainsCardWithId(CardId.TenyiAdhara) && cards.GetMatchingCardsCount(card => card.IsCode(CardId.TenyiVishuda)) == 1)
                 shouldSearch = false;
 
             AI.SelectYesNo(shouldSearch);
 
             if(!Bot.HasInGraveyard(CardId.TenyiAshuna) && cards.ContainsCardWithId(CardId.TenyiAshuna))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAshuna);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAshuna));
 
-            if(cards.GetMatchingCardsCount(card => card.Id == CardId.TenyiVishuda) > 1)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiVishuda);
+            if(cards.GetMatchingCardsCount(card => card.IsCode(CardId.TenyiVishuda)) > 1)
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiVishuda));
 
-            if(cards.GetMatchingCardsCount(card => card.Id == CardId.TenyiAdhara) > 1)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAdhara);
+            if(cards.GetMatchingCardsCount(card => card.IsCode(CardId.TenyiAdhara)) > 1)
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAdhara));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulLongYuan))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulLongYuan);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulLongYuan));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulMoYe))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulMoYe);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulMoYe));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulTaia))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulTaia);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulTaia));
 
             return null;
         }
 
         private ClientCard VesselSearchSelection(IList<ClientCard> cards) {
-            if(!VishudaActivated.HasFlag(ActivatedEffect.First) && cards.GetMatchingCardsCount(card => card.Id == CardId.TenyiVishuda) > 1)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiVishuda);
+            if(!VishudaActivated.HasFlag(ActivatedEffect.First) && cards.GetMatchingCardsCount(card => card.IsCode(CardId.TenyiVishuda)) > 1)
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiVishuda));
 
-            if(!AdharaActivated.HasFlag(ActivatedEffect.First) && cards.GetMatchingCardsCount(card => card.Id == CardId.TenyiAdhara) > 1)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAdhara);
+            if(!AdharaActivated.HasFlag(ActivatedEffect.First) && cards.GetMatchingCardsCount(card => card.IsCode(CardId.TenyiAdhara)) > 1)
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAdhara));
 
-            if(cards.IsExistingMatchingCard(card => card.Id == CardId.TenyiVishuda))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiVishuda);
+            if(cards.ContainsCardWithId(CardId.TenyiVishuda))
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiVishuda));
 
-            if(cards.IsExistingMatchingCard(card => card.Id == CardId.TenyiAdhara))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAdhara);
+            if(cards.ContainsCardWithId(CardId.TenyiAdhara))
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAdhara));
 
-            if(cards.IsExistingMatchingCard(card => card.Id == CardId.TenyiAshuna))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAshuna);
+            if(cards.ContainsCardWithId(CardId.TenyiAshuna))
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAshuna));
 
             return null;
         }
@@ -570,10 +583,10 @@ namespace WindBot.Game.AI.Decks {
 
         private ClientCard AshunaSearchSelection(IList<ClientCard> cards) {
             if(Bot.HasInMonstersZone(CardId.TenyiAdhara) && cards.ContainsCardWithId(CardId.TenyiVishuda))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiVishuda);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiVishuda));
 
             if(Bot.HasInMonstersZone(CardId.TenyiVishuda) && cards.ContainsCardWithId(CardId.TenyiAdhara))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAdhara);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAdhara));
 
             if(cards.Count > 0)
                 return cards[Rand.Next(cards.Count)];
@@ -655,7 +668,7 @@ namespace WindBot.Game.AI.Decks {
             if(Enemy.GetMonsters().Count == 0)
                 return false;
 
-            ClientCard target = SelectAnEnemyMonsterForRemoval();
+            ClientCard target = SelectAnEnemyCardForRemoval();
             if(target == null)
                 return false;
 
@@ -738,21 +751,21 @@ namespace WindBot.Game.AI.Decks {
             if(AdharaActivated.HasFlag(ActivatedEffect.Second))
                 return false;
 
-            ClientCard moye = Bot.Banished.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulMoYe);
+            ClientCard moye = Bot.Banished.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulMoYe));
             if(!NormalSummonUsed && moye != null && MoYeActivated.HasFlag(ActivatedEffect.First)) {
                 AdharaActivated |= ActivatedEffect.Second;
                 AI.SelectCard(moye);
                 return true;
             }
 
-            ClientCard taia = Bot.Banished.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulTaia);
+            ClientCard taia = Bot.Banished.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulTaia));
             if(!NormalSummonUsed && taia != null && TaiaActivated.HasFlag(ActivatedEffect.First)) {
                 AdharaActivated |= ActivatedEffect.Second;
                 AI.SelectCard(taia);
                 return true;
             }
 
-            ClientCard longyuan = Bot.Banished.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulLongYuan);
+            ClientCard longyuan = Bot.Banished.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulLongYuan));
             if(longyuan != null && LongYuanActivated.HasFlag(ActivatedEffect.First)) {
                 AdharaActivated |= ActivatedEffect.Second;
                 AI.SelectCard(longyuan);
@@ -925,6 +938,9 @@ namespace WindBot.Game.AI.Decks {
             if(Card.IsDisabled())
                 return false;
 
+            if(Bot.Deck.Count == 0)
+                return false;
+
             if(EcclesiaActivated.HasFlag(ActivatedEffect.Second))
                 return false;
 
@@ -934,17 +950,17 @@ namespace WindBot.Game.AI.Decks {
 
         private ClientCard EcclesiaSearchSelection(IList<ClientCard> cards) {
             if(cards.ContainsCardWithId(CardId.SwordsoulTaia) && CanActivateTaiaFromHand())
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulTaia);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulTaia));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulMoYe) && HasSoulswordMaterialInHand())
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulMoYe);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulMoYe));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulTaia))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulTaia);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulTaia));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulLongYuan)) {
                 AI.SelectPosition(CardPosition.Defence);
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulLongYuan);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulLongYuan));
             }
 
             if(cards.Count > 0)
@@ -1008,7 +1024,7 @@ namespace WindBot.Game.AI.Decks {
 
             // blackout is just good to remove
             if(cards.ContainsCardWithId(CardId.SwordsoulBlackout))
-                return new List<ClientCard>() { cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulBlackout) };
+                return new List<ClientCard>() { cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulBlackout)) };
 
             // these don't do much so we can remove
             int[] preferRemoving = new int[] {
@@ -1107,6 +1123,9 @@ namespace WindBot.Game.AI.Decks {
             if(!InPostSummonEffect(CardId.SwordsoulChixiao))
                 return false;
 
+            if(Bot.Deck.Count == 0)
+                return false;
+
             if(ChixiaoActivated.HasFlag(ActivatedEffect.First))
                 return false;
 
@@ -1133,13 +1152,13 @@ namespace WindBot.Game.AI.Decks {
             ClientCard cost = null;
 
             if(Bot.HasInGraveyard(CardId.SwordsoulBlackout))
-                cost = Bot.Graveyard.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulBlackout);
+                cost = Bot.Graveyard.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulBlackout));
 
             if(cost == null && Bot.HasInGraveyard(CardId.SwordsoulEmergence))
-                cost = Bot.Graveyard.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulEmergence);
+                cost = Bot.Graveyard.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulEmergence));
 
             if(cost == null && Bot.HasInGraveyard(CardId.SwordsoulTaia))
-                cost = Bot.Graveyard.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulTaia);
+                cost = Bot.Graveyard.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulTaia));
 
             if(cost == null) {
                 IList<ClientCard> possibleCost = Bot.Graveyard.GetMatchingCards(card => Wyrms.Contains(card.Id));
@@ -1169,44 +1188,44 @@ namespace WindBot.Game.AI.Decks {
             AI.SelectOption(0);
 
             if(NormalSummonUsed && Bot.HasInMonstersZone(CardId.TenyiMonk) && !Bot.HasInHand(CardId.SwordsoulBlackout))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulBlackout);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulBlackout));
 
             if(NormalSummonUsed && Bot.HasInMonstersZone(CardId.SwordsoulChengying) && !Bot.HasInHand(CardId.SwordsoulBlackout))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulBlackout);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulBlackout));
 
             // extenders
             bool hasActivateableLongyuan = !LongYuanActivated.HasFlag(ActivatedEffect.First) && Bot.HasInHand(CardId.SwordsoulLongYuan) && HasSoulswordMaterialInHand(CardId.SwordsoulLongYuan);
             bool isDeckLonyaunActivatable = !LongYuanActivated.HasFlag(ActivatedEffect.First) && cards.ContainsCardWithId(CardId.SwordsoulLongYuan) && HasSoulswordMaterialInHand();
             if(isDeckLonyaunActivatable && !hasActivateableLongyuan)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulLongYuan);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulLongYuan));
 
             if(!Bot.HasInHand(CardId.SwordsoulSummit) && cards.ContainsCardWithId(CardId.SwordsoulSummit) && GetBestSummitTargetInGrave().ShouldSearch)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulSummit);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulSummit));
 
             if(!Bot.HasInHand(CardId.SwordsoulMoYe) && cards.ContainsCardWithId(CardId.SwordsoulMoYe) && CanActivateMoYeFromDeck() && !NormalSummonUsed)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulMoYe);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulMoYe));
 
             if(!Bot.HasInHand(CardId.SwordsoulTaia) && cards.ContainsCardWithId(CardId.SwordsoulTaia) && CanActivateTaiaFromHand() && !NormalSummonUsed)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulTaia);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulTaia));
 
             // any other target
             if(cards.ContainsCardWithId(CardId.SwordsoulBlackout))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulBlackout);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulBlackout));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulSummit))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulBlackout);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulBlackout));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulLongYuan))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulLongYuan);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulLongYuan));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulMoYe))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulMoYe);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulMoYe));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulTaia))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulTaia);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulTaia));
 
             if(cards.ContainsCardWithId(CardId.SwordsoulSummit))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulSummit);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulSummit));
 
             if(cards.Count > 0)
                 return cards[Rand.Next(cards.Count)];
@@ -1369,23 +1388,31 @@ namespace WindBot.Game.AI.Decks {
             if(cards.Count == 0)
                 return null;
 
-            if(cards.IsExistingMatchingCard(card => card.Id == CardId.SwordsoulMoYe))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulMoYe);
+            if(cards.ContainsCardWithId(CardId.SwordsoulMoYe)) { 
+                if(ShouldSummonDragnite() || Bot.HasInMonstersZone(CardId.AdamancipatorDragnite))
+                    return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulMoYe));
 
-            bool canSeedVishuda = !Bot.HasInGraveyard(CardId.TenyiVishuda) && cards.IsExistingMatchingCard(card => card.Id == CardId.TenyiVishuda);
+                if(!Bot.HasInGraveyard(CardId.SwordsoulMoYe))
+                    return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulMoYe));
+            }
+
+            bool canSeedVishuda = !Bot.HasInGraveyard(CardId.TenyiVishuda) && cards.ContainsCardWithId(CardId.TenyiVishuda);
             bool canActivateVishuda = VishudaActivated.HasFlag(ActivatedEffect.Second) && Enemy.GetMonsters().Count > 0;
             if(canSeedVishuda && canActivateVishuda)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiVishuda);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiVishuda));
 
-            bool canSeedAshuna = !Bot.HasInGraveyard(CardId.TenyiAshuna) && cards.IsExistingMatchingCard(card => card.Id == CardId.TenyiAshuna);
+            bool canSeedAshuna = !Bot.HasInGraveyard(CardId.TenyiAshuna) && cards.ContainsCardWithId(CardId.TenyiAshuna);
             bool canActivateAshuna = AshunaActivated.HasFlag(ActivatedEffect.Second);
             if(canSeedAshuna && canActivateAshuna)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAshuna);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAshuna));
 
-            bool canSeedAdhara = !Bot.HasInGraveyard(CardId.TenyiAdhara) && cards.IsExistingMatchingCard(card => card.Id == CardId.TenyiAdhara);
+            bool canSeedAdhara = !Bot.HasInGraveyard(CardId.TenyiAdhara) && cards.ContainsCardWithId(CardId.TenyiAdhara);
             bool canActivateAdhara = AdharaActivated.HasFlag(ActivatedEffect.Second);
             if(canSeedAdhara && canActivateAdhara)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAdhara);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAdhara));
+
+            if(cards.ContainsCardWithId(CardId.SwordsoulMoYe))
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulMoYe));
 
             return cards[Rand.Next(cards.Count)];
         }
@@ -1456,6 +1483,9 @@ namespace WindBot.Game.AI.Decks {
                 return false;
 
             if(TaiaActivated.HasFlag(ActivatedEffect.First))
+                return false;
+
+            if(!Bot.HasInGraveyard(SwordSouls) && !Bot.HasInGraveyard(Wyrms))
                 return false;
 
             if(EmptyMainMonsterZones() == 0)
@@ -1676,7 +1706,7 @@ namespace WindBot.Game.AI.Decks {
                 return false;
 
             if(Bot.HasInMonstersZone(CardId.SwordsoulChengying) && !ChengyingActivated.HasFlag(ActivatedEffect.First))
-                targets.Add(myCard.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulChengying));
+                targets.Add(myCard.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulChengying)));
             else
                 targets.Add(myCard.OrderBy(card => card.Attack).First());
 
@@ -1880,8 +1910,8 @@ namespace WindBot.Game.AI.Decks {
             if(!Bot.HasInGraveyard(CardId.TenyiAdhara))
                 return false;
 
-            ClientCard monk = Bot.MonsterZone.GetFirstMatchingCard(card => card.Id == CardId.TenyiMonk);
-            ClientCard adhara = Bot.Graveyard.GetFirstMatchingCard(card => card.Id == CardId.TenyiAdhara);
+            ClientCard monk = Bot.MonsterZone.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiMonk));
+            ClientCard adhara = Bot.Graveyard.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAdhara));
             AI.SelectCard(monk);
             AI.SelectNextCard(adhara);
 
@@ -1988,7 +2018,7 @@ namespace WindBot.Game.AI.Decks {
             if(Card.IsDisabled())
                 return false;
 
-            bool inMain = Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main1;
+            bool inMain = Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2;
             if(!inMain)
                 return false;
 
@@ -2008,6 +2038,19 @@ namespace WindBot.Game.AI.Decks {
             BaronneActivated |= ActivatedEffect.First;
             AI.SelectCard(target);
             return true;
+        }
+
+        private ClientCard BaronneDestroyTarget(IList<ClientCard> cards) {
+            List<ClientCard> targetAttempts = new List<ClientCard>();
+            for(int i = 0; i < Enemy.GetFieldCount(); i++) { 
+                ClientCard target = SelectAnEnemyCardForRemoval(targetAttempts);
+                if(target != null && cards.Contains(target))
+                    return target;
+
+                targetAttempts.Add(target);
+            }
+
+            return null;
         }
 
         private bool ActivateBaronneNegate() {
@@ -2044,7 +2087,7 @@ namespace WindBot.Game.AI.Decks {
             if(Duel.Phase != DuelPhase.Standby)
                 return false;
 
-            ClientCard target = Bot.Graveyard.GetFirstMatchingCard(card => card.Id == CardId.TenyiDracoBeserker);
+            ClientCard target = Bot.Graveyard.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiDracoBeserker));
             if(target != null) {
                 AI.SelectCard(target);
                 BaronneActivated &= ~ActivatedEffect.Second;
@@ -2052,7 +2095,7 @@ namespace WindBot.Game.AI.Decks {
                 return true;
             }
 
-            target = Bot.Graveyard.GetFirstMatchingCard(card => card.Id == CardId.AdamancipatorDragnite);
+            target = Bot.Graveyard.GetFirstMatchingCard(card => card.IsCode(CardId.AdamancipatorDragnite));
             if(target != null) {
                 AI.SelectCard(target);
                 BaronneActivated &= ~ActivatedEffect.Second;
@@ -2138,21 +2181,21 @@ namespace WindBot.Game.AI.Decks {
                 return null;
 
             if(CanActivateMoYeFromDeck() && cards.ContainsCardWithId(CardId.SwordsoulMoYe))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulMoYe);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulMoYe));
 
             if(CanActivateTaiaFromHand() && cards.ContainsCardWithId(CardId.SwordsoulTaia))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulTaia);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulTaia));
 
             if(LongYuanActivated.HasFlag(ActivatedEffect.First) && cards.ContainsCardWithId(CardId.SwordsoulLongYuan))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.SwordsoulLongYuan);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulLongYuan));
 
             return null;
         }
 
         private bool TriggeLevelDownForYazi() {
-            ClientCard selected = Bot.GetMonsters().GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulTaia);
+            ClientCard selected = Bot.GetMonsters().GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulTaia));
             if(selected == null)
-                selected = Bot.GetMonsters().GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulMoYe);
+                selected = Bot.GetMonsters().GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulMoYe));
 
             if(selected == null)
                 return false;
@@ -2228,13 +2271,13 @@ namespace WindBot.Game.AI.Decks {
             bool canActivateEcclesia = canSummonEcclesia && !EcclesiaActivated.HasFlag(ActivatedEffect.Second);
             bool doesWantEcclesia = Duel.Player == 1 || canActivateEcclesia;
             if(cards.ContainsCardWithId(CardId.IncredibleEcclesia) && doesWantEcclesia)
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.IncredibleEcclesia);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.IncredibleEcclesia));
 
             if(cards.ContainsCardWithId(CardId.AshBlossomAndJoyousSpring))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.AshBlossomAndJoyousSpring);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.AshBlossomAndJoyousSpring));
 
             if(cards.ContainsCardWithId(CardId.TenyiAdhara))
-                return cards.GetFirstMatchingCard(card => card.Id == CardId.TenyiAdhara);
+                return cards.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAdhara));
 
             return null;
         }
@@ -2343,7 +2386,7 @@ namespace WindBot.Game.AI.Decks {
                 return false;
 
             ClientCard card = summons.Last();
-            return card.Id == cardId && card.Owner == 0;
+            return card.IsCode(cardId) && card.Owner == 0;
         }
 
         private bool HasSoulswordMaterialInHand(int activedSoulsword) {
@@ -2470,48 +2513,48 @@ namespace WindBot.Game.AI.Decks {
             switch(level) {
                 case TargetSynchroLevel.Level_10:
                     if(Bot.HasInMonstersZone(CardId.SwordsoulToken)) {
-                        materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulToken));
+                        materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulToken)));
 
                         if(Bot.HasInMonstersZone(CardId.SwordsoulLongYuan))
-                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulLongYuan));
+                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulLongYuan)));
                     }
                     break;
                 case TargetSynchroLevel.Level_9:
                     if(Bot.HasInMonstersZone(CardId.YangZingBaxia)) {
-                        materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.YangZingBaxia));
+                        materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.YangZingBaxia)));
 
                         if(Bot.HasInMonstersZone(CardId.TenyiAdhara))
-                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.TenyiAdhara));
+                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.TenyiAdhara)));
                     }
                     break;
                 case TargetSynchroLevel.Level_8_Swordsoul:
                     if(Bot.HasInMonstersZone(CardId.SwordsoulToken)) {
-                        materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulToken));
+                        materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulToken)));
 
                         if(Bot.HasInMonstersZone(CardId.SwordsoulMoYe))
-                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulMoYe));
+                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulMoYe)));
                         else if(Bot.HasInMonstersZone(CardId.SwordsoulTaia))
-                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulTaia));
+                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulTaia)));
                     }
                     break;
                 case TargetSynchroLevel.Level_8_Tenki:
                     if(Bot.HasInMonstersZone(CardId.TenyiAdhara)) {
-                        materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.TenyiAdhara));
+                        materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.TenyiAdhara)));
 
                         if(Bot.HasInMonstersZone(CardId.TenyiVishuda))
-                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.TenyiVishuda));
+                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.TenyiVishuda)));
                         else if(Bot.HasInMonstersZone(CardId.TenyiAshuna))
-                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.TenyiAshuna));
+                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.TenyiAshuna)));
                     }
                     break;
                 case TargetSynchroLevel.Level_7:
                     if(Bot.HasInMonstersZone(CardId.SwordsoulToken)) {
-                        materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulToken));
+                        materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulToken)));
 
                         if(Bot.HasInMonstersZone(CardId.SwordsoulMoYe))
-                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulMoYe));
+                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulMoYe)));
                         else if(Bot.HasInMonstersZone(CardId.SwordsoulTaia))
-                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.SwordsoulTaia));
+                            materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulTaia)));
                     }
                     break;
             }
@@ -2560,6 +2603,12 @@ namespace WindBot.Game.AI.Decks {
                 return false;
 
             return true;
+        }
+
+        private void ResetActivatedCount() {
+            typeof(GameAI)
+                .GetField("_activatedCards", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .SetValue(AI, new Dictionary<int, int>());
         }
 
         #endregion Utils
