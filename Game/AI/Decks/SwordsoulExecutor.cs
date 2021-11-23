@@ -493,10 +493,6 @@ namespace WindBot.Game.AI.Decks {
             // Do the combo no matter what if we have two tenyi           
             bool usableVishuna = Bot.Hand.ContainsCardWithId(CardId.TenyiVishuda);
 
-            // keep vishuna hack in mind for now
-            if(Enemy.GetFieldCount() == 0)
-                usableVishuna = false;
-
             bool usableAdhara = Bot.Hand.ContainsCardWithId(CardId.TenyiAdhara) || Bot.Hand.ContainsCardWithId(CardId.VesselForDragonCycle);
             if(usableVishuna || usableAdhara) {
                 AshunaActivated |= ActivatedEffect.First;
@@ -563,10 +559,6 @@ namespace WindBot.Game.AI.Decks {
                     return false;
             }
 
-            // we probably want a monk for blackout
-            if(Bot.HasInMonstersZone(CardId.TenyiMonk))
-                return false;
-
             return true;
         }
 
@@ -608,9 +600,7 @@ namespace WindBot.Game.AI.Decks {
             if(VishudaActivated.HasFlag(ActivatedEffect.First))
                 return false;
 
-            // don't activate if opponent has a monster since it's impossible to differentiate the effects
-            // if a way is found around this then replace this check with the diffentiation
-            if(Enemy.GetFieldCount() > 0)
+            if(ActivateDescription == Util.GetStringId(CardId.TenyiVishuda, 1))
                 return false;
 
             bool ashunaReady = !AshunaActivated.HasFlag(ActivatedEffect.Second) && Bot.HasInGraveyard(CardId.TenyiAshuna);
@@ -638,6 +628,7 @@ namespace WindBot.Game.AI.Decks {
             if(Bot.Hand.ContainsCardWithId(CardId.IncredibleEcclesia))
                 return false;
 
+            AI.SelectPosition(CardPosition.Defence);
             AI.SelectYesNo(true);
             VishudaActivated |= ActivatedEffect.First;
             return true;
@@ -711,10 +702,6 @@ namespace WindBot.Game.AI.Decks {
 
             bool ashunaReady = !AshunaActivated.HasFlag(ActivatedEffect.Second) && Bot.HasInGraveyard(CardId.TenyiAshuna);
             bool vesselReady = !VesselActivated.HasFlag(ActivatedEffect.First) && Bot.HasInHand(CardId.VesselForDragonCycle);
-
-            // hack for Vishuda
-            if(Enemy.GetFieldCount() > 0)
-                vesselReady = false;
 
             // Always activate if able if there is a Ashuna in grave or Vessel in hand
             if(ashunaReady || vesselReady) {
@@ -1705,7 +1692,9 @@ namespace WindBot.Game.AI.Decks {
             if(myCard.Count == 0)
                 return false;
 
-            if(Bot.HasInMonstersZone(CardId.SwordsoulChengying) && !ChengyingActivated.HasFlag(ActivatedEffect.First))
+            if(Bot.HasInMonstersZone(CardId.TenyiAdhara))
+                targets.Add(myCard.GetFirstMatchingCard(card => card.IsCode(CardId.TenyiAdhara)));
+            else if(Bot.HasInMonstersZone(CardId.SwordsoulChengying) && !ChengyingActivated.HasFlag(ActivatedEffect.First))
                 targets.Add(myCard.GetFirstMatchingCard(card => card.IsCode(CardId.SwordsoulChengying)));
             else
                 targets.Add(myCard.OrderBy(card => card.Attack).First());
@@ -2207,7 +2196,7 @@ namespace WindBot.Game.AI.Decks {
                 return true;
             }
 
-            bool hasSynchroMaterial = Bot.HasInMonstersZone(CardId.SwordsoulToken) || Util.GetLastChainCard().Id != CardId.SwordsoulTaia;
+            bool hasSynchroMaterial = Bot.HasInMonstersZone(CardId.SwordsoulToken) || Util.GetLastChainCard().Id == CardId.SwordsoulTaia;
             if(!hasSynchroMaterial)
                 return false;
 
@@ -2414,10 +2403,6 @@ namespace WindBot.Game.AI.Decks {
 
         private ClientCard SelectAnEnemyCardForRemoval() {
             return SelectAnEnemyCardForRemoval(new List<ClientCard>());
-        }
-
-        private ClientCard SelectAnEnemyMonsterForRemoval() {
-            return SelectEnemyMonsterForRemoval(new List<ClientCard>());
         }
 
         private ClientCard SelectEnemyMonsterForRemoval(List<ClientCard> exclude) {
