@@ -1988,7 +1988,7 @@ namespace WindBot.Game.AI.Decks {
             if(!Bot.ExtraDeck.ContainsCardWithId(CardId.BaronneDeFluer))
                 return false;
 
-            if(Enemy.GetFieldCount() == 0)
+            if(Enemy.GetFieldCount() == 0 && !Bot.HasInMonstersZone(CardId.SwordsoulChengying))
                 return false;
 
             if(AshunaActivated.HasFlag(ActivatedEffect.Second))
@@ -2196,7 +2196,7 @@ namespace WindBot.Game.AI.Decks {
                 return true;
             }
 
-            bool hasSynchroMaterial = Bot.HasInMonstersZone(CardId.SwordsoulToken) || Util.GetLastChainCard().Id == CardId.SwordsoulTaia;
+            bool hasSynchroMaterial = Bot.HasInMonstersZone(CardId.SwordsoulToken) || (Util.GetLastChainCard() != null && Util.GetLastChainCard().Id == CardId.SwordsoulTaia);
             if(!hasSynchroMaterial)
                 return false;
 
@@ -2407,7 +2407,7 @@ namespace WindBot.Game.AI.Decks {
 
         private ClientCard SelectEnemyMonsterForRemoval(List<ClientCard> exclude) {
             ClientCard bestTarget = Util.GetProblematicEnemyCard(canBeTarget: true);
-            if(bestTarget != null && bestTarget.IsMonster())
+            if(bestTarget != null && bestTarget.IsMonster() && !exclude.Contains(bestTarget))
                 return bestTarget;
 
             IList<ClientCard> monsters = Enemy.GetMonsters().GetMatchingCards(card => !card.IsFacedown() && !exclude.Contains(card));
@@ -2424,14 +2424,14 @@ namespace WindBot.Game.AI.Decks {
 
         private ClientCard SelectAnEnemyCardForRemoval(List<ClientCard> exclude) {
             ClientCard bestTarget = Util.GetProblematicEnemyCard(canBeTarget: true);
-            if(bestTarget != null)
+            if(bestTarget != null && !exclude.Contains(bestTarget))
                 return bestTarget;
 
             ClientCard monster = SelectEnemyMonsterForRemoval(exclude);
             if(monster != null)
                 return monster;
 
-            IList<ClientCard> spells = Enemy.GetSpells().GetMatchingCards(card => !card.IsFacedown() && !exclude.Contains(card) && !card.IsShouldNotBeTarget() && !card.HasType(CardType.QuickPlay));
+            IList<ClientCard> spells = Enemy.GetSpells().GetMatchingCards(card => !card.IsFacedown() && !exclude.Contains(card) && !isNonPermamentSpell(card));
             if(spells.Count > 0)
                 return spells[Rand.Next(spells.Count)];
 
@@ -2441,6 +2441,18 @@ namespace WindBot.Game.AI.Decks {
                 return spells[Rand.Next(spells.Count)];
 
             return null;
+        }
+
+        private bool isNonPermamentSpell(ClientCard card) {
+            // normal spell
+            if(card.Type == (int)CardType.Spell)
+                return true;
+
+            // quickplay spell
+            if(card.HasType(CardType.Spell | CardType.QuickPlay))
+                return true;
+
+            return false;
         }
 
         private bool MonsterNegateNext() {
