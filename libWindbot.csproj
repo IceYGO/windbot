@@ -84,6 +84,7 @@
     <Compile Include="Game\AI\Decks\SalamangreatExecutor.cs" />
     <Compile Include="Game\AI\Decks\SkyStrikerExecutor.cs" />
     <Compile Include="Game\AI\Decks\ST1732Executor.cs" />
+    <Compile Include="Game\AI\Decks\SwordsoulExecutor.cs" />
     <Compile Include="Game\AI\Decks\TimeThiefExecutor.cs" />
     <Compile Include="Game\AI\Decks\ToadallyAwesomeExecutor.cs" />
     <Compile Include="Game\AI\Decks\TrickstarExecutor.cs" />
