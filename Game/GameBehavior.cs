@@ -1474,10 +1474,8 @@ namespace WindBot.Game
                 for (int i = 0; i < count; ++i)
                 {
                     int cardId = packet.ReadInt32();
-                    int player = GetLocalPlayer(packet.ReadByte());
-                    CardLocation loc = (CardLocation)packet.ReadByte();
-                    int seq = packet.ReadInt32();
-                    ClientCard card = _duel.GetCard(player, loc, seq);
+                    LocationInfo info = new LocationInfo(packet, _duel.IsFirst);
+                    ClientCard card = _duel.GetCard(info.controler, info.location, info.sequence, info.position);
                     if (cardId != 0 && card.Id != cardId)
                         card.SetId(cardId);
                     card.SelectSeq = i;
