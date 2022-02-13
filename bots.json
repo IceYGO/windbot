@@ -171,7 +171,7 @@
         "name": "Swordsoul",
         "deck": "Swordsoul",
         "difficulty": 3,
-        "masterRules": [ 5 ]
+        "masterRules": [ 7 ]
     },
     {
         "name": "Time Thief",
