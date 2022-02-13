@@ -168,6 +168,12 @@
         "masterRules": [4, 5]
     },
     {
+        "name": "Swordsoul",
+        "deck": "Swordsoul",
+        "difficulty": 3,
+        "masterRules": [ 5 ]
+    },
+    {
         "name": "Time Thief",
         "deck": "TimeThief",
         "difficulty": 2,
