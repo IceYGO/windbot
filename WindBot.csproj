@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <BaseOutputPath>$(MSBuildProjectDirectory)/out/$(MSBuildProjectName)/bin</BaseOutputPath>
@@ -56,6 +56,8 @@
   <ItemGroup>
     <Compile Include="Config.cs" />
     <Compile Include="Game\AI\Deck.cs" />
+    <Compile Include="Game\AI\Decks\[HealingJAMExecutor].cs" />
+    <Compile Include="Game\AI\Decks\[ImaginaryArkExecutor].cs" />
     <Compile Include="Game\DecksManager.cs" />
     <Compile Include="Game\AI\Decks\ABCExecutor.cs" />
     <Compile Include="Game\AI\Decks\AltergeistExecutor.cs" />

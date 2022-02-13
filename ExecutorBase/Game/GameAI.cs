@@ -394,7 +394,7 @@ namespace WindBot.Game
             Executor.SetMain(main);
             foreach (CardExecutor exec in Executor.Executors)
             {
-            	if (exec.Type == ExecutorType.GoToEndPhase && main.CanEndPhase && exec.Func()) // check if should enter end phase directly
+                if (exec.Type == ExecutorType.GoToEndPhase && main.CanEndPhase && exec.Func()) // check if should enter end phase directly
                 {
                     _dialogs.SendEndTurn();
                     return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase);
@@ -700,12 +700,18 @@ namespace WindBot.Game
         /// <returns>A new list containing the tributed cards.</returns>
         public IList<ClientCard> OnSelectTribute(IList<ClientCard> cards, int min, int max, long hint, bool cancelable)
         {
+            IList<ClientCard> selected = Executor.OnSelectCard(cards, min, max, hint, cancelable);
+            if (selected != null)
+            {
+                return selected;
+            }
+
             // Always choose the minimum and lowest atk.
             List<ClientCard> sorted = new List<ClientCard>();
             sorted.AddRange(cards);
             sorted.Sort(CardContainer.CompareCardAttack);
 
-            IList<ClientCard> selected = new List<ClientCard>();
+            selected = new List<ClientCard>();
 
             for (int i = 0; i < min && i < sorted.Count; ++i)
                 selected.Add(sorted[i]);
