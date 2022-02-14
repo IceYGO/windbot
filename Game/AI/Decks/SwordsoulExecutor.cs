@@ -128,7 +128,7 @@ namespace WindBot.Game.AI.Decks {
 
         private ActivatedEffect BaronneActivated = ActivatedEffect.None;
 
-        private Stack<ClientCard> EffectChain = new Stack<ClientCard>();
+        private LinkedList<ClientCard> EffectChain = new LinkedList<ClientCard>();
 
         public override void OnNewTurn() {
             NormalSummonUsed = false;
@@ -1807,7 +1807,7 @@ namespace WindBot.Game.AI.Decks {
             };
         }
 
-        private struct SummitTargetResult {
+        private class SummitTargetResult {
             public bool HasTarget { get; set; }
             public int Card { get; set; }
             public bool IsPowerful { get; set; }
@@ -2577,12 +2577,16 @@ namespace WindBot.Game.AI.Decks {
             if(EffectChain.Count == 0) {
                 foreach(ClientCard card in Duel.CurrentChain) {
                     if(card.Owner == 0 && searchCards.Contains(card.Id))
-                        EffectChain.Push(card);
+                        EffectChain.AddLast(card);
                 }
             }
 
-            if(EffectChain.Count > 0)
-                return EffectChain.Pop();
+            if (EffectChain.Count > 0)
+            {
+                ClientCard card = EffectChain.Last.Value;
+                EffectChain.RemoveLast();
+                return card;
+            }
 
             return Util.GetLastChainCard();
         }
