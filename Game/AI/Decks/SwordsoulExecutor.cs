@@ -2509,48 +2509,48 @@ namespace WindBot.Game.AI.Decks {
 
             switch(level) {
                 case TargetSynchroLevel.Level_10:
-                    if(Bot.HasInMonstersZone(CardId.SwordsoulToken)) {
+                    if(Bot.HasInMonstersZone(CardId.SwordsoulToken, false, false, true)) {
                         materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulToken)));
 
-                        if(Bot.HasInMonstersZone(CardId.SwordsoulLongYuan))
+                        if(Bot.HasInMonstersZone(CardId.SwordsoulLongYuan, false, false, true))
                             materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulLongYuan)));
                     }
                     break;
                 case TargetSynchroLevel.Level_9:
-                    if(Bot.HasInMonstersZone(CardId.YangZingBaxia)) {
+                    if(Bot.HasInMonstersZone(CardId.YangZingBaxia, false, false, true)) {
                         materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.YangZingBaxia)));
 
-                        if(Bot.HasInMonstersZone(CardId.TenyiAdhara))
+                        if(Bot.HasInMonstersZone(CardId.TenyiAdhara, false, false, true))
                             materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.TenyiAdhara)));
                     }
                     break;
                 case TargetSynchroLevel.Level_8_Swordsoul:
-                    if(Bot.HasInMonstersZone(CardId.SwordsoulToken)) {
+                    if(Bot.HasInMonstersZone(CardId.SwordsoulToken, false, false, true)) {
                         materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulToken)));
 
-                        if(Bot.HasInMonstersZone(CardId.SwordsoulMoYe))
+                        if(Bot.HasInMonstersZone(CardId.SwordsoulMoYe, false, false, true))
                             materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulMoYe)));
-                        else if(Bot.HasInMonstersZone(CardId.SwordsoulTaia))
+                        else if(Bot.HasInMonstersZone(CardId.SwordsoulTaia, false, false, true))
                             materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulTaia)));
                     }
                     break;
                 case TargetSynchroLevel.Level_8_Tenki:
-                    if(Bot.HasInMonstersZone(CardId.TenyiAdhara)) {
+                    if(Bot.HasInMonstersZone(CardId.TenyiAdhara, false, false, true)) {
                         materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.TenyiAdhara)));
 
-                        if(Bot.HasInMonstersZone(CardId.TenyiVishuda))
+                        if(Bot.HasInMonstersZone(CardId.TenyiVishuda, false, false, true))
                             materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.TenyiVishuda)));
-                        else if(Bot.HasInMonstersZone(CardId.TenyiAshuna))
+                        else if(Bot.HasInMonstersZone(CardId.TenyiAshuna, false, false, true))
                             materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.TenyiAshuna)));
                     }
                     break;
                 case TargetSynchroLevel.Level_7:
-                    if(Bot.HasInMonstersZone(CardId.SwordsoulToken)) {
+                    if(Bot.HasInMonstersZone(CardId.SwordsoulToken, false, false, true)) {
                         materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulToken)));
 
-                        if(Bot.HasInMonstersZone(CardId.SwordsoulMoYe))
+                        if(Bot.HasInMonstersZone(CardId.SwordsoulMoYe, false, false, true))
                             materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulMoYe)));
-                        else if(Bot.HasInMonstersZone(CardId.SwordsoulTaia))
+                        else if(Bot.HasInMonstersZone(CardId.SwordsoulTaia, false, false, true))
                             materials.Add(Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.IsCode(CardId.SwordsoulTaia)));
                     }
                     break;
