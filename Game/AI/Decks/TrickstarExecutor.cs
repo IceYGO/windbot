@@ -709,7 +709,7 @@ namespace WindBot.Game.AI.Decks
                 targets.Add(e_c);
                 if (targets.Count >= 5)
                 {
-                    AI.SelectCard(targets);
+                    Eater_ss_select(targets);
                     return true;
                 }
             }
@@ -719,11 +719,19 @@ namespace WindBot.Game.AI.Decks
                 targets.Add(s_c);
                 if (targets.Count >= 5)
                 {
-                    AI.SelectCard(targets);
+                    Eater_ss_select(targets);
                     return true;
                 }
             }
             return false;
+        }
+
+        public void Eater_ss_select(IList<ClientCard> cards)
+        {
+            foreach (ClientCard card in cards)
+            {
+                AI.SelectCard(card);
+            }
         }
 
         public bool Eater_eff()

@@ -468,7 +468,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             if(Bot.HasInExtra(CardId.BorreloadDragon))
             {
-                AI.SelectCard(
+                EaterOfMillionssSelect(
                     CardId.TopologicBomberDragon,
                     CardId.TopologicTrisbaena,
                     CardId.KnightmareGryphon,
@@ -484,7 +484,26 @@ namespace WindBot.Game.AI.Decks
                     material_list.Add(m);
                 }
             }
+            if (material_list.Count == 5)
+            {
+                EaterOfMillionssSelect(material_list);
+            }
             return true;
+        }
+        private void EaterOfMillionssSelect(IList<ClientCard> targets)
+        {
+            foreach (ClientCard card in targets)
+            {
+                AI.SelectCard(card);
+            }
+        }
+
+        private void EaterOfMillionssSelect(params int[] ids)
+        {
+            foreach (int cardId in ids)
+            {
+                AI.SelectCard(cardId);
+            }
         }
 
         private bool EaterOfMillionseff()

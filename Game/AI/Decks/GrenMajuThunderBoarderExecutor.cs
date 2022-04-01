@@ -523,7 +523,7 @@ namespace WindBot.Game.AI.Decks
                 targets.Add(e_c);                
                 if (targets.Count >= 5)
                 {
-                    AI.SelectCard(targets);
+                    EaterOfMillionssSelect(targets);
                     /*AI.SelectCard(new[] {
                         CardId.BingirsuTheWorldChaliceWarrior,
                         CardId.TopologicTrisbaena,
@@ -548,11 +548,19 @@ namespace WindBot.Game.AI.Decks
                 targets.Add(s_c);
                 if (targets.Count >= 5)
                 {
-                    AI.SelectCard(targets);
+                    EaterOfMillionssSelect(targets);
                     return true;
                 }
             }
             return false;
+        }
+
+        private void EaterOfMillionssSelect(IList<ClientCard> targets)
+        {
+            foreach (ClientCard card in targets)
+            {
+                AI.SelectCard(card);
+            }
         }
 
         private bool EaterOfMillionseff()
