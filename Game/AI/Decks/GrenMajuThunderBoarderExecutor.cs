@@ -557,9 +557,9 @@ namespace WindBot.Game.AI.Decks
 
         private void EaterOfMillionssSelect(IList<ClientCard> targets)
         {
-            foreach (ClientCard card in targets)
+            for (int times = 0; times < targets.Count; times ++)
             {
-                AI.SelectCard(card);
+                AI.SelectCard(targets);
             }
         }
 

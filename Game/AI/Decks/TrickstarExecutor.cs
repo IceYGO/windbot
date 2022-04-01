@@ -728,9 +728,9 @@ namespace WindBot.Game.AI.Decks
 
         public void Eater_ss_select(IList<ClientCard> cards)
         {
-            foreach (ClientCard card in cards)
+            for (int times = 0; times < cards.Count; times ++)
             {
-                AI.SelectCard(card);
+                AI.SelectCard(cards);
             }
         }
 
