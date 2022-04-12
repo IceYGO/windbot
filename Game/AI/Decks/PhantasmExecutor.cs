@@ -468,13 +468,13 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> material_list = new List<ClientCard>();
             if(Bot.HasInExtra(CardId.BorreloadDragon))
             {
-                AI.SelectCard(
+                AI.SelectMaterials(new[] {
                     CardId.TopologicBomberDragon,
                     CardId.TopologicTrisbaena,
                     CardId.KnightmareGryphon,
                     CardId.SummonSorceress,
                     CardId.BorreloadDragon
-                    );
+                }, HintMsg.Remove);
             }
             else 
             {               
@@ -483,6 +483,7 @@ namespace WindBot.Game.AI.Decks
                     if (material_list.Count == 5) break;
                     material_list.Add(m);
                 }
+                AI.SelectMaterials(material_list, HintMsg.Remove);
             }
             return true;
         }

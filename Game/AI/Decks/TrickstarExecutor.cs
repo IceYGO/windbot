@@ -709,7 +709,7 @@ namespace WindBot.Game.AI.Decks
                 targets.Add(e_c);
                 if (targets.Count >= 5)
                 {
-                    AI.SelectCard(targets);
+                    AI.SelectMaterials(targets, HintMsg.Remove);
                     return true;
                 }
             }
@@ -719,7 +719,7 @@ namespace WindBot.Game.AI.Decks
                 targets.Add(s_c);
                 if (targets.Count >= 5)
                 {
-                    AI.SelectCard(targets);
+                    AI.SelectMaterials(targets, HintMsg.Remove);
                     return true;
                 }
             }
