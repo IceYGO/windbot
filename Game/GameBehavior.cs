@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using WindBot.Game.AI;
 using YGOSharp.Network;
@@ -93,6 +94,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.ShuffleHand, OnShuffleHand);
             _messages.Add(GameMessage.ShuffleExtra, OnShuffleExtra);
             _messages.Add(GameMessage.ShuffleSetCard, OnShuffleSetCard);
+            _messages.Add(GameMessage.SwapGraveDeck, OnSwapGraveDeck);            
             _messages.Add(GameMessage.TagSwap, OnTagSwap);
             _messages.Add(GameMessage.NewTurn, OnNewTurn);
             _messages.Add(GameMessage.NewPhase, OnNewPhase);
@@ -439,6 +441,36 @@ namespace WindBot.Game
                 if (card == null) continue;
                 ClientCard[] zone = (loc == (int)CardLocation.MonsterZone) ? _duel.Fields[player].MonsterZone : _duel.Fields[player].SpellZone;
                 zone[seq] = list[i];
+            }
+        }
+
+        private void OnSwapGraveDeck(BinaryReader packet)
+        {
+            int player = GetLocalPlayer(packet.ReadByte());
+            IList<ClientCard> tmpDeckList = _duel.Fields[player].Deck.ToList();
+            _duel.Fields[player].Deck.Clear();
+            int seq = 0;
+            foreach(var card in _duel.Fields[player].Graveyard)
+            {
+                if (card.IsExtraCard())
+                {
+                    _duel.Fields[player].ExtraDeck.Add(card);
+                    card.Location = CardLocation.Extra;
+                    card.Position = (int)CardPosition.FaceDown;
+                    // TODO: face-up P cards
+                }
+                else
+                {
+                    _duel.Fields[player].Deck.Add(card);
+                    card.Location = CardLocation.Deck;
+                    card.Sequence = seq++;
+                }
+            }
+            _duel.Fields[player].Graveyard.Clear();
+            foreach (var card in tmpDeckList)
+            {
+                _duel.Fields[player].Graveyard.Add(card);
+                card.Location = CardLocation.Grave;
             }
         }
 
