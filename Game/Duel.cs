@@ -88,7 +88,7 @@ namespace WindBot.Game
                 ClientCard card = cards[seq];
                 if (card == null || subSeq >= card.Overlays.Count)
                     return null;
-                return null; // TODO card.Overlays[subSeq]
+                return new ClientCard(card.Overlays[subSeq], CardLocation.Overlay, 0, 0);
             }
 
             return cards[seq];
