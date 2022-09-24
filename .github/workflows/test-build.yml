@@ -1,4 +1,4 @@
-name: Automatic test build
+name: Automated Test Build
 
 on:
   push:
@@ -38,7 +38,6 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: test
         path: dist\WindBot.7z
 
     - name: GitHub Release
