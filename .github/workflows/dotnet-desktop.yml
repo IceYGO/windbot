@@ -57,6 +57,7 @@ jobs:
 
     env:
       Solution_Name: WindBot.sln                         # Replace with your solution name, i.e. MyWpfApp.sln.
+      Project_Name: WindBot.csproj
 
     steps:
     - name: Checkout
@@ -71,6 +72,11 @@ jobs:
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
       run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    - name: Build!
+      run: msbuild $env:Project_Name /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
 
