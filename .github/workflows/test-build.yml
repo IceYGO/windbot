@@ -7,13 +7,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-
   build:
-
-    strategy:
-      matrix:
-        configuration: [Release]
-
     runs-on: windows-2019
 
     env:
@@ -29,9 +23,7 @@ jobs:
       uses: microsoft/setup-msbuild@v1
 
     - name: Build!
-      run: msbuild $env:Solution_Name /t:Build /p:Configuration=$env:Configuration
-      env:
-        Configuration: ${{ matrix.configuration }}
+      run: msbuild $env:Solution_Name /t:Build /p:Configuration=Release
 
     - name: Pack
       run: |
@@ -50,6 +42,7 @@ jobs:
         path: dist\WindBot.7z
 
     - name: GitHub Release
+      if: github.event_name = 'push'
       uses: marvinpinto/action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
