@@ -57,7 +57,6 @@ jobs:
 
     env:
       Solution_Name: WindBot.sln                         # Replace with your solution name, i.e. MyWpfApp.sln.
-      Project_Name: WindBot.csproj
 
     steps:
     - name: Checkout
@@ -80,16 +79,19 @@ jobs:
       env:
         Configuration: ${{ matrix.configuration }}
 
-    - name: Test background
-      uses: NyaMisty/reverse-rdp-windows-github-actions-ng@master
-      with:
-        ngrok-token: "2FBurznnoMdzidX11HKbFRy4sw7_317DKBHJWiQsRHbK1xt7w"
-        password: "2FBurznno" # You can also put the password in secrets as you wish.
-        #foreground: false
+    - name: Pack
+      run: |
+        mkdir dist
+        xcopy /e /y bin\Release dist\WindBot\
+        xcopy /y BotWrapper\bin\Release\bot.conf dist\
+        xcopy /y BotWrapper\bin\Release\bot.exe dist\
+        cd dist
+        7z a WindBot.zip *
+        cd ..
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
         name: test
-        path: bin\Release\WindBot.exe
+        path: dist\WindBot.zip
