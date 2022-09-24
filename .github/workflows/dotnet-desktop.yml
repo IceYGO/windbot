@@ -76,7 +76,7 @@ jobs:
         Configuration: ${{ matrix.configuration }}
 
     - name: Build!
-      run: msbuild $env:Project_Name /p:Configuration=$env:Configuration
+      run: msbuild $env:Solution_Name /t:Build /p:Configuration=$env:Configuration
       env:
         Configuration: ${{ matrix.configuration }}
 
