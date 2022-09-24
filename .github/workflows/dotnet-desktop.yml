@@ -97,4 +97,5 @@ jobs:
         automatic_release_tag: "latest"
         prerelease: true
         title: "Development Build"
-        files: dist\WindBot.zip
+        files: |
+          dist\WindBot.zip
