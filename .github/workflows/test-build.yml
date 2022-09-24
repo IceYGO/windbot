@@ -42,7 +42,7 @@ jobs:
         path: dist\WindBot.7z
 
     - name: GitHub Release
-      if: github.event_name = 'push'
+      if: github.event_name == 'push'
       uses: marvinpinto/action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
