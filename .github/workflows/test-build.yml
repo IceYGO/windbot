@@ -40,16 +40,16 @@ jobs:
         xcopy /y BotWrapper\bin\Release\bot.conf dist\
         xcopy /y BotWrapper\bin\Release\bot.exe dist\
         cd dist
-        7z a WindBot.zip *
+        7z a WindBot.7z *
         cd ..
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v3
       with:
         name: test
-        path: dist\WindBot.zip
+        path: dist\WindBot.7z
 
-    - name: Release
+    - name: GitHub Release
       uses: marvinpinto/action-automatic-releases@latest
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -57,4 +57,4 @@ jobs:
         prerelease: true
         title: "Development Build"
         files: |
-          dist\WindBot.zip
+          dist/WindBot.7z
