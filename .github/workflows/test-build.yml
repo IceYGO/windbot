@@ -1,0 +1,52 @@
+name: Automated Test Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: windows-2019
+
+    env:
+      Solution_Name: WindBot.sln
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1
+
+    - name: Build!
+      run: msbuild $env:Solution_Name /t:Build /p:Configuration=Release
+
+    - name: Pack
+      run: |
+        mkdir dist
+        xcopy /e /y bin\Release dist\WindBot\
+        xcopy /y BotWrapper\bin\Release\bot.conf dist\
+        xcopy /y BotWrapper\bin\Release\bot.exe dist\
+        cd dist
+        7z a WindBot.7z *
+        cd ..
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        path: dist\WindBot.7z
+
+    - name: GitHub Release
+      if: github.event_name == 'push'
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Development Build"
+        files: |
+          dist/WindBot.7z
