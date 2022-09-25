@@ -53,6 +53,9 @@ namespace WindBot
                 // In case windbot is placed in a folder under ygopro folder
                 absolutePath = Path.GetFullPath("../" + databasePath);
             if (!File.Exists(absolutePath))
+                // In case windbot is placed in a folder under ygopro2 folder
+                absolutePath = Path.GetFullPath("../cdb/" + databasePath);
+            if (!File.Exists(absolutePath))
             {
                 Logger.WriteErrorLine("Can't find cards database file.");
                 Logger.WriteErrorLine("Please place cards.cdb next to WindBot.exe or Bot.exe .");
