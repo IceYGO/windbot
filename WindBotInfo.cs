@@ -22,7 +22,7 @@ namespace WindBot
             DeckFile = null;
             Dialog = "default";
             Host = "127.0.0.1";
-            Port = 7911;
+            Port = 0;
             HostInfo = "";
             Version = 0x1353;
             Hand = 0;

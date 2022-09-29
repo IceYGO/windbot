@@ -5,6 +5,8 @@ using System.Text;
 using YGOSharp.Network;
 using YGOSharp.Network.Enums;
 using YGOSharp.Network.Utils;
+using DnsClient;
+using DnsClient.Protocol;
 
 namespace WindBot.Game
 {
@@ -41,6 +43,64 @@ namespace WindBot.Game
             _proVersion = (short)Info.Version;
         }
 
+        private IPAddress LookupHost(string hostname)
+        {
+            IPAddress address;
+            try
+            {
+                address = IPAddress.Parse(hostname);
+            }
+            catch (System.Exception)
+            {
+                IPHostEntry _hostEntry = Dns.GetHostEntry(hostname);
+                address = _hostEntry.AddressList.FirstOrDefault(findIPv4 => findIPv4.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
+            }
+            if (Debug)
+                Logger.WriteLine($"Resolved {hostname} to {address.ToString()}");
+            return address;
+        }
+
+        private ConnectionInfo ParseHost()
+        {
+            var conn = new ConnectionInfo();
+            if (_serverPort == 0)
+            {
+                var srvAddress = $"_ygopro._tcp.{_serverHost}";
+                if (Debug)
+                    Logger.WriteLine($"Resolving SRV record {srvAddress}");
+                var srvResult = new LookupClient().Query(srvAddress, QueryType.SRV);
+                if (!srvResult.HasError)
+                {
+                    var record = srvResult.Answers.OfType<SrvRecord>()
+                        .FirstOrDefault();
+                    if (record != null)
+                    {
+                        if (Debug)
+                            Logger.WriteLine($"Resolved {srvAddress} to {record.Target}:{record.Port}");
+                        var additionalRecord = srvResult.Additionals
+                            .FirstOrDefault(p => p.DomainName.Equals(record.Target));
+                        if (additionalRecord is ARecord aRecord)
+                        {
+                            conn.host = aRecord.Address;
+                        } else if (additionalRecord is CNameRecord cNameRecord)
+                        {
+                            conn.host = LookupHost(cNameRecord.CanonicalName);
+                        }
+                        else
+                        {
+                            conn.host = LookupHost(record.Target);
+                        }
+                        conn.port = record.Port;
+                        return conn;
+                    }
+                }
+
+                conn.port = 7911;
+            }
+            conn.host = LookupHost(_serverHost);
+            return conn;
+        }
+
         public void Start()
         {
             Connection = new YGOClient();
@@ -49,18 +109,8 @@ namespace WindBot.Game
             Connection.Connected += OnConnected;
             Connection.PacketReceived += OnPacketReceived;
 
-            IPAddress target_address;
-            try
-            {
-                target_address = IPAddress.Parse(_serverHost);
-            }
-            catch (System.Exception)
-            {
-                IPHostEntry _hostEntry = Dns.GetHostEntry(_serverHost);
-                target_address = _hostEntry.AddressList.FirstOrDefault(findIPv4 => findIPv4.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork);
-            }
-
-            Connection.Connect(target_address, _serverPort);
+            var conn = ParseHost();   
+            Connection.Connect(conn.host, conn.port);
         }
 
         private void OnConnected()

@@ -155,3 +155,10 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+
+# NuGet
+/packages
+
+# Dist files
+/cards.cdb
+/WindBot.exe
