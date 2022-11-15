@@ -581,7 +581,7 @@ namespace WindBot.Game.AI.Decks
                 res.Sort(CardContainer.CompareCardAttack);
                 if (res.Count <= 0) return null;
                 if(res[0].Attack<res[res.Count-1].Attack) res.Reverse();
-                Util.CheckSelectCount(res, cards, min, max);
+                return Util.CheckSelectCount(res, cards, min, max);
             }
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
