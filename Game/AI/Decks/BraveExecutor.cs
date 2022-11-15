@@ -354,8 +354,8 @@ namespace WindBot.Game.AI.Decks
                 return true;
             else
             {
-                ClientCard target = Util.GetProblematicEnemyCard();
-                if (target != null)
+                ClientCard target = Util.GetProblematicEnemyCard(2500);
+                if (target != null && !Util.ChainContainPlayer(0))
                 {
                     AI.SelectCard(CardId.DestinyHeroDestroyPhoenixEnforcer);
                     AI.SelectNextCard(target);
