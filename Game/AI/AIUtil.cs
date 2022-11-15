@@ -424,7 +424,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public IList<ClientCard> CheckSelectCount(IList<ClientCard> _selected, IList<ClientCard> cards, int min, int max)
         {
-            var selected = _selected.ToList();
+            var selected = _selected.Distinct().ToList();
             if (selected.Count < min)
             {
                 foreach (ClientCard card in cards)
