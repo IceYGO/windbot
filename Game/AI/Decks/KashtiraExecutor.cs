@@ -88,8 +88,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Nibiru, NibiruEffect);
             AddExecutor(ExecutorType.Activate, CardId.InfiniteImpermanence, Impermanence_activate);
             AddExecutor(ExecutorType.Activate, CardId.DimensionShifter, DimensionShifterEffect);
-            AddExecutor(ExecutorType.Activate, CardId.G, () => { return Duel.Player != 0; });
-            AddExecutor(ExecutorType.Activate, CardId.AshBlossom, () => { return Duel.CurrentChain.Count > 0 && Duel.LastChainPlayer != 0; });
+            AddExecutor(ExecutorType.Activate, CardId.G, DefaultMaxxC);
+            AddExecutor(ExecutorType.Activate, CardId.AshBlossom, DefaultAshBlossomAndJoyousSpring);
             AddExecutor(ExecutorType.Activate, CardId.CalledbytheGrave, CalledbytheGraveEffect);
             AddExecutor(ExecutorType.Activate, CardId.BorreloadSavageDragon, BorreloadSavageDragonEffect);
             AddExecutor(ExecutorType.Activate, CardId.CrossoutDesignator, CrossoutDesignatorEffect);
