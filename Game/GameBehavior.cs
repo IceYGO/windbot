@@ -1359,19 +1359,7 @@ namespace WindBot.Game
             int player;
             CardLocation location;
             int filter;
-            if ((field & 0x7f0000) != 0)
-            {
-                player = 1;
-                location = CardLocation.MonsterZone;
-                filter = (field >> 16) & Zones.MonsterZones;
-            }
-            else if ((field & 0x1f000000) != 0)
-            {
-                player = 1;
-                location = CardLocation.SpellZone;
-                filter = (field >> 24) & Zones.SpellZones;
-            }
-            else if ((field & 0x7f) != 0)
+            if ((field & 0x7f) != 0)
             {
                 player = 0;
                 location = CardLocation.MonsterZone;
@@ -1394,6 +1382,18 @@ namespace WindBot.Game
                 player = 0;
                 location = CardLocation.PendulumZone;
                 filter = (field >> 14) & Zones.PendulumZones;
+            }
+            else if ((field & 0x7f0000) != 0)
+            {
+                player = 1;
+                location = CardLocation.MonsterZone;
+                filter = (field >> 16) & Zones.MonsterZones;
+            }
+            else if ((field & 0x1f000000) != 0)
+            {
+                player = 1;
+                location = CardLocation.SpellZone;
+                filter = (field >> 24) & Zones.SpellZones;
             }
             else if ((field & 0x20000000) != 0)
             {
