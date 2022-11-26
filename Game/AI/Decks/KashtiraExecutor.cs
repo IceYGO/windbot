@@ -93,7 +93,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.CalledbytheGrave, CalledbytheGraveEffect);
             AddExecutor(ExecutorType.Activate, CardId.BorreloadSavageDragon, BorreloadSavageDragonEffect);
             AddExecutor(ExecutorType.Activate, CardId.CrossoutDesignator, CrossoutDesignatorEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Terraforming);
+            AddExecutor(ExecutorType.Activate, CardId.Terraforming, TerraformingEffect);
             AddExecutor(ExecutorType.Activate, CardId.PotofProsperity, PotofProsperityEffect);
             AddExecutor(ExecutorType.Activate, CardId.KashtiraUnicorn, KashtiraUnicornEffect);
             AddExecutor(ExecutorType.Activate, CardId.KashtiraFenrir, KashtiraFenrirEffect);
@@ -101,8 +101,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.KashtiraBirth, KashtiraBirthEffect);
             AddExecutor(ExecutorType.Activate, CardId.DiablosistheMindHacker, DiablosistheMindHackerEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.KashtiraFenrir, KashtiraFenrirSummon);
-            AddExecutor(ExecutorType.SpSummon, CardId.KashtiraUnicorn,()=> { summon_KashtiraUnicorn = true;return true; });
-            AddExecutor(ExecutorType.SpSummon, CardId.KashtiraFenrir, () => { summon_KashtiraFenrir = true; return true; });
+            AddExecutor(ExecutorType.SpSummon, CardId.KashtiraUnicorn,() => { summon_KashtiraUnicorn = true; return true; });
+            AddExecutor(ExecutorType.SpSummon, CardId.KashtiraFenrir, () => {  summon_KashtiraFenrir = true; return true; });
             AddExecutor(ExecutorType.Summon, CardId.KashtiraUnicorn, DefaultSummon);
             AddExecutor(ExecutorType.Summon, CardId.KashtiraFenrir, DefaultSummon);
             AddExecutor(ExecutorType.Activate, CardId.KashtiraPapiyas, KashtiraPapiyasEffect);
@@ -623,7 +623,7 @@ namespace WindBot.Game.AI.Decks
         {
             ClientCard LastChainCard = Util.GetLastChainCard();
             if (LastChainCard == null || Duel.LastChainPlayer != 1) return false;
-            return CrossoutDesignatorCheck(LastChainCard, CardId.Nibiru)
+            if (CrossoutDesignatorCheck(LastChainCard, CardId.Nibiru)
                 || CrossoutDesignatorCheck(LastChainCard, CardId.AshBlossom)
                 || CrossoutDesignatorCheck(LastChainCard, CardId.G)
                 || CrossoutDesignatorCheck(LastChainCard, CardId.NemesesCorridor)
@@ -634,7 +634,15 @@ namespace WindBot.Game.AI.Decks
                 || CrossoutDesignatorCheck(LastChainCard, CardId.KashtiraPapiyas)
                 || CrossoutDesignatorCheck(LastChainCard, CardId.KashtiraUnicorn)
                 || CrossoutDesignatorCheck(LastChainCard, CardId.KashtiraFenrir)
-                || CrossoutDesignatorCheck(LastChainCard, CardId.KashtiraBirth);
+                || CrossoutDesignatorCheck(LastChainCard, CardId.KashtiraBirth))
+            {
+                if (Card.Location == CardLocation.Hand)
+                {
+                    AI.SelectPlace(SelectSTPlace(Card, true));
+                }
+                return true;
+            }
+            return false;
         }
         private bool MekkKnightCrusadiaAvramaxEffect()
         {
@@ -665,6 +673,10 @@ namespace WindBot.Game.AI.Decks
             if (Duel.LastChainPlayer != 0 && card != null && card.Location == CardLocation.Grave
                 && card.HasType(CardType.Monster))
             {
+                if (Card.Location == CardLocation.Hand)
+                {
+                    AI.SelectPlace(SelectSTPlace(Card, true));
+                }
                 AI.SelectCard(card);
                 select_CalledbytheGrave = true;
                 return true;
@@ -1115,6 +1127,10 @@ namespace WindBot.Game.AI.Decks
                 DefaultAddCardId(cardsid);
                 cardsid.AddRange(new List<int>() { CardId.KashtiraUnicorn, CardId.KashtiraFenrir, CardId.KashtiraRiseheart, CardId.KashtiraScareclaw, CardId.KashtiraTearlaments });
                 AI.SelectNextCard(cardsid);
+                if (Card.Location == CardLocation.Hand)
+                {
+                    AI.SelectPlace(SelectSTPlace(Card, true));
+                }
                 active_KashtiraPapiyas_1 = true;
                 onlyXyzSummon = true;
                 return true;
@@ -1175,6 +1191,16 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
         }
+
+        private bool TerraformingEffect()
+        {
+            if (Card.Location == CardLocation.Hand)
+            {
+                AI.SelectPlace(SelectSTPlace(Card, true));
+            }
+            return true;
+        }
+
         private bool PotofProsperityEffect()
         {
             if (Bot.ExtraDeck.Count <= 3) return false;
@@ -1204,6 +1230,10 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInHand(CardId.AshBlossom))
                 cardsId.Add(CardId.AshBlossom);
             cardsId.AddRange(new List<int>() { CardId.CrossoutDesignator, CardId.CalledbytheGrave, CardId.Nibiru, CardId.InfiniteImpermanence });
+            if (Card.Location == CardLocation.Hand)
+            {
+                AI.SelectPlace(SelectSTPlace(Card, true));
+            }
             AI.SelectCard(cardsId);
             return true;
         }
@@ -1264,7 +1294,15 @@ namespace WindBot.Game.AI.Decks
         }
         private bool KashtiraBirthEffect()
         {
-            if (Card.Location == CardLocation.Hand || (Card.Location==CardLocation.SpellZone && Card.IsFacedown())) return !Bot.HasInSpellZone(CardId.KashtiraBirth, true, true);
+            if ((Card.Location == CardLocation.Hand || (Card.Location==CardLocation.SpellZone && Card.IsFacedown()))
+                && !Bot.HasInSpellZone(CardId.KashtiraBirth, true, true))
+            {
+                if (Card.Location == CardLocation.Hand)
+                {
+                    AI.SelectPlace(SelectSTPlace(Card, true));
+                }
+                return true;
+            }
             return false;
         }
         private bool KashtiraBirthEffect_2()
