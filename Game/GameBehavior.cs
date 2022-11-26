@@ -1150,7 +1150,96 @@ namespace WindBot.Game
 
         private void OnSelectDisfield(BinaryReader packet)
         {
-            OnSelectPlace(packet);
+            packet.ReadByte(); // player
+            packet.ReadByte(); // TODO: min
+            int field = ~packet.ReadInt32();
+
+            int player;
+            CardLocation location;
+            int filter;
+            if ((field & 0x7f0000) != 0)
+            {
+                player = 1;
+                location = CardLocation.MonsterZone;
+                filter = (field >> 16) & Zones.MonsterZones;
+            }
+            else if ((field & 0x1f000000) != 0)
+            {
+                player = 1;
+                location = CardLocation.SpellZone;
+                filter = (field >> 24) & Zones.SpellZones;
+            }
+            else if ((field & 0x7f) != 0)
+            {
+                player = 0;
+                location = CardLocation.MonsterZone;
+                filter = field & Zones.MonsterZones;
+            }
+            else if ((field & 0x1f00) != 0)
+            {
+                player = 0;
+                location = CardLocation.SpellZone;
+                filter = (field >> 8) & Zones.SpellZones;
+            }
+            else if ((field & 0x2000) != 0)
+            {
+                player = 0;
+                location = CardLocation.FieldZone;
+                filter = Zones.FieldZone;
+            }
+            else if ((field & 0xc000) != 0)
+            {
+                player = 0;
+                location = CardLocation.PendulumZone;
+                filter = (field >> 14) & Zones.PendulumZones;
+            }
+            else if ((field & 0x20000000) != 0)
+            {
+                player = 1;
+                location = CardLocation.FieldZone;
+                filter = Zones.FieldZone;
+            }
+            else
+            {
+                player = 1;
+                location = CardLocation.PendulumZone;
+                filter = (field >> 30) & Zones.PendulumZones;
+            }
+
+            int selected = _ai.OnSelectPlace(_select_hint, player, location, filter);
+            _select_hint = 0;
+
+            byte[] resp = new byte[3];
+            resp[0] = (byte)GetLocalPlayer(player);
+
+            if (location != CardLocation.PendulumZone && location != CardLocation.FieldZone)
+            {
+                resp[1] = (byte)location;
+                if ((selected & filter) > 0)
+                    filter &= selected;
+
+                if ((filter & Zones.z2) != 0) resp[2] = 2;
+                else if ((filter & Zones.z1) != 0) resp[2] = 1;
+                else if ((filter & Zones.z3) != 0) resp[2] = 3;
+                else if ((filter & Zones.z0) != 0) resp[2] = 0;
+                else if ((filter & Zones.z4) != 0) resp[2] = 4;
+                else if ((filter & Zones.z6) != 0) resp[2] = 6;
+                else if ((filter & Zones.z5) != 0) resp[2] = 5;
+            }
+            else
+            {
+                resp[1] = (byte)CardLocation.SpellZone;
+                if ((selected & filter) > 0)
+                    filter &= selected;
+
+                if ((filter & Zones.FieldZone) != 0) resp[2] = 5;
+                if ((filter & Zones.z0) != 0) resp[2] = 6; // left pendulum zone
+                if ((filter & Zones.z1) != 0) resp[2] = 7; // right pendulum zone
+            }
+
+            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
+            reply.Write(resp);
+            Connection.Send(reply);
         }
 
         private void OnSelectEffectYn(BinaryReader packet)
