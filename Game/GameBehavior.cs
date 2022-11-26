@@ -1359,6 +1359,7 @@ namespace WindBot.Game
             int player;
             CardLocation location;
             int filter;
+
             if ((field & 0x7f) != 0)
             {
                 player = 0;
