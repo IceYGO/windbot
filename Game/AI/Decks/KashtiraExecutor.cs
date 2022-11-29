@@ -60,6 +60,7 @@ namespace WindBot.Game.AI.Decks
         bool activate_KashtiraTearlaments_1 = false;
         bool activate_DimensionShifter = false;
         bool activate_pre_PrimePlanetParaisos = false;
+        bool activate_pre_PrimePlanetParaisos_2 = false;
         bool active_KashtiraPapiyas_1 = false;
         bool active_KashtiraPapiyas_2 = false;
         bool active_KashtiraBirth = false;
@@ -128,7 +129,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.CupidPitch);
             AddExecutor(ExecutorType.SpSummon, CardId.BorreloadSavageDragon, BorreloadSavageDragonSummon);
             AddExecutor(ExecutorType.Activate, CardId.NemesesCorridor, NemesesCorridorEffect);
-            AddExecutor(ExecutorType.Activate, CardId.MekkKnightCrusadiaAvramax, MekkKnightCrusadiaAvramaxSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.MekkKnightCrusadiaAvramax, MekkKnightCrusadiaAvramaxSummon);
             AddExecutor(ExecutorType.Activate, CardId.MekkKnightCrusadiaAvramax, MekkKnightCrusadiaAvramaxEffect);
             //link mode
             AddExecutor(ExecutorType.Activate, CardId.KashtiraRiseheart, KashtiraRiseheartEffect_2);
@@ -137,6 +138,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.KashtiraPapiyas, KashtiraPapiyasEffect_2);
             AddExecutor(ExecutorType.Activate, CardId.KashtiraBirth, KashtiraBirthEffect_3);
             AddExecutor(ExecutorType.Summon, CardId.KashtiraRiseheart, KashtiraRiseheartSummon);
+            AddExecutor(ExecutorType.Summon, CardId.KashtiraTearlaments, DefaultSummon);
             AddExecutor(ExecutorType.SpellSet, SpellSet);
             AddExecutor(ExecutorType.Repos, DefaultRepos);
         }
@@ -153,6 +155,7 @@ namespace WindBot.Game.AI.Decks
             activate_KashtiraScareclaw_1 = false;
             activate_KashtiraTearlaments_1 = false;
             activate_KashtiraShangriIra = false;
+            activate_pre_PrimePlanetParaisos_2 = false;
             active_KashtiraPapiyas_1 = false;
             active_KashtiraPapiyas_2 = false;
             active_KashtiraBirth = false;
@@ -335,7 +338,7 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> nRelease = new List<ClientCard>();
                 foreach (var card in cards)
                 {
-                    if (card == null || card.IsExtraCard() || card.IsFacedown()) continue;
+                    if (card == null || (card.IsExtraCard() && card.Id != CardId.DiablosistheMindHacker) || card.IsFacedown()) continue;
                     if (card.Id == CardId.Token || card.Id == CardId.Token_2)
                         tRelease.Add(card);
                     else nRelease.Add(card);
@@ -571,7 +574,7 @@ namespace WindBot.Game.AI.Decks
             foreach (var card in cards)
             {
                 if (card == null) continue;
-                if (temp.Count(_card => _card != null && _card.Id == card.Id) > 0)
+                if (temp.Count(_card => _card != null && _card.Id == card.Id) > 0 && res.Count(_card=>_card != null && _card.Id == card.Id) <= 0)
                     res.Add(card);
                 else
                     temp.Add(card);
@@ -670,14 +673,24 @@ namespace WindBot.Game.AI.Decks
         private bool CalledbytheGraveEffect()
         {
             ClientCard card = Util.GetLastChainCard();
-            if (Duel.LastChainPlayer != 0 && card != null && card.Location == CardLocation.Grave
-                && card.HasType(CardType.Monster))
+            if (card == null) return false;
+            int id = card.Id;
+            List<ClientCard> g_cards = Enemy.GetGraveyardMonsters().Where(g_card => g_card != null && g_card.Id == id).ToList();
+            if (Duel.LastChainPlayer != 0 && card != null)
             {
                 if (Card.Location == CardLocation.Hand)
                 {
                     AI.SelectPlace(SelectSTPlace(Card, true));
                 }
-                AI.SelectCard(card);
+                if (card.Location == CardLocation.Grave && card.HasType(CardType.Monster))
+                {
+                    AI.SelectCard(card);
+                }
+                else if (g_cards.Count() > 0 && card.HasType(CardType.Monster))
+                {
+                    AI.SelectCard(g_cards);
+                }
+                else return false;
                 select_CalledbytheGrave = true;
                 return true;
             }
@@ -758,7 +771,7 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> nRelease = new List<ClientCard>();
                 foreach (var card in Bot.GetMonsters())
                 {
-                    if (card == null|| card.IsExtraCard()|| card.IsFacedown()) continue;
+                    if (card == null || (card.IsExtraCard() && card.Id != CardId.DiablosistheMindHacker) || card.IsFacedown()) continue;
                     if (card.Id == CardId.Token || card.Id == CardId.Token_2)
                         tRelease.Add(card);
                     else nRelease.Add(card);
@@ -864,8 +877,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool PrimePlanetParaisosEffect()
         {
-            if (SpellActivate()) return true;
-            if (activate_pre_PrimePlanetParaisos) return false;
+            if (SpellActivate()) { activate_pre_PrimePlanetParaisos_2 = true; return true; }
+            if (activate_pre_PrimePlanetParaisos_2 || activate_pre_PrimePlanetParaisos) return false;
             List<ClientCard> cards = GetEnemyOnFields().Where(card => card != null && !card.IsShouldNotBeTarget()).ToList();
             if (cards == null || cards.Count <= 0) return false;
             return true;
@@ -891,7 +904,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool GalaxyTomahawkSummon()
         {
-            if (CheckRemainInDeck(CardId.MechaPhantom) < 0) return false;
+            if (CheckRemainInDeck(CardId.MechaPhantom) <= 0) return false;
             if (Bot.GetMonsterCount() >= 4) return false;
             if (onlyXyzSummon || activate_DimensionShifter || Bot.HasInMonstersZone(CardId.KashtiraAriseHeart,true,false,true)) return false;
             if (!Bot.HasInExtra(CardId.MekkKnightCrusadiaAvramax) && !(Bot.HasInExtra(CardId.CupidPitch) || Bot.HasInExtra(CardId.BorreloadSavageDragon))) return false;
@@ -946,7 +959,7 @@ namespace WindBot.Game.AI.Decks
             if (Bot.MonsterZone.Count() <= 0
                 && ((Bot.HasInHand(CardId.KashtiraFenrir) && !activate_KashtiraFenrir_1)
                 || (Bot.HasInHand(CardId.KashtiraUnicorn) && !activate_KashtiraUnicorn_1))) return false;
-            if (Bot.HasInHand(CardId.PrimePlanetParaisos) && !activate_PrimePlanetParaisos) return false;
+            if (Bot.HasInHand(CardId.PrimePlanetParaisos) && !activate_pre_PrimePlanetParaisos_2) return false;
             List<ClientCard> cards = new List<ClientCard>();
             List<ClientCard> hand_cards = Bot.Hand.GetMatchingCards(card=>card!=null && card.HasSetcode(0x189)).ToList();
             List<ClientCard> grave_cards = Bot.Graveyard.GetMatchingCards(card => card != null && card.HasSetcode(0x189)).ToList();
@@ -965,7 +978,8 @@ namespace WindBot.Game.AI.Decks
                 if (((activate_KashtiraUnicorn_1 || summon_KashtiraUnicorn) && hand_cards.Count(card => card != null && card.Id == CardId.KashtiraUnicorn) > 0)
                     || hand_cards.Count(card => card != null && card.Id == CardId.KashtiraUnicorn) > 1)
                     cardsid.Add(CardId.KashtiraUnicorn);
-                if (cardId != CardId.KashtiraScareclaw && hand_cards.Count(card => card != null && card.Id == CardId.KashtiraScareclaw) > 0)
+                if ((cardId != CardId.KashtiraScareclaw && hand_cards.Count(card => card != null && card.Id == CardId.KashtiraScareclaw) > 0)
+                    || (hand_cards.Count(card => card != null && card.Id == CardId.KashtiraScareclaw) > 1))
                     cardsid.Add(CardId.KashtiraScareclaw);
                 if ((activate_KashtiraRiseheart_2 && hand_cards.Count(card => card != null && card.Id == CardId.KashtiraRiseheart) > 0)
                     || hand_cards.Count(card => card != null && card.Id == CardId.KashtiraRiseheart) > 1)
@@ -1046,7 +1060,7 @@ namespace WindBot.Game.AI.Decks
             { 
                 isSummoned = true;
                 if (Card.Id == CardId.KashtiraUnicorn) summon_KashtiraUnicorn = true;
-                else summon_KashtiraFenrir = true;
+                else if(Card.Id == CardId.KashtiraFenrir) summon_KashtiraFenrir = true;
                 return true; 
             }
             return false;
@@ -1150,9 +1164,9 @@ namespace WindBot.Game.AI.Decks
             { AI.SelectCard(card);if (isXyz)AI.SelectNextCard(card); return true; }
             if (GetEnemyOnFields().Count(_card => _card != null && !_card.IsShouldNotBeTarget() && !(faceUp & !_card.IsFaceup()) && !_card.HasType(CardType.Token)) <= 0) return false;
             ClientCard dcard = GetEnemyOnFields().GetDangerousMonster(true);
-            if (Duel.Phase >= DuelPhase.Battle || Util.GetBestAttack(Enemy) >= Util.GetBestAttack(Bot) || dcard != null)
+            if (Duel.Phase >= DuelPhase.BattleStart || Util.GetBestAttack(Enemy) >= Util.GetBestAttack(Bot) || dcard != null)
             {
-                if (dcard != null){ AI.SelectCard(dcard); if(isXyz)AI.SelectNextCard(dcard) ; return true; }
+                if (dcard != null) { AI.SelectCard(dcard); if(isXyz)AI.SelectNextCard(dcard) ; return true; }
                 List<ClientCard> cards = GetEnemyOnFields().Where(_card => _card != null && !_card.IsShouldNotBeTarget() && !(!_card.IsFaceup() & faceUp)).ToList();
                 cards.Sort(CardContainer.CompareCardAttack);
                 cards.Reverse();
@@ -1166,21 +1180,15 @@ namespace WindBot.Game.AI.Decks
         private bool KashtiraFenrirEffect()
         {
             if (Card.IsDisabled()) return false;
-            if (Duel.Phase == DuelPhase.Battle || Duel.CurrentChain.Count > 0)
-            {
-                if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard() != null &&
-                    Util.GetLastChainCard().Id == CardId.PrimePlanetParaisos) return false;
-                return SelectEnemyCard();
-            }
-            else
+            if (ActivateDescription == Util.GetStringId(CardId.KashtiraFenrir, 1))
             {
                 IList<int> cardsId = new List<int>();
                 if ((!Bot.HasInHandOrInSpellZone(CardId.KashtiraBirth) || isSummoned)
                     && !Bot.HasInHand(CardId.KashtiraRiseheart) && (!activate_KashtiraRiseheart_2 && (!activate_KashtiraRiseheart_1 || !isSummoned)) && CheckRemainInDeck(CardId.KashtiraRiseheart) > 0)
                     cardsId.Add(CardId.KashtiraRiseheart);
-                if(Bot.HasInHandOrInSpellZone(CardId.KashtiraBirth) && !isSummoned && !Bot.HasInHand(CardId.KashtiraUnicorn) && !activate_KashtiraUnicorn_1 && CheckRemainInDeck(CardId.KashtiraUnicorn) > 0)
+                if (Bot.HasInHandOrInSpellZone(CardId.KashtiraBirth) && !isSummoned && !Bot.HasInHand(CardId.KashtiraUnicorn) && !activate_KashtiraUnicorn_1 && CheckRemainInDeck(CardId.KashtiraUnicorn) > 0)
                     cardsId.Add(CardId.KashtiraUnicorn);
-                if(!Bot.HasInHand(CardId.KashtiraTearlaments) && !activate_KashtiraTearlaments_1 && CheckRemainInDeck(CardId.KashtiraTearlaments) > 0)
+                if (!Bot.HasInHand(CardId.KashtiraTearlaments) && !activate_KashtiraTearlaments_1 && CheckRemainInDeck(CardId.KashtiraTearlaments) > 0)
                     cardsId.Add(CardId.KashtiraTearlaments);
                 if (!Bot.HasInHand(CardId.KashtiraScareclaw) && !activate_KashtiraScareclaw_1 && CheckRemainInDeck(CardId.KashtiraScareclaw) > 0)
                     cardsId.Add(CardId.KashtiraScareclaw);
@@ -1188,6 +1196,19 @@ namespace WindBot.Game.AI.Decks
                 cardsId.Add(CardId.KashtiraRiseheart);
                 activate_KashtiraFenrir_1 = true;
                 AI.SelectCard(cardsId);
+                return true;
+            }
+            else
+            {
+                if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard() != null &&
+                Util.GetLastChainCard().Id == CardId.PrimePlanetParaisos) return false;
+                List<ClientCard> cards = GetEnemyOnFields().Where(card => card != null && card.IsFaceup()).ToList();
+                if (cards.Count > 0)
+                {
+                    cards.Sort(CardContainer.CompareCardAttack);
+                    cards.Reverse();
+                    AI.SelectCard(cards);
+                }
                 return true;
             }
         }

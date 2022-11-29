@@ -1,7 +1,6 @@
 ﻿using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI; 
@@ -62,13 +61,12 @@ namespace WindBot.Game.AI.Decks
             ChaosSpace_2,
             ThunderDragonColossus,
             AccesscodeTalker,
-            DestroyReplace,
-            ThunderDragonTitan
+            DestroyReplace
         };
         private const int THUNDER_COUNTD = 18;
         List<bool> selectFlag = new List<bool>()
         {
-            false,false,false,false,false,false,false,false
+            false,false,false,false,false,false,false
         };
         List<bool> selectAtt = new List<bool>()
         {
@@ -274,6 +272,93 @@ namespace WindBot.Game.AI.Decks
             for (int i = 0; i < selectAtt.Count; i++)
                 selectAtt[i] = false;
         }
+        private bool IsAvailableZone(int seq)
+        {
+            ClientCard card = Bot.MonsterZone[seq];
+            if (seq == 5 && Bot.MonsterZone[6] != null && Bot.MonsterZone[6].Controller == 0) return false;
+            if (seq == 6 && Bot.MonsterZone[5] != null && Bot.MonsterZone[5].Controller == 0) return false;
+            if (card == null) return true;
+            if (card.Controller != 0) return false;
+            if (card.IsFacedown()) return false;
+            if (card.IsDisabled()) return true;
+            if (card.Id == CardId.ThunderDragonColossus
+                || card.Id == CardId.ThunderDragonTitan
+                || card.Id == CardId.UnderworldGoddessoftheClosedWorld
+                || card.Id == CardId.MekkKnightCrusadiaAvramax
+                || card.Id == CardId.AccesscodeTalker
+                || (card.Id == CardId.BowoftheGoddess && card.Attack > 800)
+                || (card.Id == CardId.UnionCarrier && summon_UnionCarrier)) return false;
+            return true;
+        }
+        private bool IsAvailableLinkZone()
+        {
+            int zones = 0;
+            List<ClientCard> cards = Bot.GetMonstersInMainZone().Where(card => card != null && card.IsFaceup()).ToList();
+            foreach (var card in cards)
+            {
+                zones |= card.GetLinkedZones();
+            }
+            ClientCard e_card = Bot.MonsterZone[5];
+            if (e_card != null && e_card.IsFaceup() && e_card.HasType(CardType.Link))
+            {
+                if (e_card.Controller == 0)
+                {
+                    if (e_card.HasLinkMarker(CardLinkMarker.BottomLeft))
+                        zones |= 1 << 0;
+                    if (e_card.HasLinkMarker(CardLinkMarker.Bottom))
+                        zones |= 1 << 1;
+                    if (e_card.HasLinkMarker(CardLinkMarker.BottomRight))
+                        zones |= 1 << 2;
+                }
+                if (e_card.Controller == 1)
+                {
+                    if (e_card.HasLinkMarker(CardLinkMarker.TopLeft))
+                        zones |= 1 << 2;
+                    if (e_card.HasLinkMarker(CardLinkMarker.Top))
+                        zones |= 1 << 1;
+                    if (e_card.HasLinkMarker(CardLinkMarker.TopRight))
+                        zones |= 1 << 0;
+                }
+            }
+            e_card = Bot.MonsterZone[6];
+            if (e_card != null && e_card.IsFaceup() && e_card.HasType(CardType.Link))
+            {
+                if (e_card.Controller == 0)
+                {
+                    if (e_card.HasLinkMarker(CardLinkMarker.BottomLeft))
+                        zones |= 1 << 2;
+                    if (e_card.HasLinkMarker(CardLinkMarker.Bottom))
+                        zones |= 1 << 3;
+                    if (e_card.HasLinkMarker(CardLinkMarker.BottomRight))
+                        zones |= 1 << 4;
+                }
+                if (e_card.Controller == 1)
+                {
+                    if (e_card.HasLinkMarker(CardLinkMarker.TopLeft))
+                        zones |= 1 << 4;
+                    if (e_card.HasLinkMarker(CardLinkMarker.Top))
+                        zones |= 1 << 3;
+                    if (e_card.HasLinkMarker(CardLinkMarker.TopRight))
+                        zones |= 1 << 2;
+                }
+            }
+            zones &= 0x7f;
+            if ((zones & Zones.z0) > 0 && IsAvailableZone(0)) return true;
+            if ((zones & Zones.z1) > 0 && IsAvailableZone(1)) return true;
+            if ((zones & Zones.z2) > 0 && IsAvailableZone(2)) return true;
+            if ((zones & Zones.z3) > 0 && IsAvailableZone(3)) return true;
+            if ((zones & Zones.z4) > 0 && IsAvailableZone(4)) return true;
+            if (IsAvailableZone(5)) return true;
+            if (IsAvailableZone(6)) return true;
+            return false;
+        }
+        private void ResetFlag()
+        {
+            for (int i = 0; i < selectFlag.Count; ++i)
+            {
+                selectFlag[i] = false;
+            }
+        }
         public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
             if (player == 0 && location==CardLocation.MonsterZone)
@@ -300,11 +385,6 @@ namespace WindBot.Game.AI.Decks
                     if ((Zones.z2 & available) > 0) return Zones.z2;
                     if ((Zones.z0 & available) > 0) return Zones.z0;
                     if ((Zones.z4 & available) > 0) return Zones.z4;
-                }
-                if ((Bot.HasInMonstersZone(CardId.ThunderDragonTitan, false, false, true) || Bot.HasInMonstersZone(CardId.ThunderDragonColossus, false, false, true)) && Bot.HasInMonstersZone(CardId.CrossSheep, false, false, true))
-                {
-                    if ((Zones.z1 & available) > 0) return Zones.z1;
-                    if ((Zones.z3 & available) > 0) return Zones.z3;
                 }
                 if (place_Link_4)
                 {
@@ -340,14 +420,15 @@ namespace WindBot.Game.AI.Decks
                 }
                 else
                 {
-                    for (int i = 0; i < selectFlag.Count; ++i)
-                        selectFlag[i] = false;
+                    ResetFlag();
                     return null;
                 }
             }
             if (selectFlag[(int)Select.NormalThunderDragon])
             {
                 selectFlag[(int)Select.NormalThunderDragon] = false;
+                //ThunderDragonTitan
+                if (cards.Any(card => card != null && card.Controller != 0)) return null;
                 if (cards.Count <= 1) return null;
                 if (Bot.HasInHand(CardId.ChaosSpace) && !activate_ChaosSpace_hand)
                     return Util.CheckSelectCount(cards, cards, max, max);
@@ -550,6 +631,9 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> grave_2 = cards.Where(card => card != null && card.Location == CardLocation.Grave && (card.Id == CardId.ThunderDragonroar || card.Id == CardId.ThunderDragondark)).ToList();
                 if (grave_1.Count > 0) res.AddRange(grave_1);
                 if (grave_2.Count > 0) res.AddRange(grave_2);
+                List<ClientCard> monsters = cards.Where(card => card != null && card.Location == CardLocation.MonsterZone).ToList();
+                monsters.Sort(CardContainer.CompareCardAttack);
+                if (monsters.Count > 0) res.AddRange(monsters);
                 if (res.Count > 0) return Util.CheckSelectCount(res, cards, min, max);
                 return null;
             }
@@ -601,6 +685,10 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BrandedRegainedEffect()
         {
+            if (Card.Location == CardLocation.Hand)
+            {
+                AI.SelectPlace(SelectSTPlace(Card, true));
+            }
             AI.SelectCard(CardId.BystialDruiswurm, CardId.BystialMagnamhut, CardId.TheBystialLubellion);
             return true;
         }
@@ -768,7 +856,7 @@ namespace WindBot.Game.AI.Decks
         {
             IList<CardAttribute> attributes = new List<CardAttribute>();
             for (int i = 0; i < selectAtt.Count; ++i)
-                if (selectAtt[i]) attributes.Add((CardAttribute)(Math.Pow(2, i)));
+                if (selectAtt[i]) attributes.Add((CardAttribute)(System.Math.Pow(2, i)));
             if (attributes.Count > 0) return attributes;
             return null;
         }
@@ -804,6 +892,20 @@ namespace WindBot.Game.AI.Decks
                 return 0;
             return 1;
         }
+        private IList<ClientCard> CardsIdToClientCards(IList<int> cardsId, IList<ClientCard> cardsList, bool uniqueId = true, bool alias = true)
+        {
+            if (cardsList?.Count() <= 0 || cardsId?.Count() <= 0) return new List<ClientCard>();
+            List<ClientCard> res = new List<ClientCard>();
+            foreach (var cardid in cardsId)
+            {
+                List<ClientCard> cards = cardsList.Where(card => card != null && (card.Id == cardid || ((card.Alias != 0 && cardid == card.Alias) & alias))).ToList();
+                if (cards?.Count <= 0) continue;
+                cards.Sort(CardContainer.CompareCardAttack);
+                if (uniqueId) res.Add(cards.First());
+                else res.AddRange(cards);
+            }
+            return res;
+        }
         private bool IPEffect()
         {
             if (Duel.LastChainPlayer == 0) return false;
@@ -813,10 +915,21 @@ namespace WindBot.Game.AI.Decks
                 CardId.UnionCarrier,
                 CardId.CrossSheep
             };
-            if (Bot.MonsterZone.GetMatchingCardsCount(card => card.IsCode(materials)) >= 1 && Bot.HasInExtra(CardId.MekkKnightCrusadiaAvramax))
+            if (Bot.HasInExtra(CardId.MekkKnightCrusadiaAvramax))
             {
+                List<ClientCard> m = new List<ClientCard>();
+                IList<ClientCard> pre_m = CardsIdToClientCards(materials, Bot.GetMonsters().Where(card=>card!=null && card.IsFaceup()).ToList());
+                if (pre_m?.Count <= 0) return false;
+                int link_count = 0;
+                foreach (var card in pre_m)
+                {
+                    m.Add(card);
+                    link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
+                    if (link_count >= 4) break;
+                }
+                if (link_count < 4) return false;
                 AI.SelectCard(CardId.MekkKnightCrusadiaAvramax);
-                AI.SelectMaterials(materials);
+                AI.SelectMaterials(m);
                 return true;
             }
             else if (Bot.HasInExtra(CardId.KnightmareUnicorn))
@@ -831,24 +944,25 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (card == null) continue;
                     if (card.Id == CardId.UnionCarrier && summon_UnionCarrier) continue;
-                    if ((GetLinkMark(card.Id) < 3 || card.Id == CardId.BowoftheGoddess && card.Attack <= 800) && card.Id != CardId.ThunderDragonTitan
+                    if ((GetLinkMark(card.Id) < 3 || (card.Id == CardId.BowoftheGoddess && card.Attack <= 800)) && card.Id != CardId.ThunderDragonTitan
                         && card.Id != CardId.ThunderDragonColossus && card.IsFaceup() && materials_2.Count(_card => _card != null && _card.Id == card.Id) <= 0)
                         materials_2.Add(card);
                 }
                 int link_count = 0;
                 materials_2.Sort(CardContainer.CompareCardAttack);
                 materials_2.Sort(CompareCardLink);
+                materials_2.Reverse();
                 if (materials_2.Count <= 0) return false;
                 foreach (var card in materials_2)
                 {
                     if (!resMaterials.Contains(card))
                     {
                         resMaterials.Add(card);
-                        link_count += 1;
-                        if (link_count >= 1) break;
+                        link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
+                        if (link_count >= 3) break;
                     }
                 }
-                if (link_count >= 1) { AI.SelectCard(CardId.KnightmareUnicorn); AI.SelectMaterials(resMaterials); return true; }
+                if (link_count >= 3) { AI.SelectCard(CardId.KnightmareUnicorn); AI.SelectMaterials(resMaterials); return true; }
             }
             return false;
         }
@@ -859,8 +973,9 @@ namespace WindBot.Game.AI.Decks
                 if (Card.IsDisabled()) return false;
                 if (Bot.Graveyard.Count(card => card != null && card.HasType(CardType.Link)) <= 0) return false;
                 IList<CardAttribute> attributes = GetAttUsed();
-                if (attributes == null || attributes.Count <= 0) { selectFlag[(int)Select.AccesscodeTalker] = true; return true; }
+                if (attributes == null || attributes.Count <= 0) { ResetFlag(); selectFlag[(int)Select.AccesscodeTalker] = true; return true; }
                 if (Bot.Graveyard.Count(card => card != null && card.HasType(CardType.Link) && !attributes.Contains((CardAttribute)card.Attribute)) <= 0) return false;
+                ResetFlag();
                 selectFlag[(int)Select.AccesscodeTalker] = true;
                 return true;
             }
@@ -876,10 +991,24 @@ namespace WindBot.Game.AI.Decks
         private bool CalledbytheGraveEffect()
         {
             ClientCard card = Util.GetLastChainCard();
-            if (Duel.LastChainPlayer != 0 && card != null && card.Location == CardLocation.Grave
-                && card.HasType(CardType.Monster))
+            if (card == null) return false;
+            int id = card.Id;
+            List<ClientCard> g_cards = Enemy.GetGraveyardMonsters().Where(g_card => g_card != null && g_card.Id == id).ToList();
+            if (Duel.LastChainPlayer != 0 && card != null)
             {
-                AI.SelectCard(card);
+                if (Card.Location == CardLocation.Hand)
+                {
+                    AI.SelectPlace(SelectSTPlace(Card, true));
+                }
+                if (card.Location == CardLocation.Grave && card.HasType(CardType.Monster))
+                {
+                    AI.SelectCard(card);
+                }
+                else if (g_cards.Count() > 0 && card.HasType(CardType.Monster))
+                {
+                    AI.SelectCard(g_cards);
+                }
+                else return false;
                 return true;
             }
             return false;
@@ -952,7 +1081,6 @@ namespace WindBot.Game.AI.Decks
                 res.AddRange(mcards);
                 res.AddRange(scards);
                 AI.SelectCard(res);
-                selectFlag[(int)Select.ThunderDragonTitan] = true;
                 return true;
             }
             else
@@ -967,7 +1095,7 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == Util.GetStringId(CardId.PredaplantVerteAnaconda, 1))
             {
                 if (CheckRemainInDeck(CardId.ThunderDragonFusion) <= 0) return false;
-                if (Bot.GetMonstersInMainZone().Count > 4 && Bot.GetMonstersInMainZone().Count(card => card != null && !card.IsExtraCard() && card.HasSetcode(0x11c) && card.HasType(CardType.Monster)) <= 0) return false;
+                if (Bot.GetMonstersInMainZone().Count > 4 && Bot.GetMonstersInMainZone().Count(card => card != null && !card.IsExtraCard() && card.HasSetcode(0x11c) && card.HasType(CardType.Monster) && card.IsFaceup()) <= 0) return false;
                 List<ClientCard> g_card = Bot.Graveyard.ToList();
                 List<ClientCard> b_card = Bot.Banished.ToList();
                 g_card.AddRange(b_card);
@@ -1070,24 +1198,6 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
-        private bool LinkZoneCheck()
-        {
-            bool res = false;
-            foreach (var card in Bot.GetMonstersInMainZone())
-            {
-                if (card == null) continue;
-                if (card.Id != CardId.ThunderDragonTitan && card.Id != CardId.ThunderDragonColossus && (card.LinkCount < 3 || (card.Id == CardId.BowoftheGoddess && card.Attack <= 800)))
-                {
-                    if (Util.GetBotAvailZonesFromExtraDeck(card) > 0)
-                    {
-                        res = true;
-                        break;
-                    }
-                }
-            }
-            if (!res) return false;
-            return true;
-        }
         private bool PredaplantVerteAnacondaSummon()
         {
             if (CheckRemainInDeck(CardId.ThunderDragonFusion) <= 0) return false;
@@ -1104,7 +1214,7 @@ namespace WindBot.Game.AI.Decks
                 if (card.IsCode(CardId.NormalThunderDragon))
                     ++Lcount;
             }
-            if (!LinkZoneCheck()) return false;
+            if (!IsAvailableLinkZone()) return false;
             if ((count >= 3 && Bot.HasInExtra(CardId.ThunderDragonTitan)) ||
                 (Bot.HasInExtra(CardId.ThunderDragonColossus) && Lcount > 0 && g_card.Count(card => card != null && card.HasRace(CardRace.Thunder)) > 1))
             {
@@ -1124,6 +1234,7 @@ namespace WindBot.Game.AI.Decks
         private bool KnightmareUnicornSummon()
         {
             if (Bot.Hand.Count <= 0) return false;
+            if (!IsAvailableLinkZone()) return false;
             List<ClientCard> pre_cards = Enemy.GetMonsters();
             pre_cards.AddRange(Enemy.GetSpells());
             if (pre_cards.Count(card => card != null && !card.IsShouldNotBeTarget()) <= 0) return false;
@@ -1224,6 +1335,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BowoftheGoddessSummon()
         {
+            if (!IsAvailableLinkZone()) return false;
             if (Card.Id == CardId.AccesscodeTalker)
             {
                 if (Duel.Turn == 0 || Enemy.GetMonsterCount() + Enemy.GetSpellCount() <= 0) return false;
@@ -1244,7 +1356,6 @@ namespace WindBot.Game.AI.Decks
                     && card.Id != CardId.ThunderDragonColossus && card.IsFaceup() && !card.HasType(CardType.Token))
                     tempmaterials.Add(card);
             }
-            if (!LinkZoneCheck()) return false;
             int link_count = 0;
             List<ClientCard> materials = new List<ClientCard>();
             List<ClientCard> link_materials = tempmaterials.Where(card => card != null && (card.LinkCount == 3 || card.LinkCount == 2)).ToList();
@@ -1324,6 +1435,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ThunderDragonColossusSummon()
         {
+            ResetFlag();
             selectFlag[(int)Select.ThunderDragonColossus] = true;
             place_ThunderDragonColossus = true;
             return true;
@@ -1341,12 +1453,14 @@ namespace WindBot.Game.AI.Decks
         }
         private bool IPSummon()
         {
+            if (Duel.Turn > 0 && Duel.Phase < DuelPhase.Main2) return false;
+            if (Bot.GetMonsterCount() <= 2) return false;
             if (Bot.HasInMonstersZone(CardId.ThunderDragonColossus) && Bot.GetMonsterCount() <= 3) return false;
             if (!Bot.HasInExtra(CardId.KnightmareUnicorn) && !Bot.HasInExtra(CardId.BowoftheGoddess)
                 && !Bot.HasInExtra(CardId.MekkKnightCrusadiaAvramax) && !Bot.HasInExtra(CardId.AccesscodeTalker) && !Bot.HasInExtra(CardId.UnderworldGoddessoftheClosedWorld)) return false;
             List<ClientCard> cards = Bot.GetMonsters().Where(card => card != null && GetLinkMark(card.Id) < 3 && card.Id != CardId.ThunderDragonTitan && card.Id != CardId.ThunderDragonColossus && !card.HasType(CardType.Link) && card.Attack <= 2500 && card.EquipCards.Count(ecard=> ecard != null && ecard.Id==CardId.DragonBusterDestructionSword && !ecard.IsDisabled())<=0).ToList();
             if (cards.Count < 2) return false;
-            if (!LinkZoneCheck()) return false;
+            if (!IsAvailableLinkZone()) return false;
             cards.Sort(CardContainer.CompareCardAttack);
             List<int> cardsId = new List<int>();
             if (HasInZoneNoActivate(CardId.ThunderDragonroar, CardLocation.MonsterZone))
@@ -1362,6 +1476,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ThunderDragonlordSummon()
         {
+            if (Bot.GetMonstersInMainZone().Count > 4 && Bot.GetMonstersInMainZone().Count(card => card != null && card.Level <= 8 && card.HasType(CardType.Tuner) && !card.IsExtraCard() && card.IsFaceup()) <= 0) return false;
             IList<int> cardsId = new List<int>();
             if (HasInZoneNoActivate(CardId.ThunderDragonroar, CardLocation.Hand)
                 || HasInZoneNoActivate(CardId.ThunderDragonroar, CardLocation.MonsterZone, true))
@@ -1372,17 +1487,21 @@ namespace WindBot.Game.AI.Decks
             if (HasInZoneNoActivate(CardId.ThunderDragonmatrix, CardLocation.Hand)
                 || HasInZoneNoActivate(CardId.ThunderDragonmatrix, CardLocation.MonsterZone, true))
                 cardsId.Add(CardId.ThunderDragonmatrix);
-            List<ClientCard> handCards = Bot.Hand.ToList();
+            List<ClientCard> handCards = Bot.Hand.Where(card=>card != null).ToList();
             handCards.Sort(CardContainer.CompareCardLevel);
             List<ClientCard> monsterCards = Bot.GetMonsters().ToList();
             monsterCards.Sort(CardContainer.CompareCardAttack);
             foreach (var card in handCards)
-                if(card != null && card.HasRace(CardRace.Thunder) && card.Level <= 8)
+            {
+                if (card != null && card.HasRace(CardRace.Thunder) && card.Level <= 8)
                     cardsId.Add(card.Id);
+            }
             foreach (var card in monsterCards)
+            {
                 if (card != null && card.HasRace(CardRace.Thunder) && card.Level <= 8
-                    && card.Id != CardId.ThunderDragonColossus && card.IsFaceup()) 
+                    && card.Id != CardId.ThunderDragonColossus && card.IsFaceup())
                     cardsId.Add(card.Id);
+            }
             if (cardsId.Count <= 0) return false;
             AI.SelectCard(cardsId);
             return true;
@@ -1445,7 +1564,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.ExtraDeck.Count(card => card != null && card.LinkCount == 2) <= 0) return false;
             }
-            if (Card.Id == CardId.ThunderDragonroar || Card.Id == CardId.ThunderDragondark)
+            if (Card.Id == CardId.ThunderDragonroar || Card.Id == CardId.ThunderDragondark || Card.Id == CardId.NormalThunderDragon)
             {
                 if (!Bot.HasInExtra(CardId.ThunderDragonColossus) || !handActivated) return false;
             }
@@ -1544,6 +1663,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool GoldSarcophagusEffect()
         {
+            if (GetRemainingThunderCount() <= 0) return false;
             if (HasInZoneNoActivate(CardId.ThunderDragonroar, CardLocation.Deck) && Bot.GetMonstersInMainZone().Count < 5)
                 AI.SelectCard(CardId.ThunderDragonroar);
             else if (HasInZoneNoActivate(CardId.ThunderDragondark, CardLocation.Deck))
@@ -1551,6 +1671,10 @@ namespace WindBot.Game.AI.Decks
             else if (HasInZoneNoActivate(CardId.ThunderDragonmatrix, CardLocation.Deck))
                 AI.SelectCard(CardId.ThunderDragonmatrix);
             else AI.SelectCard(CardId.ThunderDragonmatrix);
+            if (Card.Location == CardLocation.Hand)
+            {
+                AI.SelectPlace(SelectSTPlace(Card, true));
+            }
             return true;
         }
         private bool UnionCarrierSummon()
@@ -1626,6 +1750,7 @@ namespace WindBot.Game.AI.Decks
                 && raceThunderCards.Count() < 2 && raceDragonCards.Count() < 2 && raceBeastCards.Count() < 2)
                 return false;
             if (!LinkCheck(false) || !LinkCheck(true)) return false;
+            if (!IsAvailableLinkZone()) return false;
             if (Bot.MonsterZone[6] != null && Bot.MonsterZone[6].Controller == 0 && GetLinkMark(Bot.MonsterZone[6].Id) > 1) return false;
             int[] materials = new[] {
                 CardId.StrikerDragon,CardId.BatterymanToken,CardId.BatterymanSolar,
@@ -1790,6 +1915,7 @@ namespace WindBot.Game.AI.Decks
                                 pre_res.Add(mcard);
                         }
                     }
+                    if (res.Count() <= 0) return false;
                     if (pre_res.Count > 0) res.AddRange(pre_res);
                     AI.SelectCard(res);
                 }
@@ -1845,6 +1971,7 @@ namespace WindBot.Game.AI.Decks
                 if (!isShoudlSummon_1) return false;
 
             }
+            if (!IsAvailableLinkZone()) return false;
             IList<int> cardsid = GetZoneRepeatCardsId(0, Bot.MonsterZone,true);
             if (!cardsid.Contains(-1) && Bot.MonsterZone.Count(card => card != null && card.IsFaceup() && !card.IsOriginalCode(CardId.ThunderDragonColossus) && GetLinkMark(card.Id) <= 1)
                 - cardsid.Count() < 2) return false;
@@ -2148,6 +2275,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                if (Bot.GetMonstersInMainZone().Count > 4 && Bot.GetMonstersInMainZone().Count(card => card != null && !card.IsExtraCard() && card.HasSetcode(0x11c) && card.HasType(CardType.Monster) && card.IsFaceup()) <= 0) return false;
                 List<ClientCard> cards = Bot.Graveyard.ToList();
                 IList<ClientCard> banish = Bot.Banished;
                 cards.AddRange(banish);
@@ -2161,6 +2289,10 @@ namespace WindBot.Game.AI.Decks
                 {
                     AI.SelectCard(CardId.ThunderDragonColossus, CardId.ThunderDragonTitan);
                     return true;
+                }
+                if (Card.Location == CardLocation.Hand)
+                {
+                    AI.SelectPlace(SelectSTPlace(Card, true));
                 }
                 return false;
             }
@@ -2203,8 +2335,13 @@ namespace WindBot.Game.AI.Decks
                     (card.HasAttribute(CardAttribute.Dark) || card.HasAttribute(CardAttribute.Light))
                     && !card.IsCode(CardId.ThunderDragonroar) && !card.IsCode(CardId.ThunderDragondark) && !card.IsCode(CardId.ThunderDragonhawk)
                     && !card.IsCode(CardId.NormalThunderDragon))) return false;
+                ResetFlag();
                 selectFlag[(int)Select.ChaosSpace_1] = true;
                 activate_ChaosSpace_hand = true;
+                if (Card.Location == CardLocation.Hand)
+                {
+                    AI.SelectPlace(SelectSTPlace(Card, true));
+                }
                 return true;
             }
             return false;
@@ -2265,6 +2402,10 @@ namespace WindBot.Game.AI.Decks
                 cardsid.AddRange(cardsid_1);
                 cardsid.AddRange(cardsid_2);
                 AI.SelectCard(cardsid);
+            }
+            if (Card.Location == CardLocation.Hand)
+            {
+                AI.SelectPlace(SelectSTPlace(Card, true));
             }
             return true;
         }
@@ -2351,6 +2492,7 @@ namespace WindBot.Game.AI.Decks
         private bool NormalThunderDragonEffect()
         {
             handActivated = true;
+            ResetFlag();
             selectFlag[(int)Select.NormalThunderDragon] = true;
             return true;
         }
