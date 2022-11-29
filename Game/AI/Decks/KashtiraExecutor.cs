@@ -904,7 +904,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool GalaxyTomahawkSummon()
         {
-            if (CheckRemainInDeck(CardId.MechaPhantom) < 0) return false;
+            if (CheckRemainInDeck(CardId.MechaPhantom) <= 0) return false;
             if (Bot.GetMonsterCount() >= 4) return false;
             if (onlyXyzSummon || activate_DimensionShifter || Bot.HasInMonstersZone(CardId.KashtiraAriseHeart,true,false,true)) return false;
             if (!Bot.HasInExtra(CardId.MekkKnightCrusadiaAvramax) && !(Bot.HasInExtra(CardId.CupidPitch) || Bot.HasInExtra(CardId.BorreloadSavageDragon))) return false;
