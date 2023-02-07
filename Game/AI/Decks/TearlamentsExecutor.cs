@@ -47,8 +47,11 @@ namespace WindBot.Game.AI.Decks
             public const int SprightElf = 27381364;
             public const int IP = 65741786;
         }
-        //true ? ygopro lua : edopro lua
-        bool YGO_SCRIPT = true;
+        // false: EDOPro
+        const bool IS_YGOPRO = true;
+        // YGOPro: 0x181
+        // EDOPro: 0x182
+        int SETCODE = 0x181;
 
         bool activate_TearlamentsScheiren_1 = false;
         bool activate_TearlamentsScheiren_2 = false;
@@ -360,7 +363,7 @@ namespace WindBot.Game.AI.Decks
                         {
                             case 0:
                             case 2:
-                                fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && (card.HasRace(CardRace.Aqua) || (card.HasType(CardType.Monster) && (YGO_SCRIPT ? card.HasSetcode(0x181) : card.HasSetcode(0x182))))).ToList();
+                                fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && (card.HasRace(CardRace.Aqua) || (card.HasType(CardType.Monster) && card.HasSetcode(SETCODE)))).ToList();
                                 break;
                             case 1:
                                 fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && card.Id == CardId.TearlamentsKitkallos).ToList();
@@ -369,7 +372,7 @@ namespace WindBot.Game.AI.Decks
                                 fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && card.Id == CardId.ElShaddollWinda).ToList();
                                 break;
                             case 4:
-                                fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && card.HasType(CardType.Monster) && card.HasSetcode(YGO_SCRIPT ? 0x181 : 0x182)).ToList();
+                                fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && card.HasType(CardType.Monster) && card.HasSetcode(SETCODE)).ToList();
                                 break;
                             case 5:
                                 fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && (card.Id != CardId.TearlamentsRulkallos || card.IsDisabled()) && card.HasType(CardType.Fusion)).ToList();
@@ -377,7 +380,7 @@ namespace WindBot.Game.AI.Decks
                             default:
                                 return false;
                         }
-                        fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && (card.HasRace(CardRace.Aqua) || (card.HasType(CardType.Monster) && (YGO_SCRIPT ? card.HasSetcode(0x181) : card.HasSetcode(0x182))))).ToList();
+                        fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && (card.HasRace(CardRace.Aqua) || (card.HasType(CardType.Monster) && card.HasSetcode(SETCODE)))).ToList();
                         int chaining_key_count = on_chaining_cards.Count(card => card != null && (card.Id == CardId.AgidotheAncientSentinel || card.Id == CardId.KelbektheAncientVanguard));
                         int chaining_key_count_2 = on_chaining_cards.Count(card => card != null && card.Id == CardId.TearlamentsSulliek);
                         List<ClientCard> current_chain_cards = new List<ClientCard>(Duel.CurrentChain);
@@ -490,13 +493,13 @@ namespace WindBot.Game.AI.Decks
                                 break;
                             case 1:
                             case 4:
-                                fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && (card.HasRace(CardRace.Aqua) || (card.HasType(CardType.Monster) && (YGO_SCRIPT ? card.HasSetcode(0x181) : card.HasSetcode(0x182))))).ToList();
+                                fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && (card.HasRace(CardRace.Aqua) || (card.HasType(CardType.Monster) && card.HasSetcode(SETCODE)))).ToList();
                                 break;
                             case 3:
                                 fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && card.Id == CardId.TearlamentsKitkallos).ToList();
                                 break;
                             case 5:
-                                fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && card.HasType(CardType.Monster) && card.HasSetcode(YGO_SCRIPT ? 0x181 : 0x182)).ToList();
+                                fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && card.HasType(CardType.Monster) && card.HasSetcode(SETCODE)).ToList();
                                 break;
                             case 6:
                                 fusionMaterialTemp = fusionMaterialTemp.Where(card => card != null && (card.Id != CardId.TearlamentsRulkallos || card.IsDisabled()) && card.HasType(CardType.Fusion)).ToList();
@@ -657,7 +660,7 @@ namespace WindBot.Game.AI.Decks
         }
         public override int OnSelectOption(IList<int> options)
         {
-            if (options.Count == 2 && (YGO_SCRIPT ? options.Contains(1190) : options.Contains(573)))
+            if (options.Count == 2 && (IS_YGOPRO ? options.Contains(1190) : options.Contains(573)))
             {
                 return TearlamentsKitkallostohand ? 0 : 1;
             }
@@ -940,9 +943,9 @@ namespace WindBot.Game.AI.Decks
 
             }
             //!YGO_SCRIPT && select_TearlamentsKitkallos && hint == HintMsg.AddToHand
-            if ((YGO_SCRIPT && hint == HintMsg.OperateCard) || (!YGO_SCRIPT && select_TearlamentsKitkallos && hint == HintMsg.AddToHand))
+            if ((IS_YGOPRO && hint == HintMsg.OperateCard) || (!IS_YGOPRO && select_TearlamentsKitkallos && hint == HintMsg.AddToHand))
             {
-                if (!YGO_SCRIPT) select_TearlamentsKitkallos = false;
+                if (!IS_YGOPRO) select_TearlamentsKitkallos = false;
                 IList<int> ids = new List<int>();
                 IList<ClientCard> res = new List<ClientCard>();
                 if (Duel.Player == 0)
@@ -953,7 +956,7 @@ namespace WindBot.Game.AI.Decks
                     if (ids.Count() <= 0 && !activate_TearlamentsKitkallos_2)
                     {
                         List<ClientCard> should_spsummon_cards = GetZoneCards(CardLocation.Grave | CardLocation.Hand, Bot);
-                        should_spsummon_cards = should_spsummon_cards.Where(card => card != null && card.HasSetcode(YGO_SCRIPT ? 0x181 : 0x182) && card.HasType(CardType.Monster)).ToList();
+                        should_spsummon_cards = should_spsummon_cards.Where(card => card != null && card.HasSetcode(SETCODE) && card.HasType(CardType.Monster)).ToList();
                         if (should_spsummon_cards.Count() <= 0)
                         {
                             if (HasInList(cards, CardId.TearlamentsScheiren)) ids.Add(CardId.TearlamentsScheiren);
@@ -971,7 +974,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     else
                     {
-                        if (IsShouldSummonFusion(YGO_SCRIPT ? 0x181 : 0x182, (int)CardRace.Aqua))
+                        if (IsShouldSummonFusion(SETCODE, (int)CardRace.Aqua))
                         {
                             if (!activate_TearlamentsHavnis_2 && HasInList(cards, CardId.TearlamentsHavnis)) ids.Add(CardId.TearlamentsHavnis);
                             if (!activate_TearlamentsScheiren_2 && HasInList(cards, CardId.TearlamentsScheiren)) ids.Add(CardId.TearlamentsScheiren);
@@ -983,7 +986,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 else
                 {
-                    if (IsShouldSummonFusion(YGO_SCRIPT ? 0x181 : 0x182, (int)CardRace.Aqua, true))
+                    if (IsShouldSummonFusion(SETCODE, (int)CardRace.Aqua, true))
                     {
                         if (!activate_TearlamentsHavnis_2 && HasInList(cards, CardId.TearlamentsHavnis) && !Bot.HasInHand(CardId.TearlamentsHavnis)) ids.Add(CardId.TearlamentsHavnis);
                         if (!activate_TearlamentsScheiren_2 && HasInList(cards, CardId.TearlamentsScheiren) && !Bot.HasInHand(CardId.TearlamentsScheiren)) ids.Add(CardId.TearlamentsScheiren);
@@ -1000,7 +1003,7 @@ namespace WindBot.Game.AI.Decks
                             ids.Add(CardId.TearlamentsHavnis);
                             TearlamentsKitkallostohand = true;
                         }
-                        else if (!activate_TearlamentsReinoheart_2 && HasInList(cards, CardId.TearlamentsReinoheart) && Bot.Hand.Any(card => card != null && card.HasSetcode(YGO_SCRIPT ? 0x181 : 0x182)))
+                        else if (!activate_TearlamentsReinoheart_2 && HasInList(cards, CardId.TearlamentsReinoheart) && Bot.Hand.Any(card => card != null && card.HasSetcode(SETCODE)))
                         {
                             ids.Add(CardId.TearlamentsReinoheart);
                             TearlamentsKitkallostohand = false;
@@ -1095,7 +1098,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
                 mkeycards = cards.Where(card => card != null && card.Id == CardId.TearlamentsKitkallos).ToList();
-                if (!activate_TearlamentsKitkallos_3 && mkeycards.Count > 0 && IsShouldSummonFusion(YGO_SCRIPT ? 0x181 : 0x182, (int)CardRace.Aqua)
+                if (!activate_TearlamentsKitkallos_3 && mkeycards.Count > 0 && IsShouldSummonFusion(SETCODE, (int)CardRace.Aqua)
                     && ((CheckRemainInDeck(CardId.TearlamentsHavnis) > 0 && !activate_TearlamentsHavnis_2)
                     || (CheckRemainInDeck(CardId.TearlamentsMerrli) > 0 && !activate_TearlamentsMerrli_2)
                     || (CheckRemainInDeck(CardId.TearlamentsScheiren) > 0 && !activate_TearlamentsScheiren_2)))
@@ -1114,7 +1117,7 @@ namespace WindBot.Game.AI.Decks
                 IList<int> ids = new List<int>();
                 if (!activate_AgidotheAncientSentinel_2) ids.Add(CardId.AgidotheAncientSentinel);
                 if (!activate_KelbektheAncientVanguard_2) ids.Add(CardId.KelbektheAncientVanguard);
-                if (IsShouldSummonFusion(YGO_SCRIPT ? 0x181 : 0x182, (int)CardRace.Aqua))
+                if (IsShouldSummonFusion(SETCODE, (int)CardRace.Aqua))
                 {
                     if (activate_TearlamentsScheiren_1 && !activate_TearlamentsScheiren_2) ids.Add(CardId.TearlamentsScheiren);
                     if (summoned && !activate_TearlamentsMerrli_2) ids.Add(CardId.TearlamentsMerrli);
@@ -1367,7 +1370,7 @@ namespace WindBot.Game.AI.Decks
                 return res.Count > 0 ? Util.CheckSelectCount(res, cards, min, max) : null;
             }
             //(YGO_SCRIPT && hint == HintMsg.Disable) || (!YGO_SCRIPT && hint == HintMsg.Negate)
-            if (YGO_SCRIPT && hint == HintMsg.Disable)
+            if (IS_YGOPRO && hint == HintMsg.Disable)
             {
                 if (chain_TearlamentsSulliek != null && cards.Contains(chain_TearlamentsSulliek))
                 {
@@ -2215,14 +2218,14 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (card == null) continue;
                     if (card.Id == CardId.TearlamentsRulkallos && card.Location == CardLocation.MonsterZone && !card.IsDisabled()) continue;
-                    if ((YGO_SCRIPT ? card.HasSetcode(0x181) : card.HasSetcode(0x182)) &&  card.HasType(CardType.Monster))
+                    if (card.HasSetcode(SETCODE) &&  card.HasType(CardType.Monster))
                     {
                         ++xcount_1;
                         if (card.HasRace(CardRace.Aqua)) { --xcount_1; ++xcount_3; }
                     }
                     else if (card.HasRace(CardRace.Aqua)) ++xcount_2;
                 }
-                if (YGO_SCRIPT ?  setcode == 0x181 : setcode == 0x182)
+                if (setcode == SETCODE)
                 {
                     ++xcount_1;
                     if (race == (int)CardRace.Aqua) { --xcount_1; ++xcount_3; }
@@ -2238,9 +2241,9 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (card == null) continue;
                     if (card.Id == CardId.TearlamentsKitkallos && xcount_1 <= 0) ++xcount_1;
-                    else if ((YGO_SCRIPT ? card.HasSetcode(0x181) : card.HasSetcode(0x182)) && card.HasType(CardType.Monster))  ++xcount_2;
+                    else if (card.HasSetcode(SETCODE) && card.HasType(CardType.Monster))  ++xcount_2;
                 }
-                if (YGO_SCRIPT ? setcode == 0x181 : setcode == 0x182) ++xcount_2;
+                if (setcode == SETCODE) ++xcount_2;
                 if (xcount_1 > 0 && xcount_2 > 0) return true;
             }
             if ((flag & (int)Flag.TearlamentsKaleidoHeart) > 0 && Bot.ExtraDeck.Count(card => card != null && card.Id == CardId.TearlamentsKaleidoHeart) > 0)
@@ -2284,7 +2287,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     xcount_1 = materials_1.Count;
                     xcount_2 = materials_2.Count;
-                    if ((YGO_SCRIPT ? setcode == 0x181 : setcode == 0x182) && race == (int)CardRace.Aqua)
+                    if ((setcode == SETCODE) && race == (int)CardRace.Aqua)
                     {
                         ++xcount_2;
                     }
@@ -2378,7 +2381,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                List<ClientCard> cards = Bot.Hand.Where(card => card != null && card.HasSetcode(YGO_SCRIPT ? 0x181 : 0x182)).ToList();
+                List<ClientCard> cards = Bot.Hand.Where(card => card != null && card.HasSetcode(SETCODE)).ToList();
                 List<ClientCard> temp = new List<ClientCard>(cards);
                 foreach (var card in temp)
                 {
@@ -2419,9 +2422,9 @@ namespace WindBot.Game.AI.Decks
                 else if (Bot.HasInMonstersZone(CardId.AgidotheAncientSentinel) && !activate_AgidotheAncientSentinel_2) AI.SelectCard(CardId.AgidotheAncientSentinel);
                 else if (Bot.HasInMonstersZone(CardId.KelbektheAncientVanguard) && !activate_KelbektheAncientVanguard_2) AI.SelectCard(CardId.KelbektheAncientVanguard);
                 else if (Bot.HasInMonstersZone(CardId.ShaddollDragon) && Enemy.GetSpellCount() > 0) AI.SelectCard(CardId.ShaddollDragon);
-                else if (!activate_TearlamentsScheiren_2 && Bot.HasInMonstersZone(CardId.TearlamentsScheiren) && IsShouldSummonFusion(YGO_SCRIPT ? 0x181 : 0x182, (int)CardRace.Aqua)) AI.SelectCard(CardId.TearlamentsScheiren);
-                else if (!activate_TearlamentsMerrli_2 && Bot.HasInMonstersZone(CardId.TearlamentsMerrli) && IsShouldSummonFusion(YGO_SCRIPT ? 0x181 : 0x182, (int)CardRace.Aqua)) AI.SelectCard(CardId.TearlamentsMerrli);
-                else if (!activate_TearlamentsHavnis_2 && Bot.HasInMonstersZone(CardId.TearlamentsHavnis) && IsShouldSummonFusion(YGO_SCRIPT ? 0x181 : 0x182, (int)CardRace.Aqua)) AI.SelectCard(CardId.TearlamentsHavnis);
+                else if (!activate_TearlamentsScheiren_2 && Bot.HasInMonstersZone(CardId.TearlamentsScheiren) && IsShouldSummonFusion(SETCODE, (int)CardRace.Aqua)) AI.SelectCard(CardId.TearlamentsScheiren);
+                else if (!activate_TearlamentsMerrli_2 && Bot.HasInMonstersZone(CardId.TearlamentsMerrli) && IsShouldSummonFusion(SETCODE, (int)CardRace.Aqua)) AI.SelectCard(CardId.TearlamentsMerrli);
+                else if (!activate_TearlamentsHavnis_2 && Bot.HasInMonstersZone(CardId.TearlamentsHavnis) && IsShouldSummonFusion(SETCODE, (int)CardRace.Aqua)) AI.SelectCard(CardId.TearlamentsHavnis);
                 else if (Bot.HasInMonstersZone(CardId.TearlamentsReinoheart) && !activate_TearlamentsReinoheart_1) AI.SelectCard(CardId.TearlamentsReinoheart);
                 else if (Bot.HasInMonstersZone(CardId.Eva) && Bot.Graveyard.Count(card => card != null && card.HasAttribute(CardAttribute.Light) && card.HasRace(CardRace.Fairy)) > 0
                     && (CheckRemainInDeck(CardId.HeraldofGreenLight) > 0 || CheckRemainInDeck(CardId.HeraldofOrangeLight) > 0)) AI.SelectCard(CardId.Eva);
@@ -2451,7 +2454,7 @@ namespace WindBot.Game.AI.Decks
             else
             {
                 if (Card.IsDisabled()) return false;
-                if (!YGO_SCRIPT) select_TearlamentsKitkallos = true;
+                if (!IS_YGOPRO) select_TearlamentsKitkallos = true;
                 activate_TearlamentsKitkallos_1 = true;
                 return true;
             }
@@ -2474,7 +2477,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (Duel.Player == 1 || Duel.Phase == DuelPhase.End)
                     {
-                        if (((Bot.HasInMonstersZone(CardId.TearlamentsKitkallos,false,false,true) && !activate_TearlamentsKitkallos_3 && IsShouldSummonFusion(YGO_SCRIPT ? 0x181 : 0x182, (int)CardRace.Aqua)
+                        if (((Bot.HasInMonstersZone(CardId.TearlamentsKitkallos,false,false,true) && !activate_TearlamentsKitkallos_3 && IsShouldSummonFusion(SETCODE, (int)CardRace.Aqua)
                             && ((CheckRemainInDeck(CardId.TearlamentsHavnis) > 0 && !activate_TearlamentsHavnis_2)
                             || (CheckRemainInDeck(CardId.TearlamentsMerrli) > 0 && !activate_TearlamentsMerrli_2)
                             || (CheckRemainInDeck(CardId.TearlamentsScheiren) > 0 && !activate_TearlamentsScheiren_2)) && Bot.GetMonsterCount()<3)
