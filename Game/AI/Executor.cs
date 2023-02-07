@@ -165,6 +165,10 @@ namespace WindBot.Game.AI
             // For overriding
             return null;
         }
+        public virtual void OnSelectChain(IList<ClientCard> cards)
+        {
+            return;
+        }
 
         public virtual bool OnSelectYesNo(int desc)
         {
