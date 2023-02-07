@@ -220,6 +220,13 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
+
+        public override bool OnSelectHand()
+        {
+            // go first
+            return true;
+        }
+
         public override void OnNewTurn()
         {
             List<ClientCard> cards = Bot.ExtraDeck.Where(card => card != null && card.Id == CardId.PredaplantDragostapelia).ToList();

@@ -142,6 +142,13 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, SpellSet);
             AddExecutor(ExecutorType.Repos, DefaultRepos);
         }
+
+        public override bool OnSelectHand()
+        {
+            // go first
+            return true;
+        }
+
         public override void OnNewTurn()
         {
             if (pre_link_mode < 0) pre_link_mode = Program.Rand.Next(2);

@@ -248,6 +248,13 @@ namespace WindBot.Game.AI.Decks
             }
         }
         #endregion
+
+        public override bool OnSelectHand()
+        {
+            // go first
+            return true;
+        }
+
         public override void OnNewTurn()
         {
             handActivated = false;
