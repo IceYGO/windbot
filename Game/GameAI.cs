@@ -304,6 +304,7 @@ namespace WindBot.Game
         /// <returns>Index of the activated card or -1.</returns>
         public int OnSelectChain(IList<ClientCard> cards, IList<int> descs, bool forced)
         {
+            Executor.OnSelectChain(cards);
             foreach (CardExecutor exec in Executor.Executors)
             {
                 for (int i = 0; i < cards.Count; ++i)
