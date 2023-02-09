@@ -129,7 +129,8 @@ namespace WindBot.Game.AI.Decks
 
         List<int> key_send_to_deck_ids = new List<int>()
         {
-            CardId.TearlamentsMerrli,CardId.TearlamentsScheiren,CardId.TearlamentsHavnis,CardId.TearlamentsReinoheart,8736823
+            CardId.TearlamentsMerrli,CardId.TearlamentsScheiren,CardId.TearlamentsHavnis,CardId.TearlamentsReinoheart,8736823,
+            98715423,17484499
         };
         List<int> all_key_card_ids = new List<int>()
         {
