@@ -14,6 +14,8 @@
         PaleozoicAnomalocaris = 61307542,
         PaleozoicOpabinia = 37649320,
         BorreloadDragon = 31833038,
-        BorrelendDragon = 98630720
+        BorrelendDragon = 98630720,
+        DrytronMeteonisDraconids = 69815951,
+        MyutantBeast = 34695290
     }
 }
