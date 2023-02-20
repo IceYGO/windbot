@@ -117,7 +117,6 @@
         PlunderPatrollshipBrann = 94253655,
         PlunderPatrollshipMoerk = 20248754,
         PlunderPatrollshipLys = 18832779,
-        BrotherhoodoftheFireFistEland = 61472381,
         HollowGiants = 15462014,
         GrozaTyrantofThunder = 45420955,
         SpringansCaptainSargas = 29601381,
