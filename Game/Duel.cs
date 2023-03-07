@@ -18,8 +18,10 @@ namespace WindBot.Game
         public BattlePhase BattlePhase { get; set; }
 
         public int LastChainPlayer { get; set; }
+        public CardLocation LastChainLocation { get; set; }
         public IList<ClientCard> CurrentChain { get; set; }
         public IList<ClientCard> ChainTargets { get; set; }
+        public IList<ClientCard> LastChainTargets { get; set; }
         public IList<ClientCard> ChainTargetOnly { get; set; }
         public int LastSummonPlayer { get; set; }
         public IList<ClientCard> SummoningCards { get; set; }
@@ -31,8 +33,10 @@ namespace WindBot.Game
             Fields[0] = new ClientField();
             Fields[1] = new ClientField();
             LastChainPlayer = -1;
+            LastChainLocation = 0;
             CurrentChain = new List<ClientCard>();
             ChainTargets = new List<ClientCard>();
+            LastChainTargets = new List<ClientCard>();
             ChainTargetOnly = new List<ClientCard>();
             LastSummonPlayer = -1;
             SummoningCards = new List<ClientCard>();
