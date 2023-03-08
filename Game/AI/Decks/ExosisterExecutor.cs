@@ -6,7 +6,6 @@ using WindBot.Game;
 using WindBot.Game.AI;
 using System.Linq;
 
-
 namespace WindBot.Game.AI.Decks
 {
     [Deck("Exosister", "AI_Exosister")]
@@ -73,6 +72,9 @@ namespace WindBot.Game.AI.Decks
 
             // free chain
             AddExecutor(ExecutorType.Activate, _CardId.MaxxC, MaxxCActivate);
+
+            // search
+            AddExecutor(ExecutorType.Activate, CardId.PotofExtravagance, PotofExtravaganceActivate);
 
             // field effect
             AddExecutor(ExecutorType.Activate, CardId.Aratama);
@@ -240,6 +242,31 @@ namespace WindBot.Game.AI.Decks
                 return 0;
             }
             return calledbytheGraveCount[id];
+        }
+
+        public void CheckEnemyMoveGrave()
+        {
+            if (Duel.LastChainPlayer == 1)
+            {
+                ClientCard card = Util.GetLastChainCard();
+                if (Duel.LastChainLocation == CardLocation.Grave && card.Location == CardLocation.Grave)
+                {
+                    Logger.WriteLine("Exosister: enemy activate effect from GY.");
+                    enemyMoveGrave = true;
+                }
+                else
+                {
+                    foreach (ClientCard targetCard in Duel.LastChainTargets)
+                    {
+                        if (targetCard.Location == CardLocation.Grave)
+                        {
+                            Logger.WriteLine("Exosister: enemy target cards of GY.");
+                            enemyMoveGrave = true;
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -635,6 +662,47 @@ namespace WindBot.Game.AI.Decks
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
 
+        public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
+        {
+            if (Util.IsTurn1OrMain2())
+            {
+                bool turnDefense = false;
+                if (cardId == CardId.DivineArsenalAAZEUS_SkyThunder || cardId == CardId.ExosistersMagnifica)
+                {
+                    turnDefense = true;
+                }
+                YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
+                if (cardData != null)
+                {
+                    if (!cardData.HasType(CardType.Xyz))
+                    {
+                        turnDefense = true;
+                    }
+                }
+                if (turnDefense && positions.Contains(CardPosition.FaceUpDefence))
+                {
+                    return CardPosition.FaceUpDefence;
+                }
+            }
+            if (cardId != CardId.ExosisterMikailis && cardId != CardId.ExosistersMagnifica)
+            {
+                YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
+                if (cardData != null)
+                {
+                    int bestBotAttack = Util.GetBestAttack(Bot);
+                    if (Duel.Player == 1)
+                    {
+                        bestBotAttack = cardData.Attack;
+                    }
+                    if (Util.IsOneEnemyBetterThanValue(bestBotAttack, true) && positions.Contains(CardPosition.Defence))
+                    {
+                        return CardPosition.FaceUpDefence;
+                    }
+                }
+            }
+            return base.OnSelectPosition(cardId, positions);
+        }
+
         /// <summary>
         /// override for magnifica's spsummon
         /// </summary>
@@ -685,6 +753,30 @@ namespace WindBot.Game.AI.Decks
                     return doNothingOption;
                 }
                 // TODO
+            }
+
+            // check pot
+            int potBanish6Option = -1;
+            int potBanish3Option = -1;
+            for (int idx = 0; idx < options.Count(); ++idx)
+            {
+                int option = options[idx];
+                if (option == Util.GetStringId(CardId.PotofExtravagance, 0))
+                {
+                    potBanish3Option = idx;
+                }
+                else if (option == Util.GetStringId(CardId.PotofExtravagance, 1))
+                {
+                    potBanish6Option = idx;
+                }
+            }
+            if (potBanish3Option >= 0 || potBanish6Option >= 0)
+            {
+                if (Bot.ExtraDeck.Count() > 9 && potBanish6Option >= 0)
+                {
+                    return potBanish6Option;
+                }
+                return potBanish3Option;
             }
 
             return base.OnSelectOption(options);
@@ -866,6 +958,34 @@ namespace WindBot.Game.AI.Decks
                 calledbytheGraveCount[code] = 2;
                 return true;
             }
+
+            return false;
+        }
+
+        public bool PotofExtravaganceActivate()
+        {
+            List<ClientCard> banishList = new List<ClientCard>();
+            ClientCard aaZeus = Bot.ExtraDeck.FirstOrDefault(card => card.IsCode(CardId.DivineArsenalAAZEUS_SkyThunder));
+            if (aaZeus != null)
+            {
+                banishList.Add(aaZeus);
+            }
+            ClientCard diamond = Bot.ExtraDeck.FirstOrDefault(card => card.IsCode(CardId.StellarknightConstellarDiamond));
+            if (diamond != null)
+            {
+                banishList.Add(diamond);
+            }
+            ClientCard caduceus = Bot.ExtraDeck.FirstOrDefault(card => card.IsCode(CardId.TellarknightConstellarCaduceus));
+            if (caduceus != null)
+            {
+                banishList.Add(caduceus);
+            }
+            ClientCard evilswarm = Bot.ExtraDeck.FirstOrDefault(card => card.IsCode(_CardId.EvilswarmExcitonKnight));
+            if (evilswarm != null)
+            {
+                banishList.Add(evilswarm);
+            }
+            // TODO
 
             return false;
         }
@@ -1403,6 +1523,7 @@ namespace WindBot.Game.AI.Decks
 
             bool inDanger = CheckInDanger();
 
+            CheckEnemyMoveGrave();
             // trigger transform
             // become target
             if (enemyMoveGrave || DefaultOnBecomeTarget() || inDanger)
@@ -1569,6 +1690,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // move grave
+            CheckEnemyMoveGrave();
             if (enemyMoveGrave)
             {
                 decideToActivate = true;
@@ -1604,6 +1726,7 @@ namespace WindBot.Game.AI.Decks
                             }
                         }
                         oncePerTurnEffectActivatedList.Add(Card.Id);
+                        Logger.WriteLine("Exosiseter Vadis decide: " + checkId);
                         AI.SelectCard(checkId);
                         AI.SelectNextCard(checkTarget);
                         return true;
