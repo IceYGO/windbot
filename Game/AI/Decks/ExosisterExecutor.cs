@@ -214,6 +214,13 @@ namespace WindBot.Game.AI.Decks
             if (card != null)
                 return card;
 
+            List<ClientCard> spells = Enemy.GetSpells().Where(c => c.IsFaceup() && (c.HasType(CardType.Equip) || c.HasType(CardType.Pendulum) || c.HasType(CardType.Field) || c.HasType(CardType.Continuous)))
+                .ToList();
+            if (spells.Count > 0)
+            {
+                return ShuffleCardList(spells)[0];
+            }
+
             card = Enemy.MonsterZone.GetDangerousMonster(canBeTarget);
             if (card != null
                 && (Duel.Player == 0 || (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)))
@@ -697,39 +704,42 @@ namespace WindBot.Game.AI.Decks
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
-            if (Util.IsTurn1OrMain2())
+            YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
+            if (cardData != null)
             {
-                bool turnDefense = false;
-                if (cardId == CardId.DivineArsenalAAZEUS_SkyThunder || cardId == CardId.ExosistersMagnifica)
+                if (Util.IsTurn1OrMain2())
                 {
-                    turnDefense = true;
-                }
-                YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
-                if (cardData != null)
-                {
+                    bool turnDefense = false;
+                    if (cardId == CardId.DivineArsenalAAZEUS_SkyThunder || cardId == CardId.ExosistersMagnifica)
+                    {
+                        turnDefense = true;
+                    }
                     if (!cardData.HasType(CardType.Xyz))
                     {
                         turnDefense = true;
                     }
+                    if (turnDefense)
+                    {
+                        return CardPosition.FaceUpDefence;
+                    }
                 }
-                if (turnDefense && positions.Contains(CardPosition.FaceUpDefence))
-                {
-                    return CardPosition.FaceUpDefence;
-                }
-            }
-            if (cardId != CardId.ExosisterMikailis && cardId != CardId.ExosistersMagnifica)
-            {
-                YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
-                if (cardData != null)
+                if (cardId != CardId.ExosisterMikailis && cardId != CardId.ExosistersMagnifica)
                 {
                     int bestBotAttack = Util.GetBestAttack(Bot);
                     if (Duel.Player == 1)
                     {
                         bestBotAttack = cardData.Attack;
                     }
-                    if (Util.IsOneEnemyBetterThanValue(bestBotAttack, true) && positions.Contains(CardPosition.Defence))
+                    if (Util.IsOneEnemyBetterThanValue(bestBotAttack, true))
                     {
                         return CardPosition.FaceUpDefence;
+                    }
+                }
+                if (Duel.Player == 1)
+                {
+                    if (!cardData.HasType(CardType.Xyz) || cardData.Defense >= cardData.Attack)
+                    {
+                        return CardPosition.FaceDownDefence;
                     }
                 }
             }
@@ -1723,7 +1733,7 @@ namespace WindBot.Game.AI.Decks
                 CardId.ExosisterMartha, CardId.ExosisterStella, CardId.ExosisterVadis, CardId.ExosisterReturnia, CardId.ExosisterSophia,
                 CardId.ExosisterIrene, CardId.ExosisterArment, CardId.ExosisterElis
             };
-            if (Duel.Player == 0)
+            if (Duel.Player == 0 && Duel.LastChainPlayer != 0)
             {
                 // search martha for activate
                 if (CheckMarthaActivatable() && CheckRemainInDeck(CardId.ExosisterMartha) > 0 && !Bot.HasInHand(CardId.ExosisterMartha))
@@ -1927,7 +1937,7 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> targetList = Bot.GetMonsters().Where(card => card.IsFaceup() && card.HasSetcode(SetcodeExosister) && !card.HasType(CardType.Xyz)).ToList();
                 if (targetList.Count() > 0)
                 {
-                    targetList.Sort();
+                    targetList.Sort(CardContainer.CompareCardAttack);
                     activateTarget = targetList[0];
                 }
             }
@@ -2084,7 +2094,7 @@ namespace WindBot.Game.AI.Decks
             target = Util.GetBestEnemyCard(false, true);
             bool check1 = DefaultOnBecomeTarget();
             bool check2 = Bot.UnderAttack;
-            bool check3 = (Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0);
+            bool check3 = (Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0 && target != null);
             bool check4 = (Duel.Player == 1 && Enemy.GetMonsterCount() >= 2 && Duel.LastChainPlayer != 0);
             Logger.WriteLine("===Exosister: returnia check flag: " + check1 + " " + check2 + " " + check3 + " " + check4);
             if (check1 || check2 || check3 || check4)
@@ -2315,9 +2325,24 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
+        public bool ExosisterMikailisAdvancedSpSummonCheck()
+        {
+            if (!CheckLessOperation())
+            {
+                return false;
+            }
+
+            return ExosisterMikailisSpSummonCheckInner(false);
+        }
+
         public bool ExosisterMikailisSpSummonCheck()
         {
-            if (Bot.HasInMonstersZone(CardId.ExosisterMikailis) || mikailisEffect3Activated || CheckLessOperation())
+            return ExosisterMikailisSpSummonCheckInner(true);
+        }
+
+        public bool ExosisterMikailisSpSummonCheckInner(bool shouldCheckLessOperation = true)
+        {
+            if (Bot.HasInMonstersZone(CardId.ExosisterMikailis) || mikailisEffect3Activated || (CheckLessOperation() && shouldCheckLessOperation))
             {
                 return false;
             }
@@ -2335,19 +2360,24 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool ExosisterMikailisAdvancedSpSummonCheck()
+
+        public bool ExosisterKaspitellSpSummonCheck()
+        {
+            return ExosisterKaspitellSpSummonCheckInner(true);
+        }
+        public bool ExosisterKaspitellAdvancedSpSummonCheck()
         {
             if (!CheckLessOperation())
             {
                 return false;
             }
-
-            return ExosisterMikailisSpSummonCheck();
+            return ExosisterKaspitellSpSummonCheckInner(false);
         }
 
-        public bool ExosisterKaspitellSpSummonCheck()
+
+        public bool ExosisterKaspitellSpSummonCheckInner(bool shouldCheckLessOperation = true)
         {
-            if (Bot.HasInMonstersZone(CardId.ExosisterKaspitell) || kaspitellEffect3Activated || CheckLessOperation())
+            if (Bot.HasInMonstersZone(CardId.ExosisterKaspitell) || kaspitellEffect3Activated || (shouldCheckLessOperation && CheckLessOperation()))
             {
                 return false;
             }
@@ -2364,7 +2394,7 @@ namespace WindBot.Game.AI.Decks
             {
                 searchMartha = false;
             }
-            if (stellaEffect1Activated || CheckCalledbytheGrave(CardId.ExosisterStella) > 0 || CheckRemainInDeck(CardId.ExosisterStella) == 0 
+            if (stellaEffect1Activated || CheckCalledbytheGrave(CardId.ExosisterStella) > 0 || CheckRemainInDeck(CardId.ExosisterStella) == 0
                 || !Bot.Hand.Any(card => card?.Data != null && card.IsMonster() && card.HasSetcode(SetcodeExosister)))
             {
                 searchStella = false;
@@ -2389,15 +2419,6 @@ namespace WindBot.Game.AI.Decks
             }
 
             return false;
-        }
-
-        public bool ExosisterKaspitellAdvancedSpSummonCheck()
-        {
-            if (!CheckLessOperation())
-            {
-                return false;
-            }
-            return ExosisterKaspitellSpSummonCheck();
         }
 
         public bool ExosistersMagnificaSpSummonCheck()
