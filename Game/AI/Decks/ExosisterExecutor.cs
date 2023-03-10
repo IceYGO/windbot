@@ -61,15 +61,14 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, _CardId.AshBlossom, AshBlossomActivate);
             AddExecutor(ExecutorType.Activate, CardId.ExosistersMagnifica, ExosistersMagnificaActivateTrigger);
 
-            AddExecutor(ExecutorType.Activate, _CardId.InfiniteImpermanence, InfiniteImpermanenceActivate);
-            AddExecutor(ExecutorType.Activate, _CardId.CalledByTheGrave, CalledbytheGraveActivate);
-
             // quick effect
+            AddExecutor(ExecutorType.Activate, CardId.ExosistersMagnifica,   ExosistersMagnificaActivateBanish);
+            AddExecutor(ExecutorType.Activate, CardId.ExosisterReturnia,     ExosisterReturniaActivate);
+            AddExecutor(ExecutorType.Activate, CardId.ExosisterVadis,        ExosisterVadisActivate);
+            AddExecutor(ExecutorType.Activate, _CardId.InfiniteImpermanence, InfiniteImpermanenceActivate);
+            AddExecutor(ExecutorType.Activate, _CardId.CalledByTheGrave,     CalledbytheGraveActivate);
             AddExecutor(ExecutorType.Activate, DefaultExosisterTransform);
-            AddExecutor(ExecutorType.Activate, CardId.ExosistersMagnifica, ExosistersMagnificaActivateBanish);
-            AddExecutor(ExecutorType.Activate, CardId.ExosisterArment,   ExosisterArmentActivate);
-            AddExecutor(ExecutorType.Activate, CardId.ExosisterReturnia, ExosisterReturniaActivate);
-            AddExecutor(ExecutorType.Activate, CardId.ExosisterVadis,    ExosisterVadisActivate);
+            AddExecutor(ExecutorType.Activate, CardId.ExosisterArment,       ExosisterArmentActivate);
 
             // free chain
             AddExecutor(ExecutorType.Activate, _CardId.MaxxC, MaxxCActivate);
@@ -110,9 +109,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, _CardId.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
 
             // normal summon for xyz(avoiding MaxxC)
+            AddExecutor(ExecutorType.Summon, CardId.ExosisterStella, ExosisterAvoidMaxxCSummonCheck);
             AddExecutor(ExecutorType.Summon, CardId.ExosisterSophia, ExosisterAvoidMaxxCSummonCheck);
             AddExecutor(ExecutorType.Summon, CardId.ExosisterIrene,  ExosisterAvoidMaxxCSummonCheck);
-            AddExecutor(ExecutorType.Summon, CardId.ExosisterStella, ExosisterAvoidMaxxCSummonCheck);
             AddExecutor(ExecutorType.Summon, CardId.ExosisterElis,   ExosisterAvoidMaxxCSummonCheck);
 
             // activate martha
@@ -143,7 +142,8 @@ namespace WindBot.Game.AI.Decks
         List<int> SetcodeForDiamond = new List<int>{SetcodeShadoll, SetcodeInferoid, SetcodeTearlaments};
 
         List<int> affectGraveCardIdList = new List<int>{
-            71344451, 
+            71344451, 40975243, 87746184, 70534340, 45906428, 71490127, 3659803, 12071500, 6077601, 11827244, 95238394, 81223446, 40003819,
+            72490637, 21011044, 59419719, 14735698, 45410988
         };
 
         Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>{
@@ -162,6 +162,7 @@ namespace WindBot.Game.AI.Decks
 
         Dictionary<int, int> calledbytheGraveCount = new Dictionary<int, int>();
         bool enemyActivateMaxxC = false;
+        bool enemyActivateLockBird = false;
         bool enemyMoveGrave = false;
         bool paxCallToField = false;
         List<int> infiniteImpermanenceList = new List<int>();
@@ -186,6 +187,9 @@ namespace WindBot.Game.AI.Decks
         List<ClientCard> activatedMagnificaList = new List<ClientCard>();
         List<ClientCard> targetedMagnificaList = new List<ClientCard>();
         List<int> transformDestList = new List<int>();
+        List<ClientCard> spSummonThisTurn = new List<ClientCard>();
+        bool potActivate = false;
+        List<ClientCard> removeChosenList = new List<ClientCard>();
 
         /// <summary>
         /// Shuffle List<ClientCard> and return a random-order card list
@@ -204,44 +208,176 @@ namespace WindBot.Game.AI.Decks
             return result;
         }
 
+        public ClientCard GetProblematicEnemyMonster(int attack = 0, bool canBeTarget = false)
+        {
+            List<ClientCard> floodagateList = Enemy.MonsterZone.Where(c => c?.Data != null &&
+                c.IsFloodgate() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
+            if (floodagateList.Count > 0)
+            {
+                floodagateList.Sort(CardContainer.CompareCardAttack);
+                floodagateList.Reverse();
+                return floodagateList[0];
+            }
+
+            List<ClientCard> dangerList = Enemy.MonsterZone.Where(c => c?.Data != null &&
+                c.IsMonsterDangerous() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
+            if (dangerList.Count > 0)
+            {
+                dangerList.Sort(CardContainer.CompareCardAttack);
+                dangerList.Reverse();
+                return dangerList[0];
+            }
+
+            List<ClientCard> invincibleList = Enemy.MonsterZone.Where(c => c?.Data != null &&
+                c.IsMonsterInvincible() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
+            if (invincibleList.Count > 0)
+            {
+                invincibleList.Sort(CardContainer.CompareCardAttack);
+                invincibleList.Reverse();
+                return invincibleList[0];
+            }
+
+            if (attack == 0)
+                attack = Util.GetBestAttack(Bot);
+            return Util.GetOneEnemyBetterThanValue(attack, true, canBeTarget);
+        }
+
         public ClientCard GetProblematicEnemyCard(bool canBeTarget = false)
         {
-            ClientCard card = Enemy.MonsterZone.GetFloodgate(canBeTarget);
-            if (card != null)
-                return card;
+            List<ClientCard> floodagateList = Enemy.MonsterZone.Where(c => c?.Data != null && !removeChosenList.Contains(c) &&
+                c.IsFloodgate() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
+            if (floodagateList.Count > 0)
+            {
+                floodagateList.Sort(CardContainer.CompareCardAttack);
+                floodagateList.Reverse();
+                return floodagateList[0];
+            }
             
-            card = Enemy.SpellZone.GetFloodgate(canBeTarget);
-            if (card != null)
-                return card;
+            List<ClientCard> problemEnemySpellList = Enemy.SpellZone.Where(c => c?.Data != null && !removeChosenList.Contains(c)
+                && c.IsFloodgate() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
+            if (problemEnemySpellList.Count > 0)
+            {
+                return ShuffleCardList(problemEnemySpellList)[0];
+            }
 
-            List<ClientCard> spells = Enemy.GetSpells().Where(c => c.IsFaceup() && (c.HasType(CardType.Equip) || c.HasType(CardType.Pendulum) || c.HasType(CardType.Field) || c.HasType(CardType.Continuous)))
+            List<ClientCard> dangerList = Enemy.MonsterZone.Where(c => c?.Data != null && !removeChosenList.Contains(c)
+                && c.IsMonsterDangerous() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
+            if (dangerList.Count > 0
+                && (Duel.Player == 0 || (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)))
+            {
+                dangerList.Sort(CardContainer.CompareCardAttack);
+                dangerList.Reverse();
+                return dangerList[0];
+            }
+
+            List<ClientCard> invincibleList = Enemy.MonsterZone.Where(c => c?.Data != null && !removeChosenList.Contains(c)
+                && c.IsMonsterInvincible() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
+            if (invincibleList.Count > 0)
+            {
+                invincibleList.Sort(CardContainer.CompareCardAttack);
+                invincibleList.Reverse();
+                return invincibleList[0];
+            }
+
+            List<ClientCard> enemyMonsters = Enemy.GetMonsters().Where(c => !removeChosenList.Contains(c)).ToList();
+            if (enemyMonsters.Count > 0)
+            {
+                enemyMonsters.Sort(CardContainer.CompareCardAttack);
+                enemyMonsters.Reverse();
+                foreach(ClientCard target in enemyMonsters)
+                {
+                    if (target.HasType(CardType.Fusion) || target.HasType(CardType.Ritual) || target.HasType(CardType.Synchro) || target.HasType(CardType.Xyz) || (target.HasType(CardType.Link) && target.LinkCount >= 2) )
+                    {
+                        if (!canBeTarget || !(target.IsShouldNotBeTarget() || target.IsShouldNotBeMonsterTarget())) return target;
+                    }
+                }
+            }
+
+            List<ClientCard> spells = Enemy.GetSpells().Where(c => c.IsFaceup() && !removeChosenList.Contains(c)
+                && (c.HasType(CardType.Equip) || c.HasType(CardType.Pendulum) || c.HasType(CardType.Field) || c.HasType(CardType.Continuous)))
                 .ToList();
             if (spells.Count > 0)
             {
                 return ShuffleCardList(spells)[0];
             }
 
-            card = Enemy.MonsterZone.GetDangerousMonster(canBeTarget);
-            if (card != null
-                && (Duel.Player == 0 || (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)))
-                return card;
-
-            card = Enemy.MonsterZone.GetInvincibleMonster(canBeTarget);
+            return null;
+        }
+        
+        public ClientCard GetBestEnemyMonster(bool onlyFaceup = false, bool canBeTarget = false)
+        {
+            ClientCard card = GetProblematicEnemyMonster(0, canBeTarget);
             if (card != null)
                 return card;
-            List<ClientCard> enemyMonsters = Enemy.GetMonsters();
-            enemyMonsters.Sort(CardContainer.CompareCardAttack);
-            enemyMonsters.Reverse();
-            foreach(ClientCard target in enemyMonsters)
+
+            card = Enemy.MonsterZone.GetHighestAttackMonster(canBeTarget);
+            if (card != null)
+                return card;
+
+            List<ClientCard> monsters = Enemy.GetMonsters();
+
+            // after GetHighestAttackMonster, the left monsters must be face-down.
+            if (monsters.Count > 0 && !onlyFaceup)
+                return ShuffleCardList(monsters)[0];
+
+            return null;
+        }
+
+        public ClientCard GetBestEnemySpell(bool onlyFaceup = false, bool canBeTarget = false)
+        {
+            List<ClientCard> problemEnemySpellList = Enemy.SpellZone.Where(c => c?.Data != null
+                && c.IsFloodgate() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
+            if (problemEnemySpellList.Count > 0)
             {
-                if (target.HasType(CardType.Fusion) || target.HasType(CardType.Ritual) || target.HasType(CardType.Synchro) || target.HasType(CardType.Xyz) || (target.HasType(CardType.Link) && target.LinkCount >= 2) )
-                {
-                    if (!canBeTarget || !(target.IsShouldNotBeTarget() || target.IsShouldNotBeMonsterTarget())) return target;
-                }
+                return ShuffleCardList(problemEnemySpellList)[0];
+            }
+
+            List<ClientCard> spells = Enemy.GetSpells().Where(card => !(card.IsFaceup() && card.IsCode(_CardId.EvenlyMatched))).ToList();
+
+            List<ClientCard> faceUpList = spells.Where(ecard => ecard.IsFaceup() &&
+                (ecard.HasType(CardType.Continuous) || ecard.HasType(CardType.Field) || ecard.HasType(CardType.Pendulum))).ToList();
+            if (faceUpList.Count > 0)
+            {
+                return ShuffleCardList(faceUpList)[0];
+            }
+
+            if (spells.Count > 0 && !onlyFaceup)
+            {
+                return ShuffleCardList(spells)[0];
             }
 
             return null;
         }
+
+        public ClientCard GetBestEnemyCard(bool onlyFaceup = false, bool canBeTarget = false, bool checkGrave = false)
+        {
+            ClientCard card = GetBestEnemyMonster(onlyFaceup, canBeTarget);
+            if (card != null)
+            {
+                return card;
+            }
+
+            card = GetBestEnemySpell(onlyFaceup, canBeTarget);
+            if (card != null)
+            {
+                return card;
+            }
+            
+            if (checkGrave && Enemy.Graveyard.Count > 0)
+            {
+                List<ClientCard> graveMonsterList = Enemy.Graveyard.GetMatchingCards(c => c.IsMonster()).ToList();
+                if (graveMonsterList.Count > 0)
+                {
+                    graveMonsterList.Sort(CardContainer.CompareCardAttack);
+                    graveMonsterList.Reverse();
+                    return graveMonsterList[0];
+                }
+                return ShuffleCardList(Enemy.Graveyard.ToList())[0];
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Check remain cards in deck
         /// </summary>
@@ -323,13 +459,20 @@ namespace WindBot.Game.AI.Decks
         }
 
         /// <summary>
-        /// Check whether negate MaxxC
+        /// Check whether negate opposite's effect and clear flag
         /// </summary>
         public void CheckDeactiveFlag()
         {
-            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsCode(_CardId.MaxxC)  && Duel.LastChainPlayer == 1)
+            if (Util.GetLastChainCard() != null && Duel.LastChainPlayer == 1)
             {
-                enemyActivateMaxxC = false;
+                if (Util.GetLastChainCard().IsCode(_CardId.MaxxC))
+                {
+                    enemyActivateMaxxC = false;
+                }
+                if (Util.GetLastChainCard().IsCode(_CardId.LockBird))
+                {
+                    enemyActivateLockBird = false;
+                }
             }
         }
 
@@ -504,7 +647,21 @@ namespace WindBot.Game.AI.Decks
             {
                 return;
             }
+            if (needExosister && !materialList.Any(card => card.HasSetcode(SetcodeExosister)))
+            {
+                return;
+            }
             List<ClientCard> selectedList = new List<ClientCard>();
+
+            // if needed, select exosister with less atk first
+            if (needExosister)
+            {
+                List<ClientCard> exosisterList = materialList.Where(card => card.HasSetcode(SetcodeExosister)).ToList();
+                exosisterList.Sort(CardContainer.CompareCardAttack);
+                ClientCard firstSelect = exosisterList[0];
+                selectedList.Add(firstSelect);
+                materialList.Remove(firstSelect);
+            }
             
             // select non-exosister or effecte used's exosister first
             // never use martha first
@@ -561,6 +718,10 @@ namespace WindBot.Game.AI.Decks
                 {
                     enemyActivateMaxxC = true;
                 }
+                if (card.IsCode(_CardId.LockBird) && CheckCalledbytheGrave(_CardId.LockBird) == 0)
+                {
+                    enemyActivateLockBird = true;
+                }
                 if (card.IsCode(_CardId.InfiniteImpermanence))
                 {
                     for (int i = 0; i < 5; ++i)
@@ -613,6 +774,7 @@ namespace WindBot.Game.AI.Decks
         {
             enemyMoveGrave = false;
             paxCallToField = false;
+            potActivate = false;
             transformDestList.Clear();
             targetedMagnificaList.Clear();
             if (activatedMagnificaList.Count() > 0)
@@ -626,12 +788,24 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+            if (spSummonThisTurn.Count() > 0)
+            {
+                for (int idx = spSummonThisTurn.Count() - 1; idx >= 0; -- idx)
+                {
+                    ClientCard checkTarget = spSummonThisTurn[idx];
+                    if (checkTarget == null || checkTarget.IsFacedown() || checkTarget.Location != CardLocation.MonsterZone)
+                    {
+                        spSummonThisTurn.RemoveAt(idx);
+                    }
+                }
+            }
             base.OnChainEnd();
         }
 
         public override void OnNewTurn()
         {
             enemyActivateMaxxC = false;
+            enemyActivateLockBird = false;
             infiniteImpermanenceList.Clear();
             // CalledbytheGrave refresh
             List<int> key_list = calledbytheGraveCount.Keys.ToList();
@@ -661,6 +835,7 @@ namespace WindBot.Game.AI.Decks
             exosisterTransformEffectList.Clear();
             oncePerTurnEffectActivatedList.Clear();
             activatedMagnificaList.Clear();
+            spSummonThisTurn.Clear();
         }
 
         /// <summary>
@@ -669,6 +844,7 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             bool beginTransformCheck = false;
+            // transform for main monster
             if (hint == HintMsg.SpSummon && min == 1 && max == 1 && transformDestList.Count() > 0)
             {
                 // check whether for transform
@@ -677,6 +853,7 @@ namespace WindBot.Game.AI.Decks
                     beginTransformCheck = true;
                 }
             }
+            // transform for magnifica
             if (hint == HintMsg.ToDeck && min == 1 && max == 1 && transformDestList.Count() > 0)
             {
                 if (cards.All(card => card.Location == CardLocation.Overlay))
@@ -695,10 +872,87 @@ namespace WindBot.Game.AI.Decks
                         List<ClientCard> result = new List<ClientCard>();
                         result.Add(targetCard);
                         transformDestList.RemoveAt(idx);
+                        spSummonThisTurn.AddRange(result);
                         return Util.CheckSelectCount(result, cards, min, max);
                     }
                 }
             }
+            
+            if (Util.ChainContainsCard(_CardId.EvenlyMatched) && Util.ChainContainPlayer(1) && hint == HintMsg.Remove)
+            {
+                int botCount = Bot.GetMonsterCount() + Bot.GetSpellCount();
+                int oppositeCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
+                if (botCount - oppositeCount == min && min == max)
+                {
+                    Logger.WriteLine("===Exosister: Evenly Matched activated.");
+                    List<ClientCard> allBotCards = new List<ClientCard>();
+                    allBotCards.AddRange(Bot.GetMonsters());
+                    allBotCards.AddRange(Bot.GetSpells());
+                    List<ClientCard> importantList = new List<ClientCard>();
+
+                    List<ClientCard> magnificaList = allBotCards.Where(card => card.IsCode(CardId.ExosistersMagnifica)).ToList();
+                    if (magnificaList.Count > 0)
+                    {
+                        allBotCards.RemoveAll(c => magnificaList.Contains(c));
+                        importantList.AddRange(magnificaList);
+                    }
+                    if (!mikailisEffect1Activated)
+                    {
+                        List<ClientCard> mikailisList = allBotCards.Where(card => spSummonThisTurn.Contains(card)
+                            && card.IsCode(CardId.ExosisterMikailis) && card.IsFaceup()).ToList();
+                        if (mikailisList.Count > 0)
+                        {
+                            allBotCards.RemoveAll(c => mikailisList.Contains(c));
+                            importantList.AddRange(mikailisList);
+                        }
+                    }
+                    if (!gibrineEffect1Activated)
+                    {
+                        List<ClientCard> gibrineList = allBotCards.Where(card => spSummonThisTurn.Contains(card)
+                            && card.IsCode(CardId.ExosisterGibrine) && card.IsFaceup()).ToList();
+                        if (gibrineList.Count > 0)
+                        {
+                            allBotCards.RemoveAll(c => gibrineList.Contains(c));
+                            importantList.AddRange(gibrineList);
+                        }
+                    }
+                    if (!oncePerTurnEffectActivatedList.Contains(CardId.ExosisterVadis))
+                    {
+                        List<ClientCard> vadisList = allBotCards.Where(card => card.IsCode(CardId.ExosisterVadis) && card.IsFacedown()).ToList();
+                        if (vadisList.Count > 0)
+                        {
+                            allBotCards.RemoveAll(c => vadisList.Contains(c));
+                            importantList.AddRange(vadisList);
+                        }
+                    }
+                    List<ClientCard> xyzList = allBotCards.Where(card => card.IsMonster() && card.HasType(CardType.Xyz)).ToList();
+                    if (xyzList.Count > 0)
+                    {
+                        xyzList.Sort(CardContainer.CompareCardAttack);
+                        xyzList.Reverse();
+                        allBotCards.RemoveAll(c => xyzList.Contains(c));
+                        importantList.AddRange(xyzList);
+                    }
+                    List<ClientCard> monsterList = allBotCards.Where(card => card.IsMonster()).ToList();
+                    if (monsterList.Count > 0)
+                    {
+                        monsterList.Sort(CardContainer.CompareCardAttack);
+                        monsterList.Reverse();
+                        allBotCards.RemoveAll(c => monsterList.Contains(c));
+                        importantList.AddRange(monsterList);
+                    }
+                    List<ClientCard> faceDownList = allBotCards.Where(card => card.IsFacedown()).ToList();
+                    if (faceDownList.Count > 0)
+                    {
+                        allBotCards.RemoveAll(c => faceDownList.Contains(c));
+                        importantList.AddRange(ShuffleCardList(faceDownList));
+                    }
+                    
+                    importantList.Reverse();
+                    return Util.CheckSelectCount(importantList, cards, min, max);
+                }
+            }
+
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
 
@@ -806,7 +1060,7 @@ namespace WindBot.Game.AI.Decks
                     }
 
                     // dump banish
-                    target = Util.GetBestEnemyCard(false, true);
+                    target = GetBestEnemyCard(false, true);
                     if (DefaultOnBecomeTarget() || (Duel.Player == 1 && Enemy.GetMonsterCount() >= 2))
                     {
                         AI.SelectCard(target);
@@ -855,7 +1109,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool MaxxCActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (CheckWhetherNegated(true) || Duel.LastChainPlayer == 0) return false;
             return DefaultMaxxC();
         }
     
@@ -906,13 +1160,14 @@ namespace WindBot.Game.AI.Decks
                     || (Util.IsChainTarget(Card))
                     || (LastChainCard != null && LastChainCard.Controller == 1 && LastChainCard.IsCode(_CardId.HarpiesFeatherDuster)))
                 {
-                    List<ClientCard> enemy_monsters = Enemy.GetMonsters();
-                    enemy_monsters.Sort(CardContainer.CompareCardAttack);
-                    enemy_monsters.Reverse();
-                    foreach(ClientCard card in enemy_monsters)
+                    List<ClientCard> enemyMonsters = Enemy.GetMonsters();
+                    enemyMonsters.Sort(CardContainer.CompareCardAttack);
+                    enemyMonsters.Reverse();
+                    foreach(ClientCard card in enemyMonsters)
                     {
                         if (card.IsFaceup() && !card.IsShouldNotBeTarget() && !card.IsShouldNotBeSpellTrapTarget())
                         {
+                            CheckDeactiveFlag();
                             AI.SelectCard(card);
                             infiniteImpermanenceList.Add(this_seq);
                             return true;
@@ -942,13 +1197,14 @@ namespace WindBot.Game.AI.Decks
             if (LastChainCard != null) AI.SelectCard(LastChainCard);
             else
             {
-                List<ClientCard> enemy_monsters = Enemy.GetMonsters();
-                enemy_monsters.Sort(CardContainer.CompareCardAttack);
-                enemy_monsters.Reverse();
-                foreach (ClientCard card in enemy_monsters)
+                List<ClientCard> enemyMonsters = Enemy.GetMonsters();
+                enemyMonsters.Sort(CardContainer.CompareCardAttack);
+                enemyMonsters.Reverse();
+                foreach (ClientCard card in enemyMonsters)
                 {
                     if (card.IsFaceup() && !card.IsShouldNotBeTarget() && !card.IsShouldNotBeSpellTrapTarget())
                     {
+                        CheckDeactiveFlag();
                         AI.SelectCard(card);
                         return true;
                     }
@@ -996,12 +1252,12 @@ namespace WindBot.Game.AI.Decks
                 // become targets
                 if (Duel.ChainTargets.Contains(Card))
                 {
-                    List<ClientCard> enemy_monsters = Enemy.Graveyard.GetMatchingCards(card => card.IsMonster()).ToList();
-                    if (enemy_monsters.Count > 0)
+                    List<ClientCard> enemyMonsters = Enemy.Graveyard.GetMatchingCards(card => card.IsMonster()).ToList();
+                    if (enemyMonsters.Count > 0)
                     {
-                        enemy_monsters.Sort(CardContainer.CompareCardAttack);
-                        enemy_monsters.Reverse();
-                        int code = enemy_monsters[0].Id;
+                        enemyMonsters.Sort(CardContainer.CompareCardAttack);
+                        enemyMonsters.Reverse();
+                        int code = enemyMonsters[0].Id;
                         AI.SelectCard(code);
                         calledbytheGraveCount[code] = 2;
                         return true;
@@ -1182,7 +1438,12 @@ namespace WindBot.Game.AI.Decks
 
             AI.SelectCard(banishList);
             AI.SelectNextCard(addToHandOrderList);
+            if (!(Card.Location == CardLocation.SpellZone))
+            {
+                SelectSTPlace(null, true);
+            }
 
+            potActivate = true;
             return true;
         }
 
@@ -1322,7 +1583,7 @@ namespace WindBot.Game.AI.Decks
             }
             foreach (int cardId in new List<int>{CardId.ExosisterPax, CardId.ExosisterReturnia, CardId.ExosisterVadis})
             {
-                if (oncePerTurnEffectActivatedList.Contains(cardId) || Bot.Hand.Count(card => card.IsCode(cardId)) > 1)
+                if ((oncePerTurnEffectActivatedList.Contains(cardId) && Bot.HasInHand(cardId)) || Bot.Hand.Count(card => card.IsCode(cardId)) > 1)
                 {
                     shuffleList.Add(cardId);
                 }
@@ -1370,7 +1631,7 @@ namespace WindBot.Game.AI.Decks
                 Util.GetStringId(CardId.ExosisterSophia, 1),
                 Util.GetStringId(CardId.ExosisterMartha, 1)
             };
-            if (!checkTransformCode.Contains(ActivateDescription))
+            if (!checkTransformCode.Contains(ActivateDescription) || Card.IsDisabled())
             {
                 return false;
             }
@@ -1438,6 +1699,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard target = GetProblematicEnemyCard(true);
                 if (target != null && Duel.LastChainPlayer != 0)
                 {
+                    removeChosenList.Add(target);
                     mikailisEffect1Activated = true;
                     AI.SelectCard(target);
                     return true;
@@ -1457,9 +1719,9 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 // dump banish
-                target = Util.GetBestEnemyCard(false, true);
+                target = GetBestEnemyCard(false, true, true);
                 if (DefaultOnBecomeTarget() || Bot.UnderAttack || Duel.Phase == DuelPhase.End
-                    || (Duel.Player == 0 && Bot.GetMonsters().Count(card => card.HasType(CardType.Xyz) && card.Rank == 4 && card.HasSetcode(SetcodeExosister)) == 2)
+                    || (Duel.Player == 0 && Bot.GetMonsters().Count(card => card.HasType(CardType.Xyz) && card.Rank == 4 && card.HasSetcode(SetcodeExosister)) == 2 && Duel.LastChainPlayer != 0)
                     || (Duel.Player == 1 && Enemy.GetMonsterCount() >= 2))
                 {
                     mikailisEffect1Activated = true;
@@ -1656,7 +1918,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 
                 // become target
-                if (DefaultOnBecomeTarget())
+                if (DefaultOnBecomeTarget() || (Duel.CurrentChain.Any(c => c == Card) && Duel.LastChainPlayer != 0))
                 {
                     targetedMagnificaList.Add(Card);
                     transformDestList.AddRange(new List<int>{CardId.ExosistersMagnifica, CardId.ExosisterMikailis, CardId.ExosisterGibrine, CardId.ExosisterKaspitell, CardId.ExosisterAsophiel});
@@ -1676,8 +1938,10 @@ namespace WindBot.Game.AI.Decks
                 }
                 // banish problem card
                 ClientCard target = GetProblematicEnemyCard();
+                bool isProblemCard = false;
                 if (target != null)
                 {
+                    isProblemCard = true;
                     Logger.WriteLine("===Exosister: magnifica target 1: " + target?.Name);
                 }
 
@@ -1696,22 +1960,25 @@ namespace WindBot.Game.AI.Decks
                 // dump banish
                 if (target == null)
                 {
-                    target = Util.GetBestEnemyCard(false, false);
+                    target = GetBestEnemyCard(false, false);
                     bool check1 = !DefaultOnBecomeTarget();
                     bool check2 = !targetedMagnificaList.Contains(Card);
                     bool check3 = !Bot.UnderAttack;
                     bool check4 = Duel.Phase != DuelPhase.End;
                     bool check5 = Duel.Player == 0 || Enemy.GetMonsterCount() < 2;
                     Logger.WriteLine("===Exosister: magnifica check flag: " + check1 + " " + check2 + " " + check3 + " " + check4 + " " + check5);
-                    if (!DefaultOnBecomeTarget() && !targetedMagnificaList.Contains(Card) && !Bot.UnderAttack && Duel.Phase != DuelPhase.End
-                        && (Duel.Player == 0 || Enemy.GetMonsterCount() < 2))
+                    if (check1 && check2 && check3 && check4 && check5)
                     {
                         target = null;
                     }
                 }
 
-                if (target != null && Duel.LastChainPlayer != 0)
+                if (target != null && (Duel.LastChainPlayer != 0 || Util.GetLastChainCard() == Card))
                 {
+                    if (isProblemCard)
+                    {
+                        removeChosenList.Add(target);
+                    }
                     Logger.WriteLine("===Exosister: magnifica target final: " + target?.Name);
                     activatedMagnificaList.Add(Card);
                     AI.SelectCard(CardId.ExosisterGibrine, CardId.ExosisterAsophiel, CardId.ExosisterKaspitell, CardId.ExosisterMikailis);
@@ -1726,6 +1993,11 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterPaxActivate()
         {
+            if (potActivate)
+            {
+                return false;
+            }
+
             List<int> checkListForSpSummon = new List<int>{
                 CardId.ExosisterSophia, CardId.ExosisterIrene, CardId.ExosisterStella, CardId.ExosisterMartha, CardId.ExosisterElis
             };
@@ -1738,6 +2010,10 @@ namespace WindBot.Game.AI.Decks
                 // search martha for activate
                 if (CheckMarthaActivatable() && CheckRemainInDeck(CardId.ExosisterMartha) > 0 && !Bot.HasInHand(CardId.ExosisterMartha))
                 {
+                    if (!(Card.Location == CardLocation.SpellZone))
+                    {
+                        SelectSTPlace(null, true);
+                    }
                     oncePerTurnEffectActivatedList.Add(Card.Id);
                     AI.SelectCard(CardId.ExosisterMartha);
                     paxCallToField = false;
@@ -1753,6 +2029,10 @@ namespace WindBot.Game.AI.Decks
                         bool shouldSpSummon = !CheckLessOperation() && summoned && Bot.HasInMonstersZoneOrInGraveyard(CardId.ExosisterElis);
                         if (Bot.Hand.Any(card => card?.Data != null && card.IsMonster() && card.HasSetcode(SetcodeExosister)))
                         {
+                            if (!(Card.Location == CardLocation.SpellZone))
+                            {
+                                SelectSTPlace(null, true);
+                            }
                             oncePerTurnEffectActivatedList.Add(Card.Id);
                             AI.SelectCard(CardId.ExosisterStella);
                             paxCallToField = shouldSpSummon;
@@ -1772,6 +2052,10 @@ namespace WindBot.Game.AI.Decks
                     }
                     if (searchExosisterMonster)
                     {
+                        if (!(Card.Location == CardLocation.SpellZone))
+                        {
+                            SelectSTPlace(null, true);
+                        }
                         oncePerTurnEffectActivatedList.Add(Card.Id);
                         AI.SelectCard(CardId.ExosisterSophia, CardId.ExosisterIrene, CardId.ExosisterMartha, CardId.ExosisterStella, CardId.ExosisterElis);
                         paxCallToField = false;
@@ -1792,6 +2076,10 @@ namespace WindBot.Game.AI.Decks
                             int checkTarget = CheckExosisterMentionCard(checkId);
                             if (checkTarget > 0 && Bot.HasInMonstersZoneOrInGraveyard(checkId) && CheckRemainInDeck(checkTarget) > 0)
                             {
+                                if (!(Card.Location == CardLocation.SpellZone))
+                                {
+                                    SelectSTPlace(null, true);
+                                }
                                 oncePerTurnEffectActivatedList.Add(Card.Id);
                                 AI.SelectCard(checkId);
                                 paxCallToField = true;
@@ -1845,6 +2133,10 @@ namespace WindBot.Game.AI.Decks
 
                     if (checkSuccessFlag)
                     {
+                        if (!(Card.Location == CardLocation.SpellZone))
+                        {
+                            SelectSTPlace(null, true);
+                        }
                         oncePerTurnEffectActivatedList.Add(Card.Id);
                         AI.SelectCard(checkId);
                         paxCallToField = shouldSpSummon;
@@ -1869,6 +2161,10 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (!Bot.HasInHandOrHasInMonstersZone(checkId) && !Bot.HasInSpellZone(checkId) && CheckRemainInDeck(checkId) > 0)
                     {
+                        if (!(Card.Location == CardLocation.SpellZone))
+                        {
+                            SelectSTPlace(null, true);
+                        }
                         oncePerTurnEffectActivatedList.Add(Card.Id);
                         AI.SelectCard(CardId.ExosisterSophia, CardId.ExosisterIrene, CardId.ExosisterMartha, CardId.ExosisterStella, CardId.ExosisterElis);
                         paxCallToField = false;
@@ -1951,6 +2247,10 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInMonstersZone(CardId.ExosisterMikailis) && !mikailisEffect1Activated && (Duel.Player == 1 || !mikailisEffect3Activated)
                 && !transformDestList.Contains(CardId.ExosisterMikailis) && Bot.HasInExtra(CardId.ExosisterMikailis))
             {
+                if (!(Card.Location == CardLocation.SpellZone))
+                {
+                    SelectSTPlace(null, true);
+                }
                 transformDestList.Add(CardId.ExosisterMikailis);
                 return true;
             }
@@ -1959,6 +2259,10 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInMonstersZone(CardId.ExosisterKaspitell) && !kaspitellEffect3Activated && Duel.Player == 0
                 && !transformDestList.Contains(CardId.ExosisterKaspitell) && Bot.HasInExtra(CardId.ExosisterKaspitell))
             {
+                if (!(Card.Location == CardLocation.SpellZone))
+                {
+                    SelectSTPlace(null, true);
+                }
                 exosisterTransformEffectList.Add(Card.Id);
                 transformDestList.Add(CardId.ExosisterKaspitell);
                 return true;
@@ -1968,6 +2272,10 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInMonstersZone(CardId.ExosisterGibrine) && !gibrineEffect1Activated
                 && !transformDestList.Contains(CardId.ExosisterGibrine) && Bot.HasInExtra(CardId.ExosisterGibrine))
             {
+                if (!(Card.Location == CardLocation.SpellZone))
+                {
+                    SelectSTPlace(null, true);
+                }
                 exosisterTransformEffectList.Add(Card.Id);
                 transformDestList.Add(CardId.ExosisterGibrine);
                 return true;
@@ -1977,6 +2285,10 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInMonstersZone(CardId.ExosisterAsophiel) && !asophielEffect1Activated
                 && !transformDestList.Contains(CardId.ExosisterAsophiel) && Bot.HasInExtra(CardId.ExosisterAsophiel))
             {
+                if (!(Card.Location == CardLocation.SpellZone))
+                {
+                    SelectSTPlace(null, true);
+                }
                 exosisterTransformEffectList.Add(Card.Id);
                 transformDestList.Add(CardId.ExosisterAsophiel);
                 return true;
@@ -1986,6 +2298,10 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInMonstersZone(CardId.ExosisterKaspitell) && !kaspitellEffect1Activated
                 && !transformDestList.Contains(CardId.ExosisterKaspitell) && Bot.HasInExtra(CardId.ExosisterKaspitell))
             {
+                if (!(Card.Location == CardLocation.SpellZone))
+                {
+                    SelectSTPlace(null, true);
+                }
                 exosisterTransformEffectList.Add(Card.Id);
                 transformDestList.Add(CardId.ExosisterKaspitell);
                 return true;
@@ -2023,7 +2339,7 @@ namespace WindBot.Game.AI.Decks
                 decideToActivate = true;
             }
 
-            if (CheckInDanger() || DefaultOnBecomeTarget())
+            if (CheckInDanger() || (DefaultOnBecomeTarget() && !Util.ChainContainsCard(_CardId.EvenlyMatched)))
             {
                 decideToActivate = true;
             }
@@ -2070,6 +2386,7 @@ namespace WindBot.Game.AI.Decks
             if (target != null && Duel.LastChainPlayer != 0)
             {
                 Logger.WriteLine("===Exosister: returnia target 1: " + target?.Name);
+                removeChosenList.Add(target);
                 oncePerTurnEffectActivatedList.Add(Card.Id);
                 AI.SelectCard(target);
                 return true;
@@ -2091,10 +2408,10 @@ namespace WindBot.Game.AI.Decks
             }
 
             // dump banish
-            target = Util.GetBestEnemyCard(false, true);
-            bool check1 = DefaultOnBecomeTarget();
+            target = GetBestEnemyCard(false, true, true);
+            bool check1 = DefaultOnBecomeTarget() && target.Id != _CardId.EvenlyMatched;
             bool check2 = Bot.UnderAttack;
-            bool check3 = (Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0 && target != null);
+            bool check3 = (Duel.Player == 1 && Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0 && target != null);
             bool check4 = (Duel.Player == 1 && Enemy.GetMonsterCount() >= 2 && Duel.LastChainPlayer != 0);
             Logger.WriteLine("===Exosister: returnia check flag: " + check1 + " " + check2 + " " + check3 + " " + check4);
             if (check1 || check2 || check3 || check4)
@@ -2114,6 +2431,10 @@ namespace WindBot.Game.AI.Decks
         public bool ExosisterAvoidMaxxCSummonCheck()
         {
             if (!Bot.HasInHand(CardId.ExosisterMartha) || !Bot.HasInHand(CardId.ExosisterElis) || elisEffect1Activated || marthaEffect1Activated)
+            {
+                return false;
+            }
+            if (enemyActivateLockBird && CheckAtAdvantage())
             {
                 return false;
             }
@@ -2151,6 +2472,10 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
+            if (enemyActivateLockBird && CheckAtAdvantage())
+            {
+                return false;
+            }
 
             int summonableCount = Bot.Hand.Count(card => card != Card && card?.Data != null && card.IsMonster()
                 && !card.IsCode(CardId.ExosisterMartha) && card.HasSetcode(SetcodeExosister));
@@ -2170,6 +2495,10 @@ namespace WindBot.Game.AI.Decks
         {
             if (irenaEffect1Activated || CheckLessOperation()
                 || CheckWhetherNegated(true) || CheckCalledbytheGrave(CardId.ExosisterElis) > 0 || CheckCalledbytheGrave(CardId.ExosisterIrene) > 0)
+            {
+                return false;
+            }
+            if (enemyActivateLockBird && CheckAtAdvantage())
             {
                 return false;
             }
@@ -2196,7 +2525,11 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (!Card.HasSetcode(SetcodeExosister) || Card.IsCode(CardId.ExosisterMartha))
+            if (!Card.HasSetcode(SetcodeExosister) || (Card.IsCode(CardId.ExosisterMartha) && CheckRemainInDeck(CardId.ExosisterElis) > 0))
+            {
+                return false;
+            }
+            if (enemyActivateLockBird && CheckAtAdvantage())
             {
                 return false;
             }
@@ -2216,6 +2549,10 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
+            if (enemyActivateLockBird && CheckAtAdvantage())
+            {
+                return false;
+            }
             if (CheckRemainInDeck(CardId.Sakitama) > 0)
             {
                 summoned = true;
@@ -2231,6 +2568,10 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
             if (Bot.Hand.Count(card => card?.Data != null && Card != card && card.IsCode(CardId.Sakitama)) == 0)
+            {
+                return false;
+            }
+            if (enemyActivateLockBird && CheckAtAdvantage())
             {
                 return false;
             }
@@ -2263,7 +2604,6 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-
             if (CheckLessOperation())
             {
                 return false;
@@ -2325,19 +2665,19 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
+        public bool ExosisterMikailisSpSummonCheck()
+        {
+            return ExosisterMikailisSpSummonCheckInner(true);
+        }
+
         public bool ExosisterMikailisAdvancedSpSummonCheck()
         {
-            if (!CheckLessOperation())
+            if (!CheckLessOperation() || enemyActivateLockBird)
             {
                 return false;
             }
 
             return ExosisterMikailisSpSummonCheckInner(false);
-        }
-
-        public bool ExosisterMikailisSpSummonCheck()
-        {
-            return ExosisterMikailisSpSummonCheckInner(true);
         }
 
         public bool ExosisterMikailisSpSummonCheckInner(bool shouldCheckLessOperation = true)
@@ -2348,32 +2688,49 @@ namespace WindBot.Game.AI.Decks
             }
 
             // check searched spell/trap
-            foreach (int cardId in ExosisterSpellTrapList)
+            if (!enemyActivateLockBird)
             {
-                if (!Bot.HasInHandOrInSpellZone(cardId))
+                foreach (int cardId in ExosisterSpellTrapList)
                 {
-                    SelectXyzMaterial(2);
-                    return true;
+                    if (!Bot.HasInHandOrInSpellZone(cardId))
+                    {
+                        SelectXyzMaterial(2);
+                        return true;
+                    }
+                }
+            }
+
+            // clear enemy card
+            if (!mikailisEffect1Activated && !Bot.HasInMonstersZone(CardId.ExosisterMikailis))
+            {
+                ClientCard target = GetProblematicEnemyCard(true);
+                if (target != null)
+                {
+                    List<ClientCard> exosisterMaterialList = Bot.GetMonsters().Where(card => CheckAbleForXyz(card) && card.HasSetcode(SetcodeExosister)).ToList();
+                    if (exosisterMaterialList?.Count() > 0)
+                    {
+                        SelectXyzMaterial(2, true);
+                        return true;
+                    }
                 }
             }
 
             return false;
         }
 
-
         public bool ExosisterKaspitellSpSummonCheck()
         {
             return ExosisterKaspitellSpSummonCheckInner(true);
         }
+
         public bool ExosisterKaspitellAdvancedSpSummonCheck()
         {
-            if (!CheckLessOperation())
+            if (!CheckLessOperation() || enemyActivateLockBird)
             {
                 return false;
             }
             return ExosisterKaspitellSpSummonCheckInner(false);
         }
-
 
         public bool ExosisterKaspitellSpSummonCheckInner(bool shouldCheckLessOperation = true)
         {
@@ -2403,6 +2760,11 @@ namespace WindBot.Game.AI.Decks
                 && card.HasType(CardType.Xyz) && card.HasType(CardType.Xyz) && !card.IsCode(CardId.ExosistersMagnifica)) == 1)
             {
                 forMagnifica = true;
+            }
+            if (enemyActivateLockBird)
+            {
+                searchMartha = false;
+                searchStella = false;
             }
 
             if (!searchMartha && !searchStella && !forMagnifica)
@@ -2503,6 +2865,14 @@ namespace WindBot.Game.AI.Decks
         public bool SpellSetCheck()
         {
             if (Duel.Phase == DuelPhase.Main1 && Bot.HasAttackingMonster() && Duel.Turn > 1) return false;
+            List<int> onlyOneSetList = new List<int>{
+                CardId.ExosisterPax, CardId.ExosisterArment, CardId.ExosisterVadis, CardId.ExosisterReturnia
+            };
+            if (onlyOneSetList.Contains(Card.Id) && Bot.HasInSpellZone(Card.Id))
+            {
+                return false;
+            }
+
             // select place
             if ((Card.IsTrap() || Card.HasType(CardType.QuickPlay)))
             {
