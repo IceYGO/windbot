@@ -1710,7 +1710,7 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == Util.GetStringId(CardId.ExosisterMikailis, 0))
             {
                 // activate after search
-                if (Duel.Player == 0 && !mikailisEffect3Activated && Duel.Phase < DuelPhase.End)
+                if (Duel.Player == 0 && !mikailisEffect3Activated && Duel.Phase < DuelPhase.End && !DefaultOnBecomeTarget())
                 {
                     return false;
                 }
