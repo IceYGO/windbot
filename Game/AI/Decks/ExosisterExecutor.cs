@@ -423,12 +423,12 @@ namespace WindBot.Game.AI.Decks
                 ClientCard card = Util.GetLastChainCard();
                 if (Duel.LastChainLocation == CardLocation.Grave && card.Location == CardLocation.Grave)
                 {
-                    Logger.WriteLine("===Exosister: enemy activate effect from GY.");
+                    Logger.DebugWriteLine("===Exosister: enemy activate effect from GY.");
                     enemyMoveGrave = true;
                 }
                 else if (affectGraveCardIdList.Contains(card.Id))
                 {
-                    Logger.WriteLine("===Exosister: enemy activate effect that affect GY.");
+                    Logger.DebugWriteLine("===Exosister: enemy activate effect that affect GY.");
                     enemyMoveGrave = true;
                 }
                 else
@@ -437,7 +437,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         if (targetCard.Location == CardLocation.Grave)
                         {
-                            Logger.WriteLine("===Exosister: enemy target cards of GY.");
+                            Logger.DebugWriteLine("===Exosister: enemy target cards of GY.");
                             enemyMoveGrave = true;
                             break;
                         }
@@ -746,7 +746,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (Duel.LastChainLocation == CardLocation.Grave && card.Location == CardLocation.Grave)
                 {
-                    Logger.WriteLine("===Exosister: enemy activate effect from GY.");
+                    Logger.DebugWriteLine("===Exosister: enemy activate effect from GY.");
                     enemyMoveGrave = true;
                 }
             }
@@ -762,14 +762,14 @@ namespace WindBot.Game.AI.Decks
                 if (card != null && card.IsCode(_CardId.CalledByTheGrave))
                 {
                     foreach (ClientCard targetCard in Duel.LastChainTargets) {
-                        Logger.WriteLine("===Exosister: " + targetCard?.Name + " is targeted by called by the grave.");
+                        Logger.DebugWriteLine("===Exosister: " + targetCard?.Name + " is targeted by called by the grave.");
                         calledbytheGraveCount[targetCard.Id] = 2;
                     }
                 }
                 foreach (ClientCard targetCard in Duel.LastChainTargets) {
                     if (targetCard.Location == CardLocation.Grave)
                     {
-                        Logger.WriteLine("===Exosister: enemy target cards of GY.");
+                        Logger.DebugWriteLine("===Exosister: enemy target cards of GY.");
                         enemyMoveGrave = true;
                         break;
                     }
@@ -895,7 +895,7 @@ namespace WindBot.Game.AI.Decks
                 int oppositeCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
                 if (botCount - oppositeCount == min && min == max)
                 {
-                    Logger.WriteLine("===Exosister: Evenly Matched activated.");
+                    Logger.DebugWriteLine("===Exosister: Evenly Matched activated.");
                     List<ClientCard> allBotCards = new List<ClientCard>();
                     allBotCards.AddRange(Bot.GetMonsters());
                     allBotCards.AddRange(Bot.GetSpells());
@@ -1488,7 +1488,7 @@ namespace WindBot.Game.AI.Decks
                         }
                         if (illegalList.Count() == 1)
                         {
-                            Logger.WriteLine("===Exosister: activate sakitama for donner");
+                            Logger.DebugWriteLine("===Exosister: activate sakitama for donner");
                             AI.SelectCard(CardId.Aratama, CardId.Sakitama);
                             sakitamaEffect1Activated = true;
                             return true;
@@ -1603,7 +1603,7 @@ namespace WindBot.Game.AI.Decks
             
             if (shuffleList.Count() > 0)
             {
-                Logger.WriteLine("===Exosister: irene return " + shuffleList[0]);
+                Logger.DebugWriteLine("===Exosister: irene return " + shuffleList[0]);
                 AI.SelectCard(shuffleList);
                 return true;
             }
@@ -1962,7 +1962,7 @@ namespace WindBot.Game.AI.Decks
                 if (target != null)
                 {
                     isProblemCard = true;
-                    Logger.WriteLine("===Exosister: magnifica target 1: " + target?.Name);
+                    Logger.DebugWriteLine("===Exosister: magnifica target 1: " + target?.Name);
                 }
 
                 // banish target
@@ -1973,7 +1973,7 @@ namespace WindBot.Game.AI.Decks
                     if (currentTargetList.Count() > 0)
                     {
                         target = ShuffleCardList(currentTargetList)[0];
-                        Logger.WriteLine("===Exosister: magnifica target 2: " + target?.Name);
+                        Logger.DebugWriteLine("===Exosister: magnifica target 2: " + target?.Name);
                     }
                 }
 
@@ -1986,7 +1986,7 @@ namespace WindBot.Game.AI.Decks
                     bool check3 = !Bot.UnderAttack;
                     bool check4 = Duel.Phase != DuelPhase.End;
                     bool check5 = Duel.Player == 0 || Enemy.GetMonsterCount() < 2;
-                    Logger.WriteLine("===Exosister: magnifica check flag: " + check1 + " " + check2 + " " + check3 + " " + check4 + " " + check5);
+                    Logger.DebugWriteLine("===Exosister: magnifica check flag: " + check1 + " " + check2 + " " + check3 + " " + check4 + " " + check5);
                     if (check1 && check2 && check3 && check4 && check5)
                     {
                         target = null;
@@ -1999,7 +1999,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         removeChosenList.Add(target);
                     }
-                    Logger.WriteLine("===Exosister: magnifica target final: " + target?.Name);
+                    Logger.DebugWriteLine("===Exosister: magnifica target final: " + target?.Name);
                     activatedMagnificaList.Add(Card);
                     AI.SelectCard(CardId.ExosisterGibrine, CardId.ExosisterAsophiel, CardId.ExosisterKaspitell, CardId.ExosisterMikailis);
                     AI.SelectNextCard(target);
@@ -2410,7 +2410,7 @@ namespace WindBot.Game.AI.Decks
                             }
                         }
                         oncePerTurnEffectActivatedList.Add(Card.Id);
-                        Logger.WriteLine("Exosiseter Vadis decide: " + checkId);
+                        Logger.DebugWriteLine("Exosiseter Vadis decide: " + checkId);
                         AI.SelectCard(checkId);
                         AI.SelectNextCard(checkTarget);
                         return true;
@@ -2427,7 +2427,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard target = GetProblematicEnemyCard(true);
             if (target != null && Duel.LastChainPlayer != 0)
             {
-                Logger.WriteLine("===Exosister: returnia target 1: " + target?.Name);
+                Logger.DebugWriteLine("===Exosister: returnia target 1: " + target?.Name);
                 removeChosenList.Add(target);
                 oncePerTurnEffectActivatedList.Add(Card.Id);
                 AI.SelectCard(target);
@@ -2443,7 +2443,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     oncePerTurnEffectActivatedList.Add(Card.Id);
                     List<ClientCard> shuffleTargetList = ShuffleCardList(targetList);
-                    Logger.WriteLine("===Exosister: returnia target 2: " + shuffleTargetList[0]?.Name);
+                    Logger.DebugWriteLine("===Exosister: returnia target 2: " + shuffleTargetList[0]?.Name);
                     AI.SelectCard(shuffleTargetList);
                     return true;
                 }
@@ -2455,11 +2455,11 @@ namespace WindBot.Game.AI.Decks
             bool check2 = Bot.UnderAttack;
             bool check3 = (Duel.Player == 1 && Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0 && target != null && target.Location != CardLocation.Grave);
             bool check4 = (Duel.Player == 1 && Enemy.GetMonsterCount() >= 2 && Duel.LastChainPlayer != 0);
-            Logger.WriteLine("===Exosister: returnia check flag: " + check1 + " " + check2 + " " + check3 + " " + check4);
+            Logger.DebugWriteLine("===Exosister: returnia check flag: " + check1 + " " + check2 + " " + check3 + " " + check4);
             if (check1 || check2 || check3 || check4)
             {
                 oncePerTurnEffectActivatedList.Add(Card.Id);
-                Logger.WriteLine("===Exosister: returnia target 3: " + target?.Name);
+                Logger.DebugWriteLine("===Exosister: returnia target 3: " + target?.Name);
                 AI.SelectCard(target);
                 return true;
             }
@@ -2674,7 +2674,7 @@ namespace WindBot.Game.AI.Decks
                         return false;
                     }
                 }
-                Logger.WriteLine("===Exosister: summon for donner");
+                Logger.DebugWriteLine("===Exosister: summon for donner");
                 summoned = true;
                 return true;
             }
