@@ -94,6 +94,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.ExosisterElis, ExosisterElisActivate);
             AddExecutor(ExecutorType.Activate, CardId.Sakitama, SakitamaActivate);
             AddExecutor(ExecutorType.Activate, CardId.ExosisterPax,  ExosisterPaxActivate);
+            AddExecutor(ExecutorType.Activate, CardId.ExosisterStella, ExosisterStellaSecondActivate);
 
             // xyz summon
             AddExecutor(ExecutorType.SpSummon, CardId.StellarknightConstellarDiamond);
@@ -213,7 +214,7 @@ namespace WindBot.Game.AI.Decks
 
         public ClientCard GetProblematicEnemyMonster(int attack = 0, bool canBeTarget = false)
         {
-            List<ClientCard> floodagateList = Enemy.MonsterZone.Where(c => c?.Data != null &&
+            List<ClientCard> floodagateList = Enemy.GetMonsters().Where(c => c?.Data != null &&
                 c.IsFloodgate() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
             if (floodagateList.Count > 0)
             {
@@ -1553,6 +1554,16 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterStellaActivate()
         {
+            return ExosisterStellaActivateInner(true);
+        }
+
+        public bool ExosisterStellaSecondActivate()
+        {
+            return ExosisterStellaActivateInner(false);
+        }
+
+        public bool ExosisterStellaActivateInner(bool checkMartha = false)
+        {
             if (ActivateDescription != Util.GetStringId(CardId.ExosisterStella, 0) || CheckWhetherNegated(true))
             {
                 return false;
@@ -1560,11 +1571,12 @@ namespace WindBot.Game.AI.Decks
 
             bool ableToXyz = Bot.GetMonsters().Count(card => CheckAbleForXyz(card)) >= 2;
 
-            if (CheckLessOperation() && ableToXyz) 
+            if (CheckLessOperation() && ableToXyz)
             {
                 return false;
             }
-            if (Bot.HasInHand(CardId.ExosisterMartha) && ableToXyz && Bot.Hand.Count(card => card.IsCode(CardId.ExosisterMartha)) == 1)
+            if (checkMartha && Bot.HasInHand(CardId.ExosisterMartha) && ableToXyz
+                   && Bot.Hand.Count(card => card.IsMonster() && card.HasSetcode(CardId.ExosisterMartha)) == 1)
             {
                 return false;
             }
@@ -2030,7 +2042,7 @@ namespace WindBot.Game.AI.Decks
                 // search returnia for banish
                 if (CheckAtAdvantage() && GetProblematicEnemyCard(true) != null && CheckRemainInDeck(CardId.ExosisterReturnia) > 0 && !Bot.HasInHandOrInSpellZone(CardId.ExosisterReturnia))
                 {
-                    if (Bot.GetMonsterCount() > 0 && Bot.MonsterZone.All(card => card.IsFaceup() && card.HasSetcode(SetcodeExosister)))
+                    if (Bot.GetMonsterCount() > 0 && Bot.GetMonsters().All(card => card.IsFaceup() && card.HasSetcode(SetcodeExosister)))
                     {
                         if (!(Card.Location == CardLocation.SpellZone))
                         {
