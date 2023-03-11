@@ -1740,7 +1740,7 @@ namespace WindBot.Game.AI.Decks
 
                 // dump banish
                 target = GetBestEnemyCard(false, true, true);
-                if (DefaultOnBecomeTarget() || Bot.UnderAttack || (Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0)
+                if ((DefaultOnBecomeTarget() && !Util.ChainContainsCard(_CardId.EvenlyMatched)) || Bot.UnderAttack || (Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0)
                     || (Duel.Player == 0 && Bot.GetMonsters().Count(card => card.HasType(CardType.Xyz) && card.Rank == 4 && card.HasSetcode(SetcodeExosister)) == 2 && Duel.LastChainPlayer != 0)
                     || (Duel.Player == 1 && Enemy.GetMonsterCount() >= 2))
                 {
@@ -1981,7 +1981,7 @@ namespace WindBot.Game.AI.Decks
                 if (target == null)
                 {
                     target = GetBestEnemyCard(false, false);
-                    bool check1 = !DefaultOnBecomeTarget();
+                    bool check1 = !DefaultOnBecomeTarget() || Util.ChainContainsCard(_CardId.EvenlyMatched);
                     bool check2 = !targetedMagnificaList.Contains(Card);
                     bool check3 = !Bot.UnderAttack;
                     bool check4 = Duel.Phase != DuelPhase.End;
