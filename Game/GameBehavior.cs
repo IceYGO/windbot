@@ -1755,7 +1755,7 @@ namespace WindBot.Game
             int count = packet.ReadByte();
             int available = packet.ReadInt32();
             int filter = 0x1;
-            for (int i = 0; i < 23; ++i)
+            for (int i = 0; i < 26; ++i)
             {
                 if ((available & filter) != 0)
                     races.Add((CardRace)filter);
