@@ -1950,7 +1950,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 
                 // become target
-                if (DefaultOnBecomeTarget() || (Duel.CurrentChain.Any(c => c == Card) && Duel.LastChainPlayer != 0))
+                if ((DefaultOnBecomeTarget() && !Util.ChainContainsCard(_CardId.EvenlyMatched)) || (Duel.CurrentChain.Any(c => c == Card) && Duel.LastChainPlayer != 0))
                 {
                     targetedMagnificaList.Add(Card);
                     transformDestList.AddRange(new List<int>{CardId.ExosistersMagnifica, CardId.ExosisterMikailis, CardId.ExosisterGibrine, CardId.ExosisterKaspitell, CardId.ExosisterAsophiel});
@@ -2463,7 +2463,7 @@ namespace WindBot.Game.AI.Decks
 
             // dump banish
             target = GetBestEnemyCard(false, true, true);
-            bool check1 = DefaultOnBecomeTarget() && target.Id != _CardId.EvenlyMatched;
+            bool check1 = DefaultOnBecomeTarget() && target != null && (target.Location != CardLocation.Onfield || target.Id != _CardId.EvenlyMatched);
             bool check2 = Bot.UnderAttack;
             bool check3 = (Duel.Player == 1 && Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0 && target != null && target.Location != CardLocation.Grave);
             bool check4 = (Duel.Player == 1 && Enemy.GetMonsterCount() >= 2 && Duel.LastChainPlayer != 0);
