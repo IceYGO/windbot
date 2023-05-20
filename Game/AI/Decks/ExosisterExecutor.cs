@@ -2025,7 +2025,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterPaxActivate()
         {
-            if (potActivate)
+            if (potActivate || Bot.LifePoints <= 800)
             {
                 return false;
             }
@@ -2198,7 +2198,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterPaxActivateForEndSearch()
         {
-            if (potActivate)
+            if (potActivate || Bot.LifePoints <= 800)
             {
                 return false;
             }
@@ -2230,6 +2230,10 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterArmentActivate()
         {
+            if (Bot.LifePoints <= 800)
+            {
+                return false;
+            }
             ClientCard activateTarget = null;
 
             if (Duel.Player == 0)
@@ -2366,6 +2370,11 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterVadisActivate()
         {
+            if (Bot.LifePoints <= 800)
+            {
+                return false;
+            }
+
             List<int> checkListForSpSummon = new List<int>{
                 CardId.ExosisterSophia, CardId.ExosisterIrene, CardId.ExosisterStella, CardId.ExosisterMartha, CardId.ExosisterElis
             };
@@ -2435,6 +2444,11 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterReturniaActivate()
         {
+            if (Bot.LifePoints <= 800)
+            {
+                return false;
+            }
+
             // banish problem card
             ClientCard target = GetProblematicEnemyCard(true);
             if (target != null && Duel.LastChainPlayer != 0)
