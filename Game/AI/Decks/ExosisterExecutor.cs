@@ -1950,7 +1950,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 
                 // become target
-                if (DefaultOnBecomeTarget() || (Duel.CurrentChain.Any(c => c == Card) && Duel.LastChainPlayer != 0))
+                if ((DefaultOnBecomeTarget() && !Util.ChainContainsCard(_CardId.EvenlyMatched)) || (Duel.CurrentChain.Any(c => c == Card) && Duel.LastChainPlayer != 0))
                 {
                     targetedMagnificaList.Add(Card);
                     transformDestList.AddRange(new List<int>{CardId.ExosistersMagnifica, CardId.ExosisterMikailis, CardId.ExosisterGibrine, CardId.ExosisterKaspitell, CardId.ExosisterAsophiel});
@@ -2025,7 +2025,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterPaxActivate()
         {
-            if (potActivate)
+            if (potActivate || Bot.LifePoints <= 800)
             {
                 return false;
             }
@@ -2198,7 +2198,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterPaxActivateForEndSearch()
         {
-            if (potActivate)
+            if (potActivate || Bot.LifePoints <= 800)
             {
                 return false;
             }
@@ -2230,6 +2230,10 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterArmentActivate()
         {
+            if (Bot.LifePoints <= 800)
+            {
+                return false;
+            }
             ClientCard activateTarget = null;
 
             if (Duel.Player == 0)
@@ -2366,6 +2370,11 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterVadisActivate()
         {
+            if (Bot.LifePoints <= 800)
+            {
+                return false;
+            }
+
             List<int> checkListForSpSummon = new List<int>{
                 CardId.ExosisterSophia, CardId.ExosisterIrene, CardId.ExosisterStella, CardId.ExosisterMartha, CardId.ExosisterElis
             };
@@ -2435,6 +2444,11 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterReturniaActivate()
         {
+            if (Bot.LifePoints <= 800)
+            {
+                return false;
+            }
+
             // banish problem card
             ClientCard target = GetProblematicEnemyCard(true);
             if (target != null && Duel.LastChainPlayer != 0)
@@ -2463,7 +2477,7 @@ namespace WindBot.Game.AI.Decks
 
             // dump banish
             target = GetBestEnemyCard(false, true, true);
-            bool check1 = DefaultOnBecomeTarget() && target.Id != _CardId.EvenlyMatched;
+            bool check1 = DefaultOnBecomeTarget() && target != null && (target.Location != CardLocation.Onfield || target.Id != _CardId.EvenlyMatched);
             bool check2 = Bot.UnderAttack;
             bool check3 = (Duel.Player == 1 && Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0 && target != null && target.Location != CardLocation.Grave);
             bool check4 = (Duel.Player == 1 && Enemy.GetMonsterCount() >= 2 && Duel.LastChainPlayer != 0);
