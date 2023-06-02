@@ -115,12 +115,15 @@
     <Compile Include="Game\AI\Decks\DoEveryThingExecutor.cs" />
     <Compile Include="Game\AI\Decks\OldSchoolExecutor.cs" />
     <Compile Include="Game\AI\Decks\Rank5Executor.cs" />
+    <Compile Include="Game\AI\Decks\ZefraExecutor.cs" />
     <Compile Include="Game\AI\Decks\ZoodiacExecutor.cs" />
     <Compile Include="Game\AI\Decks\ZexalWeaponsExecutor.cs" />
     <Compile Include="Game\AI\DefaultExecutor.cs" />
     <Compile Include="Game\AI\Dialogs.cs" />
     <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
     <Compile Include="Game\AI\Enums\FusionSpell.cs" />
+    <Compile Include="Game\AI\Enums\NotBeSynchroMaterialMonster.cs" />
+    <Compile Include="Game\AI\Enums\NotBeXyzMaterialMonster.cs" />
     <Compile Include="Game\AI\Enums\ShouldBeDisabledBeforeItUseEffectMonster.cs" />
     <Compile Include="Game\AI\Enums\ShouldNotBeSpellTarget.cs" />
     <Compile Include="Game\AI\Enums\ShouldNotBeMonsterTarget.cs" />

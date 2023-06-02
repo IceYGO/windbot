@@ -442,5 +442,115 @@ namespace WindBot.Game.AI
 
             return selected;
         }
+
+        /// <summary>
+        /// Get all xyz materials lists that xyz monster required level in the 'pre_materials' list
+        /// </summary>
+        /// <param name="param_pre_materials">Original materials</param>
+        /// <param name="level">Xyz monster required level</param>
+        /// <param name="material_count">SpSummon rule:number of xyz materials</param>
+        /// <param name="material_count_above">More xyz materials</param>
+        /// <param name="material_func">Filter xyz materials func</param>
+        /// <returns></returns>
+        public List<List<ClientCard>> GetXyzMaterials(IList<ClientCard> param_pre_materials, int level, int material_count, bool material_count_above = false, Func<ClientCard, bool> material_func = null)
+        {
+            List<List<ClientCard>> result = new List<List<ClientCard>>();
+            List<ClientCard> pre_materials = param_pre_materials?.Where(card => card != null && !(card.IsFacedown() & card.Location == CardLocation.MonsterZone) && card.Level == level && !card.IsMonsterNotBeXyzMaterial()).ToList();
+            if (pre_materials?.Count() < material_count) return result;
+            Func<ClientCard, bool> default_func = card => true;
+            material_func = material_func ?? default_func;
+            for (int i = 1; i < Math.Pow(2, pre_materials.Count); i++)
+            {
+                List<ClientCard> temp_materials = new List<ClientCard>();
+                string binaryString = Convert.ToString(i, 2).PadLeft(pre_materials.Count, '0');
+                char[] reversedBinaryChars = binaryString.Reverse().ToArray();
+                for (int j = 0; j < pre_materials.Count; j++)
+                {
+                    if (reversedBinaryChars[j] == '1' && material_func(pre_materials[j]))
+                    {
+                        temp_materials.Add(pre_materials[j]);
+                    }
+                }
+                if (material_count_above ? temp_materials.Count >= material_count : temp_materials.Count == material_count)
+                {
+                    result.Add(temp_materials);
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Get all synchro materials lists that synchro monster level == param 'level' in the 'pre_materials' list
+        /// </summary>
+        /// <param name="pre_materials">Original materials</param>
+        /// <param name="level">Synchro monster level</param>
+        /// <param name="tuner_count">SpSummon rule:number of tuner monsters </param>
+        /// <param name="n_tuner_count">SpSummon rule:number of non-tuner monsters count</param>
+        /// <param name="tuner_count_above">More tuner monsters</param>
+        /// <param name="n_tuner_count_above">More non-tuner monsters</param>
+        /// <param name="tuner_func">Filter tuner monsters func</param>
+        /// <param name="n_tuner_func">Filter non-tuner monsters func</param>
+        /// <returns></returns>
+        public List<List<ClientCard>> GetSynchroMaterials(IList<ClientCard> param_pre_materials, int level, int tuner_count, int n_tuner_count, bool tuner_count_above = false, bool n_tuner_count_above = true, Func<ClientCard, bool> tuner_func = null, Func<ClientCard, bool> n_tuner_func = null)
+        {
+            List<List<ClientCard>> t_result = new List<List<ClientCard>>();
+            List<ClientCard> pre_materials = param_pre_materials?.Where(card => card != null && !(card.IsFacedown() & card.Location == CardLocation.MonsterZone) && card.Level > 0 && !card.IsMonsterNotBeSynchroMaterial()).ToList();
+            if (pre_materials?.Count() < tuner_count + n_tuner_count) return t_result;
+            Func<ClientCard, bool> default_func = card => true;
+            tuner_func = tuner_func ?? default_func;
+            n_tuner_func = n_tuner_func ?? default_func;
+            pre_materials.Sort(CardContainer.CompareCardLevel);
+            Stack<object[]> materials_stack = new Stack<object[]>();
+            for (var i = 0; i < pre_materials.Count; i++)
+            {
+                if (pre_materials[i].Level > level) break;
+                materials_stack.Push(new object[] { pre_materials[i].Level, i, pre_materials[i].Level, new List<ClientCard> { pre_materials[i] } });
+            }
+            while (materials_stack.Count > 0)
+            {
+                object[] data = materials_stack.Pop();
+                int num = (int)data[0];
+                int index = (int)data[1];
+                int sum = (int)data[2];
+                List<ClientCard> temp_materials = (List<ClientCard>)data[3];
+                if (sum == level)
+                {
+                    t_result.Add(temp_materials);
+                }
+                else if (sum < level)
+                {
+                    for (var i = index + 1; i < pre_materials.Count; i++)
+                    {
+                        if (pre_materials[i].Level > level - sum) break;
+                        if (i > index + 1 && pre_materials[i].Level == pre_materials[i - 1].Level) continue;
+                        var new_temp_materials = new List<ClientCard>(temp_materials);
+                        new_temp_materials.Add(pre_materials[i]);
+                        materials_stack.Push(new object[] { pre_materials[i].Level, i, sum + pre_materials[i].Level, new_temp_materials });
+                    }
+                }
+            }
+            List<List<ClientCard>> result = new List<List<ClientCard>>();
+            for (int i = 0; i < t_result.Count; i++)
+            {
+                List<ClientCard> materials = t_result[i];
+                List<ClientCard> tuner_materials = new List<ClientCard>();
+                List<ClientCard> n_tuner_materials = new List<ClientCard>();
+                foreach (ClientCard material in materials)
+                {
+                    if (material.HasType(CardType.Tuner) && tuner_func(material))
+                    {
+                        tuner_materials.Add(material);
+                    }
+                    else if (material.Level > 0 && n_tuner_func(material))
+                    {
+                        n_tuner_materials.Add(material);
+                    }
+                }
+                if ((tuner_count_above ? tuner_materials.Count >= tuner_count : tuner_materials.Count == tuner_count)
+                    && (n_tuner_count_above ? n_tuner_materials.Count >= n_tuner_count : n_tuner_materials.Count == n_tuner_count))
+                    result.Add(materials);
+            }
+            return result;
+        }
     }
 }
