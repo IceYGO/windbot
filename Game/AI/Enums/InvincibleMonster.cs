@@ -25,7 +25,9 @@
         DaigustoSphreez = 29552709,
         Number92HearteartHDragon = 97403510,
         NumberC96DarkStorm = 77205367,
-        Number54LionHeart = 54366836
+        Number54LionHeart = 54366836,
+        Number2NinjaShadowMosquito = 32453837,
+        OhimetheManifestedMikanko = 81260679
     }
     /// <summary>
     /// Cards that are invincible to battle.
@@ -93,6 +95,12 @@
         GoukiTheGiantOgre = 47946130,
         BorrelswordDragon = 85289965,
         NumberF0UtopicFutureDragon = 26973555,
-        BorrelendDragon = 98630720
+        BorrelendDragon = 98630720,
+        MimickingMan_EaterBug = 72427512,
+        ShiningPiecephilia = 49776811,
+        BrigrandtheGloryDragon = 34848821,
+        AmazonessQueen = 15951532,
+        Number2NinjaShadowMosquito = 32453837,
+        OhimetheManifestedMikanko = 81260679
     }
 }
