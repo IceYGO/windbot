@@ -34,7 +34,9 @@ namespace WindBot.Game.AI
         [DataMember]
         public string[] setmonster { get; set; }
         [DataMember]
-        public string[] chaining { get; set; }                                          
+        public string[] chaining { get; set; }
+        [DataMember]
+        public string[] custom { get; set; }
     }
     public class Dialogs
     {
@@ -53,7 +55,8 @@ namespace WindBot.Game.AI
         private string[] _summon;
         private string[] _setmonster;
         private string[] _chaining;
-        
+        private string[] _custom;
+
         public Dialogs(GameClient game)
         {
             _game = game;
@@ -75,6 +78,7 @@ namespace WindBot.Game.AI
                 _summon = data.summon;
                 _setmonster = data.setmonster;
                 _chaining = data.chaining;
+                _custom = data.custom;
             }
         }
 
@@ -156,6 +160,20 @@ namespace WindBot.Game.AI
         public void SendChaining(string card)
         {
             InternalSendMessage(_chaining, card);
+        }
+
+        public void SendCustom(int index, params object[] opts)
+        {
+            InternalSendCustomMessage(index, opts);
+        }
+
+        private void InternalSendCustomMessage(int index, params object[] opts)
+        {
+            if (!_game._chat || _custom == null)
+                return;
+            string message = string.Format(_custom[index], opts);
+            if (message != "")
+                _game.Chat(message);
         }
 
         private void InternalSendMessage(IList<string> array, params object[] opts)

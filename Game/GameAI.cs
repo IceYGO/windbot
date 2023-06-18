@@ -55,6 +55,14 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Customized called when the AI do something in a duel.
+        /// </summary>
+        public void OnCustom(int index, params object[] opts)
+        {
+            _dialogs.SendCustom(index, opts);
+        }
+
+        /// <summary>
         /// Called when the AI do the rock-paper-scissors.
         /// </summary>
         /// <returns>1 for Scissors, 2 for Rock, 3 for Paper.</returns>
@@ -378,7 +386,7 @@ namespace WindBot.Game
             foreach (CardExecutor exec in Executor.Executors)
             {
                 if (ShouldExecute(exec, card, ExecutorType.Activate, desc))
-                    return true;
+                    return Executor.OnSelectEffectYn(card, desc);
             }
             return false;
         }
