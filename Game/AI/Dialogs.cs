@@ -162,20 +162,6 @@ namespace WindBot.Game.AI
             InternalSendMessage(_chaining, card);
         }
 
-        public void SendCustomChat(int index, params object[] opts)
-        {
-            InternalSendCustomMessage(index, opts);
-        }
-
-        private void InternalSendCustomMessage(int index, params object[] opts)
-        {
-            if (!_game._chat || _custom == null)
-                return;
-            string message = string.Format(_custom[index], opts);
-            if (message != "")
-                _game.Chat(message);
-        }
-
         private void InternalSendMessage(IList<string> array, params object[] opts)
         {
             if (!_game._chat)
@@ -188,6 +174,15 @@ namespace WindBot.Game.AI
         private void InternalSendMessageForced(IList<string> array, params object[] opts)
         {
             string message = string.Format(array[Program.Rand.Next(array.Count)], opts);
+            if (message != "")
+                _game.Chat(message);
+        }
+
+        public void SendCustomChat(int index, params object[] opts)
+        {
+            if (!_game._chat || _custom == null)
+                return;
+            string message = string.Format(_custom[index], opts);
             if (message != "")
                 _game.Chat(message);
         }
