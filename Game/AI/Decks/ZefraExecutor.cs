@@ -106,6 +106,16 @@ namespace WindBot.Game.AI.Decks
         private bool HeavymetalfoesElectrumite_activate = false;
         private bool should_destory = false;
         private List<ClientCard> Odd_EyesMeteorburstDragon_materials = new List<ClientCard>();
+        private bool duel_start = true;
+        private int activate_count = 0;
+        private int summon_count = 0;
+        private bool enemy_activate = false;
+        private enum CustomMessage
+        {
+            Happy,
+            Angry,
+            Surprise
+        }
         private static class Toos
         {
             public delegate bool Delegate(ClientCard card);
@@ -437,21 +447,21 @@ namespace WindBot.Game.AI.Decks
         {
             AddExecutor(ExecutorType.Activate, CardId.CalledbytheGrave, CalledbytheGraveEffect);
             AddExecutor(ExecutorType.Activate, CardId.BorreloadSavageDragon, BorreloadSavageDragonEffect_2);
-            AddExecutor(ExecutorType.Activate, CardId.F_A_DawnDragster);
+            AddExecutor(ExecutorType.Activate, CardId.F_A_DawnDragster, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.NinePillarsofYangZing, NinePillarsofYangZingEffect);
             AddExecutor(ExecutorType.Activate, CardId.ZefraDivineStrike, ZefraDivineStrikeEffect);
             AddExecutor(ExecutorType.Activate, CardId.HeraldoftheArcLight, HeraldoftheArcLightEffect);
-            AddExecutor(ExecutorType.Activate, CardId.TruKingofAllCalamities,TruKingofAllCalamitiesEffect);
-            AddExecutor(ExecutorType.Activate, CardId.PSY_FramegearGamma);
+            AddExecutor(ExecutorType.Activate, CardId.TruKingofAllCalamities, TruKingofAllCalamitiesEffect);
+            AddExecutor(ExecutorType.Activate, CardId.PSY_FramegearGamma, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.MaxxC, DefaultMaxxC);
             AddExecutor(ExecutorType.Activate, CardId.SupremeKingDragonDarkwurm, SupremeKingDragonDarkwurmEffect);
             AddExecutor(ExecutorType.Activate, CardId.ServantofEndymion, ServantofEndymionEffect);
             AddExecutor(ExecutorType.Activate, CardId.Terraforming, TerraformingEffect);
-            AddExecutor(ExecutorType.Activate, CardId.SpellPowerMastery);
+            AddExecutor(ExecutorType.Activate, CardId.SpellPowerMastery, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.DragonShrine, DragonShrineEffect);
             AddExecutor(ExecutorType.Activate, CardId.FoolishBurial, FoolishBurialEffect);
             AddExecutor(ExecutorType.Activate, CardId.DarkContractwiththGate, DarkContractwiththGateEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Terraforming);
+            AddExecutor(ExecutorType.Activate, CardId.Terraforming, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.OracleofZefra, OracleofZefraEffect);
             AddExecutor(ExecutorType.Activate, CardId.ZefraProvidence, ZefraProvidenceEffect);
             AddExecutor(ExecutorType.Activate, CardId.AstrographSorcerer, AstrographSorcererEffect);
@@ -487,7 +497,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Blackwing_ZephyrostheElite, Blackwing_ZephyrostheEliteEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.Raidraptor_ForceStrix, Raidraptor_ForceStrixSummon);
             AddExecutor(ExecutorType.Activate, CardId.Raidraptor_ForceStrix, Raidraptor_ForceStrixEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Rank_Up_MagicSoulShaveForce);
+            AddExecutor(ExecutorType.Activate, CardId.Rank_Up_MagicSoulShaveForce, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.Raider_Wing, Raider_WingEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.Raidraptor_SingingLanius);
             //xyz mode
@@ -520,7 +530,7 @@ namespace WindBot.Game.AI.Decks
             CardId.DDSavantKepler,CardId.StellarknightZefraxciton,CardId.ShaddollZefracore,CardId.SupremeKingDragonDarkwurm};
             for (int i = 0; i < p_summon_ids.Count; ++i) AddExecutor(ExecutorType.Summon, p_summon_ids[i], DefaultSummon);
             AddExecutor(ExecutorType.Summon, DefaultSummon);
-            AddExecutor(ExecutorType.Activate, CardId.Deskbot001);
+            AddExecutor(ExecutorType.Activate, CardId.Deskbot001, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.TheMightyMasterofMagic, TheMightyMasterofMagicEffect);
             AddExecutor(ExecutorType.Activate, CardId.DestrudotheLostDragon_Frisson, DestrudotheLostDragon_FrissonEffect);
             AddExecutor(ExecutorType.Summon, CardId.Blackwing_ZephyrostheElite, DefaultSummon_2);
@@ -530,9 +540,15 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, SpellSet_2);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
             AddExecutor(ExecutorType.Activate, DefaultPActivate);
+            AddExecutor(ExecutorType.GoToEndPhase, GoToEndPhase);
         }
         public override void OnNewTurn()
         {
+            if (duel_start)
+            {
+                duel_start = false;
+                AI.SendCustomChat((int)CustomMessage.Happy);
+            }
             activate_SupremeKingDragonDarkwurm_1 = false;
             activate_SupremeKingDragonDarkwurm_2 = false;
             activate_JetSynchron = false;
@@ -554,17 +570,25 @@ namespace WindBot.Game.AI.Decks
             HeavymetalfoesElectrumite_activate = false;
             spell_activate_count = 0;
             p_count = 0;
+            activate_count = 0;
+            summon_count = 0;
+            enemy_activate = false;
         }
         private bool ZefraProvidenceEffect()
         {
-            if (Card.Location == CardLocation.Grave)
+            if (ActivateDescription == 96)
             {
-                return true;
+                if (should_destory)
+                {
+                    should_destory = false;
+                    return false;
+                }
+                return BeforeResult(ExecutorType.Activate);
             }
             else
             {
                 activate_ZefraProvidence = true;
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
 
         }
@@ -589,7 +613,7 @@ namespace WindBot.Game.AI.Decks
 
                     List<ClientCard> pSpsummonMonster = func.CardsCheckWhere(spSummonMonster, func.HasType, CardType.Pendulum);
                     List<ClientCard> monsterCards = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.MonsterZone), card =>
-                        { return card.IsFaceup() && card.HasType(CardType.Pendulum); });
+                    { return card.IsFaceup() && card.HasType(CardType.Pendulum); });
                     if (Func.MergeList(pSpsummonMonster, monsterCards).Count <= 0) extra_ids.Remove(CardId.HeavymetalfoesElectrumite);
                 }
                 else
@@ -615,7 +639,7 @@ namespace WindBot.Game.AI.Decks
                 Func.GetZoneCards(Bot, CardLocation.MonsterZone, true).Count > 0))
             {
                 summoned = true;
-                return true;
+                return BeforeResult(ExecutorType.Summon);
             }
             return false;
         }
@@ -630,11 +654,11 @@ namespace WindBot.Game.AI.Decks
         {
             AI.SelectCard(CardId.Raider_Wing);
             AI.SelectNextCard(CardId.Raidraptor_SingingLanius);
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool Raidraptor_ForceStrixSummon()
         {
-            return xyz_mode;
+            return xyz_mode && BeforeResult(ExecutorType.Summon);
         }
 
         private bool Blackwing_ZephyrostheEliteEffect_2()
@@ -642,22 +666,22 @@ namespace WindBot.Game.AI.Decks
             if (!xyz_mode && Bot.GetMonstersInMainZone().Count > 4) return false;
             List<ClientCard> cards = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.Onfield, true), card => {
                 return !IsNoLinkCards(card) && !card.IsExtraCard() && !(card.Location == CardLocation.SpellZone
-                && Func.IsCode(card,CardId.SaryujaSkullDread,CardId.MechaPhantomBeastAuroradon,CardId.HeavymetalfoesElectrumite,CardId.CrystronHalqifibrax,CardId.Raidraptor_WiseStrix,
+                && Func.IsCode(card, CardId.SaryujaSkullDread, CardId.MechaPhantomBeastAuroradon, CardId.HeavymetalfoesElectrumite, CardId.CrystronHalqifibrax, CardId.Raidraptor_WiseStrix,
                 CardId.Linkuriboh));
             });
             if (cards.Count <= 0 || (cards.Count < 2 && func.CardsCheckCount(cards, func.HasLevel, 4) == cards.Count))
             {
                 Blackwing_ZephyrostheElite_activate = true;
                 return false;
-            } 
+            }
             cards.Sort((cardA, cardB) =>
             {
                 if (cardA.Location != CardLocation.MonsterZone && cardB.Location == CardLocation.MonsterZone) return -1;
                 if (cardA.Location == CardLocation.MonsterZone && cardB.Location != CardLocation.MonsterZone) return 1;
                 if (cardA.Location == CardLocation.SpellZone && cardB.Location == CardLocation.SpellZone)
                 {
-                    if(cardA.IsCode(CardId.OracleofZefra) && !cardB.IsCode(CardId.OracleofZefra)) return -1;
-                    if(!cardA.IsCode(CardId.OracleofZefra) && cardB.IsCode(CardId.OracleofZefra))return 1;
+                    if (cardA.IsCode(CardId.OracleofZefra) && !cardB.IsCode(CardId.OracleofZefra)) return -1;
+                    if (!cardA.IsCode(CardId.OracleofZefra) && cardB.IsCode(CardId.OracleofZefra)) return 1;
                     return 0;
                 }
                 if (xyz_mode)
@@ -673,14 +697,46 @@ namespace WindBot.Game.AI.Decks
             });
             Blackwing_ZephyrostheElite_activate = false;
             AI.SelectCard(cards);
+            return BeforeResult(ExecutorType.Activate);
+        }
+        public override void OnChaining(int player, ClientCard card)
+        {
+            if (card == null) return;
+            if (player == 1 && Func.IsCode(card, 14558127, 59438930, 94145021, 38814750, 73642296, 97268402))
+                enemy_activate = true;
+            base.OnChaining(player, card);
+        }
+        private bool BeforeResult(ExecutorType type)
+        {
+            if (type == ExecutorType.Activate)
+            {
+                ResetFlag();
+                ++activate_count;
+            }
+            if (type == ExecutorType.Summon)
+            {
+                ++summon_count;
+            }
             return true;
+        }
+        private bool GoToEndPhase()
+        {
+            if (Duel.Player == 0 && Duel.Turn == 1 && func.CardsCheckCount(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), IsNoLinkCards) <= 0
+                && activate_count + summon_count < 5 && !enemy_activate)
+            {
+
+                AI.SendCustomChat((int)CustomMessage.Angry);
+                return true;
+            }
+            return false;
+
         }
         private bool DefaultPActivate()
         {
-            if (PendulumActivate() && Func.IsCode(Card,CardId.Zefraxi_TreasureoftheYangZing, CardId.SecretoftheYangZing))
+            if (PendulumActivate() && Func.IsCode(Card, CardId.Zefraxi_TreasureoftheYangZing, CardId.SecretoftheYangZing))
             {
                 return Bot.HasInHandOrInSpellZone(CardId.NinePillarsofYangZing) && func.CardsCheckCount(Func.GetZoneCards(Bot, CardLocation.SpellZone,
-                    true), card => { return Func.IsCode(Card, CardId.Zefraxi_TreasureoftheYangZing, CardId.SecretoftheYangZing); }) <= 0;
+                    true), card => { return Func.IsCode(Card, CardId.Zefraxi_TreasureoftheYangZing, CardId.SecretoftheYangZing); }) <= 0 && BeforeResult(ExecutorType.Activate);
             }
             return false;
         }
@@ -693,7 +749,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!xyz_mode) return false;
             AI.SelectMaterials(CardId.Raidraptor_ArsenalFalcon, CardId.Blackwing_ZephyrostheElite);
-            return true;
+            return BeforeResult(ExecutorType.Summon);
         }
         private bool Raidraptor_WiseStrixEffect()
         {
@@ -705,17 +761,17 @@ namespace WindBot.Game.AI.Decks
                 if (HasInDeck(CardId.Raider_Wing)) ++count;
                 if (count <= 1) return false;
                 AI.SelectCard(CardId.Raider_Wing);
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool Raidraptor_ArsenalFalconEffect()
         {
             if (Card.Location == CardLocation.MonsterZone)
             {
                 AI.SelectCard(CardId.SupremeKingGateZero);
-                AI.SelectNextCard(new int[] {CardId.Blackwing_ZephyrostheElite,CardId.Raider_Wing,CardId.Raidraptor_SingingLanius});
-                return true;
+                AI.SelectNextCard(new int[] { CardId.Blackwing_ZephyrostheElite, CardId.Raider_Wing, CardId.Raidraptor_SingingLanius });
+                return BeforeResult(ExecutorType.Activate);
             }
             return false;
         }
@@ -727,7 +783,7 @@ namespace WindBot.Game.AI.Decks
             if (materials_lists.Count <= 0) return false;
             AI.SelectMaterials(materials_lists[0]);
             xyz_mode = true;
-            return true;
+            return BeforeResult(ExecutorType.Summon);
         }
         private bool Odd_EyesMeteorburstDragonCheck()
         {
@@ -740,6 +796,14 @@ namespace WindBot.Game.AI.Decks
             var materials_sy_lists = Util.GetSynchroMaterials(pre_materials, 7, 1, 1, false, true, null, card => { return !card.IsCode(CardId.MythicalBeastJackalKing) && !card.IsCode(CardId.HeraldoftheArcLight); });
             if (materials_sy_lists.Count <= 0) return false;
             Odd_EyesMeteorburstDragon_materials.Clear();
+            foreach (var materials in materials_sy_lists)
+            {
+                if (func.CardsCheckCount(materials, func.IsCode, CardId.SupremeKingGateZero) > 0)
+                {
+                    Odd_EyesMeteorburstDragon_materials.AddRange(materials);
+                    return true;
+                }
+            }
             Odd_EyesMeteorburstDragon_materials.AddRange(materials_sy_lists[0]);
             return true;
         }
@@ -747,38 +811,38 @@ namespace WindBot.Game.AI.Decks
         {
             if (!Odd_EyesMeteorburstDragonCheck()) return false;
             AI.SelectMaterials(Odd_EyesMeteorburstDragon_materials);
-            return true;
+            return BeforeResult(ExecutorType.Summon);
         }
         private bool Odd_EyesMeteorburstDragonEffect()
         {
             AI.SelectCard(CardId.SupremeKingGateZero);
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool DDSavantKeplerSummon()
         {
             if (HasInDeck(CardId.DarkContractwiththGate))
             {
                 summoned = true;
-                return true;
+                return BeforeResult(ExecutorType.Summon);
             }
             return false;
         }
-//        private void DebugCards(string msg, IList<ClientCard> cards)
-//        {
-//#if DEBUG
-//            Logger.DebugWriteLine(cards.Count + msg);
-//            foreach (var card in cards)
-//            {
-//                if (card == null) continue;
-//                NamedCard namedCard = NamedCard.Get(card.Id);
-//                if (namedCard == null) continue;
-//                Logger.DebugWriteLine(msg + namedCard.Name);
-//            }
-//#endif
-//        }
+        //        private void DebugCards(string msg, IList<ClientCard> cards)
+        //        {
+        //#if DEBUG
+        //            Logger.DebugWriteLine(cards.Count + msg);
+        //            foreach (var card in cards)
+        //            {
+        //                if (card == null) continue;
+        //                NamedCard namedCard = NamedCard.Get(card.Id);
+        //                if (namedCard == null) continue;
+        //                Logger.DebugWriteLine(msg + namedCard.Name);
+        //            }
+        //#endif
+        //        }
         private bool ServantofEndymionEffect_2()
         {
-            if (Card.Location == CardLocation.SpellZone) return true;
+            if (Card.Location == CardLocation.SpellZone) return BeforeResult(ExecutorType.Activate);
             return false;
         }
         private bool IsSpsummonPMonster(ClientCard card)
@@ -808,7 +872,7 @@ namespace WindBot.Game.AI.Decks
             if (!activate_OracleofZefra && func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.OracleofZefra)) ++count;
             if (func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.Terraforming) && HasInDeck(CardId.OracleofZefra)) ++count;
             if (func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.FoolishBurial)) ++count;
-            if (func.CardsCheckCount(Bot.Hand, func.HasType, CardType.Pendulum) > 1  && Bot.SpellZone[0] == null &&
+            if (func.CardsCheckCount(Bot.Hand, func.HasType, CardType.Pendulum) > 1 && Bot.SpellZone[0] == null &&
                 Bot.SpellZone[4] == null) ++count;
             if (!summoned && Bot.HasInHand(CardId.DDSavantKepler) && HasInDeck(CardId.DarkContractwiththGate)) ++count;
             return count;
@@ -817,7 +881,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (PendulumActivate())
             {
-                return PendulumDefaultActivate();
+                return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
             }
             return false;
         }
@@ -826,15 +890,16 @@ namespace WindBot.Game.AI.Decks
             if (Duel.LastChainPlayer == 0) return false;
             AI.SelectCard(CardId.RitualBeastTamerZeframpilica, CardId.SatellarknightZefrathuban, CardId.StellarknightZefraxciton, CardId.FlameBeastoftheNekroz, CardId.ShaddollZefracore,
                 CardId.SecretoftheYangZing, CardId.Zefraxi_TreasureoftheYangZing);
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool NinePillarsofYangZingEffect()
         {
             if (Duel.LastChainPlayer == 0) return false;
-            List<ClientCard> cards = func.CardsIdToClientCards(new List<int> { CardId.SecretoftheYangZing },Bot.MonsterZone);
-            cards.AddRange(func.CardsIdToClientCards(new List<int> { CardId.SecretoftheYangZing,CardId.Zefraxi_TreasureoftheYangZing }, Bot.SpellZone));
+            List<ClientCard> cards = func.CardsIdToClientCards(new List<int> { CardId.SecretoftheYangZing }, Bot.MonsterZone);
+            cards.AddRange(func.CardsIdToClientCards(new List<int> { CardId.SecretoftheYangZing, CardId.Zefraxi_TreasureoftheYangZing }, Bot.SpellZone));
             AI.SelectCard(cards);
-            return true;
+            should_destory = true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool IsActivateBlackwing_ZephyrostheElite()
         {
@@ -848,19 +913,19 @@ namespace WindBot.Game.AI.Decks
         {
             if (PendulumActivate())
             {
-                if (IsActivateBlackwing_ZephyrostheElite()) return true;
+                if (IsActivateBlackwing_ZephyrostheElite()) return BeforeResult(ExecutorType.Activate);
                 if ((!HasInDeck(CardId.TheMightyMasterofMagic) && !HasInDeck(CardId.MythicalBeastJackalKing) || GetSpellActivateCount() < 2)) return false;
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
             else if (Card.Location == CardLocation.SpellZone)
             {
                 if (func.HasInZone(Bot, CardLocation.Hand | CardLocation.PendulumZone, CardId.Zefraath, true))
                 {
-                    return func.CardsCheckAny(Bot.Hand, IsSpsummonPMonster);
+                    return func.CardsCheckAny(Bot.Hand, IsSpsummonPMonster) && BeforeResult(ExecutorType.Activate);
                 }
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
-            else if (Card.Location == CardLocation.MonsterZone) return true;
+            else if (Card.Location == CardLocation.MonsterZone) return BeforeResult(ExecutorType.Activate);
             else return false;
         }
         private bool IsZefraScaleAbove(ClientCard card)
@@ -873,16 +938,16 @@ namespace WindBot.Game.AI.Decks
         }
         private bool TerraformingEffect()
         {
-            return Bot.HasInHand(CardId.OracleofZefra);
+            return Bot.HasInHand(CardId.OracleofZefra) && BeforeResult(ExecutorType.Activate);
         }
         private bool DDSavantKeplerEffect()
         {
             if (PendulumActivate()) return false;
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool FoolishBurialEffect()
         {
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private List<ClientCard> GetSynchroMaterials()
         {
@@ -892,28 +957,31 @@ namespace WindBot.Game.AI.Decks
         }
         private bool DestrudotheLostDragon_FrissonEffect()
         {
-            if (Bot.HasInExtra(CardId.CrystronHalqifibrax)) return true;
+            if (Bot.HasInExtra(CardId.CrystronHalqifibrax)) return BeforeResult(ExecutorType.Activate);
             if (!Bot.HasInExtra(CardId.F_A_DawnDragster) && !Bot.HasInExtra(CardId.Odd_EyesMeteorburstDragon)) return false;
-            List<ClientCard> pre_materials = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true),card => { return SecretoftheYangZingCheck(card) && !IsNoLinkCards(card) && !card.HasType(CardType.Tuner) && card.Level > 0;});
+            List<ClientCard> pre_materials = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), card => { return SecretoftheYangZingCheck(card) && !IsNoLinkCards(card) && !card.HasType(CardType.Tuner) && card.Level > 0; });
             if (pre_materials.Count <= 0) return false;
-            List<ClientCard> cards = func.CardsCheckWhere(Func.GetZoneCards(Bot,CardLocation.MonsterZone,true),card=>
+            List<ClientCard> cards = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), card =>
             {
                 return !IsNoLinkCards(card) && card.Level > 0 && !card.HasType(CardType.Tuner);
             });
             if (cards.Count <= 0) return false;
             AI.SelectCard(cards);
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
-        private bool IsCanSynchroSummon(int level) 
+        private bool IsCanSynchroSummon(int level)
         {
-            return func.CardsCheckAny(GetSynchroMaterials(), card => { return (card.Level + level == 8
-                  && func.CardsCheckAny(Bot.ExtraDeck, synchro_card => { return Func.IsCode(synchro_card, CardId.BorreloadSavageDragon, CardId.PSY_FramelordOmega); }))
-                  || (card.Level + level == 7 && SecretoftheYangZingCheck(card) && func.CardsCheckAny(Bot.ExtraDeck, synchro_card => { return Func.IsCode(synchro_card, CardId.Odd_EyesMeteorburstDragon, CardId.F_A_DawnDragster); }))
-                  || (card.Level + level == 5 && Bot.HasInExtra(CardId.Denglong_FirstoftheYangZing)) 
-                  || (card.Level + level == 4 && Bot.HasInExtra(CardId.HeraldoftheArcLight)); });
+            return func.CardsCheckAny(GetSynchroMaterials(), card => {
+                return (card.Level + level == 8
+                && func.CardsCheckAny(Bot.ExtraDeck, synchro_card => { return Func.IsCode(synchro_card, CardId.BorreloadSavageDragon, CardId.PSY_FramelordOmega); }))
+                || (card.Level + level == 7 && SecretoftheYangZingCheck(card) && func.CardsCheckAny(Bot.ExtraDeck, synchro_card => { return Func.IsCode(synchro_card, CardId.Odd_EyesMeteorburstDragon, CardId.F_A_DawnDragster); }))
+                || (card.Level + level == 5 && Bot.HasInExtra(CardId.Denglong_FirstoftheYangZing))
+                || (card.Level + level == 4 && Bot.HasInExtra(CardId.HeraldoftheArcLight));
+            });
         }
         private bool DDLamiaEffect()
         {
+            if (Bot.HasInExtra(CardId.MechaPhantomBeastAuroradon) && Bot.GetMonstersInMainZone().Count >= 3) return false;
             if (!Bot.HasInExtra(CardId.CrystronHalqifibrax) && !IsCanSynchroSummon(Card.Level)) return false;
             AI.SelectCard(CardId.DarkContractwiththGate, CardId.DDSavantKepler);
             activate_DDLamia = true;
@@ -921,15 +989,15 @@ namespace WindBot.Game.AI.Decks
         }
         private bool DragonShrineEffect()
         {
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool ZefraathEffect()
         {
-            if (PendulumActivate()) return !activate_p_Zefraath ||  IsActivateBlackwing_ZephyrostheElite();
-            if (Card.Location == CardLocation.SpellZone) 
+            if (PendulumActivate()) return !activate_p_Zefraath || IsActivateBlackwing_ZephyrostheElite();
+            if (Card.Location == CardLocation.SpellZone)
             {
                 activate_p_Zefraath = true;
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
             return false;
         }
@@ -937,9 +1005,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (PendulumActivate())
             {
-                return PendulumDefaultActivate();
+                return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
             }
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool BorreloadSavageDragonSummon_2()
         {
@@ -948,19 +1016,19 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BorreloadSavageDragonSummon()
         {
-           var materials_lists = Util.GetSynchroMaterials(Bot.MonsterZone,Card.Level,1,1,false,true,null,
-                card=> { return !card.IsCode(CardId.F_A_DawnDragster) && !card.IsCode(CardId.TheMightyMasterofMagic) && !card.IsCode(CardId.HeraldoftheArcLight); });
+            var materials_lists = Util.GetSynchroMaterials(Bot.MonsterZone, Card.Level, 1, 1, false, true, null,
+                 card => { return !card.IsCode(CardId.F_A_DawnDragster) && !card.IsCode(CardId.TheMightyMasterofMagic) && !card.IsCode(CardId.HeraldoftheArcLight); });
             if (materials_lists.Count <= 0) return false;
             foreach (var materials in materials_lists)
             {
                 if (func.CardsCheckAny(materials, func.IsCode, CardId.MechaPhantomBeastToken))
                 {
                     AI.SelectMaterials(materials);
-                    return true;
+                    return BeforeResult(ExecutorType.Summon);
                 }
             }
             AI.SelectMaterials(materials_lists[0]);
-            return true;
+            return BeforeResult(ExecutorType.Summon);
         }
         private bool BorreloadSavageDragonEffect()
         {
@@ -976,23 +1044,23 @@ namespace WindBot.Game.AI.Decks
                     CardId.CrystronHalqifibrax,
                     CardId.Raidraptor_WiseStrix
                 });
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool TheMightyMasterofMagicEffect()
         {
             if (PendulumActivate())
             {
-                return PendulumDefaultActivate();
+                return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
             }
             else if (Card.Location == CardLocation.MonsterZone)
             {
                 if (Duel.LastChainPlayer == 0) return false;
                 AI.SelectCard(CardId.ServantofEndymion, CardId.TheMightyMasterofMagic);
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
             else
             {
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
         }
         private bool checkPActivate()
@@ -1002,31 +1070,33 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInHand(CardId.Zefraath) && (Bot.SpellZone[0] != null || Bot.SpellZone[4] != null)) return false;
             if (Bot.SpellZone[0] == null && Bot.SpellZone[4] == null)
             {
-                    if (!Bot.HasInHand(CardId.Zefraath) && !func.CardsCheckAny(Bot.Hand, card => { return IsSpsummonPMonster(card) &&
-                  (Card.LScale >= 5 ? card.LScale < 5 : card.LScale > 5) && func.GetPSpSummonMonster(Bot,card,Card)?.Count > 0; })) return false;
+                if (!Bot.HasInHand(CardId.Zefraath) && !func.CardsCheckAny(Bot.Hand, card => {
+                    return IsSpsummonPMonster(card) &&
+(Card.LScale >= 5 ? card.LScale < 5 : card.LScale > 5) && func.GetPSpSummonMonster(Bot, card, Card)?.Count > 0;
+                })) return false;
             }
             else
             {
                 if (func.GetPSpSummonMonster(Bot, Bot.SpellZone[0], Card)?.Count <= 0 && func.GetPSpSummonMonster(Bot, Bot.SpellZone[4], Card)?.Count <= 0) return false;
             }
-        
+
             return true;
         }
         private bool SecretoftheYangZingEffect()
         {
             if (PendulumActivate())
             {
-                return PendulumDefaultActivate();
+                return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
             }
             activate_SecretoftheYangZing = true;
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool SatellarknightZefrathubanEffect()
         {
 
             if (PendulumActivate())
             {
-                return PendulumDefaultActivate();
+                return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
             }
             return false;
         }
@@ -1035,7 +1105,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.LastChainPlayer == 1)
             {
                 ClientCard card = Util.GetLastChainCard();
-                return card != null && !card.HasType(CardType.Continuous | CardType.Field) && card.HasType(CardType.Spell | CardType.Trap);
+                return card != null && !card.HasType(CardType.Continuous | CardType.Field) && card.HasType(CardType.Spell | CardType.Trap) && BeforeResult(ExecutorType.Activate);
             }
             return false;
         }
@@ -1043,42 +1113,42 @@ namespace WindBot.Game.AI.Decks
         {
             if (PendulumActivate())
             {
-                return PendulumDefaultActivate();
+                return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
             }
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool OracleofZefraEffect()
         {
             activate_OracleofZefra = true;
-            return true;
-           
+            return BeforeResult(ExecutorType.Activate);
+
         }
         private bool FlameBeastoftheNekrozEffect()
         {
             if (PendulumActivate())
             {
-                return PendulumDefaultActivate();
+                return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
             }
             else
             {
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
 
         }
         private bool AstrographSorcererEffect()
         {
             if (PendulumActivate()) return false;
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool StellarknightZefraxcitonEffect()
         {
             if (PendulumActivate())
             {
-                return PendulumDefaultActivate();
+                return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
             }
             else
             {
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
         }
         private bool IsNoLinkCards(ClientCard card)
@@ -1090,7 +1160,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool LinkuribohSummon()
         {
-            List<ClientCard> materials = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true),func.HasLevel,1);
+            List<ClientCard> materials = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), func.HasLevel, 1);
             if (func.CardsCheckCount(materials, Func.NegateFunc(func.HasType), CardType.Tuner) <= 0 &&
                 func.CardsCheckCount(materials, func.HasType, CardType.Tuner) <= 1) return false;
             materials.Sort((cardA, cardB) =>
@@ -1106,7 +1176,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.HasType(CardType.Trap))
             {
-                AI.SelectPlace(Zones.z1|Zones.z2|Zones.z3|Zones.z4|Zones.z0);
+                AI.SelectPlace(Zones.z1 | Zones.z2 | Zones.z3 | Zones.z4 | Zones.z0);
                 return true;
             }
             return false;
@@ -1124,30 +1194,30 @@ namespace WindBot.Game.AI.Decks
         {
             if (PendulumActivate())
             {
-                return PendulumDefaultActivate();
+                return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
             }
             else
             {
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
         }
         private bool PSY_FramelordOmegaEffect()
         {
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (Duel.Player == 0) return true;
+                if (Duel.Player == 0) return BeforeResult(ExecutorType.Activate);
                 else
                 {
                     if (Bot.Banished.Count <= 0) return false;
                     AI.SelectCard(func.CardsIdToClientCards(new List<int> { CardId.JetSynchron, CardId.DDLamia }, Bot.Banished));
-                    return true;
+                    return BeforeResult(ExecutorType.Activate);
                 }
             }
             else
             {
                 if (Bot.Graveyard.Count <= 0) return false;
-                AI.SelectCard(func.CardsIdToClientCards(new List<int> { CardId.Zefraath, CardId.CrystronHalqifibrax, CardId.Denglong_FirstoftheYangZing,CardId.BorreloadSavageDragon, CardId.DDLamia }, Bot.Graveyard));
-                return true;
+                AI.SelectCard(func.CardsIdToClientCards(new List<int> { CardId.Zefraath, CardId.CrystronHalqifibrax, CardId.Denglong_FirstoftheYangZing, CardId.BorreloadSavageDragon, CardId.DDLamia }, Bot.Graveyard));
+                return BeforeResult(ExecutorType.Activate);
             }
         }
         private bool Psummon()
@@ -1176,7 +1246,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> materials = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), func.HasType, CardType.Pendulum);
             if (materials.Count > 0)
             {
-                materials.Sort((cardA,cardB) =>
+                materials.Sort((cardA, cardB) =>
                 {
                     if ((cardA.Level == 3 || cardA.HasType(CardType.Tuner)) && cardB.Level != 3 && !cardB.HasType(CardType.Tuner)) return -1;
                     if (cardA.Level != 3 && !cardA.HasType(CardType.Tuner) && (cardB.Level == 3 || cardB.HasType(CardType.Tuner))) return 1;
@@ -1188,12 +1258,12 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (IsExtraZoneCard(material)) result.Insert(0, material);
                     else if (IsNoLinkCards(material) || (material.HasType(CardType.Tuner) && Bot.HasInExtra(CardId.CrystronHalqifibrax)
-                        && func.CardsCheckCount(Func.GetZoneCards(Bot,CardLocation.MonsterZone,true),func.HasType,CardType.Tuner) <= 0)) continue;
+                        && func.CardsCheckCount(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), func.HasType, CardType.Tuner) <= 0)) continue;
                     else result.Add(material);
                 }
                 if (result.Count < 2) return false;
                 AI.SelectMaterials(result);
-                return true;
+                return BeforeResult(ExecutorType.Summon);
             }
             return false;
         }
@@ -1202,37 +1272,38 @@ namespace WindBot.Game.AI.Decks
             if (card.IsCode(CardId.SecretoftheYangZing) && Bot.HasInHandOrInSpellZone(CardId.NinePillarsofYangZing))
             {
                 return func.CardsCheckCount(Func.GetZoneCards(Bot, CardLocation.Hand | CardLocation.PendulumZone | CardLocation.MonsterZone, true), p_card => {
-                    return p_card.HasSetcode(0xc4) && p_card.HasType(CardType.Pendulum);}) <= 0;
+                    return p_card.HasSetcode(0xc4) && p_card.HasType(CardType.Pendulum);
+                }) <= 0;
             }
             return true;
         }
         private bool F_A_DawnDragsterSummon()
         {
-            List<ClientCard> pre_materials = func.CardsCheckWhere(Func.GetZoneCards(Bot,CardLocation.MonsterZone,true),SecretoftheYangZingCheck);
-            var materials_lists = Util.GetSynchroMaterials(pre_materials, 7,1,1,false,true,null,card => { return !card.IsCode(CardId.MythicalBeastJackalKing) && !card.IsCode(CardId.HeraldoftheArcLight); });
-            if (materials_lists.Count <= 0) return false ;
+            List<ClientCard> pre_materials = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), SecretoftheYangZingCheck);
+            var materials_lists = Util.GetSynchroMaterials(pre_materials, 7, 1, 1, false, true, null, card => { return !card.IsCode(CardId.MythicalBeastJackalKing) && !card.IsCode(CardId.HeraldoftheArcLight); });
+            if (materials_lists.Count <= 0) return false;
             foreach (var materials in materials_lists)
             {
-                if (func.CardsCheckCount(materials, card=> 
+                if (func.CardsCheckCount(materials, card =>
                 {
                     return card.HasType(CardType.Tuner) && card.HasRace(CardRace.Machine);
-                })<=0)
+                }) <= 0)
                 {
                     AI.SelectMaterials(materials);
-                    return true;
+                    return BeforeResult(ExecutorType.Summon);
                 }
             }
             AI.SelectMaterials(materials_lists[0]);
-            return true;
+            return BeforeResult(ExecutorType.Summon);
         }
         private bool CrystronHalqifibraxEffect()
         {
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
-        private bool MechaPhantomBeastAuroradonSummon() 
+        private bool MechaPhantomBeastAuroradonSummon()
         {
             if (Bot.GetMonstersInMainZone().Count >= 4 || (!HasInDeck(CardId.MechaPhantomBeastO_Lion) && !IsCanSPSummonTunerLevel1()
-                && !func.CardsCheckAny(Func.GetZoneCards(Bot,CardLocation.MonsterZone|CardLocation.Grave,true),func.IsCode,CardId.Deskbot001))) return false;
+                && !func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.MonsterZone | CardLocation.Grave, true), func.IsCode, CardId.Deskbot001))) return false;
             if (XyzModeCheck())
             {
                 List<ClientCard> pre_materials = new List<ClientCard>();
@@ -1243,10 +1314,14 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> key_materials_2 = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.Grave), card => { return card.IsCode(CardId.JetSynchron) && !activate_JetSynchron; });
                 pre_materials.AddRange(key_materials);
                 pre_materials.AddRange(key_materials_2);
-                if (!summoned) pre_materials.AddRange(func.CardsCheckWhere(Bot.Hand,Func.NegateFunc(func.IsCode),CardId.DestrudotheLostDragon_Frisson));
+                if (!summoned) pre_materials.AddRange(func.CardsCheckWhere(Bot.Hand, card => { return !card.IsCode(CardId.DestrudotheLostDragon_Frisson) && card.Level < 5; }));
                 pre_materials.AddRange(Bot.MonsterZone);
-                var materials_lists = Util.GetSynchroMaterials(pre_materials, 7, 1, 1,false,true,null,card=> { return !card.IsCode(CardId.MythicalBeastJackalKing);});
-                if (materials_lists.Count > 0) return false;
+                var synchro_materials_lists = Util.GetSynchroMaterials(pre_materials, 7, 1, 1, false, true, null, card => { return !card.IsCode(CardId.MythicalBeastJackalKing); });
+                var xyz_materials_lists = Util.GetXyzMaterials(Func.GetZoneCards(Bot, CardLocation.MonsterZone | CardLocation.PendulumZone), 7, 1, false,
+                card => { return !card.IsCode(CardId.F_A_DawnDragster) && !card.IsCode(CardId.TheMightyMasterofMagic); });
+                var xyz_materials_lists_2 = Util.GetXyzMaterials(Func.GetZoneCards(Bot, CardLocation.MonsterZone), 7, 2, false,
+               card => { return !card.IsCode(CardId.F_A_DawnDragster) && !card.IsCode(CardId.TheMightyMasterofMagic); });
+                if ((synchro_materials_lists.Count > 0 && xyz_materials_lists.Count > 0) || xyz_materials_lists_2.Count > 0) return false;
             }
             List<ClientCard> m = new List<ClientCard>();
             int link_count = 0;
@@ -1267,12 +1342,12 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SaryujaSkullDreadEffect()
         {
-            if (ActivateDescription == Util.GetStringId(CardId.SaryujaSkullDread, 2)) 
+            if (ActivateDescription == Util.GetStringId(CardId.SaryujaSkullDread, 2))
             {
                 AI.SelectCard(GetSendToDeckIds());
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool SaryujaSkullDreadSummon()
         {
@@ -1285,7 +1360,8 @@ namespace WindBot.Game.AI.Decks
             temp_materials.Sort((cardA, cardB) =>
             {
                 if ((cardA.HasType(CardType.Tuner) && cardB.HasType(CardType.Tuner))
-                || (!cardA.HasType(CardType.Tuner) && !cardB.HasType(CardType.Tuner))) {
+                || (!cardA.HasType(CardType.Tuner) && !cardB.HasType(CardType.Tuner)))
+                {
                     return CardContainer.CompareCardLevel(cardA, cardB);
                 }
                 else if (cardA.HasType(CardType.Tuner) && !cardB.HasType(CardType.Tuner)) return 1;
@@ -1294,15 +1370,15 @@ namespace WindBot.Game.AI.Decks
             foreach (var material in temp_materials)
             {
                 ++materials_count;
-                if (IsExtraZoneCard(material))  materials.Insert(0, material);
+                if (IsExtraZoneCard(material)) materials.Insert(0, material);
                 else if (IsNoLinkCards(material)) { --materials_count; continue; }
                 else materials.Add(material);
                 link_count += material.HasType(CardType.Link) ? material.LinkCount : 1;
                 if (link_count >= 4)
                 {
                     if (materials_count == 3 && Bot.Deck.Count > 4 && ((func.CardsCheckCount(Bot.Hand, func.HasType, CardType.Tuner) > 0
-                        || (Bot.HasInMonstersZone(CardId.DDLamia,false,false,true) && !activate_DDLamia && func.CardsCheckCount(Func.GetZoneCards
-                        (Bot,CardLocation.Onfield|CardLocation.Hand,true),card=> { return Func.HasSetCode(card, 0xaf, 0xae) && card.Id != CardId.DDLamia; })
+                        || (Bot.HasInMonstersZone(CardId.DDLamia, false, false, true) && !activate_DDLamia && func.CardsCheckCount(Func.GetZoneCards
+                        (Bot, CardLocation.Onfield | CardLocation.Hand, true), card => { return Func.HasSetCode(card, 0xaf, 0xae) && card.Id != CardId.DDLamia; })
                         > 0) || (Bot.HasInMonstersZone(CardId.JetSynchron, false, false, true) && !activate_JetSynchron)) || xyz_mode))
                     {
                         --link_count;
@@ -1313,7 +1389,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (materials.Count < 3) return false;
             AI.SelectMaterials(materials);
-            return true;
+            return BeforeResult(ExecutorType.Summon);
         }
         private bool CrystronHalqifibraxSummon()
         {
@@ -1327,6 +1403,10 @@ namespace WindBot.Game.AI.Decks
             mainMonsters.Sort(CardContainer.CompareCardAttack);
             materials.AddRange(mainMonsters);
             AI.SelectMaterials(materials);
+            if (materials.Distinct().Count() <= 3)
+            {
+                AI.SendCustomChat((int)CustomMessage.Surprise);
+            }
             return true;
         }
         private bool PendulumActivate()
@@ -1343,13 +1423,13 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SupremeKingGateZeroEffect()
         {
-            if (PendulumActivate()) return PendulumDefaultActivate();
+            if (PendulumActivate()) return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
             return false;
         }
         private bool MythicalBeastJackalKingEffect()
         {
-            if (PendulumActivate()) return PendulumDefaultActivate();
-            return true;
+            if (PendulumActivate()) return PendulumDefaultActivate() && BeforeResult(ExecutorType.Activate);
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool Denglong_FirstoftheYangZingSummon_2()
         {
@@ -1362,7 +1442,7 @@ namespace WindBot.Game.AI.Decks
                 card => { return !card.IsCode(CardId.HeraldoftheArcLight); });
             if (materials_lists.Count <= 0) return false;
             AI.SelectMaterials(materials_lists[0]);
-            return true;
+            return BeforeResult(ExecutorType.Summon);
         }
         private bool Denglong_FirstoftheYangZingEffect()
         {
@@ -1373,7 +1453,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                AI.SelectCard(CardId.SecretoftheYangZing, CardId.Zefraxi_TreasureoftheYangZing,CardId.LightoftheYangZing);
+                AI.SelectCard(CardId.SecretoftheYangZing, CardId.Zefraxi_TreasureoftheYangZing, CardId.LightoftheYangZing);
             }
             return true;
         }
@@ -1381,17 +1461,17 @@ namespace WindBot.Game.AI.Decks
         {
             if (SpellActivate())
             {
-                return HasInDeck(CardId.DDLamia) || func.HasInZone(Bot, CardLocation.PendulumZone, CardId.ServantofEndymion, true, true);
+                return (HasInDeck(CardId.DDLamia) || func.HasInZone(Bot, CardLocation.PendulumZone, CardId.ServantofEndymion, true, true)) && BeforeResult(ExecutorType.Activate);
             }
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
-        private int DisabledSort(ClientCard cardA,ClientCard cardB)
+        private int DisabledSort(ClientCard cardA, ClientCard cardB)
         {
             bool RitualBeastTamerZeframpilica_flag = !summoned && Bot.HasInExtra(CardId.HeraldoftheArcLight) && IsCanSPSummonTunerLevel1();
-            if (((cardA.IsCode(CardId.RitualBeastTamerZeframpilica) && RitualBeastTamerZeframpilica_flag) || Func.IsCode(cardA, CardId.MaxxC,CardId.Zefraath,CardId.MythicalBeastJackalKing,CardId.TheMightyMasterofMagic) || cardA.HasType(CardType.Trap) || cardA.HasType(CardType.Tuner))
+            if (((cardA.IsCode(CardId.RitualBeastTamerZeframpilica) && RitualBeastTamerZeframpilica_flag) || Func.IsCode(cardA, CardId.MaxxC, CardId.Zefraath, CardId.MythicalBeastJackalKing, CardId.TheMightyMasterofMagic) || cardA.HasType(CardType.Trap) || cardA.HasType(CardType.Tuner))
                 && !cardB.IsCode(CardId.RitualBeastTamerZeframpilica) && !cardB.HasType(CardType.Trap) && !Func.IsCode(cardB, CardId.MaxxC, CardId.Zefraath, CardId.MythicalBeastJackalKing, CardId.TheMightyMasterofMagic) && !cardB.HasType(CardType.Tuner)) return 1;
-            else if (!cardA.IsCode(CardId.RitualBeastTamerZeframpilica) && !cardA.HasType(CardType.Trap) && !Func.IsCode(cardA, CardId.MaxxC, CardId.Zefraath, CardId.MythicalBeastJackalKing, CardId.TheMightyMasterofMagic) && !cardA.HasType(CardType.Tuner) 
-                && ((cardB.IsCode(CardId.RitualBeastTamerZeframpilica) && RitualBeastTamerZeframpilica_flag) || Func.IsCode(cardB, CardId.MaxxC, CardId.Zefraath, CardId.MythicalBeastJackalKing, CardId.TheMightyMasterofMagic) || cardB.HasType(CardType.Trap)  || cardB.HasType(CardType.Tuner))) return -1;
+            else if (!cardA.IsCode(CardId.RitualBeastTamerZeframpilica) && !cardA.HasType(CardType.Trap) && !Func.IsCode(cardA, CardId.MaxxC, CardId.Zefraath, CardId.MythicalBeastJackalKing, CardId.TheMightyMasterofMagic) && !cardA.HasType(CardType.Tuner)
+                && ((cardB.IsCode(CardId.RitualBeastTamerZeframpilica) && RitualBeastTamerZeframpilica_flag) || Func.IsCode(cardB, CardId.MaxxC, CardId.Zefraath, CardId.MythicalBeastJackalKing, CardId.TheMightyMasterofMagic) || cardB.HasType(CardType.Trap) || cardB.HasType(CardType.Tuner))) return -1;
             return 0;
         }
         private List<int> GetDisabledIds()
@@ -1426,21 +1506,21 @@ namespace WindBot.Game.AI.Decks
             ids.Add(CardId.LightoftheYangZing);
             ids.Add(CardId.Rank_Up_MagicSoulShaveForce);
             if (activate_ZefraProvidence) ids.Add(CardId.ZefraProvidence);
-            if(activate_OracleofZefra) ids.Add(CardId.OracleofZefra);
-            if(activate_DragonShrine) ids.Add(CardId.DragonShrine);
-            if(activate_SpellPowerMastery) ids.Add(CardId.SpellPowerMastery);
+            if (activate_OracleofZefra) ids.Add(CardId.OracleofZefra);
+            if (activate_DragonShrine) ids.Add(CardId.DragonShrine);
+            if (activate_SpellPowerMastery) ids.Add(CardId.SpellPowerMastery);
             List<ClientCard> hands = Func.GetZoneCards(Bot, CardLocation.Hand);
             hands.Sort(DisabledSort);
             List<int> hand_ids = Func.ClientCardsToCardsId(hands, true);
             ids.AddRange(hand_ids);
             return ids;
         }
-        private bool TruKingofAllCalamitiesEffect() 
+        private bool TruKingofAllCalamitiesEffect()
         {
             if (Duel.Player == 1)
             {
                 AI.SelectAttributes(new CardAttribute[] { CardAttribute.Divine });
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
             return false;
         }
@@ -1456,18 +1536,18 @@ namespace WindBot.Game.AI.Decks
                     List<ClientCard> dcards = func.CardsIdToClientCards(GetDisabledIds(), Bot.Hand);
                     if (!Bot.HasInExtra(CardId.CrystronHalqifibrax) && dcards.Count <= 0) return false;
                     AI.SelectCard(dcards);
-                    return true;
+                    return BeforeResult(ExecutorType.Activate);
                 }
             }
             return false;
         }
         private bool MechaPhantomBeastAuroradonEffect()
         {
-            if (ActivateDescription == -1) { link_summoned = true; return true; } 
+            if (ActivateDescription == -1) { link_summoned = true; return true; }
             else
             {
                 if (!HasInDeck(CardId.MechaPhantomBeastO_Lion)
-                    && Func.GetZoneCards(Enemy,CardLocation.Onfield).Count <= 0 && func.CardsCheckCount(Bot.Graveyard,func.HasType,CardType.Trap) <= 0) return false;
+                    && Func.GetZoneCards(Enemy, CardLocation.Onfield).Count <= 0) return false;
                 List<ClientCard> tRelease = new List<ClientCard>();
                 List<ClientCard> nRelease = new List<ClientCard>();
                 foreach (var card in Bot.GetMonsters())
@@ -1491,39 +1571,41 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Grave)
             {
                 activate_SupremeKingDragonDarkwurm_1 = true;
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
             if (Card.Location == CardLocation.MonsterZone)
             {
                 activate_SupremeKingDragonDarkwurm_2 = true;
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
             return false;
         }
         private bool SupremeKingDragonDarkwurmSummon()
         {
             if ((!activate_p_Zefraath && Bot.HasInHand(CardId.Zefraath) && !activate_SupremeKingDragonDarkwurm_1 && HasInDeck(CardId.SupremeKingGateZero) && func.CardsCheckAny(Bot.Hand, func.HasType, CardType.Tuner))
-                ||(func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.Hand), card => { return card.LinkCount > 5; }) &&
+                || (func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.Hand), card => { return card.LinkCount > 5; }) &&
                 !Bot.HasInHand(CardId.SupremeKingGateZero) && !activate_SupremeKingDragonDarkwurm_2))
             {
                 summoned = true;
-                return true;
+                return BeforeResult(ExecutorType.Summon);
             }
             return false;
         }
         private bool DefaultSummon_2()
         {
             if (Card.Location == CardLocation.Hand && Card.Level <= 4
-                && Bot.HasInExtra(CardId.CrystronHalqifibrax) && (func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), card => { return Card.HasType(CardType.Tuner) ? true : card.HasType(CardType.Tuner); }))) {
+                && Bot.HasInExtra(CardId.CrystronHalqifibrax) && (func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), card => { return Card.HasType(CardType.Tuner) ? true : card.HasType(CardType.Tuner); })))
+            {
                 summoned = true;
-                return true;
+                return BeforeResult(ExecutorType.Summon);
             }
             return false;
         }
-        private bool IsCanSPSummonTunerLevel1() {
+        private bool IsCanSPSummonTunerLevel1()
+        {
             return func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.MonsterZone | CardLocation.Grave, true), card => {
                 return (card.IsCode(CardId.DDLamia) && !activate_DDLamia && func.CardsCheckCount(Func.GetZoneCards(Bot, CardLocation.Onfield | CardLocation.Hand, true), scard => { return Func.HasSetCode(scard, 0xaf, 0xae) && scard.Id != CardId.DDLamia; })
-                    > 0)  || (card.IsCode(CardId.JetSynchron) && !activate_JetSynchron) && Bot.GetMonstersInMainZone().Count <= 3;
+                    > 0) || (card.IsCode(CardId.JetSynchron) && !activate_JetSynchron) && Bot.GetMonstersInMainZone().Count <= 3;
             });
         }
         private bool DefaultSummon()
@@ -1534,20 +1616,20 @@ namespace WindBot.Game.AI.Decks
                 || (IsCanSPSummonTunerLevel1() && ((Card.Level == 3 && Bot.HasInExtra(CardId.HeraldoftheArcLight)) || (
                 Card.Level == 4 && Bot.HasInExtra(CardId.Denglong_FirstoftheYangZing)))) ||
                 (Card.Id == CardId.SupremeKingDragonDarkwurm && !activate_SupremeKingDragonDarkwurm_2)
-                ||(Bot.HasInExtra(CardId.CrystronHalqifibrax) && Bot.HasInHandOrInGraveyard(CardId.DestrudotheLostDragon_Frisson) && !activate_DestrudotheLostDragon_Frisson))
+                || (Bot.HasInExtra(CardId.CrystronHalqifibrax) && Bot.HasInHandOrInGraveyard(CardId.DestrudotheLostDragon_Frisson) && !activate_DestrudotheLostDragon_Frisson))
             {
                 summoned = true;
-                return true;
+                return BeforeResult(ExecutorType.Summon);
             }
             return false;
         }
         private bool OneforOneEffect()
         {
             AI.SelectCard(GetDisabledIds());
-            AI.SelectNextCard(CardId.JetSynchron, CardId.LightoftheYangZing,CardId.DDLamia);
-            return true;
+            AI.SelectNextCard(CardId.JetSynchron, CardId.LightoftheYangZing, CardId.DDLamia);
+            return BeforeResult(ExecutorType.Activate);
         }
-        private void HeavymetalfoesElectrumiteAddIds (List<int> ids)
+        private void HeavymetalfoesElectrumiteAddIds(List<int> ids)
         {
             if (!summoned && HasInDeck(CardId.DarkContractwiththGate) && HasInDeck(CardId.DDLamia))
             {
@@ -1569,47 +1651,52 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                if (Duel.Player != 0) return true;
+                if (Duel.Player != 0) return BeforeResult(ExecutorType.Activate);
                 return false;
             }
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool Raider_WingEffect()
         {
             if (!Bot.HasInMonstersZone(CardId.Raidraptor_ForceStrix, false, true, true)) return false;
             AI.SelectCard(CardId.Raidraptor_ForceStrix);
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         private bool HeavymetalfoesElectrumiteEffect()
         {
             if (ActivateDescription != -1)
             {
-                List<ClientCard> cards = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.SpellZone, true),Func.NegateFunc(func.IsCode),CardId.DarkContractwiththGate);
+                List<ClientCard> cards = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.SpellZone, true), Func.NegateFunc(func.IsCode), CardId.DarkContractwiththGate);
                 if (cards.Count <= 0)
                 {
                     HeavymetalfoesElectrumite_activate = true;
                     return false;
                 }
                 HeavymetalfoesElectrumite_activate = false;
-                return true;
+                return BeforeResult(ExecutorType.Activate);
             }
-            return true;
+            return BeforeResult(ExecutorType.Activate);
         }
         public override bool OnSelectHand()
         {
+            return true;
+        }
+        private bool ResetFlag()
+        {
+            should_destory = false;
             return true;
         }
         private bool HeraldoftheArcLightEffect()
         {
             if (Card.Location == CardLocation.MonsterZone)
             {
-                return Duel.LastChainPlayer != 0;
+                return Duel.LastChainPlayer != 0 && BeforeResult(ExecutorType.Activate);
             }
             return false;
         }
         private bool CalledbytheGraveEffect()
         {
-            if ((Bot.SpellZone[5] == Card || Bot.SpellZone[0] == Card) && Duel.Player == 0) return true;
+            if ((Bot.SpellZone[5] == Card || Bot.SpellZone[0] == Card) && Duel.Player == 0) return BeforeResult(ExecutorType.Activate);
             ClientCard card = Util.GetLastChainCard();
             if (card == null) return false;
             int id = card.Id;
@@ -1619,22 +1706,15 @@ namespace WindBot.Game.AI.Decks
                 if (card.Location == CardLocation.Grave && card.HasType(CardType.Monster))
                 {
                     AI.SelectCard(card);
-                    return true;
+                    return BeforeResult(ExecutorType.Activate);
                 }
                 else if (g_cards.Count() > 0 && card.HasType(CardType.Monster))
                 {
                     AI.SelectCard(g_cards);
-                    return true;
+                    return BeforeResult(ExecutorType.Activate);
                 }
             }
             return false;
-        }
-        public override bool OnSelectYesNo(int desc)
-        {
-            /*
-             can't get code 74580251 Duel.SelectEffectYesNo(tp,e:GetHandler(),96)
-             */
-            return base.OnSelectYesNo(desc);
         }
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
@@ -1653,7 +1733,7 @@ namespace WindBot.Game.AI.Decks
             }
             return base.OnSelectOption(options);
         }
-        
+
         public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
             NamedCard card = NamedCard.Get(cardId);
@@ -1691,31 +1771,23 @@ namespace WindBot.Game.AI.Decks
 
             return base.OnSelectPlace(cardId, player, location, available);
         }
-        public override void OnChainEnd()
-        {
-            should_destory = false;
-            base.OnChainEnd();
-        }
-        public override IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)
-        {
-            return base.OnSelectSynchroMaterial(cards, sum, min, max);
-        }
-        private IList<ClientCard> _OnSelectPendulumSummon(IList<ClientCard> cards, int min,int max)
+        private IList<ClientCard> _OnSelectPendulumSummon(IList<ClientCard> cards, int min, int max)
         {
             List<int> ids = func.GetSelectCardIdList();
             List<ClientCard> result = func.GetSelectCardList();
             List<ClientCard> exs = func.CardsCheckWhere(cards, func.IsLocation, CardLocation.Extra);
-            List<ClientCard> hs = func.CardsCheckWhere(cards,Func.NegateFunc(func.IsLocation), CardLocation.Extra);
-            if (func.CardsCheckAny(Func.GetZoneCards(Bot,CardLocation.PendulumZone,true),card=> {
-            return card.HasSetcode(0xc4) && !card.IsCode(CardId.Zefraath);}) && func.CardsCheckAny(exs, func.IsCode, CardId.ShaddollZefracore)) ids.Add(CardId.ShaddollZefracore);
-            result = func.CardsIdToClientCards(ids,cards);
+            List<ClientCard> hs = func.CardsCheckWhere(cards, Func.NegateFunc(func.IsLocation), CardLocation.Extra);
+            if (func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.PendulumZone, true), card => {
+                return card.HasSetcode(0xc4) && !card.IsCode(CardId.Zefraath);
+            }) && func.CardsCheckAny(exs, func.IsCode, CardId.ShaddollZefracore)) ids.Add(CardId.ShaddollZefracore);
+            result = func.CardsIdToClientCards(ids, cards);
             List<ClientCard> temp_cards = func.CardsCheckWhere(cards, Func.NegateFunc(func.IsCode), CardId.MaxxC);
             result.AddRange(temp_cards);
-            if(result.Count <= 0) return Func.CheckSelectCount(Util, result, cards, min, min);
+            if (result.Count <= 0) return Func.CheckSelectCount(Util, result, cards, min, min);
             if (result[0] != null && result[0].Location != CardLocation.Extra) ++p_count;
             return Func.CheckSelectCount(Util, result, cards, max, max);
         }
-       
+
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
@@ -1735,7 +1807,7 @@ namespace WindBot.Game.AI.Decks
                             ids.AddRange(pre_ids);
                         }
                         ids.Add(CardId.ZefraDivineStrike);
-                    } 
+                    }
                     if (!activate_OracleofZefra) ids.Add(CardId.OracleofZefra);
                     if (!activate_p_Zefraath && !func.HasInZone(Bot, CardLocation.Hand | CardLocation.PendulumZone, CardId.Zefraath, true)) ids.Add(CardId.Zefraath);
                     if (func.HasInZone(Bot, CardLocation.Hand | CardLocation.PendulumZone, CardId.SupremeKingGateZero, true) && !func.CardsCheckAny(Bot.Hand, func.HasType, CardType.Tuner)
@@ -1848,9 +1920,9 @@ namespace WindBot.Game.AI.Decks
                     result = func.CardsIdToClientCards(ids, cards);
                 }
             }
-            else if (hint == HintMsg.ToDeck && func.CardsCheckALL(cards, func.IsLocation, true, CardLocation.Hand) && min == 3 && max ==3)
-            { 
-                result = func.CardsIdToClientCards(GetSendToDeckIds(),cards);
+            else if (hint == HintMsg.ToDeck && func.CardsCheckALL(cards, func.IsLocation, true, CardLocation.Hand) && min == 3 && max == 3)
+            {
+                result = func.CardsIdToClientCards(GetSendToDeckIds(), cards);
             }
             else if (hint == HintMsg.ToGrave && func.CardsCheckALL(cards, func.IsLocation, true, CardLocation.Deck))
             {
@@ -1933,8 +2005,9 @@ namespace WindBot.Game.AI.Decks
                 HeavymetalfoesElectrumiteAddIds(ids);
                 result = func.CardsIdToClientCards(ids, cards);
             }
-            else if (!(IS_YGOPRO & !(hint == HintMsg.SpSummon)) && func.CardsCheckALL(cards, card =>{return card.IsCode(CardId.TheMightyMasterofMagic) || card.IsCode(CardId.MythicalBeastJackalKing);
-             }, true))
+            else if (!(IS_YGOPRO & !(hint == HintMsg.SpSummon)) && func.CardsCheckALL(cards, card => {
+                return card.IsCode(CardId.TheMightyMasterofMagic) || card.IsCode(CardId.MythicalBeastJackalKing);
+            }, true))
             {
                 ids.Add(CardId.MythicalBeastJackalKing);
                 ids.Add(CardId.TheMightyMasterofMagic);
@@ -1945,7 +2018,7 @@ namespace WindBot.Game.AI.Decks
             {
                 p_summoning = false;
                 if (p_count >= 3 && !Bot.HasInExtra(CardId.SaryujaSkullDread) && Bot.HasInExtra(CardId.MechaPhantomBeastAuroradon)) return Func.CheckSelectCount(Util, result, cards, min, min);
-                return _OnSelectPendulumSummon(cards,min,max);
+                return _OnSelectPendulumSummon(cards, min, max);
             }
             else if (hint == HintMsg.Destroy)
             {
@@ -1955,7 +2028,7 @@ namespace WindBot.Game.AI.Decks
                     if (func.CardsCheckALL(cards, func.HasSetCode, true, 0x9e))
                     {
                         if (!activate_SecretoftheYangZing) result = func.CardsIdToClientCards(new List<int> { CardId.SecretoftheYangZing }, func.CardsCheckWhere(cards,
-                            func.IsLocation,CardLocation.MonsterZone));
+                            func.IsLocation, CardLocation.MonsterZone));
                         result.AddRange(func.CardsIdToClientCards(new List<int> { CardId.SecretoftheYangZing, CardId.Zefraxi_TreasureoftheYangZing }, func.CardsCheckWhere(cards,
                             Func.NegateFunc(func.IsLocation), CardLocation.MonsterZone)));
                     }
@@ -1970,7 +2043,7 @@ namespace WindBot.Game.AI.Decks
                         });
                         result.AddRange(scards);
                     }
-                   
+
                 }
                 else if (func.CardsCheckAny(cards, card => { return card.Controller == 1 && (card.Location & CardLocation.Onfield) > 0; }) && min == 1 && max == 1)
                 {
@@ -1995,13 +2068,15 @@ namespace WindBot.Game.AI.Decks
                 {
                     CardId.TheMightyMasterofMagic, CardId.MythicalBeastJackalKing, CardId.SecretoftheYangZing
                 };
-                if (func.CardsCheckALL(cards, func.IsLocation,true,CardLocation.Hand)) 
-                { 
-                    if(summoned && Bot.HasInExtra(CardId.CrystronHalqifibrax) && func.CardsCheckCount(Bot.MonsterZone,card => {return card.IsFaceup()
-                        && card.HasType(CardType.Tuner);}) <= 0 && !(Bot.HasInGraveyard(CardId.DDLamia) && !activate_DDLamia
-                        && func.CardsCheckCount(Func.GetZoneCards (Bot, CardLocation.Onfield | CardLocation.Hand, true), card => { return Func.HasSetCode(card, 0xaf, 0xae) && card.Id != CardId.DDLamia; })
+                if (func.CardsCheckALL(cards, func.IsLocation, true, CardLocation.Hand))
+                {
+                    if (summoned && Bot.HasInExtra(CardId.CrystronHalqifibrax) && func.CardsCheckCount(Bot.MonsterZone, card => {
+                        return card.IsFaceup() && card.HasType(CardType.Tuner);
+                    }) <= 0 && !(Bot.HasInGraveyard(CardId.DDLamia) && !activate_DDLamia
+                        && func.CardsCheckCount(Func.GetZoneCards(Bot, CardLocation.Onfield | CardLocation.Hand, true), card => { return Func.HasSetCode(card, 0xaf, 0xae) && card.Id != CardId.DDLamia; })
                     <= 0) && !(Bot.HasInGraveyard(CardId.JetSynchron) && !activate_JetSynchron)
-                    && !(Bot.HasInGraveyard(CardId.DestrudotheLostDragon_Frisson) && !activate_DestrudotheLostDragon_Frisson)){
+                    && !(Bot.HasInGraveyard(CardId.DestrudotheLostDragon_Frisson) && !activate_DestrudotheLostDragon_Frisson))
+                    {
                         ids.AddRange(tuner_ids);
                         ids.AddRange(no_tuner_ids);
                     }
@@ -2012,8 +2087,11 @@ namespace WindBot.Game.AI.Decks
                     }
                     result = func.CardsIdToClientCards(ids, cards);
                 }
-                else if (func.CardsCheckALL(cards, card => { return Func.IsCode(card, CardId.LightoftheYangZing, CardId.PSY_FramegearGamma,
-                      CardId.MechaPhantomBeastO_Lion, CardId.JetSynchron, CardId.Deskbot001, CardId.DDLamia); })){
+                else if (func.CardsCheckALL(cards, card => {
+                    return Func.IsCode(card, CardId.LightoftheYangZing, CardId.PSY_FramegearGamma,
+                    CardId.MechaPhantomBeastO_Lion, CardId.JetSynchron, CardId.Deskbot001, CardId.DDLamia);
+                }))
+                {
                     if (Bot.GetMonstersInMainZone().Count <= 1) ids.Add(CardId.Deskbot001);
                     ids.Add(CardId.JetSynchron);
                     ids.Add(CardId.Deskbot001);
@@ -2021,7 +2099,7 @@ namespace WindBot.Game.AI.Decks
                     ids.Add(CardId.PSY_FramegearGamma);
                     result = func.CardsIdToClientCards(ids, cards);
                 }
-              
+
             }
             else if (hint == HintMsg.Release && func.CardsCheckAny(cards, func.IsLocation, CardLocation.MonsterZone))
             {
@@ -2031,13 +2109,13 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (card == null || IsNoLinkCards(card)) continue;
                     if (card.Id == CardId.MechaPhantomBeastToken) tRelease.Add(card);
-                    else if(card.Id == CardId.Raidraptor_WiseStrix) tRelease.Insert(0,card);
+                    else if (card.Id == CardId.Raidraptor_WiseStrix) tRelease.Insert(0, card);
                     else nRelease.Add(card);
                 }
                 result.AddRange(tRelease);
                 result.AddRange(nRelease);
             }
-            return Func.CheckSelectCount(Util, result, cards, min, max); 
+            return Func.CheckSelectCount(Util, result, cards, min, max);
         }
         private bool HasInDeck(int id)
         {
