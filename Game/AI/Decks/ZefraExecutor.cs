@@ -447,21 +447,21 @@ namespace WindBot.Game.AI.Decks
         {
             AddExecutor(ExecutorType.Activate, CardId.CalledbytheGrave, CalledbytheGraveEffect);
             AddExecutor(ExecutorType.Activate, CardId.BorreloadSavageDragon, BorreloadSavageDragonEffect_2);
-            AddExecutor(ExecutorType.Activate, CardId.F_A_DawnDragster);
+            AddExecutor(ExecutorType.Activate, CardId.F_A_DawnDragster, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.NinePillarsofYangZing, NinePillarsofYangZingEffect);
             AddExecutor(ExecutorType.Activate, CardId.ZefraDivineStrike, ZefraDivineStrikeEffect);
             AddExecutor(ExecutorType.Activate, CardId.HeraldoftheArcLight, HeraldoftheArcLightEffect);
             AddExecutor(ExecutorType.Activate, CardId.TruKingofAllCalamities, TruKingofAllCalamitiesEffect);
-            AddExecutor(ExecutorType.Activate, CardId.PSY_FramegearGamma);
+            AddExecutor(ExecutorType.Activate, CardId.PSY_FramegearGamma, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.MaxxC, DefaultMaxxC);
             AddExecutor(ExecutorType.Activate, CardId.SupremeKingDragonDarkwurm, SupremeKingDragonDarkwurmEffect);
             AddExecutor(ExecutorType.Activate, CardId.ServantofEndymion, ServantofEndymionEffect);
             AddExecutor(ExecutorType.Activate, CardId.Terraforming, TerraformingEffect);
-            AddExecutor(ExecutorType.Activate, CardId.SpellPowerMastery);
+            AddExecutor(ExecutorType.Activate, CardId.SpellPowerMastery, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.DragonShrine, DragonShrineEffect);
             AddExecutor(ExecutorType.Activate, CardId.FoolishBurial, FoolishBurialEffect);
             AddExecutor(ExecutorType.Activate, CardId.DarkContractwiththGate, DarkContractwiththGateEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Terraforming);
+            AddExecutor(ExecutorType.Activate, CardId.Terraforming, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.OracleofZefra, OracleofZefraEffect);
             AddExecutor(ExecutorType.Activate, CardId.ZefraProvidence, ZefraProvidenceEffect);
             AddExecutor(ExecutorType.Activate, CardId.AstrographSorcerer, AstrographSorcererEffect);
@@ -497,7 +497,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Blackwing_ZephyrostheElite, Blackwing_ZephyrostheEliteEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.Raidraptor_ForceStrix, Raidraptor_ForceStrixSummon);
             AddExecutor(ExecutorType.Activate, CardId.Raidraptor_ForceStrix, Raidraptor_ForceStrixEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Rank_Up_MagicSoulShaveForce);
+            AddExecutor(ExecutorType.Activate, CardId.Rank_Up_MagicSoulShaveForce, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.Raider_Wing, Raider_WingEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.Raidraptor_SingingLanius);
             //xyz mode
@@ -530,7 +530,7 @@ namespace WindBot.Game.AI.Decks
             CardId.DDSavantKepler,CardId.StellarknightZefraxciton,CardId.ShaddollZefracore,CardId.SupremeKingDragonDarkwurm};
             for (int i = 0; i < p_summon_ids.Count; ++i) AddExecutor(ExecutorType.Summon, p_summon_ids[i], DefaultSummon);
             AddExecutor(ExecutorType.Summon, DefaultSummon);
-            AddExecutor(ExecutorType.Activate, CardId.Deskbot001);
+            AddExecutor(ExecutorType.Activate, CardId.Deskbot001, ResetFlag);
             AddExecutor(ExecutorType.Activate, CardId.TheMightyMasterofMagic, TheMightyMasterofMagicEffect);
             AddExecutor(ExecutorType.Activate, CardId.DestrudotheLostDragon_Frisson, DestrudotheLostDragon_FrissonEffect);
             AddExecutor(ExecutorType.Summon, CardId.Blackwing_ZephyrostheElite, DefaultSummon_2);
@@ -547,7 +547,7 @@ namespace WindBot.Game.AI.Decks
             if (duel_start)
             {
                 duel_start = false;
-                AI.OnCustom((int)CustomMessage.Happy);
+                AI.SendCustomChat((int)CustomMessage.Happy);
             }
             activate_SupremeKingDragonDarkwurm_1 = false;
             activate_SupremeKingDragonDarkwurm_2 = false;
@@ -576,8 +576,13 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ZefraProvidenceEffect()
         {
-            if (Card.Location == CardLocation.Grave)
+            if (ActivateDescription == 96)
             {
+                if (should_destory)
+                {
+                    should_destory = false;
+                    return false;
+                }
                 return BeforeResult(ExecutorType.Activate);
             }
             else
@@ -705,6 +710,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (type == ExecutorType.Activate)
             {
+                ResetFlag();
                 ++activate_count;
             }
             if (type == ExecutorType.Summon)
@@ -719,7 +725,7 @@ namespace WindBot.Game.AI.Decks
                 && activate_count + summon_count < 5 && !enemy_activate)
             {
 
-                AI.OnCustom((int)CustomMessage.Angry);
+                AI.SendCustomChat((int)CustomMessage.Angry);
                 return true;
             }
             return false;
@@ -1399,7 +1405,7 @@ namespace WindBot.Game.AI.Decks
             AI.SelectMaterials(materials);
             if (materials.Distinct().Count() <= 3)
             {
-                AI.OnCustom((int)CustomMessage.Surprise);
+                AI.SendCustomChat((int)CustomMessage.Surprise);
             }
             return true;
         }
@@ -1675,6 +1681,11 @@ namespace WindBot.Game.AI.Decks
         {
             return true;
         }
+        private bool ResetFlag()
+        {
+            should_destory = false;
+            return true;
+        }
         private bool HeraldoftheArcLightEffect()
         {
             if (Card.Location == CardLocation.MonsterZone)
@@ -1759,21 +1770,6 @@ namespace WindBot.Game.AI.Decks
             }
 
             return base.OnSelectPlace(cardId, player, location, available);
-        }
-        public override bool OnSelectEffectYn(ClientCard card, int desc)
-        {
-            if (card == null) return false;
-            if (card.Id == CardId.ZefraProvidence && card.Location == CardLocation.Grave)
-            {
-                if (should_destory)
-                {
-                    should_destory = false;
-                    return false;
-                }
-                return true;
-            }
-            should_destory = false;
-            return base.OnSelectEffectYn(card, desc);
         }
         private IList<ClientCard> _OnSelectPendulumSummon(IList<ClientCard> cards, int min, int max)
         {

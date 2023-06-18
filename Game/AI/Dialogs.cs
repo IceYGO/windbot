@@ -162,7 +162,7 @@ namespace WindBot.Game.AI
             InternalSendMessage(_chaining, card);
         }
 
-        public void SendCustom(int index, params object[] opts)
+        public void SendCustomChat(int index, params object[] opts)
         {
             InternalSendCustomMessage(index, opts);
         }

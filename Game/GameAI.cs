@@ -57,9 +57,9 @@ namespace WindBot.Game
         /// <summary>
         /// Customized called when the AI do something in a duel.
         /// </summary>
-        public void OnCustom(int index, params object[] opts)
+        public void SendCustomChat(int index, params object[] opts)
         {
-            _dialogs.SendCustom(index, opts);
+            _dialogs.SendCustomChat(index, opts);
         }
 
         /// <summary>
@@ -386,7 +386,7 @@ namespace WindBot.Game
             foreach (CardExecutor exec in Executor.Executors)
             {
                 if (ShouldExecute(exec, card, ExecutorType.Activate, desc))
-                    return Executor.OnSelectEffectYn(card, desc);
+                    return true;
             }
             return false;
         }

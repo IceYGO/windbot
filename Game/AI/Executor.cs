@@ -171,11 +171,6 @@ namespace WindBot.Game.AI
             return;
         }
 
-        public virtual bool OnSelectEffectYn(ClientCard card, int desc)
-        {
-            return true;
-        }
-
         public virtual bool OnSelectYesNo(int desc)
         {
             return true;
