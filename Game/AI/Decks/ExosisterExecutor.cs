@@ -1145,12 +1145,12 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.GetMonsterCount() > 0 && Enemy.GetMonsterCount() == 0 && Bot.LifePoints > Enemy.LifePoints)
                 {
-                    AI.Dialogs.SendCustomChat((int)VerreDialogs.DuelNearEnd);
+                    AI.Dialogs.SendCustomEndTurn((int)VerreDialogs.DuelNearEnd);
                     return;
                 }
                 if (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() > 0 && Bot.LifePoints < Enemy.LifePoints)
                 {
-                    AI.Dialogs.SendCustomChat((int)VerreDialogs.DuelNearEnd);
+                    AI.Dialogs.SendCustomEndTurn((int)VerreDialogs.DuelNearEnd);
                     return;
                 }
             }
@@ -1702,7 +1702,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (DefaultExosisterTransformInner())
             {
-                AI.Dialogs.SendCustomChat((int)VerreDialogs.ExosisterTransformActivate, Card.Name);
+                AI.Dialogs.SendCustomActivate((int)VerreDialogs.ExosisterTransformActivate, Card.Name);
                 customDialogFlag = true;
                 return true;
             }

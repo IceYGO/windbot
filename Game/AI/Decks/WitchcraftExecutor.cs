@@ -460,7 +460,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Duel.Phase == DuelPhase.End && card.HasSetcode(Witchcraft_setcode) && card.Location == CardLocation.Grave)
             {
-                AI.Dialogs.SendCustomChat((int)VerreDialogs.SpellRecycleActivate);
+                AI.Dialogs.SendCustomActivate((int)VerreDialogs.SpellRecycleActivate, card.Name);
                 return;
             }
             base.SendActivateDialog(card);
@@ -475,7 +475,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Duel.Phase == DuelPhase.End && card.HasSetcode(Witchcraft_setcode) && card.Location == CardLocation.Grave)
             {
-                AI.Dialogs.SendCustomChat((int)VerreDialogs.SpellRecycleActivate);
+                AI.Dialogs.SendCustomChaining((int)VerreDialogs.SpellRecycleActivate, card.Name);
                 return;
             }
             base.SendChainingDialog(card);
@@ -485,7 +485,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (card.Id == CardId.MadameVerre)
             {
-                AI.Dialogs.SendCustomDirectAttack((int)VerreDialogs.VerreDirectAttack, null);
+                AI.Dialogs.SendCustomDirectAttack((int)VerreDialogs.VerreDirectAttack, card.Name);
                 return;
             }
             if (card.Attack >= Enemy.LifePoints)
@@ -503,12 +503,12 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.GetMonsterCount() > 0 && Enemy.GetMonsterCount() == 0 && Bot.LifePoints > Enemy.LifePoints)
                 {
-                    AI.Dialogs.SendCustomChat((int)VerreDialogs.DuelNearEnd);
+                    AI.Dialogs.SendCustomEndTurn((int)VerreDialogs.DuelNearEnd);
                     return;
                 }
                 if (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() > 0 && Bot.LifePoints < Enemy.LifePoints)
                 {
-                    AI.Dialogs.SendCustomChat((int)VerreDialogs.DuelNearEnd);
+                    AI.Dialogs.SendCustomEndTurn((int)VerreDialogs.DuelNearEnd);
                     return;
                 }
             }
@@ -1433,7 +1433,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (MadameVerreActivateForNegate())
                 {
-                    AI.Dialogs.SendCustomActivate((int)VerreDialogs.VerreNegateActivate, null);
+                    AI.Dialogs.SendCustomActivate((int)VerreDialogs.VerreNegateActivate, Card.Name);
                     customDialogFlag = true;
                     return true;
                 }
@@ -1443,7 +1443,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (MadameVerreActivateForGainAttack())
                 {
-                    AI.Dialogs.SendCustomActivate((int)VerreDialogs.VerreGainAttackActivate, null);
+                    AI.Dialogs.SendCustomActivate((int)VerreDialogs.VerreGainAttackActivate, Card.Name);
                     customDialogFlag = true;
                     return true;
                 }
