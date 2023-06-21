@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
+using WindBot.Game.AI.Enums.Dialogs;
 using System.Linq;
 using System;
 
@@ -170,6 +171,7 @@ namespace WindBot.Game.AI.Decks
         bool enemyMoveGrave = false;
         bool paxCallToField = false;
         List<int> infiniteImpermanenceList = new List<int>();
+        bool customDialogFlag = false;
 
         bool summoned = false;
         bool elisEffect1Activated = false;
@@ -728,6 +730,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (card.IsCode(_CardId.MaxxC) && CheckCalledbytheGrave(_CardId.MaxxC) == 0)
                 {
+                    AI.Dialogs.SendCustomChat((int)VerreDialogs.MaxxCResponse);
                     enemyActivateMaxxC = true;
                 }
                 if (card.IsCode(_CardId.LockBird) && CheckCalledbytheGrave(_CardId.LockBird) == 0)
@@ -1103,6 +1106,55 @@ namespace WindBot.Game.AI.Decks
             }
 
             return base.OnSelectOption(options);
+        }
+
+        public override void SendActivateDialog(ClientCard card)
+        {
+            if (customDialogFlag)
+            {
+                customDialogFlag = false;
+                return;
+            }
+            base.SendActivateDialog(card);
+        }
+
+        public override void SendChainingDialog(ClientCard card)
+        {
+            if (customDialogFlag)
+            {
+                customDialogFlag = false;
+                return;
+            }
+            base.SendChainingDialog(card);
+        }
+
+        public override void SendDirectAttackDialog(ClientCard card)
+        {
+            if (card.Attack >= Enemy.LifePoints)
+            {
+                AI.Dialogs.SendCustomDirectAttack((int)VerreDialogs.LastAttack, card.Name);
+                return;
+            }
+            base.SendDirectAttackDialog(card);
+        }
+
+        public override void SendEndTurnDialog()
+        {
+            // check whether duel going to end
+            if (Duel.Turn > 1)
+            {
+                if (Bot.GetMonsterCount() > 0 && Enemy.GetMonsterCount() == 0 && Bot.LifePoints > Enemy.LifePoints)
+                {
+                    AI.Dialogs.SendCustomChat((int)VerreDialogs.DuelNearEnd);
+                    return;
+                }
+                if (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() > 0 && Bot.LifePoints < Enemy.LifePoints)
+                {
+                    AI.Dialogs.SendCustomChat((int)VerreDialogs.DuelNearEnd);
+                    return;
+                }
+            }
+            base.SendEndTurnDialog();
         }
 
         public bool AshBlossomActivate()
@@ -1648,6 +1700,17 @@ namespace WindBot.Game.AI.Decks
 
         public bool DefaultExosisterTransform()
         {
+            if (DefaultExosisterTransformInner())
+            {
+                AI.Dialogs.SendCustomChat((int)VerreDialogs.ExosisterTransformActivate, Card.Name);
+                customDialogFlag = true;
+                return true;
+            }
+            return false;
+        }
+
+        public bool DefaultExosisterTransformInner()
+        {
             List<int> canTransformList = new List<int>
             {
                 CardId.ExosisterElis, CardId.ExosisterStella, CardId.ExosisterIrene, CardId.ExosisterSophia, CardId.ExosisterMartha
@@ -1715,6 +1778,7 @@ namespace WindBot.Game.AI.Decks
 
             return false;
         }
+
 
         public bool ExosisterMikailisActivate()
         {

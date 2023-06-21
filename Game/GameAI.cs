@@ -11,7 +11,7 @@ namespace WindBot.Game
         public Duel Duel { get; private set; }
         public Executor Executor { get; set; }
 
-        private Dialogs _dialogs;
+        public Dialogs Dialogs { get; private set; }
 
         // record activated count to prevent infinite actions
         private Dictionary<int, int> _activatedCards;
@@ -21,7 +21,7 @@ namespace WindBot.Game
             Game = game;
             Duel = duel;
 
-            _dialogs = new Dialogs(game);
+            Dialogs = new Dialogs(game);
             _activatedCards = new Dictionary<int, int>();
         }
 
@@ -30,12 +30,12 @@ namespace WindBot.Game
         /// </summary>
         public void OnRetry()
         {
-            _dialogs.SendSorry();
+            Dialogs.SendSorry();
         }
 
         public void OnDeckError(string card)
         {
-            _dialogs.SendDeckSorry(card);
+            Dialogs.SendDeckSorry(card);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnJoinGame()
         {
-            _dialogs.SendWelcome();
+            Dialogs.SendWelcome();
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnStart()
         {
-            _dialogs.SendDuelStart();
+            Dialogs.SendDuelStart();
         }
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace WindBot.Game
         /// </summary>
         public void SendCustomChat(int index, params object[] opts)
         {
-            _dialogs.SendCustomChat(index, opts);
+            Dialogs.SendCustomChat(index, opts);
         }
 
         /// <summary>
@@ -114,7 +114,7 @@ namespace WindBot.Game
             m_place = 0;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
-                _dialogs.SendNewTurn();
+                Executor.SendNewTurnDialog();
             }
             Executor.OnNewPhase();
         }
@@ -124,7 +124,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnDirectAttack(ClientCard card)
         {
-            _dialogs.SendOnDirectAttack(card.Name);
+            Executor.SendOnDirectAttackDialog(card);
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace WindBot.Game
                     ClientCard card = battle.ActivableCards[i];
                     if (ShouldExecute(exec, card, ExecutorType.Activate, battle.ActivableDescs[i]))
                     {
-                        _dialogs.SendChaining(card.Name);
+                        Executor.SendChainingDialog(card);
                         return new BattlePhaseAction(BattlePhaseAction.BattleAction.Activate, card.ActionIndex);
                     }
                 }
@@ -320,7 +320,7 @@ namespace WindBot.Game
                     ClientCard card = cards[i];
                     if (ShouldExecute(exec, card, ExecutorType.Activate, descs[i]))
                     {
-                        _dialogs.SendChaining(card.Name);
+                        Executor.SendChainingDialog(card);
                         return i;
                     }
                 }
@@ -403,7 +403,7 @@ namespace WindBot.Game
             {
             	if (exec.Type == ExecutorType.GoToEndPhase && main.CanEndPhase && exec.Func()) // check if should enter end phase directly
                 {
-                    _dialogs.SendEndTurn();
+                    Executor.SendEndTurnDialog();
                     return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase);
                 }
                 if (exec.Type==ExecutorType.GoToBattlePhase && main.CanBattlePhase && exec.Func()) // check if should enter battle phase directly
@@ -418,7 +418,7 @@ namespace WindBot.Game
                     ClientCard card = main.ActivableCards[i];
                     if (ShouldExecute(exec, card, ExecutorType.Activate, main.ActivableDescs[i]))
                     {
-                        _dialogs.SendActivate(card.Name);
+                        Executor.SendActivateDialog(card);
                         return new MainPhaseAction(MainPhaseAction.MainAction.Activate, card.ActionActivateIndex[main.ActivableDescs[i]]);
                     }
                 }
@@ -426,7 +426,7 @@ namespace WindBot.Game
                 {
                     if (ShouldExecute(exec, card, ExecutorType.MonsterSet))
                     {
-                        _dialogs.SendSetMonster();
+                        Executor.SendSetMonsterDialog();
                         return new MainPhaseAction(MainPhaseAction.MainAction.SetMonster, card.ActionIndex);
                     }
                 }
@@ -439,7 +439,7 @@ namespace WindBot.Game
                 {
                     if (ShouldExecute(exec, card, ExecutorType.SpSummon))
                     {
-                        _dialogs.SendSummon(card.Name);
+                        Executor.SendSummonDialog(card);
                         return new MainPhaseAction(MainPhaseAction.MainAction.SpSummon, card.ActionIndex);
                     }
                 }
@@ -447,17 +447,17 @@ namespace WindBot.Game
                 {
                     if (ShouldExecute(exec, card, ExecutorType.Summon))
                     {
-                        _dialogs.SendSummon(card.Name);
+                        Executor.SendSummonDialog(card);
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
                     if (ShouldExecute(exec, card, ExecutorType.SummonOrSet))
                     {
                         if (main.MonsterSetableCards.Contains(card) && Executor.OnSelectMonsterSummonOrSet(card))
                         {
-                            _dialogs.SendSetMonster();
+                            Executor.SendSetMonsterDialog();
                             return new MainPhaseAction(MainPhaseAction.MainAction.SetMonster, card.ActionIndex);
                         }
-                        _dialogs.SendSummon(card.Name);
+                        Executor.SendSummonDialog(card);
                         return new MainPhaseAction(MainPhaseAction.MainAction.Summon, card.ActionIndex);
                     }
                 }
@@ -471,7 +471,7 @@ namespace WindBot.Game
             if (main.CanBattlePhase && Duel.Fields[0].HasAttackingMonster())
                 return new MainPhaseAction(MainPhaseAction.MainAction.ToBattlePhase);
 
-            _dialogs.SendEndTurn();
+            Executor.SendEndTurnDialog();
             return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase); 
         }
 
@@ -1100,20 +1100,20 @@ namespace WindBot.Game
             {
                 string cardName = defender.Name ?? "monster";
                 attacker.ShouldDirectAttack = false;
-                _dialogs.SendAttack(attacker.Name, cardName);
+                Executor.SendAttackDialog(attacker, cardName);
                 SelectCard(defender);
             }
             else
             {
                 attacker.ShouldDirectAttack = true;
-                _dialogs.SendDirectAttack(attacker.Name);
+                Executor.SendDirectAttackDialog(attacker);
             }
             return new BattlePhaseAction(BattlePhaseAction.BattleAction.Attack, attacker.ActionIndex);
         }
 
         public BattlePhaseAction ToEndPhase()
         {
-            _dialogs.SendEndTurn();
+            Executor.SendEndTurnDialog();
             return new BattlePhaseAction(BattlePhaseAction.BattleAction.ToEndPhase);
         }
         public BattlePhaseAction ToMainPhase2()
