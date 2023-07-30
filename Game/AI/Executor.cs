@@ -15,6 +15,7 @@ namespace WindBot.Game.AI
         public IList<CardExecutor> Executors { get; private set; }
         public GameAI AI { get; private set; }
         public AIUtil Util { get; private set; }
+        public CoreFunction CoreFunction { get; private set; }
 
         protected MainPhase Main { get; private set; }
         protected BattlePhase Battle { get; private set; }
@@ -32,6 +33,7 @@ namespace WindBot.Game.AI
             AI = ai;
             Util = new AIUtil(duel);
             Executors = new List<CardExecutor>();
+            CoreFunction = AI.CoreFunction;
 
             Bot = Duel.Fields[0];
             Enemy = Duel.Fields[1];
@@ -276,5 +278,20 @@ namespace WindBot.Game.AI
         {
             return Executors.All(exec => exec.Type != Type || exec.CardId != Card.Id);
         }
+
+        public int ClientFieldToPlayer(ClientField field) 
+        {
+            int player = Duel.IsFirst ? 0 : 1;
+            if (field == Bot)
+            {
+                return player;
+            }
+            if (field == Enemy)
+            {
+                return 1 - player;
+            }
+            return 2;
+        }
+
     }
 }

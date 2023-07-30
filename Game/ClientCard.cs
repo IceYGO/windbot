@@ -85,6 +85,21 @@ namespace WindBot.Game
             }
         }
 
+        public void SetLocation(CardLocation location)
+        {
+            Location = location;
+        }
+
+        public void SetController(int controller)
+        {
+            Controller = controller;
+        }
+
+        public void SetSequence(int sequence)
+        {
+            Sequence = sequence;
+        }
+
         public void Update(BinaryReader packet, Duel duel)
         {
             int flag = packet.ReadInt32();
