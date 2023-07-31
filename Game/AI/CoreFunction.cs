@@ -968,7 +968,7 @@ namespace WindBot.Game.AI
                                 binaryWriter.Write((byte)1);
                                 binaryWriter.Write((int)value);
                             }
-                            else reply.Write((byte)0);
+                            else binaryWriter.Write((byte)0);
                         };
                         int player = (int)parameters[0];
                         int code = (int)parameters[1];
@@ -2449,7 +2449,6 @@ namespace WindBot.Game.AI
         /// </summary>
         public bool IsRelateToChain(ClientCard c, int chainc)
         {
-            //不随意调用
             return HandleCardIntToBool(FunctionCode.Card.IsRelateToChain, c, chainc);
         }
 
