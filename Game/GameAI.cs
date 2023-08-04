@@ -309,8 +309,9 @@ namespace WindBot.Game
         /// <param name="cards">List of activable cards.</param>
         /// <param name="descs">List of effect descriptions.</param>
         /// <param name="forced">You can't return -1 if this param is true.</param>
+        /// <param name="timing">Current hint timing</param>
         /// <returns>Index of the activated card or -1.</returns>
-        public int OnSelectChain(IList<ClientCard> cards, IList<int> descs, bool forced)
+        public int OnSelectChain(IList<ClientCard> cards, IList<int> descs, bool forced, int timing = -1)
         {
             Executor.OnSelectChain(cards);
             foreach (CardExecutor exec in Executor.Executors)
@@ -318,7 +319,7 @@ namespace WindBot.Game
                 for (int i = 0; i < cards.Count; ++i)
                 {
                     ClientCard card = cards[i];
-                    if (ShouldExecute(exec, card, ExecutorType.Activate, descs[i]))
+                    if (ShouldExecute(exec, card, ExecutorType.Activate, descs[i], timing))
                     {
                         _dialogs.SendChaining(card.Name);
                         return i;
@@ -1121,7 +1122,7 @@ namespace WindBot.Game
             return new BattlePhaseAction(BattlePhaseAction.BattleAction.ToMainPhaseTwo);
         }
 
-        private bool ShouldExecute(CardExecutor exec, ClientCard card, ExecutorType type, int desc = -1)
+        private bool ShouldExecute(CardExecutor exec, ClientCard card, ExecutorType type, int desc = -1, int timing = -1)
         {
             if (card.Id != 0 && type == ExecutorType.Activate)
             {
@@ -1130,7 +1131,7 @@ namespace WindBot.Game
                 if (!Executor.OnPreActivate(card))
                     return false;
             }
-            Executor.SetCard(type, card, desc);
+            Executor.SetCard(type, card, desc, timing);
             bool result = card != null && exec.Type == type &&
                 (exec.CardId == -1 || exec.CardId == card.Id) &&
                 (exec.Func == null || exec.Func());

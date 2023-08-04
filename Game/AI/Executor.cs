@@ -22,6 +22,7 @@ namespace WindBot.Game.AI
         protected ExecutorType Type { get; private set; }
         protected ClientCard Card { get; private set; }
         protected int ActivateDescription { get; private set; }
+        protected int CurrentTiming { get; private set; }
 
         protected ClientField Bot { get; private set; }
         protected ClientField Enemy { get; private set; }
@@ -233,11 +234,12 @@ namespace WindBot.Game.AI
         /// <summary>
         /// Set global variables Type, Card, ActivateDescription for Executor
         /// </summary>
-        public void SetCard(ExecutorType type, ClientCard card, int description)
+        public void SetCard(ExecutorType type, ClientCard card, int description, int timing = -1)
         {
             Type = type;
             Card = card;
             ActivateDescription = description;
+            CurrentTiming = timing;
         }
 
         /// <summary>

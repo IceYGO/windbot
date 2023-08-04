@@ -106,6 +106,7 @@
     <Compile Include="Game\AI\Decks\PhantasmExecutor.cs" />
     <Compile Include="Game\AI\Decks\QliphortExecutor.cs" />
     <Compile Include="Game\AI\Decks\ST1732Executor.cs" />
+    <Compile Include="Game\AI\Decks\SwordsoulExecutor.cs" />
     <Compile Include="Game\AI\Decks\TrickstarExecutor.cs" />
     <Compile Include="Game\AI\Decks\WitchcraftExecutor.cs" />
     <Compile Include="Game\AI\Decks\YosenjuExecutor.cs" />
