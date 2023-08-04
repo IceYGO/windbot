@@ -119,7 +119,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, TenyiForBlackoutSpSummon);
 
             // other
-            AddExecutor(ExecutorType.SpSummon, CardId.PsychicEndPunisher, PsychicEndPunisherSpSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.GeomathmechFinalSigma, GeomathmechFinalSigmaSpSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.PsychicEndPunisher,    PsychicEndPunisherSpSummon);
             AddExecutor(ExecutorType.Summon, TunerForSynchroSummon);
             AddExecutor(ExecutorType.Summon, WyrmForBlackoutSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.ShamanOfTheTenyi,   ShamanOfTheTenyiSpSummon);
@@ -136,6 +137,7 @@ namespace WindBot.Game.AI.Decks
         const int SetcodeOrcust = 0x11b;
         const int SetcodeTenyi = 0x12c;
         const int SetcodeSwordsoul = 0x16b;
+        const int SetcodeFloowandereeze = 0x16d;
         List<int> normalCounterList = new List<int>
         {
             _CardId.AshBlossom, CardId.BaronneDeFleur, 27548199, 4280258, 53262004
@@ -603,11 +605,26 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
+        public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
+        {
+            // Geomathmech Final Sigma always place on extra monster zone
+            if (cardId == CardId.GeomathmechFinalSigma && location == CardLocation.MonsterZone)
+            {
+                if ((Zones.z5 & available) > 0) return Zones.z5;
+                if ((Zones.z6 & available) > 0) return Zones.z6;
+            }
+            return base.OnSelectPlace(cardId, player, location, available);
+        }
+
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
             YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
             if (cardData != null)
             {
+                if (cardData.Id == CardId.PsychicEndPunisher)
+                {
+                    return CardPosition.FaceUpAttack;
+                }
                 if (Util.IsTurn1OrMain2())
                 {
                     bool turnDefense = false;
@@ -1910,6 +1927,23 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
+
+        public bool GeomathmechFinalSigmaSpSummon()
+        {
+            if (Bot.GetMonstersExtraZoneCount() > 0) return false;
+            bool hasFloowandereeze = Enemy.GetMonsters().Any(card => card.HasSetcode(SetcodeFloowandereeze));
+            hasFloowandereeze |= Enemy.GetSpells().Any(card => card.HasSetcode(SetcodeFloowandereeze));
+            hasFloowandereeze |= Enemy.Graveyard.Any(card => card.HasSetcode(SetcodeFloowandereeze));
+            hasFloowandereeze |= Enemy.Banished.Any(card => card.HasSetcode(SetcodeFloowandereeze));
+            if (hasFloowandereeze)
+            {
+                AI.SelectMaterials(GetSynchroMaterial(12));
+                AI.SelectPosition(CardPosition.FaceUpAttack);
+                return true;
+            }
+
+            return false;
+        }
 
         public bool PsychicEndPunisherSpSummon()
         {
