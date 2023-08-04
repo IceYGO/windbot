@@ -521,17 +521,17 @@ namespace WindBot.Game.AI.Decks
         /// Check whether'll be negated
         /// </summary>
         /// <param name="isCounter">check whether card itself is disabled.</param>
-        public bool CheckWhetherNegated(bool disablecheck = true){
-            if (Card.IsSpell() || Card.IsTrap()){
-                if (CheckSpellWillBeNegate()) return true;
+        public bool CheckWhetherNegated(bool disablecheck = true)
+        {
+            if ((Card.IsSpell() || Card.IsTrap()) && CheckSpellWillBeNegate()){
+                return true;
             }
             if (CheckCalledbytheGrave(Card.Id) > 0 || CrossoutDesignatorTargetList.Contains(Card.Id)){
                 return true;
             }
             if (Card.IsMonster() && Card.Location == CardLocation.MonsterZone && Card.IsDefense())
             {
-                if (Enemy.MonsterZone.Any(card => card.IsFaceup() && card.IsCode(CardId.Number41BagooskatheTerriblyTiredTapir) && card.IsDefense() && !card.IsDisabled())
-                    || Bot.MonsterZone.Any(card => card.IsFaceup() && card.IsCode(CardId.Number41BagooskatheTerriblyTiredTapir) && card.IsDefense() && !card.IsDisabled()))
+                if (Enemy.MonsterZone.Any(card => CheckNumber41(card)) || Bot.MonsterZone.Any(card => CheckNumber41(card)))
                 {
                     return true;
                 }
@@ -540,6 +540,11 @@ namespace WindBot.Game.AI.Decks
                 return Card.IsDisabled();
             }
             return false;
+        }
+
+        public bool CheckNumber41(ClientCard card)
+        {
+            return card != null && card.IsFaceup() && card.IsCode(CardId.Number41BagooskatheTerriblyTiredTapir) && card.IsDefense() && !card.IsDisabled();
         }
 
         /// <summary>
@@ -1150,7 +1155,7 @@ namespace WindBot.Game.AI.Decks
             {
                 exceptTarget = Card;
             }
-            return Bot.Graveyard.Count(card => card != exceptTarget && card.HasSetcode(SetcodeSwordsoul) || card.HasRace(CardRace.Wyrm)) > 0;
+            return Bot.Graveyard.Count(card => card != exceptTarget && (card.HasSetcode(SetcodeSwordsoul) || card.HasRace(CardRace.Wyrm))) > 0;
         }
 
         public bool SwordsoulOfMoYeActivate()
@@ -1313,8 +1318,12 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            CheckDeactiveFlag();
-            return DefaultAshBlossomAndJoyousSpring();
+            if (DefaultAshBlossomAndJoyousSpring())
+            {
+                CheckDeactiveFlag();
+                return true;
+            }
+            return false;
         }
 
         public bool MaxxCActivate()
