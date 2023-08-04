@@ -342,7 +342,9 @@ namespace WindBot.Game.AI
                 while (shuffleCount-- > 1)
                 {
                     int index = Program.Rand.Next(extraDeck.Count);
-                    (extraDeck[shuffleCount], extraDeck[index]) = (extraDeck[index], extraDeck[shuffleCount]);
+                    ClientCard tempCard = extraDeck[shuffleCount];
+                    extraDeck[shuffleCount] = extraDeck[index];
+                    extraDeck[index] = tempCard;
                 }
                 
                 return Util.CheckSelectCount(extraDeck, cards, min, max);

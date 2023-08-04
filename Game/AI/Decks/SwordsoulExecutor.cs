@@ -181,7 +181,9 @@ namespace WindBot.Game.AI.Decks
             {
                 int index = Program.Rand.Next(result.Count);
                 int nextIndex = (index + Program.Rand.Next(result.Count - 1)) % result.Count;
-                (result[nextIndex], result[index]) = (result[index], result[nextIndex]);
+                ClientCard tempCard = result[index];
+                result[index] = result[nextIndex];
+                result[nextIndex] = tempCard;
             }
             return result;
         }
@@ -784,7 +786,9 @@ namespace WindBot.Game.AI.Decks
             {
                 int index = Program.Rand.Next(list.Count);
                 int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
-                (list[nextIndex], list[index]) = (list[index], list[nextIndex]);
+                int tempInt = list[index];
+                list[index] = list[nextIndex];
+                list[nextIndex] = tempInt;
             }
             foreach (int seq in list)
             {
