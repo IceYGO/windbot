@@ -320,6 +320,40 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Called when the AI has to select one or more cards.
+        /// </summary>
+        /// <param name="cards">List of available cards.</param>
+        /// <param name="min">Minimal quantity.</param>
+        /// <param name="max">Maximal quantity.</param>
+        /// <param name="hint">The hint message of the select.</param>
+        /// <param name="cancelable">True if you can return an empty list.</param>
+        /// <returns>A new list containing the selected cards.</returns>
+        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            // wordaround for Dogmatika Alba Zoa
+            int albaZoaCount = Bot.ExtraDeck.Count / 2;
+            if (!cancelable && min == albaZoaCount && max == albaZoaCount
+                && Duel.Player == 1 && (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2) && cards.All(card =>
+                card.Controller == 0 && (card.Location == CardLocation.Hand || card.Location == CardLocation.Extra)))
+            {
+                Logger.DebugWriteLine("Dogmatika Alba Zoa solved");
+                List<ClientCard> extraDeck = new List<ClientCard>(Bot.ExtraDeck);
+                int shuffleCount = extraDeck.Count;
+                while (shuffleCount-- > 1)
+                {
+                    int index = Program.Rand.Next(extraDeck.Count);
+                    ClientCard tempCard = extraDeck[shuffleCount];
+                    extraDeck[shuffleCount] = extraDeck[index];
+                    extraDeck[index] = tempCard;
+                }
+                
+                return Util.CheckSelectCount(extraDeck, cards, min, max);
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Destroy face-down cards first, in our turn.
         /// </summary>
         protected bool DefaultMysticalSpaceTyphoon()
