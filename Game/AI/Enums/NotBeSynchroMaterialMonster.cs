@@ -26,7 +26,8 @@ namespace WindBot.Game.AI.Enums
         GreenDuston = 52182715,
         RedDuston = 61019812,
         EaterofMillions = 63845230,
-        PutridPuddingBodyBuddies = 85101097
+        PutridPuddingBodyBuddies = 85101097,
+        Click_Echo = 2992467
 
     }
 }

@@ -27,7 +27,9 @@
         NumberC96DarkStorm = 77205367,
         Number54LionHeart = 54366836,
         Number2NinjaShadowMosquito = 32453837,
-        OhimetheManifestedMikanko = 81260679
+        OhimetheManifestedMikanko = 81260679,
+        NightmareMagician = 40221691,
+        ArahimetheManifestedMikanko = 75771170
     }
     /// <summary>
     /// Cards that are invincible to battle.
@@ -101,6 +103,12 @@
         BrigrandtheGloryDragon = 34848821,
         AmazonessQueen = 15951532,
         Number2NinjaShadowMosquito = 32453837,
-        OhimetheManifestedMikanko = 81260679
+        OhimetheManifestedMikanko = 81260679,
+        CornfieldCoatl = 92565383,
+        MirrorSwordknight = 28954097,
+        NightmareMagician = 40221691,
+        ArahimetheManifestedMikanko = 75771170,
+        UFOLight = 9275482,
+        TaotheGreatChanter = 34541543
     }
 }

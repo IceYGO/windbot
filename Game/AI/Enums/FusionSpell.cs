@@ -82,6 +82,9 @@
         AmazonessSecretArts = 86758746,
         DarkWorldAccession = 65956182,
         BeetrooperLanding = 13234975,
-        FusionReproduction = 43331750
+        FusionReproduction = 43331750,
+        ChimeraFusion = 63136489,
+        HarmonicSynchroFusion = 7473735,
+        SouloftheSupremeCelestialKing = 76840111
     }
 }
