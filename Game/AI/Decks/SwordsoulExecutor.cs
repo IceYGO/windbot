@@ -936,6 +936,10 @@ namespace WindBot.Game.AI.Decks
             {
                 return true;
             }
+            if (Bot.HasInExtra(CardId.PsychicEndPunisher) && Bot.HasInMonstersZone(CardId.SwordsoulToken) && !onlyWyrmSpSummon)
+            {
+                return true;
+            }
 
             return false;
         }
@@ -1387,7 +1391,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> checkNonTuner = Bot.GetMonsters().Where(card => card.IsFaceup() && !card.IsTuner()).ToList();
             checkNonTuner.Sort(CardContainer.CompareCardAttack);
             // level7 check
-            if (Bot.HasInExtra(CardId.YaziEvilOfTheYangZing))
+            if (Bot.HasInExtra(CardId.YaziEvilOfTheYangZing) && GetProblematicEnemyCardList(true, true).Count() > 0)
             {
                 foreach (ClientCard checkCard in checkNonTuner)
                 {
@@ -2673,7 +2677,6 @@ namespace WindBot.Game.AI.Decks
                     if (CheckRemainInDeck(CardId.SwordsoulBlackout) > 0)
                     {
                         AI.SelectCard(CardId.SwordsoulBlackout);
-                        AI.SelectYesNo(true);
                         activatedCardIdList.Add(Card.Id);
                         return true;
                     }
@@ -2687,7 +2690,6 @@ namespace WindBot.Game.AI.Decks
                         if (CheckRemainInDeck(checkId) > 0 && !Bot.HasInHand(checkId))
                         {
                             AI.SelectCard(checkId);
-                            AI.SelectYesNo(true);
                             activatedCardIdList.Add(Card.Id);
                             return true;
                         }
@@ -2700,7 +2702,6 @@ namespace WindBot.Game.AI.Decks
                     && SwordsoulOfMoYeEffectCheck() && CheckRemainInDeck(CardId.SwordsoulStrategistLongyuan) > 0)
                     {
                         AI.SelectCard(CardId.SwordsoulStrategistLongyuan);
-                        AI.SelectYesNo(true);
                         activatedCardIdList.Add(Card.Id);
                         return true;
                     }
@@ -2714,7 +2715,6 @@ namespace WindBot.Game.AI.Decks
                             if (CheckRemainInDeck(CardId.SwordsoulSacredSummit) > 0)
                             {
                                 AI.SelectCard(CardId.SwordsoulSacredSummit);
-                                AI.SelectYesNo(true);
                                 activatedCardIdList.Add(Card.Id);
                                 return true;
                             }
@@ -2724,7 +2724,6 @@ namespace WindBot.Game.AI.Decks
                             if (CheckRemainInDeck(CardId.SwordsoulOfTaia) > 0)
                             {
                                 AI.SelectCard(CardId.SwordsoulOfTaia);
-                                AI.SelectYesNo(true);
                                 activatedCardIdList.Add(Card.Id);
                                 return true;
                             }
@@ -2738,7 +2737,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     Logger.DebugWriteLine("Chixiao banish blackout");
                     AI.SelectCard(CardId.SwordsoulBlackout);
-                    AI.SelectYesNo(false);
+                    AI.SelectOption(1);
                     activatedCardIdList.Add(Card.Id);
                     return true;
                 }
@@ -2754,7 +2753,6 @@ namespace WindBot.Game.AI.Decks
                         if (CheckRemainInDeck(checkId) > 0 && !Bot.HasInHand(checkId))
                         {
                             AI.SelectCard(checkId);
-                            AI.SelectYesNo(true);
                             activatedCardIdList.Add(Card.Id);
                             return true;
                         }
@@ -2770,7 +2768,6 @@ namespace WindBot.Game.AI.Decks
                     if (CheckRemainInDeck(checkId) > 0 && !Bot.HasInHand(checkId))
                     {
                         AI.SelectCard(checkId);
-                        AI.SelectYesNo(true);
                         activatedCardIdList.Add(Card.Id);
                         return true;
                     }
