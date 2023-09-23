@@ -59,6 +59,10 @@
         BrotherhoodoftheFireFist_Leopard = 39699564,
         SpringansPedor = 56818977,
         GizmekNaganakitheSunriseSignaler = 96399967,
-        MyutantMutant = 26561172
+        MyutantMutant = 26561172,
+        ThreeEyedGhost = 31464658,
+        UrsarcticPolarStar = 62714453,
+        BattlinBoxerPromoter = 83315222,
+        TGRocketSalamander = 77392987
     }
 }

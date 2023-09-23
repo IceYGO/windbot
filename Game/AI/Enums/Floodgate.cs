@@ -199,6 +199,17 @@
         BystialDisPater = 27572350,
         DespianLuluwalilith = 53971455,
         FirewallDragonSingularity = 21637210,
-        BrandedEtude = 45675980
+        BrandedEtude = 45675980,
+        EvolzarLars = 35103106,
+        AltergeistAdminia = 61470213,
+        EmperorCharlesTheGreat = 97864322,
+        YouReFinished = 88346805,
+        VolcanicEmperor = 46412900,
+        VolcanicInferno = 84138874,
+        RedZone = 50056656,
+        TGGlaiveBlaster = 95973569,
+        StellarNemesisTPHON_DoomsdayStar = 93039339,
+        SPLittleKnight = 29301450,
+        AngelRing = 40678060
     }
 }
