@@ -119,6 +119,11 @@ namespace WindBot.Game
             Executor.OnNewPhase();
         }
 
+        public void OnMove(int cardId, int previousControler, int previousLocation, int currentControler, int currentLocation)
+        {
+            Executor.OnMove(cardId, previousControler, previousLocation, currentControler, currentLocation);
+        }
+
         /// <summary>
         /// Called when the AI got attack directly.
         /// </summary>
