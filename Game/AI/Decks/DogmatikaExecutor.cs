@@ -119,7 +119,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.DogmatikaMacabre, DogmatikaMacabreActivate);
 
             // other
-            AddExecutor(ExecutorType.Activate, CardId.DogmatikaFleurdelis,      DogmatikaFleurdelisActivateDelay);
+            AddExecutor(ExecutorType.Activate, CardId.DogmatikaFleurdelis,      DogmatikaFleurdelisDelayActivate);
             AddExecutor(ExecutorType.Repos,    MonsterRepos);
             AddExecutor(ExecutorType.Summon,   SummonForTYPHONCheck);
             AddExecutor(ExecutorType.SpSummon, CardId.DiabellstarTheBlackWitch, DiabellstarTheBlackWitchSpSummon);
@@ -145,7 +145,7 @@ namespace WindBot.Game.AI.Decks
             58699500, 20343502
         };
         List<int> discardEnemyExtraIdList = new List<int>{
-            _CardId.DivineArsenalAAZEUS_SkyThunder, CardId.SuperStarslayerTYPHON, CardId.SPLittleKnight, CardId.Number41BagooskatheTerriblyTiredTapir,
+            _CardId.DivineArsenalAAZEUS_SkyThunder, CardId.SPLittleKnight, CardId.Number41BagooskatheTerriblyTiredTapir,
             70534340, 60465049, 24094258, 86066372
         };
 
@@ -803,11 +803,11 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        public bool CheckHasExtraOnField()
+        public bool CheckHasExtraOnField(ClientCard exceptCard = null)
         {
             List<ClientCard> fieldMonsterList = Bot.GetMonsters();
             fieldMonsterList.AddRange(Enemy.GetMonsters());
-            bool hasExtraOnField = fieldMonsterList.Any(card => card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link));
+            bool hasExtraOnField = fieldMonsterList.Any(card => card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link) && card != exceptCard);
             return hasExtraOnField;
         }
 
@@ -861,7 +861,7 @@ namespace WindBot.Game.AI.Decks
                     return CardPosition.FaceUpAttack;
                 }
                 int cardAttack = cardData.Attack;
-                if (cardId == CardId.DogmatikaFleurdelis && !activatedCardIdList.Contains(cardId + 1)) cardAttack += 500;
+                if (cardId == CardId.DogmatikaFleurdelis && !activatedCardIdList.Contains(cardId + 1) && Duel.Player == 0) cardAttack += 500;
                 int bestBotAttack = Math.Max(Util.GetBestAttack(Bot), cardAttack);
                 if (Util.IsAllEnemyBetterThanValue(bestBotAttack, true))
                 {
@@ -1042,6 +1042,17 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnNewTurn()
         {
+            if (Duel.Turn <= 1)
+            {
+                calledbytheGraveCount.Clear();
+                banSpSummonFromExTurn = 0;
+                checkedEnemyExtra = false;
+                avoid2Monster = true;
+                dimensionShifterCount = 0;
+
+                enemySpSummonFromExLastTurn = 0;
+                enemySpSummonFromExThisTurn = 0;
+            }
             enemyActivateMaxxC = false;
             enemyActivateLockBird = false;
             omegaActivateCount = 0;
@@ -1085,6 +1096,31 @@ namespace WindBot.Game.AI.Decks
             base.OnMove(cardId, previousControler, previousLocation, currentControler, currentLocation);
         }
 
+        public override ClientCard OnSelectAttacker(IList<ClientCard> attackers, IList<ClientCard> defenders)
+        {
+            if (attackers.Count() > 0) return attackers[attackers.Count() - 1];
+            return null;
+        }
+
+        public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
+        {
+            foreach (ClientCard defender in defenders)
+            {
+                attacker.RealPower = attacker.Attack;
+                defender.RealPower = defender.GetDefensePower();
+                if (!OnPreBattleBetween(attacker, defender))
+                    continue;
+
+                if (attacker.RealPower > defender.RealPower)
+                    return AI.Attack(attacker, defender);
+            }
+
+            if (attacker.CanDirectAttack)
+                return AI.Attack(attacker, null);
+
+            return null;
+        }
+
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
@@ -1122,7 +1158,6 @@ namespace WindBot.Game.AI.Decks
                     {
                         if (Enemy.SpellZone[i] == card)
                         {
-                            Logger.DebugWriteLine("Enemy activate InfiniteImpermanence at " + i.ToString());
                             infiniteImpermanenceList.Add(4-i);
                             break;
                         }
@@ -1159,6 +1194,7 @@ namespace WindBot.Game.AI.Decks
         /// <param name="avoidList">Whether need to avoid set in this place</param>
         public void SelectSTPlace(ClientCard card = null, bool avoidImpermanence = false, List<int> avoidList = null)
         {
+            if (card == null) card = Card;
             List<int> list = new List<int>();
             for (int seq = 0; seq < 5; ++seq)
             {
@@ -1289,7 +1325,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 // for avoid lose
                 if (Duel.Player == 1 && Bot.GetMonsterCount() == 0 && Util.GetTotalAttackingMonsterAttack(1) >= Bot.LifePoints
-                    && Duel.Phase == DuelPhase.Main1 && (CurrentTiming & hintTimingMainEnd) != 0)
+                    && Duel.Phase == DuelPhase.Main1 && (CurrentTiming & hintTimingMainEnd) != 0 && Duel.Turn > 1)
                 {
                     activatedCardIdList.Add(CardId.DogmatikaFleurdelis);
                     List<ClientCard> enemyTargetList = ShuffleCardList(Enemy.GetMonsters().Where(card => card.IsFaceup() && !card.IsDisabled()).ToList());
@@ -1314,20 +1350,22 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public bool DogmatikaFleurdelisActivateDelay()
+        public bool DogmatikaFleurdelisDelayActivate()
         {
             if (CheckWhetherNegated()) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 bool checkFlag = false;
-                if (Duel.Player == 0 && Duel.Phase == DuelPhase.Main1)
+                bool notQuickTiming = Duel.LastChainPlayer == -1 && CurrentTiming <= 0;
+                if (Duel.Player == 0 && Duel.Phase == DuelPhase.Main1 && notQuickTiming && Duel.Turn > 1)
                 {
+                    Logger.DebugWriteLine("=== timing: " + CurrentTiming.ToString());
                     int attack = Util.GetBestAttack(Bot);
                     List<ClientCard> currentBetterList = Enemy.MonsterZone.GetMonsters().Where(card => card.GetDefensePower() >= attack).ToList();
                     List<ClientCard> newBetterList = Enemy.MonsterZone.GetMonsters().Where(card => card.GetDefensePower() >= 3000).ToList();
                     if (currentBetterList.Count() > newBetterList.Count()) checkFlag = true;
                 }
-                if ((Bot.HasInHandOrInSpellZone(CardId.SinfulSpoilsOfDoom_Rciela) && Duel.Player == 0)
+                if ((Bot.HasInHandOrInSpellZone(CardId.SinfulSpoilsOfDoom_Rciela) && Duel.Player == 0 && notQuickTiming)
                     || Bot.GetSpells().Any(card => card.IsCode(CardId.SinfulSpoilsOfDoom_Rciela) && card.IsFacedown()))
                 {
                     if (!Bot.GetMonsters().Any(card => card.IsFaceup() && card.Level >= 7 && card.HasRace(CardRace.SpellCaster))) checkFlag = true;
@@ -1398,7 +1436,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.TitanikladTheAshDragon, CardId.GranguignolTheDuskDragon, CardId.PSYFramelordOmega, CardId.DespianLuluwalilith };
                 foreach (int checkId in checkDiscardIdList)
                 {
-                    if (Bot.HasInExtra(checkId) && !discardExtraThisTurn.Contains(checkId) && !activatedCardIdList.Contains(checkId))
+                    if (Bot.HasInExtra(checkId) && !activatedCardIdList.Contains(checkId))
                     {
                         if (checkId == CardId.ElderEntityNtss)
                         {
@@ -1531,10 +1569,21 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
+                List<ClientCard> extraCheckList = Bot.GetMonsters().Where(card => card.HasType(CardType.Fusion | CardType.Synchro | CardType.Link))
+                    .OrderBy(card => card.Attack).ToList();
+                foreach (ClientCard checkCard in extraCheckList)
+                {
+                    if (!Bot.HasInHand(CardId.DogmatikaFleurdelis) || CheckHasExtraOnField(checkCard))
+                    {
+                        AI.SelectCard(checkCard);
+                        return true;
+                    }
+                }
             }
-            if (Bot.GetMonsterCount() == 0)
+            if (Bot.GetMonsterCount() == 0 || CheckRemainInDeck(CardId.SinfulSpoilsOfDoom_Rciela) > 0)
             {
-                List<int> spellIdList = new List<int>{ _CardId.InfiniteImpermanence, CardId.CrossoutDesignator, CardId.DogmatikaPunishment, _CardId.CalledByTheGrave };
+                List<int> spellIdList = new List<int>{ CardId.CrossoutDesignator, _CardId.InfiniteImpermanence, _CardId.CalledByTheGrave, 
+                    CardId.DogmatikaPunishment, CardId.DogmatikaMacabre, CardId.DogmatikaLamity };
                 foreach (int spellId in spellIdList)
                 {
                     if (Bot.HasInHandOrInSpellZone(spellId))
@@ -1578,7 +1627,14 @@ namespace WindBot.Game.AI.Decks
             // sp summon
             if (Card.Location == CardLocation.Hand)
             {
-                if (CheckShouldNoMoreSpSummon() || activatedCardIdList.Contains(Card.Id)) return false;
+                if (activatedCardIdList.Contains(Card.Id)) return false;
+                if (CheckShouldNoMoreSpSummon())
+                {
+                    if (!Bot.HasInHand(CardId.DogmatikaFleurdelis) || Bot.GetMonsters().Any(card => card.IsFaceup() && card.HasSetcode(SetcodeDogmatika)))
+                    {
+                        return false;
+                    }
+                }
                 if (enemyActivateLockBird)
                 {
                     if (Bot.HasInHand(CardId.DogmatikaFleurdelis) && !Bot.GetMonsters().Any(card => card.IsFaceup() && card.HasSetcode(SetcodeDogmatika)))
@@ -2520,6 +2576,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectYesNo(true);
                     AI.SelectCard(currentChainEnemyCard);
                 }
+                else AI.SelectYesNo(false);
                 return true;
             }
             return false;
@@ -2589,6 +2646,8 @@ namespace WindBot.Game.AI.Decks
             if (material == null || material.Attack >= 3000) return false;
 
             bool checkFlag = GetProblematicEnemyMonster(material.Attack) != null;
+            checkFlag |= material.HasType(CardType.Link);
+            checkFlag |= material.Level <= 4;
             if (checkFlag)
             {
                 AI.SelectMaterials(material);
@@ -2600,6 +2659,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SuperStarslayerTYPHONActivate()
         {
+            if (CheckWhetherNegated()) return false;
             List<ClientCard> targetList = new List<ClientCard>();
             targetList.AddRange(Enemy.GetMonsters().Where(c => !currentDestroyCardList.Contains(c) &&
                 c.IsFloodgate() && c.IsFaceup()).OrderByDescending(card => card.Attack));
