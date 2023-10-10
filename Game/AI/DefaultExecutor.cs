@@ -125,6 +125,13 @@ namespace WindBot.Game.AI
             public const int VaylantzWorld_ShinraBansho = 49568943;
             public const int VaylantzWorld_KonigWissen = 75952542;
             public const int DivineArsenalAAZEUS_SkyThunder = 90448279;
+
+            public const int RescueACEHydrant = 37617348;
+        }
+
+        protected class _Setcode
+        {
+            public const int RescueACE = 0x18b;
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
@@ -251,6 +258,9 @@ namespace WindBot.Game.AI
                 return false;
 
             if (defender.OwnTargets.Any(card => card.IsCode(_CardId.PhantomKnightsFogBlade) && !card.IsDisabled()))
+                return false;
+            
+            if (defender.IsCode(_CardId.RescueACEHydrant) && !defender.IsDisabled() && Enemy.GetMonsters().Any(monster => monster.HasSetcode(_Setcode.RescueACE) && !monster.IsCode(_CardId.RescueACEHydrant)))
                 return false;
 
             return true;
