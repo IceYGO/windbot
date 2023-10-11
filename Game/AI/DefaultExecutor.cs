@@ -127,10 +127,49 @@ namespace WindBot.Game.AI
             public const int DivineArsenalAAZEUS_SkyThunder = 90448279;
 
             public const int RescueACEHydrant = 37617348;
+
+            public const int LabrynthArchfiend = 48745395;
+            public const int DynaHeroFurHire = 25123713;
+            public const int BelialMarquisOfDarkness = 33655493;
+            public const int PerformapalBarokuriboh = 19050066;
+            public const int HarpiesPetDragonFearsomeFireBlast = 4991081;
+            public const int Hieracosphinx = 82260502;
+            public const int SpeedroidPassinglider = 26420373;
+            public const int TyrOfTheNordicChampions = 2333365;
+            public const int ValkyrianKnight = 99348756;
+            public const int Victoria = 75162696;
+            public const int LadyOfD = 67511500;
+            public const int MermailAbysslung = 95466842;
+            public const int HandHoldingGenie = 94535485;
+            public const int GolemDragon = 9666558;
+            public const int TwilightRoseKnight = 2986553;
+            public const int PerformapalThunderhino = 70458081;
+            public const int MiracleFlipper = 131182;
+            public const int Decoyroid = 25034083;
+            public const int AltergeistFifinellag = 12977245;
+            public const int BatterymanD = 55401221;
+            public const int Watthopper = 61380658;
+            public const int EgyptianGodSlime = 42166000;
+            public const int DinowrestlerChimeraTWrextle = 22900219;
+            public const int DinowrestlerGigaSpinosavate = 58672736;
+            public const int ScarredWarrior = 45298492;
+            public const int SharkFortress = 50449881;
+            public const int HeroicChampionClaivesolish = 97453744;
+            public const int GhostrickAlucard = 75367227;
+            public const int DinowrestlerKingTWrextle = 77967790;
         }
 
         protected class _Setcode
         {
+            public const int Watt = 0xe;
+            public const int Speedroid = 0x2016;
+            public const int EarthboundImmortal = 0x1021;
+            public const int Nordic = 0x42;
+            public const int Harpie = 0x64;
+            public const int Ghostrick = 0x8d;
+            public const int Performapal = 0x9f;
+            public const int FurHire = 0x114;
+            public const int Altergeist = 0x103;
             public const int RescueACE = 0x18b;
         }
 
@@ -142,6 +181,46 @@ namespace WindBot.Game.AI
             AddExecutor(ExecutorType.Activate, _CardId.VaylantzWorld_KonigWissen, DefaultVaylantzWorld_KonigWissen);
             AddExecutor(ExecutorType.Activate, _CardId.SantaClaws);
         }
+
+        /// <summary>
+        /// Defined:
+        /// if monster with code as KEY, other monsters with rules as VALUE won't be targeted for attack.
+        /// </summary>
+        protected Dictionary<int, Func<ClientCard, bool>> DefenderProtectRule = new Dictionary<int, Func<ClientCard, bool>> {
+            {_CardId.LabrynthArchfiend, defender => defender.HasRace(CardRace.Fiend)},
+            {_CardId.BelialMarquisOfDarkness, defender => defender.IsFaceup()},
+            {_CardId.PerformapalBarokuriboh, defender => true},
+            {_CardId.HarpiesPetDragonFearsomeFireBlast, defender => defender.Level <= 6 && defender.HasSetcode(_Setcode.Harpie)},
+            {_CardId.DynaHeroFurHire, defender => defender.HasSetcode(_Setcode.FurHire)},
+            {_CardId.Hieracosphinx, defender => defender.IsFacedown()},
+            {_CardId.SpeedroidPassinglider, defender => defender.HasSetcode(_Setcode.Speedroid)},
+            {_CardId.TyrOfTheNordicChampions, defender => defender.HasSetcode(_Setcode.Nordic)},
+            {_CardId.ValkyrianKnight, defender => defender.HasRace(CardRace.Warrior) && !defender.IsCode(_CardId.ValkyrianKnight)},
+            {_CardId.Victoria, defender => defender.HasRace(CardRace.Fairy)},
+            {_CardId.LadyOfD, defender => defender.HasRace(CardRace.Dragon)},
+            {_CardId.MermailAbysslung, defender => defender.HasAttribute(CardAttribute.Water)},
+            {_CardId.HandHoldingGenie, defender => true},
+            {_CardId.GolemDragon, defender => defender.HasRace(CardRace.Dragon)},
+            {_CardId.MaraudingCaptain, defender => defender.HasRace(CardRace.Warrior)},
+            {_CardId.TwilightRoseKnight, defender => defender.HasRace(CardRace.Plant)},
+            {_CardId.PerformapalThunderhino, defender => defender.HasSetcode(_Setcode.Performapal)},
+            {_CardId.MiracleFlipper, defender => defender.IsFaceup()},
+            {_CardId.Decoyroid, defender => defender.IsFaceup()},
+            {_CardId.DupeFrog, defender => true},
+            {_CardId.AltergeistFifinellag, defender => defender.HasSetcode(_Setcode.Altergeist)},
+            {_CardId.BatterymanD, defender => defender.HasRace(CardRace.Thunder) && !defender.IsCode(_CardId.BatterymanD)},
+            {_CardId.Watthopper, defender => defender.HasSetcode(_Setcode.Watt) && defender.IsFaceup()},
+
+            {_CardId.EgyptianGodSlime, defender => true},
+            {_CardId.DinowrestlerChimeraTWrextle, defender => true},
+            {_CardId.DinowrestlerGigaSpinosavate, defender => true},
+            {_CardId.ScarredWarrior, defender => defender.HasRace(CardRace.Warrior) && defender.IsFaceup()},
+            {_CardId.SharkFortress, defender => true},
+            {_CardId.HeroicChampionClaivesolish, defender => true},
+            {_CardId.GhostrickAlucard, defender => defender.HasSetcode(_Setcode.Ghostrick) || defender.IsFacedown()},
+            {_CardId.MekkKnightCrusadiaAstram, defender => true},
+            {_CardId.DinowrestlerKingTWrextle, defender => true}
+        };
 
         /// <summary>
         /// Decide which card should the attacker attack.
@@ -242,19 +321,22 @@ namespace WindBot.Game.AI
                 }
             }
 
-            if (Enemy.HasInMonstersZone(_CardId.MekkKnightCrusadiaAstram, true) && !(defender).IsCode(_CardId.MekkKnightCrusadiaAstram))
-                return false;
+            foreach (ClientCard protecter in Enemy.GetMonsters())
+            {
+                if (!protecter.IsDisabled() && protecter != defender && DefenderProtectRule.ContainsKey(protecter.Id))
+                {
+                    Func<ClientCard, bool> defenderRule = card => false;
+                    if (DefenderProtectRule.TryGetValue(protecter.Id, out defenderRule))
+                    {
+                        if (defenderRule(defender)) return false;
+                    }
+                }
+            }
 
-            if (Enemy.HasInMonstersZone(_CardId.DupeFrog, true) && !(defender).IsCode(_CardId.DupeFrog))
-                return false;
-
-            if (Enemy.HasInMonstersZone(_CardId.MaraudingCaptain, true) && !defender.IsCode(_CardId.MaraudingCaptain) && defender.Race == (int)CardRace.Warrior)
+            if (Enemy.GetMonsters().Any(monster => !monster.Equals(defender) && monster.IsCode(_CardId.HamonLordofStrikingThunder) && !monster.IsDisabled() && monster.IsDefense()))
                 return false;
 
             if (defender.IsCode(_CardId.UltimayaTzolkin) && !defender.IsDisabled() && Enemy.GetMonsters().Any(monster => !monster.Equals(defender) && monster.HasType(CardType.Synchro)))
-                return false;
-
-            if (Enemy.GetMonsters().Any(monster => !monster.Equals(defender) && monster.IsCode(_CardId.HamonLordofStrikingThunder) && !monster.IsDisabled() && monster.IsDefense()))
                 return false;
 
             if (defender.OwnTargets.Any(card => card.IsCode(_CardId.PhantomKnightsFogBlade) && !card.IsDisabled()))
@@ -262,7 +344,10 @@ namespace WindBot.Game.AI
             
             if (defender.IsCode(_CardId.RescueACEHydrant) && !defender.IsDisabled() && Enemy.GetMonsters().Any(monster => monster.HasSetcode(_Setcode.RescueACE) && !monster.IsCode(_CardId.RescueACEHydrant)))
                 return false;
-
+            
+            if (defender.HasSetcode(_Setcode.EarthboundImmortal) && !defender.IsDisabled())
+                return false;
+            
             return true;
         }
 
@@ -1227,7 +1312,7 @@ namespace WindBot.Game.AI
             if (Card.Location == CardLocation.Hand)
             {
                 return Bot.BattlingMonster.IsAttack() &&
-                    (((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Attack) || Bot.BattlingMonster.Attack >= Enemy.LifePoints)
+                    ((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Attack) || Bot.BattlingMonster.Attack >= Enemy.LifePoints
                     || ((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Defense) && (Bot.BattlingMonster.Attack + Enemy.BattlingMonster.Attack > Enemy.BattlingMonster.Defense)));
             }
 
@@ -1263,13 +1348,13 @@ namespace WindBot.Game.AI
             List<ClientCard> targetList = new List<ClientCard>();
             List<ClientCard> floodgateCards = monsters
                 .Where(card => card?.Data != null && card.IsFloodgate() && card.IsFaceup() && !card.IsShouldNotBeTarget())
-                .OrderBy(card => card.Attack).ToList();
+                .OrderByDescending(card => card.Attack).ToList();
             List<ClientCard> dangerousCards = monsters
                 .Where(card => card?.Data != null && card.IsMonsterDangerous() && card.IsFaceup() && !card.IsShouldNotBeTarget())
-                .OrderBy(card => card.Attack).ToList();
+                .OrderByDescending(card => card.Attack).ToList();
             List<ClientCard> attackOrderedCards = monsters
                 .Where(card => card?.Data != null && card.HasType(CardType.Monster) && card.IsFaceup() && card.IsShouldNotBeTarget())
-                .OrderBy(card => card.Attack).ToList();
+                .OrderByDescending(card => card.Attack).ToList();
 
             targetList.AddRange(floodgateCards);
             targetList.AddRange(dangerousCards);
