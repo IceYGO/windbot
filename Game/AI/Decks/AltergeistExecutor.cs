@@ -2797,7 +2797,8 @@ namespace WindBot.Game.AI.Decks
                 // throw all??
                 return null;
             }
-            return null;
+            
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
