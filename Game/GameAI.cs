@@ -300,6 +300,8 @@ namespace WindBot.Game
             // Always select the first available cards and choose the minimum.
             IList<ClientCard> selected = new List<ClientCard>();
 
+            if (hint == HintMsg.AttackTarget && cancelable) return selected;
+
             if (cards.Count >= min)
             {
                 for (int i = 0; i < min; ++i)
