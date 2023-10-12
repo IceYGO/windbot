@@ -2,8 +2,6 @@ using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using System.CodeDom;
-using System.Security.AccessControl;
 
 namespace WindBot.Game.AI.Decks
 {
@@ -1098,8 +1096,8 @@ namespace WindBot.Game.AI.Decks
 
         public override ClientCard OnSelectAttacker(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
-            if (attackers.Count() > 0) return attackers[attackers.Count() - 1];
-            return null;
+            if (attackers.Count() > 0) return attackers.OrderBy(card => card.Attack).FirstOrDefault();
+            return base.OnSelectAttacker(attackers, defenders);
         }
 
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
@@ -1112,6 +1110,9 @@ namespace WindBot.Game.AI.Decks
                     continue;
 
                 if (attacker.RealPower > defender.RealPower)
+                    return AI.Attack(attacker, defender);
+                
+                if (attacker.RealPower == defender.RealPower && defender.IsAttack() && Bot.GetMonsterCount() >= Enemy.GetMonsterCount())
                     return AI.Attack(attacker, defender);
             }
 
@@ -2031,7 +2032,7 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 // decrease attack
-                if (Bot.UnderAttack && !onlyAlbaZoa && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0))
+                if (Bot.UnderAttack && !onlyAlbaZoa && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0) && Duel.LastChainPlayer != 0)
                 {
                     activateFlag = true;
                 }
@@ -2425,7 +2426,7 @@ namespace WindBot.Game.AI.Decks
             if (targetCard == null || extraToDiscard == null)
             {
                 bool check1 = DefaultOnBecomeTarget();
-                bool check2 = Bot.UnderAttack && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0);
+                bool check2 = Bot.UnderAttack && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0) && Duel.LastChainPlayer != 0;;
                 bool check3 = Duel.Player == 1 && Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0;
                 bool check4 = Duel.Player == 1 && avoid2Monster && Enemy.GetMonsterCount() >= 2 && Duel.LastChainPlayer != 0;
                 Logger.DebugWriteLine("===punishment check flag: " + check1 + " " + check2 + " " + check3 + " " + check4);
@@ -2820,7 +2821,7 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.IsAttack() && enemyBetter)
                 return true;
-            if (Card.IsDefense() && !enemyBetter && selfAttack >= Card.Defense)
+            if (Card.IsDefense() && !enemyBetter)
                 return true;
             return false;
         }

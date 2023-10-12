@@ -177,6 +177,12 @@ namespace WindBot.Game.AI
             public const int DuelLinkDragonTheDuelDragon = 60025883;
             public const int DuelDragonToken = 60025884;
             public const int SeleneQueenOfTheMasterMagicians = 45819647;
+            public const int TheWingedDragonofRaSphereMode = 10000080;
+
+            public const int RockOfTheVanquisher = 28168628;
+            public const int SpiralDischarge = 29477860;
+            public const int GaiaTheDragonChampion = 66889139;
+            public const int CrusadiaVanguard = 55312487;
         }
 
         protected class _Setcode
@@ -193,9 +199,11 @@ namespace WindBot.Game.AI
             public const int Performapal = 0x9f;
             public const int FurHire = 0x114;
             public const int Altergeist = 0x103;
+            public const int Crusadia = 0x116;
             public const int Endymion = 0x12a;
             public const int AncientWarriors = 0x137;
             public const int RescueACE = 0x18b;
+            public const int VanquishSoul = 0x195;
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
@@ -273,6 +281,8 @@ namespace WindBot.Game.AI
             {_CardId.Number48ShadowLich, (defender, list) => list.Any(monster => monster.IsCode(_CardId.PhantomToken))},
             {_CardId.DuelLinkDragonTheDuelDragon, (defender, list) => list.Any(monster => monster.IsCode(_CardId.DuelDragonToken))},
             {_CardId.SeleneQueenOfTheMasterMagicians, (defender, list) => list.Any(monster => monster.HasSetcode(_Setcode.Endymion))},
+
+            {_CardId.TheWingedDragonofRaSphereMode, (defender, list) => true}
         };
 
         /// <summary>
@@ -402,6 +412,18 @@ namespace WindBot.Game.AI
                 return false;
             
             if (defender.HasSetcode(_Setcode.EarthboundImmortal) && !defender.IsDisabled())
+                return false;
+            
+            if (Enemy.HasInMonstersZone(_CardId.RockOfTheVanquisher, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.VanquishSoul)))
+            {
+                if (defender.HasPosition(CardPosition.FaceDown)) return false;
+                if (Enemy.GetMonsters().Any(card => card.IsFaceup() && card.Attack > defender.Attack)) return false;
+            }
+
+            if (Enemy.HasInSpellZone(_CardId.SpiralDischarge, true) && Enemy.HasInMonstersZone(_CardId.GaiaTheDragonChampion) && !defender.IsCode(_CardId.GaiaTheDragonChampion))
+                return false;
+            
+            if (Enemy.HasInSpellZone(_CardId.CrusadiaVanguard, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.Crusadia) && card.HasType(CardType.Link)) && !defender.HasType(CardType.Link))
                 return false;
             
             return true;
