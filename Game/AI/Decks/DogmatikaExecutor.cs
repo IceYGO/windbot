@@ -131,6 +131,7 @@ namespace WindBot.Game.AI.Decks
         const int SetcodeOrcust = 0x11b;
         const int SetcodeDogmatika = 0x145;
         const int hintTimingMainEnd = 0x4;
+        const int hintDamageStep = 0x2000;
 
         Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>{
             {3, new List<int> { CardId.DogmatikaEcclesia, _CardId.AshBlossom, _CardId.MaxxC, CardId.KnightmareCorruptorIblee, CardId.NadirServant,
@@ -1094,10 +1095,22 @@ namespace WindBot.Game.AI.Decks
             base.OnMove(cardId, previousControler, previousLocation, currentControler, currentLocation);
         }
 
-        public override ClientCard OnSelectAttacker(IList<ClientCard> attackers, IList<ClientCard> defenders)
+        public override BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
-            if (attackers.Count() > 0) return attackers.OrderBy(card => card.Attack).FirstOrDefault();
-            return base.OnSelectAttacker(attackers, defenders);
+            if (attackers.Count() > 0 && defenders.Count() > 0)
+            {
+                List<ClientCard> sortedAttacker = attackers.OrderBy(card => card.Attack).ToList();
+                for (int k = 0; k < sortedAttacker.Count; ++k)
+                {
+                    ClientCard attacker = sortedAttacker[k];
+                    attacker.IsLastAttacker = k == sortedAttacker.Count - 1;
+                    BattlePhaseAction result = OnSelectAttackTarget(attacker, defenders);
+                    if (result != null)
+                        return result;
+                }
+            }
+
+            return base.OnBattle(attackers, defenders);
         }
 
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
@@ -2023,7 +2036,8 @@ namespace WindBot.Game.AI.Decks
                 if (!onlyAlbaZoa)
                 {
                     List<ClientCard> toDestroyMonsterList = Enemy.GetMonsters().Where(card => card.IsFaceup() 
-                        && card.Attack > 0 && card.Attack <= targetAttack && !currentDestroyCardList.Contains(card)).ToList();
+                        && card.Attack > 0 && card.Attack <= targetAttack && !currentDestroyCardList.Contains(card)
+                        && (Duel.Player == 1 || card != Enemy.BattlingMonster)).ToList();
                     if (toDestroyMonsterList.Count() > 1)
                     {
                         activateFlag = true;
@@ -2032,7 +2046,9 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 // decrease attack
-                if (Bot.UnderAttack && !onlyAlbaZoa && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0) && Duel.LastChainPlayer != 0)
+                if (Bot.UnderAttack && (!onlyAlbaZoa || (Bot.BattlingMonster?.IsCode(CardId.DogmatikaAlbaZoa) ?? false))
+                    && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0)
+                    && Duel.LastChainPlayer != 0 && (CurrentTiming & hintDamageStep) != 0)
                 {
                     activateFlag = true;
                 }

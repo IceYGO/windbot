@@ -183,6 +183,9 @@ namespace WindBot.Game.AI
             public const int SpiralDischarge = 29477860;
             public const int GaiaTheDragonChampion = 66889139;
             public const int CrusadiaVanguard = 55312487;
+            public const int GladiatorBeastDomitianus = 33652635;
+            public const int PatricianOfDarkness = 19153634;
+            public const int DictatorOfD = 66961194;
         }
 
         protected class _Setcode
@@ -197,6 +200,7 @@ namespace WindBot.Game.AI
             public const int Ghostrick = 0x8d;
             public const int OddEyes = 0x99;
             public const int Performapal = 0x9f;
+            public const int BlueEyes = 0xdd;
             public const int FurHire = 0x114;
             public const int Altergeist = 0x103;
             public const int Crusadia = 0x116;
@@ -414,7 +418,10 @@ namespace WindBot.Game.AI
             if (defender.HasSetcode(_Setcode.EarthboundImmortal) && !defender.IsDisabled())
                 return false;
             
-            if (Enemy.HasInMonstersZone(_CardId.RockOfTheVanquisher, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.VanquishSoul)))
+            bool attackHighestMonster = Enemy.HasInMonstersZone(_CardId.RockOfTheVanquisher, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.VanquishSoul));
+            attackHighestMonster |= Enemy.HasInMonstersZone(_CardId.GladiatorBeastDomitianus, true) || Enemy.HasInMonstersZone(_CardId.PatricianOfDarkness);
+            attackHighestMonster |= Enemy.HasInMonstersZone(_CardId.DictatorOfD, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.BlueEyes));
+            if (attackHighestMonster)
             {
                 if (defender.HasPosition(CardPosition.FaceDown)) return false;
                 if (Enemy.GetMonsters().Any(card => card.IsFaceup() && card.Attack > defender.Attack)) return false;
