@@ -60,6 +60,7 @@ namespace WindBot.Game.AI.Decks
             public const int DimensionalFissure = 81674782;
             public const int BanisheroftheRadiance = 94853057;
             public const int BanisheroftheLight = 61528025;
+            public const int GhostMournerMoonlitChill = 52038441;
         }
 
         public DogmatikaExecutor(GameAI ai, Duel duel)
@@ -1097,6 +1098,10 @@ namespace WindBot.Game.AI.Decks
 
         public override BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
+            if (attackers.Count() == 1 && defenders.Count() == 1)
+            {
+                if (defenders[0].IsCode(CardId.KnightmareCorruptorIblee) && !confirmLink2) return new BattlePhaseAction(BattlePhaseAction.BattleAction.ToMainPhaseTwo);
+            }
             if (attackers.Count() > 0 && defenders.Count() > 0)
             {
                 List<ClientCard> sortedAttacker = attackers.OrderBy(card => card.Attack).ToList();
@@ -2003,13 +2008,17 @@ namespace WindBot.Game.AI.Decks
             ClientCard lastChainCard = Util.GetLastChainCard();
             if (lastChainCard != null && lastChainCard.Controller == 1 && lastChainCard.IsMonster())
             {
-                foreach (ClientCard chainTarget in Duel.LastChainTargets)
+                bool negateFlag = lastChainCard.IsCode(_CardId.EffectVeiler, CardId.GhostMournerMoonlitChill);
+                if (Duel.Turn > 1 || !negateFlag)
                 {
-                    if (selfCasterList.Contains(chainTarget))
+                    foreach (ClientCard chainTarget in Duel.LastChainTargets)
                     {
-                        selfTarget = chainTarget;
-                        activateFlag = true;
-                        break;
+                        if (selfCasterList.Contains(chainTarget) && (!negateFlag || !chainTarget.IsCode(CardId.DiabellstarTheBlackWitch)))
+                        {
+                            selfTarget = chainTarget;
+                            activateFlag = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -2046,9 +2055,13 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 // decrease attack
-                if (Bot.UnderAttack && (!onlyAlbaZoa || (Bot.BattlingMonster?.IsCode(CardId.DogmatikaAlbaZoa) ?? false))
+                int botWorstPower = Util.GetWorstBotMonster()?.GetDefensePower() ?? 0;
+                bool decreaseFlag = Duel.Player == 1 && Enemy.GetMonsters().Any(card => card.Attack >= botWorstPower
+                    && card.IsMonsterHasPreventActivationEffectInBattle()) && Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2;
+                decreaseFlag |= (!onlyAlbaZoa || (Bot.BattlingMonster?.IsCode(CardId.DogmatikaAlbaZoa) ?? false))
                     && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0)
-                    && Duel.LastChainPlayer != 0 && (CurrentTiming & hintDamageStep) != 0)
+                    && Duel.LastChainPlayer != 0 && (CurrentTiming & hintDamageStep) != 0 && CurrentTiming > 0;
+                if (decreaseFlag)
                 {
                     activateFlag = true;
                 }
