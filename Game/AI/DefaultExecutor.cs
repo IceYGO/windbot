@@ -170,6 +170,7 @@ namespace WindBot.Game.AI
             public const int Otoshidamashi = 14957440;
             public const int NaturiaMosquito = 17285476;
             public const int RescueACEHydrant = 37617348;
+            public const int MeizenTheBattleNinja = 11825276;
             public const int VindikiteRGenex = 73483491;
             public const int PrincessCologne = 75574498;
             public const int Number48ShadowLich = 1426714;
@@ -238,7 +239,7 @@ namespace WindBot.Game.AI
             {_CardId.MadolcheChouxvalier, defender => defender.HasSetcode(_Setcode.Madolche) && !defender.IsCode(_CardId.MadolcheChouxvalier)},
             {_CardId.LadyOfD, defender => defender.HasRace(CardRace.Dragon)},
             {_CardId.MermailAbysslung, defender => defender.HasAttribute(CardAttribute.Water)},
-            {_CardId.HarpiesPetBabyDragon, defender => defender.HasSetcode(_Setcode.Harpie) && !defender.IsCode(_CardId.LabrynthArchfiend)},
+            {_CardId.HarpiesPetBabyDragon, defender => defender.HasSetcode(_Setcode.Harpie) && !defender.IsCode(_CardId.HarpiesPetBabyDragon)},
             {_CardId.HandHoldingGenie, defender => true},
             {_CardId.GolemDragon, defender => defender.HasRace(CardRace.Dragon)},
             {_CardId.MaraudingCaptain, defender => defender.HasRace(CardRace.Warrior)},
@@ -280,6 +281,7 @@ namespace WindBot.Game.AI
             {_CardId.NaturiaMosquito, (defender, list) => list.Any(monster => !monster.Equals(defender) && monster.HasSetcode(_Setcode.Naturia))},
             {_CardId.RescueACEHydrant, (defender, list) => list.Any(monster => !monster.IsCode(_CardId.RescueACEHydrant) && monster.HasSetcode(_Setcode.RescueACE))},
 
+            {_CardId.MeizenTheBattleNinja, (defender, list) => list.Any(monster => monster.IsFacedown())},
             {_CardId.VindikiteRGenex, (defender, list) => true},
             {_CardId.PrincessCologne, (defender, list) => list.Any(monster => !monster.Equals(defender))},
             {_CardId.Number48ShadowLich, (defender, list) => list.Any(monster => monster.IsCode(_CardId.PhantomToken))},
