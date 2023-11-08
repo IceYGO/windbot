@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
+using System.Linq;
 
 namespace WindBot.Game.AI.Decks
 {
@@ -67,6 +68,7 @@ namespace WindBot.Game.AI.Decks
             return 1;
         }
 
+        List<int> Impermanence_list = new List<int>();
         bool NormalSummoned = false;
         ClientCard stage_locked = null;
         bool pink_ss = false;
@@ -190,21 +192,39 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public int SelectSTPlace()
+        public int SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false)
         {
-            List<int> list = new List<int> { 0, 1, 2, 3, 4 };
+            if (card == null) card = Card;
+            List<int> list = new List<int>();
+            for (int seq = 0; seq < 5; ++seq)
+            {
+                if (Bot.SpellZone[seq] == null)
+                {
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    list.Add(seq);
+                }
+            }
             int n = list.Count;
             while (n-- > 1)
             {
-                int index = Program.Rand.Next(n + 1);
-                int temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
+                int index = Program.Rand.Next(list.Count);
+                int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
+                int tempInt = list[index];
+                list[index] = list[nextIndex];
+                list[nextIndex] = tempInt;
             }
-            foreach(int seq in list)
+            if (avoid_Impermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
             {
-                int zone = (int)System.Math.Pow(2, seq);
-                if (Bot.SpellZone[seq] == null) return zone;
+                foreach (int seq in list)
+                {
+                    ClientCard enemySpell = Enemy.SpellZone[4 - seq];
+                    if (enemySpell != null && enemySpell.IsFacedown()) continue;
+                    return (int)System.Math.Pow(2, seq);
+                }
+            }
+            foreach (int seq in list)
+            {
+                return (int)System.Math.Pow(2, seq);
             }
             return 0;
         }
@@ -505,7 +525,7 @@ namespace WindBot.Game.AI.Decks
             if (selected == null)
                 return false;
             AI.SelectCard(selected);
-            AI.SelectPlace(SelectSTPlace());
+            AI.SelectPlace(SelectSTPlace(Card, true));
             return true;
         }
 
@@ -526,13 +546,13 @@ namespace WindBot.Game.AI.Decks
                     if (self_card.IsCode(CardId.Galaxy))
                         return false;
                 }
-                AI.SelectPlace(SelectSTPlace());
+                AI.SelectPlace(SelectSTPlace(Card, true));
                 return true;
             }
             // activate when more than 2 cards
             if (Enemy.GetSpellCount() <= 1)
                 return false;
-            AI.SelectPlace(SelectSTPlace());
+            AI.SelectPlace(SelectSTPlace(Card, true));
             return true;
         }
 
@@ -627,7 +647,7 @@ namespace WindBot.Game.AI.Decks
             if (!spell_trap_activate()) return false;
             if (Bot.Deck.Count > 15)
             {
-                AI.SelectPlace(SelectSTPlace());
+                AI.SelectPlace(SelectSTPlace(Card, true));
                 return true;
             }
             return false;
@@ -1003,7 +1023,7 @@ namespace WindBot.Game.AI.Decks
                 if (!spell_trap_activate()) return false;
                 if (Duel.Phase <= DuelPhase.Main1 && Ts_reborn())
                 {
-                    AI.SelectPlace(SelectSTPlace());
+                    AI.SelectPlace(SelectSTPlace(Card, true));
                     return true;
                 }
                 return false;
@@ -1634,14 +1654,14 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (enemy.IsMonsterDangerous())
                     {
-                        AI.SelectPlace(SelectSTPlace());
+                        AI.SelectPlace(SelectSTPlace(Card, true));
                         return true;
                     }
                     if (enemy.IsFaceup() && (enemy.GetDefensePower() > bestenemy)) bestenemy = enemy.GetDefensePower();
                 }
                 if (bestPower <= bestenemy)
                 {
-                    AI.SelectPlace(SelectSTPlace());
+                    AI.SelectPlace(SelectSTPlace(Card, true));
                     return true;
                 }
             }
@@ -1697,6 +1717,11 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnNewTurn()
         {
+            if (Duel.Turn <= 1)
+            {
+                GraveCall_count = 0;
+                GraveCall_id = 0;
+            }
             NormalSummoned = false;
             stage_locked = null;
             pink_ss = false;
@@ -1705,6 +1730,7 @@ namespace WindBot.Game.AI.Decks
             white_eff_used = false;
             lockbird_useful = false;
             lockbird_used = false;
+            Impermanence_list.Clear();
             if (GraveCall_count > 0)
             {
                 if (--GraveCall_count <= 0)
@@ -1712,6 +1738,27 @@ namespace WindBot.Game.AI.Decks
                     GraveCall_id = 0;
                 }                
             }
+        }
+
+        public override void OnChaining(int player, ClientCard card)
+        {
+            if (card == null) return;
+
+            if (player == 1)
+            {
+                if (card.IsCode(_CardId.InfiniteImpermanence))
+                {
+                    for (int i = 0; i < 5; ++i)
+                    {
+                        if (Enemy.SpellZone[i] == card)
+                        {
+                            Impermanence_list.Add(4-i);
+                            break;
+                        }
+                    }
+                }
+            }
+            base.OnChaining(player, card);
         }
 
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)

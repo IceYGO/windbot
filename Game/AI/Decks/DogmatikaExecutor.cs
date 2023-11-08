@@ -2,8 +2,6 @@ using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System;
-using System.CodeDom;
-using System.Security.AccessControl;
 
 namespace WindBot.Game.AI.Decks
 {
@@ -62,6 +60,7 @@ namespace WindBot.Game.AI.Decks
             public const int DimensionalFissure = 81674782;
             public const int BanisheroftheRadiance = 94853057;
             public const int BanisheroftheLight = 61528025;
+            public const int GhostMournerMoonlitChill = 52038441;
         }
 
         public DogmatikaExecutor(GameAI ai, Duel duel)
@@ -133,6 +132,7 @@ namespace WindBot.Game.AI.Decks
         const int SetcodeOrcust = 0x11b;
         const int SetcodeDogmatika = 0x145;
         const int hintTimingMainEnd = 0x4;
+        const int hintDamageStep = 0x2000;
 
         Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>{
             {3, new List<int> { CardId.DogmatikaEcclesia, _CardId.AshBlossom, _CardId.MaxxC, CardId.KnightmareCorruptorIblee, CardId.NadirServant,
@@ -1096,10 +1096,26 @@ namespace WindBot.Game.AI.Decks
             base.OnMove(cardId, previousControler, previousLocation, currentControler, currentLocation);
         }
 
-        public override ClientCard OnSelectAttacker(IList<ClientCard> attackers, IList<ClientCard> defenders)
+        public override BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
-            if (attackers.Count() > 0) return attackers[attackers.Count() - 1];
-            return null;
+            if (attackers.Count() == 1 && defenders.Count() == 1)
+            {
+                if (defenders[0].IsCode(CardId.KnightmareCorruptorIblee) && !confirmLink2) return new BattlePhaseAction(BattlePhaseAction.BattleAction.ToMainPhaseTwo);
+            }
+            if (attackers.Count() > 0 && defenders.Count() > 0)
+            {
+                List<ClientCard> sortedAttacker = attackers.OrderBy(card => card.Attack).ToList();
+                for (int k = 0; k < sortedAttacker.Count; ++k)
+                {
+                    ClientCard attacker = sortedAttacker[k];
+                    attacker.IsLastAttacker = k == sortedAttacker.Count - 1;
+                    BattlePhaseAction result = OnSelectAttackTarget(attacker, defenders);
+                    if (result != null)
+                        return result;
+                }
+            }
+
+            return base.OnBattle(attackers, defenders);
         }
 
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
@@ -1112,6 +1128,9 @@ namespace WindBot.Game.AI.Decks
                     continue;
 
                 if (attacker.RealPower > defender.RealPower)
+                    return AI.Attack(attacker, defender);
+                
+                if (attacker.RealPower == defender.RealPower && defender.IsAttack() && Bot.GetMonsterCount() >= Enemy.GetMonsterCount())
                     return AI.Attack(attacker, defender);
             }
 
@@ -1989,13 +2008,17 @@ namespace WindBot.Game.AI.Decks
             ClientCard lastChainCard = Util.GetLastChainCard();
             if (lastChainCard != null && lastChainCard.Controller == 1 && lastChainCard.IsMonster())
             {
-                foreach (ClientCard chainTarget in Duel.LastChainTargets)
+                bool negateFlag = lastChainCard.IsCode(_CardId.EffectVeiler, CardId.GhostMournerMoonlitChill);
+                if (Duel.Turn > 1 || !negateFlag)
                 {
-                    if (selfCasterList.Contains(chainTarget))
+                    foreach (ClientCard chainTarget in Duel.LastChainTargets)
                     {
-                        selfTarget = chainTarget;
-                        activateFlag = true;
-                        break;
+                        if (selfCasterList.Contains(chainTarget) && (!negateFlag || !chainTarget.IsCode(CardId.DiabellstarTheBlackWitch)))
+                        {
+                            selfTarget = chainTarget;
+                            activateFlag = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -2022,7 +2045,8 @@ namespace WindBot.Game.AI.Decks
                 if (!onlyAlbaZoa)
                 {
                     List<ClientCard> toDestroyMonsterList = Enemy.GetMonsters().Where(card => card.IsFaceup() 
-                        && card.Attack > 0 && card.Attack <= targetAttack && !currentDestroyCardList.Contains(card)).ToList();
+                        && card.Attack > 0 && card.Attack <= targetAttack && !currentDestroyCardList.Contains(card)
+                        && (Duel.Player == 1 || card != Enemy.BattlingMonster)).ToList();
                     if (toDestroyMonsterList.Count() > 1)
                     {
                         activateFlag = true;
@@ -2031,7 +2055,13 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 // decrease attack
-                if (Bot.UnderAttack && !onlyAlbaZoa && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0))
+                int botWorstPower = Util.GetWorstBotMonster()?.GetDefensePower() ?? 0;
+                bool decreaseFlag = Duel.Player == 1 && Enemy.GetMonsters().Any(card => card.Attack >= botWorstPower
+                    && card.IsMonsterHasPreventActivationEffectInBattle()) && Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2;
+                decreaseFlag |= (!onlyAlbaZoa || (Bot.BattlingMonster?.IsCode(CardId.DogmatikaAlbaZoa) ?? false))
+                    && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0)
+                    && Duel.LastChainPlayer != 0 && (CurrentTiming & hintDamageStep) != 0 && CurrentTiming > 0;
+                if (decreaseFlag)
                 {
                     activateFlag = true;
                 }
@@ -2425,7 +2455,7 @@ namespace WindBot.Game.AI.Decks
             if (targetCard == null || extraToDiscard == null)
             {
                 bool check1 = DefaultOnBecomeTarget();
-                bool check2 = Bot.UnderAttack && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0);
+                bool check2 = Bot.UnderAttack && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0) && Duel.LastChainPlayer != 0;;
                 bool check3 = Duel.Player == 1 && Duel.Phase == DuelPhase.End && Duel.LastChainPlayer != 0;
                 bool check4 = Duel.Player == 1 && avoid2Monster && Enemy.GetMonsterCount() >= 2 && Duel.LastChainPlayer != 0;
                 Logger.DebugWriteLine("===punishment check flag: " + check1 + " " + check2 + " " + check3 + " " + check4);
@@ -2820,7 +2850,7 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.IsAttack() && enemyBetter)
                 return true;
-            if (Card.IsDefense() && !enemyBetter && selfAttack >= Card.Defense)
+            if (Card.IsDefense() && !enemyBetter)
                 return true;
             return false;
         }
