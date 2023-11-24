@@ -187,6 +187,9 @@ namespace WindBot.Game.AI
             public const int GladiatorBeastDomitianus = 33652635;
             public const int PatricianOfDarkness = 19153634;
             public const int DictatorOfD = 66961194;
+
+            public const int NovoxTheSilenforcerDisciple = 25801745;
+            public const int SilenforcingBarrier = 98477480;
         }
 
         protected class _Setcode
@@ -426,6 +429,9 @@ namespace WindBot.Game.AI
                 return false;
             
             if (Enemy.HasInSpellZone(_CardId.CrusadiaVanguard, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.Crusadia) && card.HasType(CardType.Link)) && !defender.HasType(CardType.Link))
+                return false;
+
+            if (Enemy.HasInSpellZone(_CardId.SilenforcingBarrier, true) && Enemy.HasInMonstersZone(_CardId.NovoxTheSilenforcerDisciple, faceUp: true) && !defender.HasType(CardType.Ritual))
                 return false;
             
             return true;
