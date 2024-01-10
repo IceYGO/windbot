@@ -125,6 +125,7 @@ namespace WindBot.Game.AI
             public const int VaylantzWorld_ShinraBansho = 49568943;
             public const int VaylantzWorld_KonigWissen = 75952542;
             public const int DivineArsenalAAZEUS_SkyThunder = 90448279;
+            public const int LightningStorm = 14532163;
 
             public const int BelialMarquisOfDarkness = 33655493;
             public const int ChirubiméPrincessOfAutumnLeaves = 87294988;
@@ -222,6 +223,8 @@ namespace WindBot.Game.AI
             AddExecutor(ExecutorType.Activate, _CardId.VaylantzWorld_KonigWissen, DefaultVaylantzWorld_KonigWissen);
             AddExecutor(ExecutorType.Activate, _CardId.SantaClaws);
         }
+
+        protected int lightningStormOption = -1;
 
         /// <summary>
         /// Defined:
@@ -395,6 +398,9 @@ namespace WindBot.Game.AI
                 }
             }
 
+            if (attacker.EquipCards.Any(equip => equip.IsCode(_CardId.MoonMirrorShield) && !equip.IsDisabled()))
+                attacker.RealPower = defender.RealPower + 100;
+
             if (!defender.IsDisabled())
             {
                 Func<ClientCard, List<ClientCard>, bool> defenderRule = (card, monsterList) => false;
@@ -429,6 +435,9 @@ namespace WindBot.Game.AI
                 return false;
             
             if (Enemy.HasInSpellZone(_CardId.CrusadiaVanguard, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.Crusadia) && card.HasType(CardType.Link)) && !defender.HasType(CardType.Link))
+                return false;
+            
+            if (defender.IsCode(_CardId.RescueACEHydrant) && !defender.IsDisabled() && Enemy.GetMonsters().Any(monster => monster.HasSetcode(_Setcode.RescueACE) && !monster.IsCode(_CardId.RescueACEHydrant)))
                 return false;
 
             if (Enemy.HasInSpellZone(_CardId.SilenforcingBarrier, true) && Enemy.HasInMonstersZone(_CardId.NovoxTheSilenforcerDisciple, faceUp: true) && !defender.HasType(CardType.Ritual))
@@ -1025,6 +1034,8 @@ namespace WindBot.Game.AI
 
             if (Util.ChainContainsCard(destroyAllList)) return true;
             if (Enemy.HasInSpellZone(destroyAllOpponentSpellList, true) && Card.Location == CardLocation.SpellZone) return true;
+            if (lightningStormOption == 0 && Card.Location == CardLocation.MonsterZone && Card.IsAttack()) return true;
+            if (lightningStormOption == 1 && Card.Location == CardLocation.SpellZone) return true;
             // TODO: ChainContainsCard(id, player)
             return false;
         }
@@ -1120,12 +1131,11 @@ namespace WindBot.Game.AI
                 bool nontuner = false;
                 foreach (ClientCard monster in monsters)
                 {
-                    if (monster.HasType(CardType.Tuner))
-                        tuner = true;
-                    else if (!monster.HasType(CardType.Xyz) && !monster.HasType(CardType.Link))
+                    if (!monster.HasType(CardType.Xyz | CardType.Link))
                     {
-                        nontuner = true;
-                        levels[monster.Level] = levels[monster.Level] + 1;
+                        if (monster.HasType(CardType.Tuner)) tuner = true;
+                        else nontuner = true;
+                        if (!monster.HasType(CardType.Token)) levels[monster.Level] = levels[monster.Level] + 1;
                     }
 
                     if (monster.IsOneForXyz())
@@ -1156,7 +1166,8 @@ namespace WindBot.Game.AI
                 }
             }
             ClientCard lastchaincard = Util.GetLastChainCard();
-            if (Duel.LastChainPlayer == 1 && lastchaincard != null && !lastchaincard.IsDisabled())
+            if (Duel.LastChainPlayer == 1 && lastchaincard != null && !lastchaincard.IsDisabled()
+                && (lastchaincard.HasType(CardType.Spell | CardType.Trap) || lastchaincard.Location == CardLocation.MonsterZone))
             {
                 if (lastchaincard.HasType(CardType.Ritual))
                 {
@@ -1453,6 +1464,22 @@ namespace WindBot.Game.AI
             }
 
             return false;
+        }
+
+        public override void OnReceivingAnnouce(int player, int data)
+        {
+            if (player == 1 && data == Util.GetStringId(_CardId.LightningStorm, 0) || data == Util.GetStringId(_CardId.LightningStorm, 1))
+            {
+                lightningStormOption = data - Util.GetStringId(_CardId.LightningStorm, 0);
+            }
+
+            base.OnReceivingAnnouce(player, data);
+        }
+
+        public override void OnChainEnd()
+        {
+            lightningStormOption = -1;
+            base.OnChainEnd();
         }
     }
 }

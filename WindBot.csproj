@@ -103,6 +103,7 @@
     <Compile Include="Game\AI\Decks\GraydleExecutor.cs" />
     <Compile Include="Game\AI\Decks\GrenMajuThunderBoarderExecutor.cs" />
     <Compile Include="Game\AI\Decks\LightswornExecutor.cs" />
+    <Compile Include="Game\AI\Decks\LabrynthExecutor.cs" />
     <Compile Include="Game\AI\Decks\LightswornShaddoldinosourExecutor.cs" />
     <Compile Include="Game\AI\Decks\PhantasmExecutor.cs" />
     <Compile Include="Game\AI\Decks\QliphortExecutor.cs" />
