@@ -700,6 +700,7 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnNewTurn()
         {
+            if (Duel.Turn <= 1) calledbytheGraveCount.Clear();
             enemyActivateMaxxC = false;
             enemyActivateLockBird = false;
 
@@ -780,7 +781,17 @@ namespace WindBot.Game.AI.Decks
         /// <param name="avoidList">Whether need to avoid set in this place</param>
         public void SelectSTPlace(ClientCard card = null, bool avoidImpermanence = false, List<int> avoidList = null)
         {
-            List<int> list = new List<int> { 0, 1, 2, 3, 4 };
+            if (card == null) card = Card;
+            List<int> list = new List<int>();
+            for (int seq = 0; seq < 5; ++seq)
+            {
+                if (Bot.SpellZone[seq] == null)
+                {
+                    if (card != null && card.Location == CardLocation.Hand && avoidImpermanence && infiniteImpermanenceList.Contains(seq)) continue;
+                    if (avoidList != null && avoidList.Contains(seq)) continue;
+                    list.Add(seq);
+                }
+            }
             int n = list.Count;
             while (n-- > 1)
             {
@@ -790,16 +801,22 @@ namespace WindBot.Game.AI.Decks
                 list[index] = list[nextIndex];
                 list[nextIndex] = tempInt;
             }
+            if (avoidImpermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
+            {
+                foreach (int seq in list)
+                {
+                    ClientCard enemySpell = Enemy.SpellZone[4 - seq];
+                    if (enemySpell != null && enemySpell.IsFacedown()) continue;
+                    int zone = (int)System.Math.Pow(2, seq);
+                    AI.SelectPlace(zone);
+                    return;
+                }
+            }
             foreach (int seq in list)
             {
                 int zone = (int)System.Math.Pow(2, seq);
-                if (Bot.SpellZone[seq] == null)
-                {
-                    if (card != null && card.Location == CardLocation.Hand && avoidImpermanence && infiniteImpermanenceList.Contains(seq)) continue;
-                    if (avoidList != null && avoidList.Contains(seq)) continue;
-                    AI.SelectPlace(zone);
-                    return;
-                };
+                AI.SelectPlace(zone);
+                return;
             }
             AI.SelectPlace(0);
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
+using System.Linq;
 
 namespace WindBot.Game.AI.Decks
 {
@@ -324,23 +325,37 @@ namespace WindBot.Game.AI.Decks
 
         public int SelectSTPlace(ClientCard card=null, bool avoid_Impermanence = false)
         {
-            List<int> list = new List<int> { 0, 1, 2, 3, 4 };
-            int n = list.Count;
-            while (n-- > 1)
+            if (card == null) card = Card;
+            List<int> list = new List<int>();
+            for (int seq = 0; seq < 5; ++seq)
             {
-                int index = Program.Rand.Next(n + 1);
-                int temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
-            foreach (int seq in list)
-            {
-                int zone = (int)System.Math.Pow(2, seq);
                 if (Bot.SpellZone[seq] == null)
                 {
                     if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
-                    return zone;
-                };
+                    list.Add(seq);
+                }
+            }
+            int n = list.Count;
+            while (n-- > 1)
+            {
+                int index = Program.Rand.Next(list.Count);
+                int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
+                int tempInt = list[index];
+                list[index] = list[nextIndex];
+                list[nextIndex] = tempInt;
+            }
+            if (avoid_Impermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
+            {
+                foreach (int seq in list)
+                {
+                    ClientCard enemySpell = Enemy.SpellZone[4 - seq];
+                    if (enemySpell != null && enemySpell.IsFacedown()) continue;
+                    return (int)System.Math.Pow(2, seq);
+                }
+            }
+            foreach (int seq in list)
+            {
+                return (int)System.Math.Pow(2, seq);
             }
             return 0;
         }
@@ -2656,6 +2671,27 @@ namespace WindBot.Game.AI.Decks
             attacked_Meluseek.Clear();
         }
 
+        public override void OnChaining(int player, ClientCard card)
+        {
+            if (card == null) return;
+
+            if (player == 1)
+            {
+                if (card.IsCode(_CardId.InfiniteImpermanence))
+                {
+                    for (int i = 0; i < 5; ++i)
+                    {
+                        if (Enemy.SpellZone[i] == card)
+                        {
+                            Impermanence_list.Add(4-i);
+                            break;
+                        }
+                    }
+                }
+            }
+            base.OnChaining(player, card);
+        }
+
         public bool MonsterRepos()
         {
             if (Card.Attack == 0) return (Card.IsAttack());
@@ -2797,7 +2833,8 @@ namespace WindBot.Game.AI.Decks
                 // throw all??
                 return null;
             }
-            return null;
+            
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
