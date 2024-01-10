@@ -21,7 +21,8 @@ namespace WindBot.Game.AI
         /// </summary>
         public static bool IsMonsterDangerous(this ClientCard card)
         {
-            return !card.IsDisabled() && Enum.IsDefined(typeof(DangerousMonster), card.Id);
+            return !card.IsDisabled() &&
+                (Enum.IsDefined(typeof(DangerousMonster), card.Id) || (card.HasSetcode(0x18d) && (card.HasType(CardType.Ritual) || card.EquipCards.Count > 0)));
         }
 
         /// <summary>

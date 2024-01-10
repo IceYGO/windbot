@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game
@@ -26,6 +26,8 @@ namespace WindBot.Game
         public int LastSummonPlayer { get; set; }
         public IList<ClientCard> SummoningCards { get; set; }
         public IList<ClientCard> LastSummonedCards { get; set; }
+        public int SolvingChainIndex { get; set; }
+        public IList<int> NegatedChainIndexList { get; set; }
 
         public Duel()
         {
@@ -41,6 +43,8 @@ namespace WindBot.Game
             LastSummonPlayer = -1;
             SummoningCards = new List<ClientCard>();
             LastSummonedCards = new List<ClientCard>();
+            SolvingChainIndex = 0;
+            NegatedChainIndexList = new List<int>();
         }
 
         public ClientCard GetCard(int player, CardLocation loc, int seq)
@@ -168,6 +172,17 @@ namespace WindBot.Game
         public int GetLocalPlayer(int player)
         {
             return IsFirst ? player : 1 - player;
+        }
+
+        public ClientCard GetCurrentSolvingChainCard()
+        {
+            if (SolvingChainIndex == 0 || SolvingChainIndex > CurrentChain.Count) return null;
+            return CurrentChain[SolvingChainIndex - 1];
+        }
+
+        public bool IsCurrentSolvingChainNegated()
+        {
+            return SolvingChainIndex > 0 && NegatedChainIndexList.Contains(SolvingChainIndex);
         }
     }
 }

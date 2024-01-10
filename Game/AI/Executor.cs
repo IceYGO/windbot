@@ -95,6 +95,11 @@ namespace WindBot.Game.AI
             // For overriding
         }
 
+        public virtual void OnChainSolved(int chainIndex)
+        {
+            // For overriding
+        }
+
         public virtual void OnChainEnd()
         {
             // For overriding

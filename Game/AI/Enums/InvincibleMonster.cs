@@ -109,6 +109,11 @@
         NightmareMagician = 40221691,
         ArahimetheManifestedMikanko = 75771170,
         UFOLight = 9275482,
-        TaotheGreatChanter = 34541543
+        TaotheGreatChanter = 34541543,
+        SpiritOfYubel = 90829280,
+        DarkGuardian = 26746975,
+        EnvoyOfTheWaxState = 87462901,
+        Fluffyfluff = 85401123,
+        YubelDasEwigLiebeWächter = 47172959
     }
 }
