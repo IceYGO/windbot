@@ -3382,10 +3382,11 @@ namespace WindBot.Game.AI.Decks
             level6MonsterList.Sort(CompareUsableAttack);
             level8MonsterList.Sort(CompareUsableAttack);
             bool checkFlag = GetProblematicEnemyCardList(true, selfType: CardType.Monster).Count() > 0 && !CheckWhetherNegated(true, true, CardType.Monster);
-            if (Util.GetBestPower(Bot, true) <= Util.GetBestPower(Enemy))
+            ClientCard BestEnemyMonster = Util.GetBestEnemyMonster();
+            if (BestEnemyMonster != null && Util.GetBestPower(Bot, true) <= Util.GetBestPower(Enemy))
             {
                 checkFlag |= Util.GetBestPower(Enemy) <= 3500;
-                checkFlag |= !Util.GetBestEnemyMonster().IsShouldNotBeTarget() && !Util.GetBestEnemyMonster().IsShouldNotBeMonsterTarget();
+                checkFlag |= !BestEnemyMonster.IsShouldNotBeTarget() && !BestEnemyMonster.IsShouldNotBeMonsterTarget();
             }
             // 4+6
             if (level4MonsterList.Count() > 0 && level6MonsterList.Count() > 0)
