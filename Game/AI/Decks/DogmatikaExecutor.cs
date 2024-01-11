@@ -1081,7 +1081,7 @@ namespace WindBot.Game.AI.Decks
             }
         }
 
-        public override void OnMove(int cardId, int previousControler, int previousLocation, int currentControler, int currentLocation)
+        public override void OnMove(ClientCard card, int previousControler, int previousLocation, int currentControler, int currentLocation)
         {
             if (previousControler == 1 && currentLocation == (int)CardLocation.MonsterZone)
             {
@@ -1093,7 +1093,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            base.OnMove(cardId, previousControler, previousLocation, currentControler, currentLocation);
+            base.OnMove(card, previousControler, previousLocation, currentControler, currentLocation);
         }
 
         public override BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)

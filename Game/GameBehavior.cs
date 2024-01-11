@@ -347,6 +347,10 @@ namespace WindBot.Game
             {
                 _select_hint = data;
             }
+            if (type == 4) // HINT_OPSELECTED
+            {
+                _ai.OnReceivingAnnouce(player, data);
+            }
         }
 
         private void OnStart(BinaryReader packet)
@@ -354,6 +358,11 @@ namespace WindBot.Game
             int type = packet.ReadByte();
             _duel.IsFirst = (type & 0xF) == 0;
             _duel.Turn = 0;
+            _duel.LastChainLocation = 0;
+            _duel.LastChainPlayer = -1;
+            _duel.LastChainTargets.Clear();
+            _duel.LastSummonedCards.Clear();
+            _duel.LastSummonPlayer = -1;
             int duel_rule = packet.ReadByte();
             _ai.Duel.IsNewRule = (duel_rule >= 4);
             _ai.Duel.IsNewRule2020 = (duel_rule >= 5);
@@ -653,7 +662,7 @@ namespace WindBot.Game
                 }
             }
         
-            _ai.OnMove(cardId, previousControler, previousLocation, currentControler, currentLocation);
+            _ai.OnMove(card, previousControler, previousLocation, currentControler, currentLocation);
         }
 
         private void OnSwap(BinaryReader packet)

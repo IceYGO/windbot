@@ -57,6 +57,11 @@
         ToZone = 571,
         Counter = 572,
         Disable = 573,
-        OperateCard = 574;
+        OperateCard = 574,
+        RITUAL = 1057,
+        FUSION = 1056,
+        SYNCHRO = 1063,
+        XYZ = 1073,
+        PENDULUM = 1074;
     }
 }

@@ -71,6 +71,7 @@
         ElShaddollConstruct = 20366274,
         ElShaddollGrysra = 48424886,
         ElShaddollWinda = 94977269,
+        HotRedDragonArchfiendAbyss = 9753964,
         UltimateConductorTytanno = 18940556,
         OvertexCoatls = 41782653,
         FirePrison = 269510,
