@@ -1713,39 +1713,42 @@ namespace WindBot.Game.AI.Decks
                         enemySetThisTurn.Add(card);
                 }
             }
-            if (previousControler == 0)
+            if (card != null)
             {
-                if (previousLocation == (int)CardLocation.MonsterZone && currentLocation != (int)CardLocation.MonsterZone)
+                if (previousControler == 0)
                 {
-                    if (summonThisTurn.Contains(card)) summonThisTurn.Remove(card);
-                    if (summonInChainList.Contains(card)) summonInChainList.Remove(card);
-                }
-                if (previousLocation == (int)CardLocation.SpellZone && currentLocation != (int)CardLocation.SpellZone)
-                {
-                    if (setTrapThisTurn.Contains(card)) setTrapThisTurn.Remove(card);
-                }
-            }
-            if (currentControler == 0)
-            {
-                ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
-                if (currentLocation == (int)CardLocation.SpellZone && (currentSolvingChain == null || !currentSolvingChain.IsCode(CardId.AriasTheLabrynthButler))
-                    && card != null && (card.HasType(CardType.Trap) || card.IsCode(CardId.WelcomeLabrynth, CardId.BigWelcomeLabrynth))
-                )
-                {
-                    Logger.DebugWriteLine("[setTrapThisTurn]set " + card.Name ?? "UnknowCard");
-                    setTrapThisTurn.Add(card);
-                }
-                if (currentLocation == (int)CardLocation.MonsterZone)
-                {
-                    summonThisTurn.Add(card);
-                    if (currentSolvingChain != null) summonInChainList.Add(card);
-                }
-                if (previousLocation == (int)CardLocation.Grave && currentLocation == (int)CardLocation.Removed)
-                {
-                    if (currentSolvingChain != null && currentSolvingChain.Controller == 1 && currentSolvingChain.IsCode(_CardId.CalledByTheGrave))
+                    if (previousLocation == (int)CardLocation.MonsterZone && currentLocation != (int)CardLocation.MonsterZone)
                     {
-                        Logger.DebugWriteLine("*** " + (card.Name ?? "UnknowCard") + " is banished by CallByTheGrave");
-                        calledbytheGraveCount[card.Id] = 2;
+                        if (summonThisTurn.Contains(card)) summonThisTurn.Remove(card);
+                        if (summonInChainList.Contains(card)) summonInChainList.Remove(card);
+                    }
+                    if (previousLocation == (int)CardLocation.SpellZone && currentLocation != (int)CardLocation.SpellZone)
+                    {
+                        if (setTrapThisTurn.Contains(card)) setTrapThisTurn.Remove(card);
+                    }
+                }
+                if (currentControler == 0)
+                {
+                    ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+                    if (currentLocation == (int)CardLocation.SpellZone && (currentSolvingChain == null || !currentSolvingChain.IsCode(CardId.AriasTheLabrynthButler))
+                        && (card.HasType(CardType.Trap) || card.IsCode(CardId.WelcomeLabrynth, CardId.BigWelcomeLabrynth))
+                    )
+                    {
+                        Logger.DebugWriteLine("[setTrapThisTurn]set " + card.Name ?? "UnknowCard");
+                        setTrapThisTurn.Add(card);
+                    }
+                    if (currentLocation == (int)CardLocation.MonsterZone)
+                    {
+                        summonThisTurn.Add(card);
+                        if (currentSolvingChain != null) summonInChainList.Add(card);
+                    }
+                    if (previousLocation == (int)CardLocation.Grave && currentLocation == (int)CardLocation.Removed)
+                    {
+                        if (currentSolvingChain != null && currentSolvingChain.Controller == 1 && currentSolvingChain.IsCode(_CardId.CalledByTheGrave))
+                        {
+                            Logger.DebugWriteLine("*** " + (card.Name ?? "UnknowCard") + " is banished by CallByTheGrave");
+                            calledbytheGraveCount[card.Id] = 2;
+                        }
                     }
                 }
             }
