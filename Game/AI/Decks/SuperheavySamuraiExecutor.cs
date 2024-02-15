@@ -267,7 +267,9 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> scards = cards.Where(card => card != null && card.HasSetcode(0x9a) && card.Level == 4).ToList();
                 if (scards.Count <2) scards = cards.Where(card => card != null && card.HasSetcode(0x9a)).ToList();
                 p_summoning = false;
-                return Util.CheckSelectCount(result,scards,max,max);
+                if (scards.Count > 0) return Util.CheckSelectCount(result,scards,max,max);
+                else return Util.CheckSelectCount(result,cards,max,max);
+            }
             }
             return null;
         }
@@ -434,7 +436,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     targetid = CardId.Motorbike;
                 }
-                else if (!(Bot.HasInHand(CardId.Wakaushi)||Bot.HasInMonstersZone(CardId.Wakaushi)||Bot.HasInSpellZone(CardId.Wakaushi)) && !activate_Wakaushi)
+                else if (!(Bot.HasInHand(CardId.Wakaushi) || Bot.HasInMonstersZone(CardId.Wakaushi) || Bot.HasInSpellZone(CardId.Wakaushi)) && !activate_Wakaushi)
                 {
                     targetid = CardId.Wakaushi;
                 }
@@ -442,7 +444,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     targetid = CardId.Soulpeacemaker;
                 }
-                else if (!Bot.HasInHand(CardId.Scales) && !activate_Scales && ((!normal_summon || !p_summoned) || (activate_Soulpeacemaker || !Bot.HasInHand(CardId.Soulpeacemaker))))
+                else if (!Bot.HasInHand(CardId.Scales) && !activate_Scales && (!normal_summon || !p_summoned) && (activate_Soulpeacemaker || (!Bot.HasInHand(CardId.Soulpeacemaker) && !Bot.HasInSpellZone(CardId.Soulpeacemaker))))
                 {
                     targetid = CardId.Scales;
                 }
