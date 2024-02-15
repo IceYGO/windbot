@@ -268,7 +268,7 @@ namespace WindBot.Game.AI.Decks
                 if (scards.Count <2) scards = cards.Where(card => card != null && card.HasSetcode(0x9a)).ToList();
                 p_summoning = false;
                 if (scards.Count > 0) return Util.CheckSelectCount(result, scards, 1, 1);
-                else if (min > 0) return result; // empty
+                else if (min == 0) return result; // empty
             }
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
