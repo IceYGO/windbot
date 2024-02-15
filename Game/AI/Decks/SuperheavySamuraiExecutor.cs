@@ -340,7 +340,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     targetid = CardId.Wakaushi;
                 }
-                else if (!Bot.HasInHand(CardId.Soulpeacemaker) && !activate_Soulpeacemaker)
+                else if (!Bot.HasInHand(CardId.Soulpeacemaker) && !activate_Soulpeacemaker && !normal_summon)
                 {
                     targetid = CardId.Soulpeacemaker;
                 }
@@ -424,12 +424,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                int CardCount = 0;
-                foreach (ClientCard card in Bot.Hand.GetMonsters())
-                {
-                    if (card.HasRace(CardRace.Machine) && (card.Level >= 2 && card.Level <= 7))
-                    {CardCount++;}
-                }
+                int CardCount = GetZoneCards(CardLocation.Hand, Bot).Count(card => card != null && card.HasSetcode(0x9a) && card.Level >= 2 && card.Level <= 7);
                 int targetid = -1;
                 if (!Bot.HasInHand(CardId.Motorbike) && !activate_Motorbike)
                 {
