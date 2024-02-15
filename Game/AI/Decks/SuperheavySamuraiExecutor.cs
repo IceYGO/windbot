@@ -303,7 +303,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Psummon()
         {
-            if (Card.Location == CardLocation.SpellZone)
+            List<ClientCard> cards = GetZoneCards(CardLocation.Hand, Bot).Where(card => card != null && card.HasSetcode(0x9a))
+            if (cards.Count > 0 && Card.Location == CardLocation.SpellZone)
             {
                 p_summoning = true;
                 p_summoned = true;
