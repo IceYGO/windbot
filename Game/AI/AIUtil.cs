@@ -434,6 +434,15 @@ namespace WindBot.Game.AI
                     if (selected.Count >= max)
                         break;
                 }
+                if (selected.Count < min)
+                {
+#if DEBUG
+                    throw new Exception("Not enough cards to CheckSelectCount");
+#else
+                    Logger.WriteErrorLine("Not enough cards to CheckSelectCount, using default");
+                    return null;
+#endif
+                }
             }
             while (selected.Count > max)
             {
