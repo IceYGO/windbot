@@ -260,8 +260,8 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
-            if (p_summoning && (Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon &&
-                Card.HasType(CardType.Pendulum))
+            if (p_summoning || ((Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon &&
+                Card.HasType(CardType.Pendulum)))
             {
                 List<ClientCard> result = new List<ClientCard>();
                 List<ClientCard> scards = cards.Where(card => card != null && card.HasSetcode(0x9a) && card.Level == 4).ToList();
@@ -442,7 +442,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     targetid = CardId.Soulpeacemaker;
                 }
-                else if (!Bot.HasInHand(CardId.Scales) && !activate_Scales && (!normal_summon || (activate_Soulpeacemaker || !Bot.HasInHand(CardId.Soulpeacemaker))))
+                else if (!Bot.HasInHand(CardId.Scales) && !activate_Scales && ((!normal_summon || !p_summoned) || (activate_Soulpeacemaker || !Bot.HasInHand(CardId.Soulpeacemaker))))
                 {
                     targetid = CardId.Scales;
                 }
