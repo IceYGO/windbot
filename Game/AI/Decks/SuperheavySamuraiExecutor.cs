@@ -267,11 +267,10 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> scards = cards.Where(card => card != null && card.HasSetcode(0x9a) && card.Level == 4).ToList();
                 if (scards.Count <2) scards = cards.Where(card => card != null && card.HasSetcode(0x9a)).ToList();
                 p_summoning = false;
-                if (scards.Count > 0) return Util.CheckSelectCount(result,scards,max,max);
-                else return Util.CheckSelectCount(result,cards,max,max);
+                if (scards.Count > 0) return Util.CheckSelectCount(result, scards, 1, 1);
+                else if (min > 0) return result; // empty
             }
-            }
-            return null;
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
         private List<ClientCard> GetZoneCards(CardLocation loc, ClientField player)
         {
@@ -305,7 +304,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Psummon()
         {
-            List<ClientCard> cards = GetZoneCards(CardLocation.Hand, Bot).Where(card => card != null && card.HasSetcode(0x9a)).ToList();
+            List<ClientCard> cards = GetZoneCards(CardLocation.Hand, Bot).Where(card => card != null && card.HasSetcode(0x9a) && card.Level > 1 && card.Level < 8).ToList();
             if (cards.Count > 0 && Card.Location == CardLocation.SpellZone)
             {
                 p_summoning = true;
