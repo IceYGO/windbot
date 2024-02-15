@@ -51,31 +51,30 @@ namespace WindBot.Game.AI.Decks
 
         }
 
-        bool normal_summon = false;
-        bool p_summoned = false;
-        bool activate_Motorbike = false;//摩托
-        bool activate_Wakaushi = false;//神童
-        bool activate_Scales = false;//天秤
-        bool activate_Wagon = false;//大巴
-        bool activate_Booster = false;//地铠
-        bool activate_Soulpeacemaker = false;//仲裁
-        bool  activate_Benkei = false;//弁庆
-        bool  need_Gear = false;//齿轮齿巨人
+        private bool normal_summon = false;
+        private bool p_summoned = false;
+        private bool p_summoning = false;
+        private bool activate_Motorbike = false;//摩托
+        private bool activate_Wakaushi = false;//神童
+        private bool activate_Scales = false;//天秤
+        private bool activate_Wagon = false;//大巴
+        private bool activate_Booster = false;//地铠
+        private bool activate_Soulpeacemaker = false;//仲裁
+        private bool  activate_Benkei = false;//弁庆
+        private bool  need_Gear = false;//齿轮齿巨人
         //案山子
-        bool activate_Scarecrow=false;
-        bool summon_Scarecrow=false;
-        bool activate_Sarutobi = false;//猿飞
-        bool activate_Genius = false;//路径灵
+        private bool activate_Scarecrow=false;
+        private bool summon_Scarecrow=false;
+        private bool activate_Sarutobi = false;//猿飞
+        private bool activate_Genius = false;//路径灵
         //淘气精灵
-        bool activate_Elf = false;
-        bool summon_Elf = false;
+        private bool activate_Elf = false;
+        private bool summon_Elf = false;
         //手坑
-        bool activate_MaxxG = false;//增殖的G
-        bool activate_PSY = false;//PSY
-        bool activate_LockBird = false;//小丑与锁鸟
-        bool to_deck = false;
-
-        int p_count = 0;
+        private bool activate_MaxxG = false;//增殖的G
+        private bool activate_PSY = false;//PSY
+        private bool activate_LockBird = false;//小丑与锁鸟
+        private bool to_deck = false;
 
         public SuperheavySamuraiExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -188,6 +187,7 @@ namespace WindBot.Game.AI.Decks
         {
             normal_summon = false;
             p_summoned = false;
+            p_summoning = false;
             activate_Motorbike = false;
             activate_Wakaushi = false;
             activate_Scales = false;
@@ -260,15 +260,13 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
-            if ((Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon &&
+            if (p_summoning || (Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon &&
                 Card.HasType(CardType.Pendulum))
             {
-                List<ClientCard> ECards = Bot.GetMonstersInExtraZone().Where(card => card != null).ToList();
                 List<ClientCard> result = new List<ClientCard>();
-                List<ClientCard> scards = cards.Where(card => card != null && card.HasRace(CardRace.Machine) && card.Level == 4).ToList();
-                if (scards.Count <2) scards = cards.Where(card => card != null && card.HasRace(CardRace.Machine)).ToList();
-                if (p_count >= 3 && ECards.Count == 0) return Util.CheckSelectCount(result,scards,min,min);
-                else if (p_count >= 2) return Util.CheckSelectCount(result,scards,min,min);
+                List<ClientCard> scards = cards.Where(card => card != null && card.HasSetcode(0x9a) && card.Level == 4).ToList();
+                if (scards.Count <2) scards = cards.Where(card => card != null && card.HasSetcode(0x9a)).ToList();
+                p_summoning = false;
                 return Util.CheckSelectCount(result,scards,max,max);
             }
             return null;
@@ -307,6 +305,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.SpellZone)
             {
+                p_summoning = true;
                 p_summoned = true;
                 return true;
             }
@@ -458,7 +457,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     targetid = CardId.Booster;
                 }
-                else if (!Bot.HasInHand(CardId.Soulhorns) && !Bot.HasInSpellZone(CardId.Soulhorns))
+                else if (!Bot.HasInHand(CardId.Soulhorns) && !Bot.HasInSpellZone(CardId.Soulhorns) && (Bot.HasInMonstersZone(CardId.Sarutobi) || Bot.HasInMonstersZone(CardId.Masurawo)))
                 {
                     targetid = CardId.Soulhorns;
                 }
@@ -663,7 +662,7 @@ namespace WindBot.Game.AI.Decks
         {
             List<ClientCard> material = new List<ClientCard>();
             List<ClientCard> cards = Bot.GetMonstersInExtraZone().Where(card => card != null && card.Id == CardId.Scarecrow).ToList();
-            if (cards.Count > 0 || summon_Scarecrow) return false;
+            if (cards.Count > 0 || summon_Scarecrow || activate_Scarecrow) return false;
             int targetid = -1;
             if (Bot.MonsterZone[0] != null && Bot.MonsterZone[2] != null) {
                 if (Bot.MonsterZone[0].Id == CardId.Soulpiercer) material.Add(Bot.MonsterZone[0]);
@@ -753,6 +752,7 @@ namespace WindBot.Game.AI.Decks
             }
             AI.SelectCard(tributeId);
             AI.SelectNextCard(needId);
+            activate_Scarecrow = true;
             if (!summon_Scarecrow
                 && ((Bot.HasInHand(CardId.Wakaushi) || Bot.HasInSpellZone(CardId.Wakaushi)) && !activate_Wakaushi)
                 && (Bot.HasInHand(CardId.Motorbike) && !activate_Motorbike)
@@ -762,11 +762,13 @@ namespace WindBot.Game.AI.Decks
                 && ((Bot.HasInGraveyard(CardId.Scales) || Bot.HasInHand(CardId.Soulpiercer)) && !activate_Scales && !normal_summon)
             )
             {
-                summon_Scarecrow = true;
+                activate_Scarecrow = false;
+                summon_Scarecrow = false;
             }
             else if (needId != CardId.Soulpiercer)
             {
-                summon_Scarecrow = true;
+                activate_Scarecrow = false;
+                summon_Scarecrow = false;
             }
             return true;
         }
