@@ -9,6 +9,7 @@ namespace WindBot.Game
     {
         public GameClient Game { get; private set; }
         public Duel Duel { get; private set; }
+        public CoreFunction CoreFunction { get; private set; }
         public Executor Executor { get; set; }
 
         private Dialogs _dialogs;
@@ -16,11 +17,11 @@ namespace WindBot.Game
         // record activated count to prevent infinite actions
         private Dictionary<int, int> _activatedCards;
 
-        public GameAI(GameClient game, Duel duel)
+        public GameAI(GameClient game, Duel duel, CoreFunction coreFunction)
         {
             Game = game;
             Duel = duel;
-
+            CoreFunction = coreFunction;
             _dialogs = new Dialogs(game);
             _activatedCards = new Dictionary<int, int>();
         }
