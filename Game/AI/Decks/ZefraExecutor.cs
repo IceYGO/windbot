@@ -547,7 +547,7 @@ namespace WindBot.Game.AI.Decks
             if (duel_start)
             {
                 duel_start = false;
-                AI.SendCustomChat((int)CustomMessage.Happy);
+                AI.Dialogs.SendCustomChat((int)CustomMessage.Happy);
             }
             activate_SupremeKingDragonDarkwurm_1 = false;
             activate_SupremeKingDragonDarkwurm_2 = false;
@@ -725,7 +725,7 @@ namespace WindBot.Game.AI.Decks
                 && activate_count + summon_count < 5 && !enemy_activate)
             {
 
-                AI.SendCustomChat((int)CustomMessage.Angry);
+                AI.Dialogs.SendCustomChat((int)CustomMessage.Angry);
                 return true;
             }
             return false;
@@ -1405,7 +1405,7 @@ namespace WindBot.Game.AI.Decks
             AI.SelectMaterials(materials);
             if (materials.Distinct().Count() <= 3)
             {
-                AI.SendCustomChat((int)CustomMessage.Surprise);
+                AI.Dialogs.SendCustomChat((int)CustomMessage.Surprise);
             }
             return true;
         }

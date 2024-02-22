@@ -237,6 +237,78 @@ namespace WindBot.Game.AI
             return 0;
         }
 
+        /// <summary>
+        /// Called when bot send new turn dialog
+        /// </summary>
+        public virtual void SendNewTurnDialog()
+        {
+            AI.Dialogs.SendNewTurn();
+        }
+
+        /// <summary>
+        /// Called when bot send end turn dialog
+        /// </summary>
+        public virtual void SendEndTurnDialog()
+        {
+            AI.Dialogs.SendEndTurn();
+        }
+        
+        /// <summary>
+        /// Called when bot send direct attack dialog
+        /// </summary>
+        public virtual void SendDirectAttackDialog(ClientCard card)
+        {
+            AI.Dialogs.SendDirectAttack(card.Name);
+        }
+        
+        /// <summary>
+        /// Called when bot send attack dialog
+        /// </summary>
+        public virtual void SendAttackDialog(ClientCard attacker, string defender)
+        {
+            AI.Dialogs.SendAttack(attacker.Name, defender);
+        }
+
+        /// <summary>
+        /// Called when bot send under direct attack dialog
+        /// </summary>
+        public virtual void SendOnDirectAttackDialog(ClientCard card)
+        {
+            AI.Dialogs.SendOnDirectAttack(card.Name);
+        }
+
+        /// <summary>
+        /// Called when bot send activate dialog
+        /// </summary>
+        public virtual void SendActivateDialog(ClientCard card)
+        {
+            AI.Dialogs.SendActivate(card.Name);
+        }
+
+        /// <summary>
+        /// Called when bot send summon dialog
+        /// </summary>
+        public virtual void SendSummonDialog(ClientCard card)
+        {
+            AI.Dialogs.SendSummon(card.Name);
+        }
+
+        /// <summary>
+        /// Called when bot send set monster dialog
+        /// </summary>
+        public virtual void SendSetMonsterDialog()
+        {
+            AI.Dialogs.SendSetMonster();
+        }
+
+        /// <summary>
+        /// Called when bot send chaining dialog
+        /// </summary>
+        public virtual void SendChainingDialog(ClientCard card)
+        {
+            AI.Dialogs.SendChaining(card.Name);
+        }
+
         public void SetMain(MainPhase main)
         {
             Main = main;

@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
+using WindBot.Game.AI.Enums.Dialogs;
 using System.Linq;
-
 
 namespace WindBot.Game.AI.Decks
 {
@@ -197,6 +197,7 @@ namespace WindBot.Game.AI.Decks
         bool MagicianRightHand_used = false;
         ClientCard MagiciansLeftHand_negate = null;
         ClientCard MagicianRightHand_negate = null;
+        bool customDialogFlag = false;
 
         // go first
         public override bool OnSelectHand()
@@ -246,6 +247,7 @@ namespace WindBot.Game.AI.Decks
 
             if (player == 1 && card.Id == CardId.MaxxC && CheckCalledbytheGrave(CardId.MaxxC) == 0)
             {
+                AI.Dialogs.SendCustomChat((int)VerreDialogs.MaxxCResponse);
                 enemy_activate_MaxxC = true;
             }
             if (player == 1 && card.Id == CardId.DimensionShifter && CheckCalledbytheGrave(CardId.DimensionShifter) == 0)
@@ -423,6 +425,19 @@ namespace WindBot.Game.AI.Decks
             {
                 return base.OnSelectPosition(cardId, positions);
             }
+            if (cardId == CardId.MadameVerre)
+            {
+                AI.Dialogs.SendCustomChat((int)VerreDialogs.VerreSpSummon);
+            }
+            if (cardId == CardId.Haine) {
+                if (Bot.HasInMonstersZone(CardId.MadameVerre, false, false, true))
+                {
+                    AI.Dialogs.SendCustomChat((int)VerreDialogs.HaineSpSummonWithVerre);
+                } else 
+                {
+                    AI.Dialogs.SendCustomChat((int)VerreDialogs.HaineSpSummonWithoutVerre);
+                }
+            }
             if (!Enemy.HasInMonstersZone(_CardId.BlueEyesChaosMAXDragon) 
                 && (Duel.Player == 1 && (cardId == CardId.MadameVerre ||
                 Util.GetOneEnemyBetterThanValue(Data.Attack + 1) != null))
@@ -435,6 +450,70 @@ namespace WindBot.Game.AI.Decks
                 return CardPosition.FaceUpDefence;
             }
             return base.OnSelectPosition(cardId, positions);
+        }
+
+        public override void SendActivateDialog(ClientCard card)
+        {
+            if (customDialogFlag)
+            {
+                customDialogFlag = false;
+                return;
+            }
+            if (Duel.Phase == DuelPhase.End && card.HasSetcode(Witchcraft_setcode) && card.Location == CardLocation.Grave)
+            {
+                AI.Dialogs.SendCustomActivate((int)VerreDialogs.SpellRecycleActivate, card.Name);
+                return;
+            }
+            base.SendActivateDialog(card);
+        }
+
+        public override void SendChainingDialog(ClientCard card)
+        {
+            if (customDialogFlag)
+            {
+                customDialogFlag = false;
+                return;
+            }
+            if (Duel.Phase == DuelPhase.End && card.HasSetcode(Witchcraft_setcode) && card.Location == CardLocation.Grave)
+            {
+                AI.Dialogs.SendCustomChaining((int)VerreDialogs.SpellRecycleActivate, card.Name);
+                return;
+            }
+            base.SendChainingDialog(card);
+        }
+
+        public override void SendDirectAttackDialog(ClientCard card)
+        {
+            if (card.Id == CardId.MadameVerre)
+            {
+                AI.Dialogs.SendCustomDirectAttack((int)VerreDialogs.VerreDirectAttack, card.Name);
+                return;
+            }
+            if (card.Attack >= Enemy.LifePoints)
+            {
+                AI.Dialogs.SendCustomDirectAttack((int)VerreDialogs.LastAttack, card.Name);
+                return;
+            }
+            base.SendDirectAttackDialog(card);
+        }
+
+        public override void SendEndTurnDialog()
+        {
+            // check whether duel going to end
+            if (Duel.Turn > 1)
+            {
+                if (Bot.GetMonsterCount() > 0 && Enemy.GetMonsterCount() == 0 && Bot.LifePoints > Enemy.LifePoints)
+                {
+                    AI.Dialogs.SendCustomEndTurn((int)VerreDialogs.DuelNearEnd);
+                    return;
+                }
+                if (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() > 0 && Bot.LifePoints < Enemy.LifePoints)
+                {
+                    AI.Dialogs.SendCustomEndTurn((int)VerreDialogs.DuelNearEnd);
+                    return;
+                }
+            }
+            base.SendEndTurnDialog();
         }
 
         // shuffle List<ClientCard>
@@ -1370,71 +1449,92 @@ namespace WindBot.Game.AI.Decks
             // negate
             if (ActivateDescription == Util.GetStringId(CardId.MadameVerre, 1))
             {
-                if (Card.IsDisabled()) return false;
-                if (CheckLastChainNegated()) return false;
-
-                // negate before activate
-                if (Enemy.MonsterZone.GetFirstMatchingCard(card => card.IsMonsterShouldBeDisabledBeforeItUseEffect() && !card.IsDisabled()) != null)
+                if (MadameVerreActivateForNegate())
                 {
-                    SelectDiscardSpell();
+                    AI.Dialogs.SendCustomActivate((int)VerreDialogs.VerreNegateActivate, Card.Name);
+                    customDialogFlag = true;
                     return true;
                 }
-
-                // chain check
-                ClientCard LastChainCard = Util.GetLastChainCard();
-                if ((LastChainCard != null && LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone))
-                {
-                    // negate monsters' activate
-                    SelectDiscardSpell();
-                    return true;
-                }
-
-                // negate battle related effect
-                if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
-                {
-                    if (Enemy.MonsterZone.GetFirstMatchingCard(card => 
-                        card.IsMonsterDangerous() || (Duel.Player == 0) && card.IsMonsterInvincible()) != null)
-                    {
-                        SelectDiscardSpell();
-                        return true;
-                    }
-                }
-
-                return false;
             }
             // gain ATK
             else
             {
-                ClientCard self_card = Bot.BattlingMonster;
-                ClientCard enemy_card = Enemy.BattlingMonster;
-                if (self_card != null && enemy_card != null)
+                if (MadameVerreActivateForGainAttack())
                 {
-                    int power_cangain = CheckPlusAttackforMadameVerre();
-                    int diff = enemy_card.GetDefensePower() - self_card.GetDefensePower();
-                    Logger.DebugWriteLine("power: " + power_cangain.ToString());
-                    Logger.DebugWriteLine("diff: " + diff.ToString());
-                    if (diff > 0)
-                    {
-                        // avoid useless effect
-                        if (self_card.IsDefense() && power_cangain < diff)
-                        {
-                            return false;
-                        }
-                        AI.SelectCard(Bot.Hand.GetMatchingCards(card => card.IsSpell()));
-                        MadameVerreGainedATK = true;
-                        return true;
-                    }
-                    else if (Enemy.GetMonsterCount() == 1 || (enemy_card.IsAttack() && Enemy.LifePoints <= diff + power_cangain))
-                    {
-                        AI.SelectCard(Bot.Hand.GetMatchingCards(card => card.IsSpell()));
-                        MadameVerreGainedATK = true;
-                        return true;
-                    }
+                    AI.Dialogs.SendCustomActivate((int)VerreDialogs.VerreGainAttackActivate, Card.Name);
+                    customDialogFlag = true;
+                    return true;
                 }
             }
             return false;
         }
 
+        public bool MadameVerreActivateForNegate()
+        {
+            if (Card.IsDisabled()) return false;
+            if (CheckLastChainNegated()) return false;
+
+            // negate before activate
+            if (Enemy.MonsterZone.GetFirstMatchingCard(card => card.IsMonsterShouldBeDisabledBeforeItUseEffect() && !card.IsDisabled()) != null)
+            {
+                SelectDiscardSpell();
+                return true;
+            }
+
+            // chain check
+            ClientCard LastChainCard = Util.GetLastChainCard();
+            if ((LastChainCard != null && LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone))
+            {
+                // negate monsters' activate
+                SelectDiscardSpell();
+                return true;
+            }
+
+            // negate battle related effect
+            if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
+            {
+                if (Enemy.MonsterZone.GetFirstMatchingCard(card => 
+                    card.IsMonsterDangerous() || (Duel.Player == 0) && card.IsMonsterInvincible()) != null)
+                {
+                    SelectDiscardSpell();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        
+        public bool MadameVerreActivateForGainAttack()
+        {
+            ClientCard self_card = Bot.BattlingMonster;
+            ClientCard enemy_card = Enemy.BattlingMonster;
+            if (self_card != null && enemy_card != null)
+            {
+                int power_cangain = CheckPlusAttackforMadameVerre();
+                int diff = enemy_card.GetDefensePower() - self_card.GetDefensePower();
+                Logger.DebugWriteLine("power: " + power_cangain.ToString());
+                Logger.DebugWriteLine("diff: " + diff.ToString());
+                if (diff > 0)
+                {
+                    // avoid useless effect
+                    if (self_card.IsDefense() && power_cangain < diff)
+                    {
+                        return false;
+                    }
+                    AI.SelectCard(Bot.Hand.GetMatchingCards(card => card.IsSpell()));
+                    MadameVerreGainedATK = true;
+                    return true;
+                }
+                else if (Enemy.GetMonsterCount() == 1 || (enemy_card.IsAttack() && Enemy.LifePoints <= diff + power_cangain))
+                {
+                    AI.SelectCard(Bot.Hand.GetMatchingCards(card => card.IsSpell()));
+                    MadameVerreGainedATK = true;
+                    return true;
+                }
+            }
+            return false;
+        }
+        
         // activate of Haine
         public bool HaineActivate()
         {

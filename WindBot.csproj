@@ -136,6 +136,7 @@
     <Compile Include="Game\AI\Enums\OneForXyz.cs" />
     <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
     <Compile Include="Game\AI\Enums\Floodgate.cs" />
+    <Compile Include="Game\AI\Enums\Dialogs\VerreDialogs.cs" />
     <Compile Include="Game\AI\Executor.cs" />
     <Compile Include="Game\AI\HintMsg.cs" />
     <Compile Include="Game\AI\Opcodes.cs" />

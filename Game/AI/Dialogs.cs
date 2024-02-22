@@ -110,14 +110,29 @@ namespace WindBot.Game.AI
             InternalSendMessage(_newturn);
         }
 
+        public void SendCustomNewTurn(int index, params object[] opts)
+        {
+            SendCustomChatWithDefaultMessages(index, _newturn, opts);
+        }
+
         public void SendEndTurn()
         {
             InternalSendMessage(_endturn);
         }
 
+        public void SendCustomEndTurn(int index, params object[] opts)
+        {
+            SendCustomChatWithDefaultMessages(index, _endturn, opts);
+        }
+
         public void SendDirectAttack(string attacker)
         {
             InternalSendMessage(_directattack, attacker);
+        }
+
+        public void SendCustomDirectAttack(int index, string attacker)
+        {
+            SendCustomChatWithDefaultMessages(index, _directattack, attacker);
         }
 
         public void SendAttack(string attacker, string defender)
@@ -129,6 +144,11 @@ namespace WindBot.Game.AI
             InternalSendMessage(_attack, attacker, defender);
         }
 
+        public void SendCustomAttack(int index, string attacker, string defender)
+        {
+            SendCustomChatWithDefaultMessages(index, _attack, attacker, defender);
+        }
+
         public void SendOnDirectAttack(string attacker)
         {
             if (string.IsNullOrEmpty(attacker))
@@ -137,6 +157,12 @@ namespace WindBot.Game.AI
             }
             InternalSendMessage(_ondirectattack, attacker);
         }
+
+        public void SendCustomOnDirectAttack(int index, string attacker)
+        {
+            SendCustomChatWithDefaultMessages(index, _ondirectattack, attacker);
+        }
+
         public void SendOnDirectAttack()
         {
             InternalSendMessage(_ondirectattack);
@@ -147,9 +173,19 @@ namespace WindBot.Game.AI
             InternalSendMessage(_activate, spell);
         }
 
+        public void SendCustomActivate(int index, string spell)
+        {
+            SendCustomChatWithDefaultMessages(index, _activate, spell);
+        }
+
         public void SendSummon(string monster)
         {
             InternalSendMessage(_summon, monster);
+        }
+
+        public void SendCustomSummon(int index, string spell)
+        {
+            SendCustomChatWithDefaultMessages(index, _summon, spell);
         }
 
         public void SendSetMonster()
@@ -157,9 +193,19 @@ namespace WindBot.Game.AI
             InternalSendMessage(_setmonster);
         }
 
+        public void SendCustomSetMonster(int index)
+        {
+            SendCustomChatWithDefaultMessages(index, _setmonster);
+        }
+
         public void SendChaining(string card)
         {
             InternalSendMessage(_chaining, card);
+        }
+
+        public void SendCustomChaining(int index, string card)
+        {
+            SendCustomChatWithDefaultMessages(index, _chaining, card);
         }
 
         private void InternalSendMessage(IList<string> array, params object[] opts)
@@ -180,8 +226,22 @@ namespace WindBot.Game.AI
 
         public void SendCustomChat(int index, params object[] opts)
         {
-            if (!_game._chat || _custom == null)
+            if (!_game._chat || _custom == null || _custom.Length <= index)
                 return;
+            string message = string.Format(_custom[index], opts);
+            if (message != "")
+                _game.Chat(message);
+        }
+
+        public void SendCustomChatWithDefaultMessages(int index, String[] defaultMessages, params object[] opts)
+        {
+            if (!_game._chat)
+                return;
+            if (_custom == null || _custom.Length <= index)
+            {
+                InternalSendMessage(defaultMessages, opts);
+                return;
+            }
             string message = string.Format(_custom[index], opts);
             if (message != "")
                 _game.Chat(message);
