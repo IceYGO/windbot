@@ -65,6 +65,7 @@ namespace WindBot.Game.AI.Decks
         //案山子
         private bool activate_Scarecrow=false;
         private bool summon_Scarecrow=false;
+        private bool summon_Scarecrow2=true;
         private bool activate_Sarutobi = false;//猿飞
         private bool activate_Genius = false;//路径灵
         //淘气精灵
@@ -103,9 +104,11 @@ namespace WindBot.Game.AI.Decks
         //Synchron
             AddExecutor(ExecutorType.SpSummon, CardId.ASStardustDragon,ASStardustDragonSynchronFunction2);
             AddExecutor(ExecutorType.SpSummon, CardId.Fleur,FleurSynchronFunction2);
-
+            
+        //Pendulum
             AddExecutor(ExecutorType.Activate, CardId.Wakaushi,WakaushiFunction);
             AddExecutor(ExecutorType.Activate, CardId.Wakaushi,WakaushiEffectFunction);
+            AddExecutor(ExecutorType.Activate, CardId.Benkei,BenkeiFunction);
             AddExecutor(ExecutorType.Activate, CardId.Benkei,BenkeiEffectFunction);
 
         //Normal Summon & Effect
@@ -131,6 +134,7 @@ namespace WindBot.Game.AI.Decks
         //Link Scarecrow
             AddExecutor(ExecutorType.SpSummon, CardId.Scarecrow,ScarecrowLinkFunction);
             AddExecutor(ExecutorType.Activate, CardId.Scarecrow,ScarecrowFunction);
+            AddExecutor(ExecutorType.SpSummon, CardId.Scarecrow,ScarecrowLinkFunction2);
 
         //Synchron
             AddExecutor(ExecutorType.SpSummon, CardId.ASStardustDragon,ASStardustDragonSynchronFunction);
@@ -161,14 +165,20 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.Motorbike,MotorbikeFunction);
 
-        //Regulus's Effect
-            AddExecutor(ExecutorType.Activate, CardId.Regulus,RegulusFunction);
-
         //Synchron
             AddExecutor(ExecutorType.SpSummon, CardId.SavageDragon,SavageDragonSynchronFunction);
 
         //Link
             AddExecutor(ExecutorType.SpSummon, CardId.IP,IPLinkFunction);
+
+        //Regulus's Effect
+            AddExecutor(ExecutorType.Activate, CardId.Regulus,RegulusFunction);
+
+        //booster
+            AddExecutor(ExecutorType.Activate, CardId.Booster,BoosterEquipFunction2);
+            AddExecutor(ExecutorType.Activate, CardId.Booster,BoosterFunction);
+            AddExecutor(ExecutorType.Activate, CardId.Booster,BoosterEquipFunction3);
+            AddExecutor(ExecutorType.Activate, CardId.Booster,BoosterFunction);
 
         //Synchron
             AddExecutor(ExecutorType.SpSummon, CardId.Masurawo,MasurawoSynchronFunction);
@@ -177,10 +187,6 @@ namespace WindBot.Game.AI.Decks
 
         //equip Soulhorns
             AddExecutor(ExecutorType.Activate, CardId.Soulhorns,SoulhornsEquipFunction);
-
-        //booster
-            AddExecutor(ExecutorType.Activate, CardId.Booster,BoosterEquipFunction2);
-            AddExecutor(ExecutorType.Activate, CardId.Booster,BoosterFunction);
 
         }
         public override void OnNewTurn()
@@ -198,6 +204,7 @@ namespace WindBot.Game.AI.Decks
             need_Gear = false;
             activate_Scarecrow=false;
             summon_Scarecrow=false;
+            summon_Scarecrow2=true;
             activate_Elf = false;
             summon_Elf = false;
             activate_MaxxG = false;
@@ -324,7 +331,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool LockBirdFunction()
         {
-            if (Duel.Player == 0)
+            if (Duel.Player == 0 || activate_LockBird)
             {
                 return false;
             }
@@ -336,11 +343,16 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Hand)
             {
                 int targetid = -1;
-                if (!(Bot.HasInHand(CardId.Wakaushi)||Bot.HasInMonstersZone(CardId.Wakaushi)||Bot.HasInSpellZone(CardId.Wakaushi))&&!activate_Wakaushi)
+                List<ClientCard> cards = GetZoneCards(CardLocation.MonsterZone, Bot).Where(card => card != null && card.IsFaceup()).ToList();
+                if (!(Bot.HasInHand(CardId.Wakaushi) || Bot.HasInMonstersZone(CardId.Wakaushi) || Bot.HasInSpellZone(CardId.Wakaushi)) && !activate_Wakaushi)
                 {
                     targetid = CardId.Wakaushi;
                 }
-                else if (!Bot.HasInHand(CardId.Soulpeacemaker) && !activate_Soulpeacemaker && !normal_summon)
+                else if (cards.Count() == 0 && !normal_summon)
+                {
+                    targetid = CardId.Soulpiercer;
+                }
+                else if (!Bot.HasInHand(CardId.Soulpeacemaker) && !Bot.HasInSpellZone(CardId.Soulpeacemaker) && !activate_Soulpeacemaker && (normal_summon || Bot.HasInMonstersZone(CardId.Scarecrow)))
                 {
                     targetid = CardId.Soulpeacemaker;
                 }
@@ -488,12 +500,21 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+        private bool BenkeiFunction()
+        {
+            if (Card.Location != CardLocation.Hand || Bot.HasInSpellZone(CardId.Benkei)) return false;
+            List<ClientCard> cards1 = GetZoneCards(CardLocation.Hand, Bot).Where(card => card != null && card.Id == CardId.Benkei).ToList();
+            List<ClientCard> cards2 = GetZoneCards(CardLocation.Removed, Bot).Where(card => card != null && card.Id == CardId.Benkei).ToList();
+            if (cards1.Count() >= 2 || Bot.HasInGraveyard(CardId.Benkei) || Bot.HasInExtra(CardId.Benkei) || cards2.Count() > 0)
+                return true;
+            return false;
+        }
         private bool BenkeiEffectFunction()
         {
             if (Card.Location == CardLocation.SpellZone)
             {
                 int targetid = -1;
-                if (!(Bot.HasInHand(CardId.Soulpiercer)||Bot.HasInMonstersZone(CardId.Soulpiercer)))
+                if (!(Bot.HasInHand(CardId.Soulpiercer) || Bot.HasInMonstersZone(CardId.Soulpiercer) || Bot.HasInSpellZone(CardId.Soulpiercer)) && !(Bot.HasInMonstersZone(CardId.Scarecrow) && !activate_Soulpeacemaker))
                 {
                     targetid = CardId.Soulpiercer;
                 }
@@ -659,7 +680,7 @@ namespace WindBot.Game.AI.Decks
         {
             List<ClientCard> material = new List<ClientCard>();
             List<ClientCard> cards = Bot.GetMonstersInExtraZone().Where(card => card != null && card.Id == CardId.Scarecrow).ToList();
-            if (cards.Count > 0 || summon_Scarecrow || activate_Scarecrow) return false;
+            if ((cards.Count() > 0 && !summon_Scarecrow) || summon_Scarecrow || activate_Scarecrow) return false;
             int targetid = -1;
             if (Bot.MonsterZone[0] != null && Bot.MonsterZone[2] != null) {
                 if (Bot.MonsterZone[0].Id == CardId.Soulpiercer) material.Add(Bot.MonsterZone[0]);
@@ -749,25 +770,27 @@ namespace WindBot.Game.AI.Decks
             }
             AI.SelectCard(tributeId);
             AI.SelectNextCard(needId);
-            activate_Scarecrow = true;
-            if (!summon_Scarecrow
-                && ((Bot.HasInHand(CardId.Wakaushi) || Bot.HasInSpellZone(CardId.Wakaushi)) && !activate_Wakaushi)
-                && (Bot.HasInHand(CardId.Motorbike) && !activate_Motorbike)
-                && ((Bot.HasInHand(CardId.Soulpeacemaker) || Bot.HasInSpellZone(CardId.Soulpeacemaker)) && !activate_Soulpeacemaker)
-                && (Bot.HasInSpellZone(CardId.Benkei) && !activate_Benkei)
-                && (Bot.HasInHand(CardId.Soulpiercer) && !normal_summon)
-                && ((Bot.HasInGraveyard(CardId.Scales) || Bot.HasInHand(CardId.Soulpiercer)) && !activate_Scales && !normal_summon)
+            if (((!Bot.HasInHand(CardId.Wakaushi) && !Bot.HasInSpellZone(CardId.Wakaushi)) || activate_Wakaushi)
+                && (!Bot.HasInHand(CardId.Motorbike) || activate_Motorbike)
+                && ((!Bot.HasInHand(CardId.Soulpeacemaker) && !Bot.HasInSpellZone(CardId.Soulpeacemaker)) || activate_Soulpeacemaker)
+                && (!Bot.HasInSpellZone(CardId.Benkei) || activate_Benkei)
+                && (needId == CardId.Soulpiercer)
+                && (!activate_Wakaushi || !activate_Motorbike || !activate_Soulpeacemaker || !activate_Benkei)
             )
             {
-                activate_Scarecrow = false;
-                summon_Scarecrow = false;
+                summon_Scarecrow2 = false;
             }
-            else if (needId != CardId.Soulpiercer)
-            {
-                activate_Scarecrow = false;
-                summon_Scarecrow = false;
-            }
+            activate_Scarecrow = true;
             return true;
+        }
+        private bool ScarecrowLinkFunction2()
+        {
+            if (!summon_Scarecrow2)
+            {
+                summon_Scarecrow2 = true;
+                return true;
+            }
+            return false;
         }
         private bool UnicornFunction()
         {
@@ -847,7 +870,13 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BoosterEquipFunction2()
         {
-            if (Bot.HasInExtra(CardId.IP) && p_summoned) return true;
+            if (Bot.HasInExtra(CardId.IP) && p_summoned && !activate_Booster) return true;
+            return false;
+        }
+        private bool BoosterEquipFunction3()
+        {
+            List<ClientCard> cards = GetZoneCards(CardLocation.MonsterZone,Bot).Where(card => card != null && card.IsFaceup() && !FinalCards(card.Id) && card.Id != CardId.Scarecrow).ToList();
+            if (Bot.HasInMonstersZone(CardId.IP) && p_summoned && !activate_Booster && cards.Count() == 0) return true;
             return false;
         }
         private bool BoosterFunction()
@@ -911,11 +940,17 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location != CardLocation.Hand)
                 return false;
             int tributeId = -1;
-            if (Bot.HasInMonstersZone(CardId.Scarecrow))
-            {tributeId = CardId.Scarecrow;}
-            else if (Bot.HasInMonstersZone(CardId.Soulpiercer))
-            {tributeId = CardId.Soulpiercer;}
-            AI.SelectCard(tributeId);
+            List<ClientCard> cards = Bot.GetMonstersInExtraZone().Where(card => card != null && card.Id == CardId.Scarecrow).ToList();
+            if (cards.Count() > 0)
+                AI.SelectCard(cards);
+            else
+            {
+                if (Bot.HasInMonstersZone(CardId.Scarecrow))
+                {tributeId = CardId.Scarecrow;}
+                else if (Bot.HasInMonstersZone(CardId.Soulpiercer))
+                {tributeId = CardId.Soulpiercer;}
+                AI.SelectCard(tributeId);
+            }
             return Bot.HasInMonstersZone(new[] {
                 CardId.Scarecrow,
                 CardId.Soulpiercer,
@@ -957,14 +992,10 @@ namespace WindBot.Game.AI.Decks
         {
             if ((Bot.MonsterZone[4] != null && Bot.MonsterZone[4].Controller == 0 && !FinalCards(Bot.MonsterZone[4].Id)) && (Bot.MonsterZone[0] != null && Bot.MonsterZone[0].Controller == 0 && !FinalCards(Bot.MonsterZone[0].Id)))
                 return false;
-            int CardCount = 0;
-            foreach (ClientCard card in Bot.Hand.GetMonsters())
-            {
-                if (card.HasRace(CardRace.Machine) && (card.Level >= 2 && card.Level <= 7))
-                {CardCount++;}
-            }
-            if (CardCount < 2 && !Bot.HasInMonstersZone(CardId.Soulpiercer)){return false;}
-            if (Bot.HasInHand(CardId.Regulus) || Bot.HasInGraveyard(CardId.Regulus) || Bot.HasInSpellZone(CardId.Regulus) || Bot.HasInMonstersZone(CardId.Regulus)) return false;
+            List<ClientCard> Pcards = GetZoneCards(CardLocation.Hand, Bot).Where(card => card != null && card.HasSetcode(0x9a) && card.Level > 1 && card.Level < 8).ToList();
+            if (Pcards.Count() < 2 && !Bot.HasInMonstersZone(CardId.Soulpiercer)) return false;
+            List<ClientCard> Rcards = GetZoneCards(CardLocation.Removed, Bot).Where(card => card != null && card.Id == CardId.Regulus).ToList();
+            if (Bot.HasInHand(CardId.Regulus) || Bot.HasInGraveyard(CardId.Regulus) || Bot.HasInSpellZone(CardId.Regulus) || Bot.HasInMonstersZone(CardId.Regulus) || Rcards.Count() > 0) return false;
             bool linkchk = false;
             List<ClientCard> materials = new List<ClientCard>();
             if (Bot.MonsterZone[6] != null && Bot.MonsterZone[6].Controller == 0 && Bot.MonsterZone[6].Id != CardId.Scarecrow && !FinalCards(Bot.MonsterZone[6].Id))
@@ -1035,10 +1066,27 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ElfFunction()
         {
-            AI.SelectCard(CardId.Motorbike);
-            AI.SelectPosition(CardPosition.FaceUpDefence);
-            activate_Elf = true;
-            return Bot.HasInGraveyard(CardId.Motorbike);
+            if (Duel.Player == 0)
+            {
+                activate_Elf = true;
+                AI.SelectCard(CardId.Motorbike);
+                return Bot.HasInGraveyard(CardId.Motorbike);
+            }
+            List<ClientCard> cards1 = GetZoneCards(CardLocation.MonsterZone, Enemy);
+            List<ClientCard> cards2 = GetZoneCards(CardLocation.SpellZone, Enemy);
+            if (cards1.Count() > 0 || cards2.Count() >= 3)
+            {
+                if (Bot.HasInExtra(CardId.Unicorn) && Bot.HasInGraveyard(CardId.IP))
+                    AI.SelectCard(CardId.IP);
+                else
+                {
+                    AI.SelectCard(CardId.Motorbike);
+                    AI.SelectPosition(CardPosition.FaceUpDefence);
+                }
+                activate_Elf = true;
+                return Bot.HasInGraveyard(CardId.Motorbike) || Bot.HasInGraveyard(CardId.IP);
+            }
+            return false;
         }
         private bool RegulusFunction()
         {
@@ -1089,9 +1137,19 @@ namespace WindBot.Game.AI.Decks
         }
         private bool IPLinkFunction()
         {
-            List<ClientCard> cards = GetZoneCards(CardLocation.MonsterZone,Bot).Where(card => card != null && card.IsFaceup() && card.Id != CardId.Scarecrow && (card.Id != CardId.Elf || (card.Id == CardId.Elf && !summon_Elf)) && !FinalCards(card.Id)).ToList();
-            if (cards.Count <=1) return false;
-            AI.SelectMaterials(cards);
+            List<ClientCard> materials = GetZoneCards(CardLocation.MonsterZone,Bot).Where(card => card != null && card.IsFaceup() && card.Id != CardId.Scarecrow && (card.Id != CardId.Elf || (card.Id == CardId.Elf && !summon_Elf)) && !FinalCards(card.Id)).ToList();
+            if (materials.Count <=1) return false;
+            if (Bot.MonsterZone[6] != null && Bot.MonsterZone[6].Controller == 0 && Bot.MonsterZone[6].HasType(CardType.Link))
+            {
+                if (Bot.MonsterZone[2] != null && FinalCards(Bot.MonsterZone[2].Id) && Bot.MonsterZone[4] != null && FinalCards(Bot.MonsterZone[4].Id))
+                    return false;
+            }
+            else if (Bot.MonsterZone[5] != null && Bot.MonsterZone[5].Controller == 0 && Bot.MonsterZone[5].HasType(CardType.Link))
+            {
+                if (Bot.MonsterZone[2] != null && FinalCards(Bot.MonsterZone[2].Id) && Bot.MonsterZone[0] != null && FinalCards(Bot.MonsterZone[0].Id))
+                    return false;
+            }
+            AI.SelectMaterials(materials);
             return true;
         }
         private bool IPFunction()
