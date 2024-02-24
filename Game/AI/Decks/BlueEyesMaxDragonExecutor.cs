@@ -121,6 +121,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MaxxCeff()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             return Duel.Player == 1;
         }
 
@@ -464,6 +465,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Linkuriboheff()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Linkuriboh)) return false;
             return true;
         }

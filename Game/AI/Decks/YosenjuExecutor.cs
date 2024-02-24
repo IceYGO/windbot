@@ -155,6 +155,7 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             CardOfDemiseUsed = false;
+            base.OnNewTurn();
         }
 
         public override bool OnSelectYesNo(int desc)

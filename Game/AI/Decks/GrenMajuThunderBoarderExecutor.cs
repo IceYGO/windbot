@@ -128,6 +128,7 @@ namespace WindBot.Game.AI.Decks
         {            
             eater_eff = false;
             CardOfDemiseeff_used = false;
+            base.OnNewTurn();
         }
 
         public override void OnNewPhase()
@@ -570,6 +571,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MetalSnakesp()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.MetalSnake, 0) && !Bot.HasInMonstersZone(CardId.MetalSnake))
             {
                 if(Duel.Player == 1 && Duel.Phase >= DuelPhase.BattleStart )

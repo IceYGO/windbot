@@ -102,6 +102,7 @@ namespace WindBot.Game.AI
             public const int ArtifactLancea = 34267821;
 
             public const int CalledByTheGrave = 24224830;
+            public const int CrossoutDesignator = 65681983;
             public const int InfiniteImpermanence = 10045474;
             public const int GalaxySoldier = 46659709;
             public const int MacroCosmos = 30241314;
@@ -225,6 +226,8 @@ namespace WindBot.Game.AI
         }
 
         protected int lightningStormOption = -1;
+        Dictionary<int, int> calledbytheGraveIdCountMap = new Dictionary<int, int>();
+        List<int> crossoutDesignatorIdList = new List<int>();
 
         /// <summary>
         /// Defined:
@@ -543,6 +546,67 @@ namespace WindBot.Game.AI
             return null;
         }
 
+        public override void OnReceivingAnnouce(int player, int data)
+        {
+            if (player == 1 && data == Util.GetStringId(_CardId.LightningStorm, 0) || data == Util.GetStringId(_CardId.LightningStorm, 1))
+            {
+                lightningStormOption = data - Util.GetStringId(_CardId.LightningStorm, 0);
+            }
+
+            base.OnReceivingAnnouce(player, data);
+        }
+
+        public override void OnChainEnd()
+        {
+            lightningStormOption = -1;
+            base.OnChainEnd();
+        }
+
+        /// <summary>
+        /// Reset variables for new turn.
+        /// </summary>
+        public override void OnNewTurn()
+        {
+            if (Duel.Turn <= 1) calledbytheGraveIdCountMap.Clear();
+            List<int> keyList = calledbytheGraveIdCountMap.Keys.ToList();
+            foreach (int dic in keyList)
+            {
+                if (calledbytheGraveIdCountMap[dic] > 0)
+                {
+                    calledbytheGraveIdCountMap[dic] -= 1;
+                }
+            }
+            crossoutDesignatorIdList.Clear();
+
+            base.OnNewTurn();
+        }
+
+        public override void OnMove(ClientCard card, int previousControler, int previousLocation, int currentControler, int currentLocation)
+        {
+            if (card != null)
+            {
+                ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+                if (currentSolvingChain != null && currentLocation == (int)CardLocation.Removed)
+                {
+                    int originId = card.Id;
+                    if (card.Data != null)
+                    {
+                        if (card.Data.Alias > 0) originId = card.Data.Alias;
+                        else originId = card.Id;
+                    }
+                    if (currentSolvingChain.IsCode(_CardId.CalledByTheGrave))
+                    {
+                        calledbytheGraveIdCountMap[originId] = 2;
+                    }
+                    if (currentSolvingChain.IsCode(_CardId.CrossoutDesignator))
+                    {
+                        crossoutDesignatorIdList.Add(originId);
+                    }
+                }
+            }
+            base.OnMove(card, previousControler, previousLocation, currentControler, currentLocation);
+        }
+
         /// <summary>
         /// Destroy face-down cards first, in our turn.
         /// </summary>
@@ -691,6 +755,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultMaxxC()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             return Duel.Player == 1;
         }
         /// <summary>
@@ -698,6 +763,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultAshBlossomAndJoyousSpring()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             int[] ignoreList = {
                 _CardId.MacroCosmos,
                 _CardId.UpstartGoblin,
@@ -715,6 +781,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultGhostOgreAndSnowRabbit()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsDisabled())
                 return false;
             return DefaultTrap();
@@ -724,6 +791,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultGhostBelleAndHauntedMansion()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             return DefaultTrap();
         }
         /// <summary>
@@ -731,6 +799,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultEffectVeiler()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             ClientCard LastChainCard = Util.GetLastChainCard();
             if (LastChainCard != null && (LastChainCard.IsCode(_CardId.GalaxySoldier) && Enemy.Hand.Count >= 3
                                     || LastChainCard.IsCode(_CardId.EffectVeiler, _CardId.InfiniteImpermanence)))
@@ -770,6 +839,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultInfiniteImpermanence()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             // TODO: disable s & t
             ClientCard LastChainCard = Util.GetLastChainCard();
             if (LastChainCard != null && (LastChainCard.IsCode(_CardId.GalaxySoldier) && Enemy.Hand.Count >= 3
@@ -992,7 +1062,8 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSpellWillBeNegated()
         {
-            return (Bot.HasInSpellZone(_CardId.ImperialOrder, true, true) || Enemy.HasInSpellZone(_CardId.ImperialOrder, true)) && !Util.ChainContainsCard(_CardId.ImperialOrder);
+            return (Bot.HasInSpellZone(_CardId.ImperialOrder, true, true) || Enemy.HasInSpellZone(_CardId.ImperialOrder, true)) && !Util.ChainContainsCard(_CardId.ImperialOrder)
+                || DefaultCheckWhetherCardIsNegated(Card);
         }
 
         /// <summary>
@@ -1000,7 +1071,8 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTrapWillBeNegated()
         {
-            return (Bot.HasInSpellZone(_CardId.RoyalDecreel, true, true) || Enemy.HasInSpellZone(_CardId.RoyalDecreel, true)) && !Util.ChainContainsCard(_CardId.RoyalDecreel);
+            return (Bot.HasInSpellZone(_CardId.RoyalDecreel, true, true) || Enemy.HasInSpellZone(_CardId.RoyalDecreel, true)) && !Util.ChainContainsCard(_CardId.RoyalDecreel)
+                || DefaultCheckWhetherCardIsNegated(Card);
         }
 
         /// <summary>
@@ -1044,6 +1116,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTrap()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             return (Duel.LastChainPlayer == -1 && Duel.LastSummonPlayer != 0) || Duel.LastChainPlayer == 1;
         }
 
@@ -1408,6 +1481,7 @@ namespace WindBot.Game.AI
         {
             if (Card.Location == CardLocation.Hand)
             {
+                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
                 return Bot.BattlingMonster.IsAttack() &&
                     ((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Attack) || Bot.BattlingMonster.Attack >= Enemy.LifePoints
                     || ((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Defense) && (Bot.BattlingMonster.Attack + Enemy.BattlingMonster.Attack > Enemy.BattlingMonster.Defense)));
@@ -1466,20 +1540,21 @@ namespace WindBot.Game.AI
             return false;
         }
 
-        public override void OnReceivingAnnouce(int player, int data)
+        protected bool DefaultCheckWhetherCardIsNegated(ClientCard card)
         {
-            if (player == 1 && data == Util.GetStringId(_CardId.LightningStorm, 0) || data == Util.GetStringId(_CardId.LightningStorm, 1))
-            {
-                lightningStormOption = data - Util.GetStringId(_CardId.LightningStorm, 0);
-            }
-
-            base.OnReceivingAnnouce(player, data);
+            if (card == null) return true;
+            if (card.Data == null) return card.IsDisabled();
+            int originId = card.Data.Alias;
+            if (originId == 0) originId = card.Data.Id;
+            return crossoutDesignatorIdList.Contains(originId)
+                || (calledbytheGraveIdCountMap.ContainsKey(originId) && calledbytheGraveIdCountMap[originId] > 0)
+                || card.IsDisabled();
         }
-
-        public override void OnChainEnd()
+        
+        protected bool DefaultCheckWhetherCardIdIsNegated(int cardId)
         {
-            lightningStormOption = -1;
-            base.OnChainEnd();
+            return crossoutDesignatorIdList.Contains(cardId)
+                || (calledbytheGraveIdCountMap.ContainsKey(cardId) && calledbytheGraveIdCountMap[cardId] > 0);
         }
     }
 }

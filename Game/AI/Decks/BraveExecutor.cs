@@ -180,6 +180,7 @@ namespace WindBot.Game.AI.Decks
             FusionDestinyUsed = false;
             PhoenixTarget = null;
             PhoenixSelectingTarget = 0;
+            base.OnNewTurn();
         }
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
@@ -479,6 +480,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool AquamancerOfTheSanctuarySearchEffect()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (Card.Location == CardLocation.Grave)
             {
                 AI.SelectCard(CardLocation.Deck);
@@ -626,6 +628,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool JetSynchronEffect()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             int[] materials = new[] {
                 CardId.MechaPhantomBeastToken
             };
@@ -786,6 +789,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool PredaplantVerteAnacondaEffect()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.PredaplantVerteAnaconda, 0))
                 return false;
             FusionDestinyUsed = true;
@@ -858,6 +862,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DestinyHeroCelestialEffect()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (!Bot.HasInGraveyard(CardId.DestinyHeroDasher))
                 return false;
             AI.SelectCard(CardId.DestinyHeroDasher);
@@ -971,6 +976,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool VirtualWorldKyubiShenshenEffect()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (Card.Location == CardLocation.MonsterZone && Bot.HasInBanished(CardId.AquamancerOfTheSanctuary))
             {
                 AI.SelectCard(CardId.AquamancerOfTheSanctuary);

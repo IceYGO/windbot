@@ -182,8 +182,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.BaronnedeFleur, BaronnedeFleurEffect);
             AddExecutor(ExecutorType.Activate, CardId.ElderEntityNtss, ElderEntityNtssEffect);
             AddExecutor(ExecutorType.Activate, CardId.PredaplantDragostapelia, PredaplantDragostapeliaEffect);
-            AddExecutor(ExecutorType.Activate, CardId.HeraldofOrangeLight);
-            AddExecutor(ExecutorType.Activate, CardId.HeraldofGreenLight);
+            AddExecutor(ExecutorType.Activate, CardId.HeraldofOrangeLight, DefaultTrap);
+            AddExecutor(ExecutorType.Activate, CardId.HeraldofGreenLight, DefaultTrap);
             AddExecutor(ExecutorType.Activate, CardId.TearlamentsRulkallos, TearlamentsRulkallosEffect);
             AddExecutor(ExecutorType.Activate, CardId.FADawnDragster);
             AddExecutor(ExecutorType.Activate, CardId.PrimevalPlanetPerlereino, PrimevalPlanetPerlereinoEffect);
@@ -275,6 +275,7 @@ namespace WindBot.Game.AI.Decks
             spsummoned = false;
             summon_SprightElf = false;
             TearlamentsKitkallos_summoned = false;
+            base.OnNewTurn();
         }
         private List<ClientCard> GetZoneCards(CardLocation loc, ClientField player)
         {
@@ -2172,6 +2173,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool EvaEffect()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             List<ClientCard> cards = Bot.GetGraveyardMonsters().Where(card => card != null && card.HasAttribute(CardAttribute.Light) && card.HasRace(CardRace.Fairy) && card != Card).ToList();
             if (cards.Count <= 0) return false;
             activate_Eva = true;
@@ -2207,6 +2209,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool MudoratheSwordOracleEffect()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 if ((Bot.Hand.Count(card => card != null && card.Id == CardId.AgidotheAncientSentinel) <= 0 || activate_AgidotheAncientSentinel_2)

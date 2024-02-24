@@ -219,11 +219,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool ImFeelingLucky()
         {
+            if (Type == ExecutorType.Activate && DefaultCheckWhetherCardIsNegated(Card)) return false;
             return Program.Rand.Next(10) >= 5 && DefaultDontChainMyself();
         }
 
         private bool ImFeelingUnlucky()
         {
+            if (Type == ExecutorType.Activate && DefaultCheckWhetherCardIsNegated(Card)) return false;
             return DefaultDontChainMyself();
         }
 

@@ -142,6 +142,7 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             NormalSummoned = false;
+            base.OnNewTurn();
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
@@ -210,6 +211,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RescueRabbitSummon()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             return Util.GetBotAvailZonesFromExtraDeck() > 0
                 || !Enemy.MonsterZone.IsExistingMatchingCard(card => card.GetDefensePower() >= 1900)
                 || Enemy.MonsterZone.GetMatchingCardsCount(card => card.GetDefensePower() < 1900) > Bot.MonsterZone.GetMatchingCardsCount(card => card.Attack >= 1900);

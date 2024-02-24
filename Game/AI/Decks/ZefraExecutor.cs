@@ -573,6 +573,7 @@ namespace WindBot.Game.AI.Decks
             activate_count = 0;
             summon_count = 0;
             enemy_activate = false;
+            base.OnNewTurn();
         }
         private bool ZefraProvidenceEffect()
         {

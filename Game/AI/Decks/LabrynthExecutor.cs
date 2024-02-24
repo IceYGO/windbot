@@ -179,7 +179,6 @@ namespace WindBot.Game.AI.Decks
         };
         List<int> notToDestroySpellTrap = new List<int> { 50005218, 6767771 };
 
-        Dictionary<int, int> calledbytheGraveCount = new Dictionary<int, int>();
         bool enemyActivateMaxxC = false;
         List<int> infiniteImpermanenceList = new List<int>();
         bool summoned = false;
@@ -455,11 +454,8 @@ namespace WindBot.Game.AI.Decks
         /// </summary>
         public int CheckCalledbytheGrave(int id)
         {
-            if (!calledbytheGraveCount.ContainsKey(id))
-            {
-                return 0;
-            }
-            return calledbytheGraveCount[id];
+            if (DefaultCheckWhetherCardIdIsNegated(id)) return 1;
+            return 0;
         }
 
         public bool CheckCanBeTargeted(ClientCard card, bool canBeTarget, CardType selfType)
@@ -1593,7 +1589,6 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Turn <= 1)
             {
-                calledbytheGraveCount.Clear();
                 dimensionShifterCount = 0;
 
                 enemySpSummonFromExLastTurn = 0;
@@ -1605,11 +1600,6 @@ namespace WindBot.Game.AI.Decks
             enemySpSummonFromExThisTurn = 0;
             rollbackCopyCardId = 0;
 
-            List<int> keyList = calledbytheGraveCount.Keys.ToList();
-            foreach (int dic in keyList)
-            {
-                if (calledbytheGraveCount[dic] > 1) calledbytheGraveCount[dic] -= 1;
-            }
             if (dimensionShifterCount > 0) dimensionShifterCount--;
             if (banSpSummonExceptFiendCount > 0) banSpSummonExceptFiendCount--;
             infiniteImpermanenceList.Clear();
@@ -1622,6 +1612,7 @@ namespace WindBot.Game.AI.Decks
             enemySetThisTurn.Clear();
             dimensionalBarrierAnnouced.Clear();
             summonInChainList.Clear();
+            base.OnNewTurn();
         }
 
         public override void OnChaining(int player, ClientCard card)
@@ -1741,14 +1732,6 @@ namespace WindBot.Game.AI.Decks
                     {
                         summonThisTurn.Add(card);
                         if (currentSolvingChain != null) summonInChainList.Add(card);
-                    }
-                    if (previousLocation == (int)CardLocation.Grave && currentLocation == (int)CardLocation.Removed)
-                    {
-                        if (currentSolvingChain != null && currentSolvingChain.Controller == 1 && currentSolvingChain.IsCode(_CardId.CalledByTheGrave))
-                        {
-                            Logger.DebugWriteLine("*** " + (card.Name ?? "UnknowCard") + " is banished by CallByTheGrave");
-                            calledbytheGraveCount[card.Id] = 2;
-                        }
                     }
                 }
             }
