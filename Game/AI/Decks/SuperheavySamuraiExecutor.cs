@@ -653,7 +653,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ASStardustDragonFunction()
         {
-            if (Duel.LastChainPlayer == 1 && ActivateDescription == Util.GetStringId(CardId.ASStardustDragon, 0))
+            if (Duel.LastChainPlayer == 1 && ActivateDescription == Util.GetStringId(CardId.ASStardustDragon, 1))
             {
                 return true;
             }
