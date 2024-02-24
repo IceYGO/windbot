@@ -213,6 +213,7 @@ namespace WindBot.Game.AI
             public const int AncientWarriors = 0x137;
             public const int RescueACE = 0x18b;
             public const int VanquishSoul = 0x195;
+            public const int Horus = 0x19d;
         }
 
         protected DefaultExecutor(GameAI ai, Duel duel)
@@ -834,7 +835,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnJudgment()
         {
-            return !Util.IsChainTargetOnly(Card) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
+            return !Util.IsChainTargetOnly(Card) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && !DefaultOnlyHorusSpSummoning() && DefaultTrap();
         }
 
         /// <summary>
@@ -842,7 +843,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnWarning()
         {
-            return (Bot.LifePoints > 2000) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
+            return (Bot.LifePoints > 2000) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && !DefaultOnlyHorusSpSummoning() && DefaultTrap();
         }
 
         /// <summary>
@@ -850,7 +851,30 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnStrike()
         {
-            return (Bot.LifePoints > 1500) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && DefaultTrap();
+            return (Bot.LifePoints > 1500) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && !DefaultOnlyHorusSpSummoning() && DefaultTrap();
+        }
+
+        /// <summary>
+        /// Check whether only Horus monster is special summoning.
+        /// If returning true, should not negate the special summon since it can be special summoned again.
+        /// </summary>
+        /// <returns></returns>
+        protected bool DefaultOnlyHorusSpSummoning()
+        {
+            if (Duel.SummoningCards.Count != 0)
+            {
+                bool notOnlyHorusFlag = false;
+                foreach (ClientCard card in Duel.SummoningCards)
+                {
+                    if (!card.HasSetcode(_Setcode.Horus))
+                    {
+                        notOnlyHorusFlag = true;
+                        break;
+                    }
+                }
+                return !notOnlyHorusFlag;
+            }
+            return false;
         }
 
         /// <summary>

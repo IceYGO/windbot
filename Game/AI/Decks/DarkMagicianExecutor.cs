@@ -496,6 +496,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.LifePoints > 1500 && Duel.LastChainPlayer == 1)
                 return true;
+            if (DefaultOnlyHorusSpSummoning()) return false;
             return false;
         }
 

@@ -376,15 +376,10 @@ namespace WindBot.Game
             _duel.Fields[GetLocalPlayer(1)].Init(deck, extra);
 
             // in case of ending duel in chain's solving
-            _duel.LastChainPlayer = -1;
-            _duel.LastChainLocation = 0;
             _duel.CurrentChain.Clear();
             _duel.ChainTargets.Clear();
-            _duel.LastChainTargets.Clear();
             _duel.ChainTargetOnly.Clear();
-            _duel.LastSummonPlayer = -1;
             _duel.SummoningCards.Clear();
-            _duel.LastSummonedCards.Clear();
             _duel.SolvingChainIndex = 0;
             _duel.NegatedChainIndexList.Clear();
 
@@ -803,6 +798,7 @@ namespace WindBot.Game
             _duel.ChainTargetOnly.Clear();
             _duel.SolvingChainIndex = 0;
             _duel.NegatedChainIndexList.Clear();
+            _duel.SummoningCards.Clear();
         }
 
         private void OnCardSorting(BinaryReader packet)
