@@ -15,6 +15,7 @@ namespace WindBot.Game
         public int Position { get; set; }
         public int Sequence { get; set; }
         public CardLocation Location { get; set; }
+        public CardLocation LastLocation { get; set; }
         public int Alias { get; private set; }
         public int Level { get; private set; }
         public int Rank { get; private set; }
@@ -70,6 +71,7 @@ namespace WindBot.Game
             ActionIndex = new int[16];
             ActionActivateIndex = new Dictionary<int, int>();
             Location = loc;
+            LastLocation = 0;
         }
 
         public void SetId(int id)

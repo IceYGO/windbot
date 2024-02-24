@@ -866,7 +866,7 @@ namespace WindBot.Game.AI
                 bool notOnlyHorusFlag = false;
                 foreach (ClientCard card in Duel.SummoningCards)
                 {
-                    if (!card.HasSetcode(_Setcode.Horus))
+                    if (!card.HasSetcode(_Setcode.Horus) || card.LastLocation != CardLocation.Grave)
                     {
                         notOnlyHorusFlag = true;
                         break;
