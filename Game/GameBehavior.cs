@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using WindBot.Game.AI;
 using YGOSharp.Network;
 using YGOSharp.Network.Enums;
@@ -284,6 +285,7 @@ namespace WindBot.Game
         
         private void OnDuelEnd(BinaryReader packet)
         {
+            Thread.Sleep(500);
             Connection.Close();
         }
 
