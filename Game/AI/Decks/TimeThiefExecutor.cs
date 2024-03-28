@@ -192,6 +192,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.MonsterZone)
             {
+                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
                 AI.SelectCard(Monsters.TimeThiefCronocorder);
                 AI.SelectCard(Monsters.TimeThiefWinder);
                 return true;

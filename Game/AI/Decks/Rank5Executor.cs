@@ -116,6 +116,7 @@ namespace WindBot.Game.AI.Decks
             DoubleSummonUsed = false;
             CyberDragonInfinitySummoned = false;
             Number61VolcasaurusUsed = false;
+            base.OnNewTurn();
         }
 
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)

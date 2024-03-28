@@ -594,6 +594,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
+                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
                 if (Bot.HasInHand(CardId.Spinny) || FalcoToGY(false))
                 {
                     if (Bot.HasInHand(CardId.Spinny) && !Bot.HasInGraveyard(CardId.Spinny))
@@ -779,10 +780,12 @@ namespace WindBot.Game.AI.Decks
 
         public bool G_activate()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             return (Duel.Player == 1);
         }
         public bool Hand_act_eff()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             return (Duel.LastChainPlayer == 1);
         }
 

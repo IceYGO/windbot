@@ -131,6 +131,7 @@ namespace WindBot.Game.AI.Decks
             UsedGalaxyEyesCipherDragon = null;
             AlternativeWhiteDragonSummoned = false;
             SoulChargeUsed = false;
+            base.OnNewTurn();
         }
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)

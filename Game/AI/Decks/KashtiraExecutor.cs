@@ -175,6 +175,7 @@ namespace WindBot.Game.AI.Decks
             opt_2 = false;
             if (flag >= 0) ++flag;
             if (flag >= 2) { flag = -1; activate_DimensionShifter = false; }
+            base.OnNewTurn();
         }
         public override bool OnSelectYesNo(int desc)
         {

@@ -127,6 +127,7 @@ namespace WindBot.Game.AI.Decks
             TigermortarSpsummoned = false;
             ChakanineSpsummoned = false;
             BroadbullSpsummoned = false;
+            base.OnNewTurn();
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
@@ -150,6 +151,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
+                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
                 if (!(Duel.Phase == DuelPhase.BattleStep
                     || Duel.Phase == DuelPhase.BattleStart
                     || Duel.Phase == DuelPhase.Damage))
@@ -429,8 +431,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2)
                 return false;
-            if (Card.IsDisabled())
-                return false;
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             ClientCard target = null;
             List<ClientCard> monsters = Bot.GetMonsters();
             foreach (ClientCard monster in monsters)
