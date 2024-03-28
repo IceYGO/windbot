@@ -327,7 +327,7 @@ namespace WindBot.Game.AI.Decks
         private bool LockBirdFunction()
         {
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
-            if (Duel.Player == 0)
+            if (Duel.Player == 0 || activate_LockBird)
             {
                 return false;
             }
