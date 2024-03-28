@@ -194,6 +194,7 @@ namespace WindBot.Game.AI
             public const int SilenforcingBarrier = 98477480;
 
             public const int DiabellzeOfTheOriginalSin = 53765052;
+            public const int PotOfExtravagance = 49238328;
         }
 
         protected class _Setcode
@@ -1585,12 +1586,13 @@ namespace WindBot.Game.AI
         }
 
 
-        protected bool DefaultSetForDiabellze()
+        protected virtual bool DefaultSetForDiabellze()
         {
             if (Card == null) return false;
+            if (Card.Id == _CardId.PotOfExtravagance) return false;
             if (Enemy.HasInMonstersZone(_CardId.DiabellzeOfTheOriginalSin, true, faceUp: true) && Card.HasType(CardType.Spell) && !Card.HasType(CardType.QuickPlay))
             {
-                if (Bot.SpellZone.Any(c => c != null && c.HasType(CardType.Spell) && !Card.HasType(CardType.QuickPlay) && c.IsFacedown()))
+                if (Bot.SpellZone.Any(c => c != null && Duel.MainPhase.ActivableCards.Contains(c) && c.HasType(CardType.Spell) && !Card.HasType(CardType.QuickPlay) && c.IsFacedown()))
                 {
                     return false;
                 }

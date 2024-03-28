@@ -2916,5 +2916,15 @@ namespace WindBot.Game.AI.Decks
             }
             return base.OnSelectPlace(cardId, player, location, available);
         }
+
+        protected override bool DefaultSetForDiabellze()
+        {
+            if (base.DefaultSetForDiabellze())
+            {
+                AI.SelectPlace(SelectSTPlace(Card, true));
+                return true;
+            }
+            return false;
+        }
     }
 }
