@@ -438,6 +438,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ThunderKingRaiOheff()
         {
+           if (DefaultOnlyHorusSpSummoning()) return false;
            if(Duel.SummoningCards.Count > 0)
            {
                 foreach(ClientCard m in Duel.SummoningCards)
