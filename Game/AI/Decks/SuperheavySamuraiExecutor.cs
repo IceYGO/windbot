@@ -1007,7 +1007,7 @@ namespace WindBot.Game.AI.Decks
                 materials.Add(Bot.MonsterZone[6]);
                 linkchk = true;
             }
-            else if (Bot.MonsterZone[5] != null && Bot.MonsterZone[5].Controller == 0 && Bot.MonsterZone[5].Id != CardId.Scarecrow && !FinalCards(Bot.MonsterZone[6].Id))
+            else if (Bot.MonsterZone[5] != null && Bot.MonsterZone[5].Controller == 0 && Bot.MonsterZone[5].Id != CardId.Scarecrow && !FinalCards(Bot.MonsterZone[5].Id))
             {
                 materials.Add(Bot.MonsterZone[5]);
                 linkchk = true;
