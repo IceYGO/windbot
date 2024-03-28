@@ -192,6 +192,9 @@ namespace WindBot.Game.AI
 
             public const int NovoxTheSilenforcerDisciple = 25801745;
             public const int SilenforcingBarrier = 98477480;
+
+            public const int DiabellzeOfTheOriginalSin = 53765052;
+            public const int PotOfExtravagance = 49238328;
         }
 
         protected class _Setcode
@@ -224,6 +227,7 @@ namespace WindBot.Game.AI
             AddExecutor(ExecutorType.Activate, _CardId.VaylantzWorld_ShinraBansho, DefaultVaylantzWorld_ShinraBansho);
             AddExecutor(ExecutorType.Activate, _CardId.VaylantzWorld_KonigWissen, DefaultVaylantzWorld_KonigWissen);
             AddExecutor(ExecutorType.Activate, _CardId.SantaClaws);
+            AddExecutor(ExecutorType.SpellSet, DefaultSetForDiabellze);
         }
 
         protected int lightningStormOption = -1;
@@ -343,7 +347,7 @@ namespace WindBot.Game.AI
                 if (defender.IsMonsterDangerous())
                 {
                     bool canIgnoreIt = !attacker.IsDisabled() && (
-                        attacker.IsCode(_CardId.UltimateConductorTytanno) && defender.IsDefense() || 
+                        attacker.IsCode(_CardId.UltimateConductorTytanno) && defender.IsDefense() ||
                         attacker.IsCode(_CardId.ElShaddollConstruct) && defender.IsSpecialSummoned ||
                         attacker.IsCode(_CardId.AllyOfJusticeCatastor) && !defender.HasAttribute(CardAttribute.Dark));
                     if (!canIgnoreIt)
@@ -385,7 +389,7 @@ namespace WindBot.Game.AI
 
                 if (attacker.IsMonsterInvincible())
                     attacker.RealPower = 9999;
-                
+
                 if (attacker.EquipCards.Any(equip => equip.IsCode(_CardId.MoonMirrorShield) && !equip.IsDisabled()))
                     attacker.RealPower = defender.RealPower + 100;
             }
@@ -419,13 +423,13 @@ namespace WindBot.Game.AI
 
             if (defender.OwnTargets.Any(card => card.IsCode(_CardId.PhantomKnightsFogBlade) && !card.IsDisabled()))
                 return false;
-            
+
             if (defender.HasSetcode(_Setcode.EarthboundImmortal) && !defender.IsDisabled())
                 return false;
-            
+
             bool attackHighestMonster =
-                Enemy.HasInMonstersZone(_CardId.RockOfTheVanquisher, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.VanquishSoul)) || 
-                Enemy.HasInMonstersZone(_CardId.GladiatorBeastDomitianus, true) || Enemy.HasInMonstersZone(_CardId.PatricianOfDarkness) || 
+                Enemy.HasInMonstersZone(_CardId.RockOfTheVanquisher, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.VanquishSoul)) ||
+                Enemy.HasInMonstersZone(_CardId.GladiatorBeastDomitianus, true) || Enemy.HasInMonstersZone(_CardId.PatricianOfDarkness) ||
                 Enemy.HasInMonstersZone(_CardId.DictatorOfD, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.BlueEyes));
             if (attackHighestMonster)
             {
@@ -437,16 +441,16 @@ namespace WindBot.Game.AI
 
             if (Enemy.HasInSpellZone(_CardId.SpiralDischarge, true) && Enemy.HasInMonstersZone(_CardId.GaiaTheDragonChampion) && !defender.IsCode(_CardId.GaiaTheDragonChampion))
                 return false;
-            
+
             if (Enemy.HasInSpellZone(_CardId.CrusadiaVanguard, true) && Enemy.GetMonsters().Any(card => card.HasSetcode(_Setcode.Crusadia) && card.HasType(CardType.Link)) && !defender.HasType(CardType.Link))
                 return false;
-            
+
             if (defender.IsCode(_CardId.RescueACEHydrant) && !defender.IsDisabled() && Enemy.GetMonsters().Any(monster => monster.HasSetcode(_Setcode.RescueACE) && !monster.IsCode(_CardId.RescueACEHydrant)))
                 return false;
 
             if (Enemy.HasInSpellZone(_CardId.SilenforcingBarrier, true) && Enemy.HasInMonstersZone(_CardId.NovoxTheSilenforcerDisciple, faceUp: true) && !defender.HasType(CardType.Ritual))
                 return false;
-            
+
             return true;
         }
 
@@ -540,7 +544,7 @@ namespace WindBot.Game.AI
                     extraDeck[shuffleCount] = extraDeck[index];
                     extraDeck[index] = tempCard;
                 }
-                
+
                 return Util.CheckSelectCount(extraDeck, cards, min, max);
             }
 
@@ -1579,6 +1583,31 @@ namespace WindBot.Game.AI
         {
             return crossoutDesignatorIdList.Contains(cardId)
                 || (calledbytheGraveIdCountMap.ContainsKey(cardId) && calledbytheGraveIdCountMap[cardId] > 0);
+        }
+
+
+        protected virtual bool DefaultSetForDiabellze()
+        {
+            if (Card == null) return false;
+            if (Card.Id == _CardId.PotOfExtravagance) return false;
+            if (Enemy.HasInMonstersZone(_CardId.DiabellzeOfTheOriginalSin, true, faceUp: true) && Card.HasType(CardType.Spell) && !Card.HasType(CardType.QuickPlay))
+            {
+                if (Bot.SpellZone.Any(c => c != null && Duel.MainPhase.ActivableCards.Contains(c) && c.HasType(CardType.Spell) && !Card.HasType(CardType.QuickPlay) && c.IsFacedown()))
+                {
+                    return false;
+                }
+                foreach (CardExecutor exec in Executors)
+                {
+                    if (exec.Type == ExecutorType.Activate && exec.CardId == Card.Id)
+                    {
+                        if (exec.Func == null || exec.Func())
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 }

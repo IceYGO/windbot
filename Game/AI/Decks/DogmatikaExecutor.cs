@@ -2888,5 +2888,15 @@ namespace WindBot.Game.AI.Decks
 
             return false;
         }
+
+        protected override bool DefaultSetForDiabellze()
+        {
+            if (base.DefaultSetForDiabellze())
+            {
+                SelectSTPlace(null, true);
+                return true;
+            }
+            return false;
+        }
     }
 }
