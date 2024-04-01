@@ -20,6 +20,7 @@ namespace WindBot.Game
         public Deck Deck { get; private set; }
 
         private GameAI _ai;
+        private CoreFunction _coreFunction;
 
         private IDictionary<StocMessage, Action<BinaryReader>> _packets;
         private IDictionary<GameMessage, Action<BinaryReader>> _messages;
@@ -44,7 +45,8 @@ namespace WindBot.Game
             _room = new Room();
             _duel = new Duel();
 
-            _ai = new GameAI(Game, _duel);
+            _coreFunction = new CoreFunction(_duel, Connection);
+            _ai = new GameAI(Game, _duel, _coreFunction);
             _ai.Executor = DecksManager.Instantiate(_ai, _duel);
             Deck = Deck.Load(Game.DeckFile ?? _ai.Executor.Deck);
 
@@ -85,6 +87,7 @@ namespace WindBot.Game
             _packets.Add(StocMessage.Chat, OnChat);
             _packets.Add(StocMessage.ChangeSide, OnChangeSide);
             _packets.Add(StocMessage.ErrorMsg, OnErrorMsg);
+            _packets.Add(StocMessage.AiReceive, OnAiReceive);
 
             _messages.Add(GameMessage.Retry, OnRetry);
             _messages.Add(GameMessage.Start, OnStart);
@@ -150,6 +153,11 @@ namespace WindBot.Game
             _messages.Add(GameMessage.FlipSummoning, OnSummoning);
             _messages.Add(GameMessage.FlipSummoned, OnSummoned);
             _messages.Add(GameMessage.ConfirmCards, OnConfirmCards);
+        }
+
+        private void OnAiReceive(BinaryReader packet)
+        {
+            _coreFunction.Data = packet.ReadBytes((int)packet.BaseStream.Length);
         }
 
         private void OnJoinGame(BinaryReader packet)
