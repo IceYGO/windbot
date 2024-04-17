@@ -1823,5 +1823,15 @@ namespace WindBot.Game.AI.Decks
             }
             return base.OnPreBattleBetween(attacker, defender);
         }
+
+        protected override bool DefaultSetForDiabellze()
+        {
+            if (base.DefaultSetForDiabellze())
+            {
+                AI.SelectPlace(SelectSTPlace(Card, true));
+                return true;
+            }
+            return false;
+        }
     }
 }
