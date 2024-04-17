@@ -1705,7 +1705,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Turn == 1 || Enemy.GetMonsterCount() <= 0) return false;
             List<ClientCard> e_cards = Enemy.GetMonsters().Where(card => card != null && card.IsFaceup() && card.IsAttack()).ToList();
             List<ClientCard> b_cards = Bot.GetMonsters().Where(card => card != null && card.IsFaceup() && card.IsAttack()).ToList();
-            if ((e_cards.Count <= 0 || b_cards.Count <= 0) && Enemy.MonsterZone.GetDangerousMonster() == null) return false;
+            if (e_cards.Count <= 0 || b_cards.Count <= 0 || Enemy.MonsterZone.GetDangerousMonster() == null) return false;
             e_cards.Sort(CardContainer.CompareCardAttack);
             e_cards.Reverse();
             b_cards.Sort(CardContainer.CompareCardAttack);
