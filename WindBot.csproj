@@ -38,7 +38,8 @@
     <ApplicationIcon>WindBot.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <BaseOutputPath>$(MSBuildProjectDirectory)/out/$(MSBuildProjectName)/bin</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(MSBuildProjectDirectory)/out/$(MSBuildProjectName)/obj</BaseIntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Data.Sqlite">
@@ -50,46 +51,26 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
-    <Reference Include="YGOSharp.Network">
-      <HintPath>.\YGOSharp.Network.dll</HintPath>
-    </Reference>
-    <Reference Include="YGOSharp.OCGWrapper">
-      <HintPath>.\YGOSharp.OCGWrapper.dll</HintPath>
-    </Reference>
-    <Reference Include="YGOSharp.OCGWrapper.Enums">
-      <HintPath>.\YGOSharp.OCGWrapper.Enums.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
-    <Compile Include="Game\AI\AIUtil.cs" />
-    <Compile Include="Game\AI\CardContainer.cs" />
-    <Compile Include="Game\AI\CardExecutor.cs" />
-    <Compile Include="Game\AI\CardExtension.cs" />
-    <Compile Include="Game\AI\CardSelector.cs" />
-    <Compile Include="Game\AI\DeckAttribute.cs" />
-    <Compile Include="Game\AI\DecksManager.cs" />
+    <Compile Include="Game\AI\Deck.cs" />
+    <Compile Include="Game\DecksManager.cs" />
+    <Compile Include="Game\AI\Decks\ABCExecutor.cs" />
     <Compile Include="Game\AI\Decks\AltergeistExecutor.cs" />
-    <Compile Include="Game\AI\Decks\BraveExecutor.cs" />
-    <Compile Include="Game\AI\Decks\FamiliarPossessedExecutor.cs" />
     <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
-    <Compile Include="Game\AI\Decks\ExosisterExecutor.cs" />
-    <Compile Include="Game\AI\Decks\KashtiraExecutor.cs" />
-    <Compile Include="Game\AI\Decks\LuckyExecutor.cs" />
     <Compile Include="Game\AI\Decks\MathMechExecutor.cs" />
     <Compile Include="Game\AI\Decks\PureWindsExecutor.cs" />
     <Compile Include="Game\AI\Decks\DragunExecutor.cs" />
+    <Compile Include="Game\AI\Decks\DragmaExecutor.cs" />
     <Compile Include="Game\AI\Decks\Level8Executor.cs" />
     <Compile Include="Game\AI\Decks\SalamangreatExecutor.cs" />
     <Compile Include="Game\AI\Decks\CyberDragonExecutor.cs" />
     <Compile Include="Game\AI\Decks\DarkMagicianExecutor.cs" />
-    <Compile Include="Game\AI\Decks\DogmatikaExecutor.cs" />
     <Compile Include="Game\AI\Decks\OrcustExecutor.cs" />
     <Compile Include="Game\AI\Decks\SkyStrikerExecutor.cs" />
     <Compile Include="Game\AI\Decks\MokeyMokeyKingExecutor.cs" />
     <Compile Include="Game\AI\Decks\MokeyMokeyExecutor.cs" />
-    <Compile Include="Game\AI\Decks\TearlamentsExecutor.cs" />
-    <Compile Include="Game\AI\Decks\ThunderDragonExecutor.cs" />
     <Compile Include="Game\AI\Decks\TimeThiefExecutor.cs" />
     <Compile Include="Game\AI\Decks\ToadallyAwesomeExecutor.cs" />
     <Compile Include="Game\AI\Decks\NekrozExecutor.cs" />
@@ -103,15 +84,13 @@
     <Compile Include="Game\AI\Decks\GraydleExecutor.cs" />
     <Compile Include="Game\AI\Decks\GrenMajuThunderBoarderExecutor.cs" />
     <Compile Include="Game\AI\Decks\LightswornExecutor.cs" />
-    <Compile Include="Game\AI\Decks\LabrynthExecutor.cs" />
     <Compile Include="Game\AI\Decks\LightswornShaddoldinosourExecutor.cs" />
     <Compile Include="Game\AI\Decks\PhantasmExecutor.cs" />
     <Compile Include="Game\AI\Decks\QliphortExecutor.cs" />
     <Compile Include="Game\AI\Decks\ST1732Executor.cs" />
-    <Compile Include="Game\AI\Decks\SuperheavySamuraiExecutor.cs" />
-    <Compile Include="Game\AI\Decks\SwordsoulExecutor.cs" />
     <Compile Include="Game\AI\Decks\TrickstarExecutor.cs" />
     <Compile Include="Game\AI\Decks\WitchcraftExecutor.cs" />
+    <Compile Include="Game\AI\Decks\VoicelessExecutor.cs" />
     <Compile Include="Game\AI\Decks\YosenjuExecutor.cs" />
     <Compile Include="Game\AI\Decks\DragunityExecutor.cs" />
     <Compile Include="Game\AI\Decks\FrogExecutor.cs" />
@@ -119,53 +98,47 @@
     <Compile Include="Game\AI\Decks\DoEveryThingExecutor.cs" />
     <Compile Include="Game\AI\Decks\OldSchoolExecutor.cs" />
     <Compile Include="Game\AI\Decks\Rank5Executor.cs" />
-    <Compile Include="Game\AI\Decks\ZefraExecutor.cs" />
     <Compile Include="Game\AI\Decks\ZoodiacExecutor.cs" />
     <Compile Include="Game\AI\Decks\ZexalWeaponsExecutor.cs" />
-    <Compile Include="Game\AI\DefaultExecutor.cs" />
-    <Compile Include="Game\AI\Dialogs.cs" />
-    <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
-    <Compile Include="Game\AI\Enums\FusionSpell.cs" />
-    <Compile Include="Game\AI\Enums\NotBeSynchroMaterialMonster.cs" />
-    <Compile Include="Game\AI\Enums\NotBeXyzMaterialMonster.cs" />
-    <Compile Include="Game\AI\Enums\ShouldBeDisabledBeforeItUseEffectMonster.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeSpellTarget.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeMonsterTarget.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeTarget.cs" />
-    <Compile Include="Game\AI\Enums\PreventActivationEffectInBattle.cs" />
-    <Compile Include="Game\AI\Enums\OneForXyz.cs" />
-    <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
-    <Compile Include="Game\AI\Enums\Floodgate.cs" />
-    <Compile Include="Game\AI\Executor.cs" />
-    <Compile Include="Game\AI\HintMsg.cs" />
-    <Compile Include="Game\AI\Opcodes.cs" />
-    <Compile Include="Game\AI\Zones.cs" />
-    <Compile Include="Game\AI\ExecutorType.cs" />
-    <Compile Include="Game\BattlePhase.cs" />
-    <Compile Include="Game\BattlePhaseAction.cs" />
-    <Compile Include="Game\ClientCard.cs" />
-    <Compile Include="Game\ClientField.cs" />
-    <Compile Include="Game\Deck.cs" />
-    <Compile Include="Game\Duel.cs" />
-    <Compile Include="Game\GameAI.cs" />
     <Compile Include="Game\GameBehavior.cs" />
     <Compile Include="Game\GameClient.cs" />
     <Compile Include="Game\GamePacketFactory.cs" />
-    <Compile Include="Game\MainPhase.cs" />
-    <Compile Include="Game\MainPhaseAction.cs" />
     <Compile Include="Game\Room.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WindBotInfo.cs" />
+    <Compile Include="YGOSharp.Network\AsyncBinaryClient.cs" />
+    <Compile Include="YGOSharp.Network\AsyncNetworkServer.cs" />
+    <Compile Include="YGOSharp.Network\AsyncYGOClient.cs" />
+    <Compile Include="YGOSharp.Network\BinaryClient.cs" />
+    <Compile Include="YGOSharp.Network\Enums\CtosMessage.cs" />
+    <Compile Include="YGOSharp.Network\Enums\GameState.cs" />
+    <Compile Include="YGOSharp.Network\Enums\PlayerChange.cs" />
+    <Compile Include="YGOSharp.Network\Enums\PlayerState.cs" />
+    <Compile Include="YGOSharp.Network\Enums\PlayerType.cs" />
+    <Compile Include="YGOSharp.Network\Enums\StocMessage.cs" />
+    <Compile Include="YGOSharp.Network\NetworkClient.cs" />
+    <Compile Include="YGOSharp.Network\NetworkServer.cs" />
+    <Compile Include="YGOSharp.Network\Utils\BinaryExtensions.cs" />
+    <Compile Include="YGOSharp.Network\YGOClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="COPYING">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="LICENSE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="bots.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Decks\*.ydk">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -175,6 +148,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="WindBot.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="ExecutorBase\ExecutorBase.csproj">
+      <Project>{a1583fd7-7985-47dd-a835-8134dbf5811c}</Project>
+      <Name>ExecutorBase</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
