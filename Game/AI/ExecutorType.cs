@@ -11,6 +11,7 @@
         SummonOrSet,
         GoToBattlePhase,
         GoToMainPhase2,
-        GoToEndPhase
+        GoToEndPhase,
+        Surrender
     }
 }

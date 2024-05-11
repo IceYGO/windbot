@@ -90,6 +90,11 @@ namespace WindBot.Game
             Connection.Send(chat);
         }
 
+        public void Surrender()
+        {
+            Connection.Send(CtosMessage.Surrender);
+        }
+
         private void OnPacketReceived(BinaryReader reader)
         {
             _behavior.OnPacket(reader);
