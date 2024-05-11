@@ -114,6 +114,6 @@
         DarkGuardian = 26746975,
         EnvoyOfTheWaxState = 87462901,
         Fluffyfluff = 85401123,
-        YubelDasEwigLiebeWächter = 47172959
+        YubelDasEwigLiebeWachter = 47172959
     }
 }
