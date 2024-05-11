@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -165,6 +165,8 @@ namespace WindBot.Game.AI
         private void InternalSendMessage(IList<string> array, params object[] opts)
         {
             if (!_game._chat)
+                return;
+            if (array == null || array.Count == 0)
                 return;
             string message = string.Format(array[Program.Rand.Next(array.Count)], opts);
             if (message != "")
