@@ -85,6 +85,7 @@ namespace WindBot.Game
             _packets.Add(StocMessage.Chat, OnChat);
             _packets.Add(StocMessage.ChangeSide, OnChangeSide);
             _packets.Add(StocMessage.ErrorMsg, OnErrorMsg);
+            _packets.Add(StocMessage.TeammateSurrender, OnTeammateSurrender);
 
             _messages.Add(GameMessage.Retry, OnRetry);
             _messages.Add(GameMessage.Start, OnStart);
@@ -323,6 +324,12 @@ namespace WindBot.Game
                     _ai.OnDeckError("DECK");
             }
             //Connection.Close();
+        }
+
+        private void OnTeammateSurrender(BinaryReader packet)
+        {
+            Thread.Sleep(500);
+            Game.Surrender();
         }
 
         private void OnRetry(BinaryReader packet)
