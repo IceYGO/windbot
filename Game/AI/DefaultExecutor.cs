@@ -190,8 +190,8 @@ namespace WindBot.Game.AI
             public const int PatricianOfDarkness = 19153634;
             public const int DictatorOfD = 66961194;
 
-            public const int NovoxTheSilenforcerDisciple = 25801745;
-            public const int SilenforcingBarrier = 98477480;
+            public const int LoThePrayersOfTheVoicelessVoice = 25801745;
+            public const int BarrierOfTheVoicelessVoice = 98477480;
 
             public const int DiabellzeOfTheOriginalSin = 53765052;
             public const int PotOfExtravagance = 49238328;
@@ -448,7 +448,8 @@ namespace WindBot.Game.AI
             if (defender.IsCode(_CardId.RescueACEHydrant) && !defender.IsDisabled() && Enemy.GetMonsters().Any(monster => monster.HasSetcode(_Setcode.RescueACE) && !monster.IsCode(_CardId.RescueACEHydrant)))
                 return false;
 
-            if (Enemy.HasInSpellZone(_CardId.SilenforcingBarrier, true) && Enemy.HasInMonstersZone(_CardId.NovoxTheSilenforcerDisciple, faceUp: true) && !defender.HasType(CardType.Ritual))
+            if (Enemy.HasInSpellZone(_CardId.BarrierOfTheVoicelessVoice, true) && Enemy.HasInMonstersZone(_CardId.LoThePrayersOfTheVoicelessVoice, faceUp: true)
+                && Enemy.GetMonsters().Any(card => card.HasType(CardType.Ritual) && card.IsFaceup()) && !defender.HasType(CardType.Ritual))
                 return false;
 
             return true;
