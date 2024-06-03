@@ -24,7 +24,7 @@ namespace WindBot
             Host = "127.0.0.1";
             Port = 7911;
             HostInfo = "";
-            Version = 0x1360;
+            Version = 0x1361;
             Hand = 0;
             Debug = false;
             Chat = true;
