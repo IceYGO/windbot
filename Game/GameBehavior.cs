@@ -1029,6 +1029,13 @@ namespace WindBot.Game
                 cards.Add(card);
             }
 
+            if (_select_hint == 575 && cancelable) // HINTMSG_FIELD_FIRST
+            {
+                _select_hint = 0;
+                Connection.Send(CtosMessage.Response, -1);
+                return;
+            }
+
             IList<ClientCard> selected = func(cards, min, max, _select_hint, cancelable);
             _select_hint = 0;
 
