@@ -212,6 +212,17 @@
         StellarNemesisTPHON_DoomsdayStar = 93039339,
         SPLittleKnight = 29301450,
         AngelRing = 40678060,
-        SkullGuardianTheSilenforcingProtector = 10774240
+        SkullGuardianProtectorOfTheVoicelessVoice = 10774240,
+        FloweringEtoileTheMelodiousMagnificat = 83793721,
+        EnlightenmentDragon = 46186135,
+        GoldPrideEradicator = 45464587,
+        VarudrasTheFinalBringerOfTheEndTimes = 70636044,
+        RagnaraikaStagSovereign = 42307760,
+        DrytronMeteonisAlphaDraconids = 56863746,
+        TheUnstoppableExodiaIncarnate = 83257450,
+        LightAndDarknessDragonLord = 19652159,
+        FiendsmithDiesIrae = 82135803,
+        MementomictlanTecuhtlicaCombinedConqueror = 14529511,
+        MadolcheQueenTiaraalaFraise = 49689480
     }
 }

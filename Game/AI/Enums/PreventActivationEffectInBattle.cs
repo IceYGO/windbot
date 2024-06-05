@@ -12,9 +12,6 @@
         ArmadesKeeperOfBoundaries = 88033975,
         NumberS39UtopiaTheLightning = 56832966,
         DualAvatarEmpoweredKonGyo = 33026283,
-        GGolemRockHammer = 98875863,
-        WishDragon = 64583600,
-        ChaosWitch = 30327674,
-        FissioningMotherSpider = 34034150
+        GGolemRockHammer = 98875863
     }
 }
