@@ -86,6 +86,8 @@
         FusionReproduction = 43331750,
         ChimeraFusion = 63136489,
         HarmonicSynchroFusion = 7473735,
-        SouloftheSupremeCelestialKing = 76840111
+        SouloftheSupremeCelestialKing = 76840111,
+        MelodiousConcerto = 31458630,
+        MementotlanFusion = 66518509
     }
 }

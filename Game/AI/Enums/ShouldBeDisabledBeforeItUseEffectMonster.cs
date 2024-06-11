@@ -63,6 +63,10 @@
         ThreeEyedGhost = 31464658,
         UrsarcticPolarStar = 62714453,
         BattlinBoxerPromoter = 83315222,
-        TGRocketSalamander = 77392987
+        TGRocketSalamander = 77392987,
+        GGolemRockHammer = 98875863,
+        WishDragon = 64583600,
+        ChaosWitch = 30327674,
+        FissioningMotherSpider = 34034150
     }
 }
