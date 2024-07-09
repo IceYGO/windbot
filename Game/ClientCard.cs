@@ -82,8 +82,7 @@ namespace WindBot.Game
             if (Data != null)
             {
                 Name = Data.Name;
-                if (Data.Alias != 0)
-                    Alias = Data.Alias;
+                Alias = Data.Alias;
             } else {
                 Name = null;
                 Alias = 0;
