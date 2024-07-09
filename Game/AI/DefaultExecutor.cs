@@ -181,6 +181,7 @@ namespace WindBot.Game.AI
             public const int DuelDragonToken = 60025884;
             public const int SeleneQueenOfTheMasterMagicians = 45819647;
             public const int TheWingedDragonofRaSphereMode = 10000080;
+            public const int SelettriceVaalmonica = 23093373;
 
             public const int RockOfTheVanquisher = 28168628;
             public const int SpiralDischarge = 29477860;
@@ -302,7 +303,8 @@ namespace WindBot.Game.AI
             {_CardId.DuelLinkDragonTheDuelDragon, (defender, list) => list.Any(monster => monster.IsCode(_CardId.DuelDragonToken))},
             {_CardId.SeleneQueenOfTheMasterMagicians, (defender, list) => list.Any(monster => monster.HasSetcode(_Setcode.Endymion))},
 
-            {_CardId.TheWingedDragonofRaSphereMode, (defender, list) => true}
+            {_CardId.TheWingedDragonofRaSphereMode, (defender, list) => true},
+            {_CardId.SelettriceVaalmonica, (defender, list) => list.Any(monster => !monster.IsCode(_CardId.SelettriceVaalmonica))}
         };
 
         /// <summary>
