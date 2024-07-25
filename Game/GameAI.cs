@@ -1162,6 +1162,7 @@ namespace WindBot.Game
 
         private bool ShouldExecute(CardExecutor exec, ClientCard card, ExecutorType type, int desc = -1, int timing = -1)
         {
+            Executor.SetCard(type, card, desc, timing);
             if (card.Id != 0 && type == ExecutorType.Activate)
             {
                 if (_activatedCards.ContainsKey(card.Id) && _activatedCards[card.Id] >= 9)
@@ -1169,7 +1170,6 @@ namespace WindBot.Game
                 if (!Executor.OnPreActivate(card))
                     return false;
             }
-            Executor.SetCard(type, card, desc, timing);
             bool result = card != null && exec.Type == type &&
                 (exec.CardId == -1 || exec.CardId == card.Id) &&
                 (exec.Func == null || exec.Func());

@@ -1129,6 +1129,15 @@ namespace WindBot.Game.AI
                 _CardId.EvenlyMatched,
                 _CardId.DivineArsenalAAZEUS_SkyThunder
             };
+            int[] destroyAllMonsterList =
+            {
+                _CardId.DarkHole,
+                _CardId.InterruptedKaijuSlumber
+            };
+            int[] destroyAllOpponentMonsterList =
+            {
+                _CardId.Raigeki
+            };
             int[] destroyAllOpponentSpellList =
             {
                 _CardId.HarpiesFeatherDuster,
@@ -1137,6 +1146,8 @@ namespace WindBot.Game.AI
 
             if (Util.ChainContainsCard(destroyAllList)) return true;
             if (Enemy.HasInSpellZone(destroyAllOpponentSpellList, true) && Card.Location == CardLocation.SpellZone) return true;
+            if (Util.ChainContainsCard(destroyAllMonsterList) && Card.Location == CardLocation.MonsterZone) return true;
+            if (Duel.CurrentChain.Any(c => c.Controller == 1 && c.IsCode(destroyAllOpponentMonsterList)) && Card.Location == CardLocation.MonsterZone) return true;
             if (lightningStormOption == 0 && Card.Location == CardLocation.MonsterZone && Card.IsAttack()) return true;
             if (lightningStormOption == 1 && Card.Location == CardLocation.SpellZone) return true;
             // TODO: ChainContainsCard(id, player)
@@ -1579,7 +1590,7 @@ namespace WindBot.Game.AI
             if (originId == 0) originId = card.Data.Id;
             return crossoutDesignatorIdList.Contains(originId)
                 || (calledbytheGraveIdCountMap.ContainsKey(originId) && calledbytheGraveIdCountMap[originId] > 0)
-                || card.IsDisabled();
+                || (card.IsDisabled() && ((int)card.Location & (int)CardLocation.Onfield) > 0);
         }
         
         protected bool DefaultCheckWhetherCardIdIsNegated(int cardId)
