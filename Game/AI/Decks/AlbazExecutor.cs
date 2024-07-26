@@ -5488,7 +5488,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         ClientCard material = materialList[0];
                         checkFlag |= material.HasType(CardType.Ritual | CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link);
-                        checkFlag |= material.IsFloodgate() || material.IsOneForXyz() || Util.GetWorstBotMonster().GetDefensePower() < material.Attack;
+                        checkFlag |= material.IsFloodgate() || material.IsOneForXyz() || Util.GetWorstBotMonster()?.GetDefensePower() < material.Attack;
                         checkFlag |= Duel.Player == 1 && Duel.Phase == DuelPhase.End && Duel.LastChainPlayer == -1;
                     }
                 }
