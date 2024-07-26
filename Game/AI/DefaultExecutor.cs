@@ -1579,7 +1579,7 @@ namespace WindBot.Game.AI
             if (originId == 0) originId = card.Data.Id;
             return crossoutDesignatorIdList.Contains(originId)
                 || (calledbytheGraveIdCountMap.ContainsKey(originId) && calledbytheGraveIdCountMap[originId] > 0)
-                || card.IsDisabled();
+                || (card.IsDisabled() && ((int)card.Location & (int)CardLocation.Onfield) > 0);
         }
         
         protected bool DefaultCheckWhetherCardIdIsNegated(int cardId)

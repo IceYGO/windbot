@@ -1024,7 +1024,7 @@ namespace WindBot.Game
                     card.Controller = player;
                 }
                 if (card == null) continue;
-                if (card.Id == 0)
+                if (card.Id == 0 || card.Location == CardLocation.Deck)
                     card.SetId(id);
                 cards.Add(card);
             }
