@@ -17,7 +17,7 @@
         Thunder = 0x1000,
         Dragon = 0x2000,
         Beast = 0x4000,
-        BestWarrior = 0x8000,
+        BeastWarrior = 0x8000,
         Dinosaur = 0x10000,
         Fish = 0x20000,
         SeaSerpent = 0x40000,

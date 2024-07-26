@@ -60,6 +60,7 @@
     <Compile Include="Game\AI\CardSelector.cs" />
     <Compile Include="Game\AI\DeckAttribute.cs" />
     <Compile Include="Game\AI\DecksManager.cs" />
+    <Compile Include="Game\AI\Decks\AlbazExecutor.cs" />
     <Compile Include="Game\AI\Decks\AltergeistExecutor.cs" />
     <Compile Include="Game\AI\Decks\BraveExecutor.cs" />
     <Compile Include="Game\AI\Decks\FamiliarPossessedExecutor.cs" />
