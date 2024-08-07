@@ -212,6 +212,7 @@ namespace WindBot.Game.AI.Decks
             activate_Genius = false;
             activate_Sarutobi = false;
             to_deck = false;
+            base.OnNewTurn();
         }
         public override bool OnSelectHand()
         {
