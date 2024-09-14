@@ -177,6 +177,22 @@ namespace WindBot.Game.AI.Decks
             return null;
         }
 
+        public override void OnSpSummoned()
+        {
+            // not special summoned by chain
+            if (Duel.GetCurrentSolvingChainCard() == null)
+            {
+                foreach (ClientCard card in Duel.LastSummonedCards)
+                {
+                    if (card.Controller == 0 && card.IsCode(CardId.AlternativeWhiteDragon))
+                    {
+                        AlternativeWhiteDragonSummoned = true;
+                    }
+                }
+            }
+            base.OnSpSummoned();
+        }
+
         private bool DragonShrineEffect()
         {
             AI.SelectCard(
@@ -501,7 +517,6 @@ namespace WindBot.Game.AI.Decks
 
         private bool AlternativeWhiteDragonSummon()
         {
-            AlternativeWhiteDragonSummoned = true;
             return true;
         }
 

@@ -164,6 +164,15 @@ namespace WindBot.Game
         {
             Executor.OnChainSolved(chainIndex);
         }
+
+        /// <summary>
+        /// Called when card is successfully special summoned.
+        /// Used on monsters that can only special summoned once per turn.
+        /// </summary>
+        public void OnSpSummoned()
+        {
+            Executor.OnSpSummoned();
+        }
         
         /// <summary>
         /// Called when a chain has been solved.
