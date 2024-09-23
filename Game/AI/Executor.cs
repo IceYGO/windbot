@@ -237,6 +237,16 @@ namespace WindBot.Game.AI
             return 0;
         }
 
+        /// <summary>
+        /// Called when card is successfully special summoned.
+        /// Used on monsters that can only special summoned once per turn.
+        /// </summary>
+        public virtual void OnSpSummoned()
+        {
+            // For overriding
+            return;
+        }
+
         public void SetMain(MainPhase main)
         {
             Main = main;

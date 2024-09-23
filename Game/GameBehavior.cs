@@ -27,7 +27,7 @@ namespace WindBot.Game
         private Room _room;
         private Duel _duel;
         private int _hand;
-        private bool _debug;        
+        private bool _debug;
         private int _select_hint;
         private GameMessage _lastMessage;
 
@@ -1971,6 +1971,7 @@ namespace WindBot.Game
                 card.IsSpecialSummoned = true;
                 _duel.LastSummonedCards.Add(card);
             }
+            _ai.OnSpSummoned();
             _duel.SummoningCards.Clear();
         }
 
