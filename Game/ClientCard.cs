@@ -350,6 +350,11 @@ namespace WindBot.Game
             return Id == id || Alias - Id < 20 && Alias == id;
         }
 
+        public bool IsOnField()
+        {
+            return Location == CardLocation.MonsterZone || Location == CardLocation.SpellZone || Location == CardLocation.PendulumZone || Location == CardLocation.FieldZone;
+        }
+
         public bool HasXyzMaterial()
         {
             return Overlays.Count > 0;
