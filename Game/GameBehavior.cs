@@ -1601,12 +1601,25 @@ namespace WindBot.Game
                 }
             }
 
-            for (int k = 0; k < mandatoryCards.Count; ++k)
+            IList<ClientCard> selected = SelectSumRecursive(0, sumval);
+
+            IList<ClientCard> SelectSumRecursive(int cardIndex, int sumVal)
             {
-                sumval -= mandatoryCards[k].OpParam1;
+                ClientCard card = mandatoryCards[cardIndex];
+                for (int opParam = 0; opParam < 2; opParam++)
+                {
+                    int opParamValue = opParam == 0 ? card.OpParam1 : card.OpParam2;
+                    int tempSumVal = sumVal - opParamValue;
+
+                    IList<ClientCard> tempResult = cardIndex == mandatoryCards.Count - 1
+                                                       ? _ai.OnSelectSum(cards, tempSumVal, min, max, _select_hint, mode)
+                                                       : SelectSumRecursive(cardIndex + 1, tempSumVal);
+                    if (tempResult.Count >= min) return tempResult;
+                }
+
+                return new List<ClientCard>();
             }
 
-            IList<ClientCard> selected = _ai.OnSelectSum(cards, sumval, min, max, _select_hint, mode);
             _select_hint = 0;
 
             byte[] result = new byte[mandatoryCards.Count + selected.Count + 1];
