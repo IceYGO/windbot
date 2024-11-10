@@ -1605,15 +1605,15 @@ namespace WindBot.Game
 
             IList<ClientCard> SelectSumRecursive(int cardIndex, int sumVal)
             {
+                if (cardIndex >= mandatoryCards.Count) return _ai.OnSelectSum(cards, sumVal, min, max, _select_hint, mode);
+
                 ClientCard card = mandatoryCards[cardIndex];
                 for (int opParam = 0; opParam < 2; opParam++)
                 {
                     int opParamValue = opParam == 0 ? card.OpParam1 : card.OpParam2;
                     int tempSumVal = sumVal - opParamValue;
 
-                    IList<ClientCard> tempResult = cardIndex == mandatoryCards.Count - 1
-                                                       ? _ai.OnSelectSum(cards, tempSumVal, min, max, _select_hint, mode)
-                                                       : SelectSumRecursive(cardIndex + 1, tempSumVal);
+                    IList<ClientCard> tempResult = SelectSumRecursive(cardIndex + 1, tempSumVal);
                     if (tempResult.Count >= min) return tempResult;
                 }
 
