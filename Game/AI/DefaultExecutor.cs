@@ -1616,6 +1616,12 @@ namespace WindBot.Game.AI
                 || (calledbytheGraveIdCountMap.ContainsKey(cardId) && calledbytheGraveIdCountMap[cardId] > 0);
         }
 
+        protected int GetCalledbytheGraveIdCount(int cardId)
+        {
+            if (!calledbytheGraveIdCountMap.ContainsKey(cardId)) return 0;
+            return calledbytheGraveIdCountMap[cardId];
+        }
+
 
         protected virtual bool DefaultSetForDiabellze()
         {
