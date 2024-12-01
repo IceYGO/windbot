@@ -105,7 +105,7 @@ namespace WindBot.Game.AI
             public const int NibiruThePrimalBeing = 27204311;
             public const int MulcharmyPurulia = 84192580;
             public const int MulcharmyFuwalos = 42141493;
-            public const int MulcharmyNyalus = 101207025;
+            public const int MulcharmyNyalus = 87126721;
 
             public const int CalledByTheGrave = 24224830;
             public const int CrossoutDesignator = 65681983;
