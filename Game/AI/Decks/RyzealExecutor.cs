@@ -555,11 +555,13 @@ namespace WindBot.Game.AI.Decks
             return resultList;
         }
 
-        public List<ClientCard> GetNormalEnemyTargetList(bool canBeTarget = true, bool ignoreCurrentDestroy = false, CardType selfType = 0)
+        public List<ClientCard> GetNormalEnemyTargetList(bool canBeTarget = true, bool ignoreCurrentDestroy = false, CardType selfType = 0, bool forNegate = false)
         {
             List<ClientCard> targetList = GetProblematicEnemyCardList(canBeTarget, selfType: selfType);
             List<ClientCard> enemyMonster = Enemy.GetMonsters().Where(card => card.IsFaceup() && !targetList.Contains(card)
-                && (!ignoreCurrentDestroy || !currentDestroyCardList.Contains(card))).ToList();
+                && (!ignoreCurrentDestroy || !currentDestroyCardList.Contains(card))
+                && (!forNegate || (!card.IsDisabled() && card.HasType(CardType.Effect)))
+                ).ToList();
             enemyMonster.Sort(CardContainer.CompareCardAttack);
             enemyMonster.Reverse();
             targetList.AddRange(enemyMonster);
@@ -567,7 +569,10 @@ namespace WindBot.Game.AI.Decks
                 (!ignoreCurrentDestroy || !currentDestroyCardList.Contains(card)) && enemyPlaceThisTurn.Contains(card) && card.IsFacedown()).ToList()));
             targetList.AddRange(ShuffleList(Enemy.GetSpells().Where(card =>
                 (!ignoreCurrentDestroy || !currentDestroyCardList.Contains(card)) && !enemyPlaceThisTurn.Contains(card) && card.IsFacedown()).ToList()));
-            targetList.AddRange(ShuffleList(Enemy.GetMonsters().Where(card => card.IsFacedown() && (!ignoreCurrentDestroy || !currentDestroyCardList.Contains(card))).ToList()));
+            targetList.AddRange(ShuffleList(Enemy.GetMonsters().Where(card => card.IsFacedown()
+                && (!ignoreCurrentDestroy || !currentDestroyCardList.Contains(card))
+                && (!forNegate || (!card.IsDisabled() && card.HasType(CardType.Effect)))
+                ).ToList()));
 
             return targetList;
         }
@@ -3452,8 +3457,11 @@ namespace WindBot.Game.AI.Decks
         public bool MereologicAggregatorActivateFirst()
         {
             List<Func<ClientCard, bool>> multiNegateFuncList = new List<Func<ClientCard, bool>> {
-                {c => c.IsCode(44665365, 48546368, 54178659) },
-                {c => c.IsCode(4280258) && c.Attack >= 800 }
+                {c => c.IsCode(44665365, 48546368, 54178659) && c.IsMonster() },
+                {c => c.IsCode(4280258) && c.Attack >= 800 },
+                {c => c.IsCode(47297616) && c.Attack >= 500 && c.Defense >= 500 },
+                {c => c.IsCode(19652159) && c.Attack >= 1000 && c.Defense >= 1000 },
+                {c => c.IsCode(79600447) && Enemy.MonsterZone.Any(m => m != null && m.IsFaceup() && m.IsCode(23288411) && m.Attack >= 1000) }
             };
             List<ClientCard> searchCardList = new List<ClientCard>(Enemy.GetMonsters());
             searchCardList.AddRange(Enemy.GetSpells());
@@ -3494,7 +3502,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            List<ClientCard> targetList = GetNormalEnemyTargetList(true, false, CardType.Monster).Where(c => c.IsFaceup()).ToList();
+            List<ClientCard> targetList = GetNormalEnemyTargetList(true, false, CardType.Monster, true).Where(c => c.IsFaceup()).ToList();
             if (targetList.Count() > 0)
             {
                 currentNegateCardList.Add(targetList[0]);
@@ -3508,7 +3516,7 @@ namespace WindBot.Game.AI.Decks
             {
                 foreach (ClientCard card in Bot.GetMonsters())
                 {
-                    if (card.IsFacedown() || Duel.CurrentChain.Contains(card) || card.IsDisabled()) continue;
+                    if (card.IsFacedown() || Duel.CurrentChain.Contains(card) || card.IsDisabled() || !card.HasType(CardType.Effect)) continue;
                     bool flag = card.IsCode(CardId.IceRyzeal, CardId.ThodeRyzeal);
                     flag |= card.IsCode(CardId.NodeRyzeal) && activatedCardIdList.Contains(CardId.NodeRyzeal);
                     flag |= card.HasType(CardType.Xyz) && !card.HasXyzMaterial() && !card.IsCode(CardId.RyzealDeadnader, CardId.RyzealDuodrive, CardId.FullArmoredUtopicRayLancer);
