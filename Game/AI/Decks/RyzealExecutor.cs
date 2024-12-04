@@ -1873,6 +1873,7 @@ namespace WindBot.Game.AI.Decks
                 flag |= GetLevel4CountOnField() >= 2;
                 if (flag) return false;
             }
+            if (Card.Level != 4) return false;
             if (summonCount <= 0 && GetLevel4CountOnField() == 1)
             {
                 List<ClientCard> firstCostList = GetCostFromHandAndField(Card, false);
@@ -1881,7 +1882,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(firstCostList);
                     return true;
                 }
-                if (Enemy.MonsterZone.Any(c => c != null && c.IsFaceup() && !c.IsDisabled() && c.IsFloodgate()))
+                if (Enemy.MonsterZone.Any(c => c != null && c.IsFaceup() && !c.IsDisabled() && c.IsFloodgate()) || !CheckWhetherHaveFinalMonster())
                 {
                     List<ClientCard> costList = GetCostFromHandAndField(Card, true);
                     if (costList.Count() > 0)
@@ -2482,21 +2483,18 @@ namespace WindBot.Game.AI.Decks
                         }
                     }
 
-                    if (GetLevel4CountOnField() == 1)
+                    foreach (int id in checkIdList)
                     {
-                        foreach (int id in checkIdList)
+                        ClientCard target = Bot.Banished.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(id));
+                        if (target == null)
                         {
-                            ClientCard target = Bot.Banished.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(id));
-                            if (target == null)
-                            {
-                                target = Bot.Graveyard.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(id));
-                            }
-                            if (target != null)
-                            {
-                                AI.SelectCard(target);
-                                SelectSTPlace(Card, true);
-                                return true;
-                            }
+                            target = Bot.Graveyard.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(id));
+                        }
+                        if (target != null)
+                        {
+                            AI.SelectCard(target);
+                            SelectSTPlace(Card, true);
+                            return true;
                         }
                     }
                 }
@@ -2997,6 +2995,14 @@ namespace WindBot.Game.AI.Decks
         public bool FirstRyzealDuodriveSpSummon()
         {
             if (!RyzealDuodriveSpSummonCheck()) return false;
+            if (Bot.Graveyard.Count(c => c.HasSetcode(SetcodeRyzeal) && c.IsMonster()) == 0)
+            {
+                if (!CheckShouldNoMoreSpSummon(CardLocation.Hand) && Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal)
+                    && Bot.ExtraDeck.Count(c => c.IsCode(CardId.RyzealDeadnader, CardId.RyzealDuodrive)) > 2)
+                {
+                    return false;
+                }
+            }
 
             List<ClientCard> materialList = GetLevel4OnField(null);
             List<ClientCard> materialExceptNode = materialList
@@ -3031,14 +3037,6 @@ namespace WindBot.Game.AI.Decks
             checkFlag &= !CheckWhetherNegated(true, true, CardType.Monster);
             checkFlag &= !lockBirdSolved;
             checkFlag &= !CheckShouldNoMoreSpSummon(CardLocation.Extra);
-            if (Bot.Graveyard.Count(c => c.HasSetcode(SetcodeRyzeal) && c.IsMonster()) == 0)
-            {
-                if (!CheckShouldNoMoreSpSummon(CardLocation.Hand) && Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal)
-                    && Bot.ExtraDeck.Count(c => c.IsCode(CardId.RyzealDeadnader, CardId.RyzealDuodrive)) > 2)
-                {
-                    return false;
-                }
-            }
 
             return checkFlag;
         }
@@ -3393,10 +3391,11 @@ namespace WindBot.Game.AI.Decks
             }
             bool haveEnemyTarget = Enemy.MonsterZone.Any(c => c != null && !c.IsShouldNotBeMonsterTarget()) && !CheckWhetherNegated(true, true, CardType.Monster);
 
-            List<ClientCard> illegalList = Bot.GetMonsters().Where(card => card.IsFaceup() && card.Level != 4).OrderBy(c => c.GetDefensePower()).ToList();
-            bool necessary = Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !activatedCardIdList.Contains(CardId.ExRyzeal);
+            List<ClientCard> illegalList = Bot.GetMonsters().Where(card => card.IsFaceup() && card.Level != 4 && card.Rank != 4).OrderBy(c => c.GetDefensePower()).ToList();
+            bool necessary = Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !activatedCardIdList.Contains(CardId.ExRyzeal)
+                && illegalList.Count() > 0;
             bool needDestory = !CheckWhetherNegated(true, true, CardType.Monster)
-                && (Enemy.MonsterZone.Any(c => c != null && !c.IsShouldNotBeMonsterTarget() && c.IsFloodgate()));
+                && Enemy.MonsterZone.Any(c => c != null && !c.IsShouldNotBeMonsterTarget() && c.IsFloodgate() && !c.IsDisabled());
             necessary |= needDestory;
 
             if (necessary)
