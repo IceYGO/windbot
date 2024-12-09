@@ -676,6 +676,7 @@ namespace WindBot.Game.AI.Decks
                 if (flag) level4Count++;
             }
             hasNode &= !CheckWhetherWillbeRemoved() && !activatedCardIdList.Contains(CardId.NodeRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.NodeRyzeal);
+            hasNode &= Bot.Graveyard.Any(c => c != null && c.IsMonster() && c.HasSetcode(SetcodeRyzeal) && !c.IsCode(CardId.NodeRyzeal) && c.Level == 4);
             if (hasNode)
             {
                 bool flag = Bot.Graveyard.Any(c => c != null && c.IsFaceup() && c.HasSetcode(SetcodeRyzeal) && !c.HasType(CardType.Xyz) && c.Level == 4 && !c.IsCode(CardId.NodeRyzeal));
@@ -703,7 +704,7 @@ namespace WindBot.Game.AI.Decks
 
         public List<ClientCard> GetCostFromHandAndFieldFirst(ClientCard exceptCard)
         {
-            return Bot.MonsterZone.Where(c => c != null && !c.IsDisabled() && c.IsCode(NeedIceToSolveIdList) && c != exceptCard).ToList();
+            return Bot.MonsterZone.Where(c => c != null && !c.IsDisabled() && c.IsCode(NeedIceToSolveIdList) && c != exceptCard && !c.HasType(CardType.Token)).ToList();
         }
 
         public List<ClientCard> GetCostFromHandAndField(ClientCard exceptCard, bool sendNotNecessary)
@@ -770,8 +771,12 @@ namespace WindBot.Game.AI.Decks
 
             // sending monsters in spell zone
             List<ClientCard> monstersInSpellZone = Bot.SpellZone.Where(c => c != null && c.Data != null
-                && c.Data.HasType(CardType.Monster) && !c.Data.HasType(CardType.Pendulum) && !resultList.Contains(c)).ToList();
+                && c.Data.HasType(CardType.Monster) && !c.Data.HasType(CardType.Pendulum | CardType.Token) && !resultList.Contains(c)).ToList();
             resultList.AddRange(monstersInSpellZone);
+
+            // send enemy monsters
+            List<ClientCard> enemyMonsters = Bot.MonsterZone.Where(c => c != null && !resultList.Contains(c) && c.Owner == 1).ToList();
+            resultList.AddRange(enemyMonsters);
 
             if (sendNotNecessary)
             {
@@ -1278,7 +1283,7 @@ namespace WindBot.Game.AI.Decks
                     // gain material by plugin
                     if (currentSolvingChain.IsCode(CardId.RyzealPlugIn) && cards.All(c => c.Location == CardLocation.MonsterZone))
                     {
-                        ClientCard abyssDweller = cards.FirstOrDefault(c => c != null && !c.IsDisabled() && c.IsCode(CardId.AbyssDweller));
+                        ClientCard abyssDweller = cards.FirstOrDefault(c => c != null && !c.IsDisabled() && c.IsCode(CardId.AbyssDweller) && c.Overlays.Count() < 2);
                         if (abyssDweller != null && AbyssDwellerSummonCheck())
                         {
                             return Util.CheckSelectCount(new List<ClientCard> { abyssDweller }, cards, min, max);
@@ -1305,7 +1310,7 @@ namespace WindBot.Game.AI.Decks
                             }
                         }
 
-                        ClientCard tornadoDragon = cards.FirstOrDefault(c => c != null && !c.IsDisabled() && c.IsCode(CardId.TornadoDragon));
+                        ClientCard tornadoDragon = cards.FirstOrDefault(c => c != null && !c.IsDisabled() && c.IsCode(CardId.TornadoDragon) && c.Overlays.Count() == 1);
                         if (tornadoDragon != null && TornadoDragonSummonCheck())
                         {
                             return Util.CheckSelectCount(new List<ClientCard> { tornadoDragon }, cards, min, max);
@@ -3550,7 +3555,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            List<ClientCard> targetList = GetNormalEnemyTargetList(true, false, CardType.Monster, true).Where(c => c.IsFaceup()).ToList();
+            List<ClientCard> targetList = GetNormalEnemyTargetList(true, false, CardType.Monster, true).Where(c => c.IsFaceup() && !c.IsDisabled()).ToList();
             if (targetList.Count() > 0)
             {
                 currentNegateCardList.Add(targetList[0]);
