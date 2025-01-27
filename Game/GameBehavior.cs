@@ -1017,7 +1017,13 @@ namespace WindBot.Game
                 packet.ReadByte(); // pos
                 ClientCard card;
                 if (((int)loc & (int)CardLocation.Overlay) != 0)
+                {
                     card = new ClientCard(id, CardLocation.Overlay, -1);
+                    CardLocation ownerLoc = loc ^ CardLocation.Overlay;
+                    ClientCard ownerCard = _duel.GetCard(player, ownerLoc, seq);
+                    if (ownerCard != null)
+                        card.OwnTargets.Add(ownerCard);
+                }
                 else
                 {
                     card = _duel.GetCard(player, loc, seq);

@@ -99,7 +99,13 @@ namespace WindBot.Game.AI
             public const int GhostOgreAndSnowRabbit = 59438930;
             public const int GhostBelle = 73642296;
             public const int EffectVeiler = 97268402;
+            public const int GhostMournerMoonlitChill = 52038441;
             public const int ArtifactLancea = 34267821;
+            public const int DimensionShifter = 91800273;
+            public const int NibiruThePrimalBeing = 27204311;
+            public const int MulcharmyPurulia = 84192580;
+            public const int MulcharmyFuwalos = 42141493;
+            public const int MulcharmyNyalus = 87126721;
 
             public const int CalledByTheGrave = 24224830;
             public const int CrossoutDesignator = 65681983;
@@ -120,9 +126,19 @@ namespace WindBot.Game.AI
 
             public const int ImperialOrder = 61740673;
             public const int RoyalDecreel = 51452091;
+            public const int NaturalExterio = 99916754;
             public const int NaturiaBeast = 33198837;
+            public const int SwordsmanLV7 = 37267041;
             public const int AntiSpellFragrance = 58921041;
-            
+            public const int Number41BagooskatheTerriblyTiredTapir = 90590303;
+            public const int SkillDrain = 82732705;
+
+            public const int DimensionalFissure = 81674782;
+            public const int BanisheroftheRadiance = 94853057;
+            public const int BanisheroftheLight = 61528025;
+            public const int KashtiraAriseHeart = 48626373;
+            public const int MaskedHERODarkLaw = 58481572;
+
             public const int VaylantzWorld_ShinraBansho = 49568943;
             public const int VaylantzWorld_KonigWissen = 75952542;
             public const int DivineArsenalAAZEUS_SkyThunder = 90448279;
@@ -214,6 +230,7 @@ namespace WindBot.Game.AI
             public const int FurHire = 0x114;
             public const int Altergeist = 0x103;
             public const int Crusadia = 0x116;
+            public const int Danger = 0x11e;
             public const int Endymion = 0x12a;
             public const int AncientWarriors = 0x137;
             public const int RescueACE = 0x18b;
@@ -780,7 +797,7 @@ namespace WindBot.Game.AI
             };
             if (Util.GetLastChainCard().IsCode(ignoreList))
                 return false;
-            if (Util.GetLastChainCard().HasSetcode(0x11e) && Util.GetLastChainCard().Location == CardLocation.Hand) // Danger! archtype hand effect
+            if (Util.GetLastChainCard().HasSetcode(_Setcode.Danger) && Util.GetLastChainCard().Location == CardLocation.Hand) // Danger! archtype hand effect
                 return false;
             return Duel.LastChainPlayer == 1;
         }
@@ -1597,6 +1614,12 @@ namespace WindBot.Game.AI
         {
             return crossoutDesignatorIdList.Contains(cardId)
                 || (calledbytheGraveIdCountMap.ContainsKey(cardId) && calledbytheGraveIdCountMap[cardId] > 0);
+        }
+
+        protected int GetCalledbytheGraveIdCount(int cardId)
+        {
+            if (!calledbytheGraveIdCountMap.ContainsKey(cardId)) return 0;
+            return calledbytheGraveIdCountMap[cardId];
         }
 
 
