@@ -921,7 +921,7 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             if (currentSolvingChain != null)
             {
                 if (botSolvingCross)
@@ -953,7 +953,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                if (currentSolvingChain.Controller == 1 && currentSolvingChain.IsCode(_CardId.EvenlyMatched))
+                if (currentSolvingChain.ActivatePlayer == 1 && currentSolvingChain.IsCode(_CardId.EvenlyMatched))
                 {
                     Logger.DebugWriteLine("=== Evenly Matched activated.");
                     List<ClientCard> banishList = new List<ClientCard>();
@@ -995,7 +995,7 @@ namespace WindBot.Game.AI.Decks
                     return Util.CheckSelectCount(banishList, cards, min, max);
                 }
 
-                if (currentSolvingChain.Controller == 0)
+                if (currentSolvingChain.ActivatePlayer == 0)
                 {
                     if (hint == HintMsg.AddToHand)
                     {
@@ -1701,31 +1701,31 @@ namespace WindBot.Game.AI.Decks
         public override void OnChainSolved(int chainIndex)
         {
             botSolvingCross = false;
-            ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
-            if (currentCard != null)
+            ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentChain != null && !Duel.IsCurrentSolvingChainNegated())
             {
                 if (!Duel.IsCurrentSolvingChainNegated())
                 {
-                    if (currentCard.IsCode(_CardId.LockBird))
+                    if (currentChain.IsCode(_CardId.LockBird))
                         lockBirdSolved = true;
-                    if (currentCard.IsCode(_CardId.DimensionShifter))
+                    if (currentChain.IsCode(_CardId.DimensionShifter))
                         dimensionShifterCount = 2;
-                    if (currentCard.Controller == 1)
+                    if (currentChain.ActivatePlayer == 1)
                     {
-                        if (currentCard.IsCode(_CardId.MaxxC))
+                        if (currentChain.IsCode(_CardId.MaxxC))
                             enemyActivateMaxxC = true;
-                        if (currentCard.IsCode(_CardId.MulcharmyPurulia))
+                        if (currentChain.IsCode(_CardId.MulcharmyPurulia))
                             enemyActivatePurulia = true;
-                        if (currentCard.IsCode(_CardId.MulcharmyFuwalos))
+                        if (currentChain.IsCode(_CardId.MulcharmyFuwalos))
                             enemyActivateFuwalos = true;
-                        if (currentCard.IsCode(_CardId.MulcharmyNyalus))
+                        if (currentChain.IsCode(_CardId.MulcharmyNyalus))
                             enemyActivateNyalus = true;
                     }
-                    if (currentCard.Controller == 0)
+                    if (currentChain.ActivatePlayer == 0)
                     {
                         foreach (int checkId in CheckBotSolvedList)
                         {
-                            if (currentCard.IsCode(checkId))
+                            if (currentChain.IsCode(checkId))
                             {
                                 botSolvedCardIdList.Add(checkId);
                             }

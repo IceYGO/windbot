@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using YGOSharp.OCGWrapper;
@@ -10,6 +11,7 @@ namespace WindBot.Game
     {
         public ClientCard RelatedCard { get; private set; }
         public int ActivatePlayer { get; private set; }
+        public int ActivateId { get; private set; }
         public int ActivateController { get; private set; }
         public int ActivatePosition { get; private set; }
         public int ActivateSequence { get; private set; }
@@ -32,6 +34,7 @@ namespace WindBot.Game
         {
             RelatedCard = card;
             ActivatePlayer = player;
+            ActivateId = card.Id;
             ActivateController = card.Controller;
             ActivatePosition = card.Position;
             ActivateSequence = card.Sequence;
@@ -56,6 +59,35 @@ namespace WindBot.Game
         public bool HasLocation(CardLocation location)
         {
             return ((int)ActivateLocation & (int)location) != 0;
+        }
+
+        public bool IsCode(int id)
+        {
+            return RelatedCard != null && RelatedCard.IsCode(id);
+        }
+
+        public bool IsCode(IList<int> ids)
+        {
+            return RelatedCard != null && RelatedCard.IsCode(ids);
+        }
+
+        public bool IsCode(params int[] ids)
+        {
+            return RelatedCard != null && RelatedCard.IsCode(ids);
+        }
+
+        public bool HasType(CardType type)
+        {
+            return RelatedCard != null && (RelatedCard.Type & (int)type) != 0;
+        }
+        public bool IsSpell()
+        {
+            return HasType(CardType.Spell);
+        }
+
+        public bool IsTrap()
+        {
+            return HasType(CardType.Trap);
         }
     }
 }
