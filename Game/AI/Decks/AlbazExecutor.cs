@@ -2186,7 +2186,7 @@ namespace WindBot.Game.AI.Decks
 
         public override int OnSelectOption(IList<int> options)
         {
-            ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             if (currentSolvingChain != null)
             {
                 // 1190=Add to Hand, 1152=Special Summon
@@ -2246,8 +2246,8 @@ namespace WindBot.Game.AI.Decks
 
         public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
-            ClientCard currentSovingChain = Duel.GetCurrentSolvingChainCard();
-            if (currentSovingChain != null && currentSovingChain.Controller == 0 && currentSovingChain.IsCode(CardId.SprindTheIrondashDragon))
+            ChainInfo currentSovingChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentSovingChain != null && currentSovingChain.ActivatePlayer == 0 && currentSovingChain.IsCode(CardId.SprindTheIrondashDragon))
             {
                 return SprindTheIrondashDragonMoveZone(available, null);
             }
@@ -2435,21 +2435,21 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnChainSolved(int chainIndex)
         {
-            ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentCard = Duel.GetCurrentSolvingChainInfo();
             if (currentCard != null)
             {
                 // if activation is negated, it can activate again.
-                if (currentCard.Controller == 0)
+                if (currentCard.ActivatePlayer == 0)
                 {
                     List<int> activateCheck = new List<int> { CardId.NadirServant, CardId.FusionDeployment, CardId.BrandedFusion, CardId.BrandedInRed };
                     if (currentCard.IsCode(activateCheck))
                     {
-                        activatedCardIdList.Add(currentCard.Id);
+                        activatedCardIdList.Add(currentCard.ActivateId);
                     }
                 }
                 if (!Duel.IsCurrentSolvingChainNegated())
                 {
-                    if (currentCard.Controller == 1)
+                    if (currentCard.ActivatePlayer == 1)
                     {
                         if (currentCard.IsCode(_CardId.MaxxC))
                             enemyActivateMaxxC = true;
@@ -2458,7 +2458,7 @@ namespace WindBot.Game.AI.Decks
                         if (currentCard.IsCode(CardId.DimensionShifter))
                             dimensionShifterCount = 2;
                     }
-                    if (currentCard.Controller == 0 && currentCard.IsCode(CardId.NadirServant))
+                    if (currentCard.ActivatePlayer == 0 && currentCard.IsCode(CardId.NadirServant))
                     {
                         nadirActivated = true;
                     }

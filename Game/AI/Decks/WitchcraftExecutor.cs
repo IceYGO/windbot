@@ -201,8 +201,8 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnChainSolved(int chainIndex)
         {
-            ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
-            if (currentCard != null && currentCard.Controller == 1)
+            ChainInfo currentCard = Duel.GetCurrentSolvingChainInfo();
+            if (currentCard != null && currentCard.ActivatePlayer == 1)
             {
                 if (Duel.IsCurrentSolvingChainNegated())
                 {
@@ -212,16 +212,16 @@ namespace WindBot.Game.AI.Decks
                         if (Bot.MonsterZone.GetFirstMatchingCard(c => c.HasRace(CardRace.SpellCaster) && c.IsFaceup()) != null
                             && Bot.HasInSpellZone(CardId.MagicianRightHand, true))
                         {
-                            Logger.DebugWriteLine("MagicianRightHand negate: " + currentCard.Name ?? "???");
+                            Logger.DebugWriteLine("MagicianRightHand negate: " + currentCard.RelatedCard.Name ?? "???");
                             MagicianRightHand_used = true;
                         }
                     }
-                    if (!MagiciansLeftHand_used && currentCard.IsTrap() && currentCard.Controller == 1)
+                    if (!MagiciansLeftHand_used && currentCard.IsTrap() && currentCard.ActivatePlayer == 1)
                     {
                         if (Bot.MonsterZone.GetFirstMatchingCard(c => c.HasRace(CardRace.SpellCaster) && c.IsFaceup()) != null
                             && Bot.HasInSpellZone(CardId.MagiciansLeftHand, true))
                         {
-                            Logger.DebugWriteLine("MagiciansLeftHand negate: " + currentCard.Name ?? "???");
+                            Logger.DebugWriteLine("MagiciansLeftHand negate: " + currentCard.RelatedCard.Name ?? "???");
                             MagiciansLeftHand_used = true;
                         }
                     }
@@ -236,7 +236,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         for (int i = 0; i < 5; ++i)
                         {
-                            if (Enemy.SpellZone[i] == currentCard)
+                            if (Enemy.SpellZone[i] == currentCard.RelatedCard)
                             {
                                 Impermanence_list.Add(4 - i);
                                 break;

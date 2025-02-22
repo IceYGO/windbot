@@ -1646,17 +1646,17 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnChainSolved(int chainIndex)
         {
-            ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentCard = Duel.GetCurrentSolvingChainInfo();
             if (currentCard != null && !Duel.IsCurrentSolvingChainNegated())
             {
-                if (currentCard.Controller == 1)
+                if (currentCard.ActivatePlayer == 1)
                 {
                     if (currentCard.IsCode(_CardId.MaxxC))
                         enemyActivateMaxxC = true;
                     if (currentCard.IsCode(CardId.DimensionShifter))
                         dimensionShifterCount = 2;
                 }
-                if (currentCard.Controller == 0)
+                if (currentCard.ActivatePlayer == 0)
                 {
                     if (currentCard.IsCode(CardId.LabrynthCooclock))
                         cooclockAffected = true;

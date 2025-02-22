@@ -64,6 +64,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, _CardId.GhostOgreAndSnowRabbit, GhostOgreAndSnowRabbitActivate);
             AddExecutor(ExecutorType.Activate, _CardId.AshBlossom, AshBlossomActivate);
 
+            AddExecutor(ExecutorType.Activate, CardId.RyzealCross, RyzealCrossActivateCard);
             AddExecutor(ExecutorType.Activate, _CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightActivate);
             AddExecutor(ExecutorType.Activate, CardId.RyzealDeadnader, RyzealDeadnaderActivate);
             AddExecutor(ExecutorType.Activate, CardId.RyzealDuodrive, RyzealDuodriveActivate);
@@ -82,7 +83,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Bonfire, BonfireActivate);
             AddExecutor(ExecutorType.Activate, CardId.DonnerDaggerFurHire, DonnerDaggerFurHireActivate);
             AddExecutor(ExecutorType.Activate, CardId.Number60DugaresTheTimeless, Number60DugaresTheTimelessActivate);
-            AddExecutor(ExecutorType.Activate, CardId.RyzealCross, RyzealCrossActivateCard);
             AddExecutor(ExecutorType.Activate, CardId.TripleTacticsTalent, TripleTacticsTalentActivate);
             AddExecutor(ExecutorType.Activate, CardId.Bonfire, BonfireActivateToSearchNecessary);
             AddExecutor(ExecutorType.Activate, CardId.SeventhTachyon, SeventhTachyonActivate);
@@ -362,6 +362,26 @@ namespace WindBot.Game.AI.Decks
             if (NotToNegateIdList.Contains(card.Id)) return false;
             if (card.HasSetcode(_Setcode.Danger) && card.Location == CardLocation.Hand) return false;
             if (card.IsMonster() && card.Location == CardLocation.MonsterZone && card.HasPosition(CardPosition.Defence))
+            {
+                if (Enemy.MonsterZone.Any(c => CheckNumber41(c)) || Bot.MonsterZone.Any(c => CheckNumber41(c))) return false;
+            }
+            if (DefaultCheckWhetherCardIsNegated(card)) return false;
+            if (Duel.Player == 1 && card.IsCode(_CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos, _CardId.MulcharmyNyalus)) return false;
+            if (card.IsDisabled()) return false;
+
+            return true;
+        }
+
+        public bool CheckCardShouldNegate(ChainInfo chainInfo)
+        {
+            if (chainInfo == null) return false;
+            ClientCard card = chainInfo.RelatedCard;
+
+            if (card == null) return false;
+            if (card.IsMonster() && card.HasSetcode(SetcodeTimeLord) && Duel.Phase == DuelPhase.Standby) return false;
+            if (NotToNegateIdList.Contains(card.Id)) return false;
+            if (card.HasSetcode(_Setcode.Danger) && card.Location == CardLocation.Hand) return false;
+            if (card.IsMonster() && chainInfo.HasLocation(CardLocation.MonsterZone) && chainInfo.HasPosition(CardPosition.Defence))
             {
                 if (Enemy.MonsterZone.Any(c => CheckNumber41(c)) || Bot.MonsterZone.Any(c => CheckNumber41(c))) return false;
             }
@@ -901,7 +921,7 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             if (currentSolvingChain != null)
             {
                 if (botSolvingCross)
@@ -933,7 +953,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                if (currentSolvingChain.Controller == 1 && currentSolvingChain.IsCode(_CardId.EvenlyMatched))
+                if (currentSolvingChain.ActivatePlayer == 1 && currentSolvingChain.IsCode(_CardId.EvenlyMatched))
                 {
                     Logger.DebugWriteLine("=== Evenly Matched activated.");
                     List<ClientCard> banishList = new List<ClientCard>();
@@ -975,7 +995,7 @@ namespace WindBot.Game.AI.Decks
                     return Util.CheckSelectCount(banishList, cards, min, max);
                 }
 
-                if (currentSolvingChain.Controller == 0)
+                if (currentSolvingChain.ActivatePlayer == 0)
                 {
                     if (hint == HintMsg.AddToHand)
                     {
@@ -1681,31 +1701,31 @@ namespace WindBot.Game.AI.Decks
         public override void OnChainSolved(int chainIndex)
         {
             botSolvingCross = false;
-            ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
-            if (currentCard != null)
+            ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentChain != null && !Duel.IsCurrentSolvingChainNegated())
             {
                 if (!Duel.IsCurrentSolvingChainNegated())
                 {
-                    if (currentCard.IsCode(_CardId.LockBird))
+                    if (currentChain.IsCode(_CardId.LockBird))
                         lockBirdSolved = true;
-                    if (currentCard.IsCode(_CardId.DimensionShifter))
+                    if (currentChain.IsCode(_CardId.DimensionShifter))
                         dimensionShifterCount = 2;
-                    if (currentCard.Controller == 1)
+                    if (currentChain.ActivatePlayer == 1)
                     {
-                        if (currentCard.IsCode(_CardId.MaxxC))
+                        if (currentChain.IsCode(_CardId.MaxxC))
                             enemyActivateMaxxC = true;
-                        if (currentCard.IsCode(_CardId.MulcharmyPurulia))
+                        if (currentChain.IsCode(_CardId.MulcharmyPurulia))
                             enemyActivatePurulia = true;
-                        if (currentCard.IsCode(_CardId.MulcharmyFuwalos))
+                        if (currentChain.IsCode(_CardId.MulcharmyFuwalos))
                             enemyActivateFuwalos = true;
-                        if (currentCard.IsCode(_CardId.MulcharmyNyalus))
+                        if (currentChain.IsCode(_CardId.MulcharmyNyalus))
                             enemyActivateNyalus = true;
                     }
-                    if (currentCard.Controller == 0)
+                    if (currentChain.ActivatePlayer == 0)
                     {
                         foreach (int checkId in CheckBotSolvedList)
                         {
-                            if (currentCard.IsCode(checkId))
+                            if (currentChain.IsCode(checkId))
                             {
                                 botSolvedCardIdList.Add(checkId);
                             }
@@ -2758,10 +2778,10 @@ namespace WindBot.Game.AI.Decks
             // whether to negate by cross
             if (ActivateDescription == Util.GetStringId(CardId.RyzealCross, 3))
             {
-                ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
-                if (currentSolvingChain != null && !Duel.IsCurrentSolvingChainNegated())
+                ChainInfo currentChainInfo = Duel.GetCurrentSolvingChainInfo();
+                if (currentChainInfo != null && !Duel.IsCurrentSolvingChainNegated())
                 {
-                    if (CheckCardShouldNegate(currentSolvingChain))
+                    if (CheckCardShouldNegate(currentChainInfo))
                     {
                         Logger.DebugWriteLine("** cross negate");
                         activatedCardIdList.Add(CardId.RyzealCross + 2);
@@ -2779,6 +2799,11 @@ namespace WindBot.Game.AI.Decks
                 && (Bot.Graveyard.Any(c => c != null && c.HasSetcode(SetcodeRyzeal) && (c.IsCanRevive() || !c.HasType(CardType.Xyz))) ||
                     Bot.Banished.Any(c => c != null && c.IsFaceup() && c.HasSetcode(SetcodeRyzeal) && (c.IsCanRevive() || !c.HasType(CardType.Xyz))));
             flag |= Bot.MonsterZone.Count(c => c != null && c.IsFaceup() && c.HasType(CardType.Xyz) && c.HasSetcode(SetcodeRyzeal) && (c.Overlays.Count() > 0 || canSetMaterial)) > 0;
+
+            if (Duel.MainPhase.SpecialSummonableCards.Any(c => c.IsCode(CardId.RyzealDuodrive)))
+            {
+                flag |= RyzealDuodriveSpSummonCheck();
+            }
 
             return flag;
         }
