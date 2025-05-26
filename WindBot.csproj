@@ -34,7 +34,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject />
+    <StartupObject>WindBot.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>WindBot.ico</ApplicationIcon>
