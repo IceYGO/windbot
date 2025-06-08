@@ -20,6 +20,7 @@ namespace WindBot.Game
         public int LastChainPlayer { get; set; }
         public CardLocation LastChainLocation { get; set; }
         public IList<ClientCard> CurrentChain { get; set; }
+        public IList<ChainInfo> CurrentChainInfo { get; set; }
         public IList<ClientCard> ChainTargets { get; set; }
         public IList<ClientCard> LastChainTargets { get; set; }
         public IList<ClientCard> ChainTargetOnly { get; set; }
@@ -37,6 +38,7 @@ namespace WindBot.Game
             LastChainPlayer = -1;
             LastChainLocation = 0;
             CurrentChain = new List<ClientCard>();
+            CurrentChainInfo = new List<ChainInfo>();
             ChainTargets = new List<ClientCard>();
             LastChainTargets = new List<ClientCard>();
             ChainTargetOnly = new List<ClientCard>();
@@ -178,6 +180,12 @@ namespace WindBot.Game
         {
             if (SolvingChainIndex == 0 || SolvingChainIndex > CurrentChain.Count) return null;
             return CurrentChain[SolvingChainIndex - 1];
+        }
+
+        public ChainInfo GetCurrentSolvingChainInfo()
+        {
+            if (SolvingChainIndex == 0 || SolvingChainIndex > CurrentChainInfo.Count) return null;
+            return CurrentChainInfo[SolvingChainIndex - 1];
         }
 
         public bool IsCurrentSolvingChainNegated()

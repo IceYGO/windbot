@@ -144,6 +144,7 @@
     <Compile Include="Game\AI\ExecutorType.cs" />
     <Compile Include="Game\BattlePhase.cs" />
     <Compile Include="Game\BattlePhaseAction.cs" />
+    <Compile Include="Game\ChainInfo.cs" />
     <Compile Include="Game\ClientCard.cs" />
     <Compile Include="Game\ClientField.cs" />
     <Compile Include="Game\Deck.cs" />
