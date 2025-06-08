@@ -1,6 +1,6 @@
 # WindBot
 
-A C# bot for YGOPro, compatible with the [YGOSharp](https://github.com/IceYGO/ygosharp) and [SRVPro](https://github.com/moecube/srvpro) server.
+A C# bot for [YGOPro](https://github.com/Fluorohydride/ygopro), compatible with the [YGOSharp](https://github.com/IceYGO/ygosharp) and [SRVPro](https://github.com/mycard/srvpro) server.
 
 ### How to use:
 
@@ -150,6 +150,11 @@ eg. `http://127.0.0.1:2399/?name=%E2%91%A8&deck=Blue-Eyes&host=127.0.0.1&port=79
 In this situation, it will be multi-threaded. This can be useful for servers, since it don't use large amount memory.
 
 The parameters are same as commandlines, but low cased.
+
+Note: Currently the server bind to all interfaces, so it requires elevated privileges to run. You can otherwise use the following command to add a URL ACL for your port (2399 for example), which allows all users to access it:
+```
+netsh http add urlacl url=http://+:2399/ user=Everyone
+```
 
 ### Known issues
 
