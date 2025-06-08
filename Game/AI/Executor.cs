@@ -16,9 +16,6 @@ namespace WindBot.Game.AI
         public GameAI AI { get; private set; }
         public AIUtil Util { get; private set; }
 
-        protected MainPhase Main { get; private set; }
-        protected BattlePhase Battle { get; private set; }
-
         protected ExecutorType Type { get; private set; }
         protected ClientCard Card { get; private set; }
         protected int ActivateDescription { get; private set; }
@@ -245,16 +242,6 @@ namespace WindBot.Game.AI
         {
             // For overriding
             return;
-        }
-
-        public void SetMain(MainPhase main)
-        {
-            Main = main;
-        }
-
-        public void SetBattle(BattlePhase battle)
-        {
-            Battle = battle;
         }
 
         /// <summary>

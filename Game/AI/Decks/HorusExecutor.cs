@@ -153,7 +153,7 @@ namespace WindBot.Game.AI.Decks
         {
             // We should summon Horus the Black Flame Dragon LV6 if he can lvlup.
             if (Enemy.GetMonsterCount() != 0 && !Util.IsAllEnemyBetterThanValue(2300 - 1, false))
-                foreach (ClientCard card in Main.SummonableCards)
+                foreach (ClientCard card in Duel.MainPhase.SummonableCards)
                     if (card.IsCode(11224103))
                         return false;
 
