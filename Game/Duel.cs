@@ -47,6 +47,8 @@ namespace WindBot.Game
             LastSummonedCards = new List<ClientCard>();
             SolvingChainIndex = 0;
             NegatedChainIndexList = new List<int>();
+            MainPhase = new MainPhase();
+            BattlePhase = new BattlePhase();
         }
 
         public ClientCard GetCard(int player, CardLocation loc, int seq)

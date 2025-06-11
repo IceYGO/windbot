@@ -202,7 +202,6 @@ namespace WindBot.Game
         /// <returns>A new BattlePhaseAction containing the action to do.</returns>
         public BattlePhaseAction OnSelectBattleCmd(BattlePhase battle)
         {
-            Executor.SetBattle(battle);
             foreach (CardExecutor exec in Executor.Executors)
             {
                 if (exec.Type == ExecutorType.GoToMainPhase2 && battle.CanMainPhaseTwo && exec.Func()) // check if should enter main phase 2 directly
@@ -449,7 +448,6 @@ namespace WindBot.Game
         /// <returns>A new MainPhaseAction containing the action to do.</returns>
         public MainPhaseAction OnSelectIdleCmd(MainPhase main)
         {
-            Executor.SetMain(main);
             CheckSurrender();
             foreach (CardExecutor exec in Executor.Executors)
             {
