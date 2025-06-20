@@ -1602,6 +1602,11 @@ namespace WindBot.Game
                     int OpParam = packet.ReadInt32();
                     int OpParam1 = OpParam & 0xffff;
                     int OpParam2 = OpParam >> 16;
+                    if ((OpParam & 0x80000000) > 0)
+                    {
+                        OpParam1 = OpParam & 0x7fffffff;
+                        OpParam2 = 0;
+                    }
                     if (OpParam2 > 0 && OpParam1 > OpParam2)
                     {
                         card.OpParam1 = OpParam2;
