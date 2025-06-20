@@ -2001,6 +2001,7 @@ namespace WindBot.Game
         private void OnConfirmCards(BinaryReader packet)
         {
             /*int playerid = */packet.ReadByte();
+            /*int skip_panel = */packet.ReadByte();
             int count = packet.ReadByte();
             for (int i = 0; i < count; ++ i)
             {
