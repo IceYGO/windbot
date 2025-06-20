@@ -360,7 +360,7 @@ namespace WindBot.Game
         /// <param name="forced">You can't return -1 if this param is true.</param>
         /// <param name="timing">Current hint timing</param>
         /// <returns>Index of the activated card or -1.</returns>
-        public int OnSelectChain(IList<ClientCard> cards, IList<int> descs, bool forced, int timing = -1)
+        public int OnSelectChain(IList<ClientCard> cards, IList<int> descs, IList<bool> forces, int timing = -1)
         {
             Executor.OnSelectChain(cards);
             foreach (CardExecutor exec in Executor.Executors)
@@ -375,8 +375,17 @@ namespace WindBot.Game
                     }
                 }
             }
-            // If we're forced to chain, we chain the first card. However don't do anything.
-            return forced ? 0 : -1;
+            for (int i = 0; i < forces.Count; ++i)
+            {
+                if (forces[i])
+                {
+                    // If the card is forced, we have to activate it.
+                    _dialogs.SendChaining(cards[i].Name);
+                    return i;
+                }
+            }
+            // Don't do anything.
+            return -1;
         }
         
         /// <summary>
