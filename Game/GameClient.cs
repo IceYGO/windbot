@@ -84,9 +84,8 @@ namespace WindBot.Game
 
         public void Chat(string message)
         {
-            byte[] content = Encoding.Unicode.GetBytes(message + "\0");
             BinaryWriter chat = GamePacketFactory.Create(CtosMessage.Chat);
-            chat.Write(content);
+            chat.WriteUnicodeAutoLength(message, 255);
             Connection.Send(chat);
         }
 
