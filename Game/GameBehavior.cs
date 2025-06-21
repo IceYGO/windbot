@@ -298,6 +298,8 @@ namespace WindBot.Game
             string otherName = (player == 0) ? _room.Names[1] : _room.Names[0];
             if (player < 4)
                 Logger.DebugWriteLine(otherName + " say to " + myName + ": " + message);
+            else
+                Logger.DebugWriteLine("System message(" + player + "): " + message);
         }
 
         private void OnErrorMsg(BinaryReader packet)
@@ -308,6 +310,7 @@ namespace WindBot.Game
             packet.ReadByte();
             packet.ReadByte();
             int pcode = packet.ReadInt32();
+            Logger.DebugWriteLine("Error message received: " + msg + ", code: " + pcode);
             if (msg == 2) //ERRMSG_DECKERROR
             {
                 int code = pcode & 0xFFFFFFF;
