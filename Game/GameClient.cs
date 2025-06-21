@@ -73,7 +73,7 @@ namespace WindBot.Game
             packet = GamePacketFactory.Create(CtosMessage.JoinGame);
             packet.Write(_proVersion);
             packet.Write(junk);
-            packet.WriteUnicode(_roomInfo, 30);
+            packet.WriteUnicode(_roomInfo, 20);
             Connection.Send(packet);
         }
 
