@@ -12,7 +12,7 @@ using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Yubel", "AI_Yubel", "Fiendsmith Yubel")]
+    [Deck("Yubel", "AI_Yubel")]
     public class YubelExecutor : DefaultExecutor
     {
         public class CardId
@@ -59,7 +59,7 @@ namespace WindBot.Game.AI.Decks
             public const int SALAMANGREAT_ALMIRAJ = 60303245;
             public const int NECROQUIP = 93860227;
             //public const int ARIALEATER = 28143384;
-            //public const int GORGONOFZIL = 12067160;
+            public const int GORGONOFZIL = 12067160;
             public const int GUSTAVMAX = 56910167;
             public const int JUGGERNAUT = 26096328;
             public const int UNCHAINDEDABOMINATION = 29479265;
@@ -112,10 +112,10 @@ namespace WindBot.Game.AI.Decks
 
         private static readonly int[] LinkFodderPriority = new[]
         {
-            CardId.UNCHAINED_SOUL_OF_RAGE,
-            CardId.UNCHAINED_LORD_OF_YAMA,
             CardId.SHARVARA,
             CardId.YUBEL_TERROR_INCARNATE,
+            CardId.UNCHAINED_SOUL_OF_RAGE,
+            CardId.UNCHAINED_LORD_OF_YAMA,
             CardId.GRUESOME_GRAVE_SQUIRMER,
             CardId.FABLED_LURRIE,
             CardId.LACRIMA_CT,
@@ -196,10 +196,10 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.GRUESOME_GRAVE_SQUIRMER, ActGGSGY);
 
             AddExecutor(ExecutorType.SpSummon, CardId.MOON_OF_THE_CLOSED_HEAVEN, SSMoon);
-            AddExecutor(ExecutorType.SpSummon, CardId.UNCHAINED_LORD_OF_YAMA, L2NoBrain);
+            AddExecutor(ExecutorType.SpSummon, CardId.UNCHAINED_LORD_OF_YAMA, L2YamaSetup);
             AddExecutor(ExecutorType.Activate, CardId.UNCHAINED_LORD_OF_YAMA, ActYamaMZ);
             AddExecutor(ExecutorType.Activate, CardId.UNCHAINED_LORD_OF_YAMA, ActYamaGY);
-            AddExecutor(ExecutorType.SpSummon, CardId.UNCHAINED_SOUL_OF_RAGE, L2NoBrain);
+            AddExecutor(ExecutorType.SpSummon, CardId.UNCHAINED_SOUL_OF_RAGE, L2RageKeepYama);
             AddExecutor(ExecutorType.SpSummon, CardId.UNCHAINDEDABOMINATION, L4ABOSS);
             AddExecutor(ExecutorType.Activate, CardId.SHARVARA, ActSharvara);
             AddExecutor(ExecutorType.Activate, CardId.SHARVARA, ActSharvaraGY);
@@ -250,6 +250,9 @@ namespace WindBot.Game.AI.Decks
         bool _spQuickMode = false;
         bool moonSummoned = false;
         bool requiemSummoned = false;
+        bool thronePending = false;      // we're in a Throne activation flow
+        bool throneSearched = false;     // after we chose the monster to search
+        int throneDesiredPick = 0;       // preferred monster id to search
 
         public List<T> ShuffleList<T>(List<T> list)
         {
@@ -343,6 +346,16 @@ namespace WindBot.Game.AI.Decks
 
         public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
+            if (player == 0 && location == CardLocation.MonsterZone && cardId == CardId.UNCHAINED_SOUL_OF_RAGE)
+            {
+                int prefer = (GetMyLinkedMMZMask() & available) & 0x1F;
+
+                int choose = (prefer != 0) ? LowestBit(prefer)
+                                           : LowestBit(available & 0x1F); // fallback
+
+                AI.SelectPlace(choose);
+                return choose;
+            }
             SelectSTPlace(Card, true);
             return base.OnSelectPlace(cardId, player, location, available);
         }
@@ -1131,27 +1144,30 @@ namespace WindBot.Game.AI.Decks
             CardId.SALAMANGREAT_ALMIRAJ,
             //CardId.FIENDSMITHS_SEQUENCE
         };
-
-        private ClientCard GetSafeYubelCost()
-        {
-            return Bot.GetMonsters()
-                      .Where(m => m != null && !NEVER_SAC.Contains(m.Id) && !m.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz) && !(m.HasType(CardType.Link) && m.LinkCount >= 2))
-                      .OrderBy(m => { int idx = Array.IndexOf(YubelCostPriority, m.Id); return idx >= 0 ? idx : 999; })
-                      .ThenBy(m => m.Attack)
-                      .FirstOrDefault();
-        }
         private bool HasInExtra(int id)
         {
             return Bot.ExtraDeck.Any(c => c != null && c.Id == id);
         }
         // --- State for Nightmare Throne prompt flow ---
-        bool thronePending = false;      // we're in a Throne activation flow
-        bool throneSearched = false;     // after we chose the monster to search
-        int throneDesiredPick = 0;       // preferred monster id to search
+        
 
         #region Work Space #1
         private bool DontSelfNG() { return Duel.LastChainPlayer != 0; }
+        private int LowestBit(int mask) => mask & -mask;
 
+        // เอา mask ของช่องมอนสเตอร์ที่ลิงก์เราชี้ (เฉพาะ Main Monster Zone 0..4)
+        private int GetMyLinkedMMZMask()
+        {
+            int mask = 0;
+            foreach (var m in Bot.GetMonsters())
+            {
+                if (m == null || !m.IsFaceup() || !m.HasType(CardType.Link)) continue;
+                mask |= m.GetLinkedZones();
+            }
+            // เอาเฉพาะ 5 โซนหลัก (บิต 0..4)
+            mask &= 0x1F;
+            return mask;
+        }
         private bool S1_ActivateTerraformingForThrone()
         {
             if (Type != ExecutorType.Activate) return false;
@@ -1307,8 +1323,8 @@ namespace WindBot.Game.AI.Decks
             if (reviveTargetId == CardId.SPIRIT_OF_YUBEL && Bot.HasInHand(CardId.SPIRIT_OF_YUBEL))
                 return CardId.SPIRIT_OF_YUBEL;
 
-            if (Bot.HasInHand(CardId.CHAOS_SUMMONING_BEAST)) return CardId.CHAOS_SUMMONING_BEAST;
             if (Bot.HasInHand(CardId.FIENDSMITHS_PARADISE)) return CardId.FIENDSMITHS_PARADISE;
+            if (Bot.HasInHand(CardId.CHAOS_SUMMONING_BEAST)) return CardId.CHAOS_SUMMONING_BEAST;
             if (Bot.HasInHand(CardId.YUBEL_TERROR_INCARNATE)) return CardId.YUBEL_TERROR_INCARNATE;
 
             // fallback: เลือกใบที่ "ทิ้งแล้วเจ็บน้อยสุด"
@@ -1484,7 +1500,7 @@ namespace WindBot.Game.AI.Decks
             }
             else if (Bot.HasInHand(CardId.FIENDSMITH_ENGRAVER) || CheckRemainInDeck(CardId.FIENDSMITH_ENGRAVER) > 0)
             {
-                AI.SelectCard(CardId.LACRIMA_CT);
+                AI.SelectCard(CardId.FIENDSMITH_ENGRAVER);
                 return true;
             }
             return false;
@@ -1499,6 +1515,11 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.LACRIMA_CT);
                 return true; 
             }
+            else if (Bot.HasInMonstersZone(CardId.FIENDSMITH_ENGRAVER))
+            {
+                AI.SelectCard(CardId.FIENDSMITH_ENGRAVER);
+                return true;
+            }
             return false;
         }
 
@@ -1508,6 +1529,12 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.LACRIMA_CT);
+                return true;
+            }
+            else if (Bot.HasInSpellZone(CardId.FIENDSMITHS_REQUIEM) && Bot.HasInMonstersZone(CardId.FIENDSMITH_ENGRAVER))
+            {
+                AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
+                AI.SelectNextCard(CardId.FIENDSMITH_ENGRAVER);
                 return true;
             }
             return false;
@@ -1530,7 +1557,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                if (Bot.HasInBanished(CardId.FIENDSMITHS_PARADISE) || Bot.HasInGraveyard(CardId.FIENDSMITHS_PARADISE))
+                if (Bot.HasInBanished(CardId.FIENDSMITHS_PARADISE) || Bot.HasInHandOrInGraveyard(CardId.FIENDSMITHS_PARADISE))
                 { return false; }
                 else { return DontSelfNG(); }
             }
@@ -1714,7 +1741,7 @@ namespace WindBot.Game.AI.Decks
             // Quick Link เฉพาะเทิร์นศัตรูช่วง Main เพื่อสร้าง 1 interrupt
             if (Duel.Player != 1) return false;
             if (Duel.Phase < DuelPhase.Main1 || Duel.Phase > DuelPhase.Main2) return false;
-            if (!HasInExtra(CardId.SP_LITTLE_KNIGHT)) return false;
+            if (!HasValidRageLinkCandidate()) return false;
 
             var target = GetBestEnemyMonster(onlyFaceup: true, canBeTarget: true);
             if (target == null) return false;
@@ -1728,44 +1755,20 @@ namespace WindBot.Game.AI.Decks
             ClientCard mat2;
             var gyList = Bot.Graveyard.ToList();
             // ต้องมี Terror อยู่ในมือหรือสุสานก่อน
-            if (Bot.HasInMonstersZone(CardId.YUBEL_TERROR_INCARNATE))
+            if (!Bot.HasInMonstersZone(CardId.YUBEL_TERROR_INCARNATE) && 
+                !Bot.HasInHandOrInGraveyard(CardId.YUBEL_TERROR_INCARNATE) && 
+                !Bot.HasInMonstersZone(CardId.YUBEL))
             {
-                if (Bot.HasInMonstersZone(CardId.YUBEL_TERROR_INCARNATE))
-                    AI.SelectCard(CardId.YUBEL_TERROR_INCARNATE);
-                else
-                    return false;
-            }
-            else if (Bot.HasInHandOrInGraveyard(CardId.YUBEL_TERROR_INCARNATE))
-            {
-                // วัตถุดิบใบที่ 2: หาจากสุสานเท่านั้น (ยกเว้น Terror)
-                gyList = Bot.Graveyard
-                .GetMatchingCards(c => c != null && c.IsMonster() && c.Id != CardId.YUBEL_TERROR_INCARNATE)
-                .ToList();
-                // วัตถุดิบใบที่ 1: Terror (ให้เลือกจากสุสานก่อน ถ้าไม่มีค่อยเลือกจากมือ)
-                if (Bot.HasInGraveyard(CardId.YUBEL_TERROR_INCARNATE))
-                {
-                    AI.SelectCard(CardId.YUBEL_TERROR_INCARNATE);
-                }
-                else if (Bot.HasInHand(CardId.YUBEL_TERROR_INCARNATE))
-                    AI.SelectCard(CardId.YUBEL_TERROR_INCARNATE);
-                else
-                    return false;
-
-            }
-            else if (Bot.HasInMonstersZone(CardId.YUBEL))
-            {
-                if (Bot.HasInMonstersZone(CardId.YUBEL))
-                    AI.SelectCard(CardId.YUBEL);
-                else
                     return false;
             }
             // จัดลำดับความสำคัญ: 1) Yubel 2) Spirit 3) BB/CSB 4) อื่น ๆ
             if (gyList.Count == 0)
                 return false;
             mat2 =
+            gyList.FirstOrDefault(c => c.IsCode(CardId.YUBEL_TERROR_INCARNATE)) ??
             gyList.FirstOrDefault(c => c.IsCode(CardId.YUBEL)) ??
-            gyList.FirstOrDefault(c => c.IsCode(CardId.SPIRIT_OF_YUBEL)) ??
             gyList.FirstOrDefault(c => c.IsCode(CardId.DARK_BECKONING_BEAST) || c.IsCode(CardId.CHAOS_SUMMONING_BEAST)) ??
+            gyList.FirstOrDefault(c => c.IsCode(CardId.SPIRIT_OF_YUBEL)) ??
             gyList.FirstOrDefault(); // fallback
 
             if (mat2 == null)
@@ -1801,14 +1804,14 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool L2NoBrain()
+        /*private bool L2NoBrain()
         {
             var mats = GetSafeMaterials(2);
             if (mats.Length < 2) return false;
 
             AI.SelectMaterials(mats);
             return true;
-        }
+        }*/
         private bool ActVarudras()
         {
             if (CheckWhetherNegated()) return false;
@@ -1820,6 +1823,9 @@ namespace WindBot.Game.AI.Decks
             int d2 = Util.GetStringId(CardId.VARUDASN_FINAL_BRINGER, 2); // e3 (Destroyed -> destroy 1)
 
             Logger.DebugWriteLine("[Varudras] desc: " + desc + ", timing = " + CurrentTiming);
+
+
+            var enemyPick = targetList.FirstOrDefault(c => c != null && c.Controller == 1);
 
             // e1: Quick effect Negate (ฝั่งคู่ต่อสู้กดเอฟเฟกต์)
             if (desc == d1 && Duel.LastChainPlayer == 1 && Duel.CurrentChain.Count > 0)
@@ -1835,7 +1841,6 @@ namespace WindBot.Game.AI.Decks
                 if (targetList.Count == 0) return false;
 
                 // พยายามให้เลือกฝั่งศัตรูก่อน
-                var enemyPick = targetList.FirstOrDefault(c => c != null && c.Controller == 1);
                 if (enemyPick != null)
                     targetList.Insert(0, enemyPick);
                 else
@@ -1887,45 +1892,6 @@ namespace WindBot.Game.AI.Decks
             requiemSummoned = true;
             return true;
         }
-        // เลือกเป้าหมายให้ Varudras แบบไม่เสียของตอนตีชนะอยู่แล้ว
-        private ClientCard PickVarudrasTargetAvoidWaste()
-        {
-            // รายชื่อเป้าหมายตามอันดับเดิมของบอท (รวมสเปล/กับดักด้วย)
-            var list = GetNormalEnemyTargetList(canBeTarget: true, ignoreCurrentDestroy: false);
-            if (list == null || list.Count == 0) return null;
-
-            // 1) ถ้ามี floodgate/อันตราย/อยู่ยง เลือกก่อน
-            var prio = list.FirstOrDefault(c =>
-                (c != null) && (
-                    c.IsFloodgate() ||
-                    (c.IsFaceup() && c.IsMonster() && (c.IsMonsterDangerous() || c.IsMonsterInvincible()))
-                ));
-            if (prio != null) return prio;
-
-            // 2) หลีกเลี่ยง "มอนสเตอร์ที่ Varudras ตีชนะอยู่แล้ว"
-            //    ถ้า top ของลิสต์เป็นแบบนั้น ให้พยายามเปลี่ยนไปเล็งสเปล/กับดัก หรือมอนที่ตีไม่ชนะ
-            var first = list[0];
-            if (first != null && first.IsMonster() && first.IsFaceup())
-            {
-                int myAtk = Card != null ? Card.Attack : 0;
-                bool easyKill = myAtk > 0 && first.GetDefensePower() < myAtk;
-
-                if (easyKill && !first.IsFloodgate() && !first.IsMonsterDangerous() && !first.IsMonsterInvincible())
-                {
-                    // 2.1 ลองหาสเปล/กับดักก่อน
-                    var nonMonster = list.FirstOrDefault(c => c != null && !c.IsMonster());
-                    if (nonMonster != null) return nonMonster;
-
-                    // 2.2 ไม่มีก็หามอนที่เรา "ตีไม่ชนะ" หรือหงายหน้าไม่ได้ประเมิน
-                    var hardMon = list.FirstOrDefault(c =>
-                        c != null && c.IsMonster() && (!c.IsFaceup() || c.GetDefensePower() >= myAtk));
-                    if (hardMon != null) return hardMon;
-                }
-            }
-
-            // 3) fallback ตามลิสต์เดิม
-            return first;
-        }
         private bool L4ABOSS()
         {
             if (Bot.HasInMonstersZone(CardId.UNCHAINED_LORD_OF_YAMA) && Bot.HasInMonstersZone(CardId.UNCHAINED_SOUL_OF_RAGE))
@@ -1959,17 +1925,64 @@ namespace WindBot.Game.AI.Decks
 
             return true;
         }
+        private ClientCard[] GetSafeMaterialsExcluding(HashSet<int> excludeIds, int need)
+        {
+            return Bot.GetMonsters()
+                .Where(m => m != null
+                            && (excludeIds == null || !excludeIds.Contains(m.Id))
+                            && !IsProtectedMaterial(m)      // ไม่ยอมแลกของสำคัญ (Link≥2 / Extra ฯลฯ)
+                       )
+                .OrderBy(m => PriorityIndex(m.Id))
+                .ThenBy(m => m.Attack)
+                .Take(need)
+                .ToArray();
+        }
 
+        private bool CanMakeRageWithoutYama()
+        {
+            var mats = GetSafeMaterialsExcluding(new HashSet<int> { CardId.UNCHAINED_LORD_OF_YAMA }, 2);
+            return mats.Length >= 2;
+        }
+        private bool L2YamaSetup()
+        {
+            var mats = GetSafeMaterials(2);
+            if (mats.Length < 2) return false;
+            AI.SelectMaterials(mats);
+            return true;
+        }
+        private bool L2RageKeepYama()
+        {
+            // ต้องมี Yama อยู่ก่อน และต้องมีวัตถุดิบอื่น 2 ใบ (ไม่นับ Yama)
+            if (!Bot.HasInMonstersZone(CardId.UNCHAINED_LORD_OF_YAMA, true)) return false;
+            if (!CanMakeRageWithoutYama()) return false;
+
+            var mats = GetSafeMaterialsExcluding(new HashSet<int> { CardId.UNCHAINED_LORD_OF_YAMA }, 2);
+            if (mats.Length < 2) return false;  // ยังไม่พอ → รอก่อน อย่าฝืนใช้ Yama
+
+            AI.SelectMaterials(mats);
+            return true;
+        }
+        private bool HasFreeEMZ()
+        {
+            // ปกติ MonsterZone มี 7 ช่อง (0..4 = MMZ, 5..6 = EMZ)
+            var mz = Bot.MonsterZone;
+            bool slot5Free = mz.Length > 5 && mz[5] == null;
+            bool slot6Free = mz.Length > 6 && mz[6] == null;
+            return slot5Free || slot6Free;
+        }
+
+        private bool HasValidRageLinkCandidate()
+        {
+            bool hasSP = HasInExtra(CardId.SP_LITTLE_KNIGHT);
+            bool hasGorgon = HasInExtra(CardId.GORGONOFZIL);
+            hasGorgon = HasInExtra(CardId.GORGONOFZIL);
+
+            if (hasSP) return true;
+            if (hasGorgon && HasFreeEMZ()) return true;
+            return false;
+        }
 
         #endregion
-        /// <summary>
-        /// Todo
-        /// 
-        /// 3. Tract when no need
-        /// 4. Lurrie when no need
-        /// 5. Gate still select lotus first ?
-        /// </summary>
-        /// <returns></returns>
 
         // ======================= On Select Somethings ====================
         #region Work Space #2
@@ -2030,6 +2043,15 @@ namespace WindBot.Game.AI.Decks
                 var best = GetBestEnemyCard();
                 return best != null && ShouldVarudrasDetachForPop(best);
             }
+            if (solving != null
+                && solving.IsCode(CardId.VARUDASN_FINAL_BRINGER)
+                && Duel.CurrentChain.Count > 0) // แปลว่าอยู่ใน e1 ไม่ใช่ e2
+            {
+                // มีเป้าศัตรูให้ทำลายไหม?
+                var t = GetNormalEnemyTargetList(true, true).FirstOrDefault(c => c.Controller == 1);
+                if (t == null) return false;                // ไม่มีเป้า → ไม่ถอด
+                return ShouldVarudrasDetachForPop(t);       // มีเป้า → ใช้เกณฑ์เดิมตัดสิน
+            }
 
             // aux.Stringid(78371393,2) -> คำถาม "จะสังเวยไหม?"
             if (YesNoFor(desc, CardId.YUBEL, 2))
@@ -2049,7 +2071,7 @@ namespace WindBot.Game.AI.Decks
         // Safety net for any selection the specific executors didn't pre-select
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            Console.WriteLine($"[DEBUG] OnSelectCard: hint={hint} (0x{hint:X}), min={min}, max={max}, cancelable={cancelable}, candidates={cards?.Count ?? 0}");
+            Logger.DebugWriteLine($"[DEBUG] OnSelectCard: hint={hint} (0x{hint:X}), min={min}, max={max}, cancelable={cancelable}, candidates={cards?.Count ?? 0}");
             
             bool isReleasePrompt =
             hint == (long)HintMsg.Release ||
@@ -2223,6 +2245,27 @@ namespace WindBot.Game.AI.Decks
                     if (enemyPick != null) return new[] { enemyPick };
 
                     return new[] { cards[0] }; // fallback
+                }
+                // --- Rage Quick Link ---
+                if (solving != null && solving.IsCode(CardId.UNCHAINED_SOUL_OF_RAGE) && cards.Any(c => c != null && c.Location == CardLocation.Extra))
+                {
+                    // 1) เลือก S:P Little Knight ก่อนเสมอ ถ้ามี
+                    var pickSP = cards.FirstOrDefault(c => c != null && c.Id == CardId.SP_LITTLE_KNIGHT);
+                    if (pickSP != null) return new List<ClientCard> { pickSP };
+
+                    // 2) เลือก Gorgon เฉพาะเมื่อ EMZ ว่างเท่านั้น
+                    ClientCard pickGorgon = null;
+                    pickGorgon = cards.FirstOrDefault(c => c != null && c.Id == CardId.GORGONOFZIL);
+
+                    if (pickGorgon != null)
+                    {
+                        if (HasFreeEMZ())
+                            return new List<ClientCard> { pickGorgon };
+                        // ถ้า EMZ ไม่ว่าง ห้ามเลือก Gorgon -> ไปหาใบอื่นต่อ
+                    }
+
+                    // 3) fallback: ถ้ามีลิงก์ตัวอื่นที่ generic ก็เลือกใบแรกไปก่อน
+                    return new List<ClientCard> { cards[0] };
                 }
             }
             
