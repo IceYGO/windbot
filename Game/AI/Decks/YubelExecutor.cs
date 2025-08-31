@@ -1983,7 +1983,7 @@ namespace WindBot.Game.AI.Decks
         }
         public override bool OnSelectYesNo(int desc)
         {
-            Console.WriteLine($"[DEBUG] OnSelectYesNo: desc={desc}");
+            Logger.DebugWriteLine($"[DEBUG] OnSelectYesNo: desc={desc}");
             var info = Duel.GetCurrentSolvingChainInfo();
             var solving = Duel.GetCurrentSolvingChainCard();
             DumpChain("OnSelectYesNo");
