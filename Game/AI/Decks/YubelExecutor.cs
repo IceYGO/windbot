@@ -1470,7 +1470,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(target);
                 return true;
             }
-            AI.SelectNextCard(target);
+            AI.SelectCard(target);
             return true;
         }
 
