@@ -1752,30 +1752,30 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SSPhantom()
         {
-            ClientCard mat2;
-            var gyList = Bot.Graveyard.ToList();
-            // ต้องมี Terror อยู่ในมือหรือสุสานก่อน
-            if (!Bot.HasInMonstersZone(CardId.YUBEL_TERROR_INCARNATE) && 
-                !Bot.HasInHandOrInGraveyard(CardId.YUBEL_TERROR_INCARNATE) && 
-                !Bot.HasInMonstersZone(CardId.YUBEL))
+            var gyMat2Codes = new List<int> { CardId.YUBEL_TERROR_INCARNATE, CardId.YUBEL, CardId.DARK_BECKONING_BEAST, CardId.CHAOS_SUMMONING_BEAST, CardId.SPIRIT_OF_YUBEL };
+            if (!Bot.HasInGraveyard(gyMat2Codes))
             {
-                    return false;
+                return false;
             }
-            // จัดลำดับความสำคัญ: 1) Yubel 2) Spirit 3) BB/CSB 4) อื่น ๆ
-            if (gyList.Count == 0)
+            // select mat 1
+            if (Bot.HasInHandOrInMonstersZoneOrInGraveyard(CardId.YUBEL_TERROR_INCARNATE))
+            {
+                AI.SelectCard(CardId.YUBEL_TERROR_INCARNATE);
+            }
+            else if (Bot.HasInMonstersZoneOrInGraveyard(CardId.YUBEL))
+            {
+                AI.SelectCard(CardId.YUBEL);
+            }
+            else if (Bot.HasInGraveyard(CardId.SPIRIT_OF_YUBEL))
+            {
+                AI.SelectCard(CardId.SPIRIT_OF_YUBEL);
+            }
+            else
+            {
                 return false;
-            mat2 =
-            gyList.FirstOrDefault(c => c.IsCode(CardId.YUBEL_TERROR_INCARNATE)) ??
-            gyList.FirstOrDefault(c => c.IsCode(CardId.YUBEL)) ??
-            gyList.FirstOrDefault(c => c.IsCode(CardId.DARK_BECKONING_BEAST) || c.IsCode(CardId.CHAOS_SUMMONING_BEAST)) ??
-            gyList.FirstOrDefault(c => c.IsCode(CardId.SPIRIT_OF_YUBEL)) ??
-            gyList.FirstOrDefault(); // fallback
-
-            if (mat2 == null)
-                return false;
-
+            }
             // วัตถุดิบใบที่ 2 จากสุสานตามที่จัดไว้
-            AI.SelectNextCard(mat2);
+            AI.SelectNextCard(gyMat2Codes);
             return true;
         }
 
