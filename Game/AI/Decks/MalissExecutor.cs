@@ -126,10 +126,10 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, _CardId.InfiniteImpermanence, InfiniteImpermanenceActivate);
             AddExecutor(ExecutorType.Activate, _CardId.AshBlossom, AshBlossomActivate);
             AddExecutor(ExecutorType.Activate, _CardId.MaxxC, MaxxCActivate);
+            AddExecutor(ExecutorType.Activate, CardId.AlliedCodeTalkerIgnister, Allied_NegateBanish);
             AddExecutor(ExecutorType.Activate, CardId.FirewallDragon, FirewallBounce_OnOppSummon);
             AddExecutor(ExecutorType.Activate, CardId.MalissC_MTP07, MTP07_OppTurn_RemoveEnemyOnly);
             AddExecutor(ExecutorType.Activate, CardId.MalissQ_HeartsCrypter, HC_Quick_ReturnBanished_AndBanishField);
-            AddExecutor(ExecutorType.Activate, CardId.AlliedCodeTalkerIgnister, Allied_NegateBanish);
             AddExecutor(ExecutorType.Activate, CardId.MalissC_GWC06, GWC06_OppTurn_ReviveWB_HC);
             AddExecutor(ExecutorType.Activate, CardId.SP_LITTLE_KNIGHT, ActLittleKnight);
 
@@ -246,7 +246,7 @@ namespace WindBot.Game.AI.Decks
         bool mtp07SetThisTurn = false;
         bool gwc06SetThisTurn = false;
         bool splashNegatedThisTurn = false;
-        
+        bool Allied_End = false;
         bool fullBoard1 = false;
         bool fullBoard2 = false;
 
@@ -565,7 +565,7 @@ namespace WindBot.Game.AI.Decks
             if (CheckWhetherNegated(true) || !CheckLastChainShouldNegated()) return false;
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC))
             {
-                if (CheckAtAdvantage())
+                if (CheckAtAdvantage() && Duel.Turn > 1)
                 {
                     return false;
                 }
@@ -578,7 +578,7 @@ namespace WindBot.Game.AI.Decks
             if (CheckWhetherNegated(true) || Duel.LastChainPlayer == 0) return false;
             return DefaultMaxxC();
         }
-
+        
         public bool InfiniteImpermanenceActivate()
         {
             if (CheckWhetherNegated()) return false;
@@ -695,7 +695,7 @@ namespace WindBot.Game.AI.Decks
         public bool CalledbytheGraveActivate()
         {
             if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
-            if (CheckAtAdvantage() && Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC))
+            if (CheckAtAdvantage() && Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC) && Duel.Turn > 1)
             {
                 return false;
             }
@@ -706,7 +706,7 @@ namespace WindBot.Game.AI.Decks
                     int code = Util.GetLastChainCard().GetOriginCode();
                     if (code == 0) return false;
                     if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
-                    if (Util.GetLastChainCard().IsCode(_CardId.MaxxC) && CheckAtAdvantage())
+                    if (Util.GetLastChainCard().IsCode(_CardId.MaxxC) && CheckAtAdvantage() && Duel.Turn > 1)
                     {
                         return false;
                     }
@@ -1159,7 +1159,6 @@ namespace WindBot.Game.AI.Decks
             ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
             var solving = Duel.GetCurrentSolvingChainCard();
             bool neg = Duel.IsCurrentSolvingChainNegated();
-            Logger.DebugWriteLine($"[CHAIN] Solved idx={chainIndex} negated={neg} solving={CardStr(solving)}");
             if (currentCard != null && !Duel.IsCurrentSolvingChainNegated() && currentCard.Controller == 1)
             {
                 if (currentCard.IsCode(CardId.Lancea)) enemyActivateLancea = true;
@@ -1212,14 +1211,10 @@ namespace WindBot.Game.AI.Decks
                     enemyPlaceThisTurn.RemoveAt(idx);
                 }
             }
-            DumpGameState("CHAIN END");
             base.OnChainEnd();
         }
         public override void OnNewTurn()
         {
-            DumpGameState("TURN START");
-            DumpStartTurnInfo();
-            DumpHandAtTurnStart();
             myTurnCount++;
             if (Duel.Turn <= 1) { dimensionShifterCount = 0; }
 
@@ -1268,6 +1263,7 @@ namespace WindBot.Game.AI.Decks
             _prefWindowTTL = 0;
             fullBoard1 = false;
             fullBoard2 = false;
+            Allied_End = false;
             base.OnNewTurn();
         }
         public override bool OnSelectYesNo(int desc)
@@ -1428,6 +1424,10 @@ namespace WindBot.Game.AI.Decks
             if (enemyActivateLancea) return false; 
             if (Card.Id != CardId.MalissP_WhiteRabbit) return false;
             if (Card.Location != CardLocation.Removed) return false;
+            if (Bot.LifePoints <= 300)
+            {
+                return false;
+            }
             ssWhiteRabbit = true;
             return true;
         }
@@ -1451,6 +1451,7 @@ namespace WindBot.Game.AI.Decks
                 mtp07SetThisTurn = true;
 
             AI.SelectCard(trapToSet);
+            SelectSafeSTZoneAwayFromImperm();
             if (Step1Complete()) step1Done = true;
             Logger.DebugWriteLine($"[WR set] ask: TB11={CardId.MalissC_TB11}, GWC06={CardId.MalissC_GWC06}, MTP07={CardId.MalissC_MTP07}");
             return true;
@@ -1517,6 +1518,10 @@ namespace WindBot.Game.AI.Decks
             if (Card.Id != CardId.MalissP_Dormouse) return false;
             if (Card.Location != CardLocation.Removed) return false;
             if (enemyActivateLancea) return false;
+            if (Bot.LifePoints <= 300)
+            {
+                return false;
+            }
             ssDormouse = true;
             return true;
         }
@@ -1525,6 +1530,10 @@ namespace WindBot.Game.AI.Decks
             if (Card.Id != CardId.MalissP_ChessyCat) return false;
             if (Card.Location != CardLocation.Removed) return false;
             if (enemyActivateLancea) return false;
+            if (Bot.LifePoints <= 300)
+            {
+                return false;
+            }
             ssChessyCat = true;
             return true;
         }
@@ -1578,7 +1587,7 @@ namespace WindBot.Game.AI.Decks
 
             if (!canStart) return false;
 
-            SelectSTPlace();
+            SelectSTPlace(Card,true);
             tb11SetThisTurn = true;
             return true;
         }
@@ -2204,6 +2213,10 @@ namespace WindBot.Game.AI.Decks
             if (Card.Id != CardId.MalissQ_RedRansom) return false;
             if (Card.Location != CardLocation.Removed) return false;
             if (Bot.GetMonsterCount() >= 5) return false;
+            if (Bot.LifePoints <= 900)
+            {
+                return false;
+            }
 
             int pickId = 0;
 
@@ -2246,20 +2259,19 @@ namespace WindBot.Game.AI.Decks
             var cost = PickGYCyberseForWicckidCost_Safe();
             if (cost == null)
             {
-                V("[WICCKID] no Cyberse in GY for cost -> abort");
                 return false;
             }
 
             AI.SelectCard(cost);
             AI.SelectNextCard(CardId.BackupIgnister);
 
-            V($"[WICCKID] select tuner=Backup@, cost={S(cost)}");
             avoidLinkedZones = false;
             return true;
         }
         private bool LinkDecoder_ReviveFromGY()
         {
-            if (Card.Location != CardLocation.Grave) return false;
+            if (Card.Location != CardLocation.Grave){ return false; }
+            if (Allied_End){ return false; }
             return true;
         }
         private bool Transcode_ReviveLink3OrLower()
@@ -2373,15 +2385,11 @@ namespace WindBot.Game.AI.Decks
                 if (sc > bestScore) { best = c; bestScore = sc; }
             }
 
-            V($"[WICCKID] cost-candidates: {string.Join(", ", gy.Select(S))}");
-            V($"[WICCKID] choose-cost: {S(best)} score={bestScore} rrHOPT={RR_HOPT_Spent_ThisTurn()}");
-
             return best;
         }
         private bool BlockAccesscodeOnT1()
         {
             bool blocked = (Duel.Player == 0 && Duel.Turn == 1);
-            if (blocked) V("[ACCESSCODE] blocked on BOT turn 1");
             return blocked;
         }
         private bool Allied_OnSummonTrigger()
@@ -2541,8 +2549,8 @@ namespace WindBot.Game.AI.Decks
                                     CardId.MalissQ_WhiteBinder,
                                     CardId.MalissQ_RedRansom,
                                     CardId.MalissQ_HeartsCrypter,
-                                    CardId.MalissP_WhiteRabbit,
                                     CardId.MalissP_Dormouse,
+                                    CardId.MalissP_WhiteRabbit,
                                     CardId.MalissP_ChessyCat
                                  };
                     foreach (var id in pref)
@@ -2584,7 +2592,7 @@ namespace WindBot.Game.AI.Decks
             { 
                 var binder = Bot.Graveyard.GetFirstMatchingCard(c => c != null && c.IsCode(CardId.MalissQ_WhiteBinder));
                 if (binder == null) return false;
-                if (!OpponentGraveyardIsDangerous()) return false;
+                //if (!OpponentGraveyardIsDangerous()) return false;
 
                 AI.SelectCard(binder);
                 ssMarchHare = true;
@@ -2614,21 +2622,12 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location != CardLocation.Removed) return false;
 
-            var targets = Bot.Banished.GetMatchingCards(
-                c => c.IsFaceup() && c.HasSetcode(0x1bf) && c.HasType(CardType.Monster));
+            var mh = Bot.Banished.GetFirstMatchingCard(
+                c => c.IsFaceup() && c.IsCode(CardId.MalissP_MarchHare));
 
-            if (targets.Count == 0) return false;
+            if (mh == null) return false;
 
-            int[] prio = new[]
-            {
-                CardId.MalissP_MarchHare,
-                CardId.MalissQ_HeartsCrypter,
-                CardId.MalissQ_WhiteBinder,
-                CardId.MalissQ_RedRansom
-            };
-
-            ClientCard pick = targets.FirstOrDefault(t => prio.Contains(t.Id)) ?? targets[0];
-            AI.SelectCard(pick);
+            AI.SelectCard(mh);
             ActiveMarchHare = true;
             return true;
         }
@@ -2658,55 +2657,73 @@ namespace WindBot.Game.AI.Decks
             {
                 int freeMMZ = Math.Max(0, 5 - Bot.GetMonsterCount());
 
-                var mh = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_MarchHare));
-                if (mh != null) picks.Add(mh);
-
-                foreach (var id in new[] { CardId.MalissP_Dormouse, CardId.MalissP_WhiteRabbit, CardId.MalissP_ChessyCat })
-                {
-                    if (freeMMZ <= 0) break;
-                    if (!PawnSelfSS_AvailableId(id)) continue;
-
-                    var c = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(id));
-                    if (c != null && !picks.Contains(c) && !ShouldSkipBanishing(c))
-                    {
-                        picks.Add(c);
-                        freeMMZ--;
-                    }
+                if (!ActiveMarchHare)
+                { 
+                    var mh = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_MarchHare));
+                    if (mh != null) picks.Add(mh);
                 }
 
-                if (picks.Count < MAX_PICKS)
+                if (freeMMZ > 0 && !ssRRThisTurn && !Allied_End)
                 {
-                    var extras = new List<ClientCard>();
-                    var dot = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.DotScaper));
-                    if (dot != null && !ShouldSkipBanishing(dot)) extras.Add(dot);
-                    extras.AddRange(Bot.Graveyard.Where(g => g.HasSetcode(0x1bf) && g.IsMonster() && !ShouldSkipBanishing(g)));
-
-
-                    foreach (var c in extras)
-                    {
-                        if (picks.Count >= MAX_PICKS) break;
-                        if (!picks.Contains(c)) picks.Add(c);
-                    }
+                    var rr = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissQ_RedRansom));
+                    if (rr != null && !picks.Contains(rr) && !ShouldSkipBanishing(rr))
+                    { picks.Add(rr); freeMMZ--; }
                 }
 
-                if (picks.Count == 0)
-                    picks.AddRange(PickEnemyGYThreats(MAX_PICKS));
+                if (freeMMZ > 0 && !ssHCThisTurn && !Allied_End)
+                {
+                    var hc = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissQ_HeartsCrypter));
+                    if (hc != null && !picks.Contains(hc) && !ShouldSkipBanishing(hc))
+                    { picks.Add(hc); freeMMZ--; }
+                }
+
+                if (freeMMZ > 0 && !ssWhiteRabbit && !Allied_End)
+                {
+                    var wr = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_WhiteRabbit));
+                    if (wr != null && !picks.Contains(wr) && !ShouldSkipBanishing(wr))
+                    { picks.Add(wr); freeMMZ--; }
+                }
+
+                if (freeMMZ > 0 && !ssDormouse && !Allied_End)
+                {
+                    var dm = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_Dormouse));
+                    if (dm != null && !picks.Contains(dm) && !ShouldSkipBanishing(dm))
+                    { picks.Add(dm); freeMMZ--; }
+                }
+
+                if (freeMMZ > 0 && !ssChessyCat && !Allied_End)
+                {
+                    var cc = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_ChessyCat));
+                    if (cc != null && !picks.Contains(cc) && !ShouldSkipBanishing(cc))
+                    { picks.Add(cc); freeMMZ--; }
+                }
+
+
+                if (picks.Count != 0)
+                    picks.AddRange(PickEnemyGYThreats(MAX_PICKS-picks.Count));
             }
             else
             {
                 int freeMMZ = Math.Max(0, 5 - Bot.GetMonsterCount());
 
-                if (!Bot.HasInSpellZone(CardId.MalissC_MTP07) && freeMMZ > 0)
+                if (!Bot.HasInSpellZone(CardId.MalissC_MTP07) && freeMMZ > 0 && !ssWhiteRabbit)
                 {
                     var wr = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_WhiteRabbit));
                     if (wr != null) { picks.Add(wr); freeMMZ--; }
                 }
 
-                if (freeMMZ > 0)
+                if (freeMMZ > 0 && !ssRRThisTurn)
                 {
                     var rr = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissQ_RedRansom));
                     if (rr != null && !picks.Contains(rr) && !ShouldSkipBanishing(rr))
                     { picks.Add(rr); freeMMZ--; }
+                }
+
+                if (freeMMZ > 0 && !ssHCThisTurn)
+                {
+                    var hc = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissQ_HeartsCrypter));
+                    if (hc != null && !picks.Contains(hc) && !ShouldSkipBanishing(hc))
+                    { picks.Add(hc); freeMMZ--; }
                 }
 
                 var threats = PickEnemyGYThreats(MAX_PICKS - picks.Count);
@@ -2782,99 +2799,114 @@ namespace WindBot.Game.AI.Decks
             if (trapToSet == 0) return false;
 
             AI.SelectCard(trapToSet);
-
+            SelectSafeSTZoneAwayFromImperm();
             if (trapToSet == CardId.MalissC_GWC06) gwc06SetThisTurn = true;
             if (trapToSet == CardId.MalissC_MTP07) mtp07SetThisTurn = true;
-
             return true;
         }
         private bool WB_OnBanished_SelfSS()
         {
             if (Card.Location != CardLocation.Removed) return false;
             if (Bot.GetMonsterCount() >= 5) return false;
-
+            if (Bot.LifePoints <= 900)
+            {
+                return false;
+            }
             AI.SelectYesNo(true);
             ssWBThisTurn = true;
             return true;
         }
         private List<ClientCard> PickLinkMatsMinCount(
-                                                        int targetLink,
-                                                        Func<ClientCard, bool> isEligible,
-                                                        int minCount,
-                                                        int maxCount,
-                                                        IEnumerable<int> avoidIds = null,
-                                                        bool requireMaliss = false)
+    int targetLink,
+    Func<ClientCard, bool> isEligible,
+    int minCount,
+    int maxCount,
+    IEnumerable<int> avoidIds = null,
+    bool requireMaliss = false)
         {
-            var pool = Bot.GetMonsters()
-                          .Where(m => m != null && m.IsFaceup() && isEligible(m))
-                          .ToList();
-            if (pool.Count < minCount) return new List<ClientCard>();
+            var all = Bot.GetMonsters()
+                         .Where(m => m != null && m.IsFaceup() && isEligible(m))
+                         .ToList();
+            if (all.Count < minCount) return new List<ClientCard>();
 
             var avoid = new HashSet<int>(avoidIds ?? Enumerable.Empty<int>());
 
-            pool = pool.OrderByDescending(LinkVal)
-                       .ThenBy(m => avoid.Contains(m.Id) ? 1 : 0)
-                       .ThenBy(m => m.Attack)
-                       .ToList();
+            List<ClientCard> SortPool(List<ClientCard> src) =>
+                src.OrderByDescending(LinkVal)
+                   .ThenBy(m => m.Attack)
+                   .ToList();
 
-            List<ClientCard> best = null;
+            var poolPreferred = SortPool(all.Where(m => !avoid.Contains(m.Id)).ToList()); 
+            var poolFallback = SortPool(all);                                            
 
-            for (int k = minCount; k <= Math.Min(maxCount, pool.Count); k++)
+            List<ClientCard> TryPick(List<ClientCard> pool)
             {
-                var combo = new ClientCard[k];
-                bool foundThisK = false;
+                List<ClientCard> best = null;
 
-                void dfs(int start, int depth, int sum)
+                for (int k = minCount; k <= Math.Min(maxCount, pool.Count); k++)
                 {
-                    if (foundThisK) return;
-                    if (sum > targetLink) return;
+                    var combo = new ClientCard[k];
+                    bool foundThisK = false;
 
-                    if (depth == k)
+                    void dfs(int start, int depth, int sum)
                     {
-                        if (sum == targetLink)
+                        if (foundThisK) return;
+                        if (sum > targetLink) return;
+
+                        if (depth == k)
                         {
-                            var mats = combo.ToList();
-                            if (requireMaliss && !mats.Any(m => IsMalissBody(m))) return;
-                            if (Util.GetBotAvailZonesFromExtraDeck(mats) == 0) return;
-
-                            best = mats;
-                            foundThisK = true;
-                        }
-                        return;
-                    }
-
-                    for (int i = start; i < pool.Count; i++)
-                    {
-                        var m = pool[i];
-                        combo[depth] = m;
-
-                        if (m.HasType(CardType.Link))
-                        {
-                            int link = Math.Max(1, m.LinkCount);
-
-                            dfs(i + 1, depth + 1, sum + 1);
-                            if (foundThisK) return;
-
-                            if (link != 1)
+                            if (sum == targetLink)
                             {
-                                dfs(i + 1, depth + 1, sum + link);
+                                var mats = combo.ToList();
+                                if (requireMaliss && !mats.Any(m => IsMalissBody(m))) return;
+                                if (Util.GetBotAvailZonesFromExtraDeck(mats) == 0) return;
+
+                                best = mats;
+                                foundThisK = true;
+                            }
+                            return;
+                        }
+
+                        for (int i = start; i < pool.Count; i++)
+                        {
+                            var m = pool[i];
+                            combo[depth] = m;
+
+                            if (m.HasType(CardType.Link))
+                            {
+                                int link = Math.Max(1, m.LinkCount);
+
+                                dfs(i + 1, depth + 1, sum + 1);
+                                if (foundThisK) return;
+
+                                if (link != 1)
+                                {
+                                    dfs(i + 1, depth + 1, sum + link);
+                                    if (foundThisK) return;
+                                }
+                            }
+                            else
+                            {
+                                dfs(i + 1, depth + 1, sum + 1);
                                 if (foundThisK) return;
                             }
                         }
-                        else
-                        {
-                            dfs(i + 1, depth + 1, sum + 1);
-                            if (foundThisK) return;
-                        }
                     }
+
+                    dfs(0, 0, 0);
+                    if (foundThisK) return best;
                 }
 
-                dfs(0, 0, 0);
-                if (foundThisK) break;
+                return best;
             }
 
-            return best ?? new List<ClientCard>();
+            var pick = TryPick(poolPreferred);
+            if (pick != null && pick.Count > 0) return pick;
+
+            pick = TryPick(poolFallback);
+            return pick ?? new List<ClientCard>();
         }
+
         private bool Flow3_Link_Firewall()
         {
             if (!(Bot.HasInMonstersZone(CardId.MalissQ_RedRansom) &&
@@ -2999,14 +3031,12 @@ namespace WindBot.Game.AI.Decks
 
             if (Bot.GetMonsterCount() >= 5)
             {
-                AI.SelectYesNo(false);
-                return true;
+                return false;
             }
 
             if (Bot.LifePoints <= 900)
             {
-                AI.SelectYesNo(false);
-                return true;
+                return false;
             }
 
             AI.SelectYesNo(true);
@@ -3050,7 +3080,6 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Flow3_Link_Allied()
         {
-
             var mats = PickLinkMatsMinCount(
                 targetLink: 5,
                 isEligible: m => m.HasType(CardType.Effect),
@@ -3064,6 +3093,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             AI.SelectMaterials(mats);
+            Allied_End = true;
             return true;
         }
         private ClientCard FindGWC06TargetByOrder(params int[] ids)
@@ -3620,144 +3650,30 @@ namespace WindBot.Game.AI.Decks
 
             return 0;
         }
+        private void SelectSafeSTZoneAwayFromImperm()
+        {
+            var safeCols = Enumerable.Range(0, 5)
+                .Where(seq =>
+                {
+                    if (Bot.SpellZone[seq] != null) return false;
+                    if (infiniteImpermanenceList.Contains(seq)) return false;
+                    return true;
+                })
+                .ToList();
+
+            if (safeCols.Count == 0)
+            {
+                safeCols = Enumerable.Range(0, 5)
+                    .Where(seq => Bot.SpellZone[seq] == null)
+                    .ToList();
+            }
+
+            int mask = 0;
+            foreach (int seq in safeCols) mask |= (1 << seq);
+            AI.SelectPlace(mask);
+        }
         #endregion
 
-        // Todo
-        // 1 LP check
-        // 2 White Binder Remove Effect
-        // 3 Nibiru handling?
-        // 4 Lancea handling?
-
-        #region DEBUG
-        // ===== VERBOSE LOG SWITCH =====
-        const bool VERBOSE_LOG = true;
-
-        // running counter for actions in a turn
-        int _actNo = 0;
-
-        // short card string
-        private string S(ClientCard c)
-        {
-            if (c == null) return "null";
-            string pos = c.IsFaceup() ? "FU" : "FD";
-            string loc = c.Location.ToString();
-            return $"{c.Name}#{c.Id} [{loc}] {pos}";
-        }
-        private void V(string msg)
-        {
-            if (VERBOSE_LOG) Logger.DebugWriteLine(msg);
-        }
-        // scoped action log (start/end automatically)
-        private sealed class ScopeLog : IDisposable
-        {
-            private readonly MalissExecutor ex;
-            private readonly string name;
-            private readonly int actNo;
-            public ScopeLog(MalissExecutor ex, string name)
-            {
-                this.ex = ex; this.name = name;
-                this.actNo = ++ex._actNo;
-                ex.V($"[ACT#{actNo:00}] >>> {name} (begin)");
-            }
-            public void Dispose()
-            {
-                ex.V($"[ACT#{actNo:00}] <<< {name} (end)");
-            }
-        }
-        private string CardStr(ClientCard c)
-        {
-            if (c == null) return "null";
-            string loc = c.Location.ToString();
-            string face = c.IsFaceup() ? "FU" : "FD";
-            return $"{c.Name}#{c.Id} [{loc}] P{c.Controller} {face}";
-        }
-        private void DumpHandAtTurnStart()
-        {
-            var who = (Duel.Player == 0) ? "BOT" : "ENEMY";
-            Logger.DebugWriteLine($"[HAND](start) turn={Duel.Turn} current={who} count={Bot.Hand.Count}");
-            foreach (var c in Bot.Hand)
-                Logger.DebugWriteLine($"  > {c.Name}#{c.Id}");
-        }
-        private void DumpStartTurnInfo()
-        {
-            var who = (Duel.Player == 0) ? "BOT" : "ENEMY";
-            Logger.DebugWriteLine($"--- NEW TURN --- turn={Duel.Turn} current={who}");
-        }
-        private void DumpGameState(string tag)
-        {
-            if (!VERBOSE_LOG) return;
-            try
-            {
-                V($"[STATE] --- {tag} --- Turn={Duel.Turn} Player={(Duel.Player == 0 ? "BOT" : "ENEMY")} Phase={Duel.Phase}");
-
-                // ===== HAND (เรา) =====
-                var hand = (Bot.Hand != null) ? Bot.Hand.Select(c => $"{c.Name}#{c.Id}").ToList() : new List<string>();
-                V($"[HAND] x{hand.Count}: {(hand.Count == 0 ? "-" : string.Join(" | ", hand))}");
-
-                // ===== MONSTER ZONE (เรา) =====
-                var mz = Bot.MonsterZone;
-                if (mz != null)
-                {
-                    for (int i = 0; i < mz.Length; i++)
-                    {
-                        var c = mz[i];
-                        if (c != null)
-                        {
-                            string slot = (i < 5) ? $"MZ{i}" : (i == 5 ? "EMZ-L" : "EMZ-R");
-                            V($"[{slot}] {S(c)} ATK={c.Attack} DEF={c.Defense} Link={c.LinkCount}");
-                        }
-                    }
-                }
-
-                // ===== BOT SPELL/TRAP ZONE =====
-                for (int i = 0; i < 5; i++)
-                {
-                    var c = Bot.SpellZone[i];
-                    if (c != null)
-                    {
-                        string face = c.IsFacedown() ? "(SET)" : "(FACE-UP)";
-                        V($"[ST{i}] {S(c)} {face}");
-                    }
-                }
-
-                // ===== OPP SPELL/TRAP ZONE =====
-                for (int i = 0; i < 5; i++)
-                {
-                    var c = Enemy.SpellZone[i];
-                    if (c != null)
-                    {
-                        if (c.IsFacedown())
-                            V($"[EN-ST{i}] FD SET");
-                        else
-                            V($"[EN-ST{i}] {S(c)} (FACE-UP)");
-                    }
-                }
-
-                // =====Bot GRAVEYARD =====
-                if (Bot.Graveyard != null && Bot.Graveyard.Count > 0)
-                    V($"[GY] {string.Join(" | ", Bot.Graveyard.Select(S))}");
-                else
-                    V("[GY] -");
-
-                // =====Bot BANISHED =====
-                if (Bot.Banished != null && Bot.Banished.Count > 0)
-                    V($"[BANISH] {string.Join(" | ", Bot.Banished.Select(S))}");
-                else
-                    V("[BANISH] -");
-
-                // ===== FLAGS =====
-                V($"[FLAGS] usedNS={usedNormalSummon}  ss(D/W/C/M/RR/WB/HC)={ssDormouse}/{ssWhiteRabbit}/{ssChessyCat}/{ActiveMarchHare}/{ssRRThisTurn}/{ssWBThisTurn}/{ssHCThisTurn}  " +
-                  $"UG={ActiveUnderground}  madeIt3={madeIt3}  coreSetup={coreSetupComplete}  " +
-                  $"tb11Set={tb11SetThisTurn}  splashNeg={splashNegatedThisTurn}");
-            }
-            catch (Exception ex)
-            {
-                V($"[STATE][ERR] {ex.GetType().Name}: {ex.Message}");
-            }
-        }
-
-
-        #endregion
 
         // ======================= END OF LIFE ====================
     }
