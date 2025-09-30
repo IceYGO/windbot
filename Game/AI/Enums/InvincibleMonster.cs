@@ -29,7 +29,9 @@
         Number2NinjaShadowMosquito = 32453837,
         OhimetheManifestedMikanko = 81260679,
         NightmareMagician = 40221691,
-        ArahimetheManifestedMikanko = 75771170
+        ArahimetheManifestedMikanko = 75771170,
+        UzuhimeTheManifestedMikanko = 57566760,
+        ArchfiendMatador = 7622360
     }
     /// <summary>
     /// Cards that are invincible to battle.
@@ -123,6 +125,21 @@
         MillenniumFiendReflection = 63947968,
         HereticalPhoboscobos = 76078185,
         TopHatHareTheSilhouetteMagician = 1528054,
-        Silhouhatte = 24440742
+        Silhouhatte = 24440742,
+        TheDukeofDemise = 45445571,
+        EvilHERONeosLord = 13708888,
+        GladiatorBeastDareios = 72246674,
+        Number69HeraldryCrest_DarkMatterDemolition = 77571454,
+        FirstOfTheDragonlords = 53466722,
+        UzuhimeTheManifestedMikanko = 57566760,
+        HecahandsIbel = 95365081,
+        HecahandsYadel = 32759190,
+        HecahandsGoddus = 68144894,
+        HecahandsGygas = 95132593,
+        HecahandsBreus = 21637502,
+        HecahandsJawza = 67021206,
+        HecahandsXeno = 94410955,
+        MaidenInLove = 8445808,
+        ArchfiendMatador = 7622360
     }
 }

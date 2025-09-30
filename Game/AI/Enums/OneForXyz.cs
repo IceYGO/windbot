@@ -18,6 +18,11 @@
         GalaxyEyesCipherDragon = 18963306,
         Number107 = 88177324,
         CyberDragonNova = 58069384,
-        Number39 = 84013237
+        Number39 = 84013237,
+        Argostars_GloriousAdra = 91438674,
+        Argostars_LightningTydeu = 65889305,
+        Argostars_SwiftCapane = 91284003,
+        Argostars_SlayerEteo = 38379052,
+        Argostars_FierceParthe = 21050476
     }
 }
