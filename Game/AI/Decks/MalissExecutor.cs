@@ -27,9 +27,6 @@ namespace WindBot.Game.AI.Decks
             // Cyberse / utility
             public const int BackupIgnister = 30118811;
             public const int WizardIgnister = 3723262;
-            /*public const int TemplateSkipper = 24521325;
-            public const int CodeOfSoul = 74652966;
-            public const int DotScaper = 18789533;*/
 
             // Main Maliss pieces
             public const int MalissP_Dormouse = 32061192;              // Maliss <P> Dormouse
@@ -150,9 +147,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.MalissP_MarchHare, returnFromBanish);
             AddExecutor(ExecutorType.SpSummon, CardId.LinkDecoder, Step1_SSLinkDecoder);
             AddExecutor(ExecutorType.SpSummon, CardId.MalissQ_RedRansom, Step2N_LinkSummon_RedRansom);
+            AddExecutor(ExecutorType.SpSummon, CardId.MalissQ_RedRansom, Step2_LinkSummon_RedRansom);
             AddExecutor(ExecutorType.Activate, CardId.MalissQ_RedRansom, Step2_RedRansom_Search);
-            AddExecutor(ExecutorType.Activate, CardId.MalissP_ChessyCat, CCMirror);
+            AddExecutor(ExecutorType.Activate, CardId.MalissP_ChessyCat, AnyDraw);
             AddExecutor(ExecutorType.SpSummon, CardId.CyberseWicckid, Step2N_RRtoWicckid);
+            AddExecutor(ExecutorType.SpSummon, CardId.LinkDecoder, Step_SummonLinkDecoderToWicckid);
             AddExecutor(ExecutorType.Activate, CardId.CyberseWicckid, Wicckid_SearchTuner);
             AddExecutor(ExecutorType.SpSummon, CardId.Apollousa, Link_Apo);
             AddExecutor(ExecutorType.SpSummon, CardId.SplashMage, Step_SplashToWB);
@@ -161,40 +160,30 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.BackupIgnister, OneBody_Backup_SearchWizard);
             AddExecutor(ExecutorType.SpSummon, CardId.MalissQ_WhiteBinder, Step2N_LinkSummon_WB);
             AddExecutor(ExecutorType.Activate, CardId.MalissQ_WhiteBinder, WB_OnSummon_BanishGY);
+            AddExecutor(ExecutorType.Activate, CardId.MalissQ_WhiteBinder, WB_SetMalissTrap);
 
             // === STEP2: 2 bodies -> Splash Mage -> revive P -> Red Ransom -> search ===
-            AddExecutor(ExecutorType.SpSummon, CardId.SplashMage, Step_SplashToRR);
-            AddExecutor(ExecutorType.Activate, CardId.SplashMage, Step2_SplashMage_ReviveP);
             AddExecutor(ExecutorType.Activate, CardId.WizardIgnister, Step2_Fallback_Wizard_AfterSplashNegated);
             AddExecutor(ExecutorType.Activate, CardId.BackupIgnister, Step2_Fallback_Backup_AfterSplashNegated);
-            AddExecutor(ExecutorType.SpSummon, CardId.MalissQ_RedRansom, Step2_LinkSummon_RedRansom);
 
             AddExecutor(ExecutorType.Activate, CardId.WizardIgnister, Flow3_WizardIgnister_AfterMakeIt3);
-            AddExecutor(ExecutorType.SpSummon, CardId.MalissQ_WhiteBinder, Step_WicckidPlusOneToWB);
-            AddExecutor(ExecutorType.Activate, CardId.MalissQ_WhiteBinder, WB_OnSummon_BanishGY);
-            AddExecutor(ExecutorType.Activate, CardId.MalissQ_WhiteBinder, WB_SetMalissTrap);
             AddExecutor(ExecutorType.Activate, CardId.MalissQ_WhiteBinder, WB_OnBanished_SelfSS);
             AddExecutor(ExecutorType.Activate, CardId.MalissC_GWC06, GWC06_MyTurn_Extend);
             AddExecutor(ExecutorType.Activate, CardId.MalissP_MarchHare, ssFromHandMH);
             AddExecutor(ExecutorType.SpSummon, CardId.MalissQ_HeartsCrypter, Step_LinkSummon_HeartsCrypter);
-            AddExecutor(ExecutorType.SpSummon, CardId.FirewallDragon, Flow3_Link_Firewall);
             AddExecutor(ExecutorType.SpSummon, CardId.AlliedCodeTalkerIgnister, Flow3_Link_Allied);
             AddExecutor(ExecutorType.Activate, CardId.AlliedCodeTalkerIgnister, Allied_OnSummonTrigger);
-            AddExecutor(ExecutorType.SpSummon, CardId.AccesscodeTalker, Flow3_Link_Accesscode);
-
-
 
             // Plan#2 White Rabbit ---
             AddExecutor(ExecutorType.Summon, CardId.MalissP_WhiteRabbit, Step1_WhiteRabbit_NormalSummon);
             AddExecutor(ExecutorType.Activate, CardId.MalissC_MTP07, MTP07_ForMH);
-
+            AddExecutor(ExecutorType.SpSummon, CardId.FirewallDragon, Flow3_Link_Firewall);
+            AddExecutor(ExecutorType.SpSummon, CardId.MalissQ_WhiteBinder, Step_WicckidPlusOneToWB);
             AddExecutor(ExecutorType.Activate, CardId.MalissP_ChessyCat, ChessyCat_SS_FromBanished);
 
-            // === FLOW 3: After Red Ransom (Core → Outcomes) ===
-            AddExecutor(ExecutorType.Activate, CardId.MalissInTheMirror, Flow3_Mirror_Path);
+
             AddExecutor(ExecutorType.SpSummon, CardId.CyberseWicckid, Step_RRtoWicckid);
             AddExecutor(ExecutorType.Activate, CardId.MalissInUnderground, Flow3_UnderGround_Available_SSAnyPawn);
-            AddExecutor(ExecutorType.SpSummon, CardId.LinkDecoder, Step_SummonLinkDecoderToWicckid);
             AddExecutor(ExecutorType.Activate, CardId.LinkDecoder, LinkDecoder_ReviveFromGY);
 
             // Fallback Lancea
@@ -206,18 +195,15 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.GoldSarcophagus, GoldSarc_StartPiece);
             AddExecutor(ExecutorType.Activate, CardId.MalissInUnderground, Underground_ActivateStarter);
 
+            AddExecutor(ExecutorType.SpSummon, CardId.SplashMage, Step_SplashToRR);
+            AddExecutor(ExecutorType.Activate, CardId.SplashMage, Step2_SplashMage_ReviveP);
+
             // --- Fallback: 2x Chessy Cat line ---
             AddExecutor(ExecutorType.Summon, CardId.MalissP_ChessyCat, TwoCC_NormalSummon);
-            AddExecutor(ExecutorType.Activate, CardId.MalissP_ChessyCat, TwoCC_MoveBuddyForDraw);
-
-
-            // >>> Fallback: S:P Little Knight
-            AddExecutor(ExecutorType.SpSummon, CardId.SP_LITTLE_KNIGHT, SummonLittleKnightFast);
 
             // Fallback: Try to Start
             AddExecutor(ExecutorType.SpSummon, CardId.LinkSpider);
-            AddExecutor(ExecutorType.Summon, CardId.MalissP_ChessyCat, Emergency_NormalBody);
-            AddExecutor(ExecutorType.Summon, CardId.MalissP_MarchHare, Emergency_NormalBody);
+            AddExecutor(ExecutorType.Summon, CardId.MalissP_ChessyCat, Emergency_NormalCat);
             AddExecutor(ExecutorType.Summon, _CardId.AshBlossom, Emergency_NS);
             AddExecutor(ExecutorType.Summon, _CardId.MaxxC, Emergency_NS);
             AddExecutor(ExecutorType.SpSummon, CardId.Linguriboh, OneBody_Link1_Linguriboh);
@@ -227,6 +213,20 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.WizardIgnister, OneBody_Wizard_SS);
             AddExecutor(ExecutorType.SpellSet, SpellSetCheck);
             AddExecutor(ExecutorType.Repos, MonsterRepos);
+
+            // >>> Fallback: S:P Little Knight
+            AddExecutor(ExecutorType.SpSummon, CardId.SP_LITTLE_KNIGHT, SummonLittleKnightFast);
+            AddExecutor(ExecutorType.SpSummon, CardId.SP_LITTLE_KNIGHT, SPEmer);
+
+            //Finisher
+            AddExecutor(ExecutorType.SpSummon, CardId.AccesscodeTalker, Flow3_Link_Accesscode);
+
+            // Turn3 or More
+            AddExecutor(ExecutorType.SpSummon, CardId.Linguriboh, T3Allow);
+            AddExecutor(ExecutorType.SpSummon, CardId.SALAMANGREAT_ALMIRAJ, T3Allow);
+
+            AddExecutor(ExecutorType.SpSummon, CardId.TranscodeTalker, SSTranscode);
+
         }
         // Maliss Flags
         bool usedNormalSummon = false;
@@ -248,6 +248,9 @@ namespace WindBot.Game.AI.Decks
         bool Allied_End = false;
         bool fullBoard1 = false;
         bool fullBoard2 = false;
+        bool goldstart = false;
+        bool undergroundstart = false;
+        bool nsplan = false;
 
         int myTurnCount = 0;
         bool avoidLinkedZones = false;
@@ -413,6 +416,30 @@ namespace WindBot.Game.AI.Decks
             mask &= 0x1F;
             return mask;
         }
+        private bool IsPawnId(int id)
+        {
+            return id == CardId.MalissP_Dormouse
+                || id == CardId.MalissP_WhiteRabbit
+                || id == CardId.MalissP_ChessyCat
+                || id == CardId.MalissP_MarchHare;
+        }
+        private int GetQueenLinkedMMZMask()
+        {
+            int mask = 0;
+            foreach (var m in Bot.GetMonsters())
+            {
+                if (m == null || !m.IsFaceup()) continue;
+
+                if (m.IsCode(CardId.MalissQ_RedRansom)
+                 || m.IsCode(CardId.MalissQ_WhiteBinder)
+                 || m.IsCode(CardId.MalissQ_HeartsCrypter))
+                {
+                    mask |= m.GetLinkedZones();
+                }
+            }
+            mask &= 0x1F;
+            return mask;
+        }
         public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
             if (player == 0 && location == CardLocation.MonsterZone)
@@ -426,6 +453,65 @@ namespace WindBot.Game.AI.Decks
 
                 int emzMask = available & ~MAIN_MASK;
                 int mainMask = available & MAIN_MASK;
+                if (IsPawnId(cardId))
+                {
+                    int queenMask = GetQueenLinkedMMZMask();
+                    int queenChoices = queenMask & available & MAIN_MASK;
+
+                    if (queenChoices != 0)
+                    {
+                        int pick = FirstBitFromOrder(
+                            queenChoices,
+                            new[] { (int)Zones.z2, (int)Zones.z1, (int)Zones.z3, (int)Zones.z0, (int)Zones.z4 }
+                        );
+                        AI.SelectPlace(pick);
+                        return pick;
+                    }
+                }
+                if (cardId == CardId.AlliedCodeTalkerIgnister)
+                {
+                    var fw = Bot.MonsterZone.GetFirstMatchingCard(m => m != null && m.IsCode(CardId.FirewallDragon));
+                    int emzAvail = available & EMZ_ALL;
+
+                    if (fw != null && fw.IsFaceup())
+                    {
+                        int linkedAll = fw.GetLinkedZones();
+                        int linkedChoices = linkedAll & available;
+
+                        int linkedEmzChoices = linkedChoices & EMZ_ALL;
+                        int pick;
+
+                        if (linkedEmzChoices != 0)
+                        {
+                            pick = FirstBitFromOrder(linkedEmzChoices, new[] { EMZ_L, EMZ_R });
+                            AI.SelectPlace(pick);
+                            return pick;
+                        }
+                        if (emzAvail != 0)
+                        {
+                            pick = FirstBitFromOrder(emzAvail, new[] { EMZ_L, EMZ_R });
+                            AI.SelectPlace(pick);
+                            return pick;
+                        }
+                        if (linkedChoices != 0)
+                        {
+                            pick = FirstBitFromOrder(
+                                linkedChoices,
+                                new[] { (int)Zones.z2, (int)Zones.z1, (int)Zones.z3, (int)Zones.z0, (int)Zones.z4 }
+                            );
+                            AI.SelectPlace(pick);
+                            return pick;
+                        }
+                    }
+                    int emzOnly = available & EMZ_ALL;
+                    if (emzOnly != 0)
+                    {
+                        int pick = FirstBitFromOrder(emzOnly, new[] { EMZ_L, EMZ_R });
+                        AI.SelectPlace(pick);
+                        return pick;
+                    }
+                    return PreferSafeSummonZones(available);
+                }
                 if (cardId == CardId.CyberseWicckid)
                 {
                     int picked = ChooseAndRememberWicckidEmz(available);
@@ -497,16 +583,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     return PreferSafeSummonZones(available);
                 }
-                /*if (cardId == CardId.CyberseWicckid)
-                {
-                    int EMZ_L = 1 << 5;
-                    int EMZ_R = 1 << 6;
-
-                    if ((available & EMZ_R) != 0) { AI.SelectPlace(EMZ_R); return EMZ_R; }
-                    if ((available & EMZ_L) != 0) { AI.SelectPlace(EMZ_L); return EMZ_L; }
-
-                    return 0;
-                }*/
                 int linked = (GetMyLinkedMMZMask() & available) & 0x1F;
                 int unlinked = (available & 0x1F) & ~linked;
 
@@ -693,8 +769,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CalledbytheGraveActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
-            if (CheckAtAdvantage() && Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC) && Duel.Turn > 1)
+            if (CheckWhetherNegated() || !CheckLastChainShouldNegated())
             {
                 return false;
             }
@@ -1219,9 +1294,10 @@ namespace WindBot.Game.AI.Decks
             DumpGameState("TURN START");
             DumpStartTurnInfo();
             DumpHandAtTurnStart();
-            myTurnCount++;
-            if (Duel.Turn <= 1) { dimensionShifterCount = 0; }
-
+            if (Duel.Player == 0)
+            {
+                myTurnCount++;
+            }
             enemyActivateLancea = false; //added for Maliss
             enemyActivateFuwalos = false; //added
             enemyActivateMaxxC = false;
@@ -1279,6 +1355,29 @@ namespace WindBot.Game.AI.Decks
             return base.OnSelectYesNo(desc);
         }
         private bool DontSelfNG() { return Duel.LastChainPlayer != 0; }
+
+        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            var solving = Duel.GetCurrentSolvingChainCard();
+            if (cards != null && cards.Count > 0)
+            {
+                if (hint == HintMsg.Set && solving.IsCode(CardId.MalissQ_WhiteBinder))
+                {
+                    int[] prefer = {
+                                    CardId.MalissC_GWC06,
+                                    CardId.MalissC_MTP07
+                                };
+                    var chosenId = prefer.FirstOrDefault(id => cards.Any(c => c.Id == id));
+                    if (chosenId != 0)
+                    {
+                        var pick = cards.First(c => c.Id == chosenId);
+                        return new List<ClientCard> { pick };
+                    }
+                }
+            }
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
+        }
+
         #endregion
 
 
@@ -1322,6 +1421,10 @@ namespace WindBot.Game.AI.Decks
             {
                 pref = CardId.MalissC_GWC06;
             }
+            else if (Duel.Player == 0 && Bot.HasInHand(CardId.MalissP_MarchHare) && !ActiveMarchHare && !ssWhiteRabbit)
+            {
+                pref = CardId.MalissC_GWC06;
+            }
             else if (Duel.Player == 1)
             {
                 pref = CardId.MalissC_MTP07;
@@ -1334,7 +1437,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return pref;
             }
-            
+
             return 0;
         }
 
@@ -1420,6 +1523,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Step1_Dormouse_NormalSummon()
         {
+            //if (!(Duel.Player == 0 && (Duel.Turn) <= 2)) return false;
             if (!CanStartStep1()) return false;
             if (usedNormalSummon) return false;
             usedNormalSummon = true;
@@ -1427,16 +1531,26 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Dormouse_ForMH()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            //if (!(Duel.Player == 0 && (Duel.Turn) <= 2)) return false;
             if (!CanContinueStep1()) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
-
-            int pick = (CheckRemainInDeck(CardId.MalissP_MarchHare) > 0)
-                ? CardId.MalissP_MarchHare
-                : (CheckRemainInDeck(CardId.MalissP_WhiteRabbit) > 0)
-                ? CardId.MalissP_WhiteRabbit
-                : CardId.MalissP_ChessyCat;
-
+            int pick = 0;
+            if (goldstart || undergroundstart)
+            {
+                pick = (CheckRemainInDeck(CardId.MalissP_WhiteRabbit) > 0)
+                    ? CardId.MalissP_WhiteRabbit
+                    : CardId.MalissP_ChessyCat;
+            }
+            else
+            {
+                pick = (CheckRemainInDeck(CardId.MalissP_MarchHare) > 0)
+                    ? CardId.MalissP_MarchHare
+                    : (CheckRemainInDeck(CardId.MalissP_WhiteRabbit) > 0)
+                    ? CardId.MalissP_WhiteRabbit
+                    : CardId.MalissP_ChessyCat;
+            }
             if (pick == 0) return false;
             AI.SelectCard(pick);
             return true;
@@ -1444,6 +1558,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Step1_WhiteRabbit_SS_FromBanished()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (enemyActivateLancea) return false;
             if (Card.Id != CardId.MalissP_WhiteRabbit) return false;
             if (Card.Location != CardLocation.Removed) return false;
@@ -1457,6 +1572,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Step1_WhiteRabbit_SetTrapOnSummon()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Id != CardId.MalissP_WhiteRabbit) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
@@ -1479,6 +1595,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Step1_WhiteRabbit_NormalSummon()
         {
+            //if (!(Duel.Player == 0 && (Duel.Turn) <= 2)) return false;
             if (!CanStartStep1()) return false;
             if (Bot.HasInHand(CardId.MalissP_Dormouse)) return false;
             if (usedNormalSummon) return false;
@@ -1488,6 +1605,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Dormouse_SS_FromBanished()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Id != CardId.MalissP_Dormouse) return false;
             if (Card.Location != CardLocation.Removed) return false;
             if (enemyActivateLancea) return false;
@@ -1500,6 +1618,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ChessyCat_SS_FromBanished()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Id != CardId.MalissP_ChessyCat) return false;
             if (Card.Location != CardLocation.Removed) return false;
             if (enemyActivateLancea) return false;
@@ -1528,9 +1647,37 @@ namespace WindBot.Game.AI.Decks
             step1Done = true;
             return true;
         }
+        private bool SPEmer()
+        {
+            if (Bot.HasInMonstersZone(CardId.FirewallDragon) ||
+                Bot.HasInMonstersZone(CardId.AlliedCodeTalkerIgnister) ||
+                Bot.HasInMonstersZone(CardId.Apollousa) ||
+                Bot.HasInMonstersZone(CardId.AccesscodeTalker))
+            {
+                return false;
+            }
+            if (!HaveTwoBodies()) return false;
+
+            var mats = PickLinkMatsMinCount(
+                    targetLink: 2,
+                    isEligible: m => m.HasType(CardType.Effect),
+                    minCount: 2,
+                    maxCount: 2,
+                    avoidIds: new[] { CardId.Apollousa, CardId.AlliedCodeTalkerIgnister, CardId.AccesscodeTalker }
+                );
+            if (mats.Count != 2)
+            {
+                return false;
+            }
+
+            AI.SelectMaterials(mats);
+            return true;
+        }
 
         private bool GoldSarc_StartPiece()
         {
+            if (CheckSpellWillBeNegate()) return false;
+            //if (!(Duel.Player == 0 && (Duel.Turn) <= 2)) return false;
             if (enemyActivateLancea) { return false; }
             if (Bot.HasInHand(CardId.MalissP_Dormouse) || Bot.HasInHand(CardId.MalissP_WhiteRabbit)) { return false; }
             int pick = 0;
@@ -1545,6 +1692,11 @@ namespace WindBot.Game.AI.Decks
 
 
             AI.SelectCard(pick);
+            if (Card.Location == CardLocation.Hand)
+            {
+                SelectSTPlace(Card, true);
+            }
+            goldstart = true;
             return true;
         }
         private bool ExistsForUnderground(int id)
@@ -1555,6 +1707,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Underground_ActivateStarter()
         {
+            //if (!(Duel.Player == 0 && (Duel.Turn) <= 2)) return false;
             if (enemyActivateLancea) return false;
             if (Bot.GetMonsterCount() != 0) return false;
             if (step1Done) return false;
@@ -1572,20 +1725,31 @@ namespace WindBot.Game.AI.Decks
             AI.SelectYesNo(true);
             AI.SelectCard(pick);
             ActiveUnderground = true;
+            undergroundstart = true;
             return true;
         }
 
         private bool Terra_GrabUnderground()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (CheckSpellWillBeNegate()) return false;
             if (ActiveUnderground) return false;
             if (Bot.HasInHand(CardId.MalissInUnderground) || Bot.HasInSpellZone(CardId.MalissInUnderground))
                 return false;
             AI.SelectCard(CardId.MalissInUnderground);
+            if (Card.Location == CardLocation.Hand)
+            {
+                SelectSTPlace(Card, true);
+            }
             return true;
         }
         private bool HaveBackupOrWizardInHand()
         {
             return Bot.HasInHand(CardId.BackupIgnister) || Bot.HasInHand(CardId.WizardIgnister);
+        }
+        private bool HaveMHInHand()
+        {
+            return Bot.HasInHand(CardId.MalissP_MarchHare);
         }
         private bool IsMalissBody(ClientCard c)
         {
@@ -1595,12 +1759,13 @@ namespace WindBot.Game.AI.Decks
                                            CardId.MalissP_ChessyCat,
                                            CardId.MalissP_MarchHare);
         }
-        private bool Emergency_NormalBody()
+        private bool Emergency_NormalCat()
         {
+            //if (!(Duel.Player == 0 && (Duel.Turn) <= 2)) return false;
             if (Bot.GetMonsterCount() != 0) return false;
             if (usedNormalSummon) return false;
             if (Bot.HasInHand(CardId.MalissP_Dormouse) || Bot.HasInHand(CardId.MalissP_WhiteRabbit)) return false;
-            if (!HaveBackupOrWizardInHand())
+            if (!HaveMHInHand())
             {
                 return false;
             }
@@ -1624,6 +1789,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool OneBody_Backup_SS()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             bool haveLinkAnchor = Bot.HasInMonstersZone(CardId.Linguriboh) || Bot.HasInMonstersZone(CardId.SplashMage);
             if (!haveLinkAnchor) return false;
             if (Card.Location != CardLocation.Hand) return false;
@@ -1633,6 +1799,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool OneBody_Backup_SearchWizard()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (!Card.IsCode(CardId.BackupIgnister)) return false;
 
             if (Bot.Hand.Count == 0) return false;
@@ -1640,9 +1807,11 @@ namespace WindBot.Game.AI.Decks
             bool haveWizard = Bot.HasInHand(CardId.WizardIgnister);
 
             int searchId = 0;
-            if (haveWizard && CheckRemainInDeck(CardId.MalissP_MarchHare) > 0)
+            if (haveWizard && CheckRemainInDeck(CardId.MalissP_MarchHare) > 0 && Bot.Hand.Count > 0)
                 searchId = CardId.MalissP_MarchHare;
-            else if (!haveWizard && CheckRemainInDeck(CardId.WizardIgnister) > 0)
+            else if (CheckRemainInDeck(CardId.MalissP_Dormouse) > 0 && nsplan && Bot.HasInMonstersZone(CardId.SALAMANGREAT_ALMIRAJ))
+                searchId = CardId.MalissP_Dormouse;
+            else if (!haveWizard && CheckRemainInDeck(CardId.WizardIgnister) > 0 && Bot.Hand.Count > 0)
                 searchId = CardId.WizardIgnister;
             else if (CheckRemainInDeck(CardId.MalissP_MarchHare) > 0)
                 searchId = CardId.MalissP_MarchHare;
@@ -1651,15 +1820,49 @@ namespace WindBot.Game.AI.Decks
 
             AI.SelectCard(searchId);
 
-            var discard = Bot.Hand.FirstOrDefault(h => h.Id != CardId.WizardIgnister);
-
-            if (discard != null)
+            var hand = Bot.Hand.Where(h => h != null).ToList();
+            var candidates = hand.Where(h => h.Id != CardId.WizardIgnister).ToList();
+            var discards = new List<ClientCard>(hand.Count);
+            if (searchId == CardId.MalissP_Dormouse)
             {
-                AI.SelectNextCard(discard);
+                discards.AddRange(candidates.Where(c => c.Id == CardId.MalissP_Dormouse));
             }
-            else if (haveWizard && searchId == CardId.MalissP_MarchHare)
+            IEnumerable<ClientCard> OthersExcludingTarget()
             {
-                AI.SelectNextCard(CardId.MalissP_MarchHare);
+                if (searchId == CardId.MalissP_MarchHare)
+                    return candidates.Where(c => c.Id != CardId.MalissP_MarchHare);
+                return candidates;
+            }
+            var othersExcludingTarget = OthersExcludingTarget().ToList();
+            var dupGroups = othersExcludingTarget.GroupBy(c => c.Id)
+                                                 .Where(g => g.Count() >= 2);
+
+            discards.AddRange(dupGroups.SelectMany(g => g));
+
+            int[] lowValueSinglesOrder = {  CardId.NibiruThePrimalBeing,  // Nib
+                                            CardId.Lancea,         // Lancea
+                                            CardId.TERRAFORMING,
+                                            CardId.GoldSarcophagus
+                                         };
+
+            foreach (var id in lowValueSinglesOrder)
+            {
+                discards.AddRange(othersExcludingTarget
+                    .Where(c => c.Id == id && dupGroups.All(g => g.Key != id)));
+            }
+
+            var already = new HashSet<ClientCard>(discards);
+            discards.AddRange(othersExcludingTarget.Where(c => !already.Contains(c)));
+
+            discards = discards.Where(c => c != null).Distinct().ToList();
+
+            if (searchId == CardId.MalissP_Dormouse)
+            {
+                AI.SelectNextCard(searchId);
+            }
+            else if (discards != null)
+            {
+                AI.SelectNextCard(discards);
             }
             else
             {
@@ -1673,6 +1876,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool OneBody_Wizard_SS()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (!Bot.HasInMonstersZone(CardId.Linguriboh) && !Bot.HasInMonstersZone(CardId.SALAMANGREAT_ALMIRAJ)) return false;
             if (Card.Location != CardLocation.Hand) return false;
 
@@ -1711,6 +1915,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool TwoCC_NormalSummon()
         {
+            //if (!(Duel.Player == 0 && (Duel.Turn) <= 2)) return false;
             if (usedNormalSummon) return false;
             if (Bot.GetMonsterCount() != 0) return false;
 
@@ -1724,57 +1929,72 @@ namespace WindBot.Game.AI.Decks
 
             if (Bot.Hand.GetMatchingCards(c => c != null && c.IsCode(CardId.MalissP_ChessyCat)).Count >= 2)
             {
-                Logger.DebugWriteLine("[CC-2LINE] NS Chessy Cat (2 copies in hand).");
+                Logger.DebugWriteLine("[2CC-LINE] NS Chessy Cat (2 copies in hand).");
                 usedNormalSummon = true;
                 return true;
             }
             return false;
         }
-        private bool TwoCC_MoveBuddyForDraw()
+        private bool IsMalissCost(ClientCard card)
         {
-            if (Card.Id != CardId.MalissP_ChessyCat) return false;
-            if (Card.Location != CardLocation.MonsterZone) return false;
-            if (CheckWhetherNegated()) return false;
+            if (card == null) return false;
 
-            var otherCC = Bot.Hand.FirstOrDefault(c => c != null && c.IsCode(CardId.MalissP_ChessyCat));
-            if (otherCC == null) return false;
-
-            AI.SelectCard(otherCC);
-            Logger.DebugWriteLine("[CC-2LINE] Use CC effect, move/banish the other Pawn from HAND to draw.");
-
-            return true;
-        }
-        private bool CCMirror()
-        {
-            if (Card.Id != CardId.MalissP_ChessyCat) return false;
-            if (Card.Location != CardLocation.MonsterZone) return false;
-            if (CheckWhetherNegated()) return false;
-
-            var Mirror = Bot.Hand.FirstOrDefault(c => c != null && (c.IsCode(CardId.MalissInTheMirror)));
-            if (Mirror != null)
-            {
-                AI.SelectCard(Mirror);
-                Logger.DebugWriteLine("[CC-2LINE] Use CC effect, banish Mirror from HAND to draw.");
+            if (card.IsCode(CardId.MalissP_ChessyCat) && ssChessyCat)
                 return true;
-            }
+            if (card.IsCode(CardId.MalissP_WhiteRabbit) && ssWhiteRabbit)
+                return true;
+            if (card.IsCode(CardId.MalissP_Dormouse) && ssDormouse)
+                return true;
+            if (card.IsCode(CardId.MalissP_MarchHare) && ActiveMarchHare)
+                return true;
 
             return false;
         }
-        /*private bool AnyDraw()
+        private bool IsMalissCost2(ClientCard card)
         {
+            if (card == null) return false;
+
+            return
+                card.IsCode(CardId.MalissP_ChessyCat) ||
+                card.IsCode(CardId.MalissP_WhiteRabbit) ||
+                card.IsCode(CardId.MalissP_MarchHare) ||
+                card.IsCode(CardId.MalissInUnderground);
+        }
+        private bool AnyDraw()
+        {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Id != CardId.MalissP_ChessyCat) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
             if (CheckWhetherNegated()) return false;
 
-            var otherCC = Bot.Hand.FirstOrDefault(c => c != null && (c.IsCode(CardId.MalissInTheMirror) || c.IsCode(CardId.MalissInUnderground)));
-            if (otherCC != null)
+            ClientCard target = null;
+
+            target = Bot.Hand.FirstOrDefault(c => c != null && c.IsCode(CardId.MalissInTheMirror));
+            if (target == null)
             {
-                AI.SelectCard(otherCC);
+                target = Bot.Hand.FirstOrDefault(IsMalissCost);
             }
-            Logger.DebugWriteLine("[CC-2LINE] Use CC effect, move/banish Maliss from HAND to draw.");
+            if (target == null)
+            {
+                var malissDupGroup = Bot.Hand
+                    .Where(IsMalissCost2)
+                    .GroupBy(c => c.Id)
+                    .FirstOrDefault(g => g.Count() >= 2);
+
+                if (malissDupGroup != null)
+                {
+                    target = malissDupGroup.First();
+                }
+            }
+            if (target == null)
+            {
+                return false;
+            }
+            AI.SelectCard(target);
+            Logger.DebugWriteLine("[CC-EFF Any] Use CC effect, move/banish Maliss from HAND to draw.");
 
             return true;
-        }*/
+        }
         private int PickTB11CostCandidateId()
         {
             var field = Bot.GetMonsters()
@@ -1845,6 +2065,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step2_SplashMage_ReviveP()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (step2Done) return false;
 
             if (!Bot.HasInMonstersZone(CardId.SplashMage)) return false;
@@ -1854,10 +2075,12 @@ namespace WindBot.Game.AI.Decks
 
             AI.SelectCard(pick);
             lastRevivedIdBySplash = pick;
+            Logger.DebugWriteLine("[Splash] Old with Flag");
             return true;
         }
         private bool Step2N_SplashMage_ReviveP()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (!Bot.HasInMonstersZone(CardId.SplashMage)) return false;
 
             int pick = PickPFromGYForSplash();
@@ -1865,6 +2088,7 @@ namespace WindBot.Game.AI.Decks
 
             AI.SelectCard(pick);
             lastRevivedIdBySplash = pick;
+            Logger.DebugWriteLine("[Splash] New");
             return true;
         }
         private bool Step2_LinkSummon_RedRansom()
@@ -1894,16 +2118,17 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step2N_LinkSummon_RedRansom()
         {
-            if (!Bot.HasInMonstersZone(CardId.MalissP_Dormouse) || !Bot.HasInMonstersZone(CardId.MalissP_MarchHare) || Bot.GetMonsterCount() < 3) 
-            { 
-                return false; 
+            if (!Bot.HasInMonstersZone(CardId.MalissP_MarchHare) || Bot.GetMonsterCount() < 3)
+            {
+                return false;
             }
             madeIt3 = true;
-            Logger.DebugWriteLine("RR New Dormouse Route");
+            Logger.DebugWriteLine("RR New Pawn Route");
             return true;
         }
         private bool Step2_RedRansom_Search()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             int chooseId = 0;
             if (ShouldSearchUnderground())
                 chooseId = CardId.MalissInUnderground;
@@ -1918,42 +2143,9 @@ namespace WindBot.Game.AI.Decks
             coreSetupComplete = true;
             return true;
         }
-        private bool HasValidTB11Cost()
-        {
-            return Bot.GetMonsters().Any(c => c != null && c.IsFaceup() && c.HasSetcode(0x1bf) &&
-                !(c.IsCode(CardId.MalissP_WhiteRabbit) && ssWhiteRabbit) &&
-                !(c.IsCode(CardId.MalissP_ChessyCat) && ssChessyCat) &&
-                !(c.IsCode(CardId.MalissP_MarchHare) && ssMarchHare) &&
-                !(c.IsCode(CardId.MalissP_Dormouse) && ssDormouse));
-        }
-        private int MyFieldCount()
-        {
-            return Bot.GetMonsters().Count + Bot.GetSpells().Count;
-        }
-        private int EnemyFieldCount()
-        {
-            return Enemy.GetMonsters().Count + Enemy.GetSpells().Count;
-        }
-        private int FieldCountBot() => Bot.GetMonsterCount() + Bot.GetSpellCount();
-        private int FieldCountEnemy() => Enemy.GetMonsterCount() + Enemy.GetSpellCount();
-
-        private int TB11_PickDefTargetId()
-        {
-            if (FieldCountEnemy() - FieldCountBot() >= 3 && CheckRemainInDeck(CardId.MalissQ_HeartsCrypter) > 0)
-                return CardId.MalissQ_HeartsCrypter;
-
-            int[] pref = {
-                            CardId.MalissP_Dormouse,
-                            CardId.MalissP_WhiteRabbit,
-                            CardId.MalissP_MarchHare,
-                            CardId.MalissP_ChessyCat
-                        };
-            foreach (var id in pref)
-                if (CheckRemainInDeck(id) > 0) return id;
-            return 0;
-        }
         private bool Step2_Fallback_Wizard_AfterSplashNegated()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (!splashNegatedThisTurn) return false;
             if (Card.Location != CardLocation.Hand) return false;
 
@@ -1967,6 +2159,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step2_Fallback_Backup_AfterSplashNegated()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (!splashNegatedThisTurn) return false;
             if (Card.Location != CardLocation.Hand) return false;
 
@@ -2033,7 +2226,16 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            int pick = PickUG_DHG_DormouseFirst();
+            int pick = 0;
+
+            if (CheckRemainInDeck(CardId.MalissInTheMirror) > 0 && nsplan)
+            {
+                pick = CardId.MalissInTheMirror;
+            }
+            else
+            {
+                pick = PickUG_DHG_DormouseFirst();
+            }
 
             if (pick == 0)
             {
@@ -2046,25 +2248,6 @@ namespace WindBot.Game.AI.Decks
             resultSuccessFlag = true;
             return true;
         }
-
-
-        private bool Flow3_Mirror_Path()
-        {
-            if (CheckWhetherNegated(true) || !CheckLastChainShouldNegated()) return false;
-            if (Card.Id != CardId.MalissInTheMirror) return false;
-            if (!DescIs(CardId.MalissInTheMirror, 0)) return false;
-
-            var enemy = GetProblematicEnemyCardList(true).FirstOrDefault();
-            if (enemy == null) return false;
-
-            var cost = PickMirrorCostCandidate();
-            if (cost == null) return false;
-
-            AI.SelectCard(enemy);
-            AI.SelectNextCard(cost);
-            return true;
-        }
-
         private bool Mirror_Banish()
         {
             if (DescIs(CardId.MalissInTheMirror, 1))
@@ -2074,14 +2257,52 @@ namespace WindBot.Game.AI.Decks
 
                 AI.SelectCard(gy);
 
-                var wants = Mirror_SearchOrderForType( false, gy.IsMonster());
+                var wants = Mirror_SearchOrderForType(false, gy.IsMonster());
                 AI.SelectNextCard(wants);
                 return true;
             }
 
+            if (CheckSpellWillBeNegate()) return false;
+            if (CheckWhetherNegated()) return false;
             var cost = PickMirrorCostCandidate();
             if (cost == null) return false;
-            AI.SelectCard(cost);
+            foreach (ClientCard m in Enemy.GetMonsters())
+            {
+                if (m.IsMonsterShouldBeDisabledBeforeItUseEffect() && !m.IsDisabled() && Duel.LastChainPlayer != 0)
+                {
+                    if (Card.Location == CardLocation.Hand)
+                    {
+                        SelectSTPlace(Card, true);
+                    }
+                    AI.SelectCard(m);
+                    AI.SelectNextCard(cost);
+                    return true;
+                }
+            }
+            ClientCard LastChainCard = Util.GetLastChainCard();
+            if ((LastChainCard == null || LastChainCard.Controller != 1 || LastChainCard.Location != CardLocation.MonsterZone
+                || LastChainCard.IsDisabled() || LastChainCard.IsShouldNotBeTarget() || LastChainCard.IsShouldNotBeSpellTrapTarget()))
+                return false;
+
+            if (Card.Location == CardLocation.Hand)
+            {
+                SelectSTPlace(Card, true);
+            }
+            if (LastChainCard != null) AI.SelectCard(LastChainCard);
+            else
+            {
+                List<ClientCard> enemyMonsters = Enemy.GetMonsters();
+                enemyMonsters.Sort(CardContainer.CompareCardAttack);
+                enemyMonsters.Reverse();
+                foreach (ClientCard card in enemyMonsters)
+                {
+                    if (card.IsFaceup() && !card.IsShouldNotBeTarget() && !card.IsShouldNotBeSpellTrapTarget())
+                    {
+                        AI.SelectCard(card);
+                    }
+                }
+            }
+            AI.SelectNextCard(cost);
             return true;
         }
         private bool Flow3_Link_Accesscode()
@@ -2099,12 +2320,13 @@ namespace WindBot.Game.AI.Decks
                                                 avoidIds: avoid
                                             );
 
-            if (mats.Count == 0) return false;
+            if (mats.Count < 2) return false;
             AI.SelectMaterials(mats);
             return true;
         }
         private bool Flow3_BackupIgnister_AfterMakeIt3()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (!madeIt3) return false;
             if (Card.Location != CardLocation.Hand) return false;
 
@@ -2113,6 +2335,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Flow3_WizardIgnister_AfterMakeIt3()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (!madeIt3) return false;
             if (Card.Location != CardLocation.Hand) return false;
 
@@ -2125,6 +2348,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool RR_SS_FromBanished()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Id != CardId.MalissQ_RedRansom) return false;
             if (Card.Location != CardLocation.Removed) return false;
             if (GetMMZCount() >= 5) return false;
@@ -2150,7 +2374,7 @@ namespace WindBot.Game.AI.Decks
                     break;
                 }
             }
-            
+
 
             bool canBanish = (pickId != 0);
             AI.SelectYesNo(canBanish);
@@ -2164,6 +2388,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Wicckid_SearchTuner()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (CheckRemainInDeck(CardId.BackupIgnister) <= 0) return false;
             var cost = PickGYCyberseForWicckidCost_Safe();
             if (cost == null)
@@ -2181,12 +2406,14 @@ namespace WindBot.Game.AI.Decks
         }
         private bool LinkDecoder_ReviveFromGY()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Location != CardLocation.Grave) { return false; }
             if (Allied_End) { return false; }
             return true;
         }
         private bool Transcode_ReviveLink3OrLower()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
 
             var prefer = Bot.Graveyard.GetFirstMatchingCard(c => c.IsCode(CardId.CyberseWicckid))
@@ -2204,6 +2431,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Allied_NegateBanish()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (CheckWhetherNegated(true) || !CheckLastChainShouldNegated()) return false;
             var allied = Bot.MonsterZone.GetFirstMatchingCard(m => m != null && m.IsCode(CardId.AlliedCodeTalkerIgnister));
             if (allied == null || allied.IsDisabled()) return false;
@@ -2245,6 +2473,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Dormouse_Banish_Anytime()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Id != CardId.MalissP_Dormouse) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
@@ -2315,6 +2544,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Allied_OnSummonTrigger()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             var me = Bot.MonsterZone.GetFirstMatchingCard(m => m != null && m.IsCode(CardId.AlliedCodeTalkerIgnister));
             if (me == null) return false;
 
@@ -2344,6 +2574,20 @@ namespace WindBot.Game.AI.Decks
 
             if (!Bot.HasInExtra(CardId.MalissQ_RedRansom)) return false;
 
+            var mats = PickLinkMatsMinCount(
+                targetLink: 2,
+                isEligible: m => m.HasType(CardType.Effect),
+                minCount: 2,
+                maxCount: 2,
+                avoidIds: new[] { CardId.CyberseWicckid }
+            );
+            if (mats.Count == 0)
+            {
+                return false;
+            }
+
+            AI.SelectMaterials(mats);
+
             _didSplashToRR = true;
             Logger.DebugWriteLine($"[Splash] Old plan to RR");
             return true;
@@ -2353,6 +2597,21 @@ namespace WindBot.Game.AI.Decks
             if (_didSplashToRR) return false;
 
             if (!Bot.HasInExtra(CardId.MalissQ_WhiteBinder)) return false;
+
+            var mats = PickLinkMatsMinCount(
+                targetLink: 2,
+                isEligible: m => m.HasType(CardType.Effect),
+                minCount: 2,
+                maxCount: 2,
+                avoidIds: new[] { CardId.CyberseWicckid }
+            );
+            if (mats.Count == 0)
+            {
+                return false;
+            }
+
+            AI.SelectMaterials(mats);
+
             _didSplashToRR = true;
             Logger.DebugWriteLine($"[Splash] New plan to WB");
             return true;
@@ -2406,7 +2665,9 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step1_SSLinkDecoder()
         {
-            if (Bot.HasInMonstersZone(CardId.MalissP_Dormouse) && Bot.GetMonsterCount() == 1)
+            if ((Bot.HasInMonstersZone(CardId.MalissP_Dormouse) ||
+                Bot.HasInMonstersZone(CardId.MalissP_WhiteRabbit) ||
+                Bot.HasInMonstersZone(CardId.MalissP_ChessyCat)) && Bot.GetMonsterCount() == 1 && Bot.HasInHand(CardId.MalissP_MarchHare))
             {
                 return true;
             }
@@ -2423,9 +2684,6 @@ namespace WindBot.Game.AI.Decks
         {
             const int WB_LINK = 3;
             if (!Bot.HasInExtra(CardId.MalissQ_WhiteBinder)) return false;
-
-            if (ShouldSummonTranscode() && Bot.HasInExtra(CardId.TranscodeTalker))
-                return false;
 
             var wic = GetWicckid();
             if (wic != null)
@@ -2485,6 +2743,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ssFromHandMH()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Location != CardLocation.Hand) return false;
             if (GetMMZCount() > 3) return false;
             if (enemyActivateLancea) return false;
@@ -2539,6 +2798,10 @@ namespace WindBot.Game.AI.Decks
                     if (Target == null) return false;
                     AI.SelectCard(Target);
                 }
+                else
+                {
+                    return false;
+                }
 
                 ssMarchHare = true;
                 Logger.DebugWriteLine("[MH] Old Link Opp turn");
@@ -2547,6 +2810,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step1_MH_FromHand()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Location != CardLocation.Hand) return false;
             if (Bot.GetMonsterCount() > 1) return false;
             if (enemyActivateLancea) return false;
@@ -2556,7 +2820,7 @@ namespace WindBot.Game.AI.Decks
                 var target = Bot.Graveyard.GetFirstMatchingCard(c => c != null && c.IsCode(CardId.MalissC_MTP07));
                 if (target == null) return false;
                 AI.SelectCard(target);
-                ssMarchHare = true; 
+                ssMarchHare = true;
                 Logger.DebugWriteLine("[MH] Starter WR");
                 return DontSelfNG();
             }
@@ -2569,29 +2833,30 @@ namespace WindBot.Game.AI.Decks
                 Logger.DebugWriteLine("[MH] Starter DM");
                 return DontSelfNG();
             }
-
-            return false;
-        }
-        private bool OpponentGraveyardIsDangerous()
-        {
-            if (GetDangerousCardinEnemyGrave(false).Count > 0) return true;
-
-            int oppAny = Enemy.Graveyard.Count(c => c != null);
-            if (oppAny >= 5) return true;
-
-            int oppST = Enemy.Graveyard.Count(c => c != null && (c.IsSpell() || c.IsTrap()));
-            if (oppST >= 2 && Enemy.Graveyard.Any(c =>
-                    c != null && (c.HasSetcode(SetcodePhantom) || c.HasSetcode(SetcodeOrcust) || c.HasSetcode(SetcodeHorus) || c.HasSetcode(SetcodeDarkWorld) || c.HasSetcode(SetcodeSkyStriker))))
-                return true;
-
-            if (Enemy.Graveyard.Any(c => c != null &&
-                    c.HasType(CardType.Fusion | CardType.Ritual | CardType.Synchro | CardType.Xyz | CardType.Link)))
-                return true;
+            if (Bot.HasInMonstersZone(CardId.LinkDecoder) && Bot.HasInGraveyard(CardId.MalissP_WhiteRabbit))
+            {
+                var target = Bot.Graveyard.GetFirstMatchingCard(c => c != null && c.IsCode(CardId.MalissP_WhiteRabbit));
+                if (target == null) return false;
+                AI.SelectCard(target);
+                ssMarchHare = true;
+                Logger.DebugWriteLine("[MH] Starter WR2");
+                return DontSelfNG();
+            }
+            if (Bot.HasInMonstersZone(CardId.LinkDecoder) && Bot.HasInGraveyard(CardId.MalissP_ChessyCat))
+            {
+                var target = Bot.Graveyard.GetFirstMatchingCard(c => c != null && c.IsCode(CardId.MalissP_ChessyCat));
+                if (target == null) return false;
+                AI.SelectCard(target);
+                ssMarchHare = true;
+                Logger.DebugWriteLine("[MH] Starter CC");
+                return DontSelfNG();
+            }
 
             return false;
         }
         private bool returnFromBanish()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Location != CardLocation.Removed) return false;
 
             var mh = Bot.Banished.GetFirstMatchingCard(
@@ -2603,24 +2868,9 @@ namespace WindBot.Game.AI.Decks
             ActiveMarchHare = true;
             return true;
         }
-        private int PickMalissTrapForWB()
-        {
-            int id = CardId.MalissC_GWC06;
-            if (CheckRemainInDeck(id) > 0 || Bot.HasInGraveyard(id))
-            {
-                return id;
-            }
-            else if (CheckRemainInDeck(CardId.MalissC_MTP07) > 0 || Bot.HasInGraveyard(CardId.MalissC_MTP07))
-            {
-                return CardId.MalissC_MTP07;
-            }
-            else
-            {
-                return 0;
-            }
-        }
         private bool WB_OnSummon_BanishGY()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
 
             const int MAX_PICKS = 3;
@@ -2629,8 +2879,12 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player == 0)
             {
                 int freeMMZ = Math.Max(0, 5 - GetMMZCount());
+                int myPawnCount = Bot.Graveyard
+                                     .GetMatchingCards(g => IsMalissPawn(g))
+                                     .Count;
+                bool canUseOwnPawn = myPawnCount > 1;
 
-                if (!ActiveMarchHare)
+                if (!ActiveMarchHare && canUseOwnPawn)
                 {
                     var mh = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_MarchHare));
                     if (mh != null) picks.Add(mh);
@@ -2650,48 +2904,41 @@ namespace WindBot.Game.AI.Decks
                     { picks.Add(hc); freeMMZ--; }
                 }
 
-                if (freeMMZ > 0 && !ssWhiteRabbit && !Allied_End)
+                if (freeMMZ > 0 && !ssWhiteRabbit && !Allied_End && canUseOwnPawn)
                 {
                     var wr = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_WhiteRabbit));
                     if (wr != null && !picks.Contains(wr) && !ShouldSkipBanishing(wr))
                     { picks.Add(wr); freeMMZ--; }
                 }
 
-                if (freeMMZ > 0 && !ssDormouse && !Allied_End)
+                if (freeMMZ > 0 && !ssDormouse && !Allied_End && canUseOwnPawn)
                 {
                     var dm = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_Dormouse));
                     if (dm != null && !picks.Contains(dm) && !ShouldSkipBanishing(dm))
                     { picks.Add(dm); freeMMZ--; }
                 }
 
-                if (freeMMZ > 0 && !ssChessyCat && !Allied_End)
+                if (freeMMZ > 0 && !ssChessyCat && !Allied_End && canUseOwnPawn)
                 {
                     var cc = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_ChessyCat));
                     if (cc != null && !picks.Contains(cc) && !ShouldSkipBanishing(cc))
                     { picks.Add(cc); freeMMZ--; }
                 }
 
-                if (freeMMZ >= 0)
+                if (freeMMZ >= 0 && canUseOwnPawn)
                 {
-                    var target = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_ChessyCat));
+                    var target = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_ChessyCat) || g.IsCode(CardId.MalissP_Dormouse));
                     picks.Add(target);
                 }
 
-                if (freeMMZ >= 0)
+                picks = picks.Where(c => c != null).Distinct().Take(MAX_PICKS).ToList();
+
+                var threats = PickEnemyGYThreats(MAX_PICKS - picks.Count);
+                foreach (var t in threats)
                 {
-                    var target = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_Dormouse));
-                    picks.Add(target);
+                    if (picks.Count >= MAX_PICKS) break;
+                    if (!picks.Contains(t)) picks.Add(t);
                 }
-
-                if (freeMMZ >= 0)
-                {
-                    var target = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_WhiteRabbit));
-                    picks.Add(target);
-                }
-
-
-                if (picks.Count != 0)
-                    picks.AddRange(PickEnemyGYThreats(MAX_PICKS - picks.Count));
             }
             else
             {
@@ -2701,6 +2948,12 @@ namespace WindBot.Game.AI.Decks
                 {
                     var wr = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_WhiteRabbit));
                     if (wr != null) { picks.Add(wr); freeMMZ--; }
+                }
+
+                if (picks.Count >= 0 && !Bot.HasInHand(CardId.MalissP_MarchHare) && !ActiveMarchHare)
+                {
+                    var mh = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_MarchHare));
+                    if (mh != null) picks.Add(mh);
                 }
 
                 if (freeMMZ > 0 && !ssRRThisTurn)
@@ -2723,12 +2976,6 @@ namespace WindBot.Game.AI.Decks
                     if (picks.Count >= MAX_PICKS) break;
                     if (!picks.Contains(t)) picks.Add(t);
                 }
-
-                if (picks.Count == 0)
-                {
-                    var mh = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_MarchHare));
-                    if (mh != null) picks.Add(mh);
-                }
             }
 
             if (picks.Count == 0) return false;
@@ -2742,6 +2989,15 @@ namespace WindBot.Game.AI.Decks
             }
             AI.SelectCard(picks);
             return true;
+        }
+        private bool IsMalissPawn(ClientCard c)
+        {
+            return c != null && (
+                c.IsCode(CardId.MalissP_ChessyCat) ||
+                c.IsCode(CardId.MalissP_WhiteRabbit) ||
+                c.IsCode(CardId.MalissP_Dormouse) ||
+                c.IsCode(CardId.MalissP_MarchHare)
+            );
         }
         private List<ClientCard> PickEnemyGYThreats(int need)
         {
@@ -2757,10 +3013,10 @@ namespace WindBot.Game.AI.Decks
 
             if (result.Count < need)
             {
-                var mons = Enemy.Graveyard.Where(c => c.IsMonster()).OrderByDescending(c => c.Attack);
-                foreach (var c in mons)
+                for (int i = Enemy.Graveyard.Count - 1; i >= 0 && result.Count < need; i--)
                 {
-                    if (result.Count >= need) break;
+                    var c = Enemy.Graveyard[i];
+                    if (c == null) continue;
                     if (!result.Contains(c)) result.Add(c);
                 }
             }
@@ -2776,8 +3032,32 @@ namespace WindBot.Game.AI.Decks
 
             return result;
         }
+        private bool WB_OnBanished_SelfSS()
+        {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (Card.Location != CardLocation.Removed) return false;
+            if (GetMMZCount() >= 5) return false;
+            if (Bot.LifePoints <= 900)
+            {
+                return false;
+            }
+            AI.SelectYesNo(true);
+            ssWBThisTurn = true;
+            return true;
+        }
+        private int PickMalissTrapForWB()
+        {
+            int[] pref = { CardId.MalissC_GWC06, CardId.MalissC_MTP07 };
+            foreach (var id in pref)
+            {
+                if (CheckRemainInDeck(id) > 0 || Bot.HasInGraveyard(id))
+                    return id;
+            }
+            return 0;
+        }
         private bool WB_SetMalissTrap()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (ActivateDescription != Util.GetStringId(CardId.MalissQ_WhiteBinder, 1)) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
 
@@ -2790,26 +3070,16 @@ namespace WindBot.Game.AI.Decks
             if (trapToSet == CardId.MalissC_MTP07) mtp07SetThisTurn = true;
             return true;
         }
-        private bool WB_OnBanished_SelfSS()
+        private List<ClientCard> PickLinkMatsMinCount(int targetLink,
+                                                        Func<ClientCard, bool> isEligible,
+                                                        int minCount,
+                                                        int maxCount,
+                                                        IEnumerable<int> avoidIds = null,
+                                                        bool requireMaliss = false)
         {
-            if (Card.Location != CardLocation.Removed) return false;
-            if (GetMMZCount() >= 5) return false;
-            if (Bot.LifePoints <= 900)
-            {
-                return false;
-            }
-            AI.SelectYesNo(true);
-            ssWBThisTurn = true;
-            return true;
-        }
-        private List<ClientCard> PickLinkMatsMinCount(
-    int targetLink,
-    Func<ClientCard, bool> isEligible,
-    int minCount,
-    int maxCount,
-    IEnumerable<int> avoidIds = null,
-    bool requireMaliss = false)
-        {
+            int LinkValOf(ClientCard m) => m.HasType(CardType.Link) ? Math.Max(1, m.LinkCount) : 1;
+            bool IsOneVal(ClientCard m) => !m.HasType(CardType.Link) || Math.Max(1, m.LinkCount) == 1;
+
             var all = Bot.GetMonsters()
                          .Where(m => m != null && m.IsFaceup() && isEligible(m))
                          .ToList();
@@ -2817,73 +3087,72 @@ namespace WindBot.Game.AI.Decks
 
             var avoid = new HashSet<int>(avoidIds ?? Enumerable.Empty<int>());
 
-            List<ClientCard> SortPool(List<ClientCard> src) =>
-                src.OrderByDescending(LinkVal)
-                   .ThenBy(m => m.Attack)
-                   .ToList();
+            List<ClientCard> OrderForFirst(IEnumerable<ClientCard> src) => src.OrderByDescending(LinkValOf)
+                                                                              .ThenBy(m => avoid.Contains(m.Id) ? 1 : 0)
+                                                                              .ThenBy(m => m.Attack)
+                                                                              .ToList();
 
-            var poolPreferred = SortPool(all.Where(m => !avoid.Contains(m.Id)).ToList());
-            var poolFallback = SortPool(all);
+            List<ClientCard> OrderForLater(IEnumerable<ClientCard> src) => src.OrderBy(m => IsOneVal(m) ? 0 : 1)
+                                                                               .ThenBy(m => m.HasType(CardType.Link) ? (Math.Max(1, m.LinkCount) == 1 ? 0 : 1) : -1)
+                                                                               .ThenBy(LinkValOf)
+                                                                               .ThenBy(m => avoid.Contains(m.Id) ? 1 : 0)
+                                                                               .ThenBy(m => m.Attack)
+                                                                               .ToList();
+
+            var poolPreferred = all.Where(m => !avoid.Contains(m.Id)).ToList();
+            var poolFallback = all.ToList();
+
+            int firstMaxAllowed = targetLink - Math.Max(0, minCount - 1);
 
             List<ClientCard> TryPick(List<ClientCard> pool)
             {
-                List<ClientCard> best = null;
-
-                for (int k = minCount; k <= Math.Min(maxCount, pool.Count); k++)
+                var chosen = new List<ClientCard>();
+                bool Dfs(List<ClientCard> avail, int sum)
                 {
-                    var combo = new ClientCard[k];
-                    bool foundThisK = false;
+                    if (sum > targetLink || chosen.Count > maxCount) return false;
 
-                    void dfs(int start, int depth, int sum)
+                    if (chosen.Count >= minCount && sum == targetLink)
                     {
-                        if (foundThisK) return;
-                        if (sum > targetLink) return;
-
-                        if (depth == k)
-                        {
-                            if (sum == targetLink)
-                            {
-                                var mats = combo.ToList();
-                                if (requireMaliss && !mats.Any(m => IsMalissBody(m))) return;
-                                if (Util.GetBotAvailZonesFromExtraDeck(mats) == 0) return;
-
-                                best = mats;
-                                foundThisK = true;
-                            }
-                            return;
-                        }
-
-                        for (int i = start; i < pool.Count; i++)
-                        {
-                            var m = pool[i];
-                            combo[depth] = m;
-
-                            if (m.HasType(CardType.Link))
-                            {
-                                int link = Math.Max(1, m.LinkCount);
-
-                                dfs(i + 1, depth + 1, sum + 1);
-                                if (foundThisK) return;
-
-                                if (link != 1)
-                                {
-                                    dfs(i + 1, depth + 1, sum + link);
-                                    if (foundThisK) return;
-                                }
-                            }
-                            else
-                            {
-                                dfs(i + 1, depth + 1, sum + 1);
-                                if (foundThisK) return;
-                            }
-                        }
+                        if (requireMaliss && !chosen.Any(IsMalissBody)) return false;
+                        if (Util.GetBotAvailZonesFromExtraDeck(chosen) == 0) return false;
+                        return true;
                     }
 
-                    dfs(0, 0, 0);
-                    if (foundThisK) return best;
+                    int need = Math.Max(0, minCount - chosen.Count);
+                    if (sum + need > targetLink) return false;
+
+                    var ordered = (chosen.Count == 0)
+                        ? OrderForFirst(avail)
+                        : OrderForLater(avail);
+
+                    for (int i = 0; i < ordered.Count; i++)
+                    {
+                        var m = ordered[i];
+                        var nextAvail = ordered.Where((x, idx) => idx != i).ToList();
+                        int lv = LinkValOf(m);
+
+                        int[] values = (chosen.Count == 0)
+                            ? (lv > 1 ? new[] { Math.Min(lv, firstMaxAllowed), 1 } : new[] { 1 })
+                            : (lv > 1 ? new[] { 1, lv } : new[] { 1 });
+
+                        foreach (var v in values.Distinct())
+                        {
+                            int newSum = sum + v;
+                            if (newSum > targetLink) continue;
+
+                            int remMin = Math.Max(0, minCount - (chosen.Count + 1));
+                            if (newSum + remMin > targetLink) continue;
+
+                            chosen.Add(m);
+                            if (Dfs(nextAvail, newSum)) return true;
+                            chosen.RemoveAt(chosen.Count - 1);
+                        }
+                    }
+                    return false;
                 }
 
-                return best;
+                if (Dfs(OrderForFirst(pool), 0)) return chosen;
+                return null;
             }
 
             var pick = TryPick(poolPreferred);
@@ -2910,25 +3179,25 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Flow3_Link_Firewall()
         {
-            if (!(Bot.HasInMonstersZone(CardId.MalissQ_RedRansom) &&
-                  Bot.HasInMonstersZone(CardId.MalissQ_WhiteBinder) &&
-                  Bot.HasInMonstersZone(CardId.TranscodeTalker))) return false;
-
-            var mats = PickLinkMatsMinCount(
-                targetLink: 4,
-                isEligible: m => m.HasType(CardType.Monster),
-                minCount: 2,
-                maxCount: 4,
-                avoidIds: new[] { CardId.Apollousa, CardId.TranscodeTalker, CardId.AlliedCodeTalkerIgnister, CardId.AccesscodeTalker }
-            );
-            if (mats.Count == 0) return false;
-            AI.SelectMaterials(mats);
-            return true;
+            //if (!(Duel.Player == 0 && (Duel.Turn) <= 2)) return false;
+            if (Bot.HasInMonstersZone(CardId.MalissQ_HeartsCrypter) && Bot.HasInMonstersZone(CardId.LinkDecoder) && Bot.HasInMonstersZone(CardId.CyberseWicckid))
+            {
+                var mats = PickLinkMatsMinCount(
+                    targetLink: 4,
+                    isEligible: m => m.HasType(CardType.Monster),
+                    minCount: 2,
+                    maxCount: 2,
+                    avoidIds: new[] { CardId.CyberseWicckid, CardId.Apollousa, CardId.TranscodeTalker, CardId.AlliedCodeTalkerIgnister, CardId.AccesscodeTalker }
+                );
+                if (mats.Count == 0) return false;
+                AI.SelectMaterials(mats);
+                return true;
+            }
+            return false;
         }
         private bool Step_LinkSummon_HeartsCrypter()
         {
-            if (Bot.HasInMonstersZone(CardId.FirewallDragon) && Bot.HasInMonstersZone(CardId.TranscodeTalker)) return false;
-
+            //if(!(Duel.Player == 0 && (Duel.Turn) <= 2)) return false;
             var cand = Bot.GetMonsters()
                           .Where(c => c != null && c.IsFaceup() && c.HasType(CardType.Effect))
                           .ToList();
@@ -2936,7 +3205,7 @@ namespace WindBot.Game.AI.Decks
 
             bool IsMaliss(ClientCard m) => m.HasSetcode(0x1bf);
 
-            var avoid = new HashSet<int> { CardId.Apollousa, CardId.AlliedCodeTalkerIgnister, CardId.AccesscodeTalker, CardId.FirewallDragon, CardId.TranscodeTalker };
+            var avoid = new HashSet<int> { CardId.CyberseWicckid, CardId.Apollousa, CardId.AlliedCodeTalkerIgnister, CardId.AccesscodeTalker, CardId.FirewallDragon, CardId.TranscodeTalker };
 
             var ordered = cand
                 .OrderBy(m => avoid.Contains(m.Id) ? 2 : 0)
@@ -2958,6 +3227,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool HC_Quick_ReturnBanished_AndBanishField()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (ActivateDescription != Util.GetStringId(CardId.MalissQ_HeartsCrypter, 0)) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
             if (CheckWhetherNegated()) return false;
@@ -3027,6 +3297,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool HC_OnBanished_SpecialSummon()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Location != CardLocation.Removed) return false;
 
             if (GetMMZCount() >= 5)
@@ -3060,6 +3331,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Flow3_Link_Allied()
         {
+            if (!(Bot.HasInMonstersZoneOrInGraveyard(CardId.MalissQ_RedRansom) && Bot.HasInMonstersZoneOrInGraveyard(CardId.MalissQ_WhiteBinder))) return false;
             var mats = PickLinkMatsMinCount(
                 targetLink: 5,
                 isEligible: m => m.HasType(CardType.Effect),
@@ -3095,25 +3367,42 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInMonstersZone(CardId.MalissQ_RedRansom) && !ssRRThisTurn)
                 return CardId.MalissQ_RedRansom;
 
-            int cand = PickTB11CostCandidateId();
-            if (cand != 0) return cand;
+            int card = PickTB11CostCandidateId();
+            if (card != 0) return card;
 
             return 0;
         }
         private ClientCard PickGWC06TargetExtend()
         {
-            return FindGWC06TargetByOrder(
-                CardId.MalissQ_WhiteBinder,
-                CardId.MalissQ_RedRansom,
-                CardId.MalissQ_HeartsCrypter,
-                CardId.MalissP_WhiteRabbit,
-                CardId.MalissP_Dormouse,
-                CardId.MalissP_ChessyCat,
-                CardId.MalissP_MarchHare
-            );
+            if (Duel.Turn > 2)
+            {
+                return FindGWC06TargetByOrder(
+                    CardId.MalissQ_HeartsCrypter,
+                    CardId.MalissQ_RedRansom,
+                    CardId.MalissQ_WhiteBinder
+                );
+            }
+            else {
+                return FindGWC06TargetByOrder(
+                    CardId.MalissQ_WhiteBinder,
+                    CardId.MalissQ_RedRansom,
+                    CardId.MalissQ_HeartsCrypter,
+                    CardId.MalissP_WhiteRabbit,
+                    CardId.MalissP_Dormouse,
+                    CardId.MalissP_ChessyCat,
+                    CardId.MalissP_MarchHare
+                );
+            }
         }
         private bool GWC06_MyTurn_Extend()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if ((Duel.Player == 0 && (Duel.Turn) <= 2) &&
+                Bot.GetMonsterCount() >= 4 &&
+                Bot.HasInMonstersZone(CardId.FirewallDragon) &&
+                (Bot.HasInMonstersZoneOrInGraveyard(CardId.MalissQ_RedRansom) ||
+                Bot.HasInMonstersZoneOrInGraveyard(CardId.MalissQ_WhiteBinder) ||
+                Bot.HasInMonstersZoneOrInGraveyard(CardId.MalissQ_HeartsCrypter))) return false;
             if (!madeIt3) return false;
             if (Duel.Player != 0) return false;
             if (!(Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2)) return false;
@@ -3124,14 +3413,16 @@ namespace WindBot.Game.AI.Decks
             var target = PickGWC06TargetExtend();
             if (target == null) return false;
 
+            Logger.DebugWriteLine("[GWC06Extend] Debug MSG");
             if (gwc06SetThisTurn)
             {
                 int costId = PickGWC06CostCandidateId();
                 if (costId == 0) return false;
                 AI.SelectCard(costId);
+                AI.SelectNextCard(target);
+                return DontSelfNG();
             }
-
-            AI.SelectNextCard(target);
+            AI.SelectCard(target);
             return DontSelfNG();
         }
         private bool GWC06_OppTurn_ReviveWB_HC()
@@ -3227,7 +3518,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool MTP07_ForMH()
         {
-            if (Bot.GetMonsterCount() != 1 && !Bot.HasInMonstersZone(CardId.MalissP_WhiteRabbit)) return false;
+            if (!(Bot.GetMonsterCount() == 1 && Bot.HasInMonstersZone(CardId.MalissP_WhiteRabbit))) return false;
             if (CheckSpellWillBeNegate()) return false;
             if (CheckWhetherNegated()) return false;
 
@@ -3302,10 +3593,11 @@ namespace WindBot.Game.AI.Decks
             if (usedNormalSummon) return false;
             if (Bot.GetMonsterCount() != 0) return false;
             if (Bot.HasInHand(CardId.MalissP_Dormouse) || Bot.HasInHand(CardId.MalissP_WhiteRabbit)
-                || Bot.HasInHand(CardId.MalissP_ChessyCat) || Bot.HasInHand(CardId.MalissP_MarchHare)
+                || Bot.HasInHand(CardId.MalissP_ChessyCat)
                 || Bot.HasInHand(CardId.GoldSarcophagus) || Bot.HasInHand(CardId.MalissInUnderground)) return false;
             if (!Bot.HasInHand(CardId.WizardIgnister) && !Bot.HasInHand(CardId.BackupIgnister)) return false;
             usedNormalSummon = true;
+            nsplan = true;
             return true;
         }
         private bool IsWicInEMZ(ClientCard wic)
@@ -3331,8 +3623,7 @@ namespace WindBot.Game.AI.Decks
         private ClientCard PickUnderlingForTranscode(ClientCard wic, System.Collections.Generic.IList<ClientCard> pool)
         {
             if (!IsWicInEMZ(wic)) return null;
-            var underlings = pool
-                                .Where(x => x != null && x != wic && x.IsFaceup()
+            var underlings = pool.Where(x => x != null && x != wic && x.IsFaceup()
                                                                 && x.Location == CardLocation.MonsterZone
                                                                 && x.Controller == wic.Controller
                                                                 && x.Sequence >= 0 && x.Sequence <= 4
@@ -3351,14 +3642,10 @@ namespace WindBot.Game.AI.Decks
                             .FirstOrDefault();
         }
         private static readonly int[] PreferCenterMainSeq = new[] { 2, 1, 3, 0, 4 };
-        private void SelectTranscodeMainZone()
-        {
-            int mask = 0;
-            foreach (var s in PreferCenterMainSeq) mask |= (1 << s);
-            AI.SelectPlace(mask);
-        }
+
         private bool SummonTranscode()
         {
+            if (!enemyActivateLancea) return false;
             var wic = Bot.GetMonsters().FirstOrDefault(
                 x => x != null && x.IsFaceup() && x.IsCode(CardId.CyberseWicckid));
 
@@ -3492,24 +3779,41 @@ namespace WindBot.Game.AI.Decks
         }
         private bool FirewallBounce_OnOppSummon()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (ActivateDescription != Util.GetStringId(CardId.FirewallDragon, 0))
                 return false;
 
             if (Duel.LastSummonPlayer != 1)
                 return false;
 
-            var picks = new System.Collections.Generic.List<ClientCard>();
+            var picks = new List<ClientCard>();
 
-            var best = GetBestEnemyMonster();
-            if (best != null) picks.Add(best);
-
+            var negateList = GetMonsterListForTargetNegate();
+            if (negateList != null)
+            {
+                foreach (var c in negateList)
+                {
+                    if (c == null) continue;
+                    if (c.Controller != 1) continue;
+                    if (!c.IsMonster()) continue;
+                    if (!c.IsFaceup()) continue;
+                    if (!picks.Contains(c))
+                        picks.Add(c);
+                }
+            }
             foreach (var m in Enemy.GetMonsters().OrderByDescending(x => x.Attack))
-                if (!picks.Contains(m)) picks.Add(m);
+            {
+                if (m == null) continue;
+                if (!m.IsMonster()) continue;
+                if (!m.IsFaceup()) continue;
+                if (!picks.Contains(m))
+                    picks.Add(m);
+            }
 
             if (picks.Count == 0)
                 return false;
 
-            AI.SelectNextCard(picks);
+            AI.SelectCard(picks);
             return true;
         }
         private bool Accesscode_OnSummon_AtkUp()
@@ -3644,15 +3948,7 @@ namespace WindBot.Game.AI.Decks
 
         private ClientCard PickMirrorGYTargetForSearch()
         {
-            bool deckHasTrap = CheckRemainInDeck(CardId.MalissC_GWC06) > 0
-                            || CheckRemainInDeck(CardId.MalissC_MTP07) > 0;
-            if (deckHasTrap)
-            {
-                var t = Bot.Graveyard.GetFirstMatchingCard(c => c != null && c.HasSetcode(0x1bf) && c.IsTrap());
-                if (t != null) return t;
-            }
-
-            int[] monPref = { CardId.MalissP_Dormouse, CardId.MalissP_WhiteRabbit, CardId.MalissP_MarchHare, CardId.MalissP_ChessyCat };
+            int[] monPref = { CardId.MalissP_MarchHare, CardId.MalissP_Dormouse, CardId.MalissP_WhiteRabbit, CardId.MalissP_ChessyCat };
             foreach (var id in monPref)
             {
                 var m = Bot.Graveyard.GetFirstMatchingCard(c => c != null && c.IsCode(id));
@@ -3697,8 +3993,62 @@ namespace WindBot.Game.AI.Decks
             foreach (int seq in safeCols) mask |= (1 << seq);
             AI.SelectPlace(mask);
         }
+        private bool T3Allow()
+        {
+            if (Duel.Player != 0) return false;
+            if (myTurnCount < 2) return false;
+            if (!HaveBackupOrWizardInHand() || !Bot.HasInHand(CardId.MalissP_MarchHare)) return false;
+            return true;
+        }
+        private bool SSTranscode()
+        {
+            if (Duel.Player != 0) return false;
+            if (myTurnCount < 2 || !enemyActivateLancea) return false;
+
+            var mats = PickLinkMatsMinCount(
+                targetLink: 3,
+                isEligible: m => m.HasType(CardType.Effect),
+                minCount: 2,
+                maxCount: 3,
+                avoidIds: new[] { CardId.Apollousa, CardId.FirewallDragon, CardId.AccesscodeTalker, CardId.AlliedCodeTalkerIgnister }
+            );
+            if (mats.Count == 0)
+            {
+                return false;
+            }
+
+            AI.SelectMaterials(mats);
+            
+            return true;
+        }
+
         #endregion
 
+        // TODO
+        /*
+            - Rework Combo line
+            |-- Dormouse +1 : Finish
+            |-- White Rabbit +1 Finish
+            |-- Underground / Goldsarc +1 Finish
+            |-- Cat + Cat Finish
+            |-- Backup + March Hare Not Yet
+            |-- Cat + March Hare Finish
+            |-- 1 NS + March Hare Not Yet
+            |-- Pure Cyberse (Lancea) Not Yet
+
+            - White Binder Logic
+            |-- Not Yet
+
+            - March Hare Logic
+            |-- Need Fix
+
+            - Chessy Cat Draw Logic
+            |-- Finish
+
+            - Backup@ Discard Logic
+            |-- Need Fix
+
+         */
 
         #region DEBUG
         // ===== VERBOSE LOG SWITCH =====
