@@ -292,15 +292,14 @@ namespace WindBot.Game.AI.Decks
                                     && Check_Maliss_White_Rabbit()
                                         && Count.CheckCardRemoved(CardId.Maliss_White_Rabbit))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_White_Rabbit && i.Location == CardLocation.Deck).ToList(), cards, min, max);
+                        if (cards.Any(i => i.Id == CardId.Maliss_March_Hare && i.Location == CardLocation.Deck) && Check_Maliss_March_Hare(CardLocation.Removed) && Count.CheckCard(CardId.Maliss_March_Hare))
+                            return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_March_Hare).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_Chessy_Cat && i.Location == CardLocation.Deck)
                                 && !Bot.HasInHand(CardId.Maliss_Chessy_Cat)
-                                    && Check_Maliss_Chessy_Cat()
-                                        && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat))
+                                    && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat && i.Location == CardLocation.Deck).ToList(), cards, min, max);
                         // if (cards.Any(i => i.Id == CardId.Maliss_in_the_Mirror && i.Location == CardLocation.Deck) && Check_Maliss_in_the_Mirror(CardLocation.Removed))
                         //     return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_in_the_Mirror && i.Location == CardLocation.Deck).ToList(), cards, min, max);
-                        if (cards.Any(i => i.Id == CardId.Maliss_March_Hare && i.Location == CardLocation.Deck) && Check_Maliss_March_Hare(CardLocation.Removed))
-                            return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_March_Hare).ToList(), cards, min, max);
                     }
                     else
                     {
@@ -310,14 +309,15 @@ namespace WindBot.Game.AI.Decks
                         if (cards.Any(i => i.Id == CardId.Maliss_White_Rabbit && i.Location == CardLocation.Deck)
                             && Count.CheckCardRemoved(CardId.Maliss_White_Rabbit) && Check_Maliss_White_Rabbit())
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_White_Rabbit).ToList(), cards, min, max);
+                        if (cards.Any(i => i.Id == CardId.Maliss_March_Hare && i.Location == CardLocation.Deck) && Check_Maliss_March_Hare(CardLocation.Removed) && Count.CheckCard(CardId.Maliss_March_Hare))
+                            return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_March_Hare).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_Chessy_Cat && i.Location == CardLocation.Deck)
-                            && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat())
+                            && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
                         // if (cards.Any(i => i.Id == CardId.Maliss_in_the_Mirror && i.Location == CardLocation.Deck)
                         //     && Count.CheckCardRemoved(CardId.Maliss_in_the_Mirror) && Check_Maliss_in_the_Mirror(CardLocation.Removed))
                         //     return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_in_the_Mirror).ToList(), cards, min, max);
-                        if (cards.Any(i => i.Id == CardId.Maliss_March_Hare && i.Location == CardLocation.Deck) && Check_Maliss_March_Hare(CardLocation.Removed))
-                            return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_March_Hare).ToList(), cards, min, max);
+                        
                     }
                     return Util.CheckSelectCount(cards.Where(i => i.Location == CardLocation.Deck).ToList(), cards, min, max);
                 case CardId.Gold_Sarcophagus:
@@ -515,7 +515,10 @@ namespace WindBot.Game.AI.Decks
                 case CardId.Maliss_White_Binder:
                     if (hint == HintMsg.Remove)
                     {
-                        List<ClientCard> result = cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.HasType(CardType.Monster)).ToList();
+                        List<ClientCard> result = cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.HasType(CardType.Link)).ToList();
+                        if (Duel.Player == 1)
+                            result.AddRange(cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.IsCode(CardId.Maliss_White_Rabbit)));
+                        result.AddRange(cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.HasType(CardType.Monster)));
                         result.AddRange(cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.HasType(CardType.Spell)));
                         result.AddRange(cards.Where(i => i.Controller == 1));
                         result.AddRange(cards.Where(i => TrashCards(i.Id, CardLocation.Grave)));
@@ -541,8 +544,10 @@ namespace WindBot.Game.AI.Decks
                     {
                         if (cards.Any(i => Count.CheckCard(i.Id) && i.IsCode(CardId.Maliss_March_Hare)))
                             return Util.CheckSelectCount(cards.Where(i => Count.CheckCard(i.Id) && i.IsCode(CardId.Maliss_March_Hare)).ToList(), cards, min, max);
-                        if (cards.Any(i => Count.CheckCard(i.Id)))
-                            return Util.CheckSelectCount(cards.Where(i => Count.CheckCard(i.Id)).ToList(), cards, min, max);
+                        if (cards.Any(i => Count.CheckCard(i.Id) && !i.HasType(CardType.Link)))
+                            return Util.CheckSelectCount(cards.Where(i => Count.CheckCard(i.Id) && !i.HasType(CardType.Link)).ToList(), cards, min, max);
+                        if (cards.Any(i => !i.HasType(CardType.Link)))
+                            return Util.CheckSelectCount(cards.Where(i => !i.HasType(CardType.Link)).ToList(), cards, min, max);
                     }
                     else if (hint == HintMsg.Remove)
                     {
