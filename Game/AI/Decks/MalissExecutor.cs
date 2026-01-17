@@ -247,7 +247,7 @@ namespace WindBot.Game.AI.Decks
                     if ((Zones.z6 & available) > 0 && (Bot.MonsterZone[3] == null || Bot.MonsterZone[4] == null)) return Zones.z6;
                     if ((Zones.z5 & available) > 0 && (Bot.MonsterZone[0] == null || Bot.MonsterZone[1] == null)) return Zones.z5;
                 }
-                if (Bot.HasInMonstersZone(CardId.Cyberse_Wicckid) && Card.HasRace(CardRace.Cyberse))
+                if (Bot.HasInMonstersZone(CardId.Cyberse_Wicckid))
                 {
                     int seq = 0;
                     for (int i = 0; i < 7; ++i)
