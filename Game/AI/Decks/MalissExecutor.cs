@@ -340,8 +340,6 @@ namespace WindBot.Game.AI.Decks
                                 && !Bot.HasInHand(CardId.Maliss_Chessy_Cat)
                                     && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat && i.Location == CardLocation.Deck).ToList(), cards, min, max);
-                        // if (cards.Any(i => i.Id == CardId.Maliss_in_the_Mirror && i.Location == CardLocation.Deck) && Check_Maliss_in_the_Mirror(CardLocation.Removed))
-                        //     return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_in_the_Mirror && i.Location == CardLocation.Deck).ToList(), cards, min, max);
                     }
                     else
                     {
@@ -356,9 +354,6 @@ namespace WindBot.Game.AI.Decks
                         if (cards.Any(i => i.Id == CardId.Maliss_Chessy_Cat && i.Location == CardLocation.Deck)
                             && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
-                        // if (cards.Any(i => i.Id == CardId.Maliss_in_the_Mirror && i.Location == CardLocation.Deck)
-                        //     && Count.CheckCardRemoved(CardId.Maliss_in_the_Mirror) && Check_Maliss_in_the_Mirror(CardLocation.Removed))
-                        //     return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_in_the_Mirror).ToList(), cards, min, max);
                         
                     }
                     return Util.CheckSelectCount(cards.Where(i => i.Location == CardLocation.Deck).ToList(), cards, min, max);
@@ -380,9 +375,6 @@ namespace WindBot.Game.AI.Decks
                                     && Check_Maliss_Chessy_Cat()
                                         && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
-                        // if (cards.Any(i => i.Id == CardId.Maliss_in_the_Mirror)
-                        //     && Check_Maliss_in_the_Mirror(CardLocation.Removed))
-                        //     return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_in_the_Mirror).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_March_Hare)
                             && Check_Maliss_March_Hare(CardLocation.Removed))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_March_Hare).ToList(), cards, min, max);
@@ -398,9 +390,6 @@ namespace WindBot.Game.AI.Decks
                         if (cards.Any(i => i.Id == CardId.Maliss_Chessy_Cat)
                             && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat())
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
-                        // if (cards.Any(i => i.Id == CardId.Maliss_in_the_Mirror)
-                        //     && Count.CheckCardRemoved(CardId.Maliss_in_the_Mirror) && Check_Maliss_in_the_Mirror(CardLocation.Removed))
-                        //     return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_in_the_Mirror).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_March_Hare) && Check_Maliss_March_Hare(CardLocation.Removed))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_March_Hare).ToList(), cards, min, max);
                     }
@@ -418,8 +407,6 @@ namespace WindBot.Game.AI.Decks
                                     && Check_Maliss_Chessy_Cat()
                                         && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
-                        // if (cards.Any(i => i.Id == CardId.Maliss_in_the_Mirror) && Check_Maliss_in_the_Mirror(CardLocation.Removed) && Bot.Graveyard.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster)))
-                        //     return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_in_the_Mirror).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_March_Hare) && Check_Maliss_March_Hare(CardLocation.Removed))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_March_Hare).ToList(), cards, min, max);
                     }
@@ -431,9 +418,6 @@ namespace WindBot.Game.AI.Decks
                         if (cards.Any(i => i.Id == CardId.Maliss_Chessy_Cat)
                             && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat())
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
-                        // if (cards.Any(i => i.Id == CardId.Maliss_in_the_Mirror)
-                        //     && Count.CheckCardRemoved(CardId.Maliss_in_the_Mirror) && Check_Maliss_in_the_Mirror(CardLocation.Removed))
-                        //     return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_in_the_Mirror).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_March_Hare) && Check_Maliss_March_Hare(CardLocation.Removed))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_March_Hare).ToList(), cards, min, max);
                     }
