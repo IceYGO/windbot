@@ -245,7 +245,7 @@ namespace WindBot.Game.AI.Decks
                     if ((Zones.z6 & available) > 0 && (Bot.MonsterZone[3] == null || Bot.MonsterZone[4] == null)) return Zones.z6;
                     if ((Zones.z5 & available) > 0 && (Bot.MonsterZone[0] == null || Bot.MonsterZone[1] == null)) return Zones.z5;
                 }
-                if (Bot.HasInMonstersZone(CardId.Cyberse_Wicckid))
+                if (Bot.HasInMonstersZone(CardId.Cyberse_Wicckid) && Count.CheckCard(CardId.Cyberse_Wicckid))
                 {
                     int seq = 0;
                     for (int i = 0; i < 7; ++i)
@@ -773,6 +773,10 @@ namespace WindBot.Game.AI.Decks
                 case CardId.Wizard_Ignister:
                     if (cards.Any(i => i.HasSetcode(SetCode.Maliss)))
                         return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss)).ToList(), cards, min, max);
+                    break;
+                case CardId.Maliss_Hearts_Crypter:
+                    if (hint == HintMsg.Remove && cards.Any(i => i.Controller == 1))
+                        return Util.CheckSelectCount(cards.Where(i => i.Controller == 1).ToList(), cards, min, max);
                     break;
             }
             return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -1361,7 +1365,7 @@ namespace WindBot.Game.AI.Decks
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (Duel.LastChainPlayer == 1 && Enemy.GetMonsterCount() + Enemy.GetSpells().Count(i => i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown()) > 0)
+                if (Enemy.GetMonsterCount() + Enemy.GetSpells().Count(i => i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown()) > 0 && Duel.LastChainPlayer != 0)
                 {
                     Count.AddCard(Card.Id);
                     return true;
