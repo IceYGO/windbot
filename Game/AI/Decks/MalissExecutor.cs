@@ -538,11 +538,16 @@ namespace WindBot.Game.AI.Decks
                 case CardId.Maliss_White_Binder:
                     if (hint == HintMsg.Remove)
                     {
-                        List<ClientCard> result = cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.HasType(CardType.Link)).ToList();
-                        if (Duel.Player == 1)
-                            result.AddRange(cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.IsCode(CardId.Maliss_White_Rabbit)));
-                        result.AddRange(cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.HasType(CardType.Monster)));
-                        result.AddRange(cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.HasType(CardType.Spell)));
+                        List<ClientCard> result = new List<ClientCard>();
+                        int ct = 5 - Bot.GetMonstersInMainZone().Count;
+                        if (ct > 0 && Count.CheckCard(CardId.Allied_Code_Talker_Ignister))
+                        {
+                            result.AddRange(cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.HasType(CardType.Link)));
+                            if (Duel.Player == 1)
+                                result.AddRange(cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.IsCode(CardId.Maliss_White_Rabbit)));
+                            result.AddRange(cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.HasType(CardType.Monster)));
+                            result.AddRange(cards.Where(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id) && i.Controller == 0 && i.HasType(CardType.Spell)));
+                        }
                         result.AddRange(cards.Where(i => i.Controller == 1));
                         result.AddRange(cards.Where(i => TrashCards(i.Id, CardLocation.Grave)));
                         result.AddRange(cards.Where(i => !i.HasSetcode(SetCode.Maliss) && !i.HasType(CardType.Trap)));
@@ -574,6 +579,21 @@ namespace WindBot.Game.AI.Decks
                     }
                     else if (hint == HintMsg.Remove)
                     {
+                        if (Duel.Player == 1)
+                        {
+                            if (Bot.GetMonstersInMainZone().Count() > 3)
+                            {
+                                if (cards.Any(i => i.HasType(CardType.Spell) && i.Location == CardLocation.Grave))
+                                    return Util.CheckSelectCount(cards.Where(i => i.HasType(CardType.Spell) && i.Location == CardLocation.Grave).ToList(), cards, min, max);
+                                if (cards.Any(i => !i.HasType(CardType.Link) && i.Location == CardLocation.Grave))
+                                    return Util.CheckSelectCount(cards.Where(i => !i.HasType(CardType.Link) && i.Location == CardLocation.Grave).ToList(), cards, min, max);
+                            }
+                            else
+                            {
+                                if (cards.Any(i => Count.CheckCardRemoved(i.Id) && i.HasType(CardType.Link) && i.Location == CardLocation.Grave))
+                                    return Util.CheckSelectCount(cards.Where(i => Count.CheckCardRemoved(i.Id) && i.HasType(CardType.Link) && i.Location == CardLocation.Grave).ToList(), cards, min, max);
+                            }
+                        }
                         if (cards.Any(i => Count.CheckCardRemoved(i.Id) && !i.HasType(CardType.Trap) && i.Location == CardLocation.Grave))
                             return Util.CheckSelectCount(cards.Where(i => Count.CheckCardRemoved(i.Id) && !i.HasType(CardType.Trap) && i.Location == CardLocation.Grave).ToList(), cards, min, max);
                         if (cards.Any(i => !i.HasType(CardType.Trap) && i.Location == CardLocation.Grave))
@@ -798,7 +818,14 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Maliss_Removed(int lp = 300)
         {
+            int ct = 5 - Bot.GetMonstersInMainZone().Count;
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (Card.HasType(CardType.Monster) && !Card.IsCode(CardId.Maliss_March_Hare)
+                && ct - Duel.CurrentChain.Count(i => i.HasSetcode(SetCode.Maliss)
+                    && i.Location == CardLocation.Removed
+                    && i.HasType(CardType.Monster)
+                ) <= 0
+            ) return false;
             if (Bot.LifePoints > lp && Card.Location == CardLocation.Removed)
             {
                 Count.AddCardRemoved(Card.Id);
@@ -849,6 +876,11 @@ namespace WindBot.Game.AI.Decks
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
             {
+                if (Duel.Player == 1
+                    && (!Bot.Graveyard.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link))
+                    || Bot.GetMonstersInMainZone().Count() > 3)
+                )
+                    return false;
                 if (Bot.HasInMonstersZone(CardId.Maliss_Chessy_Cat) && Count.CheckCard(CardId.Maliss_Chessy_Cat))
                     return false;
                 if (Check_Maliss_March_Hare(CardLocation.Hand))
@@ -982,12 +1014,7 @@ namespace WindBot.Game.AI.Decks
                 && (!Bot.HasInMonstersZone(CardId.Maliss_Red_Ransom) || !Bot.HasInMonstersZone(CardId.Maliss_White_Binder))
             )
                 return false;
-            if (Bot.GetMonsters().Any(i => Count.CheckCardRemoved(i.Id))
-                && (Count.CheckCard(CardId.Maliss_Dormouse)
-                    || Count.CheckCard(CardId.Maliss_White_Rabbit)
-                    || Count.CheckCard(CardId.Maliss_Chessy_Cat)
-                )
-            )
+            if (Bot.GetMonsters().Any(i => Count.CheckCardRemoved(i.Id)))
             {
                 Count.AddCard(Card.Id);
                 return true;
