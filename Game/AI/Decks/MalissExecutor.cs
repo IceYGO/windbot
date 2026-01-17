@@ -233,7 +233,7 @@ namespace WindBot.Game.AI.Decks
             if (desc == Util.GetStringId(CardId.Maliss_White_Binder, 3))
                 return true;
             if (desc == Util.GetStringId(CardId.Maliss_MTP_07, 3))
-                return Enemy.GetMonsterCount() + Enemy.GetSpells().Count(i => i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown()) > 0;
+                return Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) > 0;
             return base.OnSelectYesNo(desc);
         }
         public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
@@ -666,7 +666,7 @@ namespace WindBot.Game.AI.Decks
                         return Util.CheckSelectCount(cards.Where(i => i.Controller == 1 && Count.CheckActivateOppo(i.Id)).ToList(), cards, min, max);
                     return Util.CheckSelectCount(cards.Where(i => i.Controller == 1).ToList(), cards, min, max);
                 case CardId.Firewall_Dragon:
-                    if (Enemy.GetMonsterCount() + Enemy.GetSpells().Count(i => i.HasType(CardType.Field | CardType.Continuous | CardType.Equip)) > 0
+                    if (Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) > 0
                         && Duel.Player == 1 && cards.Any(i => i.IsCode(CardId.Mereologic_Aggregator))
                     )
                         return Util.CheckSelectCount(cards.Where(i => i.IsCode(CardId.Mereologic_Aggregator)).ToList(), cards, min, max);
@@ -1076,7 +1076,7 @@ namespace WindBot.Game.AI.Decks
         private bool Effect_Maliss_MTP_07()
         {
             if (Duel.LastChainPlayer == 0) return false;
-            if (DefaultCheckWhetherCardIsNegated(Card) || Duel.Player == 0 || Enemy.GetMonsterCount() + Enemy.GetSpells().Count(i => i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown()) == 0 || !Bot.GetMonsters().Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link))) return false;
+            if (DefaultCheckWhetherCardIsNegated(Card) || Duel.Player == 0 || Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) == 0 || !Bot.GetMonsters().Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link))) return false;
             if (Bot.GetMonsterCount() > 1
                 && (!Bot.HasInMonstersZone(CardId.Maliss_Red_Ransom) || !Bot.HasInMonstersZone(CardId.Maliss_White_Binder))
             )
@@ -1352,7 +1352,7 @@ namespace WindBot.Game.AI.Decks
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (Enemy.GetMonsterCount() + Enemy.GetSpells().Count(i => i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown()) > 0 && Duel.LastChainPlayer != 0)
+                if (Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) > 0 && Duel.LastChainPlayer != 0)
                 {
                     Count.AddCard(Card.Id);
                     return true;
@@ -1410,7 +1410,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Mereologic_Aggregator()
         {
-            if (Enemy.GetMonsterCount() + Enemy.GetSpells().Count(i => i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown()) > 0)
+            if (Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) > 0)
             {
                 ClientCard LastChainCard = Util.GetLastChainCard();
                 if (LastChainCard != null && LastChainCard.Controller == 1 && (LastChainCard.Location == CardLocation.MonsterZone || LastChainCard.Location == CardLocation.SpellZone))
@@ -1425,7 +1425,7 @@ namespace WindBot.Game.AI.Decks
             if (!Count.CheckCard(CardId.Dimension_Shifter) && Count.CheckCard(CardId.Artifact_Lancea))
                 return false;
             return Duel.Player == 0 || (
-                Enemy.GetMonsterCount() + Enemy.GetSpells().Count(i => i.HasType(CardType.Field | CardType.Continuous | CardType.Equip)) > 0
+                Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) > 0
                 && Duel.LastChainPlayer != 0
             );
         }
