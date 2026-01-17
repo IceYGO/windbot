@@ -33,7 +33,6 @@ namespace WindBot.Game.AI.Decks
             public const int Maliss_White_Rabbit = 69272449; //码丽丝<兵卒>白兔
             public const int Maliss_Dormouse = 32061192; //码丽丝<兵卒>睡鼠
             public const int Maliss_March_Hare = 20938824; //码丽丝<兵卒>三月兔
-            public const int Dotscaper = 18789533; //点阵图跳离士
             public const int Maliss_in_the_Mirror = 93453053; //码丽丝镜中奇像
             public const int Maliss_in_Underground = 68337209; //码丽丝梦游地下界
             public const int Maliss_GWC_06 = 20726052; //码丽丝<代码>GWC-06
@@ -68,7 +67,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Dominus_Impulse, Effect_Enemy_Chain);
             AddExecutor(ExecutorType.Activate, CardId.CalledbytheGrave, DefaultCalledByTheGrave);
             AddExecutor(ExecutorType.Activate, CardId.Maliss_White_Rabbit, Effect_White_Rabbit);
-            AddExecutor(ExecutorType.Activate, CardId.Dotscaper);
             AddExecutor(ExecutorType.Activate, CardId.Haggard_Lizardose, Effect_Haggard_Lizardose);
             AddExecutor(ExecutorType.Activate, CardId.Splash_Mage);
             AddExecutor(ExecutorType.Activate, CardId.Cyberse_Wicckid);
@@ -552,10 +550,14 @@ namespace WindBot.Game.AI.Decks
                 case CardId.Maliss_Chessy_Cat:
                     if (!Count.CheckCard(CardId.Dimension_Shifter) && Count.CheckCard(CardId.Artifact_Lancea))
                     {
-                        if (cards.Any(i => i.IsCode(CardId.Maliss_March_Hare)) && !Bot.Graveyard.Any(i => i.HasSetcode(SetCode.Maliss)))
+                        if (cards.Any(i => i.IsCode(CardId.Maliss_March_Hare)) && !Bot.Graveyard.Any(i => i.HasSetcode(SetCode.Maliss)) && !Bot.Hand.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id)))
                             return Util.CheckSelectCount(cards.Where(i => i.IsCode(CardId.Maliss_March_Hare)).ToList(), cards, min, max);
-                        if (cards.Any(i => i.HasType(CardType.Monster)))
-                            return Util.CheckSelectCount(cards.Where(i => i.HasType(CardType.Monster)).ToList(), cards, min, max);
+                        if (cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)))
+                            return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)).ToList(), cards, min, max);
+                        if (cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)))
+                            return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)).ToList(), cards, min, max);
+                        if (cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id)))
+                            return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id)).ToList(), cards, min, max);
                     }
                     if (cards.Any(i => Count.CheckCardRemoved(i.Id) && i.IsCode(CardId.Maliss_in_the_Mirror)) && Check_Maliss_in_the_Mirror(CardLocation.Grave))
                         return Util.CheckSelectCount(cards.Where(i => Count.CheckCardRemoved(i.Id) && i.IsCode(CardId.Maliss_in_the_Mirror)).ToList(), cards, min, max);
@@ -700,7 +702,18 @@ namespace WindBot.Game.AI.Decks
                 case CardId.Backup_Ignister:
                     if (hint == HintMsg.AddToHand)
                     {
-                        if (cards.Any(i => i.IsCode(CardId.Wizard_Ignister))
+                        if (card.Id == CardId.Dimension_Shifter || card.Id == CardId.Artifact_Lancea)
+                        {
+                            if (!Bot.Hand.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare))
+                                && cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare))
+                            )
+                                return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)).ToList(), cards, min, max);
+                            if (!Bot.Hand.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && !i.IsCode(CardId.Maliss_March_Hare))
+                                && cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && !i.IsCode(CardId.Maliss_March_Hare))
+                            )
+                                return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)).ToList(), cards, min, max);
+                        }
+                        if (cards.Any(i => i.IsCode(CardId.Wizard_Ignister)) && Bot.Hand.Count() > 0
                             && (Bot.Graveyard.Any(i => i.HasRace(CardRace.Cyberse))
                                 || (Bot.HasInExtra(CardId.Link_Decoder) && Bot.GetMonsters().Any(i => i.Level <= 4 && i.HasRace(CardRace.Cyberse)) && Count.CheckCard(CardId.Dimension_Shifter))
                                 || (Bot.HasInExtra(CardId.Haggard_Lizardose)
@@ -729,6 +742,15 @@ namespace WindBot.Game.AI.Decks
                     }
                     else if (hint == HintMsg.Discard)
                     {
+                        if (card.Id == CardId.Dimension_Shifter || card.Id == CardId.Artifact_Lancea)
+                        {
+                            if (cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)))
+                                return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)).ToList(), cards, min, max);
+                            if (cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)))
+                                return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)).ToList(), cards, min, max);
+                            if (cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id)))
+                                return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id)).ToList(), cards, min, max);
+                        }
                         if (Bot.HasInHand(CardId.Maliss_March_Hare) && !Bot.Graveyard.Any(i => i.HasSetcode(SetCode.Maliss)))
                         {
                             if (cards.Any(i => i.HasSetcode(SetCode.Maliss) && !i.IsCode(CardId.Maliss_March_Hare) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id)))
@@ -1184,7 +1206,7 @@ namespace WindBot.Game.AI.Decks
                 .ToList();
             if (cards.Count < 2)
                 return false;
-            if (!Count.CheckCard(CardId.Dimension_Shifter) && Count.CheckCard(CardId.Artifact_Lancea) && cards.Any(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCard(i.Id)))
+            if (!Count.CheckCard(CardId.Dimension_Shifter) && Count.CheckCard(CardId.Artifact_Lancea) && cards.Any(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCardRemoved(i.Id)))
             {
                 List<ClientCard> materials = cards.Where(i => Count.CheckCardRemoved(i.Id) && i.HasSetcode(SetCode.Maliss)).ToList();
                 materials.AddRange(cards.Where(i => !Count.CheckCardRemoved(i.Id) && i.HasSetcode(SetCode.Maliss)));
