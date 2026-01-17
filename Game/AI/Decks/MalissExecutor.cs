@@ -666,7 +666,7 @@ namespace WindBot.Game.AI.Decks
                         return Util.CheckSelectCount(cards.Where(i => i.Controller == 1 && Count.CheckActivateOppo(i.Id)).ToList(), cards, min, max);
                     return Util.CheckSelectCount(cards.Where(i => i.Controller == 1).ToList(), cards, min, max);
                 case CardId.Firewall_Dragon:
-                    if (Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) > 0
+                    if (Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget() && i.IsFaceup()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && i.HasType(CardType.Field | CardType.Continuous | CardType.Equip)) > 0
                         && Duel.Player == 1 && cards.Any(i => i.IsCode(CardId.Mereologic_Aggregator))
                     )
                         return Util.CheckSelectCount(cards.Where(i => i.IsCode(CardId.Mereologic_Aggregator)).ToList(), cards, min, max);
@@ -1425,7 +1425,7 @@ namespace WindBot.Game.AI.Decks
             if (!Count.CheckCard(CardId.Dimension_Shifter) && Count.CheckCard(CardId.Artifact_Lancea))
                 return false;
             return Duel.Player == 0 || (
-                Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) > 0
+                Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget() && i.IsFaceup()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && i.HasType(CardType.Field | CardType.Continuous | CardType.Equip)) > 0
                 && Duel.LastChainPlayer != 0
             );
         }
