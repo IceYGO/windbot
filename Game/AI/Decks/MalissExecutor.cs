@@ -632,10 +632,12 @@ namespace WindBot.Game.AI.Decks
                 case CardId.Maliss_in_the_Mirror:
                     if (hint == HintMsg.Remove)
                     {
-                        if (card.Location == CardLocation.Removed)
+                        if (!cards.Any(i => i.Location != CardLocation.Grave))
+                        {
                             if (cards.Any(i => i.HasType(CardType.Trap)) && !Bot.HasInHandOrInSpellZoneOrInGraveyard(CardId.Maliss_GWC_06) && !Bot.HasInBanished(CardId.Maliss_GWC_06))
                                 return Util.CheckSelectCount(cards.Where(i => i.HasType(CardType.Trap)).ToList(), cards, min, max);
-                        else if (card.Location == CardLocation.SpellZone)
+                        }
+                        else
                         {
                             if (cards.Any(i => i.IsCode(CardId.Maliss_Red_Ransom)) && Count.CheckCardRemoved(CardId.Maliss_Red_Ransom))
                                 return Util.CheckSelectCount(cards.Where(i => i.IsCode(CardId.Maliss_Red_Ransom)).ToList(), cards, min, max);
@@ -649,6 +651,11 @@ namespace WindBot.Game.AI.Decks
                     {
                         if (cards.Any(i => i.IsCode(CardId.Maliss_GWC_06)))
                             return Util.CheckSelectCount(cards.Where(i => i.IsCode(CardId.Maliss_GWC_06)).ToList(), cards, min, max);
+                    }
+                    else if (hint == HintMsg.Disable)
+                    {
+                        if (cards.Contains(Util.GetLastChainCard()))
+                            return Util.CheckSelectCount(new List<ClientCard>() { Util.GetLastChainCard() }, cards, min, max);
                     }
                     break;
                 case CardId.Maliss_GWC_06:
@@ -1295,12 +1302,7 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == Util.GetStringId(CardId.Maliss_in_the_Mirror, 0))
             {
                 ClientCard LastChainCard = Util.GetLastChainCard();
-                if (Duel.Player == 1 && LastChainCard != null && LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone)
-                {
-                    AI.SelectCard(LastChainCard);
-                    return true;
-                }
-                return false;
+                return Duel.Player == 1 && LastChainCard != null && LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone;
             }
             else
                 return Effect_Maliss_Removed(0);
