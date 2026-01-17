@@ -106,7 +106,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.Maliss_March_Hare, Effect_Maliss_March_Hare);
             AddExecutor(ExecutorType.Activate, CardId.Backup_Ignister);
-            AddExecutor(ExecutorType.Activate, CardId.Wizard_Ignister);
+            AddExecutor(ExecutorType.Activate, CardId.Wizard_Ignister, Effect_Wizard_Ignister);
             
             AddExecutor(ExecutorType.Activate, CardId.Maliss_in_the_Mirror, Effect_Maliss_in_the_Mirror);
             
@@ -783,7 +783,10 @@ namespace WindBot.Game.AI.Decks
             else
             {
                 if (LastChainCard != null && LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone)
+                {
+                    AI.SelectCard(LastChainCard);
                     return true;
+                }
             }
             return false;
         }
@@ -1192,6 +1195,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectMaterials(Bot.GetMonsters().Where(i => i.HasSetcode(SetCode.Maliss) && i.Level <= 4 && Count.CheckCardRemoved(i.Id)).ToList());
                     return true;
                 }
+                return false;
             }
             if (Bot.HasInHand(CardId.Maliss_March_Hare) && Count.CheckCard(CardId.Maliss_March_Hare) && Bot.GetMonsters().Any(i => i.HasSetcode(SetCode.Maliss) && i.Level <= 4 && Count.CheckCardRemoved(i.Id)))
             {
@@ -1254,7 +1258,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.GetMonsters().Any(i => i.HasSetcode(SetCode.Maliss) && i.LinkCount == 3 && Count.CheckCardRemoved(i.Id)))
             {
-                AI.SelectMaterials(Bot.GetMonsters().Where(i => Count.CheckCardRemoved(i.Id)).ToList());
+                AI.SelectMaterials(Bot.GetMonsters().Where(i => Count.CheckCardRemoved(i.Id) && i.HasSetcode(SetCode.Maliss) || i.LinkCount < 3).ToList());
                 return true;
             }
             return false;
@@ -1281,6 +1285,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> materials = Bot.GetMonsters().Where(i => i.IsCode(CardId.Maliss_White_Binder)).ToList();
             materials.AddRange(Bot.GetMonsters().Where(i => i.HasSetcode(SetCode.Maliss) && !i.HasType(CardType.Link)));
             materials.AddRange(Bot.GetMonsters().Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link)));
+            materials.AddRange(Bot.GetMonsters().Where(i => i.HasType(CardType.Link) && i.LinkCount <= 3));
             materials.AddRange(Bot.GetMonsters().Where(i => !i.HasType(CardType.Link)));
             if (materials.Count > 3)
                 materials = materials.Take(3).ToList();
@@ -1295,6 +1300,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> materials = Bot.GetMonsters().Where(i => i.IsCode(CardId.Maliss_White_Binder)).ToList();
             materials.AddRange(Bot.GetMonsters().Where(i => i.HasSetcode(SetCode.Maliss) && !i.HasType(CardType.Link)));
             materials.AddRange(Bot.GetMonsters().Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link)));
+            materials.AddRange(Bot.GetMonsters().Where(i => i.HasType(CardType.Link) && i.LinkCount <= 3));
             materials.AddRange(Bot.GetMonsters().Where(i => !i.HasType(CardType.Link)));
             if (materials.Count > 3)
                 materials = materials.Take(3).ToList();
@@ -1320,6 +1326,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (Enemy.GetMonsterCount() + Enemy.GetSpells().Count(i => i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown()) > 0)
             {
+                ClientCard LastChainCard = Util.GetLastChainCard();
+                if (LastChainCard != null && LastChainCard.Controller == 1 && (LastChainCard.Location == CardLocation.MonsterZone || LastChainCard.Location == CardLocation.SpellZone))
+                    AI.SelectCard(LastChainCard);
                 Count.AddCard(Card.Id);
                 return true;
             }
@@ -1357,6 +1366,10 @@ namespace WindBot.Game.AI.Decks
                 materials = materials.Take(2).ToList();
             AI.SelectMaterials(materials);
             return true;
+        }
+        private bool Effect_Wizard_Ignister()
+        {
+            return Card.Location == CardLocation.Hand;
         }
     }
 }
