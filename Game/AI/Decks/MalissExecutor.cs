@@ -272,6 +272,33 @@ namespace WindBot.Game.AI.Decks
                     if ((Zones.z2 & available) > 0 && Bot.MonsterZone[3] == null) return Zones.z2;
                     if ((Zones.z3 & available) > 0 && Bot.MonsterZone[4] == null) return Zones.z3;
                 }
+                if (cardId == CardId.Allied_Code_Talker_Ignister)
+                {
+                    var zones = new Dictionary<(int zone, ClientCard[] chk_zone), int>();
+                    var updates = new Dictionary<(int zone, ClientCard[] chk_zone), int>();
+                    zones[(Zones.z0, new ClientCard[] { Bot.MonsterZone[1] })] = 0;
+                    zones[(Zones.z1, new ClientCard[] { Bot.MonsterZone[0], Bot.MonsterZone[2] })] = 0;
+                    zones[(Zones.z2, new ClientCard[] { Bot.MonsterZone[1], Bot.MonsterZone[3] })] = 0;
+                    zones[(Zones.z3, new ClientCard[] { Bot.MonsterZone[2], Bot.MonsterZone[4] })] = 0;
+                    zones[(Zones.z4, new ClientCard[] { Bot.MonsterZone[3] })] = 0;
+                    zones[(Zones.z5, new ClientCard[] { Bot.MonsterZone[0], Bot.MonsterZone[1], Bot.MonsterZone[2] })] = 0;
+                    zones[(Zones.z6, new ClientCard[] { Bot.MonsterZone[2], Bot.MonsterZone[3], Bot.MonsterZone[4] })] = 0;
+                    foreach (var entry in zones)
+                    {
+                        if ((entry.Key.zone & available) == 0)
+                            continue;
+                        
+                        ClientCard[] checkZone = entry.Key.chk_zone;
+                        int nullCount = checkZone.Count(card => card == null);
+                        updates[entry.Key] = nullCount;
+                    }
+                    var maxEntry = updates.OrderByDescending(entry => entry.Value).FirstOrDefault();
+                    if (maxEntry.Key != default)
+                    {
+                        var (zone, checkZone) = maxEntry.Key;
+                        return zone;
+                    }
+                }
                 if ((Zones.z6 & available) > 0) return Zones.z6;
                 if ((Zones.z5 & available) > 0) return Zones.z5;
             }
