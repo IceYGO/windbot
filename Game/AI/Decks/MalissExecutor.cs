@@ -1108,7 +1108,7 @@ namespace WindBot.Game.AI.Decks
                 .ToList();
             if (cards.Count < 2)
                 return false;
-            if (!Count.CheckCard(CardId.Dimension_Shifter) && Count.CheckCard(CardId.Artifact_Lancea))
+            if (!Count.CheckCard(CardId.Dimension_Shifter) && Count.CheckCard(CardId.Artifact_Lancea) && cards.Any(i => i.HasSetcode(SetCode.Maliss) && Count.CheckCard(i.Id)))
             {
                 List<ClientCard> materials = cards.Where(i => Count.CheckCardRemoved(i.Id) && i.HasSetcode(SetCode.Maliss)).ToList();
                 materials.AddRange(cards.Where(i => !Count.CheckCardRemoved(i.Id) && i.HasSetcode(SetCode.Maliss)));
