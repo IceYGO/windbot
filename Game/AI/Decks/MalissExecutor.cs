@@ -574,10 +574,12 @@ namespace WindBot.Game.AI.Decks
                     }
                     else if (hint == HintMsg.Remove)
                     {
-                        if (cards.Any(i => Count.CheckCardRemoved(i.Id) && i.Location == CardLocation.Grave))
-                            return Util.CheckSelectCount(cards.Where(i => Count.CheckCardRemoved(i.Id) && i.Location == CardLocation.Grave).ToList(), cards, min, max);
-                        if (cards.Any(i => Count.CheckCardRemoved(i.Id)))
-                            return Util.CheckSelectCount(cards.Where(i => Count.CheckCardRemoved(i.Id)).ToList(), cards, min, max);
+                        if (cards.Any(i => Count.CheckCardRemoved(i.Id) && !i.HasType(CardType.Trap) && i.Location == CardLocation.Grave))
+                            return Util.CheckSelectCount(cards.Where(i => Count.CheckCardRemoved(i.Id) && !i.HasType(CardType.Trap) && i.Location == CardLocation.Grave).ToList(), cards, min, max);
+                        if (cards.Any(i => !i.HasType(CardType.Trap) && i.Location == CardLocation.Grave))
+                            return Util.CheckSelectCount(cards.Where(i => !i.HasType(CardType.Trap) && i.Location == CardLocation.Grave).ToList(), cards, min, max);
+                        if (cards.Any(i => Count.CheckCardRemoved(i.Id) && !i.HasType(CardType.Trap)))
+                            return Util.CheckSelectCount(cards.Where(i => Count.CheckCardRemoved(i.Id) && !i.HasType(CardType.Trap)).ToList(), cards, min, max);
                     }
                     break;
                 case CardId.Maliss_in_the_Mirror:
