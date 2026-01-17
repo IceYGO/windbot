@@ -48,6 +48,7 @@ namespace WindBot.Game.AI.Decks
             public const int Maliss_Hearts_Crypter = 21848500; //码丽丝<王后>红心加密
             public const int Maliss_Red_Ransom = 68059897; //码丽丝<王后>红棋勒索
             public const int Maliss_White_Binder = 95454996; //码丽丝<王后>白棋捆绑
+            public const int Transcode_Talker = 46947713; //转码语者
             public const int Splash_Mage = 59859086; //飞溅闪屏法师
             public const int Haggard_Lizardose = 9763474; //盛悴之致命毒蜥
             public const int Cyberse_Wicckid = 52698008; //电子界小男巫
@@ -72,6 +73,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Cyberse_Wicckid);
             AddExecutor(ExecutorType.Activate, CardId.Link_Decoder);
             AddExecutor(ExecutorType.Activate, CardId.Cyberse_Desavewurm);
+            AddExecutor(ExecutorType.Activate, CardId.Transcode_Talker);
             AddExecutor(ExecutorType.Activate, CardId.Mereologic_Aggregator, Effect_Mereologic_Aggregator);
             AddExecutor(ExecutorType.Activate, CardId.Firewall_Dragon, Effect_Firewall_Dragon);
             AddExecutor(ExecutorType.Activate, CardId.Allied_Code_Talker_Ignister, Effect_Allied_Code_Talker_Ignister);
@@ -114,6 +116,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.Firewall_Dragon, SP_Firewall_Dragon);
             AddExecutor(ExecutorType.SpSummon, CardId.Allied_Code_Talker_Ignister, SP_Allied_Code_Talker_Ignister);
             AddExecutor(ExecutorType.SpellSet, CardId.Maliss_in_the_Mirror);
+            AddExecutor(ExecutorType.SpSummon, CardId.Transcode_Talker, SP_Transcode_Talker);
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
 
@@ -258,6 +261,15 @@ namespace WindBot.Game.AI.Decks
                         if ((Zones.z3 & available) > 0) return Zones.z3;
                         if ((Zones.z4 & available) > 0) return Zones.z4;
                     }
+                }
+                if (Card.IsCode(CardId.Transcode_Talker))
+                {
+                    if ((Zones.z6 & available) > 0 && (Zones.z3 & available) > 0) return Zones.z6;
+                    if ((Zones.z5 & available) > 0 && (Zones.z1 & available) > 0) return Zones.z5;
+                    if ((Zones.z0 & available) > 0 && (Zones.z1 & available) > 0) return Zones.z0;
+                    if ((Zones.z1 & available) > 0 && (Zones.z2 & available) > 0) return Zones.z1;
+                    if ((Zones.z2 & available) > 0 && (Zones.z3 & available) > 0) return Zones.z2;
+                    if ((Zones.z3 & available) > 0 && (Zones.z4 & available) > 0) return Zones.z3;
                 }
             }
             return base.OnSelectPlace(cardId, player, location, available);
@@ -628,7 +640,19 @@ namespace WindBot.Game.AI.Decks
                 case CardId.Backup_Ignister:
                     if (hint == HintMsg.AddToHand)
                     {
-                        if (cards.Any(i => i.IsCode(CardId.Wizard_Ignister)) && Bot.Graveyard.Any(i => i.HasSetcode(SetCode.Maliss)))
+                        if (cards.Any(i => i.IsCode(CardId.Wizard_Ignister))
+                            && (Bot.Graveyard.Any(i => i.HasRace(CardRace.Cyberse))
+                                || (Bot.HasInExtra(CardId.Link_Decoder) && Bot.GetMonsters().Any(i => i.Level <= 4 && i.HasRace(CardRace.Cyberse)) && Count.CheckCard(CardId.Dimension_Shifter))
+                                || (Bot.HasInExtra(CardId.Haggard_Lizardose)
+                                    && !Count.CheckCard(CardId.Dimension_Shifter)
+                                        && Count.CheckCard(CardId.Artifact_Lancea)
+                                            && Bot.GetMonsters()
+                                                .Where(i => i.IsFaceup() && (!i.HasType(CardType.Link) || i.LinkCount < 2)).ToList()
+                                                .GroupBy(i => i.Id)
+                                                .Select(i => i.First())
+                                                .Count() >= 2)
+                            )
+                        )
                             return Util.CheckSelectCount(cards.Where(i => i.IsCode(CardId.Wizard_Ignister)).ToList(), cards, min, max);
                         if (Bot.HasInHand(CardId.Maliss_March_Hare))
                         {
@@ -1175,9 +1199,20 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             if (Bot.GetMonsters().Any(i => i.LinkCount < 3 && i.HasSetcode(SetCode.Maliss)) && Bot.GetMonsters().Count(i => i.LinkCount < 3) >= 3)
+            {
+                AI.SelectMaterials(Bot.GetMonsters().Where(i => i.LinkCount < 3 && i.HasSetcode(SetCode.Maliss)).ToList());
                 return true;
+            }
             if (Bot.HasInMonstersZone(CardId.Cyberse_Wicckid))
+            {
+                AI.SelectMaterials(CardId.Cyberse_Wicckid);
                 return true;
+            }
+            if (Bot.HasInMonstersZone(CardId.Backup_Ignister) && Bot.HasInHand(CardId.Wizard_Ignister))
+            {
+                AI.SelectMaterials(CardId.Backup_Ignister);
+                return true;
+            }
 
             return false;
         }
@@ -1304,6 +1339,23 @@ namespace WindBot.Game.AI.Decks
             if (Bot.GetMonsters().Any(i => i.HasType(CardType.Link)))
                 return false;
             Count.AddSummon();
+            return true;
+        }
+        private bool SP_Transcode_Talker()
+        {
+            if (Bot.GetMonsters().Any(i => i.HasSetcode(SetCode.Maliss)))
+                return false;
+            if (!Bot.GetMonsters().Any(i => !i.HasType(CardType.Link) || i.LinkCount < 2))
+                return false;
+            if (!Bot.GetMonsters().Any(i => i.HasType(CardType.Link) && i.LinkCount == 2))
+                return false;
+            List<ClientCard> materials = Bot.GetMonsters().Where(i => i.HasType(CardType.Link) && i.LinkCount == 2).ToList();
+            materials.AddRange(Bot.GetMonsters().Where(i => i.IsCode(CardId.Link_Decoder)));
+            materials.AddRange(Bot.GetMonsters().Where(i => !i.HasType(CardType.Link) || i.LinkCount < 2 && i.Sequence == (materials[0].Sequence > 4 ? (materials[0].Sequence == 5 ? 1 : 3) : materials[0].Sequence + 1)));
+            materials.AddRange(Bot.GetMonsters().Where(i => !i.HasType(CardType.Link) || i.LinkCount < 2));
+            if (materials.Count > 2)
+                materials = materials.Take(2).ToList();
+            AI.SelectMaterials(materials);
             return true;
         }
     }
