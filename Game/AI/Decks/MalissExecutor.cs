@@ -240,6 +240,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (player == 0 && location == CardLocation.MonsterZone)
             {
+                if (new List<int>{CardId.Maliss_Red_Ransom, CardId.Splash_Mage}.Contains(cardId))
+                    AI.SendCustomChat(0);
+
                 if (new List<int>{CardId.Cyberse_Wicckid, CardId.Allied_Code_Talker_Ignister}.Contains(cardId))
                 {
                     if ((Zones.z6 & available) > 0 && (Bot.MonsterZone[3] == null || Bot.MonsterZone[4] == null)) return Zones.z6;
