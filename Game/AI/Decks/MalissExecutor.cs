@@ -503,7 +503,7 @@ namespace WindBot.Game.AI.Decks
                         if (cards.Any(i => i.IsCode(CardId.Maliss_in_the_Mirror))
                             && Check_Maliss_in_the_Mirror(CardLocation.Removed)
                                 && chk_cards.Any(i => i.HasType(CardType.Trap))
-                                    && ((Bot.HasInHand(CardId.Maliss_Chessy_Cat) || Bot.HasInMonstersZone(CardId.Maliss_Chessy_Cat)) && Count.CheckCard(CardId.Maliss_Chessy_Cat)
+                                    && (((Bot.HasInHand(CardId.Maliss_Chessy_Cat) && Count.CheckSummon()) || Bot.HasInMonstersZone(CardId.Maliss_Chessy_Cat)) && Count.CheckCard(CardId.Maliss_Chessy_Cat)
                                     || Bot.HasInHand(CardId.Maliss_March_Hare) && Count.CheckCard(CardId.Maliss_March_Hare)
                                     ) && Count.CheckCard(CardId.Maliss_in_the_Mirror)
                         )
