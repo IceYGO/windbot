@@ -1153,7 +1153,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             if (!Count.CheckCard(CardId.Dimension_Shifter) && !Bot.Graveyard.Any(i => i.HasRace(CardRace.Cyberse)))
                 return false;
-            if (Bot.HasInHand(CardId.Backup_Ignister) || Count.CheckCard(CardId.Backup_Ignister))
+            if (Bot.HasInHand(CardId.Backup_Ignister) || !Count.CheckCard(CardId.Backup_Ignister))
                 return false;
             if (Bot.GetMonsters().Any(i => i.IsFaceup() && i.Level <= 4 && i.HasRace(CardRace.Cyberse))
                     && Bot.GetMonsterCount() == 3 && Count.CheckCard(CardId.Backup_Ignister) && Bot.Hand.Count > 0
