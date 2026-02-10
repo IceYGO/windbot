@@ -88,6 +88,25 @@
         HarmonicSynchroFusion = 7473735,
         SouloftheSupremeCelestialKing = 76840111,
         MelodiousConcerto = 31458630,
-        MementotlanFusion = 66518509
+        MementotlanFusion = 66518509,
+        TheHallowedAzamina = 94845588,
+        AzaminaDebtors = 20934683,
+        AzaminaDetermination = 42201897,
+        HeavyPolymerization = 58570206,
+        DoubleFusion = 10218411,
+        DarkContact = 77124096,
+        GemKnightMasterDiamondDispersion = 25342956,
+        GemKnightDispersion = 24220368,
+        DracotailFaimena = 1498449,
+        DracotailMululu = 7375867,
+        KetuDracotail = 6153210,
+        RahuDracotail = 32548318,
+        ArtmagePowerPatron = 23829452,
+        ArtmageMasterworkSuccession = 37517035,
+        TeleportFusion = 36494597,
+        PrimiteFusion = 99161253,
+        TheGazeOfTimaeus = 22283204,
+        MutinyInTheSky = 71593652,
+        HuntingHorn = 55421040
     }
 }

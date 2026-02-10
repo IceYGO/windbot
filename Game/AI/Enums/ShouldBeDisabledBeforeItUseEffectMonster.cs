@@ -67,6 +67,12 @@
         GGolemRockHammer = 98875863,
         WishDragon = 64583600,
         ChaosWitch = 30327674,
-        FissioningMotherSpider = 34034150
+        FissioningMotherSpider = 34034150,
+        AncientGearStatue = 32762201,
+        SplittingPlanarian = 44175358,
+        TestBear = 62076252,
+        RescueHedgehog = 99742859,
+        SuperQuantalFairyZetan = 66646087,
+        LightWaterDragon = 82616239
     }
 }
