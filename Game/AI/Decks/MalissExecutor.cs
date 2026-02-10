@@ -59,6 +59,7 @@ namespace WindBot.Game.AI.Decks
             : base(ai, duel)
         {
             AddExecutor(ExecutorType.Repos, MonsterRepos);
+            AddExecutor(ExecutorType.GoToBattlePhase, GoToBattlePhase);
             AddExecutor(ExecutorType.Activate, CardId.Dimension_Shifter, Effect_Enemy_Turn);
             AddExecutor(ExecutorType.Activate, CardId.Mulcharmy_Fuwalos, Effect_Enemy_Turn);
             AddExecutor(ExecutorType.Activate, CardId.MaxxG, Effect_Enemy_Turn);
@@ -70,7 +71,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Haggard_Lizardose, Effect_Haggard_Lizardose);
             AddExecutor(ExecutorType.Activate, CardId.Splash_Mage);
             AddExecutor(ExecutorType.Activate, CardId.Cyberse_Wicckid);
-            AddExecutor(ExecutorType.Activate, CardId.Link_Decoder);
             AddExecutor(ExecutorType.Activate, CardId.Cyberse_Desavewurm);
             AddExecutor(ExecutorType.Activate, CardId.Transcode_Talker);
             AddExecutor(ExecutorType.Activate, CardId.Mereologic_Aggregator, Effect_Mereologic_Aggregator);
@@ -79,6 +79,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Maliss_White_Binder, Effect_Maliss_Link);
             AddExecutor(ExecutorType.Activate, CardId.Maliss_Red_Ransom, Effect_Maliss_Link);
             AddExecutor(ExecutorType.Activate, CardId.Maliss_Hearts_Crypter, Effect_Maliss_Hearts_Crypter);
+            AddExecutor(ExecutorType.Activate, CardId.Link_Decoder);
             
             AddExecutor(ExecutorType.Summon, CardId.Maliss_Dormouse, Summon_Maliss_Dormouse);
             AddExecutor(ExecutorType.Summon, CardId.Maliss_White_Rabbit, Summon_Maliss_White_Rabbit);
@@ -797,6 +798,11 @@ namespace WindBot.Game.AI.Decks
         }
         private bool MonsterRepos()
         {
+            if (!Enemy.GetMonsters().Any(i => i.IsDefense())
+                && Util.GetTotalAttackingMonsterAttack(0) + Card.Attack >= Enemy.LifePoints + Util.GetTotalAttackingMonsterAttack(1)
+                && Card.IsDefense()
+            )
+                return true;
             return Card.IsFacedown();
         }
         private bool SpellSet()
@@ -1458,6 +1464,17 @@ namespace WindBot.Game.AI.Decks
         private bool Effect_Wizard_Ignister()
         {
             return Card.Location == CardLocation.Hand;
+        }
+        private bool GoToBattlePhase()
+        {           
+            if (!Enemy.GetMonsters().Any(i => i.IsDefense()))
+            {
+                if (Util.GetTotalAttackingMonsterAttack(0) >= Enemy.LifePoints + Util.GetTotalAttackingMonsterAttack(1))
+                {                   
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
