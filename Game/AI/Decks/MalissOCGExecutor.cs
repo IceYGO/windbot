@@ -10,7 +10,7 @@ using WindBot.Game.AI;
 namespace WindBot.Game.AI.Decks
 {
     [Deck("MalissOCG", "AI_MalissOCG")]
-    public class MalissExecutor : DefaultExecutor
+    public class MalissOCGExecutor : DefaultExecutor
     {
         public class SetCode
         {
@@ -55,7 +55,7 @@ namespace WindBot.Game.AI.Decks
         }
 
         public CardCount Count = new CardCount();
-        public MalissExecutor(GameAI ai, Duel duel)
+        public MalissOCGExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
             AddExecutor(ExecutorType.Repos, MonsterRepos);
