@@ -1909,12 +1909,12 @@ namespace WindBot.Game.AI.Decks
             {
                 discards.AddRange(candidates.Where(c => c.Id == CardId.MalissP_Dormouse));
             }
-            IEnumerable<ClientCard> OthersExcludingTarget()
+            Func<IEnumerable<ClientCard>> OthersExcludingTarget = () =>
             {
                 if (searchId == CardId.MalissP_MarchHare)
                     return candidates.Where(c => c.Id != CardId.MalissP_MarchHare);
                 return candidates;
-            }
+            };
             var othersExcludingTarget = OthersExcludingTarget().ToList();
             var dupGroups = othersExcludingTarget.GroupBy(c => c.Id)
                                                  .Where(g => g.Count() >= 2);
@@ -3173,12 +3173,12 @@ namespace WindBot.Game.AI.Decks
 
             var avoid = new HashSet<int>(avoidIds ?? Enumerable.Empty<int>());
 
-            List<ClientCard> OrderForFirst(IEnumerable<ClientCard> src) => src.OrderByDescending(LinkValOf)
+            Func<IEnumerable<ClientCard>, List<ClientCard>> OrderForFirst = (src) => src.OrderByDescending(LinkValOf)
                                                                               .ThenBy(m => avoid.Contains(m.Id) ? 1 : 0)
                                                                               .ThenBy(m => m.Attack)
                                                                               .ToList();
 
-            List<ClientCard> OrderForLater(IEnumerable<ClientCard> src) => src.OrderBy(m => IsOneVal(m) ? 0 : 1)
+            Func<IEnumerable<ClientCard>, List<ClientCard>> OrderForLater = (src) => src.OrderBy(m => IsOneVal(m) ? 0 : 1)
                                                                                .ThenBy(m => m.HasType(CardType.Link) ? (Math.Max(1, m.LinkCount) == 1 ? 0 : 1) : -1)
                                                                                .ThenBy(LinkValOf)
                                                                                .ThenBy(m => avoid.Contains(m.Id) ? 1 : 0)
@@ -3190,10 +3190,11 @@ namespace WindBot.Game.AI.Decks
 
             int firstMaxAllowed = targetLink - Math.Max(0, minCount - 1);
 
-            List<ClientCard> TryPick(List<ClientCard> pool)
+            Func<List<ClientCard>, List<ClientCard>> TryPick = (pool) =>
             {
                 var chosen = new List<ClientCard>();
-                bool Dfs(List<ClientCard> avail, int sum)
+                Func<List<ClientCard>, int, bool> Dfs = null;
+                Dfs = (avail, sum) =>
                 {
                     if (sum > targetLink || chosen.Count > maxCount) return false;
 
@@ -3235,11 +3236,11 @@ namespace WindBot.Game.AI.Decks
                         }
                     }
                     return false;
-                }
+                };
 
                 if (Dfs(OrderForFirst(pool), 0)) return chosen;
                 return null;
-            }
+            };
 
             var pick = TryPick(poolPreferred);
             if (pick != null && pick.Count > 0) return pick;
