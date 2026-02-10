@@ -88,6 +88,7 @@
     <Compile Include="Game\AI\Decks\DogmatikaExecutor.cs" />
     <Compile Include="Game\AI\Decks\OrcustExecutor.cs" />
     <Compile Include="Game\AI\Decks\SkyStrikerExecutor.cs" />
+    <Compile Include="Game\AI\Decks\MalissOCGExecutor.cs" />
     <Compile Include="Game\AI\Decks\MokeyMokeyKingExecutor.cs" />
     <Compile Include="Game\AI\Decks\MokeyMokeyExecutor.cs" />
     <Compile Include="Game\AI\Decks\TearlamentsExecutor.cs" />
