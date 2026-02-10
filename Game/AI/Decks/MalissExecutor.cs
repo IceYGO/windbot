@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WindBot;
@@ -3163,8 +3163,8 @@ namespace WindBot.Game.AI.Decks
                                                         IEnumerable<int> avoidIds = null,
                                                         bool requireMaliss = false)
         {
-            int LinkValOf(ClientCard m) => m.HasType(CardType.Link) ? Math.Max(1, m.LinkCount) : 1;
-            bool IsOneVal(ClientCard m) => !m.HasType(CardType.Link) || Math.Max(1, m.LinkCount) == 1;
+            Func<ClientCard, int> LinkValOf = m => m.HasType(CardType.Link) ? Math.Max(1, m.LinkCount) : 1;
+            Func<ClientCard, bool> IsOneVal = m => !m.HasType(CardType.Link) || Math.Max(1, m.LinkCount) == 1;
 
             var all = Bot.GetMonsters()
                          .Where(m => m != null && m.IsFaceup() && isEligible(m))
@@ -3292,7 +3292,7 @@ namespace WindBot.Game.AI.Decks
                           .ToList();
             if (cand.Count < 3) return false;
 
-            bool IsMaliss(ClientCard m) => m.HasSetcode(0x1bf);
+            Func<ClientCard, bool> IsMaliss = m => m.HasSetcode(0x1bf);
 
             var avoid = new HashSet<int> { CardId.CyberseWicckid, CardId.Apollousa, CardId.AlliedCodeTalkerIgnister, CardId.AccesscodeTalker, CardId.FirewallDragon, CardId.TranscodeTalker };
 
@@ -3370,7 +3370,7 @@ namespace WindBot.Game.AI.Decks
                         .ToList();
             if (cand.Count == 0) return null;
 
-            int Score(ClientCard c)
+            Func<ClientCard, int> Score = c =>
             {
                 if (c.IsCode(CardId.MalissInTheMirror)) return 100;
                 if (c.IsCode(CardId.MalissC_MTP07)) return 95;
@@ -3381,7 +3381,7 @@ namespace WindBot.Game.AI.Decks
                 if (c.IsCode(CardId.MalissP_WhiteRabbit)) return 70;
                 if (c.IsCode(CardId.MalissP_Dormouse)) return 65;
                 return 50;
-            }
+            };
             return cand.OrderByDescending(Score).First();
         }
         private bool HC_OnBanished_SpecialSummon()
