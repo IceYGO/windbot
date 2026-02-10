@@ -443,6 +443,35 @@ namespace WindBot.Game.AI.Decks
             mask &= 0x1F;
             return mask;
         }
+
+        private int LinkValOf(ClientCard c)
+        {
+            return c.HasType(CardType.Link) ? Math.Max(1, c.LinkCount) : 1;
+        }
+
+        private bool IsOneVal(ClientCard c)
+        {
+            return !c.HasType(CardType.Link) || Math.Max(1, c.LinkCount) == 1;
+        }
+
+        private bool IsMaliss(ClientCard c)
+        {
+            return c.HasSetcode(0x1bf);
+        }
+
+        private int ScoreForBanishedMaliss(ClientCard c)
+        {
+            if (c.IsCode(CardId.MalissInTheMirror)) return 100;
+            if (c.IsCode(CardId.MalissC_MTP07)) return 95;
+            if (c.IsCode(CardId.MalissC_GWC06)) return 90;
+            if (c.IsCode(CardId.MalissInUnderground)) return 85;
+            if (c.IsCode(CardId.MalissP_MarchHare)) return 80;
+            if (c.IsCode(CardId.MalissP_ChessyCat)) return 75;
+            if (c.IsCode(CardId.MalissP_WhiteRabbit)) return 70;
+            if (c.IsCode(CardId.MalissP_Dormouse)) return 65;
+            return 50;
+        }
+
         public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
             if (player == 0 && location == CardLocation.MonsterZone)
@@ -3163,9 +3192,6 @@ namespace WindBot.Game.AI.Decks
                                                         IEnumerable<int> avoidIds = null,
                                                         bool requireMaliss = false)
         {
-            int LinkValOf(ClientCard m) => m.HasType(CardType.Link) ? Math.Max(1, m.LinkCount) : 1;
-            bool IsOneVal(ClientCard m) => !m.HasType(CardType.Link) || Math.Max(1, m.LinkCount) == 1;
-
             var all = Bot.GetMonsters()
                          .Where(m => m != null && m.IsFaceup() && isEligible(m))
                          .ToList();
@@ -3292,8 +3318,6 @@ namespace WindBot.Game.AI.Decks
                           .ToList();
             if (cand.Count < 3) return false;
 
-            bool IsMaliss(ClientCard m) => m.HasSetcode(0x1bf);
-
             var avoid = new HashSet<int> { CardId.CyberseWicckid, CardId.Apollousa, CardId.AlliedCodeTalkerIgnister, CardId.AccesscodeTalker, CardId.FirewallDragon, CardId.TranscodeTalker };
 
             var ordered = cand
@@ -3370,19 +3394,7 @@ namespace WindBot.Game.AI.Decks
                         .ToList();
             if (cand.Count == 0) return null;
 
-            int Score(ClientCard c)
-            {
-                if (c.IsCode(CardId.MalissInTheMirror)) return 100;
-                if (c.IsCode(CardId.MalissC_MTP07)) return 95;
-                if (c.IsCode(CardId.MalissC_GWC06)) return 90;
-                if (c.IsCode(CardId.MalissInUnderground)) return 85;
-                if (c.IsCode(CardId.MalissP_MarchHare)) return 80;
-                if (c.IsCode(CardId.MalissP_ChessyCat)) return 75;
-                if (c.IsCode(CardId.MalissP_WhiteRabbit)) return 70;
-                if (c.IsCode(CardId.MalissP_Dormouse)) return 65;
-                return 50;
-            }
-            return cand.OrderByDescending(Score).First();
+            return cand.OrderByDescending(ScoreForBanishedMaliss).First();
         }
         private bool HC_OnBanished_SpecialSummon()
         {
