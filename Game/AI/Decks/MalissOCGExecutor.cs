@@ -205,6 +205,13 @@ namespace WindBot.Game.AI.Decks
                 return Summon == 0;
             }
         }
+
+        private struct ZoneData
+        {
+            public int Zone;
+            public ClientCard[] CheckZone;
+        }
+
         public override void OnNewTurn()
         {
             Count.AddPhase();
@@ -276,29 +283,35 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (cardId == CardId.Allied_Code_Talker_Ignister)
                 {
-                    var zones = new Dictionary<(int zone, ClientCard[] chk_zone), int>();
-                    var updates = new Dictionary<(int zone, ClientCard[] chk_zone), int>();
-                    zones[(Zones.z0, new ClientCard[] { Bot.MonsterZone[1] })] = 0;
-                    zones[(Zones.z1, new ClientCard[] { Bot.MonsterZone[0], Bot.MonsterZone[2] })] = 0;
-                    zones[(Zones.z2, new ClientCard[] { Bot.MonsterZone[1], Bot.MonsterZone[3] })] = 0;
-                    zones[(Zones.z3, new ClientCard[] { Bot.MonsterZone[2], Bot.MonsterZone[4] })] = 0;
-                    zones[(Zones.z4, new ClientCard[] { Bot.MonsterZone[3] })] = 0;
-                    zones[(Zones.z5, new ClientCard[] { Bot.MonsterZone[0], Bot.MonsterZone[1], Bot.MonsterZone[2] })] = 0;
-                    zones[(Zones.z6, new ClientCard[] { Bot.MonsterZone[2], Bot.MonsterZone[3], Bot.MonsterZone[4] })] = 0;
-                    foreach (var entry in zones)
+                    ZoneData[] zoneData = new ZoneData[] {
+                        new ZoneData { Zone = Zones.z0, CheckZone = new ClientCard[] { Bot.MonsterZone[1] } },
+                        new ZoneData { Zone = Zones.z1, CheckZone = new ClientCard[] { Bot.MonsterZone[0], Bot.MonsterZone[2] } },
+                        new ZoneData { Zone = Zones.z2, CheckZone = new ClientCard[] { Bot.MonsterZone[1], Bot.MonsterZone[3] } },
+                        new ZoneData { Zone = Zones.z3, CheckZone = new ClientCard[] { Bot.MonsterZone[2], Bot.MonsterZone[4] } },
+                        new ZoneData { Zone = Zones.z4, CheckZone = new ClientCard[] { Bot.MonsterZone[3] } },
+                        new ZoneData { Zone = Zones.z5, CheckZone = new ClientCard[] { Bot.MonsterZone[0], Bot.MonsterZone[1], Bot.MonsterZone[2] } },
+                        new ZoneData { Zone = Zones.z6, CheckZone = new ClientCard[] { Bot.MonsterZone[2], Bot.MonsterZone[3], Bot.MonsterZone[4] } }
+                    };
+
+                    int maxNullCount = -1;
+                    int selectedZone = 0;
+
+                    foreach (ZoneData data in zoneData)
                     {
-                        if ((entry.Key.zone & available) == 0)
+                        if ((data.Zone & available) == 0)
                             continue;
                         
-                        ClientCard[] checkZone = entry.Key.chk_zone;
-                        int nullCount = checkZone.Count(card => card == null);
-                        updates[entry.Key] = nullCount;
+                        int nullCount = data.CheckZone.Count(card => card == null);
+                        if (nullCount > maxNullCount)
+                        {
+                            maxNullCount = nullCount;
+                            selectedZone = data.Zone;
+                        }
                     }
-                    var maxEntry = updates.OrderByDescending(entry => entry.Value).FirstOrDefault();
-                    if (maxEntry.Key != default)
+
+                    if (maxNullCount >= 0)
                     {
-                        var (zone, checkZone) = maxEntry.Key;
-                        return zone;
+                        return selectedZone;
                     }
                 }
                 if ((Zones.z6 & available) > 0) return Zones.z6;
