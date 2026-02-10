@@ -9,7 +9,7 @@ using WindBot.Game.AI;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Maliss", "AI_Maliss")]
+    [Deck("MalissOCG", "AI_MalissOCG")]
     public class MalissExecutor : DefaultExecutor
     {
         public class SetCode
