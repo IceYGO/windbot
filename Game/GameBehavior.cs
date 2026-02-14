@@ -364,6 +364,11 @@ namespace WindBot.Game
             {
                 _ai.OnReceivingAnnouce(player, data);
             }
+            if (type == 11) // HINT_ZONE
+            {
+                Logger.DebugWriteLine("HINT_ZONE received: player=" + player + ", zone=" + data);
+                _ai.OnHintZone(player, data);
+            }
         }
 
         private void OnStart(BinaryReader packet)

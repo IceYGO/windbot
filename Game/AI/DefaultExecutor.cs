@@ -255,6 +255,8 @@ namespace WindBot.Game.AI
         protected int lightningStormOption = -1;
         Dictionary<int, int> calledbytheGraveIdCountMap = new Dictionary<int, int>();
         List<int> crossoutDesignatorIdList = new List<int>();
+        /// <summary>Columns 0-4 on Bot's field negated by Infinite Impermanence (enemy's col converted to ours: 4-col). Cleared at turn start.</summary>
+        protected List<int> infiniteImpermanenceNegatedColumns = new List<int>();
 
         /// <summary>
         /// Defined:
@@ -590,6 +592,30 @@ namespace WindBot.Game.AI
                 field.HintDescriptions.Remove(description);
         }
 
+        public override void OnHintZone(int player, int zone)
+        {
+            base.OnHintZone(player, zone);
+            ChainInfo currentChainInfo = Duel.GetCurrentSolvingChainInfo();
+            if (currentChainInfo != null) {
+                if (currentChainInfo.IsCode(_CardId.InfiniteImpermanence)) {
+                    // Zone bit mapping: 0x100=col0, 0x200=col1, 0x400=col2, 0x800=col3, 0x1000=col4.
+                    for (int i = 0; i <= 4; i++)
+                    {
+                        if ((zone & (0x100 << i)) == 0)
+                            continue;
+                        if (currentChainInfo.ActivatePlayer == 0)
+                        {
+                            infiniteImpermanenceNegatedColumns.Add(i);
+                        }
+                        else
+                        {
+                            infiniteImpermanenceNegatedColumns.Add(4 - i);
+                        }
+                    }
+                }
+            }
+        }
+
         public override void OnReceivingAnnouce(int player, int data)
         {
             if (player == 1 && data == Util.GetStringId(_CardId.LightningStorm, 0) || data == Util.GetStringId(_CardId.LightningStorm, 1))
@@ -611,6 +637,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public override void OnNewTurn()
         {
+            infiniteImpermanenceNegatedColumns.Clear();
             if (Duel.Turn <= 1) calledbytheGraveIdCountMap.Clear();
             List<int> keyList = calledbytheGraveIdCountMap.Keys.ToList();
             foreach (int dic in keyList)

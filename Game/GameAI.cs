@@ -197,6 +197,16 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when a zone hint is received.
+        /// </summary>
+        /// <param name="player">Player index.</param>
+        /// <param name="zone">Zone data (hinted zones, bit field).</param>
+        public void OnHintZone(int player, int zone)
+        {
+            Executor.OnHintZone(player, zone);
+        }
+
+        /// <summary>
         /// Called when receiving annouce
         /// </summary>
         /// <param name="player">Player who announce.</param>

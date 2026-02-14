@@ -132,6 +132,16 @@ namespace WindBot.Game.AI
             // For overriding
         }
 
+        /// <summary>
+        /// Called when a zone hint is received.
+        /// </summary>
+        /// <param name="player">Player index.</param>
+        /// <param name="zone">Zone data (hinted zones, bit field).</param>
+        public virtual void OnHintZone(int player, int zone)
+        {
+            // For overriding
+        }
+
         public virtual void OnMove(ClientCard card, int previousControler, int previousLocation, int currentControler, int currentLocation)
         {
             // Some AI need do something on card's moving
