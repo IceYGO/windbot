@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
@@ -576,6 +576,18 @@ namespace WindBot.Game.AI
             }
 
             return null;
+        }
+
+        public override void OnPlayerHint(int player, int hintType, int description)
+        {
+            base.OnPlayerHint(player, hintType, description);
+            if (player != 0 && player != 1)
+                return;
+            ClientField field = (player == 0) ? Bot : Enemy;
+            if (hintType == (int)PlayerHintType.DescAdd)
+                field.HintDescriptions.Add(description);
+            else if (hintType == (int)PlayerHintType.DescRemove)
+                field.HintDescriptions.Remove(description);
         }
 
         public override void OnReceivingAnnouce(int player, int data)

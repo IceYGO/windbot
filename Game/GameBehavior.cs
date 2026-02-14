@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -151,6 +151,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.FlipSummoning, OnSummoning);
             _messages.Add(GameMessage.FlipSummoned, OnSummoned);
             _messages.Add(GameMessage.ConfirmCards, OnConfirmCards);
+            _messages.Add(GameMessage.PlayerHint, OnPlayerHint);
         }
 
         private void OnJoinGame(BinaryReader packet)
@@ -2014,6 +2015,19 @@ namespace WindBot.Game
                 if (_debug)
                     Logger.WriteLine("(Confirm " + player.ToString() + "'s " + (CardLocation)loc + " card: " + (card.Name ?? "UnKnowCard") + ")");
             }
+        }
+
+        /// <summary>
+        /// Handles PlayerHint message. Protocol: player(buffer8), hintType(buffer8), description(buffer32).
+        /// hintType values: PlayerHintType (e.g. PHINT_DESC_ADD=6, PHINT_DESC_REMOVE=7).
+        /// </summary>
+        private void OnPlayerHint(BinaryReader packet)
+        {
+            int player = packet.ReadByte();
+            int hintType = packet.ReadByte();
+            int description = packet.ReadInt32();
+            Logger.DebugWriteLine("PlayerHint received: player=" + player + ", hintType=" + hintType + " (" + (PlayerHintType)hintType + "), description=" + description);
+            _ai.OnPlayerHint(player, hintType, description);
         }
     }
 }
