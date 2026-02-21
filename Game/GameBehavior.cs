@@ -2028,7 +2028,7 @@ namespace WindBot.Game
         /// </summary>
         private void OnPlayerHint(BinaryReader packet)
         {
-            int player = packet.ReadByte();
+            int player = GetLocalPlayer(packet.ReadByte());
             int hintType = packet.ReadByte();
             int description = packet.ReadInt32();
             Logger.DebugWriteLine("PlayerHint received: player=" + player + ", hintType=" + hintType + " (" + (PlayerHintType)hintType + "), description=" + description);
