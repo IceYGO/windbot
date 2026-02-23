@@ -224,6 +224,8 @@ namespace WindBot.Game.AI
             public const int EarthboundImmortal = 0x1021;
             public const int Naturia = 0x2a;
             public const int Nordic = 0x42;
+            public const int TimeLord = 0x4a;
+
             public const int Harpie = 0x64;
             public const int Madolche = 0x71;
             public const int Ghostrick = 0x8d;
@@ -1691,6 +1693,44 @@ namespace WindBot.Game.AI
                 }
             }
             return false;
+        }
+
+        /// <summary>
+        /// Check whether all available spell columns are negated.
+        /// </summary>
+        /// <returns></returns>
+        protected bool DefaultCheckAllAvailableSpellColumnNegated()
+        {
+            for (int i = 0; i < 5; i++) {
+                // occupied
+                if (Bot.SpellZone[i] != null) {
+                    continue;
+                }
+                // negated
+                if (infiniteImpermanenceNegatedColumns.Contains(i)) {
+                    continue;
+                }
+                // have empty column that's not negated
+                return false;
+            }
+            // all columns are negated
+            return true;
+        }
+
+        /// <summary>
+        /// Check whether the spells will be negated.
+        /// </summary>
+        /// <param name="card"></param>
+        /// <returns></returns>
+        protected bool DefaultCheckWhetherSpellActivateWillBeNegated(ClientCard card)
+        {
+            if (card == null) return false;
+            if (card.Location == CardLocation.SpellZone)
+            {
+                return infiniteImpermanenceNegatedColumns.Contains(card.Sequence);
+            }
+            // check whether will be negated by Infinite Impermanence
+            return DefaultCheckAllAvailableSpellColumnNegated();
         }
     }
 }
