@@ -143,6 +143,11 @@ namespace WindBot.Game.AI
             public const int VaylantzWorld_KonigWissen = 75952542;
             public const int DivineArsenalAAZEUS_SkyThunder = 90448279;
             public const int LightningStorm = 14532163;
+            public const int MistakenArrest = 4227096;
+            public const int ThunderKingRaiOh = 71564252;
+            public const int ThunderDragonColossus = 15291624;
+            public const int DeckLockdown = 1149109;
+            public const int DoomZDestruction = 80320877;
 
             public const int BelialMarquisOfDarkness = 33655493;
             public const int ChirubiméPrincessOfAutumnLeaves = 87294988;
@@ -257,6 +262,16 @@ namespace WindBot.Game.AI
         protected int lightningStormOption = -1;
         Dictionary<int, int> calledbytheGraveIdCountMap = new Dictionary<int, int>();
         List<int> crossoutDesignatorIdList = new List<int>();
+        int mistakenArrestAffectedCount = 0;
+        /// <summary>
+        /// List of effect IDs that have been resolved this turn.
+        /// </summary>
+        protected List<int> resolvedEffectIdList = new List<int>();
+        /// <summary>
+        /// List of effect IDs that have been resolved by enemy this turn.
+        /// </summary>
+        protected List<int> enemyResolvedEffectIdList = new List<int>();
+
         /// <summary>Columns 0-4 on Bot's field negated by Infinite Impermanence (enemy's col converted to ours: 4-col). Cleared at turn start.</summary>
         protected List<int> infiniteImpermanenceNegatedColumns = new List<int>();
 
@@ -628,6 +643,39 @@ namespace WindBot.Game.AI
             base.OnReceivingAnnouce(player, data);
         }
 
+        public override void OnChainSolved(int chainIndex)
+        {
+            ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentChain != null && !Duel.IsCurrentSolvingChainNegated())
+            {
+                if (currentChain.IsActivateCode(_CardId.LockBird))
+                {
+                    resolvedEffectIdList.Add(_CardId.LockBird);
+                }
+                if (currentChain.ActivatePlayer == 1)
+                {
+                    if (currentChain.IsActivateCode(_CardId.MaxxC))
+                        enemyResolvedEffectIdList.Add(_CardId.MaxxC);
+                    if (currentChain.IsActivateCode(_CardId.MulcharmyPurulia))
+                        enemyResolvedEffectIdList.Add(_CardId.MulcharmyPurulia);
+                    if (currentChain.IsActivateCode(_CardId.MulcharmyFuwalos))
+                        enemyResolvedEffectIdList.Add(_CardId.MulcharmyFuwalos);
+                    if (currentChain.IsActivateCode(_CardId.MulcharmyNyalus))
+                        enemyResolvedEffectIdList.Add(_CardId.MulcharmyNyalus);
+                    if (currentChain.IsActivateCode(_CardId.MistakenArrest))
+                    {
+                        if (Duel.Player == 1)
+                        {
+                            mistakenArrestAffectedCount = Math.Max(mistakenArrestAffectedCount, 3);
+                        } else
+                        {
+                            mistakenArrestAffectedCount = Math.Max(mistakenArrestAffectedCount, 2);
+                        }
+                    }
+                }
+            }
+        }
+
         public override void OnChainEnd()
         {
             lightningStormOption = -1;
@@ -640,7 +688,14 @@ namespace WindBot.Game.AI
         public override void OnNewTurn()
         {
             infiniteImpermanenceNegatedColumns.Clear();
-            if (Duel.Turn <= 1) calledbytheGraveIdCountMap.Clear();
+            resolvedEffectIdList.Clear();
+            enemyResolvedEffectIdList.Clear();
+            if (Duel.Turn <= 1)
+            {
+                calledbytheGraveIdCountMap.Clear();
+                mistakenArrestAffectedCount = 0;
+            }
+            mistakenArrestAffectedCount = Math.Max(mistakenArrestAffectedCount - 1, 0);
             List<int> keyList = calledbytheGraveIdCountMap.Keys.ToList();
             foreach (int dic in keyList)
             {
@@ -1731,6 +1786,38 @@ namespace WindBot.Game.AI
             }
             // check whether will be negated by Infinite Impermanence
             return DefaultCheckAllAvailableSpellColumnNegated();
+        }
+
+        /// <summary>
+        /// Check whether bot can search cards from deck.
+        /// </summary>
+        /// <returns></returns>
+        protected bool DefaultCheckWhetherBotCanSearch()
+        {
+            if (resolvedEffectIdList.Contains(_CardId.LockBird))
+                return false;
+            if (mistakenArrestAffectedCount > 0)
+                return false;
+            if (Bot.HasInMonstersZone(_CardId.ThunderKingRaiOh, notDisabled: true, faceUp: true) || Enemy.HasInMonstersZone(_CardId.ThunderKingRaiOh, notDisabled: true, faceUp: true))
+                return false;
+            if (Enemy.HasInMonstersZone(_CardId.ThunderDragonColossus))
+                return false;
+            if (Bot.HasInSpellZone(_CardId.DeckLockdown, notDisabled: true, faceUp: true) || Enemy.HasInSpellZone(_CardId.DeckLockdown, notDisabled: true, faceUp: true))
+                return false;
+            if (Enemy.HasInSpellZone(_CardId.DoomZDestruction, notDisabled: true, faceUp: true))
+                return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Check whether enemy can draw cards.
+        /// </summary>
+        /// <returns></returns>
+        protected bool DefaultCheckWhetherEnemyCanDraw()
+        {
+            if (resolvedEffectIdList.Contains(_CardId.LockBird))
+                return false;
+            return true;
         }
     }
 }

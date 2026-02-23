@@ -123,12 +123,7 @@ namespace WindBot.Game.AI.Decks
 
         int maxSummonCount = 1;
         int summonCount = 1;
-        bool enemyActivateMaxxC = false;
-        int enemyActivatePuruliaCount = 0;
-        int enemyActivateFuwalosCount = 0;
-        int enemyActivateNyalusCount = 0;
         bool enemyActivateMonsterEffectFromHandGrave = false;
-        bool lockBirdSolved = false;
         int dimensionShifterCount = 0;
         int songsOfTheDominatorsResolvedCount = 0;
         bool activatingLodeSpSummonEffect = false;
@@ -337,7 +332,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CheckShouldNoMoreSpSummon()
         {
-            if (CheckAtAdvantage() && enemyActivateMaxxC && !lockBirdSolved && (Duel.Turn == 1 || Duel.Phase >= DuelPhase.Main2))
+            if (CheckAtAdvantage() && enemyResolvedEffectIdList.Contains(_CardId.MaxxC) && !DefaultCheckWhetherBotCanSearch() && (Duel.Turn == 1 || Duel.Phase >= DuelPhase.Main2))
             {
                 return true;
             }
@@ -347,10 +342,10 @@ namespace WindBot.Game.AI.Decks
         public bool CheckShouldNoMoreSpSummon(CardLocation loc)
         {
             if (CheckShouldNoMoreSpSummon()) return true;
-            if (lockBirdSolved || (Duel.Turn > 1 && Duel.Phase < DuelPhase.Main2)) return false;
-            if (enemyActivatePuruliaCount > 0 && (loc & CardLocation.Hand) != 0) return true;
-            if (enemyActivateFuwalosCount > 0 && (loc & (CardLocation.Deck | CardLocation.Extra)) != 0) return true;
-            if (enemyActivateNyalusCount > 0 && (loc & (CardLocation.Grave | CardLocation.Removed)) != 0) return true;
+            if (DefaultCheckWhetherBotCanSearch() || (Duel.Turn > 1 && Duel.Phase < DuelPhase.Main2)) return false;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyPurulia) && (loc & CardLocation.Hand) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyFuwalos) && (loc & (CardLocation.Deck | CardLocation.Extra)) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyNyalus) && (loc & (CardLocation.Grave | CardLocation.Removed)) != 0) return true;
 
             return false;
         }
@@ -577,26 +572,26 @@ namespace WindBot.Game.AI.Decks
         public int GetSpecialSummonDrawCount(CardLocation loc)
         {
             int res = 0;
-            if (lockBirdSolved)
+            if (DefaultCheckWhetherBotCanSearch())
             {
                 return 0;
             }
-            if (enemyActivateMaxxC)
+            if (enemyResolvedEffectIdList.Contains(_CardId.MaxxC))
             {
                 res++;
             }
             
             if ((loc & CardLocation.Hand) != 0)
             {
-                res += enemyActivatePuruliaCount;
+                res += enemyResolvedEffectIdList.Count(id => id == _CardId.MulcharmyPurulia);
             }
             if ((loc & (CardLocation.Deck | CardLocation.Extra)) != 0)
             {
-                res += enemyActivateFuwalosCount;
+                res += enemyResolvedEffectIdList.Count(id => id == _CardId.MulcharmyFuwalos);
             }
             if ((loc & (CardLocation.Grave | CardLocation.Removed)) != 0)
             {
-                res += enemyActivateNyalusCount;
+                res += enemyResolvedEffectIdList.Count(id => id == _CardId.MulcharmyNyalus);
             }
 
             return res;
@@ -965,7 +960,7 @@ namespace WindBot.Game.AI.Decks
                             if (hint == HintMsg.Set)
                             {
                                 int targetId = CardId.PrimiteLordlyLode;
-                                if (activatedCardIdList.Contains(CardId.PrimiteLordlyLode) || lockBirdSolved || Bot.HasInSpellZone(CardId.PrimiteLordlyLode))
+                                if (activatedCardIdList.Contains(CardId.PrimiteLordlyLode) || DefaultCheckWhetherBotCanSearch() || Bot.HasInSpellZone(CardId.PrimiteLordlyLode))
                                 {
                                     targetId = CardId.PrimiteDrillbeam;
                                 }
@@ -1406,14 +1401,9 @@ namespace WindBot.Game.AI.Decks
             }
 
             summonCount = maxSummonCount;
-            enemyActivateMaxxC = false;
-            enemyActivatePuruliaCount = 0;
-            enemyActivateFuwalosCount = 0;
-            enemyActivateNyalusCount = 0;
             enemyActivateMonsterEffectFromHandGrave = false;
             anubisTheLastJudgeSpSummoningStep = 0;
             SPLittleKnightRemoveStep = 0;
-            lockBirdSolved = false;
             activatingLodeSpSummonEffect = false;
             lodeSpSummonEffectResolved = false;
             songsOfTheDominatorsActivatedFromHand = false;
@@ -1427,6 +1417,7 @@ namespace WindBot.Game.AI.Decks
             activatedDivineSerpent1stList.Clear();
             activatedDivineSerpent2ndList.Clear();
             currentSummoningCount = 0;
+
             base.OnNewTurn();
         }
 
@@ -1489,21 +1480,8 @@ namespace WindBot.Game.AI.Decks
                                 break;
                         }
                     }
-                    if (currentChain.IsCode(_CardId.LockBird))
-                        lockBirdSolved = true;
-                    if (currentChain.IsCode(_CardId.DimensionShifter))
+                    if (currentChain.IsActivateCode(_CardId.DimensionShifter))
                         dimensionShifterCount = 2;
-                    if (currentChain.ActivatePlayer == 1)
-                    {
-                        if (currentChain.IsCode(_CardId.MaxxC))
-                            enemyActivateMaxxC = true;
-                        if (currentChain.IsCode(_CardId.MulcharmyPurulia))
-                            enemyActivatePuruliaCount++;
-                        if (currentChain.IsCode(_CardId.MulcharmyFuwalos))
-                            enemyActivateFuwalosCount++;
-                        if (currentChain.IsCode(_CardId.MulcharmyNyalus))
-                            enemyActivateNyalusCount++;
-                    }
                 }
             }
 
@@ -1705,7 +1683,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool TheManWithTheMarkActivate()
         {
-            return !CheckWhetherNegated() && !lockBirdSolved;
+            return !CheckWhetherNegated() && !DefaultCheckWhetherBotCanSearch();
         }
 
         public bool Level4MonsterSummon()
@@ -1716,7 +1694,7 @@ namespace WindBot.Game.AI.Decks
             }
             
             bool canSummonDragon = Bot.HasInHand(CardId.PrimiteDragonEtherBeryl);
-            if (!activatedCardIdList.Contains(CardId.PrimiteLordlyLode) && !lockBirdSolved)
+            if (!activatedCardIdList.Contains(CardId.PrimiteLordlyLode) && !DefaultCheckWhetherBotCanSearch())
             {
                 canSummonDragon |= Bot.HasInHand(CardId.PrimiteLordlyLode) && Bot.GetSpellCountWithoutField() < 5;
                 canSummonDragon |= Bot.GetSpells().Any(c => c.IsCode(CardId.PrimiteLordlyLode) && c.IsFacedown());
@@ -1746,8 +1724,8 @@ namespace WindBot.Game.AI.Decks
             }
 
             bool canSummonMan = Bot.HasInHand(CardId.TheManWithTheMark);
-            canSummonMan |= Bot.HasInHand(CardId.AnubisTheLastJudge) && !lockBirdSolved && CheckRemainInDeck(CardId.TheManWithTheMark) > 0 && !activatedCardIdList.Contains(CardId.AnubisTheLastJudge);
-            if (Bot.HasInHandOrInSpellZone(CardId.TreasuresOfTheKings) && !activatedCardIdList.Contains(CardId.TreasuresOfTheKings + 1) && !lockBirdSolved && CheckRemainInDeck(CardId.TheManWithTheMark) > 0)
+            canSummonMan |= Bot.HasInHand(CardId.AnubisTheLastJudge) && !DefaultCheckWhetherBotCanSearch() && CheckRemainInDeck(CardId.TheManWithTheMark) > 0 && !activatedCardIdList.Contains(CardId.AnubisTheLastJudge);
+            if (Bot.HasInHandOrInSpellZone(CardId.TreasuresOfTheKings) && !activatedCardIdList.Contains(CardId.TreasuresOfTheKings + 1) && !DefaultCheckWhetherBotCanSearch() && CheckRemainInDeck(CardId.TheManWithTheMark) > 0)
             {
                 canSummonMan |= Bot.Graveyard.Any(c => c.IsTrap());
                 int facedownCardCount = Bot.GetSpells().Count(c => c.IsFacedown());
@@ -1900,10 +1878,10 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInHandOrHasInMonstersZone(CardId.PrimiteDragonEtherBeryl))
             {
                 // for search drillbeam
-                activateFlag |= CheckRemainInDeck(CardId.PrimiteDrillbeam) > 0 && !lockBirdSolved;
-                activateFlag |= summonCount <= 0 && !lockBirdSolved && Card.Location == CardLocation.SpellZone && Card.IsFacedown();
+                activateFlag |= CheckRemainInDeck(CardId.PrimiteDrillbeam) > 0 && !DefaultCheckWhetherBotCanSearch();
+                activateFlag |= summonCount <= 0 && !DefaultCheckWhetherBotCanSearch() && Card.Location == CardLocation.SpellZone && Card.IsFacedown();
             }
-            if (summonCount > 0 && !Bot.HasInHand(CardId.PrimiteDragonEtherBeryl) && CheckRemainInDeck(CardId.PrimiteDragonEtherBeryl) > 0 && !lockBirdSolved)
+            if (summonCount > 0 && !Bot.HasInHand(CardId.PrimiteDragonEtherBeryl) && CheckRemainInDeck(CardId.PrimiteDragonEtherBeryl) > 0 && !DefaultCheckWhetherBotCanSearch())
             {
                 // for search ether beryl
                 activateFlag |= Bot.HasInGraveyard(CardId.PrimiteDrillbeam);
@@ -1912,7 +1890,7 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInSpellZone(CardId.PrimiteLordlyLode, true, true))
             {
                 // for activate it
-                activateFlag |= !lockBirdSolved;
+                activateFlag |= !DefaultCheckWhetherBotCanSearch();
 
                 // for special summon
                 CardLocation loc;
@@ -1939,7 +1917,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.Location == CardLocation.SpellZone && Card.IsFacedown())
             {
-                activateFlag |= !lockBirdSolved;
+                activateFlag |= !DefaultCheckWhetherBotCanSearch();
             }
             return activateFlag;
         }
@@ -1997,7 +1975,7 @@ namespace WindBot.Game.AI.Decks
             if (Bot.GetSpellCountWithoutField() == 5)
             {
                 // for search
-                if (lockBirdSolved || CheckRemainInDeck(CardId.TheManWithTheMark, CardId.AnubisTheLastJudge) == 0)
+                if (DefaultCheckWhetherBotCanSearch() || CheckRemainInDeck(CardId.TheManWithTheMark, CardId.AnubisTheLastJudge) == 0)
                 {
                     activateFlag = false;
                 }
@@ -2945,7 +2923,7 @@ namespace WindBot.Game.AI.Decks
                 switch (Card.Id)
                 {
                     case CardId.Terraforming:
-                        setFlag |= CheckRemainInDeck(CardId.TreasuresOfTheKings) > 0 && !lockBirdSolved;
+                        setFlag |= CheckRemainInDeck(CardId.TreasuresOfTheKings) > 0 && !DefaultCheckWhetherBotCanSearch();
                         break;
                     case CardId.PrimiteLordlyLode:
                         setFlag |= PrimiteLordlyLodeActivateCheck() && !canSetSpells.Any(c => c.IsCode(CardId.PrimiteLordlyLode));
