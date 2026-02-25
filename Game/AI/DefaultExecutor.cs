@@ -148,6 +148,7 @@ namespace WindBot.Game.AI
             public const int ThunderDragonColossus = 15291624;
             public const int DeckLockdown = 1149109;
             public const int DoomZDestruction = 80320877;
+            public const int Mistake = 59305593;
 
             public const int BelialMarquisOfDarkness = 33655493;
             public const int ChirubiméPrincessOfAutumnLeaves = 87294988;
@@ -1798,11 +1799,15 @@ namespace WindBot.Game.AI
                 return false;
             if (mistakenArrestAffectedCount > 0)
                 return false;
-            if (Bot.HasInMonstersZone(_CardId.ThunderKingRaiOh, notDisabled: true, faceUp: true) || Enemy.HasInMonstersZone(_CardId.ThunderKingRaiOh, notDisabled: true, faceUp: true))
+            if (Bot.HasInMonstersZone(_CardId.ThunderKingRaiOh, notDisabled: true, faceUp: true)
+                || Enemy.HasInMonstersZone(_CardId.ThunderKingRaiOh, notDisabled: true, faceUp: true))
                 return false;
             if (Enemy.HasInMonstersZone(_CardId.ThunderDragonColossus))
                 return false;
-            if (Bot.HasInSpellZone(_CardId.DeckLockdown, notDisabled: true, faceUp: true) || Enemy.HasInSpellZone(_CardId.DeckLockdown, notDisabled: true, faceUp: true))
+            if (Bot.HasInSpellZone(_CardId.DeckLockdown, notDisabled: true, faceUp: true)
+                || Enemy.HasInSpellZone(_CardId.DeckLockdown, notDisabled: true, faceUp: true)
+                || Bot.HasInSpellZone(_CardId.Mistake, notDisabled: true, faceUp: true)
+                || Enemy.HasInSpellZone(_CardId.Mistake, notDisabled: true, faceUp: true))
                 return false;
             if (Enemy.HasInSpellZone(_CardId.DoomZDestruction, notDisabled: true, faceUp: true))
                 return false;
