@@ -1,4 +1,4 @@
-﻿namespace WindBot.Game
+namespace WindBot.Game
 {
     public class BattlePhaseAction
     {

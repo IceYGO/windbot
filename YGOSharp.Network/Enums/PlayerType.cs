@@ -1,4 +1,4 @@
-﻿namespace YGOSharp.Network.Enums
+namespace YGOSharp.Network.Enums
 {
     public enum PlayerType
     {
