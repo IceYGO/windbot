@@ -12,6 +12,7 @@ namespace WindBot.Game
         public ClientCard RelatedCard { get; private set; }
         public int ActivatePlayer { get; private set; }
         public int ActivateId { get; private set; }
+        public int ActivateAlias { get; private set; }
         public int ActivateController { get; private set; }
         public int ActivatePosition { get; private set; }
         public int ActivateSequence { get; private set; }
@@ -35,6 +36,7 @@ namespace WindBot.Game
             RelatedCard = card;
             ActivatePlayer = player;
             ActivateId = card.Id;
+            ActivateAlias = card.Alias;
             ActivateController = card.Controller;
             ActivatePosition = card.Position;
             ActivateSequence = card.Sequence;
@@ -59,6 +61,11 @@ namespace WindBot.Game
         public bool HasLocation(CardLocation location)
         {
             return ((int)ActivateLocation & (int)location) != 0;
+        }
+
+        public bool IsActivateCode(int id)
+        {
+            return ActivateId == id || Math.Abs(ActivateAlias - ActivateId) <= 20 && ActivateAlias == id;
         }
 
         public bool IsCode(int id)

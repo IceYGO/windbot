@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
@@ -119,6 +119,27 @@ namespace WindBot.Game.AI
         public virtual void OnDraw(int player)
         {
             // Some AI need do something on draw
+        }
+
+        /// <summary>
+        /// Called when a PlayerHint is received (e.g. effect description add/remove; can be used to track "once per turn" usage).
+        /// </summary>
+        /// <param name="player">Player index</param>
+        /// <param name="hintType">Hint type, see PlayerHintType (DescAdd=6, DescRemove=7)</param>
+        /// <param name="description">Effect description id (peffect->description)</param>
+        public virtual void OnPlayerHint(int player, int hintType, int description)
+        {
+            // For overriding
+        }
+
+        /// <summary>
+        /// Called when a zone hint is received.
+        /// </summary>
+        /// <param name="player">Player index.</param>
+        /// <param name="zone">Zone data (hinted zones, bit field).</param>
+        public virtual void OnHintZone(int player, int zone)
+        {
+            // For overriding
         }
 
         public virtual void OnMove(ClientCard card, int previousControler, int previousLocation, int currentControler, int currentLocation)

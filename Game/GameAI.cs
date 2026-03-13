@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using WindBot.Game.AI;
@@ -183,6 +183,27 @@ namespace WindBot.Game
             m_selector_pointer = -1;
             Executor.OnChainEnd();
             CheckSurrender();
+        }
+
+        /// <summary>
+        /// Called when a PlayerHint message is received (e.g. effect description add/remove hints).
+        /// </summary>
+        /// <param name="player">Player index</param>
+        /// <param name="hintType">Hint type, see PlayerHintType (DescAdd=6, DescRemove=7)</param>
+        /// <param name="description">Effect description id (peffect->description)</param>
+        public void OnPlayerHint(int player, int hintType, int description)
+        {
+            Executor.OnPlayerHint(player, hintType, description);
+        }
+
+        /// <summary>
+        /// Called when a zone hint is received.
+        /// </summary>
+        /// <param name="player">Player index.</param>
+        /// <param name="zone">Zone data (hinted zones, bit field).</param>
+        public void OnHintZone(int player, int zone)
+        {
+            Executor.OnHintZone(player, zone);
         }
 
         /// <summary>
