@@ -1,4 +1,4 @@
-﻿namespace WindBot.Game.AI.Enums
+namespace WindBot.Game.AI.Enums
 {
     /// <summary>
     /// Monsters that release or banish itself to use effect. So them should be disabled (with Breakthrough Skill) before it use effect.

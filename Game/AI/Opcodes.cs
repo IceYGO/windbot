@@ -1,4 +1,4 @@
-﻿namespace WindBot.Game.AI
+namespace WindBot.Game.AI
 {
     public static class Opcodes
     {

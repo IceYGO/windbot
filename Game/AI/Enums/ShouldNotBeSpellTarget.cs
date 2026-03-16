@@ -1,4 +1,4 @@
-﻿namespace WindBot.Game.AI.Enums
+namespace WindBot.Game.AI.Enums
 {
     /// <summary>
     /// Cards that are can't be selected as target of spell&trap's effect, or immuned to spell&trap's effect.
