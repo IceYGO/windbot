@@ -1336,7 +1336,12 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == Util.GetStringId(CardId.Maliss_in_the_Mirror, 0))
             {
                 ClientCard LastChainCard = Util.GetLastChainCard();
-                return Duel.Player == 1 && LastChainCard != null && LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone;
+                if (Duel.Player == 1 && LastChainCard != null && LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.MonsterZone)
+                {
+                    AI.SelectCard(LastChainCard);
+                    return true;
+                }
+                return false;
             }
             else
                 return Effect_Maliss_Removed(0);
