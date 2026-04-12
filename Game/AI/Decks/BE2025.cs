@@ -26,11 +26,11 @@ namespace WindBot.Game.AI.Decks
             public const int BlueEyesChaosMAXDragon = 55410871;
             public const int MausoleumOfWhite = 24382602;
             public const int Wishes = 80326401;
-            public const int RoarOfTheBlueEyedDragons = 17725109; 
-            public const int UltimateFusion = 71143015; 
-            public const int SynchroRumble = 88901994; 
-            public const int MajestyOfTheWhiteDragons = 43219114; 
-            public const int TrueLight = 62089826; 
+            public const int RoarOfTheBlueEyedDragons = 17725109;
+            public const int UltimateFusion = 71143015;
+            public const int SynchroRumble = 88901994;
+            public const int MajestyOfTheWhiteDragons = 43219114;
+            public const int TrueLight = 62089826;
             public const int Gogo = 93437091;
 
             // Extra Deck
@@ -153,6 +153,7 @@ namespace WindBot.Game.AI.Decks
         List<int> notToDestroySpellTrap = new List<int> { 50005218, 6767771 };
 
         //Flags
+        int myTurnCount = 0;
         int normalSummon = 0;
         bool useDeepEyes = false;
         bool useMaidenSearch = false;
@@ -176,17 +177,18 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, _CardId.MaxxC, MaxxCActivate);
             AddExecutor(ExecutorType.Activate, CardId.MulcharmyFuwalos, MaxxCActivate);
             AddExecutor(ExecutorType.Activate, CardId.StardustSifrDivineDragon, StardustEff);
-            AddExecutor(ExecutorType.Activate, CardId.BlueEyesUltimateSpiritDragon,DontSelfNG);
-            AddExecutor(ExecutorType.Activate, CardId.NeoBlueEyesUltimateDragon,DontSelfNG);
+            AddExecutor(ExecutorType.Activate, CardId.BlueEyesUltimateSpiritDragon, UltimateSpiritEff);
+            AddExecutor(ExecutorType.Activate, CardId.NeoBlueEyesUltimateDragon, DontSelfNG);
             AddExecutor(ExecutorType.Activate, CardId.CosmicBlazar, DontSelfNG);
-            AddExecutor(ExecutorType.Activate, CardId.DragonMasterMagia);
-            AddExecutor(ExecutorType.Activate, CardId.MajestyOfTheWhiteDragons,MajestyEff);
+            AddExecutor(ExecutorType.Activate, CardId.DragonMasterMagia, MagiaEff);
+            AddExecutor(ExecutorType.Activate, CardId.MajestyOfTheWhiteDragons, MajestyEff);
             AddExecutor(ExecutorType.Activate, CardId.EffectVeiler, DefaultEffectVeiler);
             AddExecutor(ExecutorType.Activate, _CardId.AshBlossom, AshBlossomActivate);
             AddExecutor(ExecutorType.Activate, _CardId.CalledByTheGrave, CalledbytheGraveActivate);
             AddExecutor(ExecutorType.Activate, _CardId.CrossoutDesignator, CrossoutDesignatorActivate);
             AddExecutor(ExecutorType.Activate, _CardId.InfiniteImpermanence, InfiniteImpermanenceActivate);
 
+            AddExecutor(ExecutorType.Summon, CardId.MaidenOfWhite, EmergencyMaidenNS);
             AddExecutor(ExecutorType.Activate, CardId.MaidenOfWhite, MaidenGY);
             AddExecutor(ExecutorType.Activate, CardId.DeepEyes, DeepEyes);
             AddExecutor(ExecutorType.Activate, CardId.Wishes, WishesEff);
@@ -208,12 +210,12 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.RoarOfTheBlueEyedDragons, RoarOfTheBlueEyedDragonsEff);
             AddExecutor(ExecutorType.Activate, CardId.SynchroRumble, SynchroRumbleEff);
 
-            AddExecutor(ExecutorType.Activate, CardId.MaidenOfWhite , MaidenRebornEff);
+            AddExecutor(ExecutorType.Activate, CardId.MaidenOfWhite, MaidenRebornEff);
 
             AddExecutor(ExecutorType.Activate, CardId.SageWithEyesOfBlue, SageWithEyesOfBlueEffect);
 
             AddExecutor(ExecutorType.SpSummon, CardId.BlueEyesSpiritDragon, BlueEyesSpiritDragonSummon);
-            AddExecutor(ExecutorType.Activate, CardId.BlueEyesJetDragon);
+            AddExecutor(ExecutorType.Activate, CardId.BlueEyesJetDragon, JetEff);
 
             // if we don't have other things to do...
             AddExecutor(ExecutorType.Repos, Repos);
@@ -225,6 +227,10 @@ namespace WindBot.Game.AI.Decks
         #region Default
         public override void OnNewTurn()
         {
+            if (Duel.Player == 0)
+            {
+                myTurnCount++;
+            }
             // reset
             normalSummon = 0;
 
@@ -242,11 +248,11 @@ namespace WindBot.Game.AI.Decks
             currentDestroyCardList.Clear();
             enemyPlaceThisTurn.Clear();
 
-            
+
 
             base.OnNewTurn();
         }
-        public override bool OnSelectHand() {    return true; /* Go first by default.*/}
+        public override bool OnSelectHand() { return true; /* Go first by default.*/}
         public override int OnSelectOption(IList<int> options)
         {
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
@@ -287,7 +293,7 @@ namespace WindBot.Game.AI.Decks
         {
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             Logger.DebugWriteLine("OnSelectCard " + cards.Count + " " + min + " " + max);
-            
+
             Logger.DebugWriteLine("Use default.");
 
             return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -353,7 +359,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard last = Util.GetLastChainCard();
                 if (last.IsMonster() && (last.HasType(CardType.Fusion) || last.HasType(CardType.Synchro) || last.HasType(CardType.Xyz) || last.HasType(CardType.Link)))
                 {
-                   return false;
+                    return false;
                 }
                 if (alias != 0 && alias - code < 10) code = alias;
                 if (code == 0) return false;
@@ -925,7 +931,7 @@ namespace WindBot.Game.AI.Decks
         {
             return Card.IsTrap() && Bot.GetSpellCountWithoutField() < 4;
         }
-        private bool MaidenSearch() 
+        private bool MaidenSearch()
         {
             if (ActivateDescription != Util.GetStringId(CardId.MaidenOfWhite, 0))
             {
@@ -937,7 +943,7 @@ namespace WindBot.Game.AI.Decks
                 useMaidenSearch = true;
                 return true;
             }
-            else if(Card.Location != CardLocation.MonsterZone && !Bot.HasInSpellZone(CardId.TrueLight) && !Bot.HasInBanished(CardId.TrueLight))
+            else if (Card.Location != CardLocation.MonsterZone && !Bot.HasInSpellZone(CardId.TrueLight) && !Bot.HasInBanished(CardId.TrueLight))
             {
                 SelectSTPlace(null, true);
                 useMaidenSearch = true;
@@ -957,7 +963,7 @@ namespace WindBot.Game.AI.Decks
             }
             else return false;
         }
-        private bool DeepEyes() 
+        private bool DeepEyes()
         {
             if (Card.Location != CardLocation.Hand) return false;
             if (useDeepEyes) return false;
@@ -1022,13 +1028,13 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if ((Duel.Turn == 1 || Duel.Turn == 2 ) && Duel.Player == 0)
-            { 
+            if ((Duel.Turn == 1 || Duel.Turn == 2) && Duel.Player == 0)
+            {
                 normalSummon += 1;
                 nsSage = true;
-                return true; 
+                return true;
             }
-            else if (Duel.Turn > 2  && Duel.Player == 0 && (CheckRemainInDeck(CardId.KaibamanTheLegend) > 0 || CheckRemainInDeck(CardId.EffectVeiler) > 0 ))
+            else if (Duel.Turn > 2 && Duel.Player == 0 && (CheckRemainInDeck(CardId.KaibamanTheLegend) > 0 || CheckRemainInDeck(CardId.EffectVeiler) > 0))
             {
                 normalSummon += 1;
                 nsSage = true;
@@ -1058,8 +1064,8 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(CardId.DeepEyes);
                     return true;
                 }
-                else if (!Bot.HasInHand(CardId.BlueEyesChaosMAXDragon) && !Bot.HasInGraveyard(CardId.BlueEyesChaosMAXDragon) && 
-                         CheckRemainInDeck(CardId.BlueEyesChaosMAXDragon) > 0 && !Bot.HasInMonstersZone(CardId.DragonMasterMagia) && 
+                else if (!Bot.HasInHand(CardId.BlueEyesChaosMAXDragon) && !Bot.HasInGraveyard(CardId.BlueEyesChaosMAXDragon) &&
+                         CheckRemainInDeck(CardId.BlueEyesChaosMAXDragon) > 0 && !Bot.HasInMonstersZone(CardId.DragonMasterMagia) &&
                          Bot.HasInGraveyard(CardId.BlueEyesUltimateDragon))
                 {
                     AI.SelectCard(CardId.BlueEyesChaosMAXDragon);
@@ -1103,10 +1109,10 @@ namespace WindBot.Game.AI.Decks
                 Logger.DebugWriteLine("Sage > Veiler");
                 AI.SelectCard(CardId.EffectVeiler);
             }
-            else 
+            else
             {
                 Logger.DebugWriteLine("Sage x");
-                return false; 
+                return false;
             }
             return true;
         }
@@ -1152,8 +1158,8 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.BlueEyesUltimateSpiritDragon);
                 return true;
             }
-            else if (Duel.Player == 1 && Bot.HasInMonstersZone(CardId.BlueEyesUltimateSpiritDragon) && 
-                     Bot.HasInMonstersZone(CardId.StardustSifrDivineDragon) && 
+            else if (Duel.Player == 1 && Bot.HasInMonstersZone(CardId.BlueEyesUltimateSpiritDragon) &&
+                     Bot.HasInMonstersZone(CardId.StardustSifrDivineDragon) &&
                      (Duel.Phase == DuelPhase.Standby || Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.End))
 
             {
@@ -1167,7 +1173,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.BlueEyesUltimateSpiritDragon);
                 return true;
             }
-            else if (Duel.Player == 0 && !Bot.HasInMonstersZone(CardId.BlueEyesUltimateSpiritDragon) && 
+            else if (Duel.Player == 0 && !Bot.HasInMonstersZone(CardId.BlueEyesUltimateSpiritDragon) &&
                      (Bot.HasInGraveyard(CardId.MaidenOfWhite) || Bot.HasInGraveyard(CardId.SageWithEyesOfBlue) || Bot.HasInGraveyard(CardId.EffectVeiler)))
             {
                 Logger.DebugWriteLine("Spirit 5");
@@ -1218,7 +1224,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             else if (target == null)
-            { 
+            {
                 return false;
             }
             else
@@ -1253,7 +1259,7 @@ namespace WindBot.Game.AI.Decks
                 Bot.HasInMonstersZone(CardId.SageWithEyesOfBlue) ||
                 //(Bot.HasInMonstersZone(CardId.KaibamanTheLegend) && ) ||
                 Bot.HasInMonstersZoneOrInGraveyard(CardId.MaidenOfWhite)
-                
+
                 ))
             {
                 needBE = true;
@@ -1273,7 +1279,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.MaidenOfWhite);
                 return true;
             }
-            else if (Bot.HasInMonstersZone(CardId.SpiritWithEyesOfBlue) && Bot.HasInGraveyard(CardId.MaidenOfWhite) && 
+            else if (Bot.HasInMonstersZone(CardId.SpiritWithEyesOfBlue) && Bot.HasInGraveyard(CardId.MaidenOfWhite) &&
                 !Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon) && !Bot.HasInHand(CardId.KaibamanTheLegend))
             {
                 AI.SelectCard(CardId.SpiritWithEyesOfBlue);
@@ -1303,14 +1309,14 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.RoarOfTheBlueEyedDragons);
                 return true;
             }
-            else if (Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon) && Bot.HasInMonstersZoneOrInGraveyard(CardId.MaidenOfWhite) && 
+            else if (Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon) && Bot.HasInMonstersZoneOrInGraveyard(CardId.MaidenOfWhite) &&
                 Bot.HasInHand(CardId.SynchroRumble) && !Bot.HasInMonstersZone(CardId.SpiritWithEyesOfBlue))
             {
                 Logger.DebugWriteLine("TrueLight SSBE with rumble");
                 AI.SelectOption(0);
                 return true;
             }
-            else if (Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon) && CheckRemainInDeck(CardId.MajestyOfTheWhiteDragons) > 0 && 
+            else if (Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon) && CheckRemainInDeck(CardId.MajestyOfTheWhiteDragons) > 0 &&
                      Bot.GetMonsterCount() >= 2 && Bot.HasInGraveyard(CardId.SpiritWithEyesOfBlue))
             {
                 Logger.DebugWriteLine("TrueLight Search Majesty");
@@ -1322,6 +1328,14 @@ namespace WindBot.Game.AI.Decks
             else if (needBE && Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon) && !Bot.HasInMonstersZone(CardId.SpiritWithEyesOfBlue))
             {
                 Logger.DebugWriteLine("TrueLight SSBE");
+                AI.SelectOption(0);
+                return true;
+            }
+            else if (Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon) && !Bot.HasInMonstersZone(CardId.SpiritWithEyesOfBlue) &&
+                     Bot.HasInHandOrHasInMonstersZone(CardId.MaidenOfWhite) && !Bot.HasInGraveyard(CardId.MaidenOfWhite) &&
+                     !Bot.HasInMonstersZone(CardId.BlueEyesWhiteDragon))
+            {
+                Logger.DebugWriteLine("TrueLight Emergency SSBE");
                 AI.SelectOption(0);
                 return true;
             }
@@ -1347,7 +1361,7 @@ namespace WindBot.Game.AI.Decks
                 int tuner = 0;
                 if (CheckRemainInDeck(CardId.SageWithEyesOfBlue) > 0 && !nsSage && !Bot.HasInHand(CardId.SageWithEyesOfBlue)) tuner = CardId.SageWithEyesOfBlue;
                 else if (CheckRemainInDeck(CardId.MaidenOfWhite) > 0 && !useMaidenSearch && !Bot.HasInHand(CardId.MaidenOfWhite)) tuner = CardId.MaidenOfWhite;
-                else if (CheckRemainInDeck(CardId.KaibamanTheLegend) > 0 && normalSummon <2) tuner = CardId.KaibamanTheLegend;
+                else if (CheckRemainInDeck(CardId.KaibamanTheLegend) > 0 && normalSummon < 2) tuner = CardId.KaibamanTheLegend;
                 else if (CheckRemainInDeck(CardId.EffectVeiler) > 0) tuner = CardId.EffectVeiler;
                 if (tuner == 0) return false;
                 AI.SelectNextCard(tuner);//3 Select Tuner
@@ -1357,6 +1371,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (ActivateDescription == Util.GetStringId(CardId.Wishes, 1))
             {
+                Logger.DebugWriteLine("Wishes GY");
                 if (Card.Location != CardLocation.Grave) return false;
                 ClientCard be = Bot.MonsterZone.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(CardId.BlueEyesWhiteDragon));
                 if (be == null) return false;
@@ -1364,12 +1379,14 @@ namespace WindBot.Game.AI.Decks
                 if (Bot.HasInHandOrInSpellZone(CardId.UltimateFusion) && Bot.HasInExtra(CardId.BlueEyesUltimateDragon) && Bot.HasInHandOrInMonstersZoneOrInGraveyard(CardId.KaibamanTheLegend))
                 {
                     Logger.DebugWriteLine("Magia");
-                    AI.SelectCard(CardId.BlueEyesUltimateDragon);
+                    AI.SelectCard(CardId.BlueEyesWhiteDragon);
+                    AI.SelectNextCard(CardId.BlueEyesUltimateDragon);
                 }
                 else if (!Bot.HasInHandOrInSpellZone(CardId.UltimateFusion) && Bot.HasInExtra(CardId.NeoBlueEyesUltimateDragon))
                 {
                     Logger.DebugWriteLine("No Magia");
-                    AI.SelectCard(CardId.NeoBlueEyesUltimateDragon);
+                    AI.SelectCard(CardId.BlueEyesWhiteDragon);
+                    AI.SelectNextCard(CardId.NeoBlueEyesUltimateDragon);
                 }
                 else
                 {
@@ -1525,12 +1542,14 @@ namespace WindBot.Game.AI.Decks
             if (picks.Count < 3) AddGogoPick(picks, CardId.DeepEyes, 3 - picks.Count);
 
             if (picks.Count >= 3)
-            AI.SelectCard(picks.Take(3).ToArray());
+                AI.SelectCard(picks.Take(3).ToArray());
             return true;
         }
         public bool MajestyEff()
         {
-            DontSelfNG();
+            if (Duel.CurrentChain.Count > 0 && Duel.LastChainPlayer == 0) return false;
+            if (CheckWhetherNegated(true, true, CardType.Trap)) return false;
+
             List<ClientCard> revealCards = new List<ClientCard>();
             revealCards.AddRange(Bot.Graveyard.Where(c => c != null && c.IsCode(CardId.BlueEyesWhiteDragon)));
             revealCards.AddRange(Bot.GetMonsters().Where(c => c != null && c.IsFaceup() && c.IsCode(CardId.BlueEyesWhiteDragon)));
@@ -1551,6 +1570,96 @@ namespace WindBot.Game.AI.Decks
 
             AI.SelectNextCard(targets);
             return true;
+        }
+        private bool MagiaEff()
+        {
+            if (ActivateDescription == Util.GetStringId(CardId.DragonMasterMagia, 0))
+            {
+                return true;
+            }
+            if (ActivateDescription == Util.GetStringId(CardId.DragonMasterMagia, 1))
+            {
+                ClientCard target = GetUltimateDragonMagiaFloatTarget();
+                if (target == null)
+                    return false;
+                AI.SelectCard(target);
+                return true;
+            }
+            return false;
+
+        }
+        private ClientCard GetUltimateDragonMagiaFloatTarget()
+        {
+            List<ClientCard> candidates = new List<ClientCard>();
+
+            foreach (ClientCard card in Bot.Graveyard)
+            {
+                if (card != null && UltimateDragonMagiaFloatPriority.Contains(card.Id))
+                    candidates.Add(card);
+            }
+
+            foreach (ClientCard card in Bot.ExtraDeck)
+            {
+                if (card != null && UltimateDragonMagiaFloatPriority.Contains(card.Id))
+                    candidates.Add(card);
+            }
+
+            if (candidates.Count == 0)
+                return null;
+
+            foreach (int id in UltimateDragonMagiaFloatPriority)
+            {
+                ClientCard pick = candidates.FirstOrDefault(c => c.Id == id);
+                if (pick != null)
+                    return pick;
+            }
+
+            return candidates.FirstOrDefault();
+        }
+        private readonly int[] UltimateDragonMagiaFloatPriority =
+        {
+            CardId.BlueEyesUltimateSpiritDragon,
+            CardId.BlueEyesWhiteDragon,
+            CardId.BlueEyesChaosMAXDragon,
+            CardId.BlueEyesJetDragon
+        };
+        private bool UltimateSpiritEff()
+        {
+            if (ActivateDescription == Util.GetStringId(CardId.BlueEyesUltimateSpiritDragon, 1))
+            {
+                if (CheckWhetherNegated()) return false;
+                if (Duel.LastChainPlayer != 1) return false;
+                return true;
+            }
+            else if (ActivateDescription == Util.GetStringId(CardId.BlueEyesUltimateSpiritDragon, 2))
+            {
+                return true;
+            }
+            return false;
+        }
+        private bool JetEff()
+        {
+            if (ActivateDescription == Util.GetStringId(CardId.BlueEyesJetDragon, 1))
+            {
+                ClientCard target = GetBestEnemyCard(false, true, false);
+                if (target == null) return false;
+                AI.SelectCard(target);
+                return true;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        private bool EmergencyMaidenNS()
+        {
+            Logger.DebugWriteLine("CheckAtAdvantage: " + CheckAtAdvantage().ToString());
+            if (myTurnCount >= 2 && CheckAtAdvantage() == false &&
+                (Bot.HasInSpellZone(CardId.TrueLight) || Bot.HasInBanished(CardId.TrueLight)))
+            {
+                return true;
+            }
+            return false;
         }
         #endregion
 
