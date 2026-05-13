@@ -222,7 +222,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.SageWithEyesOfBlue, SageWithEyesOfBlueEffectInHand);
             AddExecutor(ExecutorType.Summon, CardId.EffectVeiler, Nscount); //no option
             AddExecutor(ExecutorType.Activate, CardId.Gogo, GogoEff); //no option
-            AddExecutor(ExecutorType.SpellSet, SpellSet);
+            AddExecutor(ExecutorType.SpellSet, SpellSetCheck);
         }
         #region Default
         public override void OnNewTurn()
@@ -738,9 +738,9 @@ namespace WindBot.Game.AI.Decks
             }
             return true;
         }
-        public bool CheckShouldNotIgnore(ClientCard cards, bool ignore = false)
+        public bool CheckShouldNotIgnore(ClientCard cards)
         {
-            return !ignore || (!currentDestroyCardList.Contains(cards) && !currentNegateCardList.Contains(cards));
+            return !currentDestroyCardList.Contains(cards) && !currentNegateCardList.Contains(cards);
         }
         public List<T> ShuffleList<T>(List<T> list)
         {
@@ -927,10 +927,6 @@ namespace WindBot.Game.AI.Decks
         #endregion
 
         #region WorkSpace
-        private bool SpellSet()
-        {
-            return Card.IsTrap() && Bot.GetSpellCountWithoutField() < 4;
-        }
         private bool MaidenSearch()
         {
             if (ActivateDescription != Util.GetStringId(CardId.MaidenOfWhite, 0))
