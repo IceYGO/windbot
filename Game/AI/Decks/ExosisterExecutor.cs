@@ -1442,7 +1442,7 @@ namespace WindBot.Game.AI.Decks
                         CardId.ExosisterSophia, CardId.ExosisterIrene, CardId.ExosisterStella, CardId.ExosisterMartha, CardId.ExosisterElis});
                 }
             }
-            if (exosisterCount >= 0 && !Bot.HasInHandOrInSpellZone(CardId.ExosisterReturnia))
+            if (exosisterCount > 0 && !Bot.HasInHandOrInSpellZone(CardId.ExosisterReturnia))
             {
                 addToHandOrderList.Add(CardId.ExosisterReturnia);
             }
