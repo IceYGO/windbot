@@ -358,7 +358,7 @@ namespace WindBot.Game.AI
         public IList<ClientCard> SelectPreferredCards(ClientCard preferred, IList<ClientCard> cards, int min, int max)
         {
             IList<ClientCard> selected = new List<ClientCard>();
-            if (cards.IndexOf(preferred) > 0 && selected.Count < max)
+            if (cards.IndexOf(preferred) >= 0 && selected.Count < max)
             {
                 selected.Add(preferred);
             }
@@ -388,7 +388,7 @@ namespace WindBot.Game.AI
         {
             IList<ClientCard> selected = new List<ClientCard>();
             IList<ClientCard> avail = cards.ToList(); // clone
-            while (preferred.Count > 0 && avail.IndexOf(preferred[0]) > 0 && selected.Count < max)
+            while (preferred.Count > 0 && avail.IndexOf(preferred[0]) >= 0 && selected.Count < max)
             {
                 ClientCard card = preferred[0];
                 preferred.Remove(card);
