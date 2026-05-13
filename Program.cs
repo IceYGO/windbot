@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Net;
 using System.Web;
+using System.Diagnostics;
 using WindBot.Game;
 using WindBot.Game.AI;
 using YGOSharp.OCGWrapper;
@@ -95,10 +96,8 @@ namespace WindBot
                 Logger.WriteLine("HTTP GET http://127.0.0.1:" + ServerPort + "/?name=WindBot&host=127.0.0.1&port=7911 to call the bot.");
                 while (true)
                 {
-#if !DEBUG
-    try
-    {
-#endif
+                    try
+                    {
                     HttpListenerContext ctx = MainServer.GetContext();
                     var queryParams = HttpUtility.ParseQueryString(ctx.Request.Url.Query);
 
@@ -138,72 +137,67 @@ namespace WindBot
                     }
                     else
                     {
-#if !DEBUG
-        try
-        {
-#endif
-                        Thread workThread = new Thread(new ParameterizedThreadStart(Run));
-                        workThread.Start(Info);
-#if !DEBUG
-        }
-        catch (Exception ex)
-        {
-            Logger.WriteErrorLine("Start Thread Error: " + ex);
-        }
-#endif
                         ctx.Response.StatusCode = 200;
+                        try
+                        {
+                            Thread workThread = new Thread(new ParameterizedThreadStart(Run));
+                            workThread.Start(Info);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (Debugger.IsAttached)
+                                throw;
+                            Logger.WriteErrorLine("Start Thread Error: " + ex);
+                            ctx.Response.StatusCode = 500;
+                        }
                         ctx.Response.Close();
                     }
-#if !DEBUG
-    }
-    catch (Exception ex)
-    {
-        Logger.WriteErrorLine("Parse Http Request Error: " + ex);
-    }
-#endif
+                    }
+                    catch (Exception ex)
+                    {
+                        if (Debugger.IsAttached)
+                            throw;
+                        Logger.WriteErrorLine("Parse Http Request Error: " + ex);
+                    }
                 }
             }
         }
 
         private static void Run(object o)
         {
-#if !DEBUG
-    try
-    {
-    //all errors will be catched instead of causing the program to crash.
-#endif
-            WindBotInfo Info = (WindBotInfo)o;
-            GameClient client = new GameClient(Info);
-            client.Start();
-            Logger.DebugWriteLine(client.Username + " started.");
-            while (client.Connection.IsConnected)
+            // All errors should be caught instead of causing the program to crash.
+            try
             {
-#if !DEBUG
-        try
-        {
-#endif
-                client.Tick();
-#if DEBUG
-                Thread.Sleep(1);
-#else
-                Thread.Sleep(30);
-#endif
-#if !DEBUG
-        }
-        catch (Exception ex)
-        {
-            Logger.WriteErrorLine("Tick Error: " + ex);
-        }
-#endif
+                WindBotInfo Info = (WindBotInfo)o;
+                GameClient client = new GameClient(Info);
+                client.Start();
+                Logger.DebugWriteLine(client.Username + " started.");
+                while (client.Connection.IsConnected)
+                {
+                    try
+                    {
+                        client.Tick();
+                        #if DEBUG
+                            Thread.Sleep(1);
+                        #else
+                            Thread.Sleep(30);
+                        #endif
+                    }
+                    catch (Exception ex)
+                    {
+                        if (Debugger.IsAttached)
+                            throw;
+                        Logger.WriteErrorLine("Tick Error: " + ex);
+                    }
+                }
+                Logger.DebugWriteLine(client.Username + " end.");
             }
-            Logger.DebugWriteLine(client.Username + " end.");
-#if !DEBUG
-    }
-    catch (Exception ex)
-    {
-        Logger.WriteErrorLine("Run Error: " + ex);
-    }
-#endif
+            catch (Exception ex)
+            {
+                if (Debugger.IsAttached)
+                    throw;
+                Logger.WriteErrorLine("Run Error: " + ex);
+            }
         }
 
         public static FileStream ReadFile(string directory, string filename, string extension)
