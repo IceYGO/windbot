@@ -2127,7 +2127,7 @@ namespace WindBot.Game.AI.Decks
                     return new[] { chosen };
                 }
                 // === SPIRIT GATES selections ===
-                if (Card != null && Card.Id == CardId.SPIRIT_GATES && cards != null && cards.Count > 0)
+                if (solving != null && solving.Id == CardId.SPIRIT_GATES && cards != null && cards.Count > 0)
                 {
                     // 2.1: เลือก Continuous Spell จากสุสาน (Recycle)
                     if (_gateWantsRecycle)
@@ -2200,7 +2200,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
                 // === Throne: เลือกการ์ดที่ค้นเจอ ===
-                if (Card.Id == CardId.NIGHTMARE_THRONE && _throneStage == ThroneStage.Searching && thronePending && !throneSearched)
+                if (solving != null && solving.Id == CardId.NIGHTMARE_THRONE && _throneStage == ThroneStage.Searching && thronePending && !throneSearched)
                 {
                     throneSearched = true;
                     _throneStage = ThroneStage.AwaitDestroyPrompt;
@@ -2225,7 +2225,7 @@ namespace WindBot.Game.AI.Decks
                     // ปล่อยให้ base ตัดสินใจ หรือจะ return null ก็ได้ตามฐานของคุณ
                 }
                 // --- Varudras: เลือกเป้าหมายทำลาย ---
-                if (Card.Id == CardId.VARUDASN_FINAL_BRINGER && hint == 502 && cards != null && cards.Count > 0)
+                if (solving != null && solving.Id == CardId.VARUDASN_FINAL_BRINGER && hint == 502 && cards != null && cards.Count > 0)
                 {
                     // พยายามเลือกฝั่งศัตรูก่อน (คัดใบที่อันตราย/ป่วนที่สุด)
                     var enemyPick = cards
@@ -2237,7 +2237,7 @@ namespace WindBot.Game.AI.Decks
                     return new[] { cards[0] }; // fallback
                 }
                 // --- Abomination: เลือกเป้าหมายทำลาย ---
-                if (Card.Id == CardId.UNCHAINDEDABOMINATION && hint == 502 && cards != null && cards.Count > 0)
+                if (solving != null && solving.Id == CardId.UNCHAINDEDABOMINATION && hint == 502 && cards != null && cards.Count > 0)
                 {
                     // พยายามเลือกฝั่งศัตรูก่อน (คัดใบที่อันตราย/ป่วนที่สุด)
                     var enemyPick = cards
