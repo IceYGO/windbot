@@ -6,7 +6,6 @@ using System;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
-using System.ComponentModel;
 
 namespace WindBot.Game.AI.Decks
 {
@@ -57,6 +56,7 @@ namespace WindBot.Game.AI.Decks
             public void Clear()
             {
                 Position.Clear();
+                SPSummon.Clear();
                 Activate.Clear();
                 BeastOnly = false;
                 Summon = 0;
@@ -656,8 +656,9 @@ namespace WindBot.Game.AI.Decks
             {
                 if (DefaultCheckWhetherCardIdIsNegated(Card.Id)
                     || Bot.HasInGraveyard(Card.Id)) return false;
+                if (Bot.HasInHand(CardId.Neko_Quick) && Count.CheckActivate(Card.Id)) return false;
                 Count.AddActivate(CardId.Neko_Marshmallow + 1);
-                return Bot.HasInHand(CardId.Neko_Quick) && Count.CheckActivate(Card.Id);
+                return true;
             }
             return false;
         }
