@@ -1144,10 +1144,10 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BlueEyesSpiritDragonEffect()
         {
-            DontSelfNG();
+            if (!DontSelfNG()) return false;
             ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
             if ((ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.BlueEyesSpiritDragon, 0)) &&
-                ((Duel.LastChainPlayer == 1) || (Duel.LastChainPlayer == 0 && currentCard.IsCode(CardId.TrueLight))))
+                ((Duel.LastChainPlayer == 1) || (Duel.LastChainPlayer == 0 && currentCard != null && currentCard.IsCode(CardId.TrueLight))))
             {
                 Logger.DebugWriteLine("Spirit 1 negate");
                 return true;
@@ -1289,7 +1289,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool TrueLightEff()
         {
-            DontSelfNG();
+            if (!DontSelfNG()) return false;
             bool maidenInGY = Bot.Graveyard.Any(c => c.Id == CardId.MaidenOfWhite);
             bool bewdInHandOrGY = Bot.HasInHand(new[] { CardId.BlueEyesWhiteDragon }) || Bot.Graveyard.Any(c => c.Id == CardId.BlueEyesWhiteDragon);
 
@@ -1438,7 +1438,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool UltimateFusionEff()
         {
-            DontSelfNG();
+            if (!DontSelfNG()) return false;
             if (Bot.GetMonsterCount() >= 5) return false;
             int targetFusionId = CardId.DragonMasterMagia;
             if (!Bot.HasInExtra(targetFusionId)) return false;
