@@ -99,34 +99,34 @@ namespace WindBot
     {
 #endif
                     HttpListenerContext ctx = MainServer.GetContext();
+                    var queryParams = HttpUtility.ParseQueryString(ctx.Request.Url.Query);
 
                     WindBotInfo Info = new WindBotInfo();
-                    string RawUrl = Path.GetFileName(ctx.Request.RawUrl);
-                    Info.Name = HttpUtility.ParseQueryString(RawUrl).Get("name");
-                    Info.Deck = HttpUtility.ParseQueryString(RawUrl).Get("deck");
-                    Info.Host = HttpUtility.ParseQueryString(RawUrl).Get("host");
-                    string port = HttpUtility.ParseQueryString(RawUrl).Get("port");
+                    Info.Name = queryParams.Get("name");
+                    Info.Deck = queryParams.Get("deck");
+                    Info.Host = queryParams.Get("host");
+                    string port = queryParams.Get("port");
                     if (port != null)
                         Info.Port = Int32.Parse(port);
-                    string deckfile = HttpUtility.ParseQueryString(RawUrl).Get("deckfile");
+                    string deckfile = queryParams.Get("deckfile");
                     if (deckfile != null)
                         Info.DeckFile = deckfile;
-                    string dialog = HttpUtility.ParseQueryString(RawUrl).Get("dialog");
+                    string dialog = queryParams.Get("dialog");
                     if (dialog != null)
                         Info.Dialog = dialog;
-                    string version = HttpUtility.ParseQueryString(RawUrl).Get("version");
+                    string version = queryParams.Get("version");
                     if (version != null)
                         Info.Version = Int16.Parse(version);
-                    string password = HttpUtility.ParseQueryString(RawUrl).Get("password");
+                    string password = queryParams.Get("password");
                     if (password != null)
                         Info.HostInfo = password;
-                    string hand = HttpUtility.ParseQueryString(RawUrl).Get("hand");
+                    string hand = queryParams.Get("hand");
                     if (hand != null)
                         Info.Hand = Int32.Parse(hand);
-                    string debug = HttpUtility.ParseQueryString(RawUrl).Get("debug");
+                    string debug = queryParams.Get("debug");
                     if (debug != null)
                         Info.Debug= bool.Parse(debug);
-                    string chat = HttpUtility.ParseQueryString(RawUrl).Get("chat");
+                    string chat = queryParams.Get("chat");
                     if (chat != null)
                         Info.Chat = bool.Parse(chat);
 
