@@ -269,7 +269,7 @@ namespace WindBot.Game.AI.Decks
                         CardId.Neko_Sycro_Cookie,
                         CardId.Neko_Sycro_Lollipop
                     };
-                if (Duel.CurrentChain.Any(i => i.Controller == 0 && i.IsCode())
+                if (Duel.CurrentChain.Any(i => i.Controller == 0 && i.IsCode(cards))
                     && Duel.GetCurrentSolvingChainCard() != null
                     && !Duel.GetCurrentSolvingChainCard().IsCode(cards)
                     && Bot.GetMonstersInMainZone().Count() > 3
@@ -508,7 +508,7 @@ namespace WindBot.Game.AI.Decks
             }
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
-        private bool ActivateNekoLink()
+        private bool _ActivateNekoLink()
         {
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             ClientCard LastChainCard = Util.GetLastChainCard();
@@ -553,6 +553,13 @@ namespace WindBot.Game.AI.Decks
             else if (Duel.Player == 1 && Bot.GetSpells().Any(i => i.IsCode(CardId.Neko_Field_II)))
                 return false;
             return true;
+        }
+        private bool ActivateNekoLink()
+        {
+            bool result = _ActivateNekoLink();
+            if (result)
+                Count.AddActivate(CardId.Neko_Link);
+            return result;
         }
         private bool SpNekoLinkII()
         {
