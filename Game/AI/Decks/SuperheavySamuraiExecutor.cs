@@ -944,6 +944,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SoulpiercerEquipFunction()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id))
+                return false;
             if (Card.Location != CardLocation.Hand)
                 return false;
             int tributeId = -1;
