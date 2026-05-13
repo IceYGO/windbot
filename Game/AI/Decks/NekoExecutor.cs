@@ -508,13 +508,13 @@ namespace WindBot.Game.AI.Decks
             }
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
-        private bool _ActivateNekoLink()
+        private bool ActivateNekoLink()
         {
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             ClientCard LastChainCard = Util.GetLastChainCard();
             if (Duel.CurrentChain.Any(i => i.Controller == 0 && i.IsCode(new[] {CardId.Linkuriboh, CardId.Neko_Link}))
                 && (LastChainCard == null || LastChainCard.Controller == 0)) return false;
-            if (ActivateDescription == Util.GetStringId(CardId.Neko_Link, 1))
+            if (ActivateDescription == Util.GetStringId(CardId.Neko_Link, 1))// 同调召唤
             {
                 if (Duel.Player == 1 && ActivateNekoQuick())
                     return false;
@@ -552,14 +552,9 @@ namespace WindBot.Game.AI.Decks
                 return false;
             else if (Duel.Player == 1 && Bot.GetSpells().Any(i => i.IsCode(CardId.Neko_Field_II)))
                 return false;
+            // 放置场地魔法
+            Count.AddActivate(CardId.Neko_Link);
             return true;
-        }
-        private bool ActivateNekoLink()
-        {
-            bool result = _ActivateNekoLink();
-            if (result)
-                Count.AddActivate(CardId.Neko_Link);
-            return result;
         }
         private bool SpNekoLinkII()
         {
