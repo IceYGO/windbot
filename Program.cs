@@ -12,6 +12,7 @@ namespace WindBot
     public class Program
     {
         internal static Random Rand;
+        internal static bool ServerMode;
 
         internal static void Main(string[] args)
         {
@@ -23,9 +24,9 @@ namespace WindBot
 
             InitDatas(databasePath);
 
-            bool serverMode = Config.GetBool("ServerMode", false);
+            ServerMode = Config.GetBool("ServerMode", false);
 
-            if (serverMode)
+            if (ServerMode)
             {
                 // Run in server mode, provide a http interface to create bot.
                 int serverPort = Config.GetInt("ServerPort", 2399);
@@ -182,7 +183,11 @@ namespace WindBot
         {
 #endif
                 client.Tick();
+#if DEBUG
+                Thread.Sleep(1);
+#else
                 Thread.Sleep(30);
+#endif
 #if !DEBUG
         }
         catch (Exception ex)
