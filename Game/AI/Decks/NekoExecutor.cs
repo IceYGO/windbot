@@ -732,10 +732,10 @@ namespace WindBot.Game.AI.Decks
                 CardId.Neko_Sycro_Lollipop
             }.Contains(Card.Id))
                 return false;
-            if (!Enemy.GetMonsters().Concat(Enemy.GetSpells()).Any(i => !Duel.ChainTargets.Contains(i)))
-                return false;
             if (ActivateDescription == Util.GetStringId(Card.Id, 1))
             {
+                if (!Enemy.GetMonsters().Concat(Enemy.GetSpells()).Any(i => !Duel.ChainTargets.Contains(i)))
+                    return false;
                 if (Duel.LastChainTargets.Any(i => i.HasSetcode(SetCode.Neko)
                     && Bot.GetMonsters().Contains(i)) && Duel.LastChainTargets.Contains(Card))
                 {
@@ -758,10 +758,13 @@ namespace WindBot.Game.AI.Decks
                 }
                 return false;
             }
-            if (Card.IsCode(CardId.Neko_Sycro_Cookie) && !Enemy.GetMonsters().Any(i => i.IsFaceup() && !i.HasType(CardType.Link)))
-                return false;
-            Count.AddActivate(Card.Id);
-            return true;
+            else
+            {
+                if (Card.IsCode(CardId.Neko_Sycro_Cookie) && !Enemy.GetMonsters().Any(i => i.IsFaceup() && !i.HasType(CardType.Link)))
+                    return false;
+                Count.AddActivate(Card.Id);
+                return true;
+            }
         }
         private bool ActivateLinkuriboh()
         {
