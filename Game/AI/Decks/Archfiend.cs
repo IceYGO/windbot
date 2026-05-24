@@ -137,15 +137,18 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, _CardId.CalledByTheGrave, CalledbytheGraveActivate);
             AddExecutor(ExecutorType.Activate, _CardId.InfiniteImpermanence, InfiniteImpermanenceActivate);
             AddExecutor(ExecutorType.Activate, CardId.PMDR, PrimiteDrillbeamActivate);
-            AddExecutor(ExecutorType.Activate, CardId.Origin, OriginActivate);
             AddExecutor(ExecutorType.Activate, CardId.RegenSage);
             //Rough code 
             AddExecutor(ExecutorType.Activate, CardId.Usurpation, Usurpation);
             AddExecutor(ExecutorType.Activate, CardId.Strategy, StrategyActivate);
+            AddExecutor(ExecutorType.Activate, CardId.Playtime, Playtime);
             AddExecutor(ExecutorType.Activate, CardId.Royal, RoyalActivate);
             AddExecutor(ExecutorType.Activate, CardId.Highness, HighnessActivate);
+            AddExecutor(ExecutorType.Summon, Level4MonsterSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.RegenArch);
             AddExecutor(ExecutorType.Activate, CardId.RegenArch);
-            AddExecutor(ExecutorType.Activate, CardId.Playtime, Playtime);
+            AddExecutor(ExecutorType.SpSummon, CardId.RegenSage);
+            AddExecutor(ExecutorType.Activate, CardId.Origin, OriginActivate);
             AddExecutor(ExecutorType.Activate, CardId.Makourai, MakouraiActivate);
             AddExecutor(ExecutorType.SpSummon, CardId.Origin, OriginSpSummon);
 
@@ -153,7 +156,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.RegenArch);
             AddExecutor(ExecutorType.SpSummon, CardId.RegenSage); 
             AddExecutor(ExecutorType.Activate, CardId.PMLL, PrimiteLordlyLodeActivate);
-            AddExecutor(ExecutorType.Summon, Level4MonsterSummon);
             AddExecutor(ExecutorType.Activate, CardId.PMBeryl, PrimiteDragonEtherBerylActivate);
             AddExecutor(ExecutorType.Activate, CardId.PMLL, PrimiteLordlyLodeSpSummon);
 
@@ -169,7 +171,7 @@ namespace WindBot.Game.AI.Decks
                 myTurnCount++;
             }
             // reset
-            summonCount = 0;
+            summonCount = 1;
             activatingLodeSpSummonEffect = false;
             infiniteImpermanenceList.Clear();
             currentNegateCardList.Clear();
@@ -920,20 +922,22 @@ namespace WindBot.Game.AI.Decks
                             {
                                 if (hint == HintMsg.AddToHand)
                                 {
-                                    List<int> targetIdList = new List<int> { CardId.PMBeryl, CardId.PMDR };
-                                    if (summonCount == 0)
+                                    List<int> targetIdList = new List<int>();
+                                    if (ShouldPMLLSearchDrillbeam())
                                     {
-                                        // whether need to search drillbeam
-                                        bool canTriggerPrimiteBeam = Bot.Hand.Any(c => c.IsCode(CardId.PMBeryl, CardId.PMLL, CardId.SMSkull));
-                                        canTriggerPrimiteBeam |= Bot.HasInMonstersZone(new List<int> { CardId.SMSkull }, faceUp: true);
-                                        canTriggerPrimiteBeam |= Bot.GetSpells().Any(c => (c.IsFacedown() || Duel.CurrentChain.Contains(c)));
-                                        if (canTriggerPrimiteBeam)
-                                        {
-                                            targetIdList.Insert(0, CardId.PMDR);
-                                        }
+                                        targetIdList.Add(CardId.PMDR);
+                                        targetIdList.Add(CardId.PMBeryl);
                                     }
+                                    else
+                                    {
+                                        targetIdList.Add(CardId.PMBeryl);
+                                        targetIdList.Add(CardId.PMDR);
+                                    }
+
                                     foreach (int targetId in targetIdList)
                                     {
+                                        if (CheckRemainInDeck(targetId) <= 0) continue;
+
                                         ClientCard target = cards.FirstOrDefault(c => c.IsCode(targetId));
                                         if (target != null)
                                         {
@@ -1203,26 +1207,23 @@ namespace WindBot.Game.AI.Decks
                 activateFlag |= Bot.HasInGraveyard(CardId.PMDR);
                 activateFlag |= !CheckWhetherNegated(true, true, CardType.Monster);
             }
+            if (Bot.HasInHandOrHasInMonstersZone(CardId.SMSkull) && DefaultCheckWhetherBotCanSearch())
+            {
+                // for search drillbeam
+                activateFlag |= CheckRemainInDeck(CardId.PMDR) > 0;
+                activateFlag |= summonCount <= 0 && Card.Location == CardLocation.SpellZone && Card.IsFacedown();
+            }
             if (!Bot.HasInSpellZone(CardId.PMLL, true, true))
             {
                 // for activate it
                 activateFlag |= DefaultCheckWhetherBotCanSearch();
 
                 // for special summon
-                CardLocation loc;
-                if (Bot.HasInHand(CardId.SMSkull))
-                {
-                    loc = CardLocation.Hand;
-                }
-                else if (CheckRemainInDeck(CardId.SMSkull) > 0)
-                {
-                    loc = CardLocation.Deck;
-                }
-                else if (Bot.HasInGraveyard(CardId.SMSkull))
-                {
-                    loc = CardLocation.Grave;
-                }
-                else
+                bool hasSMSkull = Bot.HasInHand(CardId.SMSkull)
+                                 || CheckRemainInDeck(CardId.SMSkull) > 0
+                                 || Bot.HasInGraveyard(CardId.SMSkull);
+
+                if (!hasSMSkull)
                 {
                     return false;
                 }
@@ -1251,6 +1252,12 @@ namespace WindBot.Game.AI.Decks
 
         public bool PrimiteLordlyLodeSpSummonCheck()
         {
+            if (Bot.HasInMonstersZone(CardId.SMSkull, faceUp: true))
+            {
+                return false;
+            }
+            if (!IsBadHandForPrimiteLodeSpSummon())
+                return false;
             // special summon
             CardLocation loc;
             if (Bot.HasInHand(CardId.SMSkull))
@@ -1272,7 +1279,83 @@ namespace WindBot.Game.AI.Decks
             int drawCount = GetSpecialSummonDrawCount(loc);
             return drawCount < 2;
         }
+        private bool IsBadHandForPrimiteLodeSpSummon()
+        {
+            // ถ้ามี play หลักอื่นอยู่ ยังไม่ถือว่ามือเน่า
+            if (HasArchfiendPlayableStarter())
+                return false;
 
+            // ถ้ายัง Normal Beryl/Highness ได้ ยังไม่ต้องใช้ LL SS
+            if (summonCount >= 0 && Bot.HasInHand(CardId.PMBeryl))
+                return false;
+
+            if (summonCount >= 0 && Bot.HasInHand(CardId.Highness) && HasArchfiendCostInGrave())
+                return false;
+
+            // ถ้ามี Origin + มี cost ให้เล่นเองได้ ก็ยังไม่เน่า
+            if (Bot.HasInHand(CardId.Origin) && GetOriginTributeCost() != null)
+                return false;
+
+            // ถ้ามี Royal แล้วยังไม่ได้ใช้ ก็ยังมี play
+            if (Bot.HasInHand(CardId.Royal) && !IsArchfiendCardUsedThisTurn(CardId.Royal))
+                return false;
+
+            // ถ้ามี Strategy/Usurpation แล้วยังไม่ได้ใช้ ก็ยังมีทางต่อ
+            if (Bot.HasInHand(CardId.Strategy) && !IsArchfiendCardUsedThisTurn(CardId.Strategy))
+                return false;
+
+            if (Bot.HasInHand(CardId.Usurpation) && !IsArchfiendCardUsedThisTurn(CardId.Usurpation))
+                return false;
+
+            // ถ้า PMDR อยู่ในมือ/เซ็ตไว้แล้ว ก็ยังมี interaction ไม่จำเป็นต้องฝืน SS
+            if (Bot.HasInHand(CardId.PMDR) || Bot.HasInSpellZone(CardId.PMDR))
+                return false;
+
+            return true;
+        }
+        private bool HasArchfiendPlayableStarter()
+        {
+            if (Bot.HasInHand(CardId.Royal) && !IsArchfiendCardUsedThisTurn(CardId.Royal))
+                return true;
+
+            if (Bot.HasInHand(CardId.Strategy)
+                && !IsArchfiendCardUsedThisTurn(CardId.Strategy)
+                && HasArchfiendCostForStrategy())
+                return true;
+
+            if (Bot.HasInHand(CardId.Usurpation)
+                && !IsArchfiendCardUsedThisTurn(CardId.Usurpation)
+                && !IsArchfiendCardUsedThisTurn(CardId.Playtime)
+                && GetUsurpationTrapToSet() != 0)
+                return true;
+
+            if (Bot.HasInHand(CardId.Origin) && GetOriginTributeCost() != null)
+                return true;
+
+            if (HasRegenArchPlayableWithoutOther2500())
+                return true;
+
+
+            return false;
+        }
+        private bool HasRegenArchPlayableWithoutOther2500()
+        {
+            bool hasRegenArch =
+                Bot.HasInHand(CardId.RegenArch)
+                || Bot.HasInMonstersZone(CardId.RegenArch, faceUp: true);
+
+            if (!hasRegenArch)
+                return false;
+
+            bool hasOtherAtk2500Monster =
+                Bot.GetMonsters().Any(c =>
+                    c != null
+                    && c.IsFaceup()
+                    && !c.IsCode(CardId.RegenArch)
+                    && c.Attack == 2500);
+
+            return !hasOtherAtk2500Monster;
+        }
         public int GetSpecialSummonDrawCount(CardLocation loc)
         {
             int res = 0;
@@ -1337,8 +1420,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
             }
-            bool canSummonHighness = Bot.HasInHand(CardId.Highness) && Bot.Graveyard.Any(card => card != null && card.HasSetcode(SetcodeArchfiend))
-                && DefaultCheckWhetherBotCanSearch();
+            bool canSummonHighness = ShouldNormalSummonHighness();
 
             if (canSummonHighness && Card.IsCode(CardId.Highness))
             {
@@ -1348,7 +1430,43 @@ namespace WindBot.Game.AI.Decks
 
             return false;
         }
+        private bool ShouldNormalSummonHighness()
+        {
+            if (!Bot.HasInHand(CardId.Highness)) return false;
 
+            if (IsArchfiendCardUsedThisTurn(CardId.Highness)) return false;
+
+            if (Bot.HasInMonstersZone(CardId.Highness, faceUp: true)) return false;
+
+            if (IsArchfiendBoardReady()) return false;
+
+            if (!DefaultCheckWhetherBotCanSearch()) return false;
+
+            if (!Bot.Graveyard.Any(card => card != null && card.HasSetcode(SetcodeArchfiend))) return false;
+
+            return true;
+        }
+        private bool ShouldPMLLSearchDrillbeam()
+        {
+            if (CheckRemainInDeck(CardId.PMDR) <= 0) return false;
+
+            if (Bot.HasInHand(CardId.PMDR) || Bot.HasInSpellZone(CardId.PMDR))
+                return false;
+
+            if (Bot.HasInHandOrHasInMonstersZone(CardId.PMBeryl))
+                return true;
+
+            if (Bot.HasInHandOrHasInMonstersZone(CardId.SMSkull))
+                return true;
+
+            if (Bot.GetSpells().Any(c => c.IsFacedown() || Duel.CurrentChain.Contains(c)))
+                return true;
+
+            if (summonCount <= 0)
+                return true;
+
+            return false;
+        }
         #endregion
 
         #region original code
@@ -1356,11 +1474,14 @@ namespace WindBot.Game.AI.Decks
         private bool Playtime()
         {
             if (CheckWhetherNegated(true, true, CardType.Trap)) return false;
+            if (IsArchfiendBoardReady()) return false;
+            if (Duel.Player == 0 && Bot.HasInHand(CardId.Royal)) return false;
 
             int target = GetPlaytimeTarget();
             if (target == 0) return false;
 
             AI.SelectCard(target);
+            activatedCardIdList.Add(Card.Id);
             return true;
         }
         private int GetPlaytimeTarget()
@@ -1395,10 +1516,20 @@ namespace WindBot.Game.AI.Decks
 
             SelectSTPlace(Card, true);
             AI.SelectCard(trapId);
+            activatedCardIdList.Add(Card.Id);
             return true;
         }
         private int GetUsurpationTrapToSet()
         {
+            if(IsArchfiendBoardReady() && CanSetArchfiendTrap(CardId.Simul))
+                return CardId.Simul;
+
+            if(Bot.HasInHand(CardId.Royal) && CanSetArchfiendTrap(CardId.Simul))
+                return CardId.Simul;
+
+            if (IsArchfiendCardUsedThisTurn(CardId.Royal) && CanSetArchfiendTrap(CardId.Simul))
+                return CardId.Simul;
+
             if (Duel.Player == 1 && CanSetArchfiendTrap(CardId.Simul) && ShouldUseSimul())
                 return CardId.Simul;
 
@@ -1413,7 +1544,7 @@ namespace WindBot.Game.AI.Decks
         private bool Simul()
         {
             if (CheckWhetherNegated(true, true, CardType.Trap)) return false;
-
+            activatedCardIdList.Add(Card.Id);
             return ShouldUseSimul();
         }
 
@@ -1446,7 +1577,6 @@ namespace WindBot.Game.AI.Decks
         {
             if (CheckWhetherNegated(true, true, CardType.Spell)) return false;
 
-            // ถ้าอยู่ในมือ/เซ็ตอยู่ และยังไม่มี Strategy face-up ก็ activate ได้
             if (!Bot.HasInSpellZone(CardId.Strategy, true, true))
             {
                 SelectSTPlace(Card, true);
@@ -1454,7 +1584,6 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // ถ้า face-up อยู่แล้ว ใช้ effect search
             if (Card.Location == CardLocation.SpellZone && Card.IsFaceup())
             {
                 if (!DefaultCheckWhetherBotCanSearch()) return false;
@@ -1465,8 +1594,6 @@ namespace WindBot.Game.AI.Decks
 
                 activatedCardIdList.Add(Card.Id + 1);
 
-                // option 0 = banish cost เพื่อ search
-                AI.SelectOption(0);
                 AI.SelectCard(target);
                 return true;
             }
@@ -1476,14 +1603,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool RoyalActivate()
         {
-            // Royal เป็น monster effect จาก hand/face-up field
             if (CheckWhetherNegated()) return false;
             if (!DefaultCheckWhetherBotCanSearch()) return false;
 
             int target = GetArchfiendSearchTarget(exceptId: CardId.Royal);
             if (target == 0) return false;
 
-            // ใช้เพื่อหา starter/ต่อ play และได้ normal summon เพิ่ม
             activatedCardIdList.Add(Card.Id);
             AI.SelectCard(target);
             return true;
@@ -1493,7 +1618,6 @@ namespace WindBot.Game.AI.Decks
         {
             if (CheckWhetherNegated()) return false;
 
-            // กรณี GY effect: ถ้า engine ถามได้ แปลว่า trigger ถูกแล้ว
             if (Card.Location == CardLocation.Grave)
             {
                 return true;
@@ -1530,75 +1654,114 @@ namespace WindBot.Game.AI.Decks
         {
             List<int> priority = new List<int>
             {
-                CardId.Royal,       // starter: search + extra normal
-                CardId.Highness,    // add 2 ถ้ามี grave cost
-                CardId.Usurpation,  // access trap / ritual line
-                CardId.Playtime,
-                CardId.Simul,
+                CardId.Royal,
+                CardId.Highness,
                 CardId.Origin,
-                CardId.SMSkull,
+                CardId.RegenArch,
+                CardId.Usurpation,
                 CardId.Makourai
             };
 
             foreach (int id in priority)
             {
                 if (id == exceptId) continue;
-                if (CheckRemainInDeck(id) > 0) return id;
+                if (CheckRemainInDeck(id) <= 0) continue;
+                if (HasUnusedInHand(id)) continue;
+
+                return id;
             }
 
             return 0;
         }
+        private bool HasUnusedInHand(int id)
+        {
+            return Bot.HasInHand(id) && !IsArchfiendCardUsedThisTurn(id);
+        }
 
         private List<int> GetHighnessSearchTargets()
         {
-            List<int> result = new List<int>();
-
-            List<int> priority = new List<int>
+            return new List<int>
             {
-                CardId.Royal,
-                CardId.Usurpation,
-                CardId.Playtime,
-                CardId.Simul,
                 CardId.Origin,
-                CardId.SMSkull,
+                CardId.RegenArch,
                 CardId.Makourai,
-                CardId.Strategy
-            };
-
-            foreach (int id in priority)
-            {
-                if (id == CardId.Highness) continue;
-                if (CheckRemainInDeck(id) <= 0) continue;
-                if (result.Contains(id)) continue;
-
-                result.Add(id);
-                if (result.Count >= 2) break;
+                CardId.Usurpation,
+                CardId.Strategy,
+                CardId.Royal
             }
+            .Where(id => id != CardId.Highness)
+            .Where(id => CheckRemainInDeck(id) > 0)
+            .OrderBy(id => GetHighnessSearchPriority(id))
+            .Take(2)
+            .ToList();
+        }
+        private int GetHighnessSearchPriority(int id)
+        {
+            int score = 0;
 
-            return result;
+            // ใบที่ใช้แล้วในเทิร์นนี้ ลด priority หนัก ๆ
+            if (IsArchfiendCardUsedThisTurn(id))
+                score += 1000;
+
+            // มีอยู่แล้วในมือก็ไม่ค่อยอยากหยิบซ้ำ
+            if (Bot.HasInHand(id))
+                score += 200;
+
+            // มี face-up อยู่แล้วก็ลด priority
+            if (Bot.HasInMonstersZone(id, faceUp: true) || Bot.HasInSpellZone(id, true))
+                score += 300;
+
+            // base priority
+            if (id == CardId.Royal) score += 1;
+            else if (id == CardId.Usurpation) score += 2;
+            else if (id == CardId.Origin) score += 3;
+            else if (id == CardId.Makourai) score += 4;
+            else if (id == CardId.Strategy) score += 5;
+            else if (id == CardId.Playtime) score += 6;
+            else if (id == CardId.Simul) score += 7;
+            else if (id == CardId.SMSkull) score += 8;
+            else score += 100;
+
+            return score;
+        }
+
+        private bool IsArchfiendCardUsedThisTurn(int id)
+        {
+            if (activatedCardIdList.Contains(id)) return true;
+            if (activatedCardIdList.Contains(id + 1)) return true;
+
+            return false;
         }
         private int GetArchfiendCostPriority(ClientCard card)
         {
             if (card == null) return 999;
 
-            // อยาก banish ของที่ใช้หมด/ไม่สำคัญก่อน
-            if (card.IsCode(CardId.Playtime)) return 1;
-            if (card.IsCode(CardId.Simul)) return 2;
-            if (card.IsCode(CardId.Usurpation)) return 3;
-            if (card.IsCode(CardId.Makourai)) return 4;
-            if (card.IsCode(CardId.Strategy)) return 5;
-            if (card.IsCode(CardId.Highness)) return 6;
-            if (card.IsCode(CardId.Royal)) return 7;
-            if (card.IsCode(CardId.Origin)) return 8;
-            if (card.IsCode(CardId.SMSkull)) return 9;
+            int locationScore = 0;
 
-            return 100;
+            if (card.Location == CardLocation.Grave) locationScore = 0;
+            else if (card.Location == CardLocation.Hand) locationScore = 100;
+            else locationScore = 500;
+
+            int cardScore = 100;
+
+
+            if (card.IsCode(CardId.Playtime) && (card.Location == CardLocation.Hand)) cardScore = 1;
+            else if (card.IsCode(CardId.Usurpation)) cardScore = 2;
+            else if (card.IsCode(CardId.Strategy)) cardScore = 3;
+            else if (card.IsCode(CardId.Highness)) cardScore = 4;
+            else if (card.IsCode(CardId.Makourai)) cardScore = 6;
+            else if (card.IsCode(CardId.Royal)) cardScore = 7;
+            else if (card.IsCode(CardId.Origin)) cardScore = 8;
+            else if (card.IsCode(CardId.SMSkull)) cardScore = 9;
+            else if (card.IsCode(CardId.Playtime) && (card.Location == CardLocation.Grave)) cardScore = 501;
+            else if (card.IsCode(CardId.Simul) && (card.Location == CardLocation.Grave)) cardScore = 502;
+            
+            return locationScore + cardScore;
         }
         private bool OriginActivate()
         {
             if (CheckWhetherNegated()) return false;
 
-            // Effect 3: negate monster effect ฝั่งตรงข้าม ถ้าเราคุม Summoned Skull
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard() != null)
             {
                 ClientCard last = Util.GetLastChainCard();
@@ -1614,7 +1777,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // Effect 1: จากมือ tribute Archfiend อื่นเพื่อ SS ตัวเอง
             if (Card.Location == CardLocation.Hand)
             {
                 ClientCard tribute = GetOriginTributeCost();
@@ -1624,7 +1786,6 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // Effect 2: ถ้า summon สำเร็จ เรียก Summoned Skull / Level 6 Fiend 2500 ATK
             if (Card.Location == CardLocation.MonsterZone)
             {
                 if (Bot.HasInHand(CardId.SMSkull) || CheckRemainInDeck(CardId.SMSkull) > 0 || Bot.HasInGraveyard(CardId.SMSkull))
@@ -1663,41 +1824,39 @@ namespace WindBot.Game.AI.Decks
                 && c != Card
                 && c.HasSetcode(SetcodeArchfiend)));
 
-            // อย่า tribute Summoned Skull ถ้าใช้เป็นเงื่อนไข negate ของ Origin
-            candidates.RemoveAll(c => c.IsCode(CardId.SMSkull) && !Bot.HasInMonstersZone(CardId.SMSkull, faceUp: true));
-
             return candidates
                 .OrderBy(c => GetOriginTributePriority(c))
-                .FirstOrDefault();
+                .FirstOrDefault(c => GetOriginTributePriority(c) < 9999);
         }
 
         private int GetOriginTributePriority(ClientCard card)
         {
-            if (card == null) return 999;
+            if (card == null) return 9999;
 
-            // ของที่อยากจ่ายก่อน
-            if (card.IsCode(CardId.Playtime)) return 1;
-            if (card.IsCode(CardId.Simul)) return 2;
-            if (card.IsCode(CardId.Makourai)) return 3;
-            if (card.IsCode(CardId.Usurpation)) return 4;
-            if (card.IsCode(CardId.Strategy)) return 5;
+            if (card.IsCode(CardId.RegenArch) && card.Location == CardLocation.MonsterZone)
+                return 9999;
 
-            // monster ที่พอจ่ายได้
-            if (card.IsCode(CardId.RegenArch)) return 10;
-            if (card.IsCode(CardId.Highness)) return 20;
-            if (card.IsCode(CardId.Royal)) return 30;
+            int locationScore = 0;
 
-            // ไม่ค่อยอยากจ่าย
-            if (card.IsCode(CardId.Origin)) return 80;
-            if (card.IsCode(CardId.SMSkull)) return 90;
+            if (card.Location == CardLocation.Hand) locationScore = 0;
+            else if (card.Location == CardLocation.MonsterZone) locationScore = 100;
+            else return 9999;
 
-            return 100;
+            int cardScore = 100;
+
+            if (card.IsCode(CardId.Highness)&&(card.Location == CardLocation.MonsterZone)) cardScore = -99;
+            else if (card.IsCode(CardId.SMSkull)) cardScore = 2;
+            else if (card.IsCode(CardId.Origin)) cardScore = 3;
+            else if (card.IsCode(CardId.Highness)) cardScore = 4;
+            else if (card.IsCode(CardId.RegenArch)) cardScore = 5;
+            else if (card.IsCode(CardId.Royal)) cardScore = 6;
+
+            return locationScore + cardScore;
         }
         private bool MakouraiActivate()
         {
             if (CheckWhetherNegated(true, true, CardType.Spell)) return false;
 
-            // Effect 2: GY effect เก็บ Summoned Skull กลับมือ
             if (Card.Location == CardLocation.Grave)
             {
                 if (Duel.Player != 0) return false;
@@ -1708,7 +1867,6 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // Effect 1: Quick-Play จากมือ/สนาม เลือก Archfiend เราเพื่อบัฟ + ล้างมอน
             ClientCard target = GetBestMakouraiTarget();
             if (target == null) return false;
 
@@ -1720,7 +1878,6 @@ namespace WindBot.Game.AI.Decks
 
             bool battlePush = Duel.Phase == DuelPhase.BattleStep || Duel.Phase == DuelPhase.Damage;
 
-            // กดถ้าล้างมอนได้ หรือกำลัง Battle เพื่อดัน damage
             if (!canDestroySomething && !battlePush) return false;
 
             if (Card.Location == CardLocation.Hand)
@@ -1759,6 +1916,17 @@ namespace WindBot.Game.AI.Decks
                 && e.IsFaceup()
                 && e.Attack >= 0
                 && e.Attack < afterBoostAtk);
+        }
+        private bool IsArchfiendBoardReady()
+        {
+            bool hasOrigin = Bot.HasInMonstersZone(CardId.Origin, faceUp: true);
+            bool hasSMSkull = Bot.HasInMonstersZone(CardId.SMSkull, faceUp: true);
+            bool hasRegen = Bot.HasInHandOrHasInMonstersZone(CardId.RegenArch) && Bot.HasInMonstersZone(CardId.RegenArch, faceUp: true);
+
+            if (hasOrigin && hasSMSkull && hasRegen)
+                return true;
+
+            return false;
         }
         #endregion
     }
