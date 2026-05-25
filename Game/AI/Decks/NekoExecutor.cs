@@ -119,9 +119,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.MaxxG, DefaultMaxxC);
             AddExecutor(ExecutorType.Activate, CardId.Herald_of_the_Arc_Light, DefaultAshBlossomAndJoyousSpring);
             AddExecutor(ExecutorType.GoToBattlePhase, GoToBattlePhase);
-            AddExecutor(ExecutorType.Activate, CardId.Neko_Cake);
-            AddExecutor(ExecutorType.Activate, CardId.Neko_Cookie);
-            AddExecutor(ExecutorType.Activate, CardId.Neko_Lollipop);
+            AddExecutor(ExecutorType.Activate, CardId.Neko_Cake, Activate2);
+            AddExecutor(ExecutorType.Activate, CardId.Neko_Cookie, Activate2);
+            AddExecutor(ExecutorType.Activate, CardId.Neko_Lollipop, Activate2);
             AddExecutor(ExecutorType.SpSummon, CardId.Gravity_Controller);
             AddExecutor(ExecutorType.SpSummon, CardId.LinkSpider);
             AddExecutor(ExecutorType.SpSummon, CardId.Neko_Link, SpNekoLinkII);
@@ -721,6 +721,10 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
+        }
+        private bool Activate2()
+        {
+            return !DefaultCheckWhetherCardIsNegated(Card);
         }
         private bool Activate()
         {
