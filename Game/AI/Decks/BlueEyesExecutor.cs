@@ -166,7 +166,7 @@ namespace WindBot.Game.AI.Decks
 
             foreach (ClientCard AlternativeWhiteDragon in UsedAlternativeWhiteDragon)
             {
-                if (cards.IndexOf(AlternativeWhiteDragon) > 0)
+                if (cards.IndexOf(AlternativeWhiteDragon) >= 0)
                 {
                     UsedAlternativeWhiteDragon.Remove(AlternativeWhiteDragon);
                     Logger.DebugWriteLine("select UsedAlternativeWhiteDragon");

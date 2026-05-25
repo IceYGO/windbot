@@ -3070,7 +3070,7 @@ namespace WindBot.Game.AI.Decks
                     if (wr != null) { picks.Add(wr); freeMMZ--; }
                 }
 
-                if (picks.Count >= 0 && !Bot.HasInHand(CardId.MalissP_MarchHare) && !ActiveMarchHare)
+                if (picks.Count > 0 && !Bot.HasInHand(CardId.MalissP_MarchHare) && !ActiveMarchHare)
                 {
                     var mh = Bot.Graveyard.GetFirstMatchingCard(g => g.IsCode(CardId.MalissP_MarchHare));
                     if (mh != null) picks.Add(mh);

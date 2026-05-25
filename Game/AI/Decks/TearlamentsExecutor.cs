@@ -1600,7 +1600,7 @@ namespace WindBot.Game.AI.Decks
             else if (scards.Any(card => card != null && card.Level == 5) && mcards.Any(card => card != null && card.Level == 5))
             {
                 List<ClientCard> s = Bot.GetMonsters().Where(card => card != null && card.Level == 5 && card.Id == CardId.DivineroftheHerald && card.IsFaceup()).ToList();
-                if (s.Count >= 0)
+                if (s.Count > 0)
                 {
                     List<ClientCard> res = new List<ClientCard>() { s.FirstOrDefault() };
                     res.AddRange(Bot.GetMonsters().Where(card => card != null && card.Level == 5 && card.Id == CardId.ElShaddollWinda && card.IsFaceup()));

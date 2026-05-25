@@ -430,7 +430,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 for (int i = 0; i < cardsid.Count; i++)
                 {
-                    if (res.Count >= 0 && res.Contains(cardsid[i])) continue;
+                    if (res.Contains(cardsid[i])) continue;
                     int times = 0;
                     for (int j = 0; j < cardsid.Count; j++)
                     {

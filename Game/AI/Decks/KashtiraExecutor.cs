@@ -326,7 +326,7 @@ namespace WindBot.Game.AI.Decks
                         e_cards_d.Add(card);
                 }
                 List<ClientCard> res = new List<ClientCard>();
-                if (e_cards_u.Count >= 0)
+                if (e_cards_u.Count > 0)
                 {
                     e_cards_u.Sort(CardContainer.CompareCardAttack);
                     e_cards_u.Reverse();
@@ -334,9 +334,9 @@ namespace WindBot.Game.AI.Decks
                 }
                 IList<int> cardsId = new List<int>() { CardId.KashtiraBigBang, CardId.KashtiraPapiyas };
                 IList<ClientCard> m_pre_cards = CardsIdToClientCards(cardsId, m_cards, false);
-                if (m_pre_cards?.Count >= 0) res.AddRange(m_pre_cards);
-                else if (m_cards.Count >= 0) res.AddRange(m_cards);
-                if (e_cards_d.Count >= 0) res.AddRange(e_cards_d);
+                if (m_pre_cards?.Count > 0) res.AddRange(m_pre_cards);
+                else if (m_cards.Count > 0) res.AddRange(m_cards);
+                if (e_cards_d.Count > 0) res.AddRange(e_cards_d);
                 if (res.Count <= 0) return null;
                 return Util.CheckSelectCount(res, cards, min, max);
             }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -293,6 +293,7 @@ namespace WindBot.Game
 
         private void OnChat(BinaryReader packet)
         {
+            if (Program.ServerMode) return;
             int player = packet.ReadInt16();
             string message = packet.ReadUnicode(256);
             string myName = (player != 0) ? _room.Names[1] : _room.Names[0];
@@ -340,7 +341,7 @@ namespace WindBot.Game
         {
             _ai.OnRetry();
             Connection.Close();
-            throw new Exception("Got MSG_RETRY. Last message is " + _lastMessage);
+            Logger.WriteErrorLine("Got MSG_RETRY. Last message is " + _lastMessage);
         }
 
         private void OnHint(BinaryReader packet)

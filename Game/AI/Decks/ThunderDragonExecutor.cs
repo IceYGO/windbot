@@ -590,7 +590,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     res.Reverse();
                     res.AddRange(pre_res);
-                    if(res.Count>=0) return Util.CheckSelectCount(res, cards, min, max);
+                    if(res.Count>0) return Util.CheckSelectCount(res, cards, min, max);
                     return null;
                 }
                 if (min == 2 && max == 2)
@@ -2386,7 +2386,7 @@ namespace WindBot.Game.AI.Decks
                     cardsid.Add(card.Id);
             for (int i = 0; i < cardsid.Count; i++)
             {
-                if (res.Count >= 0 && res.Contains(cardsid[i])) continue;
+                if (res.Contains(cardsid[i])) continue;
                 int times = 0;
                 for (int j = 0; j < cardsid.Count; j++)
                 {
