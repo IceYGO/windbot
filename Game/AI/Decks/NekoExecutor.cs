@@ -119,12 +119,17 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.MaxxG, DefaultMaxxC);
             AddExecutor(ExecutorType.Activate, CardId.Herald_of_the_Arc_Light, DefaultAshBlossomAndJoyousSpring);
             AddExecutor(ExecutorType.GoToBattlePhase, GoToBattlePhase);
+            AddExecutor(ExecutorType.Activate, CardId.Neko_Cake, Activate2);
+            AddExecutor(ExecutorType.Activate, CardId.Neko_Cookie, Activate2);
+            AddExecutor(ExecutorType.Activate, CardId.Neko_Lollipop, Activate2);
             AddExecutor(ExecutorType.SpSummon, CardId.Gravity_Controller);
             AddExecutor(ExecutorType.SpSummon, CardId.LinkSpider);
             AddExecutor(ExecutorType.SpSummon, CardId.Neko_Link, SpNekoLinkII);
             AddExecutor(ExecutorType.Activate, CardId.Obedience_Schooled, ActivateObedienceSchooled);
             AddExecutor(ExecutorType.Activate, CardId.One_for_One, Summon);
-            AddExecutor(ExecutorType.Activate, Activate);
+            AddExecutor(ExecutorType.Activate, CardId.Neko_Sycro_Cake, Activate);
+            AddExecutor(ExecutorType.Activate, CardId.Neko_Sycro_Cookie, Activate);
+            AddExecutor(ExecutorType.Activate, CardId.Neko_Sycro_Lollipop, Activate);
             AddExecutor(ExecutorType.Activate, CardId.Linkuriboh, ActivateLinkuriboh);
             AddExecutor(ExecutorType.Activate, CardId.Shamisen_Samsara_Sorrowcat, ActivateShamisenSamsaraSorrowcat);
             AddExecutor(ExecutorType.Activate, CardId.Neko_Link, ActivateNekoLink);
@@ -217,12 +222,12 @@ namespace WindBot.Game.AI.Decks
                 if (option == Util.GetStringId(CardId.Neko_Quick, 1) && (Duel.Player == 1 || Duel.LastChainPlayer == 1))
                 {
                     Activate_Neko_Quick = true;
-                    Count.AddActivate(CardId.Neko_Quick);
+                    Count.AddActivate(CardId.Neko_Quick + 1);
                     return idx;
                 }
                 else if (option == Util.GetStringId(CardId.Neko_Quick, 2))
                 {
-                    Count.AddActivate(CardId.Neko_Quick + 1);
+                    Count.AddActivate(CardId.Neko_Quick);
                     return idx;
                 }
             }
@@ -409,7 +414,10 @@ namespace WindBot.Game.AI.Decks
                         List<ClientCard> result = cards.Where(i => Count.CheckActivate(i.Id + 1)).ToList();
                         if (cards.Any(i => i.IsCode(CardId.Neko_Sycro_Cookie)) && SPNekoSycroCookie() && Count.CheckActivate(CardId.Neko_Sycro_Cookie) && Count.CheckActivate(CardId.Neko_Sycro_Cookie + 1))
                             return Util.CheckSelectCount(cards.Where(i => i.IsCode(CardId.Neko_Sycro_Cookie)).ToList(), cards, min, max);
-                        result = result.Where(i => Count.CheckActivate(i.Id + 1) && i.Level == 2)
+                        result = result.Where(i => Count.CheckActivate(i.Id + 1) && Count.CheckActivate(i.Id) && i.IsCode(CardId.Neko_Sycro_Cake) && i.Level == 2)
+                            .Concat(result.Where(i => Count.CheckActivate(i.Id + 1) && Count.CheckActivate(i.Id) && i.IsCode(CardId.Neko_Sycro_Lollipop) && SPNekoSycroLollipop() && i.Level == 2))
+                            .Concat(result.Where(i => Count.CheckActivate(i.Id + 1) && Count.CheckActivate(i.Id) && i.Level == 2))
+                            .Concat(result.Where(i => Count.CheckActivate(i.Id + 1) && i.Level == 2))
                             .Concat(result.Where(i => i.IsCode(CardId.Neko_Sycro_Lollipop)))
                             .Concat(result.Where(i => i.IsCode(CardId.Neko_Sycro_Cake)))
                             .Concat(result.Where(i => i.Level == 2))
@@ -537,7 +545,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 if (Duel.Player == 1
                     && !Bot.GetMonsters().Any(i => i.HasType(CardType.Synchro) && i.HasSetcode(SetCode.Neko) && Count.CheckActivate(i.Id + 1))
-                    && !Bot.ExtraDeck.Any(i => i.HasType(CardType.Synchro) && i.HasSetcode(SetCode.Neko) && Count.CheckActivate(i.Id + 1))
+                    && Bot.ExtraDeck.Any(i => i.HasType(CardType.Synchro) && i.HasSetcode(SetCode.Neko) && !Count.CheckActivate(i.Id + 1))
                 )
                     return true;
                 return ((
@@ -570,9 +578,9 @@ namespace WindBot.Game.AI.Decks
         {
             return !Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardIsNegated(i))
                 && (Count.CheckActivate(CardId.Neko_Link)
-                    || Bot.GetMonsters().Count(i => i.IsCode(CardId.Neko_Link)) > 2
-                        || Bot.GetMonsters().Any(i => 
-                                i.IsCode(CardId.Neko_Link) && i.HasType(CardType.Synchro)
+                    || Bot.GetMonsters().Count(i => i.HasSetcode(SetCode.Neko) && i.Level == 1) > 2
+                        || !Bot.GetMonsters().Any(i => 
+                                i.HasSetcode(SetCode.Neko)
                                     && Bot.GetMonsters().Any(j => j != i && j.IsCode(CardId.Neko_Link))
                             )
                         );
@@ -602,9 +610,8 @@ namespace WindBot.Game.AI.Decks
             else if (Duel.LastChainPlayer == 1 && Duel.LastChainTargets.Any(i => i.HasSetcode(SetCode.Neko)
                 && Bot.GetMonsters().Contains(i)) && Enemy.GetFieldCount() >= 2 && Count.CheckActivate(Card.Id + 1))
                 return true;
-            if (Duel.Player == 0
-                && Count.CheckActivate(Card.Id)
-                && ((Bot.HasInGraveyard(CardId.Neko_Marshmallow)
+            if (Duel.Player == 0 && Count.CheckActivate(Card.Id)
+                    && ((Bot.HasInGraveyard(CardId.Neko_Marshmallow)
                     && Count.CheckActivate(CardId.Neko_Marshmallow)
                 ) || (
                     Bot.GetMonsters().Any(i => i.LinkCount == 1)
@@ -715,29 +722,16 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+        private bool Activate2()
+        {
+            return !DefaultCheckWhetherCardIsNegated(Card);
+        }
         private bool Activate()
         {
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
-            if (new[]{
-                CardId.Neko_Cake,
-                CardId.Neko_Cookie,
-                CardId.Neko_Lollipop
-            }.Contains(Card.Id)){
-                Count.AddActivate(Card.Id);
-                return true;
-            }
-            if (!new[]{
-                CardId.Neko_Sycro_Cake,
-                CardId.Neko_Sycro_Cookie,
-                CardId.Neko_Sycro_Lollipop
-            }.Contains(Card.Id))
-                return false;
-            if (!Enemy.GetMonsters().Concat(Enemy.GetSpells()).Any(i => !Duel.ChainTargets.Contains(i)))
-                return false;
             if (ActivateDescription == Util.GetStringId(Card.Id, 1))
             {
-                if (Duel.LastChainTargets.Any(i => i.HasSetcode(SetCode.Neko)
-                    && Bot.GetMonsters().Contains(i)) && Duel.LastChainTargets.Contains(Card))
+                if (Duel.LastChainTargets.Contains(Card))
                 {
                     Count.AddActivate(Card.Id + 1);
                     return true;
@@ -758,10 +752,13 @@ namespace WindBot.Game.AI.Decks
                 }
                 return false;
             }
-            if (Card.IsCode(CardId.Neko_Sycro_Cookie) && !Enemy.GetMonsters().Any(i => i.IsFaceup() && !i.HasType(CardType.Link)))
-                return false;
-            Count.AddActivate(Card.Id);
-            return true;
+            else
+            {
+                if (Card.IsCode(CardId.Neko_Sycro_Cookie) && !Enemy.GetMonsters().Any(i => i.IsFaceup() && !i.HasType(CardType.Link)))
+                    return false;
+                Count.AddActivate(Card.Id);
+                return true;
+            }
         }
         private bool ActivateLinkuriboh()
         {
@@ -775,7 +772,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SPShamisenSamsaraSorrowcat()
         {
-            if (!Bot.HasInExtra(CardId.Herald_of_the_Arc_Light))
+            if (!Bot.HasInExtra(CardId.Herald_of_the_Arc_Light) || Bot.HasInMonstersZone(CardId.Herald_of_the_Arc_Light))
                 return false;
             int[] cards = new[]
             {
@@ -785,11 +782,11 @@ namespace WindBot.Game.AI.Decks
             };
             int ct = Bot.GetMonsters().Count(i => i.Level == 1);
             return (Bot.HasInMonstersZone(cards) || Bot.HasInGraveyard(cards))
-                && (ct > 2
-                    || (ct > 1 && Bot.HasInMonstersZone(CardId.Neko_Link))
+                && (ct > 2 || (!Bot.GetMonsters().Any(i => i.Sequence > 4) && Bot.HasInExtra(CardId.Gravity_Controller)
+                    && ((ct > 1 && Bot.HasInMonstersZone(CardId.Neko_Link))
                     || (Bot.Hand.Any(i => (Count.CheckSpSummon(i.Id) || Count.CheckSummon()) && i.HasType(CardType.Monster) && i.HasSetcode(SetCode.Neko))
-                        && (ct > 1 || Bot.GetMonsters().Count(i => i.Level == 2 && i.HasType(CardType.Synchro)) > 1)
-                    )
+                        && (ct > 1 || Bot.GetMonsters().Any(i => i.Level == 2 && i.HasType(CardType.Synchro)))
+                    )))
                 );
         }
         private bool ActivateShamisenSamsaraSorrowcat()
