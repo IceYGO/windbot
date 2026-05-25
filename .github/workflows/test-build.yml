@@ -30,6 +30,7 @@ jobs:
         mkdir dist
         xcopy /e /y bin\Release dist\WindBot\
         xcopy /y BotWrapper\bin\Release\bot.conf dist\
+        xcopy /y BotWrapper\bin\Release\load-once.conf dist\
         xcopy /y BotWrapper\bin\Release\bot.exe dist\
         cd dist
         7z a WindBot.7z *
