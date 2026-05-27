@@ -1,4 +1,4 @@
-﻿namespace WindBot.Game.AI.Enums
+namespace WindBot.Game.AI.Enums
 {
     public enum FusionSpell
     {

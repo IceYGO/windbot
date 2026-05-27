@@ -1,4 +1,4 @@
-﻿namespace WindBot.Game.AI.Enums
+namespace WindBot.Game.AI.Enums
 {
     /// <summary>
     /// Cards that are invincible to battle and should always attack to use effect.
