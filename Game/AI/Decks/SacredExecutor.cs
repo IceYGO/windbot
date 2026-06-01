@@ -144,6 +144,7 @@ namespace WindBot.Game.AI.Decks
         ClientCard gustavRocketDiscardPlan = null;
         bool gustavRocketDiscardSelected = false;
         bool gustavRocketMaxSelected = false;
+        bool resolvingChantFusion = false;
 
         public SacredExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -239,6 +240,7 @@ namespace WindBot.Game.AI.Decks
             gustavRocketDiscardPlan = null;
             gustavRocketDiscardSelected = false;
             gustavRocketMaxSelected = false;
+            resolvingChantFusion = false;
 
             base.OnNewTurn();
         }
@@ -274,6 +276,40 @@ namespace WindBot.Game.AI.Decks
             Logger.DebugWriteLine( "OnSelectCard " + cards.Count + " " + min + " " + max + " hint=" + hint  + " cancelable=" + cancelable + " cards=["+string.Join(", ", cards.Select(c => c == null ? "null" : $"{c.Name}({c.Id}) C{c.Controller} L{c.Location}")) + "]");
 
             ClientCard trigger = Util.GetLastChainCard();
+            if (resolvingChantFusion)
+            {
+                if (hint == 509)
+                {
+                    ClientCard fusion = cards.FirstOrDefault(c =>
+                        c != null
+                        && c.Location == CardLocation.Extra
+                        && c.IsCode(CardId.PhantasmalSacredBeastsOfChaos));
+
+                    if (fusion != null)
+                    {
+                        Logger.DebugWriteLine("Chant GY fusion target: " + fusion.Id);
+                        return new List<ClientCard> { fusion };
+                    }
+                }
+
+                if (hint == 511)
+                {
+                    ClientCard material = cards
+                        .Where(c => c != null && IsPhantasmalChaosMaterial(c))
+                        // เอาจากมือก่อน เพื่อรักษาบอร์ด ถ้า core อนุญาต
+                        .OrderBy(c => c.Location == CardLocation.Hand ? 0 : 10)
+                        .ThenBy(c => ChantFusionMaterialScore(c))
+                        .FirstOrDefault();
+
+                    if (material != null)
+                    {
+                        Logger.DebugWriteLine("Chant GY fusion material pick: " + material.Id);
+                        return new List<ClientCard> { material };
+                    }
+
+                    resolvingChantFusion = false;
+                }
+            }
             if (resolvingGustavRocketSummon)
             {
                 // discard cost จากมือ
@@ -1679,11 +1715,9 @@ namespace WindBot.Game.AI.Decks
             {
                 if (ShouldWaitRavielBoardWipe())
                     return false;
-                if (Duel.Player == 1 && Duel.Phase != DuelPhase.End)
-                    return false;
-
+                
                 if (!CanMakePhantasmalFusion()) return false;
-
+                resolvingChantFusion = true;
                 AI.SelectCard(CardId.PhantasmalSacredBeastsOfChaos);
                 return true;
             }
@@ -2469,37 +2503,20 @@ namespace WindBot.Game.AI.Decks
 
             return CountFaceupMartyrOnField() >= 2;
         }
+
         private bool LinkuribohActivate()
         {
+            Logger.DebugWriteLine(
+    $"LinkuribohActivate loc={Card.Location} player={Duel.Player} phase={Duel.Phase} desc={ActivateDescription}"
+);
             if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
 
             if (Card.Location == CardLocation.MonsterZone)
             {
                 if (Duel.Player != 1) return false;
-                if (Duel.Phase != DuelPhase.Battle) return false;
 
-                ClientCard biggestEnemy = Enemy.GetMonsters()
-                                                .Where(c => c != null && c.IsFaceup())
-                                                .OrderByDescending(c => c.Attack)
-                                                .FirstOrDefault();
-
-                if (biggestEnemy == null) return false;
-
-                if (biggestEnemy.Attack >= Bot.LifePoints)
-                    return true;
-
-                if (biggestEnemy.Attack >= 2500)
-                    return true;
-
-                ClientCard bestBot = Bot.GetMonsters()
-                                        .Where(c => c != null && c.IsFaceup() && !c.HasType(CardType.Link))
-                                        .OrderByDescending(c => c.GetDefensePower())
-                                        .FirstOrDefault();
-
-                if (bestBot != null && biggestEnemy.Attack > bestBot.GetDefensePower())
-                    return true;
-
-                return false;
+                Logger.DebugWriteLine("Linkuriboh field effect: use on enemy attack.");
+                return true;
             }
 
             if (Card.Location == CardLocation.Grave)
@@ -2546,6 +2563,9 @@ namespace WindBot.Game.AI.Decks
         private bool VarudrasSummon()
         {
             if (Bot.HasInMonstersZone(CardId.VarudrasTheFinalBringer, true))
+                return false;
+
+            if (ShouldKeepCurrentBigBoard())
                 return false;
 
             if (!ShouldSummonVarudras())
@@ -2598,6 +2618,9 @@ namespace WindBot.Game.AI.Decks
         private bool GustavMaxSummon()
         {
             if (Bot.HasInMonstersZone(CardId.SuperdreadnoughtRailCannonGustavMax, true))
+                return false;
+
+            if (ShouldKeepCurrentBigBoard())
                 return false;
 
             if (CountLevel10MonstersOnField() < 2)
@@ -2755,6 +2778,30 @@ namespace WindBot.Game.AI.Decks
             currentNegateCardList.Add(last);
             currentDestroyCardList.Add(last);
             return true;
+        }
+        private int ChantFusionMaterialScore(ClientCard card)
+        {
+            if (card == null) return 9999;
+
+            if (card.IsCode(CardId.UriaSacredBeastOfCataclysmicFire)) return 1;
+
+            if (card.IsCode(CardId.RavielSacredBeastOfEndlessEternity)) return 2;
+
+            if (card.IsCode(CardId.HamonSacredBeastOfSinfulCatastrophe)) return 3;
+
+            return 50;
+        }
+        private bool ShouldKeepCurrentBigBoard()
+        {
+            bool hasRaviel = Bot.HasInMonstersZone(CardId.RavielSacredBeastOfEndlessEternity);
+            bool hasHamon = Bot.HasInMonstersZone(CardId.HamonSacredBeastOfSinfulCatastrophe);
+            bool hasColossus = Bot.HasInMonstersZone(CardId.ThunderDragonColossus);
+            bool hasChant = Bot.HasInHand(CardId.DestructionChantOfTheSacredBeast)
+                || Bot.HasInSpellZone(CardId.DestructionChantOfTheSacredBeast);
+            bool hasMartyr = Bot.HasInGraveyard(CardId.MartyrOfTheSacredBeasts);
+            bool hasUria = Bot.HasInHand(CardId.UriaSacredBeastOfCataclysmicFire);
+
+            return (hasRaviel && hasHamon && hasColossus && hasChant && hasMartyr && hasUria);
         }
         #endregion
     }
