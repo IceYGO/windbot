@@ -8,7 +8,6 @@ using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI.Decks
 {
-    // NOT FINISHED YET
     [Deck("Archfiend", "AI_Archfiend")]
     public class ArchfiendExecutor : DefaultExecutor
     {
@@ -17,11 +16,11 @@ namespace WindBot.Game.AI.Decks
             public const int SMSkull = 70781052;
             public const int RegenArch = 95718355;
             public const int RegenSage = 22938501;
-            public const int Origin = 100264002;
+            public const int Origin = 79621896;
             public const int Royal = 58769832;
             public const int PMBeryl = 63198739;
             public const int Highness = 11248645;
-            public const int Makourai = 100264003;
+            public const int Makourai = 15725501;
             public const int Strategy = 90764871;
             public const int Usurpation = 82997779;
             public const int PMLL = 56506740;
@@ -138,7 +137,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, _CardId.InfiniteImpermanence, InfiniteImpermanenceActivate);
             AddExecutor(ExecutorType.Activate, CardId.PMDR, PrimiteDrillbeamActivate);
             AddExecutor(ExecutorType.Activate, CardId.RegenSage);
-            //Rough code 
+            
             AddExecutor(ExecutorType.Activate, CardId.Usurpation, Usurpation);
             AddExecutor(ExecutorType.Activate, CardId.Strategy, StrategyActivate);
             AddExecutor(ExecutorType.Activate, CardId.Playtime, Playtime);
