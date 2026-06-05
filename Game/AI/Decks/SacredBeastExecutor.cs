@@ -9,8 +9,8 @@ using static WindBot.Game.AI.Decks.TimeThiefExecutor;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("SacredBot", "AI_SacredBot")]
-    class SacredExecutor : DefaultExecutor
+    [Deck("SacredBeast", "AI_SacredBeast")]
+    class SacredBeastExecutor : DefaultExecutor
     {
         public class CardId
         {
@@ -146,7 +146,7 @@ namespace WindBot.Game.AI.Decks
         bool gustavRocketMaxSelected = false;
         bool resolvingChantFusion = false;
 
-        public SacredExecutor(GameAI ai, Duel duel)
+        public SacredBeastExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
             AddExecutor(ExecutorType.Activate, CardId.AshBlossom, AshBlossomActivate);
