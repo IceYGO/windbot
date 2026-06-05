@@ -1467,6 +1467,7 @@ namespace WindBot.Game.AI.Decks
                 problemCardList.AddRange(GetNormalEnemyTargetList(true, true, CardType.Monster));
                 problemCardList.AddRange(Enemy.Graveyard.Where(card => card.HasType(CardType.Monster)).OrderByDescending(card => card.Attack));
                 problemCardList.AddRange(Enemy.Graveyard.Where(card => !card.HasType(CardType.Monster)));
+                AI.SelectCard(problemCardList);
                 return true;
             }
             else if (ActivateDescription == Util.GetStringId(CardId.SPLittleKnight, 1))
@@ -1485,7 +1486,7 @@ namespace WindBot.Game.AI.Decks
                     if (Duel.Player == 1)
                     {
                         selfMonster = Bot.GetMonsters().Where(card => card.IsAttack()).OrderBy(card => card.Attack).FirstOrDefault();
-                        if (!Util.IsOneEnemyBetterThanValue(selfMonster.Attack, true)) selfMonster = null;
+                        if (selfMonster != null && !Util.IsOneEnemyBetterThanValue(selfMonster.Attack, true)) selfMonster = null;
                     }
                 }
                 if (selfMonster != null)
