@@ -2014,8 +2014,7 @@ namespace WindBot.Game.AI.Decks
                 ids.Add(CardId.TheMightyMasterofMagic);
                 result = func.CardsIdToClientCards(ids, cards);
             }
-            else if (p_summoning || ((Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon &&
-                Card.HasType(CardType.Pendulum)))
+            else if (p_summoning || (Card != null && (Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon && Card.HasType(CardType.Pendulum)))
             {
                 p_summoning = false;
                 if (p_count >= 3 && !Bot.HasInExtra(CardId.SaryujaSkullDread) && Bot.HasInExtra(CardId.MechaPhantomBeastAuroradon)) return Func.CheckSelectCount(Util, result, cards, min, min);
