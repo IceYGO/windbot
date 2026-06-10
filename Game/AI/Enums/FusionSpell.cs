@@ -107,6 +107,12 @@
         PrimiteFusion = 99161253,
         TheGazeOfTimaeus = 22283204,
         MutinyInTheSky = 71593652,
-        HuntingHorn = 55421040
+        HuntingHorn = 55421040,
+        DarklordDance = 99941223,
+        PenetrationFusion = 8778267,
+        SurpriseFusion = 35167375,
+        FutureFusionNova = 92058902,
+        InvocationSword = 37432075,
+        WitchcrafterTerracottan = 70686400
     }
 }

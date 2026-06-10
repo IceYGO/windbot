@@ -149,6 +149,7 @@ namespace WindBot.Game.AI
             public const int DeckLockdown = 1149109;
             public const int DoomZDestruction = 80320877;
             public const int Mistake = 59305593;
+            public const int MirrorBarrier = 95915457;
 
             public const int BelialMarquisOfDarkness = 33655493;
             public const int ChirubiméPrincessOfAutumnLeaves = 87294988;
@@ -400,7 +401,7 @@ namespace WindBot.Game.AI
                         return false;
                 }
 
-                if (defender.EquipCards.Any(equip => equip.IsCode(_CardId.MoonMirrorShield) && !equip.IsDisabled()))
+                if (defender.EquipCards.Any(equip => equip.IsCode(new[] {_CardId.MoonMirrorShield, _CardId.MirrorBarrier}) && !equip.IsDisabled()))
                     return false;
 
                 if (!defender.IsDisabled())
