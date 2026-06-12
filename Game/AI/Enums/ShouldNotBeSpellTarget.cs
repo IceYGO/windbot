@@ -10,6 +10,7 @@
         ApoqliphortSkybase = 40061558,
         TheLegendaryFishermanIII = 44968687,
         ChaosAncientGearGiant = 51788412,
-        DrytronMeteonisQuadrantids = 95209656
+        DrytronMeteonisQuadrantids = 95209656,
+        ElShaddollMeshachrer = 32467459
     }
 }

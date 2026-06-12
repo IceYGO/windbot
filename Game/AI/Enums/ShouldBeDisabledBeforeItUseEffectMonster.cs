@@ -73,6 +73,8 @@
         TestBear = 62076252,
         RescueHedgehog = 99742859,
         SuperQuantalFairyZetan = 66646087,
-        LightWaterDragon = 82616239
+        LightWaterDragon = 82616239,
+        RescueACEQuickAttacker = 47425162,
+        MysticalCelticSage = 50073633
     }
 }

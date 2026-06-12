@@ -140,6 +140,11 @@
         HecahandsJawza = 67021206,
         HecahandsXeno = 94410955,
         MaidenInLove = 8445808,
-        ArchfiendMatador = 7622360
+        ArchfiendMatador = 7622360,
+        NightmareEyesRestrict = 30138615,
+        HecahandsMankibuel = 18321034,
+        FleetingPhantomMaskMaster = 44694191,
+        HecahandsDandalos = 31411835,
+        DarkCreator = 52768390
     }
 }
