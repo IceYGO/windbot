@@ -38,7 +38,7 @@ namespace WindBot.Game.AI.Decks
             public const int SuperdreadnoughtRailCannonJuggernautLiebe = 26096328;
             public const int SuperdreadnoughtRailCannonFlyingLauncher = 38354018;
             public const int EvilswarmExcitonKnight = 46772449;
-            public const int SPLittleKnight = 46772449;
+            public const int SPLittleKnight = 29301450;
             public const int SilhouhatteRabbit = 1528054;
             public const int LinkSpider = 98978921;
         }
