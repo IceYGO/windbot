@@ -74,23 +74,23 @@ namespace WindBot.Game.AI.Decks
                     CardId.Makourai,
                     CardId.Strategy,
                     CardId.Usurpation,
-                    CardId.PMLL
+                    CardId.PMLL,
                 }
             },
 
             { 2, new List<int>
                 {
                     _CardId.AshBlossom,
-                    _CardId.InfiniteImpermanence,
                     CardId.SMSkull,
-                    _CardId.PotOfExtravagance
+                    _CardId.PotOfExtravagance,
+                    _CardId.InfiniteImpermanence
                 }
             },
 
             { 1, new List<int>
                 {
                     _CardId.MaxxC,
-                    _CardId.CalledByTheGrave,
+                    //_CardId.CalledByTheGrave,
                     CardId.PMDR,
                     CardId.Simul,
                     CardId.RegenSage,
@@ -133,7 +133,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, _CardId.PotOfExtravagance, PotOfExtravaganceActivate);
             AddExecutor(ExecutorType.Activate, _CardId.MaxxC, MaxxCActivate);
             AddExecutor(ExecutorType.Activate, _CardId.AshBlossom, AshBlossomActivate);
-            AddExecutor(ExecutorType.Activate, _CardId.CalledByTheGrave, CalledbytheGraveActivate);
+            //AddExecutor(ExecutorType.Activate, _CardId.CalledByTheGrave, CalledbytheGraveActivate);
             AddExecutor(ExecutorType.Activate, _CardId.InfiniteImpermanence, InfiniteImpermanenceActivate);
             AddExecutor(ExecutorType.Activate, CardId.PMDR, PrimiteDrillbeamActivate);
             AddExecutor(ExecutorType.Activate, CardId.RegenSage);
