@@ -25,6 +25,7 @@ namespace WindBot.Game.AI.Decks
             public const int Marshmallon = 31305911; // 棉花糖
             public const int SpiritReaper = 23205979; // 削魂的死灵
             public const int MagicianOfFaith = 31560081; // 圣魔术师
+            public const int GracefulCharity = 79571449; // 天使的施舍
             public const int Confiscation = 17375316; // 收押
             public const int HeavyStorm = 19613556; // 大风暴
             public const int CreatureSwap = 31036355; // 强制转移
@@ -49,6 +50,9 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.HeavyStorm, HeavyStormActivate);
             AddExecutor(ExecutorType.Activate, CardId.Confiscation);
 
+            // 先开天使的施舍过牌。
+            AddExecutor(ExecutorType.Activate, CardId.GracefulCharity);
+
             // 电子龙必须先于除去、夺取和复活执行，否则这些动作可能让双方都有怪兽。
             AddExecutor(ExecutorType.SpSummon, CardId.CyberDragon);
             AddExecutor(ExecutorType.SpSummon, CardId.ChaosSorcerer, ChaosSorcererSummon);
@@ -58,7 +62,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.SnatchSteal, SnatchStealActivate);
             AddExecutor(ExecutorType.Activate, CardId.PrematureBurial, PrematureBurialActivate);
             AddExecutor(ExecutorType.Activate, CardId.SmashingGround, DefaultSmashingGround);
-            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
+            AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, MysticalSpaceTyphoonActivate);
             AddExecutor(ExecutorType.Activate, CardId.BookOfMoon, BookOfMoonActivate);
             AddExecutor(ExecutorType.Activate, CardId.EnemyController, EnemyControllerActivate);
             AddExecutor(ExecutorType.Activate, CardId.CreatureSwap, CreatureSwapActivate);
@@ -68,19 +72,19 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
             AddExecutor(ExecutorType.Activate, CardId.CallOfTheHaunted, CallOfTheHauntedActivate);
 
-            AddExecutor(ExecutorType.Activate, CardId.ZaborgTheThunderMonarch, ZaborgActivate);
             AddExecutor(ExecutorType.Activate, CardId.BreakerTheMagicalWarrior, BreakerActivate);
             AddExecutor(ExecutorType.Activate, CardId.ExiledForce, ExiledForceActivate);
-            AddExecutor(ExecutorType.Activate, CardId.Tsukuyomi, TsukuyomiActivate);
-            AddExecutor(ExecutorType.Activate, CardId.MagicianOfFaith, MagicianOfFaithActivate);
-            AddExecutor(ExecutorType.Activate, CardId.Sangan, SanganActivate);
             AddExecutor(ExecutorType.Activate, CardId.MysticTomato, MysticTomatoActivate);
             AddExecutor(ExecutorType.Activate, CardId.DDWarriorLady, DDWarriorLadyActivate);
+
+            // 先处理反转召唤，避免直接把尚未发动反转效果的怪兽解放掉。
+            AddExecutor(ExecutorType.Repos, MonsterRepos);
 
             // 针对性通常召唤必须先于通用打手。
             AddExecutor(ExecutorType.Summon, CardId.ZaborgTheThunderMonarch, ZaborgSummon);
             AddExecutor(ExecutorType.Summon, CardId.ExiledForce, ExiledForceSummon);
             AddExecutor(ExecutorType.Summon, CardId.Tsukuyomi, TsukuyomiSummon);
+            AddExecutor(ExecutorType.Summon, CardId.SpiritReaper, SpiritReaperSummon);
             AddExecutor(ExecutorType.Summon, CardId.BreakerTheMagicalWarrior);
             AddExecutor(ExecutorType.SummonOrSet, CardId.DDWarriorLady);
             AddExecutor(ExecutorType.SummonOrSet, CardId.MysticTomato);
@@ -88,17 +92,233 @@ namespace WindBot.Game.AI.Decks
             // 等混沌召唤和复活判断结束后，再洗回墓地资源。
             AddExecutor(ExecutorType.Activate, CardId.PotOfAvarice, PotOfAvariceActivate);
 
-            AddExecutor(ExecutorType.MonsterSet, CardId.MagicianOfFaith);
+            AddExecutor(ExecutorType.MonsterSet, CardId.MagicianOfFaith, MagicianOfFaithSet);
             AddExecutor(ExecutorType.MonsterSet, CardId.Sangan);
             AddExecutor(ExecutorType.MonsterSet, CardId.Marshmallon);
             AddExecutor(ExecutorType.MonsterSet, CardId.SpiritReaper);
-            AddExecutor(ExecutorType.Repos, MonsterRepos);
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
         }
 
         public override bool OnSelectHand()
         {
             return true;
+        }
+
+        public override IList<ClientCard> OnSelectCard(
+            IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            ClientCard solvingCard = Duel.GetCurrentSolvingChainCard();
+            if (solvingCard == null || solvingCard.Controller != 0)
+                return base.OnSelectCard(cards, min, max, hint, cancelable);
+
+            if (solvingCard.IsCode(CardId.GracefulCharity) &&
+                hint == HintMsg.Discard)
+            {
+                List<ClientCard> selected = new List<ClientCard>();
+                List<ClientCard> graveyardMonsters = Bot.GetGraveyardMonsters();
+                bool graveyardHasLight = graveyardMonsters
+                    .Any(c => c.HasAttribute(CardAttribute.Light));
+                bool graveyardHasDark = graveyardMonsters
+                    .Any(c => c.HasAttribute(CardAttribute.Dark));
+                bool handHasChaosSorcerer = Bot.HasInHand(CardId.ChaosSorcerer);
+
+                if (handHasChaosSorcerer && !graveyardHasLight)
+                    AddGracefulCharityDiscards(selected, cards, c =>
+                        c.IsMonster() && c.HasAttribute(CardAttribute.Light));
+                if (handHasChaosSorcerer && !graveyardHasDark)
+                    AddGracefulCharityDiscards(selected, cards, c =>
+                        c.IsMonster() &&
+                        c.HasAttribute(CardAttribute.Dark) &&
+                        !c.IsCode(CardId.ChaosSorcerer));
+
+                IEnumerable<ClientCard> duplicateCards = cards
+                    .GroupBy(c => c.Id)
+                    .Where(group => group.Count() > 1)
+                    .SelectMany(group => group.Skip(1));
+                AddGracefulCharityDiscards(
+                    selected, duplicateCards, c => true, 2);
+
+                if (!Bot.Hand.Any(c => c.IsMonster()) &&
+                    Bot.GetMonsterCount() == 0)
+                    AddGracefulCharityDiscards(selected, cards,
+                        c => c.IsCode(CardId.CreatureSwap));
+
+                if (Bot.HasInHand(CardId.MagicianOfFaith) &&
+                    !Bot.Graveyard.Any(c => c.IsSpell()))
+                    AddGracefulCharityDiscards(
+                        selected, cards, c => c.IsSpell());
+
+                // 已选中的怪兽也会进入墓地，后续不再重复补同属性。
+                if (!graveyardHasLight && !selected.Any(c =>
+                    c.IsMonster() && c.HasAttribute(CardAttribute.Light)))
+                    AddGracefulCharityDiscards(selected, cards, c =>
+                        c.IsMonster() && c.HasAttribute(CardAttribute.Light));
+                if (!graveyardHasDark && !selected.Any(c =>
+                    c.IsMonster() && c.HasAttribute(CardAttribute.Dark)))
+                    AddGracefulCharityDiscards(selected, cards, c =>
+                        c.IsMonster() &&
+                        c.HasAttribute(CardAttribute.Dark) &&
+                        !c.IsCode(CardId.ChaosSorcerer));
+
+                if (Bot.GetMonsterCount() > 0 || Util.IsTurn1OrMain2())
+                    AddGracefulCharityDiscards(selected, cards,
+                        c => c.IsCode(CardId.CyberDragon));
+                if (Bot.GetMonsterCount() == 0)
+                    AddGracefulCharityDiscards(selected, cards,
+                        c => c.IsCode(CardId.ZaborgTheThunderMonarch));
+
+                if (Bot.Hand.Count(c => c.IsMonster()) == 1)
+                    AddGracefulCharityDiscards(selected, cards,
+                        c => c.IsSpell() || c.IsTrap());
+                if (graveyardMonsters.Count < 3)
+                    AddGracefulCharityDiscards(selected, cards,
+                        c => c.IsCode(CardId.PotOfAvarice));
+
+                int[] discardOrder =
+                {
+                    CardId.CyberDragon,
+                    CardId.ChaosSorcerer,
+                    CardId.SpiritReaper,
+                    CardId.SmashingGround,
+                    CardId.ExiledForce,
+                    CardId.MysticTomato,
+                    CardId.CreatureSwap,
+                    CardId.PotOfAvarice
+                };
+                foreach (int cardId in discardOrder)
+                    AddGracefulCharityDiscards(
+                        selected, cards, c => c.IsCode(cardId));
+
+                return Util.CheckSelectCount(selected, cards, min, max);
+            }
+
+            if (solvingCard.IsCode(CardId.ZaborgTheThunderMonarch))
+            {
+                List<ClientCard> targets = new List<ClientCard>();
+                ClientCard problematic = Util.GetProblematicEnemyMonster(0, true);
+                if (problematic != null && cards.Contains(problematic) &&
+                    !problematic.IsShouldNotBeTarget() &&
+                    !problematic.IsShouldNotBeMonsterTarget())
+                    targets.Add(problematic);
+
+                targets.AddRange(cards
+                    .Where(c => c.Controller == 1 && c != problematic &&
+                        !c.IsShouldNotBeTarget() && !c.IsShouldNotBeMonsterTarget())
+                    .OrderByDescending(c => c.IsFaceup())
+                    .ThenByDescending(c => c.GetDefensePower()));
+                targets.AddRange(cards
+                    .Where(c => c.Controller == 0 &&
+                        !c.IsCode(CardId.ZaborgTheThunderMonarch) &&
+                        !c.IsShouldNotBeMonsterTarget())
+                    .OrderBy(c => c.IsCode(CardId.Sangan) ? 0 : 1)
+                    .ThenBy(c => c.GetDefensePower()));
+                if (cards.Contains(solvingCard))
+                    targets.Add(solvingCard);
+                return Util.CheckSelectCount(targets, cards, min, max);
+            }
+
+            if (solvingCard.IsCode(CardId.Tsukuyomi))
+            {
+                ClientCard target = GetTsukuyomiTarget(cards) ??
+                    cards.FirstOrDefault(c => c == solvingCard);
+                if (target != null)
+                    return Util.CheckSelectCount(
+                        new List<ClientCard> { target }, cards, min, max);
+            }
+
+            if (solvingCard.IsCode(CardId.MagicianOfFaith))
+            {
+                List<int> priority = new List<int>();
+                if (Enemy.GetMonsters().Any(c => c.IsFaceup()))
+                    priority.Add(CardId.SnatchSteal);
+                if (Bot.LifePoints > 800 && Bot.GetGraveyardMonsters()
+                    .Any(c => c.IsCanRevive() && !c.IsCode(CardId.Tsukuyomi)))
+                    priority.Add(CardId.PrematureBurial);
+                if (Bot.GetGraveyardMonsters().Count >= 5)
+                    priority.Add(CardId.PotOfAvarice);
+
+                int enemySpellCount = Enemy.GetSpellCount();
+                int botSpellCount = Bot.GetSpellCount();
+                if (enemySpellCount >= botSpellCount + 2 ||
+                    Enemy.SpellZone.GetFloodgate() != null && botSpellCount == 0)
+                    priority.Add(CardId.HeavyStorm);
+                if (Enemy.GetMonsterCount() > 0)
+                    priority.Add(CardId.SmashingGround);
+                if (Enemy.GetMonsters().Any(c => c.IsFacedown()))
+                    priority.Add(CardId.NoblemanOfCrossout);
+                if (enemySpellCount > 0)
+                    priority.Add(CardId.MysticalSpaceTyphoon);
+                if (Enemy.Hand.Count > 0 && Bot.LifePoints > 1000)
+                    priority.Add(CardId.Confiscation);
+
+                priority.AddRange(new[]
+                {
+                    CardId.SnatchSteal,
+                    CardId.PrematureBurial,
+                    CardId.PotOfAvarice,
+                    CardId.HeavyStorm,
+                    CardId.CreatureSwap,
+                    CardId.Confiscation,
+                    CardId.SmashingGround,
+                    CardId.NoblemanOfCrossout,
+                    CardId.MysticalSpaceTyphoon,
+                    CardId.EnemyController,
+                    CardId.BookOfMoon
+                });
+                IList<ClientCard> targets = Util.SelectPreferredCards(
+                    priority.Distinct().ToList(), cards, min, max);
+                return Util.CheckSelectCount(targets, cards, min, max);
+            }
+
+            if (solvingCard.IsCode(CardId.Sangan))
+            {
+                List<int> priority = Duel.Player == 0
+                    ? new List<int>
+                    {
+                        CardId.Marshmallon,
+                        CardId.SpiritReaper,
+                        CardId.DDWarriorLady,
+                        CardId.MysticTomato,
+                        CardId.MagicianOfFaith,
+                        CardId.Tsukuyomi,
+                        CardId.ExiledForce,
+                        CardId.Sangan
+                    }
+                    : new List<int>
+                    {
+                        CardId.DDWarriorLady,
+                        CardId.Tsukuyomi,
+                        CardId.ExiledForce,
+                        CardId.MagicianOfFaith,
+                        CardId.SpiritReaper,
+                        CardId.Marshmallon,
+                        CardId.MysticTomato,
+                        CardId.Sangan
+                    };
+                IList<ClientCard> targets = Util.SelectPreferredCards(
+                    priority, cards, min, max);
+                return Util.CheckSelectCount(targets, cards, min, max);
+            }
+
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
+        }
+
+        private void AddGracefulCharityDiscards(
+            List<ClientCard> selected,
+            IEnumerable<ClientCard> cards,
+            Func<ClientCard, bool> predicate,
+            int count = 1)
+        {
+            foreach (ClientCard card in cards)
+            {
+                if (selected.Count >= 2 || count == 0)
+                    return;
+                if (selected.Contains(card) || !predicate(card))
+                    continue;
+
+                selected.Add(card);
+                count--;
+            }
         }
 
         public override bool OnSelectMonsterSummonOrSet(ClientCard card)
@@ -111,10 +331,19 @@ namespace WindBot.Game.AI.Decks
 
         private bool MonsterRepos()
         {
+            if (Card.IsCode(CardId.MagicianOfFaith) && Card.IsFacedown() &&
+                !Bot.Graveyard.Any(c => c.IsSpell()))
+                return false;
+
             if (Card.IsCode(CardId.SpiritReaper))
+            {
+                int attackers = Bot.GetMonsters().Count(c =>
+                    c.IsFaceup() && c.IsAttack() && c.Attack >= 1500);
+                bool shouldAttack = attackers >= Enemy.GetMonsterCount();
                 return Card.IsDefense()
-                    ? Enemy.GetMonsterCount() == 0
-                    : Enemy.GetMonsterCount() > 0;
+                    ? shouldAttack
+                    : !shouldAttack;
+            }
 
             if (Card.IsCode(CardId.Marshmallon))
             {
@@ -126,6 +355,15 @@ namespace WindBot.Game.AI.Decks
             }
 
             return DefaultMonsterRepos();
+        }
+
+        private bool ShouldUseSetQuickPlayForMagicianOfFaith()
+        {
+            return Duel.Player == 1 &&
+                Card.Location == CardLocation.SpellZone &&
+                Card.IsFacedown() &&
+                Bot.GetMonsters().Any(c =>
+                    c.IsCode(CardId.MagicianOfFaith) && c.IsFacedown());
         }
 
         private bool ShouldStopAttack(ClientCard attacker)
@@ -159,9 +397,8 @@ namespace WindBot.Game.AI.Decks
         {
             int enemyCount = Enemy.GetSpellCount();
             int myCount = Bot.GetSpellCount() -
-                (Card.IsCode(CardId.HeavyStorm) && Card.Location == CardLocation.SpellZone ? 1 : 0);
-            return enemyCount >= myCount + 2 ||
-                (Enemy.SpellZone.GetFloodgate() != null && myCount == 0);
+                (Card.Location == CardLocation.SpellZone ? 1 : 0);
+            return enemyCount >= myCount + 2 || Enemy.SpellZone.GetFloodgate() != null;
         }
 
         // 抹杀之使徒：目标为对方背面防守怪兽
@@ -172,6 +409,33 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectCard(target);
                 return true;
+            }
+            return false;
+        }
+
+        private bool MysticalSpaceTyphoonActivate()
+        {
+            ClientCard lastChainCard = Util.GetLastChainCard();
+            bool equipTargetsSpiritReaper = lastChainCard != null &&
+                lastChainCard.Controller == 1 &&
+                lastChainCard.IsSpell() &&
+                lastChainCard.HasType(CardType.Equip) &&
+                Duel.LastChainTargets.Any(c => c.IsCode(CardId.SpiritReaper));
+            if (equipTargetsSpiritReaper)
+                return false;
+
+            if (DefaultMysticalSpaceTyphoon())
+                return true;
+
+            if (ShouldUseSetQuickPlayForMagicianOfFaith())
+            {
+                ClientCard target = Enemy.GetSpells()
+                    .FirstOrDefault(c => c.IsFacedown());
+                if (target != null)
+                {
+                    AI.SelectCard(target);
+                    return true;
+                }
             }
             return false;
         }
@@ -210,6 +474,22 @@ namespace WindBot.Game.AI.Decks
             {
                 AI.SelectCard(threat);
                 return true;
+            }
+
+            if (ShouldUseSetQuickPlayForMagicianOfFaith())
+            {
+                ClientCard target = Enemy.GetMonsters()
+                    .Where(c => c.IsFaceup() &&
+                        !c.HasType(CardType.Link | CardType.Token) &&
+                        !c.IsShouldNotBeTarget() &&
+                        !c.IsShouldNotBeSpellTrapTarget())
+                    .OrderByDescending(c => c.Attack)
+                    .FirstOrDefault();
+                if (target != null)
+                {
+                    AI.SelectCard(target);
+                    return true;
+                }
             }
             return false;
         }
@@ -441,6 +721,20 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
+            if (ShouldUseSetQuickPlayForMagicianOfFaith())
+            {
+                ClientCard target = switchable
+                    .Where(c => c.IsAttack())
+                    .OrderByDescending(c => c.Attack)
+                    .FirstOrDefault();
+                if (target != null)
+                {
+                    AI.SelectOption(0);
+                    AI.SelectCard(target);
+                    return true;
+                }
+            }
+
             if (Duel.Player == 0)
             {
                 ClientCard sangan = Bot.GetMonsters().FirstOrDefault(c => c.IsCode(CardId.Sangan));
@@ -633,26 +927,46 @@ namespace WindBot.Game.AI.Decks
         }
 
         // 月读命：重置圣魔术师，或把难以战斗处理的怪兽变成里侧守备表示
-        private ClientCard GetTsukuyomiTarget()
+        private ClientCard GetTsukuyomiTarget(IEnumerable<ClientCard> cards = null)
         {
-            ClientCard magician = Bot.GetMonsters()
-                .FirstOrDefault(c => c.IsCode(CardId.MagicianOfFaith) && c.IsFaceup());
+            IEnumerable<ClientCard> candidates = cards != null
+                ? cards.AsEnumerable()
+                : Bot.GetMonsters().Concat(Enemy.GetMonsters());
+            ClientCard magician = candidates
+                .FirstOrDefault(c => c.Controller == 0 &&
+                    c.IsCode(CardId.MagicianOfFaith) && c.IsFaceup());
             if (magician != null && Bot.Graveyard.Any(c => c.IsSpell()))
                 return magician;
 
-            List<ClientCard> candidates = Enemy.GetMonsters()
-                .Where(c => c.IsFaceup() && !c.HasType(CardType.Link) &&
+            List<ClientCard> enemyCandidates = candidates
+                .Where(c => c.Controller == 1 && c.IsFaceup() &&
+                    !c.HasType(CardType.Flip) &&
+                    !c.HasType(CardType.Link | CardType.Token) &&
                     !c.IsShouldNotBeTarget() && !c.IsShouldNotBeMonsterTarget())
                 .ToList();
-            ClientCard problematic = Util.GetProblematicEnemyMonster(0, true);
-            if (candidates.Contains(problematic))
+            ClientCard problematic = enemyCandidates
+                .FirstOrDefault(c => c.IsFloodgate() || c.IsMonsterDangerous());
+            if (problematic != null)
                 return problematic;
 
-            int bestAttack = Math.Max(1100, Util.GetBestAttack(Bot));
-            return candidates
-                .Where(c => c.IsAttack() && c.Attack >= bestAttack && c.Defense < bestAttack)
-                .OrderByDescending(c => c.Attack - c.Defense)
+            ClientCard tsukuyomiBattleTarget = enemyCandidates
+                .Where(c => c.Defense < 1100)
+                .OrderByDescending(c => c.Attack)
                 .FirstOrDefault();
+            if (tsukuyomiBattleTarget != null)
+                return tsukuyomiBattleTarget;
+
+            int bestAttack = Math.Max(1100, Util.GetBestAttack(Bot));
+            return enemyCandidates
+                .Where(c => c.Defense < bestAttack)
+                .OrderByDescending(c => c.Attack)
+                .FirstOrDefault();
+        }
+
+        private bool SpiritReaperSummon()
+        {
+            return Enemy.GetMonsterCount() == 0 &&
+                !Util.IsTurn1OrMain2();
         }
 
         // ===== 怪兽效果 =====
@@ -679,32 +993,6 @@ namespace WindBot.Game.AI.Decks
             if (!shouldBanish) return false;
 
             AI.SelectCard(target);
-            return true;
-        }
-
-        // 雷帝的效果是强制效果；没有合法的对方目标时必须破坏己方怪兽
-        private bool ZaborgActivate()
-        {
-            List<ClientCard> targets = new List<ClientCard>();
-            ClientCard problematic = Util.GetProblematicEnemyMonster(0, true);
-            if (problematic != null && !problematic.IsShouldNotBeTarget() &&
-                !problematic.IsShouldNotBeMonsterTarget())
-                targets.Add(problematic);
-
-            targets.AddRange(Enemy.GetMonsters()
-                .Where(c => c != problematic && !c.IsShouldNotBeTarget() &&
-                    !c.IsShouldNotBeMonsterTarget())
-                .OrderByDescending(c => c.IsFaceup())
-                .ThenByDescending(c => c.GetDefensePower()));
-
-            targets.AddRange(Bot.GetMonsters()
-                .Where(c => !c.IsCode(CardId.ZaborgTheThunderMonarch) &&
-                    !c.IsShouldNotBeMonsterTarget())
-                .OrderBy(c => c.IsCode(CardId.Sangan) ? 0 : 1)
-                .ThenBy(c => c.GetDefensePower()));
-            targets.Add(Card);
-
-            AI.SelectCard(targets);
             return true;
         }
 
@@ -753,88 +1041,10 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        // 月读命：召唤时盖放怪兽；结束阶段返回手牌的强制效果不需要选择目标
-        private bool TsukuyomiActivate()
+        private bool MagicianOfFaithSet()
         {
-            if (Duel.Phase == DuelPhase.End) return true;
-
-            ClientCard target = GetTsukuyomiTarget() ?? Card;
-            AI.SelectCard(target);
-            return true;
-        }
-
-        // 圣魔术师翻转效果：从墓地回收最高优先级魔法牌
-        private bool MagicianOfFaithActivate()
-        {
-            List<int> priority = new List<int>();
-            if (Enemy.GetMonsters().Any(c => c.IsFaceup()))
-                priority.Add(CardId.SnatchSteal);
-            if (Bot.LifePoints > 800 && Bot.GetGraveyardMonsters()
-                .Any(c => c.IsCanRevive() && !c.IsCode(CardId.Tsukuyomi)))
-                priority.Add(CardId.PrematureBurial);
-            if (Bot.GetGraveyardMonsters().Count >= 5)
-                priority.Add(CardId.PotOfAvarice);
-            if (HeavyStormActivate())
-                priority.Add(CardId.HeavyStorm);
-            if (Enemy.GetMonsterCount() > 0)
-                priority.Add(CardId.SmashingGround);
-            if (Enemy.GetMonsters().Any(c => c.IsFacedown()))
-                priority.Add(CardId.NoblemanOfCrossout);
-            if (Enemy.GetSpellCount() > 0)
-                priority.Add(CardId.MysticalSpaceTyphoon);
-            if (Enemy.Hand.Count > 0 && Bot.LifePoints > 1000)
-                priority.Add(CardId.Confiscation);
-
-            priority.AddRange(new[]
-            {
-                CardId.SnatchSteal,
-                CardId.PrematureBurial,
-                CardId.PotOfAvarice,
-                CardId.HeavyStorm,
-                CardId.CreatureSwap,
-                CardId.Confiscation,
-                CardId.SmashingGround,
-                CardId.NoblemanOfCrossout,
-                CardId.MysticalSpaceTyphoon,
-                CardId.EnemyController,
-                CardId.BookOfMoon
-            });
-
-            AI.SelectCard(priority.Distinct().ToList());
-            return true;
-        }
-
-        // 三眼怪送墓效果：按优先级从牌组中搜索目标怪兽（攻击力≤1500）
-        private bool SanganActivate()
-        {
-            // 自己回合搜索的同名卡本回合不能发动效果，优先选择依靠永续效果防守的怪兽。
-            if (Duel.Player == 0)
-            {
-                AI.SelectCard(
-                    CardId.Marshmallon,
-                    CardId.SpiritReaper,
-                    CardId.DDWarriorLady,
-                    CardId.MysticTomato,
-                    CardId.MagicianOfFaith,
-                    CardId.Tsukuyomi,
-                    CardId.ExiledForce,
-                    CardId.Sangan
-                );
-            }
-            else
-            {
-                AI.SelectCard(
-                    CardId.DDWarriorLady,
-                    CardId.Tsukuyomi,
-                    CardId.ExiledForce,
-                    CardId.MagicianOfFaith,
-                    CardId.SpiritReaper,
-                    CardId.Marshmallon,
-                    CardId.MysticTomato,
-                    CardId.Sangan
-                );
-            }
-            return true;
+            return Bot.Graveyard.Any(c => c.IsSpell()) ||
+                Bot.GetSpells().Any(c => c.IsFacedown() && c.HasType(CardType.QuickPlay));
         }
 
         // 杀人番茄被战斗破坏效果：从牌组特殊召唤暗属性怪兽（攻击力≤1500）
