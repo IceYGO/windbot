@@ -400,7 +400,62 @@ namespace WindBot.Game.AI.Decks
 
         private bool GeminiSparkActivate()
         {
-            ClientCard target = Util.GetProblematicEnemyCard(1900, true);
+            ClientCard targetedNeosAlius = null;
+            if (Duel.LastChainPlayer == 1)
+            {
+                targetedNeosAlius = Duel.LastChainTargets.FirstOrDefault(card =>
+                    card.Controller == 0 &&
+                    card.Location == CardLocation.MonsterZone &&
+                    card.IsFaceup() &&
+                    card.IsCode(CardId.ElementalHERONeosAlius));
+            }
+
+            ClientCard target = null;
+
+            if (targetedNeosAlius != null)
+            {
+                ClientCard lastChainCard = Util.GetLastChainCard();
+                if (lastChainCard != null &&
+                    lastChainCard.Controller == 1 &&
+                    (lastChainCard.Location == CardLocation.MonsterZone ||
+                     lastChainCard.Location == CardLocation.SpellZone) &&
+                    (lastChainCard.HasType(CardType.Continuous) ||
+                     lastChainCard.HasType(CardType.Equip)) &&
+                    !lastChainCard.IsShouldNotBeTarget() &&
+                    !lastChainCard.IsShouldNotBeSpellTrapTarget())
+                {
+                    target = lastChainCard;
+                }
+                else
+                {
+                    IList<ClientCard> otherTargets = Enemy.GetMonsters()
+                        .Concat(Enemy.GetSpells())
+                        .Where(card =>
+                            card != lastChainCard &&
+                            !card.IsShouldNotBeTarget() &&
+                            !card.IsShouldNotBeSpellTrapTarget())
+                        .ToList();
+
+                    target = Util.GetProblematicEnemyCard(0, true);
+                    if (target == null || !otherTargets.Contains(target))
+                    {
+                        target = otherTargets
+                            .OrderByDescending(card => card.IsFloodgate() || card.IsMonsterDangerous())
+                            .ThenByDescending(card => card.IsFaceup())
+                            .ThenByDescending(card => card.GetDefensePower())
+                            .FirstOrDefault();
+                    }
+                }
+
+                if (target == null)
+                    return false;
+
+                AI.SelectCard(targetedNeosAlius);
+                AI.SelectNextCard(target);
+                return true;
+            }
+
+            target = Util.GetProblematicEnemyCard(1900, true);
             if (target == null)
                 return false;
 
