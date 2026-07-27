@@ -533,6 +533,9 @@ namespace WindBot.Game.AI
         /// <returns>Selected position, or 0 if no position is set for this card.</returns>
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
+            if (AI.HaveSelectedPosition())
+                return 0;
+
             YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
             if (cardData != null)
             {
