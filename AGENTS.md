@@ -72,6 +72,7 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 - `Bot` 和 `Enemy` 分别是本机视角的 `Duel.Fields[0]` 与 `Duel.Fields[1]`；协议玩家编号应通过现有本地化逻辑转换，不要自行假定座位编号。
 - 优先使用 `ClientField`、`ClientCard`、`AIUtil`、`CardExtension` 的现有查询方法，避免重复遍历和散落的区域位掩码。
 - 未知卡的 `Id` 可能为 `0`，`Data`/`Name` 可能为 `null`。对隐藏区域只能依赖客户端实际知道的数量、位置和已公开历史。
+- `Bot.Deck` 只表示客户端可见的牌堆槽位，不是可按卡号查询的剩余卡组：决斗开始时其中的卡通常为 `Id == 0`，洗牌后也会被重置为 `Id == 0`。因此禁止用 `Bot.Deck.Any(card => card.IsCode(...))` 或等价写法判断某卡是否仍在卡组。检索、送墓等效果应排入卡号优先级，再由服务器提供的实际候选集过滤并决定选择。
 - 牌组执行器的回合、阶段、连锁和使用次数标志应在 `OnNewTurn`、`OnNewPhase`、`OnChainEnd`、`OnMove` 等正确生命周期回调中维护和重置。
 - `Duel.CurrentChain`、`CurrentChainInfo`、`ChainTargets`、`LastSummonedCards` 等状态由消息流维护；使用前注意它表示当前客户端已收到的时点，而不是完整规则模拟。
 
