@@ -266,6 +266,15 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Called when a monster's normal summon is attempted.
+        /// </summary>
+        public virtual void OnSummoning()
+        {
+            // For overriding
+            return;
+        }
+
+        /// <summary>
         /// Set global variables Type, Card, ActivateDescription for Executor
         /// </summary>
         public void SetCard(ExecutorType type, ClientCard card, int description, int timing = -1)

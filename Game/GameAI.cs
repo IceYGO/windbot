@@ -160,6 +160,11 @@ namespace WindBot.Game
             Executor.OnChaining(player,card);
         }
 
+        public void OnSummoning()
+        {
+            Executor.OnSummoning();
+        }
+
         public void OnChainSolved(int chainIndex)
         {
             Executor.OnChainSolved(chainIndex);

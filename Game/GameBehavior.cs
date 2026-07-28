@@ -148,7 +148,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.Summoned, OnSummoned);
             _messages.Add(GameMessage.SpSummoning, OnSpSummoning);
             _messages.Add(GameMessage.SpSummoned, OnSpSummoned);
-            _messages.Add(GameMessage.FlipSummoning, OnSummoning);
+            _messages.Add(GameMessage.FlipSummoning, OnFlipSummoning);
             _messages.Add(GameMessage.FlipSummoned, OnSummoned);
             _messages.Add(GameMessage.ConfirmCards, OnConfirmCards);
             _messages.Add(GameMessage.PlayerHint, OnPlayerHint);
@@ -1967,6 +1967,17 @@ namespace WindBot.Game
         }
 
         private void OnSummoning(BinaryReader packet)
+        {
+            InternalOnSummoning(packet);
+            _ai.OnSummoning();
+        }
+
+        private void OnFlipSummoning(BinaryReader packet)
+        {
+            InternalOnSummoning(packet);
+        }
+
+        private void InternalOnSummoning(BinaryReader packet)
         {
             _duel.LastSummonedCards.Clear();
             int code = packet.ReadInt32();
