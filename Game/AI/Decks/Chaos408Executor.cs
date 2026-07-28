@@ -68,7 +68,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.EnemyController, EnemyControllerActivate);
             AddExecutor(ExecutorType.Activate, CardId.CreatureSwap, CreatureSwapActivate);
 
-            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultBottomlessTrapHole);
             AddExecutor(ExecutorType.Activate, CardId.MirrorForce, MirrorForceActivate);
             AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
             AddExecutor(ExecutorType.Activate, CardId.CallOfTheHaunted, CallOfTheHauntedActivate);
@@ -499,7 +499,8 @@ namespace WindBot.Game.AI.Decks
         {
             ClientCard attacker = Enemy.BattlingMonster;
             if (ShouldStopAttack(attacker) && attacker.IsFaceup() &&
-                !attacker.HasType(CardType.Link))
+                !attacker.HasType(CardType.Link) &&
+                !IsCardAlreadyHandledInCurrentChain(attacker))
             {
                 AI.SelectCard(attacker);
                 return true;
@@ -517,7 +518,8 @@ namespace WindBot.Game.AI.Decks
             ClientCard threat = Util.GetProblematicEnemyMonster(0, true);
             if (threat != null && threat.IsFaceup() && !threat.HasType(CardType.Link) &&
                 !threat.IsShouldNotBeTarget() &&
-                !threat.IsShouldNotBeSpellTrapTarget())
+                !threat.IsShouldNotBeSpellTrapTarget() &&
+                !IsCardAlreadyHandledInCurrentChain(threat))
             {
                 AI.SelectCard(threat);
                 return true;
@@ -529,7 +531,8 @@ namespace WindBot.Game.AI.Decks
                     .Where(c => c.IsFaceup() &&
                         !c.HasType(CardType.Link | CardType.Token) &&
                         !c.IsShouldNotBeTarget() &&
-                        !c.IsShouldNotBeSpellTrapTarget())
+                        !c.IsShouldNotBeSpellTrapTarget() &&
+                        !IsCardAlreadyHandledInCurrentChain(c))
                     .OrderByDescending(c => c.Attack)
                     .FirstOrDefault();
                 if (target != null)

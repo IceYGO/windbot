@@ -52,7 +52,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.HiddenTemplesOfNecrovalley, HiddenTemplesOfNecrovalleyEffect);
             AddExecutor(ExecutorType.Activate, CardId.Necrovalley, NecrovalleyActivate);
 
-            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultBottomlessTrapHole);
             AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
             AddExecutor(ExecutorType.Activate, CardId.DimensionalPrison, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, CardId.RiteOfSpirit, DefaultUniqueTrap);

@@ -102,7 +102,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
             AddExecutor(ExecutorType.Activate, CardId.HeroBlast, HeroBlastActivate);
-            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultBottomlessTrapHole);
             AddExecutor(ExecutorType.Activate, CardId.MirrorForce, MirrorForceActivate);
             AddExecutor(ExecutorType.Activate, CardId.DimensionalPrison, DefaultTrap);
             AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);

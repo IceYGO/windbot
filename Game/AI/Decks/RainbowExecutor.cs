@@ -133,7 +133,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.StormingMirrorForce, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, CardId.DarkMirrorForce, DefaultUniqueTrap);
-            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultBottomlessTrapHole);
             AddExecutor(ExecutorType.Activate, CardId.TraptrixTrapHoleNightmare, DefaultUniqueTrap);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
