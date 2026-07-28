@@ -71,7 +71,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.TourGuideFromTheUnderworld, TourGuideFromTheUnderworldSummon);
             AddExecutor(ExecutorType.Activate, CardId.TourGuideFromTheUnderworld, TourGuideFromTheUnderworldEffect);
             AddExecutor(ExecutorType.Summon, CardId.Sangan, SanganSummon);
-            AddExecutor(ExecutorType.Activate, CardId.Sangan, SanganEffect);
 
             AddExecutor(ExecutorType.Summon, CardId.MechaPhantomBeastOLion);
             AddExecutor(ExecutorType.Activate, CardId.MechaPhantomBeastOLion, MechaPhantomBeastOLionEffect);
@@ -146,6 +145,41 @@ namespace WindBot.Game.AI.Decks
             return 0;
         }
 
+        public override IList<ClientCard> OnSelectCard(
+            IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            ClientCard solvingChainCard = Duel.GetCurrentSolvingChainCard();
+            if (solvingChainCard != null &&
+                solvingChainCard.Controller == 0 &&
+                solvingChainCard.IsCode(CardId.Sangan) &&
+                hint == HintMsg.AddToHand)
+            {
+                List<int> priority = new List<int>();
+                if (Bot.HasInMonstersZone(CardId.SalamangreatAlmiraj) &&
+                    !Bot.HasInHand(CardId.CrusadiaArboria))
+                    priority.Add(CardId.CrusadiaArboria);
+                if (!Bot.HasInHand(CardId.MaxxC))
+                    priority.Add(CardId.MaxxC);
+                if (!Bot.HasInHand(CardId.AshBlossomJoyousSpring))
+                    priority.Add(CardId.AshBlossomJoyousSpring);
+                if (!Bot.HasInHand(CardId.MagiciansSouls))
+                    priority.Add(CardId.MagiciansSouls);
+                if (!Bot.HasInHand(CardId.CrusadiaArboria))
+                    priority.Add(CardId.CrusadiaArboria);
+                priority.AddRange(new[]
+                {
+                    CardId.AshBlossomJoyousSpring,
+                    CardId.MaxxC,
+                    CardId.CrusadiaArboria
+                });
+                IList<ClientCard> targets = Util.SelectPreferredCards(
+                    priority.Distinct().ToList(), cards, min, max);
+                return Util.CheckSelectCount(targets, cards, min, max);
+            }
+
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
+        }
+
         private bool DragunofRedEyesCounter()
         {
             if (ActivateDescription != -1 && ActivateDescription != Util.GetStringId(CardId.DragunofRedEyes, 1))
@@ -213,27 +247,6 @@ namespace WindBot.Game.AI.Decks
 
         private bool SanganSummon()
         {
-            return true;
-        }
-
-        private bool SanganEffect()
-        {
-            if (Bot.HasInMonstersZone(CardId.SalamangreatAlmiraj) && !Bot.HasInHand(CardId.CrusadiaArboria))
-                AI.SelectCard(CardId.CrusadiaArboria);
-            else if (!Bot.HasInHand(CardId.MaxxC))
-                AI.SelectCard(CardId.MaxxC);
-            else if (!Bot.HasInHand(CardId.AshBlossomJoyousSpring))
-                AI.SelectCard(CardId.AshBlossomJoyousSpring);
-            else if (!Bot.HasInHand(CardId.MagiciansSouls))
-                AI.SelectCard(CardId.MagiciansSouls);
-            else if (!Bot.HasInHand(CardId.CrusadiaArboria))
-                AI.SelectCard(CardId.CrusadiaArboria);
-            else
-                AI.SelectCard(new[] {
-                    CardId.AshBlossomJoyousSpring,
-                    CardId.MaxxC,
-                    CardId.CrusadiaArboria
-                });
             return true;
         }
 

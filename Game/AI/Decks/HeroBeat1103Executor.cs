@@ -83,7 +83,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.ElementalHEROGreatTornado);
             AddExecutor(ExecutorType.Activate, CardId.ElementalHERONovaMaster);
             AddExecutor(ExecutorType.Activate, CardId.ElementalHEROTheShining, ElementalHEROTheShiningActivate);
-            AddExecutor(ExecutorType.Activate, CardId.ElementalHEROGaia, ElementalHEROGaiaActivate);
+            AddExecutor(ExecutorType.Activate, CardId.ElementalHEROGaia);
             AddExecutor(ExecutorType.Activate, CardId.Number39Utopia, Number39UtopiaActivate);
             AddExecutor(ExecutorType.Activate, CardId.EvigishkiMerrowgeist);
 
@@ -110,6 +110,28 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
+        }
+
+        public override IList<ClientCard> OnSelectCard(
+            IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(CardId.ElementalHEROGaia) &&
+                hint == HintMsg.Faceup)
+            {
+                ClientCard target = Util.GetBestEnemyMonster(true, true);
+                List<ClientCard> targets = new List<ClientCard>();
+                if (target != null && cards.Contains(target))
+                    targets.Add(target);
+                targets.AddRange(cards
+                    .Where(card => !targets.Contains(card))
+                    .OrderByDescending(card => card.GetDefensePower()));
+                return Util.CheckSelectCount(targets, cards, min, max);
+            }
+
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
 
         public override bool OnSelectHand()
@@ -376,16 +398,6 @@ namespace WindBot.Game.AI.Decks
                 CardId.ElementalHEROGaia,
                 CardId.ElementalHEROEscuridao,
                 CardId.ElementalHEROTheShining);
-            return true;
-        }
-
-        private bool ElementalHEROGaiaActivate()
-        {
-            ClientCard target = Util.GetBestEnemyMonster(true, true);
-            if (target == null)
-                return false;
-
-            AI.SelectCard(target);
             return true;
         }
 

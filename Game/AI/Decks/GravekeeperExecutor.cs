@@ -76,10 +76,27 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.GravekeepersCommandant, GravekeepersCommandantEffect);
             AddExecutor(ExecutorType.Activate, CardId.GravekeepersAssailant, GravekeepersAssailantEffect);
             AddExecutor(ExecutorType.Activate, CardId.GravekeepersDescendant, GravekeepersDescendantEffect);
-            AddExecutor(ExecutorType.Activate, CardId.GravekeepersSpy, SearchForDescendant);
-            AddExecutor(ExecutorType.Activate, CardId.GravekeepersRecruiter, SearchForDescendant);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
+        }
+
+        public override IList<ClientCard> OnSelectCard(
+            IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            ClientCard solvingChainCard = Duel.GetCurrentSolvingChainCard();
+            if (solvingChainCard != null &&
+                solvingChainCard.Controller == 0 &&
+                ((solvingChainCard.IsCode(CardId.GravekeepersSpy) &&
+                hint == HintMsg.SpSummon) ||
+                (solvingChainCard.IsCode(CardId.GravekeepersRecruiter) &&
+                hint == HintMsg.AddToHand)))
+            {
+                IList<ClientCard> targets = Util.SelectPreferredCards(
+                    CardId.GravekeepersDescendant, cards, min, max);
+                return Util.CheckSelectCount(targets, cards, min, max);
+            }
+
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
 
         private bool HiddenTemplesOfNecrovalleyEffect()
@@ -138,10 +155,5 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool SearchForDescendant()
-        {
-            AI.SelectCard(CardId.GravekeepersDescendant);
-            return true;
-        }
     }
 }

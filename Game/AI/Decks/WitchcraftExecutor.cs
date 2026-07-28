@@ -113,7 +113,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.WitchcrafterBystreet, WitchcraftRecycle);
             AddExecutor(ExecutorType.Activate, WitchcraftRecycle);
             AddExecutor(ExecutorType.Activate, CardId.MetalfoesFusion);
-            AddExecutor(ExecutorType.Activate, CardId.TGWonderMagician, TGWonderMagicianActivate);
+            AddExecutor(ExecutorType.Activate, CardId.TGWonderMagician);
             AddExecutor(ExecutorType.Activate, CardId.KnightmareUnicorn, KnightmareUnicornActivate);
             AddExecutor(ExecutorType.Activate, CardId.KnightmarePhoenix, KnightmarePhoenixActivate);
             AddExecutor(ExecutorType.Activate, CardId.CrystronHalqifibrax, CrystronHalqifibraxActivate);
@@ -280,6 +280,20 @@ namespace WindBot.Game.AI.Decks
         // overwrite OnSelectCard to act normally in SelectUnselect
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(CardId.TGWonderMagician) &&
+                hint == HintMsg.Destroy)
+            {
+                List<ClientCard> targets = Enemy.SpellZone
+                    .GetMatchingCards(card => cards.Contains(card))
+                    .OrderByDescending(card => card.IsFloodgate())
+                    .ThenByDescending(card => card.IsFaceup())
+                    .ToList();
+                return Util.CheckSelectCount(targets, cards, min, max);
+            }
+
             // Patronus
             if (hint == HintMsg.AddToHand)
             {
@@ -2505,19 +2519,6 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             return false;
-        }
-
-        // activate of TGWonderMagician
-        public bool TGWonderMagicianActivate()
-        {
-            if (Card.Location != CardLocation.MonsterZone) return true;
-            Logger.DebugWriteLine("TGWonderMagician: " + ActivateDescription.ToString());
-            List<ClientCard> problem_cards = Enemy.SpellZone.GetMatchingCards(card => card.IsFloodgate()).ToList();
-            List<ClientCard> faceup_cards = Enemy.SpellZone.GetMatchingCards(card => card.IsFaceup()).ToList();
-            List<ClientCard> facedown_cards = Enemy.SpellZone.GetMatchingCards(card => card.IsFacedown()).ToList();
-            List<ClientCard> result = problem_cards.Union(faceup_cards).ToList().Union(facedown_cards).ToList();
-            AI.SelectCard(result);
-            return true;
         }
 
         // check whether summon BorrelswordDragon

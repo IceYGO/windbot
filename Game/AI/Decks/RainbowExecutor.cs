@@ -139,6 +139,26 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
+        public override IList<ClientCard> OnSelectCard(
+            IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(CardId.LightningChidori) &&
+                hint == HintMsg.ToDeck)
+            {
+                ClientCard target = Util.GetProblematicEnemyCard();
+                if (target == null || !cards.Contains(target))
+                    target = Util.GetBestEnemyCard();
+                if (target != null && cards.Contains(target))
+                    return Util.CheckSelectCount(
+                        new List<ClientCard> { target }, cards, min, max);
+            }
+
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
+        }
+
         public override void OnNewTurn()
         {
             NormalSummoned = false;
@@ -360,9 +380,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool LightningChidoriEffect()
         {
-            ClientCard problematicCard = Util.GetProblematicEnemyCard();
-            AI.SelectCard(0);
-            AI.SelectNextCard(problematicCard);
+            if (ActivateDescription ==
+                Util.GetStringId(CardId.LightningChidori, 1))
+                AI.SelectCard(0);
             return true;
         }
 

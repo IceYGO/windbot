@@ -84,6 +84,16 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 - 复杂的、依赖 `hint`/`min`/`max`/候选集合的选择应覆盖 `OnSelectCard` 或素材选择回调；无法处理时返回 `base`/`null`，让通用逻辑继续。
 - 返回的卡片数量必须满足 `min`/`max`，并且对象必须来自服务器传入的候选集合。
 
+必发效果的发动和选卡需要特别处理：
+
+- 必发效果可能由服务器直接强制发动，尤其是只有一个强制候选时，牌组注册的 `Activate` 执行器及其条件函数不会被调用。因此不要依赖发动条件函数为必发效果排入 `AI.Select*`、设置状态或完成其他副作用；通常只需让服务器发动，并在实际选择回调中处理选卡。
+- 也就是说，`AddExecutor(ExecutorType.Activate, CardId.Sangan, SanganActivate);` 中在 `SanganActivate` 调用 `AI.SelectCard` 等方法基本是无意义的；必发效果的 `ExecutorType.Activate` 的意义应仅限于多个同时发动候选的优先级。
+- 卡片发动时选择支付代价或选择指定目标，发生在连锁建立阶段。此时该卡已经加入 `Duel.CurrentChain`，但尚未进入连锁处理，应在 `OnSelectCard` 中用 `Duel.GetCurrentChainCard()` 识别最新连锁卡；同时检查控制者、卡号和 `hint`，再从服务器给出的候选中返回对象。
+- 效果处理时才进行的选卡，例如从卡组检索、特殊召唤或效果处理中的丢弃，发生在连锁处理阶段，应在 `OnSelectCard` 中用 `Duel.GetCurrentSolvingChainCard()` 识别正在处理的连锁卡。该方法在发动、支付代价和指定目标时会返回 `null`。
+- 注意，以上问题仅限于必发效果，即满足条件必定强制发动的 `EFFECT_TYPE_TRIGGER_F` 的效果。效果文本中写“〇〇的场合才能发动”通常不是必发效果，写“〇〇的场合发动”通常是必发效果。普通可选发动的效果应正常使用 `AI.SelectCard` 等方法。
+- `GetCurrentChainCard()` 只表示尚未开始处理时的最新连锁卡，连锁开始处理后返回 `null`；`GetCurrentSolvingChainCard()` 只表示当前正在处理的连锁卡。不要用 `CurrentChain.LastOrDefault()` 或 `AIUtil.GetLastChainCard()` 代替这一区分，否则多段连锁倒序处理时可能把选卡归给错误的连锁卡。
+- 如果同一张卡同时具有发动时目标、处理时选卡或多个不同效果，必须结合 `hint`、候选区域和必要的效果描述进一步区分。不要让 `OnSelectCard` 返回选择的同时还保留同一流程的预选队列，否则残留选择可能污染下一次选卡。
+
 ## 新增或修改牌组
 
 新增牌组时通常需要同时完成：

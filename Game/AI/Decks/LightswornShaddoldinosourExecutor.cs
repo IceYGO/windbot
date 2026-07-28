@@ -110,7 +110,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.CoralDragon, CoralDragoneff);
             AddExecutor(ExecutorType.Activate, CardId.RedWyvern, RedWyverneff);
             AddExecutor(ExecutorType.Activate, CardId.CrystalWingSynchroDragon, CrystalWingSynchroDragoneff);
-            AddExecutor(ExecutorType.Activate, CardId.BlackRoseMoonlightDragon, BlackRoseMoonlightDragoneff);
+            AddExecutor(ExecutorType.Activate, CardId.BlackRoseMoonlightDragon);
             AddExecutor(ExecutorType.Activate, CardId.Sdulldeat, Sdulldeateff);
             AddExecutor(ExecutorType.Activate, CardId.Michael, Michaeleff);
             AddExecutor(ExecutorType.Activate, CardId.ScarlightRedDragon, ScarlightRedDragoneff);
@@ -249,6 +249,30 @@ namespace WindBot.Game.AI.Decks
                 atk += c.Attack;
             }
             return atk;
+        }
+
+        public override IList<ClientCard> OnSelectCard(
+            IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(
+                    CardId.TG_WonderMagician,
+                    CardId.BlackRoseMoonlightDragon) &&
+                (currentChainCard.IsCode(CardId.TG_WonderMagician)
+                    ? hint == HintMsg.Destroy
+                    : hint == HintMsg.ReturnToHand))
+            {
+                ClientCard target = currentChainCard.IsCode(CardId.TG_WonderMagician)
+                    ? Util.GetProblematicEnemySpell()
+                    : Util.GetBestEnemyMonster();
+                if (target != null && cards.Contains(target))
+                    return Util.CheckSelectCount(
+                        new List<ClientCard> { target }, cards, min, max);
+            }
+
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
 
         public override void OnNewPhase()
@@ -1191,20 +1215,6 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
       
-        private bool BlackRoseMoonlightDragoneff()
-        {
-            IList<ClientCard> targets = new List<ClientCard>();
-            ClientCard target1 = Util.GetBestEnemyMonster();
-            if (target1 != null)
-            {
-                targets.Add(target1);
-                AI.SelectCard(targets);
-                return true;
-            }
-            return false;
-
-        }
-
         private bool RedWyvernsp()
         {
             return false;

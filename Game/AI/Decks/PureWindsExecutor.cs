@@ -245,7 +245,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.SpeedroidTerrortop, SpeedroidTerrortopeff);
             AddExecutor(ExecutorType.Activate, CardId.SpeedroidTaketomborg, SpeedroidTaketomborgeff);
             AddExecutor(ExecutorType.Activate, CardId.SpeedroidRedEyedDice, SpeedroidRedEyedDiceeff);
-            AddExecutor(ExecutorType.Activate, CardId.MistWurm, MistWurmeff);
+            AddExecutor(ExecutorType.Activate, CardId.MistWurm);
             AddExecutor(ExecutorType.Activate, CardId.DaigustoGulldos, DaigustoGulldoseff);
             AddExecutor(ExecutorType.SpSummon, CardId.WindwitchWinterBell, WindwitchWinterBellsp);
 
@@ -293,6 +293,30 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.SuperTeamBuddyForceUnite, SuperTeamBuddyForceUniteeff);
 
             AddExecutor(ExecutorType.Repos, MonsterRepos);
+        }
+
+        public override IList<ClientCard> OnSelectCard(
+            IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(CardId.MistWurm) &&
+                hint == HintMsg.ReturnToHand)
+            {
+                List<ClientCard> targets = new List<ClientCard>();
+                ClientCard problematic = Util.GetProblematicEnemyCard();
+                if (problematic != null && cards.Contains(problematic))
+                    targets.Add(problematic);
+                targets.AddRange(cards
+                    .Where(card => !targets.Contains(card))
+                    .OrderByDescending(card => card.IsMonsterDangerous())
+                    .ThenByDescending(card => card.IsFloodgate())
+                    .ThenByDescending(card => card.GetDefensePower()));
+                return Util.CheckSelectCount(targets, cards, min, max);
+            }
+
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
 
         public override void OnNewTurn()
@@ -396,19 +420,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
             if (Bot.HasInMonstersZone(CardId.GreatFly))
                 return false;
-            return true;
-        }
-        private bool MistWurmeff()
-        {
-            AI.SelectCard(Util.GetBestEnemyCard(false, true));
-            if (Util.GetBestEnemyCard(false, true) != null)
-                Logger.DebugWriteLine("*************SelectCard= " + Util.GetBestEnemyCard(false, true).Id);
-            AI.SelectNextCard(Util.GetBestEnemyCard(false, true));
-            if (Util.GetBestEnemyCard(false, true) != null)
-                Logger.DebugWriteLine("*************SelectCard= " + Util.GetBestEnemyCard(false, true).Id);
-            AI.SelectThirdCard(Util.GetBestEnemyCard(false, true));
-            if (Util.GetBestEnemyCard(false, true) != null)
-                Logger.DebugWriteLine("*************SelectCard= " + Util.GetBestEnemyCard(false, true).Id);
             return true;
         }
         private bool GustoGulldosu()

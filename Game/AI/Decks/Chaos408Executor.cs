@@ -107,11 +107,12 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(
             IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ClientCard solvingCard = Duel.GetCurrentSolvingChainCard();
-            if (solvingCard == null || solvingCard.Controller != 0)
-                return base.OnSelectCard(cards, min, max, hint, cancelable);
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            ClientCard solvingChainCard = Duel.GetCurrentSolvingChainCard();
 
-            if (solvingCard.IsCode(CardId.GracefulCharity) &&
+            if (solvingChainCard != null &&
+                solvingChainCard.Controller == 0 &&
+                solvingChainCard.IsCode(CardId.GracefulCharity) &&
                 hint == HintMsg.Discard)
             {
                 List<ClientCard> selected = new List<ClientCard>();
@@ -192,41 +193,59 @@ namespace WindBot.Game.AI.Decks
                 return Util.CheckSelectCount(selected, cards, min, max);
             }
 
-            if (solvingCard.IsCode(CardId.ZaborgTheThunderMonarch))
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(CardId.ZaborgTheThunderMonarch) &&
+                hint == HintMsg.Destroy)
             {
                 List<ClientCard> targets = new List<ClientCard>();
+
                 ClientCard problematic = Util.GetProblematicEnemyMonster(0, true);
                 if (problematic != null && cards.Contains(problematic) &&
                     !problematic.IsShouldNotBeTarget() &&
                     !problematic.IsShouldNotBeMonsterTarget())
                     targets.Add(problematic);
 
-                targets.AddRange(cards
-                    .Where(c => c.Controller == 1 && c != problematic &&
-                        !c.IsShouldNotBeTarget() && !c.IsShouldNotBeMonsterTarget())
-                    .OrderByDescending(c => c.IsFaceup())
-                    .ThenByDescending(c => c.GetDefensePower()));
-                targets.AddRange(cards
-                    .Where(c => c.Controller == 0 &&
-                        !c.IsCode(CardId.ZaborgTheThunderMonarch) &&
-                        !c.IsShouldNotBeMonsterTarget())
-                    .OrderBy(c => c.IsCode(CardId.Sangan) ? 0 : 1)
-                    .ThenBy(c => c.GetDefensePower()));
-                if (cards.Contains(solvingCard))
-                    targets.Add(solvingCard);
+                if (targets.Count < max)
+                    targets.AddRange(cards
+                        .Where(c => c.Controller == 1 && c != problematic &&
+                            !c.IsShouldNotBeTarget() && !c.IsShouldNotBeMonsterTarget())
+                        .OrderByDescending(c => c.IsFaceup())
+                        .ThenByDescending(c => c.GetDefensePower()));
+
+                if (targets.Count < max)
+                    targets.AddRange(cards
+                        .Where(c => c.Controller == 1 && !targets.Contains(c))
+                        .OrderByDescending(c => c.IsFaceup())
+                        .ThenByDescending(c => c.GetDefensePower()));
+
+                if (targets.Count < max)
+                    targets.AddRange(cards
+                        .Where(c => c.Controller == 0 &&
+                            !c.IsCode(CardId.ZaborgTheThunderMonarch) &&
+                            !c.IsShouldNotBeMonsterTarget())
+                        .OrderBy(c => c.IsCode(CardId.Sangan) ? 0 : 1)
+                        .ThenBy(c => c.GetDefensePower()));
+
                 return Util.CheckSelectCount(targets, cards, min, max);
             }
 
-            if (solvingCard.IsCode(CardId.Tsukuyomi))
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(CardId.Tsukuyomi) &&
+                hint == HintMsg.Faceup)
             {
                 ClientCard target = GetTsukuyomiTarget(cards) ??
-                    cards.FirstOrDefault(c => c == solvingCard);
+                    cards.FirstOrDefault(c => c == currentChainCard);
                 if (target != null)
                     return Util.CheckSelectCount(
                         new List<ClientCard> { target }, cards, min, max);
             }
 
-            if (solvingCard.IsCode(CardId.MagicianOfFaith))
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(CardId.MagicianOfFaith) &&
+                hint == HintMsg.AddToHand)
             {
                 List<int> priority = new List<int>();
                 if (Enemy.GetMonsters().Any(c => c.IsFaceup()))
@@ -270,7 +289,10 @@ namespace WindBot.Game.AI.Decks
                 return Util.CheckSelectCount(targets, cards, min, max);
             }
 
-            if (solvingCard.IsCode(CardId.Sangan))
+            if (solvingChainCard != null &&
+                solvingChainCard.Controller == 0 &&
+                solvingChainCard.IsCode(CardId.Sangan) &&
+                hint == HintMsg.AddToHand)
             {
                 List<int> priority = Duel.Player == 0
                     ? new List<int>
