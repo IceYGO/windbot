@@ -597,9 +597,9 @@ namespace WindBot.Game
         /// <returns>Selected position.</returns>
         public CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
-            CardPosition selector_selected = GetSelectedPosition();
-
             CardPosition executor_selected = Executor.OnSelectPosition(cardId, positions);
+
+            CardPosition selector_selected = GetSelectedPosition();
 
             // Selects the selected position if available, the first available otherwise.
             if (positions.Contains(executor_selected))
