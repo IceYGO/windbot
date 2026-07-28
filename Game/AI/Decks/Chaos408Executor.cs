@@ -392,9 +392,13 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.IsCode(CardId.SpiritReaper))
             {
-                int attackers = Bot.GetMonsters().Count(c =>
-                    c.IsFaceup() && c.IsAttack() && c.Attack >= 1100);
-                bool shouldAttack = attackers >= Enemy.GetMonsterCount();
+                int otherAttackers = Bot.GetMonsters().Count(c =>
+                    !c.Equals(Card) &&
+                    c.IsFaceup() &&
+                    c.IsAttack());
+                bool shouldAttack =
+                    !Util.IsTurn1OrMain2() &&
+                    otherAttackers >= Enemy.GetMonsterCount();
                 return Card.IsDefense()
                     ? shouldAttack
                     : !shouldAttack;
@@ -515,11 +519,31 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            ClientCard threat = Util.GetProblematicEnemyMonster(0, true);
-            if (threat != null && threat.IsFaceup() && !threat.HasType(CardType.Link) &&
-                !threat.IsShouldNotBeTarget() &&
-                !threat.IsShouldNotBeSpellTrapTarget() &&
-                !IsCardAlreadyHandledInCurrentChain(threat))
+            ClientCard threat = Duel.LastSummonedCards
+                .FirstOrDefault(c =>
+                    c.Controller == 1 &&
+                    c.IsFloodgate() &&
+                    c.IsFaceup() &&
+                    !c.HasType(CardType.Link) &&
+                    !c.IsShouldNotBeTarget() &&
+                    !c.IsShouldNotBeSpellTrapTarget() &&
+                    !IsCardAlreadyHandledInCurrentChain(c));
+            if (threat == null &&
+                Duel.Phase > DuelPhase.Main1 &&
+                Duel.Phase < DuelPhase.Main2)
+            {
+                threat = Util.GetProblematicEnemyMonster(0, true);
+                if (threat != null &&
+                    (!threat.IsFaceup() ||
+                    threat.HasType(CardType.Link) ||
+                    threat.IsShouldNotBeTarget() ||
+                    threat.IsShouldNotBeSpellTrapTarget() ||
+                    IsCardAlreadyHandledInCurrentChain(threat)))
+                {
+                    threat = null;
+                }
+            }
+            if (threat != null)
             {
                 AI.SelectCard(threat);
                 return true;
@@ -765,8 +789,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool SpellSetForHandLimit()
         {
+            int handLimit = Bot.HasInMonstersZone(CardId.Tsukuyomi, true, false, true) ? 5 : 6;
             return Duel.Phase == DuelPhase.Main2 &&
-                Bot.Hand.Count > 6 &&
+                Bot.Hand.Count > handLimit &&
                 Card.IsSpell();
         }
 
