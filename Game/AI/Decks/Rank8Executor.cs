@@ -60,6 +60,7 @@ namespace WindBot.Game.AI.Decks
         };
 
         private bool _aleisterSearchedInvocation = false;
+        private readonly HashSet<int> _horusSpecialSummonedThisTurn = new HashSet<int>();
         private bool _purpleNightfallSummoned = false;
         private bool _indigoEclipseSummoned = false;
 
@@ -180,9 +181,37 @@ namespace WindBot.Game.AI.Decks
         public override void OnNewTurn()
         {
             _aleisterSearchedInvocation = false;
+            _horusSpecialSummonedThisTurn.Clear();
             _purpleNightfallSummoned = false;
             _indigoEclipseSummoned = false;
             base.OnNewTurn();
+        }
+
+        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
+            if (hint == HintMsg.SpSummon
+                && min == 1
+                && max == 1
+                && currentChain != null
+                && currentChain.IsActivateCode(CardId.TheZombieVampire))
+            {
+                ClientCard target = cards
+                    .Where(c => c.Controller == 1 && c.Level >= 4)
+                    .OrderByDescending(c => c.Attack)
+                    .FirstOrDefault()
+                    ?? cards
+                        .Where(c => c.Controller == 0
+                            && c.IsCode(HorusMonsterIds)
+                            && _horusSpecialSummonedThisTurn.Contains(c.Id))
+                        .OrderByDescending(c => c.Attack)
+                        .FirstOrDefault()
+                    ?? cards.OrderByDescending(c => c.Attack).FirstOrDefault();
+                if (target != null)
+                    return new List<ClientCard> { target };
+            }
+
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
 
         // ============================================================
@@ -361,7 +390,6 @@ namespace WindBot.Game.AI.Decks
         private bool KingsSarcophagusEffect()
         {
             if (Card.Location != CardLocation.SpellZone
-                || Card.Sequence >= 5
                 || DefaultCheckWhetherCardIsNegated(Card))
                 return false;
 
@@ -371,12 +399,20 @@ namespace WindBot.Game.AI.Decks
             if (Bot.GetMonsterCount() >= 5)
                 return false;
 
+            List<int> worthwhileHorusMonsters = HorusMonsterIds
+                .Where(id => !_horusSpecialSummonedThisTurn.Contains(id)
+                    && !Bot.HasInGraveyard(id)
+                    && Bot.GetRemainingCount(id, id == CardId.ImsetyGloryOfHorus ? 3 : 2) > 0)
+                .ToList();
+            if (worthwhileHorusMonsters.Count == 0)
+                return false;
+
             ClientCard discard = GetHorusEngineDiscard();
             if (discard == null)
                 return false;
 
             AI.SelectCard(discard);
-            AI.SelectNextCard(GetHorusMonsterPriority());
+            AI.SelectNextCard(worthwhileHorusMonsters);
             return true;
         }
 
@@ -576,6 +612,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.IsCode(CardId.DuamutefBlessingOfHorus))
                 AI.SelectPosition(CardPosition.FaceUpAttack);
+            _horusSpecialSummonedThisTurn.Add(Card.Id);
             return true;
         }
 
