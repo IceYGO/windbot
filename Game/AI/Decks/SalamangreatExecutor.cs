@@ -1148,7 +1148,9 @@ namespace WindBot.Game.AI.Decks
                 //bot_list.Reverse();
                 foreach (ClientCard card in bot_list)
                 {
-                    if (card.HasPosition(CardPosition.Attack) && !card.HasType(CardType.Link))
+                    if (card.HasPosition(CardPosition.Attack) &&
+                        !card.HasType(CardType.Link) &&
+                        card.Attacked)
                     {
                         AI.SelectCard(card);
                         return true;
