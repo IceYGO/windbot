@@ -80,6 +80,7 @@ namespace WindBot.Game.AI
             public const int SolemnJudgment = 41420027;
             public const int SolemnWarning = 84749824;
             public const int SolemnStrike = 40605147;
+            public const int TreebornFrog = 12538374;
             public const int TorrentialTribute = 53582587;
             public const int EvenlyMatched = 15693423;
             public const int HeavyStorm = 19613556;
@@ -1074,7 +1075,10 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnWarning()
         {
-            return (Bot.LifePoints > 2000) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && !DefaultOnlyHorusSpSummoning() && DefaultTrap();
+            return (Bot.LifePoints > 2000) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1)
+                && !DefaultOnlyHorusSpSummoning()
+                && !(Util.GetLastChainCard()?.IsCode(_CardId.TreebornFrog) ?? false)
+                && DefaultTrap();
         }
 
         /// <summary>
