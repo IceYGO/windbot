@@ -66,6 +66,7 @@ namespace WindBot.Game.AI.Decks
             public const int KashtiraAriseHeart = 48626373;
             public const int GhostMournerMoonlitChill = 52038441;
             public const int NibiruThePrimalBeing = 27204311;
+            public const int AmeNoMurakumoNoMitsurugi = 19899073;
 
         }
 
@@ -256,45 +257,40 @@ namespace WindBot.Game.AI.Decks
         public override int OnSelectOption(IList<int> options)
         {
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
-            Logger.DebugWriteLine($"OnSelectOption: CurrentSolving={currentSolvingChain} count={options.Count} options=[{string.Join(", ", options.Select((v, i) => $"{i}:{v}"))}]");
-            /*if (currentSolvingChain != null)
-            {
-                Logger.DebugWriteLine("Custom select Option");
-                // 1190=Add to Hand, 1152=Special Summon, 1153=Set
-                if (currentSolvingChain.IsCode(CardId.TrueLight) && 
-                    options.Count == 2)
-                {
-                    Logger.DebugWriteLine("OnSelectOption True Light");
-                    bool maidenInGY = Bot.Graveyard.Any(c => c.Id == CardId.MaidenOfWhite);
-                    bool bewdInHandOrGY = Bot.HasInHand(new[] { CardId.BlueEyesWhiteDragon }) || Bot.Graveyard.Any(c => c.Id == CardId.BlueEyesWhiteDragon);
 
-                    if (!useWishes && Duel.Player == 0)
-                    {
-                        return 2;
-                    }
-                    if (useWishes && needBE && Duel.Player == 0)
-                    {
-                        return 2;
-                    }
-                    else if (Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon))
-                    {
-                        return 2;
-                    }
-                    else if (needBE && Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon))
-                    {
-                        return 1;
-                    }
-                }
-            }*/
-            Logger.DebugWriteLine("OnSelectOption Default");
+            int discardIndex;
+            int negateIndex;
+
+            if (IsMurakumoOption(options, out discardIndex, out negateIndex))
+            {
+                bool shouldDiscard = Bot.Hand.Count >= 2;
+
+                return shouldDiscard ? discardIndex : negateIndex;
+            }
             return base.OnSelectOption(options);
         }
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
-            Logger.DebugWriteLine("OnSelectCard " + cards.Count + " " + min + " " + max);
+            ChainInfo currentSolvingChain =
+        Duel.GetCurrentSolvingChainInfo();
 
-            Logger.DebugWriteLine("Use default.");
+            ClientCard solving =
+                Duel.GetCurrentSolvingChainCard();
+
+            Logger.DebugWriteLine(
+                $"OnSelectCard count={cards?.Count ?? 0}, " +
+                $"min={min}, max={max}, hint={hint}");
+
+            if (solving != null && solving.Controller == 1 && solving.IsCode(CardId.AmeNoMurakumoNoMitsurugi)
+                && cards != null && cards.Count > 0 && (hint == HintMsg.Discard || hint == HintMsg.ToGrave)
+                && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
+            {
+                List<ClientCard> discardOrder = cards.OrderBy(ScoreMurakumoDiscard).ToList();
+
+                ClientCard pick = discardOrder.FirstOrDefault();
+
+                return Util.CheckSelectCount(discardOrder, cards, min, max);
+            }
 
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
@@ -1656,6 +1652,48 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
+        }
+        private bool IsMurakumoOption(IList<int> options, out int discardIndex, out int negateIndex)
+        {
+            discardIndex = -1;
+            negateIndex = -1;
+
+            if (options == null || options.Count == 0)
+                return false;
+
+            int discardDesc =
+                Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3);
+
+            int negateDesc =
+                Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 4);
+
+            discardIndex = options.IndexOf(discardDesc);
+            negateIndex = options.IndexOf(negateDesc);
+
+            return discardIndex >= 0 && negateIndex >= 0;
+        }
+        private int ScoreMurakumoDiscard(ClientCard card)
+        {
+            if (card == null)
+                return int.MaxValue;
+
+            int score = 10000;
+
+            int copiesInHand = Bot.Hand.Count(c =>
+                c != null && c.IsCode(card.Id));
+
+            if (copiesInHand > 1)
+                score -= 5000;
+
+            int priorityIndex =
+                Array.IndexOf(PreferDiscard, card.Id);
+
+            if (priorityIndex >= 0)
+                score += priorityIndex;
+            else
+                score += PreferDiscard.Length + 100;
+
+            return score;
         }
         #endregion
 

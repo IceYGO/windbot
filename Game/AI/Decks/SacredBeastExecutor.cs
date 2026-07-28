@@ -63,6 +63,7 @@ namespace WindBot.Game.AI.Decks
             public const int KashtiraAriseHeart = 48626373;
             public const int GhostMournerMoonlitChill = 52038441;
             public const int NibiruThePrimalBeing = 27204311;
+            public const int AmeNoMurakumoNoMitsurugi = 19899073;
         }
         private readonly Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>
         {
@@ -249,6 +250,17 @@ namespace WindBot.Game.AI.Decks
         {
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             Logger.DebugWriteLine($"OnSelectOption: CurrentSolving={currentSolvingChain} count={options.Count} options=[{string.Join(", ", options.Select((v, i) => $"{i}:{v}"))}]");
+            int murakumoDiscardIndex = options.IndexOf(Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3));
+            int murakumoNegateIndex = options.IndexOf(Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 4));
+
+            if (murakumoDiscardIndex >= 0 && murakumoNegateIndex >= 0)
+            {
+                bool shouldDiscard = Bot.Hand.Count >= 2;
+
+                Logger.DebugWriteLine($"[MURAKUMO] Sacred Beast discard={shouldDiscard}, " + $"hand={Bot.Hand.Count}");
+
+                return shouldDiscard ? murakumoDiscardIndex : murakumoNegateIndex;
+            }
             if (Duel.Phase == DuelPhase.End && Duel.Player == 0 && Bot.HasInMonstersZone(CardId.SuperdreadnoughtRailCannonGustavRocket, true))
             {
                 ClientCard rocket = Bot.GetMonsters()
@@ -274,7 +286,21 @@ namespace WindBot.Game.AI.Decks
         {
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             Logger.DebugWriteLine( "OnSelectCard " + cards.Count + " " + min + " " + max + " hint=" + hint  + " cancelable=" + cancelable + " cards=["+string.Join(", ", cards.Select(c => c == null ? "null" : $"{c.Name}({c.Id}) C{c.Controller} L{c.Location}")) + "]");
+            ClientCard solving = Duel.GetCurrentSolvingChainCard();
 
+            if (solving != null && solving.Controller == 1 && solving.IsCode(CardId.AmeNoMurakumoNoMitsurugi) && cards != null && cards.Count > 0
+                && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
+            {
+                HashSet<int> protect = new HashSet<int>();
+
+                ClientCard discard = cards.OrderBy(c => DiscardScore(c, protect)).FirstOrDefault(c => DiscardScore(c, protect) < 9999);
+
+                if (discard != null)
+                {
+                    Logger.DebugWriteLine($"[MURAKUMO] Sacred Beast discard => " + $"{discard.Name}({discard.Id})");
+                    return new List<ClientCard> { discard };
+                }
+            }
             ClientCard trigger = Util.GetLastChainCard();
             if (resolvingChantFusion)
             {
@@ -2803,6 +2829,25 @@ namespace WindBot.Game.AI.Decks
             bool hasUria = Bot.HasInHand(CardId.UriaSacredBeastOfCataclysmicFire);
 
             return (hasRaviel && hasHamon && hasColossus && hasChant && hasMartyr && hasUria);
+        }
+        private bool IsMurakumoOption(IList<int> options, out int discardIndex, out int negateIndex)
+        {
+            discardIndex = -1;
+            negateIndex = -1;
+
+            if (options == null || options.Count == 0)
+                return false;
+
+            int discardDesc =
+                Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3);
+
+            int negateDesc =
+                Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 4);
+
+            discardIndex = options.IndexOf(discardDesc);
+            negateIndex = options.IndexOf(negateDesc);
+
+            return discardIndex >= 0 && negateIndex >= 0;
         }
         #endregion
     }

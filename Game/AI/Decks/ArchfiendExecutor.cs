@@ -48,6 +48,7 @@ namespace WindBot.Game.AI.Decks
             public const int KashtiraAriseHeart = 48626373;
             public const int GhostMournerMoonlitChill = 52038441;
             public const int NibiruThePrimalBeing = 27204311;
+            public const int AmeNoMurakumoNoMitsurugi = 19899073;
         }
 
         //Setcode
@@ -181,6 +182,30 @@ namespace WindBot.Game.AI.Decks
             base.OnNewTurn();
         }
         public override bool OnSelectHand() { return true; /* Go first by default.*/}
+        public override int OnSelectOption(IList<int> options)
+        {
+            if (options != null && options.Count > 0)
+            {
+                int discardIndex = options.IndexOf(
+                    Util.GetStringId(
+                        CardId.AmeNoMurakumoNoMitsurugi,
+                        3));
+
+                int negateIndex = options.IndexOf(
+                    Util.GetStringId(
+                        CardId.AmeNoMurakumoNoMitsurugi,
+                        4));
+
+                if (discardIndex >= 0 && negateIndex >= 0)
+                {
+                    bool shouldDiscard = Bot.Hand.Count >= 2;
+
+                    return shouldDiscard ? discardIndex : negateIndex;
+                }
+            }
+
+            return base.OnSelectOption(options);
+        }
 
         public int CheckRemainInDeck(int id)
         {
@@ -812,6 +837,17 @@ namespace WindBot.Game.AI.Decks
             {
                 // for activating target
                 ClientCard lastChainCard = Util.GetLastChainCard();
+                if (currentChain != null && currentChain.ActivateController == 1 && currentChain.ActivateId == CardId.AmeNoMurakumoNoMitsurugi && 
+                    cards != null && cards.Count > 0 && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) && cards.All(c => c != null && 
+                    c.Controller == 0 && c.Location == CardLocation.Hand))
+                {
+                    ClientCard discard = cards.OrderBy(GetMurakumoDiscardPriority).FirstOrDefault();
+
+                    if (discard != null)
+                    {
+                        return Util.CheckSelectCount(new List<ClientCard> { discard }, cards, min, max);
+                    }
+                }
                 if (lastChainCard != null && lastChainCard.Controller == 0)
                 {
                     switch (lastChainCard.Id)
@@ -1926,6 +1962,19 @@ namespace WindBot.Game.AI.Decks
                 return true;
 
             return false;
+        }
+        private int GetMurakumoDiscardPriority(ClientCard card)
+        {
+            if (card == null)
+                return int.MaxValue;
+
+            bool hasDuplicate = Bot.Hand.Count(c =>
+                c != null && c.IsCode(card.Id)) > 1;
+
+            int duplicateScore = hasDuplicate ? 0 : 10000;
+
+            return duplicateScore
+                + GetArchfiendCostPriority(card);
         }
         #endregion
     }

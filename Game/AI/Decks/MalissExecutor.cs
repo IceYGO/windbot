@@ -74,6 +74,7 @@ namespace WindBot.Game.AI.Decks
             public const int KashtiraAriseHeart = 48626373;
             public const int GhostMournerMoonlitChill = 52038441;
             public const int NibiruThePrimalBeing = 27204311;
+            public const int AmeNoMurakumoNoMitsurugi = 19899073;
         }
         const int SetcodeMaliss = 0x1bf;
         const int SetcodeTimeLord = 0x4a;
@@ -254,6 +255,7 @@ namespace WindBot.Game.AI.Decks
         bool nsBackupplan = false;
         bool NSDorMouse = false;
         bool nsLanceaplan = false;
+        private bool murakumoDiscardPending = false;
 
         int myTurnCount = 0;
         bool avoidLinkedZones = false;
@@ -1427,11 +1429,49 @@ namespace WindBot.Game.AI.Decks
             }
             return base.OnSelectYesNo(desc);
         }
+        public override int OnSelectOption(IList<int> options)
+        {
+            if (options != null && options.Count > 0)
+            {
+                int discardDesc =
+                    Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3);
+
+                int negateDesc =
+                    Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 4);
+
+                int discardIndex = options.IndexOf(discardDesc);
+                int negateIndex = options.IndexOf(negateDesc);
+
+                if (discardIndex >= 0 && negateIndex >= 0)
+                {
+                    bool shouldDiscard = Bot.Hand.Count >= 2;
+
+                    murakumoDiscardPending = shouldDiscard;
+
+                    return shouldDiscard
+                        ? discardIndex
+                        : negateIndex;
+                }
+            }
+
+            return base.OnSelectOption(options);
+        }
         private bool DontSelfNG() { return Duel.LastChainPlayer != 0; }
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             var solving = Duel.GetCurrentSolvingChainCard();
+            if (murakumoDiscardPending && solving != null && solving.IsCode(CardId.AmeNoMurakumoNoMitsurugi) && cards != null && cards.Count > 0
+                && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
+            {
+                List<ClientCard> discardOrder = cards.OrderBy(ScoreMalissMurakumoDiscard).ToList();
+
+                ClientCard pick = discardOrder.FirstOrDefault();
+
+                murakumoDiscardPending = false;
+
+                return Util.CheckSelectCount( discardOrder, cards, min, max);
+            }
             if (cards != null && cards.Count > 0 && solving != null)
             {
                 if (solving.IsCode(CardId.MalissQ_RedRansom))
@@ -4208,6 +4248,47 @@ namespace WindBot.Game.AI.Decks
 
             AI.SelectMaterials(mats);
             return true;
+        }
+        private int ScoreMalissMurakumoDiscard(ClientCard card)
+        {
+            if (card == null)
+                return int.MaxValue;
+
+            int score = 1000;
+
+            int copiesInHand = Bot.Hand.Count(c =>
+                c != null && c.IsCode(card.Id));
+
+            if (copiesInHand > 1)
+                score -= 600;
+
+            bool undergroundActive = Bot.SpellZone.Any(c =>
+                c != null &&
+                c.IsFaceup() &&
+                c.IsCode(CardId.MalissInUnderground));
+
+            if (card.IsCode(CardId.TERRAFORMING) &&
+                (undergroundActive ||
+                 CheckRemainInDeck(CardId.MalissInUnderground) == 0))
+            {
+                score -= 500;
+            }
+
+            if (card.IsCode(CardId.MalissInUnderground) &&
+                undergroundActive)
+            {
+                score -= 400;
+            }
+
+            if (card.IsCode(
+                CardId.MalissP_Dormouse,
+                CardId.MalissP_WhiteRabbit,
+                CardId.GoldSarcophagus))
+            {
+                score += 500;
+            }
+
+            return score;
         }
         #endregion
 
