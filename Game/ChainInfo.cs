@@ -25,6 +25,7 @@ namespace WindBot.Game
         public int ActivateDefense { get; private set; }
         public bool IsSpecialSummoned { get; private set; }
         public int ActivateDescription { get; private set; }
+        public IList<ClientCard> Targets { get; private set; }
 
         public ChainInfo(ClientCard card)
             : this(card, card.Controller, 0)
@@ -51,6 +52,7 @@ namespace WindBot.Game
             ActivateDefense = card.Defense;
             IsSpecialSummoned = card.IsSpecialSummoned;
             ActivateDescription = desc;
+            Targets = new List<ClientCard>();
         }
 
         public bool HasPosition(CardPosition position)

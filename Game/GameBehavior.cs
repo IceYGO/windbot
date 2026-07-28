@@ -939,6 +939,12 @@ namespace WindBot.Game
         private void OnBecomeTarget(BinaryReader packet)
         {
             _duel.LastChainTargets.Clear();
+            int currentChainIndex = _duel.SolvingChainIndex > 0
+                ? _duel.SolvingChainIndex - 1 // record MSG_BECOME_TARGET during chain solving too 
+                : _duel.CurrentChainInfo.Count - 1;
+            ChainInfo currentChainInfo = currentChainIndex >= 0 && currentChainIndex < _duel.CurrentChainInfo.Count
+                ? _duel.CurrentChainInfo[currentChainIndex]
+                : null;
             int count = packet.ReadByte();
             for (int i = 0; i < count; ++i)
             {
@@ -953,6 +959,8 @@ namespace WindBot.Game
                 _duel.ChainTargets.Add(card);
                 _duel.LastChainTargets.Add(card);
                 _duel.ChainTargetOnly.Add(card);
+                if (currentChainInfo != null && !currentChainInfo.Targets.Contains(card))
+                    currentChainInfo.Targets.Add(card);
             }
         }
 
