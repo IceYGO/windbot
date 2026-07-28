@@ -1057,6 +1057,15 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnJudgment()
         {
+            ChainInfo lastChain = Duel.CurrentChainInfo.LastOrDefault();
+            if (lastChain != null &&
+                lastChain.ActivatePlayer == 1 &&
+                lastChain.RelatedCard.IsCode(_CardId.MysticalSpaceTyphoon, _CardId.GalaxyCyclone) &&
+                lastChain.Targets.Any(card => card.IsFacedown() && card.Controller == 0))
+            {
+                return false;
+            }
+
             return !Util.IsChainTargetOnly(Card) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && !DefaultOnlyHorusSpSummoning() && DefaultTrap();
         }
 
