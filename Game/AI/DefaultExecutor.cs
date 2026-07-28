@@ -1244,7 +1244,8 @@ namespace WindBot.Game.AI
             bool enemyBetter = Util.IsAllEnemyBetter();
             if (Card.IsAttack() && enemyBetter)
                 return true;
-            if (Card.IsDefense() && !enemyBetter && (Card.Attack >= Card.Defense || Card.Attack >= Util.GetBestPower(Enemy)))
+            if (Card.IsDefense() && !enemyBetter &&
+                (Card.Attack > Card.Defense || (Duel.Phase == DuelPhase.Main1 && Card.Attack >= Util.GetBestPower(Enemy))))
                 return true;
 
             return false;
