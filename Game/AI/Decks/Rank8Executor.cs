@@ -682,6 +682,35 @@ namespace WindBot.Game.AI.Decks
         {
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
 
+            bool needsTradeInMaterial =
+                Bot.HasInHand(CardId.TradeIn) &&
+                !Bot.Hand.Any(card => card.Level == 8);
+            int sourceColumn = Card.Sequence < 5 ? Card.Sequence
+                : Card.Sequence == 5 ? 1
+                : Card.Sequence == 6 ? 3
+                : -1;
+            bool preparesMekkKnightColumn = false;
+            if (!_indigoEclipseSummoned)
+            {
+                for (int column = 0; column < 5; ++column)
+                {
+                    bool monsterZoneEmptyAfterBanish =
+                        Bot.MonsterZone[column] == null ||
+                        Card.Sequence == column;
+                    int columnCardCountAfterBanish =
+                        GetColumnCardCount(column) -
+                        (column == sourceColumn ? 1 : 0);
+                    if (monsterZoneEmptyAfterBanish &&
+                        columnCardCountAfterBanish >= 2)
+                    {
+                        preparesMekkKnightColumn = true;
+                        break;
+                    }
+                }
+            }
+            if (!needsTradeInMaterial && !preparesMekkKnightColumn)
+                return false;
+
             AI.SelectCard(Card);
             AI.SelectNextCard(CardId.MekkKnightIndigoEclipse);
             return true;
