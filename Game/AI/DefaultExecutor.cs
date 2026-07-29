@@ -601,7 +601,7 @@ namespace WindBot.Game.AI
         {
             ChainInfo currentSolving = Duel.GetCurrentSolvingChainInfo();
             if (currentSolving != null &&
-                currentSolving.RelatedCard.IsCode(_CardId.DogmatikaAlbaZoa) &&
+                currentSolving.IsActivateCode(_CardId.DogmatikaAlbaZoa) &&
                 currentSolving.ActivatePlayer == 1)
             {
                 Logger.DebugWriteLine("Dogmatika Alba Zoa solved");
@@ -659,7 +659,7 @@ namespace WindBot.Game.AI
 
         public override void OnReceivingAnnouce(int player, int data)
         {
-            if (player == 1 && data == Util.GetStringId(_CardId.LightningStorm, 0) || data == Util.GetStringId(_CardId.LightningStorm, 1))
+            if (player == 1 && (data == Util.GetStringId(_CardId.LightningStorm, 0) || data == Util.GetStringId(_CardId.LightningStorm, 1)))
             {
                 lightningStormOption = data - Util.GetStringId(_CardId.LightningStorm, 0);
             }
