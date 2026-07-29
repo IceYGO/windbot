@@ -343,7 +343,6 @@ namespace WindBot.Game
                 {
                     //Logger.DebugWriteLine("m_materialSelector");
                     selector = m_materialSelector;
-                    CleanSelectMaterials();
                 }
                 else
                 {
@@ -370,7 +369,6 @@ namespace WindBot.Game
                 {
                     //Logger.DebugWriteLine("m_materialSelector hint match");
                     selector = m_materialSelector;
-                    CleanSelectMaterials();
                 }
                 else
                 {
@@ -677,7 +675,6 @@ namespace WindBot.Game
                 if (m_materialSelector != null)
                 {
                     CardSelector selector = m_materialSelector;
-                    CleanSelectMaterials();
                     selected = selector.Select(cards, min, max);
                 }
                 else

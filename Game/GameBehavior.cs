@@ -2058,6 +2058,8 @@ namespace WindBot.Game
         private void OnSpSummoning(BinaryReader packet)
         {
             _duel.LastSummonedCards.Clear();
+            // Material selection may span multiple SelectUnselect messages; summon start is the first reliable
+            // signal that the complete material selection is done and the AI can clean up its internal state.
             _ai.CleanSelectMaterials();
             int code = packet.ReadInt32();
             int currentControler = GetLocalPlayer(packet.ReadByte());
