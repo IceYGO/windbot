@@ -73,6 +73,8 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 - `Bot` 和 `Enemy` 分别是本机视角的 `Duel.Fields[0]` 与 `Duel.Fields[1]`；协议玩家编号应通过现有本地化逻辑转换，不要自行假定座位编号。
 - 优先使用 `ClientField`、`ClientCard`、`AIUtil`、`CardExtension` 的现有查询方法，避免重复遍历和散落的区域位掩码。
 - 未知卡的 `Id` 可能为 `0`，`Data`/`Name` 可能为 `null`。对隐藏区域只能依赖客户端实际知道的数量、位置和已公开历史。
+- 脚本的 `aux.Stringid(code, index)` 与 WindBot 的 `Util.GetStringId(id, option)` 使用相同编码：`cardId * 16 + offset`。其中 `offset` 是从 `0` 开始的字符串偏移量，不是 Lua 表下标；它对应 YGOPro 的 `cards.cdb` 的 `texts.str{offset + 1}`，例如偏移量 `0` 对应 `str1`，偏移量 `3` 对应 `str4`。
+- `StringId` 的偏移量不一定等同于卡片效果编号。判断某个描述值的实际语义时，应同时核对卡片脚本中该值传给了哪个 API。难以确定时可以查询 `cards.cdb` 中对应的 `texts.str*` 内容。
 - `Bot.Deck` 只表示客户端可见的牌堆槽位，不是可按卡号查询的剩余卡组：决斗开始时其中的卡通常为 `Id == 0`，洗牌后也会被重置为 `Id == 0`。因此禁止用 `Bot.Deck.Any(card => card.IsCode(...))` 或等价写法判断某卡是否仍在卡组。检索、送墓等效果应排入卡号优先级，再由服务器提供的实际候选集过滤并决定选择。
 - 牌组执行器的回合、阶段、连锁和使用次数标志应在 `OnNewTurn`、`OnNewPhase`、`OnChainEnd`、`OnMove` 等正确生命周期回调中维护和重置。
 - `Duel.CurrentChain`、`CurrentChainInfo`、`ChainTargets`、`LastSummonedCards` 等状态由消息流维护；使用前注意它表示当前客户端已收到的时点，而不是完整规则模拟。
@@ -91,7 +93,7 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 - 也就是说，`AddExecutor(ExecutorType.Activate, CardId.Sangan, SanganActivate);` 中在 `SanganActivate` 调用 `AI.SelectCard` 等方法基本是无意义的；必发效果的 `ExecutorType.Activate` 的意义应仅限于多个同时发动候选的优先级。
 - 卡片发动时选择支付代价或选择指定目标，发生在连锁建立阶段。此时该卡已经加入 `Duel.CurrentChain`，但尚未进入连锁处理，应在 `OnSelectCard` 中用 `Duel.GetCurrentChainCard()` 识别最新连锁卡；同时检查控制者、卡号和 `hint`，再从服务器给出的候选中返回对象。
 - 效果处理时才进行的选卡，例如从卡组检索、特殊召唤或效果处理中的丢弃，发生在连锁处理阶段，应在 `OnSelectCard` 中用 `Duel.GetCurrentSolvingChainCard()` 识别正在处理的连锁卡。该方法在发动、支付代价和指定目标时会返回 `null`。
-- 注意，以上问题仅限于必发效果，即满足条件必定强制发动的 `EFFECT_TYPE_TRIGGER_F` 的效果。效果文本中写“〇〇的场合才能发动”通常不是必发效果，写“〇〇的场合发动”通常是必发效果。普通可选发动的效果应正常使用 `AI.SelectCard` 等方法。
+- 注意，**以上问题仅限于必发效果**，即满足条件必定强制发动的 `EFFECT_TYPE_TRIGGER_F` 的效果。效果文本中写“〇〇的场合才能发动”通常不是必发效果，写“〇〇的场合发动”通常是必发效果。普通可选发动的效果一般应使用 `AI.SelectCard` 等方法预先选择，仅在选择目标难以预测时改用 `OnSelectCard` 处理。
 - `GetCurrentChainCard()` 只表示尚未开始处理时的最新连锁卡，连锁开始处理后返回 `null`；`GetCurrentSolvingChainCard()` 只表示当前正在处理的连锁卡。不要用 `CurrentChain.LastOrDefault()` 或 `AIUtil.GetLastChainCard()` 代替这一区分，否则多段连锁倒序处理时可能把选卡归给错误的连锁卡。
 - 如果同一张卡同时具有发动时目标、处理时选卡或多个不同效果，必须结合 `hint`、候选区域和必要的效果描述进一步区分。不要让 `OnSelectCard` 返回选择的同时还保留同一流程的预选队列，否则残留选择可能污染下一次选卡。
 
@@ -103,7 +105,7 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 2. 添加唯一的 `[Deck("外部名称", "AI_牌组文件名", "级别")]`。外部名称用于 `Deck=...`；文件名对应 `Decks/<文件名>.ydk`，不带扩展名。
 3. 在 `Decks/` 添加匹配的 `.ydk`。`DeckFile` 配置可以覆盖特性声明的默认文件。
 4. 从高到低注册 `AddExecutor`，并实现必要的目标、素材、选项、位置以及生命周期回调。
-5. 只有在需要向 BotWrapper 暴露该牌组或新增对话时，才同步修改 `BotWrapper/bot.conf`、`Dialogs/` 或用户文档。
+5. `BotWrapper/bot.conf`、`Dialogs/` 等素材一般人工编写，新增牌组时不要自行编写，而是提醒用户修改。
 
 注意：
 
