@@ -334,8 +334,7 @@ namespace WindBot.Game.AI.Decks
                         ClientCard trap = cards.FirstOrDefault(card => card.IsTrap());
                         ClientCard spell = cards.FirstOrDefault(card => card.IsSpell());
                         ClientCard monster = cards.FirstOrDefault(card => card.IsMonster());
-                        bool needsProtection = Bot.BattlingMonster == solvingChainCard ||
-                            Util.IsChainTarget(solvingChainCard);
+                        bool needsProtection = ShouldUseRedoerMonsterMaterial(solvingChainCard);
                         if (trap != null)
                             selected.Add(trap);
                         if (spell != null)
@@ -559,6 +558,34 @@ namespace WindBot.Game.AI.Decks
             return !Bot.HasInMonstersZone(XYZs.TimeThiefRedoer);
         }
 
+        private bool ShouldUseRedoerMonsterMaterial(ClientCard redoer)
+        {
+            if (redoer == null)
+                return false;
+
+            if (Util.IsChainTarget(redoer) ||
+                Card == redoer && DefaultOnBecomeTarget() ||
+                Duel.Player == 0 && Duel.Phase == DuelPhase.Main2)
+            {
+                return true;
+            }
+
+            ClientCard opponent = Enemy.BattlingMonster;
+            if (Bot.BattlingMonster != redoer || opponent == null)
+                return false;
+
+            bool willBeDestroyed = Duel.Player == 0
+                ? opponent.IsAttack() && opponent.Attack >= redoer.Attack
+                : redoer.IsAttack()
+                    ? opponent.Attack >= redoer.Attack
+                    : opponent.Attack > redoer.Defense;
+            if (!willBeDestroyed)
+                return false;
+
+            return Bot.GetMonsters().Any(card => card != redoer) ||
+                Bot.LifePoints > opponent.Attack;
+        }
+
         private bool PerpetuaEffect()
         {
             if (DefaultCheckWhetherCardIsNegated(Card))
@@ -601,8 +628,7 @@ namespace WindBot.Game.AI.Decks
             bool hasSpellMaterial = materials.Any(material => material.HasType(CardType.Spell));
             bool hasTrapMaterial = materials.Any(material => material.HasType(CardType.Trap));
 
-            if (hasMonsterMaterial &&
-                (DefaultOnBecomeTarget() || Bot.BattlingMonster == Card))
+            if (hasMonsterMaterial && ShouldUseRedoerMonsterMaterial(Card))
                 return true;
 
             if (hasTrapMaterial && Util.GetProblematicEnemyCard() != null)
