@@ -196,7 +196,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.SuperdreadnoughtRailCannonGustavMax, GustavMaxSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.SuperdreadnoughtRailCannonGustavRocket, GustavRocketSummonOnMax);
 
-            
+
 
             AddExecutor(ExecutorType.Repos, Repos);
             AddExecutor(ExecutorType.SpellSet, SpellSetCheck);
@@ -246,21 +246,21 @@ namespace WindBot.Game.AI.Decks
             base.OnNewTurn();
         }
         public override bool OnSelectHand() { return true; /* Go first by default.*/}
+        public override bool OnSelectYesNo(int desc)
+        {
+            if (desc == Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3))
+            {
+                bool shouldDiscard = Bot.Hand.Count >= 2;
+                Logger.DebugWriteLine($"[MURAKUMO] Sacred Beast choose discard={shouldDiscard}, hand={Bot.Hand.Count}");
+                return shouldDiscard;
+            }
+
+            return base.OnSelectYesNo(desc);
+        }
         public override int OnSelectOption(IList<int> options)
         {
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             Logger.DebugWriteLine($"OnSelectOption: CurrentSolving={currentSolvingChain} count={options.Count} options=[{string.Join(", ", options.Select((v, i) => $"{i}:{v}"))}]");
-            int murakumoDiscardIndex = options.IndexOf(Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3));
-            int murakumoNegateIndex = options.IndexOf(Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 4));
-
-            if (murakumoDiscardIndex >= 0 && murakumoNegateIndex >= 0)
-            {
-                bool shouldDiscard = Bot.Hand.Count >= 2;
-
-                Logger.DebugWriteLine($"[MURAKUMO] Sacred Beast discard={shouldDiscard}, " + $"hand={Bot.Hand.Count}");
-
-                return shouldDiscard ? murakumoDiscardIndex : murakumoNegateIndex;
-            }
             if (Duel.Phase == DuelPhase.End && Duel.Player == 0 && Bot.HasInMonstersZone(CardId.SuperdreadnoughtRailCannonGustavRocket, true))
             {
                 ClientCard rocket = Bot.GetMonsters()
@@ -285,7 +285,7 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
-            Logger.DebugWriteLine( "OnSelectCard " + cards.Count + " " + min + " " + max + " hint=" + hint  + " cancelable=" + cancelable + " cards=["+string.Join(", ", cards.Select(c => c == null ? "null" : $"{c.Name}({c.Id}) C{c.Controller} L{c.Location}")) + "]");
+            Logger.DebugWriteLine("OnSelectCard " + cards.Count + " " + min + " " + max + " hint=" + hint + " cancelable=" + cancelable + " cards=[" + string.Join(", ", cards.Select(c => c == null ? "null" : $"{c.Name}({c.Id}) C{c.Controller} L{c.Location}")) + "]");
             ClientCard solving = Duel.GetCurrentSolvingChainCard();
 
             if (solving != null && solving.Controller == 1 && solving.IsCode(CardId.AmeNoMurakumoNoMitsurugi) && cards != null && cards.Count > 0
@@ -1466,7 +1466,7 @@ namespace WindBot.Game.AI.Decks
             if (desc == d1 && Duel.LastChainPlayer == 1 && Duel.CurrentChain.Count > 0)
             {
                 if (!CheckLastChainShouldNegated()) return false;
-                return true; 
+                return true;
             }
 
             if (desc == d1 || desc == d2 || desc == -1)
@@ -1624,7 +1624,7 @@ namespace WindBot.Game.AI.Decks
                 .FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(CardId.MartyrOfTheSacredBeasts));
             if (martyr == null) return false;
             if (DefaultCheckWhetherCardIsNegated(martyr) || martyr.IsDisabled()) return true;
-            
+
             /*return CountFaceupSpellTrap(CardId.SkyfireOfTheSacredBeast) == 0
                 && !Bot.HasInSpellZone(CardId.SkyfireOfTheSacredBeast, true)
                 && HasCardAccessible(CardId.UnleashingTheSacredBeasts);*/
@@ -1701,7 +1701,7 @@ namespace WindBot.Game.AI.Decks
                                                  CardId.DivineAbyssOfTheSacredBeast });
                     return true;
                 }
-                List<ClientCard> targetList = GetNormalEnemyTargetList( canBeTarget: true, ignoreCurrentDestroy: true, selfType: CardType.Trap )
+                List<ClientCard> targetList = GetNormalEnemyTargetList(canBeTarget: true, ignoreCurrentDestroy: true, selfType: CardType.Trap)
                 .Where(c => c != null && c.Controller == 1 && c.Location == CardLocation.MonsterZone && c.IsFaceup()).ToList();
 
                 if (targetList.Count == 0) return false;
@@ -1742,7 +1742,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (ShouldWaitRavielBoardWipe())
                     return false;
-                
+
                 if (!CanMakePhantasmalFusion()) return false;
                 resolvingChantFusion = true;
                 AI.SelectCard(CardId.PhantasmalSacredBeastsOfChaos);
@@ -1881,7 +1881,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            bool result = QueueSearchThenDiscard( searchTarget, CardId.HamonSacredBeastOfSinfulCatastrophe, CardId.UriaSacredBeastOfCataclysmicFire);
+            bool result = QueueSearchThenDiscard(searchTarget, CardId.HamonSacredBeastOfSinfulCatastrophe, CardId.UriaSacredBeastOfCataclysmicFire);
             if (result) useHamonSearchEffectAlready = true;
             return result;
         }
@@ -2007,12 +2007,12 @@ namespace WindBot.Game.AI.Decks
                 CardId.UriaSacredBeastOfCataclysmicFire
             };
         }
-        
+
         private bool MartyrSummon()
         {
             if ((Bot.HasInHand(CardId.HamonSacredBeastOfSinfulCatastrophe) ||
                 Bot.HasInHand(CardId.RavielSacredBeastOfEndlessEternity) ||
-                Bot.HasInHand(CardId.UriaSacredBeastOfCataclysmicFire)) 
+                Bot.HasInHand(CardId.UriaSacredBeastOfCataclysmicFire))
                 && !Bot.HasInMonstersZone(CardId.MartyrOfTheSacredBeasts)
                 && Bot.GetMonstersInMainZone().Count <= 2)
             {
@@ -2191,7 +2191,7 @@ namespace WindBot.Game.AI.Decks
                 useRaviel = true;
                 return true;
             }
-            else if ( useHamonSearchEffectAlready && 
+            else if (useHamonSearchEffectAlready &&
                       !normalSummon &&
                       !Bot.HasInHand(CardId.MartyrOfTheSacredBeasts) &&
                       (CheckRemainInDeck(CardId.MartyrOfTheSacredBeasts) > 0) &&
@@ -2829,25 +2829,6 @@ namespace WindBot.Game.AI.Decks
             bool hasUria = Bot.HasInHand(CardId.UriaSacredBeastOfCataclysmicFire);
 
             return (hasRaviel && hasHamon && hasColossus && hasChant && hasMartyr && hasUria);
-        }
-        private bool IsMurakumoOption(IList<int> options, out int discardIndex, out int negateIndex)
-        {
-            discardIndex = -1;
-            negateIndex = -1;
-
-            if (options == null || options.Count == 0)
-                return false;
-
-            int discardDesc =
-                Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3);
-
-            int negateDesc =
-                Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 4);
-
-            discardIndex = options.IndexOf(discardDesc);
-            negateIndex = options.IndexOf(negateDesc);
-
-            return discardIndex >= 0 && negateIndex >= 0;
         }
         #endregion
     }

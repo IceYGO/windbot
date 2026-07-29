@@ -254,20 +254,16 @@ namespace WindBot.Game.AI.Decks
             base.OnNewTurn();
         }
         public override bool OnSelectHand() { return true; /* Go first by default.*/}
-        public override int OnSelectOption(IList<int> options)
+        public override bool OnSelectYesNo(int desc)
         {
-            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
-
-            int discardIndex;
-            int negateIndex;
-
-            if (IsMurakumoOption(options, out discardIndex, out negateIndex))
+            if (desc == Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3))
             {
                 bool shouldDiscard = Bot.Hand.Count >= 2;
-
-                return shouldDiscard ? discardIndex : negateIndex;
+                Logger.DebugWriteLine($"[MURAKUMO] BE2025 choose discard={shouldDiscard}, hand={Bot.Hand.Count}");
+                return shouldDiscard;
             }
-            return base.OnSelectOption(options);
+
+            return base.OnSelectYesNo(desc);
         }
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
@@ -1652,25 +1648,6 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
-        }
-        private bool IsMurakumoOption(IList<int> options, out int discardIndex, out int negateIndex)
-        {
-            discardIndex = -1;
-            negateIndex = -1;
-
-            if (options == null || options.Count == 0)
-                return false;
-
-            int discardDesc =
-                Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3);
-
-            int negateDesc =
-                Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 4);
-
-            discardIndex = options.IndexOf(discardDesc);
-            negateIndex = options.IndexOf(negateDesc);
-
-            return discardIndex >= 0 && negateIndex >= 0;
         }
         private int ScoreMurakumoDiscard(ClientCard card)
         {

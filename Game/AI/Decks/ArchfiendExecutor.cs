@@ -182,29 +182,17 @@ namespace WindBot.Game.AI.Decks
             base.OnNewTurn();
         }
         public override bool OnSelectHand() { return true; /* Go first by default.*/}
-        public override int OnSelectOption(IList<int> options)
+        public override bool OnSelectYesNo(int desc)
         {
-            if (options != null && options.Count > 0)
+            if (desc == Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3))
             {
-                int discardIndex = options.IndexOf(
-                    Util.GetStringId(
-                        CardId.AmeNoMurakumoNoMitsurugi,
-                        3));
+                bool shouldDiscard = Bot.Hand.Count >= 2;
 
-                int negateIndex = options.IndexOf(
-                    Util.GetStringId(
-                        CardId.AmeNoMurakumoNoMitsurugi,
-                        4));
-
-                if (discardIndex >= 0 && negateIndex >= 0)
-                {
-                    bool shouldDiscard = Bot.Hand.Count >= 2;
-
-                    return shouldDiscard ? discardIndex : negateIndex;
-                }
+                Logger.DebugWriteLine($"[MURAKUMO] Archfiend choose discard={shouldDiscard}, " + $"hand={Bot.Hand.Count}");
+                return shouldDiscard;
             }
 
-            return base.OnSelectOption(options);
+            return base.OnSelectYesNo(desc);
         }
 
         public int CheckRemainInDeck(int id)
@@ -837,17 +825,6 @@ namespace WindBot.Game.AI.Decks
             {
                 // for activating target
                 ClientCard lastChainCard = Util.GetLastChainCard();
-                if (currentChain != null && currentChain.ActivateController == 1 && currentChain.ActivateId == CardId.AmeNoMurakumoNoMitsurugi && 
-                    cards != null && cards.Count > 0 && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) && cards.All(c => c != null && 
-                    c.Controller == 0 && c.Location == CardLocation.Hand))
-                {
-                    ClientCard discard = cards.OrderBy(GetMurakumoDiscardPriority).FirstOrDefault();
-
-                    if (discard != null)
-                    {
-                        return Util.CheckSelectCount(new List<ClientCard> { discard }, cards, min, max);
-                    }
-                }
                 if (lastChainCard != null && lastChainCard.Controller == 0)
                 {
                     switch (lastChainCard.Id)
@@ -1065,6 +1042,27 @@ namespace WindBot.Game.AI.Decks
                 {
                     switch (currentChain.ActivateId)
                     {
+                        case CardId.AmeNoMurakumoNoMitsurugi:
+                            {
+                                if (hint == HintMsg.Discard
+                                    && cards != null
+                                    && cards.Count > 0
+                                    && cards.All(c =>
+                                        c != null
+                                        && c.Controller == 0
+                                        && c.Location == CardLocation.Hand))
+                                {
+                                    ClientCard discard = cards.OrderBy(GetMurakumoDiscardPriority).FirstOrDefault();
+
+                                    if (discard != null)
+                                    {
+                                        Logger.DebugWriteLine($"[MURAKUMO] Archfiend discard => " + $"{discard.Name}({discard.Id})");
+                                        return Util.CheckSelectCount(new List<ClientCard> { discard }, cards, min, max);
+                                    }
+                                }
+
+                                break;
+                            }
                         case _CardId.EvenlyMatched:
                             {
                                 Logger.DebugWriteLine("=== Evenly Matched activated.");
