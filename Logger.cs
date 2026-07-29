@@ -26,11 +26,15 @@ namespace WindBot
                 Console.WriteLine("[" + DateTime.Now.ToString("yy-MM-dd HH:mm:ss") + "] " + message);
         }
 
-        public static void DebugWriteLine(string message)
+        public static void DebugWriteLine(string message, bool printStackTrace = false)
         {
 #if DEBUG
             lock (_syncRoot)
+            {
                 Console.WriteLine("[" + DateTime.Now.ToString("yy-MM-dd HH:mm:ss") + "] " + message);
+                if (printStackTrace)
+                    Console.WriteLine(new System.Diagnostics.StackTrace(1, true).ToString());
+            }
 #endif
         }
 

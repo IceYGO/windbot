@@ -425,7 +425,7 @@ namespace WindBot.Game.AI
         public IList<ClientCard> CheckSelectCount(IList<ClientCard> _selected, IList<ClientCard> cards, int min, int max)
         {
             if (_selected.Any(card => !cards.Contains(card)))
-                Logger.WriteErrorLine("Selected cards contain cards outside the available candidates.");
+                Logger.DebugWriteLine("Selected cards contain cards outside the available candidates.", true);
             var selected = _selected.Where(cards.Contains).Distinct().ToList();
             if (selected.Count < min)
             {
