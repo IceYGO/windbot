@@ -1033,6 +1033,7 @@ namespace WindBot.Game
             int max = packet.ReadByte();
 
             IList<ClientCard> cards = new List<ClientCard>();
+            IList<int> candidateIndexes = new List<int>();
             int count = packet.ReadByte();
             for (int i = 0; i < count; ++i)
             {
@@ -1053,12 +1054,14 @@ namespace WindBot.Game
                 else
                 {
                     card = _duel.GetCard(player, loc, seq);
-                    card.Controller = player;
+                    if (card == null)
+                        card = new ClientCard(id, loc, seq);
                 }
-                if (card == null) continue;
+                card.Controller = player;
                 if (card.Id == 0 || card.Location == CardLocation.Deck)
                     card.SetId(id);
                 cards.Add(card);
+                candidateIndexes.Add(i);
             }
 
             if (_select_hint == 575 && cancelable) // HINTMSG_FIELD_FIRST
@@ -1071,6 +1074,43 @@ namespace WindBot.Game
             IList<ClientCard> selected = func(cards, min, max, _select_hint, cancelable);
             _select_hint = 0;
 
+            SendCardSelectionResponse(cards, candidateIndexes, selected, min, max, cancelable);
+        }
+
+        private void SendCardSelectionResponse(IList<ClientCard> cards, IList<int> candidateIndexes,
+            IList<ClientCard> selected, int min, int max, bool cancelable)
+        {
+            bool validCount = selected != null && selected.Count >= min && selected.Count <= max;
+            if (selected != null && cancelable && selected.Count == 0)
+                validCount = true;
+
+            bool isValid = validCount
+                && selected.Distinct().Count() == selected.Count
+                && selected.All(card => card != null && cards.Contains(card));
+            if (!isValid)
+            {
+                Logger.WriteErrorLine("Invalid card selection, using a legal fallback.");
+                IList<ClientCard> fallback = new List<ClientCard>();
+                if (selected != null)
+                {
+                    foreach (ClientCard card in selected)
+                    {
+                        if (fallback.Count >= max)
+                            break;
+                        if (card != null && cards.Contains(card) && !fallback.Contains(card))
+                            fallback.Add(card);
+                    }
+                }
+                foreach (ClientCard card in cards)
+                {
+                    if (fallback.Count >= min || fallback.Count >= max)
+                        break;
+                    if (!fallback.Contains(card))
+                        fallback.Add(card);
+                }
+                selected = fallback;
+            }
+
             if (selected.Count == 0 && cancelable)
             {
                 Connection.Send(CtosMessage.Response, -1);
@@ -1081,17 +1121,8 @@ namespace WindBot.Game
             result[0] = (byte)selected.Count;
             for (int i = 0; i < selected.Count; ++i)
             {
-                int id = 0;
-                for (int j = 0; j < count; ++j)
-                {
-                    if (cards[j] == null) continue;
-                    if (cards[j].Equals(selected[i]))
-                    {
-                        id = j;
-                        break;
-                    }
-                }
-                result[i + 1] = (byte)id;
+                int cardIndex = cards.IndexOf(selected[i]);
+                result[i + 1] = (byte)candidateIndexes[cardIndex];
             }
 
             BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
@@ -1108,6 +1139,7 @@ namespace WindBot.Game
             int max = packet.ReadByte();
 
             IList<ClientCard> cards = new List<ClientCard>();
+            IList<int> candidateIndexes = new List<int>();
             int count = packet.ReadByte();
             for (int i = 0; i < count; ++i)
             {
@@ -1120,13 +1152,21 @@ namespace WindBot.Game
                 if (((int)loc & (int)CardLocation.Overlay) != 0)
                     card = new ClientCard(id, CardLocation.Overlay, -1);
                 else
+                {
                     card = _duel.GetCard(player, loc, seq);
-                if (card == null) continue;
+                    if (card == null)
+                        card = new ClientCard(id, loc, seq);
+                }
+                card.Controller = player;
                 if (card.Id == 0 || card.Location == CardLocation.Deck)
                     card.SetId(id);
                 cards.Add(card);
+                candidateIndexes.Add(i);
             }
             int count2 = packet.ReadByte();
+            // The second group contains cards that an interactive client may click to undo
+            // an earlier selection. The bot only advances through the still-valid first group
+            // and does not backtrack here, so these cards are consumed but not exposed to the AI.
             for (int i = 0; i < count2; ++i)
             {
                 int id = packet.ReadInt32();
@@ -1143,36 +1183,17 @@ namespace WindBot.Game
                 if (card.Id == 0 || card.Location == CardLocation.Deck)
                     card.SetId(id);
             }
+            // Protocol cancellation abandons the entire selection rather than undoing one card.
+            // WindBot never intentionally takes that path; this flag is only useful to the bot
+            // as the shared finish response after a card has already been selected.
             if (count2 == 0) cancelable = false;
 
-            IList<ClientCard> selected = func(cards, (finishable ? 0 : 1), 1, _select_hint, cancelable);
+            // Unlike InternalOnSelectCard, we don't reset _select_hint here.
+            // Lua helpers such as SelectSubGroup use this hint message repeatedly for one selection.
 
-            if (selected.Count == 0 && cancelable)
-            {
-                Connection.Send(CtosMessage.Response, -1);
-                return;
-            }
-
-            byte[] result = new byte[selected.Count + 1];
-            result[0] = (byte)selected.Count;
-            for (int i = 0; i < selected.Count; ++i)
-            {
-                int id = 0;
-                for (int j = 0; j < count; ++j)
-                {
-                    if (cards[j] == null) continue;
-                    if (cards[j].Equals(selected[i]))
-                    {
-                        id = j;
-                        break;
-                    }
-                }
-                result[i + 1] = (byte)id;
-            }
-
-            BinaryWriter reply = GamePacketFactory.Create(CtosMessage.Response);
-            reply.Write(result);
-            Connection.Send(reply);
+            int selectionMin = finishable ? 0 : 1;
+            IList<ClientCard> selected = func(cards, selectionMin, 1, _select_hint, cancelable);
+            SendCardSelectionResponse(cards, candidateIndexes, selected, selectionMin, 1, cancelable);
         }
 
         private void OnSelectCard(BinaryReader packet)

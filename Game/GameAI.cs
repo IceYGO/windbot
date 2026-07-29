@@ -324,12 +324,14 @@ namespace WindBot.Game
         {
             // Check for the executor.
             IList<ClientCard> result = Executor.OnSelectCard(cards, min, max, hint, cancelable);
+            result = ValidateCardSelection(result, cards, min, max, cancelable);
             if (result != null)
                 return result;
 
             if (hint == HintMsg.SpSummon && min == 1 && max > min) // pendulum summon
             {
                 result = Executor.OnSelectPendulumSummon(cards, max);
+                result = ValidateCardSelection(result, cards, min, max, cancelable);
                 if (result != null)
                     return result;
             }
@@ -354,6 +356,7 @@ namespace WindBot.Game
                     if (hint == HintMsg.LinkMaterial)
                         result = Executor.OnSelectLinkMaterial(cards, min, max);
 
+                    result = ValidateCardSelection(result, cards, min, max, cancelable);
                     if (result != null)
                         return result;
 
@@ -390,6 +393,24 @@ namespace WindBot.Game
                 for (int i = 0; i < min; ++i)
                     selected.Add(cards[i]);
             }
+            return selected;
+        }
+
+        private IList<ClientCard> ValidateCardSelection(IList<ClientCard> selected, IList<ClientCard> cards, int min, int max, bool cancelable)
+        {
+            if (selected == null)
+                return null;
+
+            bool validCount = selected.Count >= min && selected.Count <= max;
+            if (cancelable && selected.Count == 0)
+                validCount = true;
+
+            if (!validCount || selected.Distinct().Count() != selected.Count || selected.Any(card => card == null || !cards.Contains(card)))
+            {
+                Logger.WriteErrorLine("Invalid card selection returned by executor, using default selection.");
+                return null;
+            }
+
             return selected;
         }
 
