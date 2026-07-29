@@ -92,23 +92,23 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.EvigishkiMerrowgeist, EvigishkiMerrowgeistSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, Number39UtopiaSummon);
 
-            AddExecutor(ExecutorType.Activate, CardId.GeminiSpark, GeminiSparkActivate);
             AddExecutor(ExecutorType.Activate, CardId.MysticalSpaceTyphoon, DefaultMysticalSpaceTyphoon);
-            AddExecutor(ExecutorType.Activate, CardId.BookOfMoon, DefaultBookOfMoon);
+            AddExecutor(ExecutorType.Activate, CardId.BookOfMoon, BookOfMoonActivate);
             AddExecutor(ExecutorType.Activate, CardId.ForbiddenLance, ForbiddenLanceActivate);
-            AddExecutor(ExecutorType.Activate, CardId.SuperPolymerization, SuperPolymerizationActivate);
             AddExecutor(ExecutorType.Activate, CardId.PotOfDuality, PotOfDualityActivate);
-
-            AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
 
             AddExecutor(ExecutorType.Activate, CardId.HeroBlast, HeroBlastActivate);
             AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultBottomlessTrapHole);
             AddExecutor(ExecutorType.Activate, CardId.MirrorForce, MirrorForceActivate);
             AddExecutor(ExecutorType.Activate, CardId.DimensionalPrison, DefaultTrap);
             AddExecutor(ExecutorType.Activate, CardId.TorrentialTribute, DefaultTorrentialTribute);
+            AddExecutor(ExecutorType.Activate, CardId.GeminiSpark, GeminiSparkActivate);
+            AddExecutor(ExecutorType.Activate, CardId.SuperPolymerization, SuperPolymerizationActivate);
+
             AddExecutor(ExecutorType.Activate, CardId.SolemnJudgment, DefaultSolemnJudgment);
             AddExecutor(ExecutorType.Activate, CardId.SolemnWarning, DefaultSolemnWarning);
 
+            AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
 
@@ -183,7 +183,8 @@ namespace WindBot.Game.AI.Decks
         }
 
         private bool TryGetFusion(IList<ClientCard> materials, bool requireEnemyMaterial,
-            out int fusionId, out IList<ClientCard> fusionMaterials)
+            out int fusionId, out IList<ClientCard> fusionMaterials,
+            ClientCard requiredMaterial = null)
         {
             fusionId = 0;
             fusionMaterials = null;
@@ -201,7 +202,10 @@ namespace WindBot.Game.AI.Decks
                         .Where(card =>
                             !card.Equals(dragonSynchro) &&
                             card.HasRace(CardRace.Warrior) &&
-                            (dragonSynchro.Controller == 1 || card.Controller == 1))
+                            (dragonSynchro.Controller == 1 || card.Controller == 1) &&
+                            (requiredMaterial == null ||
+                                dragonSynchro.Equals(requiredMaterial) ||
+                                card.Equals(requiredMaterial)))
                         .OrderByDescending(card => card.Controller)
                         .FirstOrDefault();
                     if (warrior == null)
@@ -232,11 +236,14 @@ namespace WindBot.Game.AI.Decks
                         .ToList();
                     if (machineMaterials.Count > 0)
                     {
-                        fusionId = CardId.ChimeratechOverdragon;
                         List<ClientCard> selectedMaterials = new List<ClientCard> { cyberDragon };
                         selectedMaterials.AddRange(machineMaterials);
-                        fusionMaterials = selectedMaterials;
-                        return true;
+                        if (requiredMaterial == null || selectedMaterials.Contains(requiredMaterial))
+                        {
+                            fusionId = CardId.ChimeratechOverdragon;
+                            fusionMaterials = selectedMaterials;
+                            return true;
+                        }
                     }
                 }
             }
@@ -299,7 +306,10 @@ namespace WindBot.Game.AI.Decks
                         .Where(card =>
                             !card.Equals(hero) &&
                             card.HasAttribute(requiredAttributes[i]) &&
-                            (!requireEnemyMaterial || hero.Controller == 1 || card.Controller == 1))
+                            (!requireEnemyMaterial || hero.Controller == 1 || card.Controller == 1) &&
+                            (requiredMaterial == null ||
+                                hero.Equals(requiredMaterial) ||
+                                card.Equals(requiredMaterial)))
                         .OrderByDescending(card => requireEnemyMaterial && card.Controller == 1)
                         .FirstOrDefault();
                     if (attributeMaterial == null)
@@ -410,68 +420,88 @@ namespace WindBot.Game.AI.Decks
                 Enemy.BattlingMonster.Attack >= Bot.BattlingMonster.GetDefensePower();
         }
 
+        private bool BookOfMoonActivate()
+        {
+            ClientCard newlySummonedFloodgate = Duel.LastSummonedCards.FirstOrDefault(card =>
+                card.Controller == 1 &&
+                card.IsFaceup() &&
+                card.IsFloodgate() &&
+                !card.HasType(CardType.Link) &&
+                !card.IsShouldNotBeTarget() &&
+                !card.IsShouldNotBeSpellTrapTarget() &&
+                !IsCardAlreadyHandledInCurrentChain(card));
+            if (newlySummonedFloodgate != null)
+            {
+                AI.SelectCard(newlySummonedFloodgate);
+                return true;
+            }
+
+            return Duel.Phase > DuelPhase.Main1 &&
+                Duel.Phase < DuelPhase.Main2 &&
+                DefaultBookOfMoon();
+        }
+
         private bool GeminiSparkActivate()
         {
-            ClientCard targetedNeosAlius = null;
-            if (Duel.LastChainPlayer == 1)
-            {
-                targetedNeosAlius = Duel.LastChainTargets.FirstOrDefault(card =>
+            ClientCard targetedNeosAlius = Duel.LastChainPlayer == 1
+                ? Duel.LastChainTargets.FirstOrDefault(card =>
                     card.Controller == 0 &&
                     card.Location == CardLocation.MonsterZone &&
                     card.IsFaceup() &&
-                    card.IsCode(CardId.ElementalHERONeosAlius));
+                    card.IsCode(CardId.ElementalHERONeosAlius))
+                : null;
+
+            ClientCard target = Util.GetProblematicEnemyCard(0, true);
+            if (target != null &&
+                (target.IsShouldNotBeSpellTrapTarget() ||
+                    IsCardAlreadyHandledInCurrentChain(target)))
+            {
+                target = null;
             }
 
-            ClientCard target = null;
-
-            if (targetedNeosAlius != null)
+            bool hasOtherNeosAlius = targetedNeosAlius != null &&
+                Bot.GetMonsters().Any(card =>
+                    card != targetedNeosAlius &&
+                    card.IsCode(CardId.ElementalHERONeosAlius));
+            if (target == null && targetedNeosAlius != null && !hasOtherNeosAlius)
             {
                 ClientCard lastChainCard = Util.GetLastChainCard();
                 if (lastChainCard != null &&
                     lastChainCard.Controller == 1 &&
                     (lastChainCard.Location == CardLocation.MonsterZone ||
-                     lastChainCard.Location == CardLocation.SpellZone) &&
+                        lastChainCard.Location == CardLocation.SpellZone) &&
                     (lastChainCard.HasType(CardType.Continuous) ||
-                     lastChainCard.HasType(CardType.Equip)) &&
+                        lastChainCard.HasType(CardType.Equip)) &&
                     !lastChainCard.IsShouldNotBeTarget() &&
-                    !lastChainCard.IsShouldNotBeSpellTrapTarget())
+                    !lastChainCard.IsShouldNotBeSpellTrapTarget() &&
+                    !IsCardAlreadyHandledInCurrentChain(lastChainCard))
                 {
                     target = lastChainCard;
                 }
                 else
                 {
-                    IList<ClientCard> otherTargets = Enemy.GetMonsters()
+                    target = Enemy.GetMonsters()
                         .Concat(Enemy.GetSpells())
                         .Where(card =>
                             card != lastChainCard &&
                             !card.IsShouldNotBeTarget() &&
-                            !card.IsShouldNotBeSpellTrapTarget())
-                        .ToList();
-
-                    target = Util.GetProblematicEnemyCard(0, true);
-                    if (target == null || !otherTargets.Contains(target))
-                    {
-                        target = otherTargets
-                            .OrderByDescending(card => card.IsFloodgate() || card.IsMonsterDangerous())
-                            .ThenByDescending(card => card.IsFaceup())
-                            .ThenByDescending(card => card.GetDefensePower())
-                            .FirstOrDefault();
-                    }
+                            !card.IsShouldNotBeSpellTrapTarget() &&
+                            !IsCardAlreadyHandledInCurrentChain(card))
+                        .OrderByDescending(card =>
+                            card.IsFloodgate() || card.IsMonsterDangerous())
+                        .ThenByDescending(card => card.IsFaceup())
+                        .ThenByDescending(card => card.GetDefensePower())
+                        .FirstOrDefault();
                 }
-
-                if (target == null)
-                    return false;
-
-                AI.SelectCard(targetedNeosAlius);
-                AI.SelectNextCard(target);
-                return true;
             }
 
-            target = Util.GetProblematicEnemyCard(1900, true);
             if (target == null)
                 return false;
 
-            AI.SelectCard(CardId.ElementalHERONeosAlius);
+            if (targetedNeosAlius != null)
+                AI.SelectCard(targetedNeosAlius);
+            else
+                AI.SelectCard(CardId.ElementalHERONeosAlius);
             AI.SelectNextCard(target);
             return true;
         }
@@ -494,14 +524,24 @@ namespace WindBot.Game.AI.Decks
 
         private bool SuperPolymerizationActivate()
         {
+            ClientCard problem = Util.GetProblematicEnemyMonster();
+            if (problem == null ||
+                IsCardAlreadyHandledInCurrentChain(problem))
+            {
+                return false;
+            }
+
             IList<ClientCard> materials = Bot.GetMonsters()
                 .Concat(Enemy.GetMonsters())
                 .Where(card => card.IsFaceup())
                 .ToList();
             int fusionId;
             IList<ClientCard> fusionMaterials;
-            if (!TryGetFusion(materials, true, out fusionId, out fusionMaterials))
+            if (!TryGetFusion(
+                materials, true, out fusionId, out fusionMaterials, problem))
+            {
                 return false;
+            }
 
             AI.SelectCard(
                 CardId.PotOfDuality,
@@ -675,17 +715,26 @@ namespace WindBot.Game.AI.Decks
         private bool HeroBlastActivate()
         {
             ClientCard target = Enemy.GetMonsters()
-                .Where(card => card.IsFaceup() && card.Attack <= 1900)
+                .Where(card =>
+                    card.IsFaceup() &&
+                    card.Attack <= 1900 &&
+                    !IsCardAlreadyHandledInCurrentChain(card))
                 .OrderByDescending(card => card.IsMonsterDangerous())
                 .ThenByDescending(card => card.Attack)
                 .FirstOrDefault();
-            if (target == null && Duel.Player == 1 && Duel.Phase != DuelPhase.End)
+
+            if (target == null && Bot.HasInHandOrHasInMonstersZone(CardId.ElementalHERONeosAlius))
                 return false;
 
             AI.SelectCard(CardId.ElementalHERONeosAlius);
+
             if (target != null)
+            {
                 AI.SelectNextCard(target);
-            return true;
+                return true;
+            }
+
+            return (Duel.Player == 0 && Duel.Phase >= DuelPhase.Main1) || Duel.Phase == DuelPhase.End;
         }
 
         private bool MirrorForceActivate()
