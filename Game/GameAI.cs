@@ -272,7 +272,12 @@ namespace WindBot.Game
                 return result;
 
             if (attackers.Count == 0)
-                return ToMainPhase2();
+            {
+                if (battle.CanMainPhaseTwo)
+                    return ToMainPhase2();
+                if (battle.CanEndPhase)
+                    return ToEndPhase();
+            }
 
             if (defenders.Count == 0)
             {
@@ -292,10 +297,12 @@ namespace WindBot.Game
                 }
             }
 
-            if (!battle.CanMainPhaseTwo)
-                return Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
+            if (battle.CanMainPhaseTwo)
+                return ToMainPhase2();
+            if (battle.CanEndPhase)
+                return ToEndPhase();
 
-            return ToMainPhase2();
+            return Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
         }
 
         /// <summary>
