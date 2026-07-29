@@ -350,7 +350,7 @@ namespace WindBot.Game
         private void OnHint(BinaryReader packet)
         {
             int type = packet.ReadByte();
-            int player = packet.ReadByte();
+            int player = GetLocalPlayer(packet.ReadByte());
             int data = packet.ReadInt32();
             if (type == 1) // HINT_EVENT
             {
