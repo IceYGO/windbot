@@ -1151,13 +1151,13 @@ namespace WindBot.Game
             Connection.Send(reply);
         }
 
-        private void InternalOnSelectUnselectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func)
+        private void OnSelectUnselectCard(BinaryReader packet)
         {
             packet.ReadByte(); // player
             bool finishable = packet.ReadByte() != 0;
             bool cancelable = packet.ReadByte() != 0 || finishable;
-            int min = packet.ReadByte();
-            int max = packet.ReadByte();
+            packet.ReadByte(); // min, display only
+            packet.ReadByte(); // max, display only
 
             IList<ClientCard> cards = new List<ClientCard>();
             IList<int> candidateIndexes = new List<int>();
@@ -1209,22 +1209,17 @@ namespace WindBot.Game
             // as the shared finish response after a card has already been selected.
             if (count2 == 0) cancelable = false;
 
-            // Unlike InternalOnSelectCard, we don't reset _select_hint here.
+            // Unlike OnSelectCard, we don't reset _select_hint here.
             // Lua helpers such as SelectSubGroup use this hint message repeatedly for one selection.
 
             int selectionMin = finishable ? 0 : 1;
-            IList<ClientCard> selected = func(cards, selectionMin, 1, _select_hint, cancelable);
+            IList<ClientCard> selected = _ai.OnSelectCard(cards, selectionMin, 1, _select_hint, cancelable);
             SendCardSelectionResponse(cards, candidateIndexes, selected, selectionMin, 1, cancelable);
         }
 
         private void OnSelectCard(BinaryReader packet)
         {
             InternalOnSelectCard(packet, _ai.OnSelectCard);
-        }
-
-        private void OnSelectUnselectCard(BinaryReader packet)
-        {
-            InternalOnSelectUnselectCard(packet, _ai.OnSelectCard);
         }
 
         private void OnSelectChain(BinaryReader packet)
