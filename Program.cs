@@ -147,7 +147,7 @@ namespace WindBot
                         {
                             if (Debugger.IsAttached)
                                 throw;
-                            Logger.WriteErrorLine("Start Thread Error: " + ex);
+                            Logger.WriteErrorLine("Start Thread Error", ex);
                             ctx.Response.StatusCode = 500;
                         }
                         ctx.Response.Close();
@@ -157,7 +157,7 @@ namespace WindBot
                     {
                         if (Debugger.IsAttached)
                             throw;
-                        Logger.WriteErrorLine("Parse Http Request Error: " + ex);
+                        Logger.WriteErrorLine("Parse Http Request Error", ex);
                     }
                 }
             }
@@ -166,10 +166,12 @@ namespace WindBot
         private static void Run(object o)
         {
             // All errors should be caught instead of causing the program to crash.
+            GameClient client = null;
             try
             {
                 WindBotInfo Info = (WindBotInfo)o;
-                GameClient client = new GameClient(Info);
+                client = new GameClient(Info);
+                Logger.SetContext(client.GetLogContext);
                 client.Start();
                 Logger.DebugWriteLine(client.Username + " started.");
                 while (client.Connection.IsConnected)
@@ -187,7 +189,7 @@ namespace WindBot
                     {
                         if (Debugger.IsAttached)
                             throw;
-                        Logger.WriteErrorLine("Tick Error: " + ex);
+                        Logger.WriteErrorLine("Tick Error", ex);
                     }
                 }
                 Logger.DebugWriteLine(client.Username + " end.");
@@ -196,7 +198,11 @@ namespace WindBot
             {
                 if (Debugger.IsAttached)
                     throw;
-                Logger.WriteErrorLine("Run Error: " + ex);
+                Logger.WriteErrorLine("Run Error", ex);
+            }
+            finally
+            {
+                Logger.ClearContext();
             }
         }
 

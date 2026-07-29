@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using YGOSharp.Network;
 using YGOSharp.Network.Enums;
 using YGOSharp.Network.Utils;
@@ -10,7 +11,12 @@ namespace WindBot.Game
 {
     public class GameClient
     {
+        private static long _nextInstanceId;
+
         public YGOClient Connection { get; private set; }
+        public long InstanceId { get; private set; }
+        public string ExecutorName { get; private set; }
+        public string CurrentSTOCMessage { get; private set; }
         public string Username;
         public string Deck;
         public string DeckFile;
@@ -28,6 +34,7 @@ namespace WindBot.Game
 
         public GameClient(WindBotInfo Info)
         {
+            InstanceId = Interlocked.Increment(ref _nextInstanceId);
             Username = Info.Name;
             Deck = Info.Deck;
             DeckFile = Info.DeckFile;
@@ -39,6 +46,24 @@ namespace WindBot.Game
             _serverPort = Info.Port;
             _roomInfo = Info.HostInfo;
             _proVersion = (short)Info.Version;
+        }
+
+        internal void SetDeckContext(string executorName)
+        {
+            ExecutorName = executorName;
+        }
+
+        internal void SetCurrentSTOCMessage(string message)
+        {
+            CurrentSTOCMessage = message;
+        }
+
+        public string GetLogContext()
+        {
+            return "Instance=" + InstanceId
+                + ", Bot=" + (Username ?? "<null>")
+                + ", Executor=" + (ExecutorName ?? "<not initialized>")
+                + ", STOCMessage=" + (CurrentSTOCMessage ?? "<none>");
         }
 
         public void Start()

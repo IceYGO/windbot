@@ -46,6 +46,7 @@ namespace WindBot.Game
 
             _ai = new GameAI(Game, _duel);
             _ai.Executor = DecksManager.Instantiate(_ai, _duel);
+            Game.SetDeckContext(_ai.Executor.GetType().Name);
             Deck = Deck.Load(Game.DeckFile ?? _ai.Executor.Deck);
 
             _select_hint = 0;
@@ -59,9 +60,11 @@ namespace WindBot.Game
         public void OnPacket(BinaryReader packet)
         {
             StocMessage id = (StocMessage)packet.ReadByte();
+            Game.SetCurrentSTOCMessage(id.ToString());
             if (id == StocMessage.GameMsg)
             {
                 GameMessage msg = (GameMessage)packet.ReadByte();
+                Game.SetCurrentSTOCMessage(msg.ToString());
                 if (_messages.ContainsKey(msg))
                     _messages[msg](packet);
                 _lastMessage = msg;
