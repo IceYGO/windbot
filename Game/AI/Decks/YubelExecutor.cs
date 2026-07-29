@@ -225,8 +225,6 @@ namespace WindBot.Game.AI.Decks
         }
         //======================Default code
         #region Default Code Start Here
-        private int _totalAttack;
-        private int _totalBotAttack;
         bool enemyActivateMaxxC = false;
         bool enemyActivateLockBird = false;
         int dimensionShifterCount = 0;
@@ -316,8 +314,15 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.IsFacedown())
                 return true;
-            if (CheckInDanger() && (_totalAttack > _totalBotAttack))
-                return Card.IsDefense();
+
+            int totalEnemyAttack = Util.GetTotalAttackingMonsterAttack(1);
+            int totalBotAttack = Util.GetTotalAttackingMonsterAttack(0);
+            if (Duel.Phase == DuelPhase.Main1 &&
+                totalEnemyAttack >= Bot.LifePoints &&
+                totalEnemyAttack > totalBotAttack)
+            {
+                return Card.IsAttack();
+            }
             return DefaultMonsterRepos();
         }
 
@@ -326,20 +331,6 @@ namespace WindBot.Game.AI.Decks
             if (GetProblematicEnemyMonster() == null && Bot.GetMonsters().Any(card => card.IsFaceup()))
             {
                 return true;
-            }
-            return false;
-        }
-
-        public bool CheckInDanger()
-        {
-            if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
-            {
-                int totalAtk = 0;
-                foreach (ClientCard m in Enemy.GetMonsters())
-                {
-                    if (m.IsAttack() && !m.Attacked) totalAtk += m.Attack;
-                }
-                if (totalAtk >= Bot.LifePoints) return true;
             }
             return false;
         }
