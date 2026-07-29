@@ -65,6 +65,7 @@ namespace WindBot.Game.AI
             public const int SakuretsuArmor = 56120475;
             public const int Crackdown = 36975314;
             public const int DogmatikaPunishment = 82956214;
+            public const int DogmatikaAlbaZoa = 51522296;
             public const int PaleozoicDinomischus = 38761908;
             public const int DracobackTheDragonSteed = 38745520;
             public const int PhoenixWingWindBlast = 63356631;
@@ -598,11 +599,10 @@ namespace WindBot.Game.AI
         /// <returns>A new list containing the selected cards.</returns>
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            // wordaround for Dogmatika Alba Zoa
-            int albaZoaCount = Bot.ExtraDeck.Count / 2;
-            if (!cancelable && min == albaZoaCount && max == albaZoaCount
-                && Duel.Player == 1 && (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2) && cards.All(card =>
-                card.Controller == 0 && (card.Location == CardLocation.Hand || card.Location == CardLocation.Extra)))
+            ChainInfo currentSolving = Duel.GetCurrentSolvingChainInfo();
+            if (currentSolving != null &&
+                currentSolving.RelatedCard.IsCode(_CardId.DogmatikaAlbaZoa) &&
+                currentSolving.ActivatePlayer == 1)
             {
                 Logger.DebugWriteLine("Dogmatika Alba Zoa solved");
                 List<ClientCard> extraDeck = new List<ClientCard>(Bot.ExtraDeck);

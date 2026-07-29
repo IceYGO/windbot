@@ -177,6 +177,11 @@ namespace WindBot.Game.AI.Decks
             if (flag >= 2) { flag = -1; activate_DimensionShifter = false; }
             base.OnNewTurn();
         }
+        public override void OnChainEnd()
+        {
+            select_Cards.Clear();
+            base.OnChainEnd();
+        }
         public override bool OnSelectYesNo(int desc)
         {
             if (desc == 1149312192)
@@ -299,9 +304,11 @@ namespace WindBot.Game.AI.Decks
             }
             if (hint == HintMsg.Remove && cards.Any(card => card != null && (card.Location == CardLocation.Hand || card.Location == CardLocation.Grave) && card.Controller == 0) && min == 1 && max == 1)
             {
-                if (select_Cards.Count > 0)
+                List<ClientCard> selectedCards = select_Cards.Where(cards.Contains).ToList();
+                select_Cards.Clear();
+                if (selectedCards.Count > 0)
                 {
-                    return Util.CheckSelectCount(select_Cards, cards, min, max);
+                    return Util.CheckSelectCount(selectedCards, cards, min, max);
                 }
                 else
                 {
