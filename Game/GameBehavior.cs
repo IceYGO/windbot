@@ -425,8 +425,11 @@ namespace WindBot.Game
 
             for (int i = 0; i < count; ++i)
             {
-                _duel.Fields[player].Deck.RemoveAt(_duel.Fields[player].Deck.Count - 1);
-                _duel.Fields[player].Hand.Add(new ClientCard(0, CardLocation.Hand, -1));
+                int cardId = packet.ReadInt32() & 0x7fffffff;
+                int deckIndex = _duel.Fields[player].Deck.Count - 1;
+                ClientCard card = _duel.Fields[player].Deck[deckIndex];
+                _duel.Fields[player].Deck.RemoveAt(deckIndex);
+                _duel.AddCard(CardLocation.Hand, card, player, -1, 0, cardId);
             }
             _ai.OnDraw(player);
         }
