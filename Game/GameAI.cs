@@ -657,19 +657,20 @@ namespace WindBot.Game
         /// <summary>
         /// Called when the AI has to tribute for a synchro monster or ritual monster.
         /// </summary>
-        /// <param name="cards">Available cards.</param>
+        /// <param name="cards">Available optional cards.</param>
+        /// <param name="mandatoryCards">Cards that must be included.</param>
         /// <param name="sum">Result of the operation.</param>
         /// <param name="min">Minimum cards.</param>
         /// <param name="max">Maximum cards.</param>
         /// <param name="mode">True for exact equal.</param>
         /// <returns></returns>
-        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, int hint, bool mode)
+        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, IList<ClientCard> mandatoryCards,
+            int sum, int min, int max, int hint, bool mode)
         {
-            IList<ClientCard> selected = Executor.OnSelectSum(cards, sum, min, max, hint, mode);
-            if (selected != null)
-            {
+            int optionalSum = sum - mandatoryCards.Sum(card => card.OpParam1);
+            IList<ClientCard> selected = Executor.OnSelectSum(cards, optionalSum, min, max, hint, mode);
+            if (IsValidSumSelection(selected, cards, mandatoryCards, sum, min, max, mode))
                 return selected;
-            }
 
             if (hint == HintMsg.Release || hint == HintMsg.SynchroMaterial)
             {
@@ -684,166 +685,245 @@ namespace WindBot.Game
                     switch (hint)
                     {
                         case HintMsg.SynchroMaterial:
-                            selected = Executor.OnSelectSynchroMaterial(cards, sum, min, max);
+                            selected = Executor.OnSelectSynchroMaterial(cards, optionalSum, min, max);
                             break;
                         case HintMsg.Release:
-                            selected = Executor.OnSelectRitualTribute(cards, sum, min, max);
+                            selected = Executor.OnSelectRitualTribute(cards, optionalSum, min, max);
                             break;
                     }
                 }
-                if (selected != null)
-                {
-                    int s1 = 0, s2 = 0;
-                    foreach (ClientCard card in selected)
-                    {
-                        s1 += card.OpParam1;
-                        s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                    }
-                    if ((mode && (s1 == sum || s2 == sum)) || (!mode && (s1 >= sum || s2 >= sum)))
-                    {
-                        return selected;
-                    }
-                }
+                if (IsValidSumSelection(selected, cards, mandatoryCards, sum, min, max, mode))
+                    return selected;
             }
 
-            if (mode)
+            IList<ClientCard> orderedCards = new List<ClientCard>();
+            if (selected != null)
             {
-                // equal
-
-                if (sum == 0 && min == 0)
+                foreach (ClientCard card in selected)
                 {
-                    return new List<ClientCard>();
-                }
-
-                if (min <= 1)
-                {
-                    // try special level first
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.OpParam2 == sum)
-                        {
-                            return new[] { card };
-                        }
-                    }
-                    // try level equal
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.OpParam1 == sum)
-                        {
-                            return new[] { card };
-                        }
-                    }
-                }
-
-                // try all
-                int s1 = 0, s2 = 0;
-                foreach (ClientCard card in cards)
-                {
-                    s1 += card.OpParam1;
-                    s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                }
-                if (s1 == sum || s2 == sum)
-                {
-                    return cards;
-                }
-
-                // try all combinations
-                int i = (min <= 1) ? 2 : min;
-                while (i <= max && i <= cards.Count)
-                {
-                    IEnumerable<IEnumerable<ClientCard>> combos = CardContainer.GetCombinations(cards, i);
-
-                    foreach (IEnumerable<ClientCard> combo in combos)
-                    {
-                        Logger.DebugWriteLine("--");
-                        s1 = 0;
-                        s2 = 0;
-                        foreach (ClientCard card in combo)
-                        {
-                            s1 += card.OpParam1;
-                            s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                        }
-                        if (s1 == sum || s2 == sum)
-                        {
-                            return combo.ToList();
-                        }
-                    }
-                    i++;
+                    if (card != null && cards.Contains(card) && !orderedCards.Contains(card))
+                        orderedCards.Add(card);
                 }
             }
-            else
+            foreach (ClientCard card in cards)
             {
-                // larger
-                if (min <= 1)
-                {
-                    // try special level first
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.OpParam2 >= sum)
-                        {
-                            return new[] { card };
-                        }
-                    }
-                    // try level equal
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.OpParam1 >= sum)
-                        {
-                            return new[] { card };
-                        }
-                    }
-                }
-
-                // try all combinations
-                int i = (min <= 1) ? 2 : min;
-                while (i <= max && i <= cards.Count)
-                {
-                    IEnumerable<IEnumerable<ClientCard>> combos = CardContainer.GetCombinations(cards, i);
-
-                    foreach (IEnumerable<ClientCard> combo in combos)
-                    {
-                        Logger.DebugWriteLine("----");
-                        int s1 = 0, s2 = 0;
-                        foreach (ClientCard card in combo)
-                        {
-                            s1 += card.OpParam1;
-                            s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                        }
-                        if (s1 >= sum || s2 >= sum)
-                        {
-                            return combo.ToList();
-                        }
-                    }
-                    i++;
-                }
+                if (!orderedCards.Contains(card))
+                    orderedCards.Add(card);
             }
+
+            selected = FindSumSelection(orderedCards, mandatoryCards, sum, min, max, mode);
+            if (selected != null)
+                return selected;
 
             Logger.WriteErrorLine("Fail to select sum.");
             return new List<ClientCard>();
+        }
+
+        private bool CanReachSum(IList<ClientCard> cards, int index, long currentSum, int min, int max)
+        {
+            if (currentSum > max)
+                return false;
+            if (index == cards.Count)
+                return currentSum >= min && currentSum <= max;
+
+            ClientCard card = cards[index];
+            if (CanReachSum(cards, index + 1, currentSum + card.OpParam1, min, max))
+                return true;
+            return card.OpParam2 > 0 && card.OpParam2 != card.OpParam1
+                && CanReachSum(cards, index + 1, currentSum + card.OpParam2, min, max);
+        }
+
+        private bool IsValidSumSelection(IList<ClientCard> selected, IList<ClientCard> cards,
+            IList<ClientCard> mandatoryCards, int sum, int min, int max, bool mode)
+        {
+            if (selected == null || selected.Distinct().Count() != selected.Count
+                || selected.Any(card => card == null || !cards.Contains(card)))
+                return false;
+
+            if (mode && (selected.Count < min || selected.Count > max))
+                return false;
+
+            IList<ClientCard> allSelected = mandatoryCards.Concat(selected).ToList();
+            if (mode)
+                return CanReachSum(allSelected, 0, 0, sum, sum);
+
+            // OCGCore's greater-than mode accepts only a minimal set: its maximum
+            // possible sum reaches the target, but removing the smallest minimum
+            // contribution would no longer reach it.
+            if (allSelected.Count == 0)
+                return sum <= 0;
+
+            long minimumSum = 0;
+            long maximumSum = 0;
+            int smallestMinimum = int.MaxValue;
+            foreach (ClientCard card in allSelected)
+            {
+                int minimum = card.OpParam2 > 0 ? System.Math.Min(card.OpParam1, card.OpParam2) : card.OpParam1;
+                int maximum = System.Math.Max(card.OpParam1, card.OpParam2);
+                minimumSum += minimum;
+                maximumSum += maximum;
+                smallestMinimum = System.Math.Min(smallestMinimum, minimum);
+            }
+            return IsValidGreaterSum(minimumSum, maximumSum, smallestMinimum, sum);
+        }
+
+        private IList<ClientCard> FindSumSelection(IList<ClientCard> cards, IList<ClientCard> mandatoryCards,
+            int sum, int min, int max, bool mode)
+        {
+            if (!mode)
+            {
+                long minimumSum = 0;
+                long maximumSum = 0;
+                int smallestMinimum = int.MaxValue;
+                foreach (ClientCard card in mandatoryCards)
+                {
+                    int minimum = card.OpParam2 > 0 ? System.Math.Min(card.OpParam1, card.OpParam2) : card.OpParam1;
+                    minimumSum += minimum;
+                    maximumSum += System.Math.Max(card.OpParam1, card.OpParam2);
+                    smallestMinimum = System.Math.Min(smallestMinimum, minimum);
+                }
+
+                IList<ClientCard> result = new List<ClientCard>();
+                long[] remainingMaximums = new long[cards.Count + 1];
+                for (int i = cards.Count - 1; i >= 0; --i)
+                {
+                    remainingMaximums[i] = remainingMaximums[i + 1]
+                        + System.Math.Max(cards[i].OpParam1, cards[i].OpParam2);
+                }
+                return TrySelectGreaterSum(cards, remainingMaximums, sum, 0, minimumSum, maximumSum,
+                    smallestMinimum, mandatoryCards.Count, result) ? result : null;
+            }
+
+            HashSet<long> mandatorySums = new HashSet<long> { 0 };
+            foreach (ClientCard card in mandatoryCards)
+            {
+                HashSet<long> nextSums = new HashSet<long>();
+                foreach (long current in mandatorySums)
+                {
+                    if (current + card.OpParam1 <= sum)
+                        nextSums.Add(current + card.OpParam1);
+                    if (card.OpParam2 > 0 && card.OpParam2 != card.OpParam1 && current + card.OpParam2 <= sum)
+                        nextSums.Add(current + card.OpParam2);
+                }
+                mandatorySums = nextSums;
+            }
+
+            HashSet<long> optionalSums = new HashSet<long>(mandatorySums.Select(value => (long)sum - value));
+            long maximumOptionalSum = optionalSums.Count > 0 ? optionalSums.Max() : -1;
+            int maximumCount = System.Math.Min(max, cards.Count);
+            for (int count = min; count <= maximumCount; ++count)
+            {
+                IList<ClientCard> result = new List<ClientCard>();
+                var failed = new HashSet<System.Tuple<int, int, long>>();
+                if (TrySelectCardsBySum(cards, optionalSums, maximumOptionalSum, 0, count, 0, result, failed))
+                    return result;
+            }
+            return null;
+        }
+
+        private bool TrySelectCardsBySum(IList<ClientCard> cards, ISet<long> targetSums, long maximumTarget,
+            int index, int remainingCount, long currentSum, IList<ClientCard> result,
+            ISet<System.Tuple<int, int, long>> failed)
+        {
+            if (remainingCount == 0)
+                return targetSums.Contains(currentSum);
+            if (currentSum > maximumTarget || cards.Count - index < remainingCount)
+                return false;
+
+            var state = System.Tuple.Create(index, remainingCount, currentSum);
+            if (failed.Contains(state))
+                return false;
+
+            ClientCard card = cards[index];
+            result.Add(card);
+            if (card.OpParam2 > 0 && card.OpParam2 != card.OpParam1
+                && TrySelectCardsBySum(cards, targetSums, maximumTarget, index + 1, remainingCount - 1,
+                    currentSum + card.OpParam2, result, failed))
+                return true;
+            if (TrySelectCardsBySum(cards, targetSums, maximumTarget, index + 1, remainingCount - 1,
+                currentSum + card.OpParam1, result, failed))
+                return true;
+            result.RemoveAt(result.Count - 1);
+
+            if (TrySelectCardsBySum(cards, targetSums, maximumTarget, index + 1, remainingCount, currentSum, result, failed))
+                return true;
+
+            failed.Add(state);
+            return false;
+        }
+
+        private bool TrySelectGreaterSum(IList<ClientCard> cards, IList<long> remainingMaximums,
+            int sum, int index, long minimumSum, long maximumSum, int smallestMinimum,
+            int selectedCount, IList<ClientCard> result)
+        {
+            if (selectedCount > 0 && IsValidGreaterSum(minimumSum, maximumSum, smallestMinimum, sum))
+                return true;
+            if (selectedCount > 0 && minimumSum - smallestMinimum >= sum)
+                return false;
+            if (index >= cards.Count || maximumSum + remainingMaximums[index] < sum)
+                return false;
+
+            ClientCard card = cards[index];
+            int minimum = card.OpParam2 > 0 ? System.Math.Min(card.OpParam1, card.OpParam2) : card.OpParam1;
+            result.Add(card);
+            if (TrySelectGreaterSum(cards, remainingMaximums, sum, index + 1, minimumSum + minimum,
+                maximumSum + System.Math.Max(card.OpParam1, card.OpParam2),
+                System.Math.Min(smallestMinimum, minimum), selectedCount + 1, result))
+                return true;
+            result.RemoveAt(result.Count - 1);
+
+            return TrySelectGreaterSum(cards, remainingMaximums, sum, index + 1, minimumSum, maximumSum,
+                smallestMinimum, selectedCount, result);
+        }
+
+        private bool IsValidGreaterSum(long minimumSum, long maximumSum, int smallestMinimum, int sum)
+        {
+            return maximumSum >= sum && minimumSum - smallestMinimum < sum;
         }
 
         /// <summary>
         /// Called when the AI has to tribute one or more cards.
         /// </summary>
         /// <param name="cards">List of available cards.</param>
-        /// <param name="min">Minimal quantity.</param>
-        /// <param name="max">Maximal quantity.</param>
+        /// <param name="min">Minimum tribute value.</param>
+        /// <param name="max">Maximum tribute value.</param>
         /// <param name="hint">The hint message of the select.</param>
         /// <param name="cancelable">True if you can return an empty list.</param>
         /// <returns>A new list containing the tributed cards.</returns>
         public IList<ClientCard> OnSelectTribute(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            // Always choose the minimum and lowest atk.
             List<ClientCard> sorted = new List<ClientCard>();
             sorted.AddRange(cards);
             sorted.Sort(CardContainer.CompareCardAttack);
 
-            IList<ClientCard> selected = new List<ClientCard>();
+            IList<ClientCard> selected = FindTributeSelection(sorted, min, max);
+            if (selected != null)
+                return selected;
 
-            for (int i = 0; i < min && i < sorted.Count; ++i)
-                selected.Add(sorted[i]);
+            Logger.WriteErrorLine("Fail to select tribute.");
+            return new List<ClientCard>();
+        }
 
-            return selected;
+        public bool IsValidTributeSelection(IList<ClientCard> selected, int min, int max)
+        {
+            return selected != null && CanReachSum(selected, 0, 0, min, max);
+        }
+
+        public IList<ClientCard> FindTributeSelection(IList<ClientCard> cards, int min, int max)
+        {
+            ISet<long> targetSums = new HashSet<long>();
+            for (int value = min; value <= max; ++value)
+                targetSums.Add(value);
+
+            int maximumCount = System.Math.Min(max, cards.Count);
+            for (int count = 0; count <= maximumCount; ++count)
+            {
+                IList<ClientCard> selected = new List<ClientCard>();
+                ISet<System.Tuple<int, int, long>> failed = new HashSet<System.Tuple<int, int, long>>();
+                if (TrySelectCardsBySum(cards, targetSums, max, 0, count, 0, selected, failed))
+                    return selected;
+            }
+            return null;
         }
 
         /// <summary>

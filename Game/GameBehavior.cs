@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -1025,7 +1025,8 @@ namespace WindBot.Game
             Connection.Send(CtosMessage.Response, _ai.OnSelectBattleCmd(battle).ToValue());
         }
 
-        private void InternalOnSelectCard(BinaryReader packet, Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func)
+        private void InternalOnSelectCard(BinaryReader packet,
+            Func<IList<ClientCard>, int, int, int, bool, IList<ClientCard>> func, bool isTribute = false)
         {
             packet.ReadByte(); // player
             bool cancelable = packet.ReadByte() != 0;
@@ -1041,7 +1042,7 @@ namespace WindBot.Game
                 int player = GetLocalPlayer(packet.ReadByte());
                 CardLocation loc = (CardLocation)packet.ReadByte();
                 int seq = packet.ReadByte();
-                packet.ReadByte(); // pos
+                int param = packet.ReadByte();
                 ClientCard card;
                 if (((int)loc & (int)CardLocation.Overlay) != 0)
                 {
@@ -1060,6 +1061,11 @@ namespace WindBot.Game
                 card.Controller = player;
                 if (card.Id == 0 || card.Location == CardLocation.Deck)
                     card.SetId(id);
+                if (isTribute)
+                {
+                    card.OpParam1 = 1;
+                    card.OpParam2 = param;
+                }
                 cards.Add(card);
                 candidateIndexes.Add(i);
             }
@@ -1074,13 +1080,14 @@ namespace WindBot.Game
             IList<ClientCard> selected = func(cards, min, max, _select_hint, cancelable);
             _select_hint = 0;
 
-            SendCardSelectionResponse(cards, candidateIndexes, selected, min, max, cancelable);
+            SendCardSelectionResponse(cards, candidateIndexes, selected, min, max, cancelable, isTribute);
         }
 
         private void SendCardSelectionResponse(IList<ClientCard> cards, IList<int> candidateIndexes,
-            IList<ClientCard> selected, int min, int max, bool cancelable)
+            IList<ClientCard> selected, int min, int max, bool cancelable, bool isTribute = false)
         {
-            bool validCount = selected != null && selected.Count >= min && selected.Count <= max;
+            bool validCount = selected != null
+                && (isTribute ? _ai.IsValidTributeSelection(selected, min, max) : selected.Count >= min && selected.Count <= max);
             if (selected != null && cancelable && selected.Count == 0)
                 validCount = true;
 
@@ -1090,25 +1097,36 @@ namespace WindBot.Game
             if (!isValid)
             {
                 Logger.WriteErrorLine("Invalid card selection, using a legal fallback.");
-                IList<ClientCard> fallback = new List<ClientCard>();
+                IList<ClientCard> orderedCards = new List<ClientCard>();
                 if (selected != null)
                 {
                     foreach (ClientCard card in selected)
                     {
-                        if (fallback.Count >= max)
-                            break;
-                        if (card != null && cards.Contains(card) && !fallback.Contains(card))
-                            fallback.Add(card);
+                        if (card != null && cards.Contains(card) && !orderedCards.Contains(card))
+                            orderedCards.Add(card);
                     }
                 }
                 foreach (ClientCard card in cards)
                 {
-                    if (fallback.Count >= min || fallback.Count >= max)
-                        break;
-                    if (!fallback.Contains(card))
-                        fallback.Add(card);
+                    if (!orderedCards.Contains(card))
+                        orderedCards.Add(card);
                 }
-                selected = fallback;
+
+                if (isTribute)
+                {
+                    selected = _ai.FindTributeSelection(orderedCards, min, max) ?? new List<ClientCard>();
+                }
+                else
+                {
+                    IList<ClientCard> fallback = new List<ClientCard>();
+                    foreach (ClientCard card in orderedCards)
+                    {
+                        if (fallback.Count >= min || fallback.Count >= max)
+                            break;
+                        fallback.Add(card);
+                    }
+                    selected = fallback;
+                }
             }
 
             if (selected.Count == 0 && cancelable)
@@ -1634,27 +1652,43 @@ namespace WindBot.Game
                     int player = GetLocalPlayer(packet.ReadByte());
                     CardLocation loc = (CardLocation)packet.ReadByte();
                     int seq = packet.ReadByte();
-                    ClientCard card = _duel.GetCard(player, loc, seq);
-                    if (cardId != 0 && card.Id != cardId)
-                        card.SetId(cardId);
-                    card.SelectSeq = i;
-                    int OpParam = packet.ReadInt32();
-                    int OpParam1 = OpParam & 0xffff;
-                    int OpParam2 = OpParam >> 16;
-                    if ((OpParam & 0x80000000) > 0)
+                    ClientCard card;
+                    if (((int)loc & (int)CardLocation.Overlay) != 0)
                     {
-                        OpParam1 = OpParam & 0x7fffffff;
-                        OpParam2 = 0;
-                    }
-                    if (OpParam2 > 0 && OpParam1 > OpParam2)
-                    {
-                        card.OpParam1 = OpParam2;
-                        card.OpParam2 = OpParam1;
+                        card = new ClientCard(cardId, CardLocation.Overlay, -1);
                     }
                     else
                     {
-                        card.OpParam1 = OpParam1;
-                        card.OpParam2 = OpParam2;
+                        card = _duel.GetCard(player, loc, seq);
+                        if (card == null)
+                            card = new ClientCard(cardId, loc, seq);
+                    }
+                    card.Controller = player;
+                    if (cardId != 0 && card.Id != cardId)
+                        card.SetId(cardId);
+                    card.SelectSeq = i;
+                    uint opParam = packet.ReadUInt32();
+                    int opParam1 = (int)(opParam & 0xffff);
+                    int opParam2 = (int)((opParam >> 16) & 0xffff);
+                    if ((opParam2 & 0x8000) != 0)
+                    {
+                        opParam1 = (int)(opParam & 0x7fffffff);
+                        opParam2 = 0;
+                    }
+                    if (opParam1 == 0)
+                    {
+                        Logger.WriteErrorLine("Unexpected select sum parameter for card " + cardId
+                            + ": OpParam1 is 0 (raw opParam = 0x" + opParam.ToString("X8") + ").");
+                    }
+                    if (opParam2 > 0 && opParam1 > opParam2)
+                    {
+                        card.OpParam1 = opParam2;
+                        card.OpParam2 = opParam1;
+                    }
+                    else
+                    {
+                        card.OpParam1 = opParam1;
+                        card.OpParam2 = opParam2;
                     }
                     if (j == 0)
                         mandatoryCards.Add(card);
@@ -1663,12 +1697,7 @@ namespace WindBot.Game
                 }
             }
 
-            for (int k = 0; k < mandatoryCards.Count; ++k)
-            {
-                sumval -= mandatoryCards[k].OpParam1;
-            }
-
-            IList<ClientCard> selected = _ai.OnSelectSum(cards, sumval, min, max, _select_hint, mode);
+            IList<ClientCard> selected = _ai.OnSelectSum(cards, mandatoryCards, sumval, min, max, _select_hint, mode);
             _select_hint = 0;
 
             byte[] result = new byte[mandatoryCards.Count + selected.Count + 1];
@@ -1693,7 +1722,7 @@ namespace WindBot.Game
 
         private void OnSelectTribute(BinaryReader packet)
         {
-            InternalOnSelectCard(packet, _ai.OnSelectTribute);
+            InternalOnSelectCard(packet, _ai.OnSelectTribute, true);
         }
 
         private void OnSelectYesNo(BinaryReader packet)
