@@ -84,6 +84,7 @@ namespace WindBot.Game.AI.Decks
             public const int AccesscodeTalker = 86066372;
             public const int GhostMournerMoonlitChill = 52038441;
             public const int NibiruThePrimalBeing = 27204311;
+            public const int AME_NO_MURAKUMO_NO_MITSURUGI = 19899073;
         }
 
         const int SetcodeTimeLord = 0x4a;
@@ -2022,6 +2023,15 @@ namespace WindBot.Game.AI.Decks
             var solving = Duel.GetCurrentSolvingChainCard();
             DumpChain("OnSelectYesNo");
             Logger.DebugWriteLine($"[THRONE] OnSelectYesNo desc={desc} stage={_throneStage} solving={CardStr(solving)}");
+            if (IsEnemyMurakumoSolving())
+            {
+                bool discard = ShouldDiscardForMurakumo();
+
+                Logger.DebugWriteLine(
+                    $"[MURAKUMO] Accept discard={discard}, hand={Bot.Hand.Count}");
+
+                return discard;
+            }
             if (info != null && info.ActivatePlayer == 1)
             { return false; }
             // --- Nightmare Throne ---
@@ -2098,6 +2108,25 @@ namespace WindBot.Game.AI.Decks
             hint == (long)HintMsg.Release ||
             hint.ToString().ToLower().Contains("release"); // กันเหนียว
             var solving = Duel.GetCurrentSolvingChainCard();
+            if (IsEnemyMurakumoSolving() && cards != null && cards.Count > 0 && (hint == HintMsg.Discard || 
+                hint == HintMsg.ToGrave) && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
+            {
+                var discardOrder = cards
+                    // ทิ้งการ์ดซ้ำก่อน เช่น Spirit of Yubel 3 ใบ
+                    .OrderBy(c =>
+                        Bot.Hand.Count(h =>
+                            h != null && h.IsCode(c.Id)) > 1 ? 0 : 1)
+
+                    // ภายในกลุ่มเดียวกันใช้ priority เดิม
+                    .ThenBy(ScoreOwnCardForCost)
+                    .ToList();
+
+                Logger.DebugWriteLine(
+                    $"[MURAKUMO] Discard => {CardStr(discardOrder[0])}");
+
+                return Util.CheckSelectCount(
+                    discardOrder, cards, min, max);
+            }
             if (cards != null && cards.Count > 0)
             {
                 // === Throne ===
@@ -2294,7 +2323,21 @@ namespace WindBot.Game.AI.Decks
             s += Math.Max(0, c.Attack);
             return s;
         }
+        private bool IsEnemyMurakumoSolving()
+        {
+            var info = Duel.GetCurrentSolvingChainInfo();
+            var solving = Duel.GetCurrentSolvingChainCard();
 
+            return info != null
+                && info.ActivatePlayer == 1
+                && solving != null
+                && solving.IsCode(CardId.AME_NO_MURAKUMO_NO_MITSURUGI);
+        }
+
+        private bool ShouldDiscardForMurakumo()
+        {
+            return Bot.Hand.Count >= 2;
+        }
         #endregion
 
         #region DEBUG
