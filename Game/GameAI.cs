@@ -1026,7 +1026,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(card));
@@ -1036,7 +1036,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cards));
@@ -1046,7 +1046,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cardId));
@@ -1056,7 +1056,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -1066,7 +1066,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -1076,7 +1076,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(loc));
@@ -1086,7 +1086,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(card));
@@ -1096,7 +1096,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cards));
@@ -1106,7 +1106,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cardId));
@@ -1116,7 +1116,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -1126,7 +1126,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -1136,7 +1136,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(loc));
