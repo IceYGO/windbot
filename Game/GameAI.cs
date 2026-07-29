@@ -118,16 +118,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnNewPhase()
         {
-            m_selector.Clear();
-            m_position.Clear();
-            m_selector_pointer = -1;
-            m_materialSelector = null;
-            m_materialSelectorHint = 0;
-            m_option = -1;
-            m_yesno = -1;
-            m_announce = 0;
-           
-            m_place = 0;
+            ClearSelections();
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
                 _dialogs.SendNewTurn();
@@ -184,10 +175,25 @@ namespace WindBot.Game
         /// </summary>
         public void OnChainEnd()
         {
-            m_selector.Clear();
-            m_selector_pointer = -1;
+            ClearSelections();
             Executor.OnChainEnd();
             CheckSurrender();
+        }
+
+        private void ClearSelections()
+        {
+            m_selector.Clear();
+            m_position.Clear();
+            m_selector_pointer = -1;
+            m_materialSelector = null;
+            m_materialSelectorHint = 0;
+            m_place = 0;
+            m_option = -1;
+            m_number = -1;
+            m_announce = 0;
+            m_yesno = -1;
+            m_attributes.Clear();
+            m_races.Clear();
         }
 
         /// <summary>
@@ -335,6 +341,7 @@ namespace WindBot.Game
                 {
                     //Logger.DebugWriteLine("m_materialSelector");
                     selector = m_materialSelector;
+                    CleanSelectMaterials();
                 }
                 else
                 {
@@ -360,6 +367,7 @@ namespace WindBot.Game
                 {
                     //Logger.DebugWriteLine("m_materialSelector hint match");
                     selector = m_materialSelector;
+                    CleanSelectMaterials();
                 }
                 else
                 {
@@ -574,12 +582,15 @@ namespace WindBot.Game
         /// <returns>Index of the selected option.</returns>
         public int OnSelectOption(IList<int> options)
         {
+            int selectorSelected = m_option;
+            m_option = -1;
+
             int result = Executor.OnSelectOption(options);
-            if (result != -1)
+            if (result >= 0 && result < options.Count)
                 return result;
 
-            if (m_option != -1 && m_option < options.Count)
-                return m_option;
+            if (selectorSelected >= 0 && selectorSelected < options.Count)
+                return selectorSelected;
 
             return 0; // Always select the first option.
         }
@@ -643,7 +654,9 @@ namespace WindBot.Game
             {
                 if (m_materialSelector != null)
                 {
-                    selected = m_materialSelector.Select(cards, min, max);
+                    CardSelector selector = m_materialSelector;
+                    CleanSelectMaterials();
+                    selected = selector.Select(cards, min, max);
                 }
                 else
                 {
@@ -819,8 +832,10 @@ namespace WindBot.Game
         /// <returns>True for yes, false for no.</returns>
         public bool OnSelectYesNo(int desc)
         {
-            if (m_yesno != -1)
-                return m_yesno > 0;
+            int selected = m_yesno;
+            m_yesno = -1;
+            if (selected != -1)
+                return selected > 0;
             return Executor.OnSelectYesNo(desc);
         }
 
@@ -840,13 +855,16 @@ namespace WindBot.Game
         /// <returns>Id of the selected card.</returns>
         public int OnAnnounceCard(IList<int> avail)
         {
+            int announced = m_announce;
+            m_announce = 0;
+
             int selected = Executor.OnAnnounceCard(avail);
             if (avail.Contains(selected))
                 return selected;
-            if (avail.Contains(m_announce))
-                return m_announce;
-            else if (m_announce > 0)
-                Logger.WriteErrorLine("Pre-announced card cant be used: " + m_announce);
+            if (avail.Contains(announced))
+                return announced;
+            else if (announced > 0)
+                Logger.WriteErrorLine("Pre-announced card cant be used: " + announced);
             return avail[0];
         }
 
@@ -1154,8 +1172,10 @@ namespace WindBot.Game
         /// <returns>Index of the selected number.</returns>
         public int OnAnnounceNumber(IList<int> numbers)
         {
-            if (numbers.Contains(m_number))
-                return numbers.IndexOf(m_number);
+            int selected = m_number;
+            m_number = -1;
+            if (numbers.Contains(selected))
+                return numbers.IndexOf(selected);
 
             return Program.Rand.Next(0, numbers.Count); // Returns a random number.
         }
@@ -1168,11 +1188,17 @@ namespace WindBot.Game
         /// <returns>A list of the selected attributes.</returns>
         public virtual IList<CardAttribute> OnAnnounceAttrib(int count, IList<CardAttribute> attributes)
         {
-            IList<CardAttribute> foundAttributes = m_attributes.Where(attributes.Contains).ToList();
-            if (foundAttributes.Count > 0)
-                return foundAttributes;
+            IList<CardAttribute> foundAttributes = m_attributes.Where(attributes.Contains).Distinct().Take(count).ToList();
+            m_attributes.Clear();
+            foreach (CardAttribute attribute in attributes)
+            {
+                if (foundAttributes.Count >= count)
+                    break;
+                if (!foundAttributes.Contains(attribute))
+                    foundAttributes.Add(attribute);
+            }
 
-            return attributes; // Returns the first available Attribute.
+            return foundAttributes;
         }
 
         /// <summary>
@@ -1183,11 +1209,17 @@ namespace WindBot.Game
         /// <returns>A list of the selected races.</returns>
         public virtual IList<CardRace> OnAnnounceRace(int count, IList<CardRace> races)
         {
-            IList<CardRace> foundRaces = m_races.Where(races.Contains).ToList();
-            if (foundRaces.Count > 0)
-                return foundRaces;
+            IList<CardRace> foundRaces = m_races.Where(races.Contains).Distinct().Take(count).ToList();
+            m_races.Clear();
+            foreach (CardRace race in races)
+            {
+                if (foundRaces.Count >= count)
+                    break;
+                if (!foundRaces.Contains(race))
+                    foundRaces.Add(race);
+            }
 
-            return races; // Returns the first available Races.
+            return foundRaces;
         }
 
         public BattlePhaseAction Attack(ClientCard attacker, ClientCard defender)
