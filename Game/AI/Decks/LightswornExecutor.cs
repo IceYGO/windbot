@@ -51,6 +51,7 @@ namespace WindBot.Game.AI.Decks
         }
 
         private const int LightswornSetcode = 0x38;
+        private const int MillDeckCountThreshold = 5;
 
         private bool _clownUsed;
         private bool _minervaTheExaltedUsed;
@@ -250,6 +251,12 @@ namespace WindBot.Game.AI.Decks
                 .Any(card => IsLightsworn(card) && card.Level <= 4);
         }
 
+        // 卡组数量不足时不应继续堆墓
+        private bool ShouldMillCards()
+        {
+            return Bot.Deck.Count > MillDeckCountThreshold;
+        }
+
         private List<ClientCard> GetEnemyTargetPriority(IEnumerable<ClientCard> candidates)
         {
             List<ClientCard> available = candidates
@@ -415,7 +422,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SolarRechargeEffect()
         {
-            if (DefaultSpellWillBeNegated())
+            if (!ShouldMillCards() || DefaultSpellWillBeNegated())
                 return false;
 
             List<ClientCard> discards = GetDiscardPriority(true);
@@ -425,7 +432,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ChargeOfTheLightBrigadeEffect()
         {
-            if (DefaultSpellWillBeNegated())
+            if (!ShouldMillCards() || DefaultSpellWillBeNegated())
                 return false;
 
             List<int> priority = new List<int>();
@@ -575,7 +582,9 @@ namespace WindBot.Game.AI.Decks
             if (DefaultCheckWhetherCardIsNegated(Card))
                 return false;
 
-            ClientCard target = GetEnemyTargetPriority(Enemy.GetSpells()).First();
+            ClientCard target = GetEnemyTargetPriority(Enemy.GetSpells()).FirstOrDefault();
+            if (target == null)
+                return false;
 
             AI.SelectCard(target);
             return true;
@@ -590,7 +599,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription != Util.GetStringId(CardId.Raiden, 0))
                 return true;
-            return !DefaultCheckWhetherCardIsNegated(Card);
+            return ShouldMillCards() && !DefaultCheckWhetherCardIsNegated(Card);
         }
 
         private bool MinervaSummon()
@@ -659,7 +668,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GarothEffect()
         {
-            return Bot.Deck.Count > 5;
+            return ShouldMillCards();
         }
 
         private bool FelisSpecialSummonEffect()
@@ -672,12 +681,15 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location != CardLocation.MonsterZone ||
                 ActivateDescription != Util.GetStringId(CardId.Felis, 1) ||
+                !ShouldMillCards() ||
                 DefaultCheckWhetherCardIsNegated(Card))
             {
                 return false;
             }
 
-            ClientCard target = GetEnemyTargetPriority(Enemy.GetMonsters()).First();
+            ClientCard target = GetEnemyTargetPriority(Enemy.GetMonsters()).FirstOrDefault();
+            if (target == null)
+                return false;
             if (Util.GetProblematicEnemyMonster() == null &&
                 target.GetDefensePower() < 1800 &&
                 Enemy.GetMonsterCount() < 2)
@@ -730,6 +742,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool MinervaTheExaltedEffect()
         {
+            if (!ShouldMillCards())
+                return false;
+
             if (Card.Location == CardLocation.MonsterZone)
             {
                 if (DefaultCheckWhetherCardIsNegated(Card))
@@ -785,6 +800,7 @@ namespace WindBot.Game.AI.Decks
         private bool NaturiaBeastEffect()
         {
             return Duel.LastChainPlayer == 1 &&
+                ShouldMillCards() &&
                 !DefaultCheckWhetherCardIsNegated(Card);
         }
 
@@ -852,7 +868,9 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> candidates = Enemy.GetMonsters()
                 .Where(card => card.IsFaceup() && card.IsAttack() && card.IsSpecialSummoned)
                 .ToList();
-            ClientCard target = GetEnemyTargetPriority(candidates).First();
+            ClientCard target = GetEnemyTargetPriority(candidates).FirstOrDefault();
+            if (target == null)
+                return false;
             if (Duel.Player == 0 &&
                 Duel.Phase != DuelPhase.Main2 &&
                 !DefaultOnBecomeTarget() &&
@@ -906,7 +924,9 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> candidates = Enemy.GetMonsters()
                 .Where(card => card.IsFaceup() && card.IsAttack() && card.IsSpecialSummoned)
                 .ToList();
-            ClientCard target = GetEnemyTargetPriority(candidates).First();
+            ClientCard target = GetEnemyTargetPriority(candidates).FirstOrDefault();
+            if (target == null)
+                return false;
 
             SelectXyzDetachMaterial();
             AI.SelectNextCard(target);
@@ -944,6 +964,7 @@ namespace WindBot.Game.AI.Decks
         private bool DanteEffect()
         {
             if (Card.Location != CardLocation.MonsterZone ||
+                !ShouldMillCards() ||
                 DefaultCheckWhetherCardIsNegated(Card))
             {
                 return false;
@@ -1020,11 +1041,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool NaturiaBeastSummon()
         {
-            if (Bot.Deck.Count < 2 ||
-                !Util.IsTurn1OrMain2() && Enemy.GetSpellCount() == 0)
-            {
+            if (!ShouldMillCards())
                 return false;
-            }
 
             return SelectSynchroMaterials(
                 5,
@@ -1050,13 +1068,14 @@ namespace WindBot.Game.AI.Decks
         {
             return !_minervaTheExaltedUsed &&
                 !Bot.HasInMonstersZone(CardId.MinervaTheExalted) &&
-                Bot.Deck.Count >= 6 &&
+                ShouldMillCards() &&
                 SelectXyzMaterials(4);
         }
 
         private bool DanteSummon()
         {
-            return Bot.Deck.Count >= 4 && SelectXyzMaterials(3);
+            return ShouldMillCards() &&
+                SelectXyzMaterials(3);
         }
     }
 }
