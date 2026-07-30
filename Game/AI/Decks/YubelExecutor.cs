@@ -1459,18 +1459,15 @@ namespace WindBot.Game.AI.Decks
             if (!hasLightFiend) return false;
             ClientCard target = GetBestEnemyCard(onlyFaceup: true, canBeTarget: true, checkGrave: false);
             if (target == null) return false;
-            if (Bot.HasInGraveyard(CardId.FIENDSMITHS_REQUIEM))
+            List<int> targetPreferenceOrder = new List<int>() {
+                CardId.FIENDSMITHS_REQUIEM, CardId.MOON_OF_THE_CLOSED_HEAVEN,
+                CardId.FABLED_LURRIE, CardId.LACRIMA_CT
+            };
+            int preferredLightFiend = targetPreferenceOrder.FirstOrDefault(c => Bot.HasInGraveyard(c));
+            if (preferredLightFiend != 0)
             {
-                AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
+                AI.SelectCard(preferredLightFiend);
             } 
-            else if (Bot.HasInGraveyard(CardId.MOON_OF_THE_CLOSED_HEAVEN))
-            {
-                AI.SelectCard(CardId.MOON_OF_THE_CLOSED_HEAVEN);
-            }
-            else if (Bot.HasInGraveyard(CardId.FABLED_LURRIE))
-            {
-                AI.SelectCard(CardId.FABLED_LURRIE);
-            }
             else
             {
                 ClientCard lightFiend = Bot.Graveyard.FirstOrDefault(ValidDesiraeReturnTargetPredicate);
