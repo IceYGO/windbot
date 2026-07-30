@@ -1449,16 +1449,45 @@ namespace WindBot.Game.AI.Decks
 
         private bool ActDesirae()
         {
-            if (Card.Location != CardLocation.Grave) {return false; }
-            ClientCard target = GetBestEnemyCard(onlyFaceup: true, canBeTarget: true, checkGrave: false);
-            if (target == null) return false;
-            if (Bot.HasInGraveyard(CardId.FIENDSMITHS_REQUIEM))
-            {
-                AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
-                AI.SelectNextCard(target);
-                return true;
-            }
-            AI.SelectCard(target);
+            if (Card.Location != CardLocation.Grave)
+                return false;
+
+            ClientCard shuffleBack = Bot.Graveyard.Where(c => c != null && c != Card && c.IsMonster() && 
+                                     c.HasAttribute(CardAttribute.Light) && c.HasRace(CardRace.Fiend)).OrderBy(c =>
+                    {
+                        if (c.IsCode(CardId.FIENDSMITHS_REQUIEM))
+                            return 0;
+
+                        if (c.HasType(CardType.Link))
+                            return 10;
+
+                        if (c.IsCode(CardId.FABLED_LURRIE))
+                            return 20;
+
+                        if (!c.IsCode(CardId.LACRIMA_CT) && !c.IsCode(CardId.FIENDSMITH_ENGRAVER))
+                        {
+                            return 50;
+                        }
+
+                        if (c.IsCode(CardId.LACRIMA_CT))
+                            return 90;
+
+                        if (c.IsCode(CardId.FIENDSMITH_ENGRAVER))
+                            return 100;
+
+                        return 50;
+                    }).FirstOrDefault();
+
+            if (shuffleBack == null)
+                return false;
+
+            ClientCard target = GetBestEnemyCard(onlyFaceup: false,canBeTarget: true,checkGrave: false);
+
+            if (target == null)
+                return false;
+
+            AI.SelectCard(shuffleBack);
+            AI.SelectNextCard(target);
             return true;
         }
 
