@@ -1538,7 +1538,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             if (currentSolvingChain != null)
             {
                 // TODO

@@ -149,14 +149,14 @@ namespace WindBot.Game.AI.Decks
         {
             if (card != null)
             {
-                ClientCard solvingCard = Duel.GetCurrentSolvingChainCard();
+                ChainInfo solvingChain = Duel.GetCurrentSolvingChainInfo();
                 if (previousControler == 1 &&
                     previousLocation == (int)CardLocation.Hand &&
                     currentControler == 1 &&
                     currentLocation == (int)CardLocation.Removed &&
-                    solvingCard != null &&
-                    solvingCard.Controller == 0 &&
-                    solvingCard.IsCode(CardId.PSYFramelordOmega))
+                    solvingChain != null &&
+                    solvingChain.ActivatePlayer == 0 &&
+                    solvingChain.IsActivateCode(CardId.PSYFramelordOmega))
                 {
                     _omegaBanishedEnemyCard = card;
                 }
@@ -173,12 +173,12 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(
             IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ClientCard solvingCard = Duel.GetCurrentSolvingChainCard();
-            if (solvingCard != null && solvingCard.Controller == 0)
+            ChainInfo solvingChain = Duel.GetCurrentSolvingChainInfo();
+            if (solvingChain != null && solvingChain.ActivatePlayer == 0)
             {
-                if (solvingCard.IsCode(CardId.MinervaTheExalted) && hint == HintMsg.Destroy ||
-                    solvingCard.IsCode(CardId.Ryko) && hint == HintMsg.Destroy ||
-                    solvingCard.IsCode(CardId.TrishulaDragonOfTheIceBarrier) && hint == HintMsg.Remove)
+                if (solvingChain.IsActivateCode(CardId.MinervaTheExalted) && hint == HintMsg.Destroy ||
+                    solvingChain.IsActivateCode(CardId.Ryko) && hint == HintMsg.Destroy ||
+                    solvingChain.IsActivateCode(CardId.TrishulaDragonOfTheIceBarrier) && hint == HintMsg.Remove)
                 {
                     List<ClientCard> targets = GetEnemyTargetPriority(cards);
                     if (targets.Count > 0)
@@ -191,9 +191,9 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnSelectYesNo(int desc)
         {
-            ClientCard solvingCard = Duel.GetCurrentSolvingChainCard();
-            if (solvingCard != null && solvingCard.Controller == 0 &&
-                solvingCard.IsCode(CardId.MinervaTheExalted, CardId.Ryko))
+            ChainInfo solvingChain = Duel.GetCurrentSolvingChainInfo();
+            if (solvingChain != null && solvingChain.ActivatePlayer == 0 &&
+                solvingChain.IsActivateCode(CardId.MinervaTheExalted, CardId.Ryko))
             {
                 return Enemy.GetFieldCount() > 0;
             }

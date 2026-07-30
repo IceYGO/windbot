@@ -83,12 +83,12 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(
             IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ClientCard solvingChainCard = Duel.GetCurrentSolvingChainCard();
-            if (solvingChainCard != null &&
-                solvingChainCard.Controller == 0 &&
-                ((solvingChainCard.IsCode(CardId.GravekeepersSpy) &&
+            ChainInfo solvingChain = Duel.GetCurrentSolvingChainInfo();
+            if (solvingChain != null &&
+                solvingChain.ActivatePlayer == 0 &&
+                ((solvingChain.IsActivateCode(CardId.GravekeepersSpy) &&
                 hint == HintMsg.SpSummon) ||
-                (solvingChainCard.IsCode(CardId.GravekeepersRecruiter) &&
+                (solvingChain.IsActivateCode(CardId.GravekeepersRecruiter) &&
                 hint == HintMsg.AddToHand)))
             {
                 IList<ClientCard> targets = Util.SelectPreferredCards(
