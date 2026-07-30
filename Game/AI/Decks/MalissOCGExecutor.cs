@@ -322,10 +322,10 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
-            ClientCard card = Duel.GetCurrentSolvingChainCard();
-            if (card == null)
-                card = Card;
-            switch (card.Id)
+            // 有连锁时用发动快照卡号；无连锁回退到当前 Card.Id
+            ChainInfo chainInfo = Duel.GetCurrentSolvingChainInfo();
+            int solvingId = chainInfo != null ? chainInfo.ActivateId : (Card != null ? Card.Id : 0);
+            switch (solvingId)
             {
                 case CardId.Maliss_White_Rabbit:
                     if (cards.Any(i => i.Id == CardId.Maliss_TB_11) && Count.CheckCard(CardId.Maliss_TB_11))
