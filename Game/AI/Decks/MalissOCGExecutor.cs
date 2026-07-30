@@ -703,7 +703,7 @@ namespace WindBot.Game.AI.Decks
                 case CardId.Backup_Ignister:
                     if (hint == HintMsg.AddToHand)
                     {
-                        if (card.Id == CardId.Dimension_Shifter || card.Id == CardId.Artifact_Lancea)
+                        if (solvingId == CardId.Dimension_Shifter || solvingId == CardId.Artifact_Lancea)
                         {
                             if (!Bot.Hand.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare))
                                 && cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare))
@@ -743,7 +743,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     else if (hint == HintMsg.Discard)
                     {
-                        if (card.Id == CardId.Dimension_Shifter || card.Id == CardId.Artifact_Lancea)
+                        if (solvingId == CardId.Dimension_Shifter || solvingId == CardId.Artifact_Lancea)
                         {
                             if (cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)))
                                 return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)).ToList(), cards, min, max);
