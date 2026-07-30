@@ -1447,18 +1447,36 @@ namespace WindBot.Game.AI.Decks
             return DontSelfNG();
         }
 
+        private bool ValidDesiraeReturnTargetPredicate(ClientCard card)
+        {
+            return !card.IsCode(CardId.FIENDSMITHS_DESIRAE) && card.HasAttribute(CardAttribute.Light) && card.HasRace(CardRace.Fiend);
+        }
+
         private bool ActDesirae()
         {
             if (Card.Location != CardLocation.Grave) {return false; }
+            bool hasLightFiend = Bot.Graveyard.Any(ValidDesiraeReturnTargetPredicate);
+            if (!hasLightFiend) return false;
             ClientCard target = GetBestEnemyCard(onlyFaceup: true, canBeTarget: true, checkGrave: false);
             if (target == null) return false;
             if (Bot.HasInGraveyard(CardId.FIENDSMITHS_REQUIEM))
             {
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
-                AI.SelectNextCard(target);
-                return true;
+            } 
+            else if (Bot.HasInGraveyard(CardId.MOON_OF_THE_CLOSED_HEAVEN))
+            {
+                AI.SelectCard(CardId.MOON_OF_THE_CLOSED_HEAVEN);
             }
-            AI.SelectCard(target);
+            else if (Bot.HasInGraveyard(CardId.FABLED_LURRIE))
+            {
+                AI.SelectCard(CardId.FABLED_LURRIE);
+            }
+            else
+            {
+                ClientCard lightFiend = Bot.Graveyard.FirstOrDefault(ValidDesiraeReturnTargetPredicate);
+                AI.SelectCard(lightFiend.Id);
+            }
+            AI.SelectNextCard(target);
             return true;
         }
 
