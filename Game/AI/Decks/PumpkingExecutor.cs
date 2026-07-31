@@ -125,9 +125,19 @@ namespace WindBot.Game.AI.Decks
         {
             Hold,
             SamuelReactiveNegate,
+            SamuelReactiveReviveBeforeControl,
+            SamuelPreemptNegate,
             SamuelPreemptSnakehair,
             SamuelPreemptMammoth,
             VarudrasHardNegate
+        }
+
+        private enum VarudrasDestroyMode
+        {
+            None,
+            TriggeredEnemyRemoval,
+            PostNegateRemoval,
+            PostNegateSelfValue
         }
 
         private sealed class InterruptPlan
@@ -177,6 +187,7 @@ namespace WindBot.Game.AI.Decks
         private bool greatPumpkingBounceResolved = false;
         private bool quicksilverLineActive = false;
         private bool quicksilverLoadedBloom = false;
+        private bool glowUpBloomEffectCommittedThisTurn = false;
         private bool zombieLockedThisTurn = false;
 
         // Prompt state must be captured when the executor accepts the effect.
@@ -184,11 +195,17 @@ namespace WindBot.Game.AI.Decks
         // subsequent option or target selection prompt arrives.
         private bool doomkingOptionPending = false;
         private bool doomkingPreferNegate = false;
-        private bool varudrasDestroySelectionPending = false;
+        private VarudrasDestroyMode pendingVarudrasDestroyMode = VarudrasDestroyMode.None;
+        private ClientCard pendingVarudrasDestroyTarget = null;
+        private ClientCard varudrasNegatedChainSource = null;
         // Samuel selects its revive target after the detach-cost prompt. MDPro3
         // may not expose a solving-chain card during that target prompt, so the
         // accepted activation must carry an explicit pending state.
         private bool samuelReviveSelectionPending = false;
+        // Reverie's banished Standby effect targets a face-up Zombie Xyz, but the
+        // Lua prompt is HINTMSG_TARGET rather than HINTMSG_XYZMaterial. Preserve
+        // the accepted activation so MDPro3 cannot fall through to a generic target.
+        private bool reverieOverlaySelectionPending = false;
         // Samuel's field Quick Effect and its GY trigger use different HOPT keys in
         // Lua. Track only the field effect here; the generic activated-card set
         // must not let Samuel's GY trigger incorrectly consume the field interrupt.
@@ -224,10 +241,26 @@ namespace WindBot.Game.AI.Decks
         // Delta -> Eldlich -> Fallen Angel -> Flying Mary -> Rank 10 route.
         private bool eldlichRouteActive = false;
         private bool eldlichRouteMarySummoned = false;
+        // Once the dedicated Flying Mary line has begun, do not fall back into
+        // Rank 6 summons. Mary must revive Eldlich and the two Level 10 bodies
+        // must be converted into Varudras (or Quicksilver if Varudras is absent).
+        private bool eldlichRouteRank10CommitPending = false;
         // On our second or later turn, Flying Mary is a comeback bridge into the
         // unused Pumpking Special-Summon effect. Preserve this intent across the
         // target prompt because MDPro3 can temporarily report activateId=0.
         private bool flyingMaryComebackPumpkingPending = false;
+        // Opponent-turn Call is held for an opposing chain and carries a locked
+        // revive purpose into the target prompt, which may arrive with activateId=0.
+        private bool callReviveSelectionPending = false;
+        private int plannedCallReviveId = 0;
+        // Infinite Impermanence must negate the intended live monster, normally
+        // the current opposing chain source, rather than a generic field target.
+        private ClientCard pendingInfiniteImpermanenceTarget = null;
+        // Samuel's GY trigger is a recycle effect, not generic grave disruption.
+        private bool samuelGraveRecycleSelectionPending = false;
+        // Undying is saved for a real opposing action (especially a revival
+        // target) and records that exact monster before the target prompt.
+        private ClientCard pendingUndyingTarget = null;
 
         // Once a real Pumpking starter has been seen, Quicksilver is disabled for
         // the rest of the Duel. This flag intentionally does not reset each turn.
@@ -420,7 +453,9 @@ namespace WindBot.Game.AI.Decks
             // Completing the confirmed Eldlich route is valid. Outside that line,
             // Rank 10 bodies are "surplus" only after the protected Pumpking board
             // is already present; never cannibalise the route while it is building.
-            return eldlichRouteMarySummoned || HasCorePumpkingEndboard();
+            return eldlichRouteRank10CommitPending
+                || eldlichRouteMarySummoned
+                || HasCorePumpkingEndboard();
         }
 
         private bool CanEnableEldlichWithNormalZombie()
@@ -475,6 +510,28 @@ namespace WindBot.Game.AI.Decks
                 return;
             }
 
+            // A Flying Mary commitment is the point of no return: finish the
+            // Level 10 Xyz before considering any Pumpking recovery branch.
+            if (eldlichRouteRank10CommitPending)
+            {
+                SetStrategicPlan(StrategicGoal.CompleteEldlichRoute,
+                    ComboRoute.EldlichRank10, reason);
+                return;
+            }
+
+            // Merely sending Eldlich with Delta must not overwrite a live
+            // Pumpking combo. Finish the concrete Rank 6 sequence first.
+            if (IsPumpkingComboInProgress())
+            {
+                int requiredLevel6Bodies = HasSamuelOnField() ? 2 : 3;
+                StrategicGoal goal = CountFreeLevel6ForGreatPumpking()
+                        < requiredLevel6Bodies
+                    ? StrategicGoal.ProduceLevel6Bodies
+                    : StrategicGoal.CompleteNormalPumpkingRoute;
+                SetStrategicPlan(goal, ComboRoute.NormalPumpking, reason);
+                return;
+            }
+
             if (eldlichRouteActive || eldlichRouteMarySummoned)
             {
                 SetStrategicPlan(StrategicGoal.CompleteEldlichRoute,
@@ -493,17 +550,6 @@ namespace WindBot.Game.AI.Decks
             {
                 SetStrategicPlan(StrategicGoal.PreserveEndboard,
                     ComboRoute.PumpkingRecoveryLoop, reason);
-                return;
-            }
-
-            if (IsPumpkingComboInProgress())
-            {
-                int requiredLevel6Bodies = HasSamuelOnField() ? 2 : 3;
-                StrategicGoal goal = CountFreeLevel6ForGreatPumpking()
-                        < requiredLevel6Bodies
-                    ? StrategicGoal.ProduceLevel6Bodies
-                    : StrategicGoal.CompleteNormalPumpkingRoute;
-                SetStrategicPlan(goal, ComboRoute.NormalPumpking, reason);
                 return;
             }
 
@@ -591,7 +637,8 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            return monster.IsMonsterShouldBeDisabledBeforeItUseEffect()
+            return monster.IsCode(CardId.EldlichTheMadGoldenLord)
+                || monster.IsMonsterShouldBeDisabledBeforeItUseEffect()
                 || monster.IsFloodgate()
                 || monster.IsMonsterDangerous()
                 || monster.IsMonsterInvincible();
@@ -621,6 +668,89 @@ namespace WindBot.Game.AI.Decks
                         || (c.IsMonster()
                             && (c.IsMonsterDangerous() || c.IsMonsterInvincible()
                                 || c.IsMonsterShouldBeDisabledBeforeItUseEffect()))));
+        }
+
+        private ClientCard GetSamuelPumpkingBridgeTarget(
+            IEnumerable<ClientCard> reviveTargets,
+            int deckFollowUpId)
+        {
+            if (reviveTargets == null
+                || pumpkingSummonEffectAttempted
+                || pumpkingSummonEffectResolved
+                || GetOpenMainMonsterZoneCount() < 2
+                || CheckRemainInDeck(deckFollowUpId) <= 0)
+            {
+                return null;
+            }
+
+            return reviveTargets.FirstOrDefault(c => c != null
+                && c.IsCode(CardId.PumpkingTheKingOfGraveGhosts)
+                && IsZombie(c)
+                && c.IsCanRevive());
+        }
+
+        private ClientCard GetMadGoldenControlTarget()
+        {
+            if (Duel.CurrentChain.Count == 0 || Duel.LastChainPlayer != 1)
+                return null;
+
+            ClientCard source = Util.GetLastChainCard();
+            if (source == null
+                || !source.IsCode(CardId.EldlichTheMadGoldenLord)
+                || source.Controller != 1
+                || source.Location != CardLocation.MonsterZone)
+            {
+                return null;
+            }
+
+            // Mad Golden targets a face-up monster we control before either
+            // player can respond. Chain Samuel now so its material and revival
+            // are not lost even when the revived Zombie cannot disable Mad Golden.
+            return Duel.ChainTargets.LastOrDefault(c => c != null
+                && c.Controller == 0
+                && c.Location == CardLocation.MonsterZone
+                && c.IsFaceup());
+        }
+
+        private ClientCard GetSamuelEmergencyReviveBeforeControlCandidate(
+            IEnumerable<ClientCard> cards)
+        {
+            if (cards == null)
+                return null;
+
+            List<ClientCard> legal = cards
+                .Where(c => c != null && IsZombie(c) && c.IsCanRevive())
+                .ToList();
+            if (legal.Count == 0)
+                return null;
+
+            // Pumpking is the best emergency body: after the current chain it can
+            // turn this non-negating Samuel activation into Mammoth/Snakehair or
+            // Hublot setup through its Special-Summon trigger.
+            ClientCard pumpking = legal.FirstOrDefault(c =>
+                c.IsCode(CardId.PumpkingTheKingOfGraveGhosts));
+            if (pumpking != null)
+                return pumpking;
+
+            int[] priority =
+            {
+                CardId.PumpkingTheGreatGhostKing,
+                CardId.OfficiatingReverie,
+                CardId.GreatMammothOfTheNetherworld,
+                CardId.StareOfTheSnakeHair,
+                CardId.Hublot,
+                CardId.ArmyOfTheHaunted,
+                CardId.ChangshiTheSpiridao
+            };
+
+            foreach (int id in priority)
+            {
+                ClientCard target = legal.FirstOrDefault(c => c.IsCode(id));
+                if (target != null)
+                    return target;
+            }
+
+            return legal.OrderByDescending(c => c.Attack).FirstOrDefault();
         }
 
         private InterruptPlan BuildSamuelOpponentPlan()
@@ -655,6 +785,25 @@ namespace WindBot.Game.AI.Decks
             if (Duel.CurrentChain.Count > 0 && Duel.LastChainPlayer == 1)
             {
                 ClientCard source = Util.GetLastChainCard();
+
+                ClientCard madGoldenControlTarget = GetMadGoldenControlTarget();
+                if (madGoldenControlTarget != null)
+                {
+                    ClientCard emergencyRevive =
+                        GetSamuelEmergencyReviveBeforeControlCandidate(reviveTargets);
+                    if (emergencyRevive != null)
+                    {
+                        return new InterruptPlan
+                        {
+                            Mode = InterruptMode.SamuelReactiveReviveBeforeControl,
+                            ChainSource = source,
+                            EnemyTarget = madGoldenControlTarget,
+                            SamuelReviveTarget = emergencyRevive,
+                            Reason = "Mad Golden targeted our field monster; spend Samuel and revive value before control changes"
+                        };
+                    }
+                }
+
                 if (!IsSamuelReactiveSource(source))
                     return null;
 
@@ -677,17 +826,58 @@ namespace WindBot.Game.AI.Decks
                 return null;
 
             ClientCard freshMonster = freshEnemyMonster;
-            ClientCard snakehair = reviveTargets.FirstOrDefault(c =>
-                c.IsCode(CardId.StareOfTheSnakeHair));
-            if (snakehair != null && ShouldPreemptWithSnakehair(freshMonster))
+
+            // Samuel's Quick Effect is not only a revive. The revived Zombie's
+            // current ATK is immediately used by Samuel's own operation to disable
+            // one opposing monster with ATK less than or equal to it. Use that
+            // direct line before planning a separate Snakehair/Mammoth follow-up.
+            ClientCard directNegateRevive = IsLiveEnemyMonster(freshMonster)
+                && !freshMonster.IsDisabled()
+                && !freshMonster.IsShouldNotBeTarget()
+                    ? GetSamuelOpponentTurnReviveCandidate(
+                        reviveTargets, freshMonster)
+                    : null;
+            if (directNegateRevive != null)
             {
                 return new InterruptPlan
                 {
-                    Mode = InterruptMode.SamuelPreemptSnakehair,
+                    Mode = InterruptMode.SamuelPreemptNegate,
                     EnemyTarget = freshMonster,
-                    SamuelReviveTarget = snakehair,
-                    Reason = "fresh attack-position threat should be locked before ignition"
+                    SamuelReviveTarget = directNegateRevive,
+                    Reason = "revive a sufficient-ATK Zombie and use Samuel's own disable before ignition"
                 };
+            }
+
+            ClientCard snakehair = reviveTargets.FirstOrDefault(c =>
+                c.IsCode(CardId.StareOfTheSnakeHair));
+            if (ShouldPreemptWithSnakehair(freshMonster))
+            {
+                if (snakehair != null)
+                {
+                    return new InterruptPlan
+                    {
+                        Mode = InterruptMode.SamuelPreemptSnakehair,
+                        EnemyTarget = freshMonster,
+                        SamuelReviveTarget = snakehair,
+                        Reason = "fresh attack-position threat should be locked before ignition"
+                    };
+                }
+
+                // Fallback only: when Samuel's own ATK-based disable is not
+                // available, Pumpking may still bridge into Snakehair on the next
+                // chain to stop an attack-position ignition threat.
+                ClientCard pumpkingBridge = GetSamuelPumpkingBridgeTarget(
+                    reviveTargets, CardId.StareOfTheSnakeHair);
+                if (pumpkingBridge != null)
+                {
+                    return new InterruptPlan
+                    {
+                        Mode = InterruptMode.SamuelPreemptSnakehair,
+                        EnemyTarget = freshMonster,
+                        SamuelReviveTarget = pumpkingBridge,
+                        Reason = "revive Pumpking to fetch Snakehair before the fresh threat can ignite"
+                    };
+                }
             }
 
             ClientCard mammothTarget = GetMammothPreemptTarget();
@@ -696,15 +886,34 @@ namespace WindBot.Game.AI.Decks
                 ? null
                 : reviveTargets.FirstOrDefault(c =>
                     c.IsCode(CardId.GreatMammothOfTheNetherworld));
-            if (mammoth != null && mammothTarget != null)
+            if (mammothTarget != null
+                && !activatedThisTurn.Contains(CardId.GreatMammothOfTheNetherworld))
             {
-                return new InterruptPlan
+                if (mammoth != null)
                 {
-                    Mode = InterruptMode.SamuelPreemptMammoth,
-                    EnemyTarget = mammothTarget,
-                    SamuelReviveTarget = mammoth,
-                    Reason = "fresh continuous threat should be removed before open play"
-                };
+                    return new InterruptPlan
+                    {
+                        Mode = InterruptMode.SamuelPreemptMammoth,
+                        EnemyTarget = mammothTarget,
+                        SamuelReviveTarget = mammoth,
+                        Reason = "fresh continuous threat should be removed before open play"
+                    };
+                }
+
+                // Fallback only: Pumpking can bridge into Mammoth when Samuel's
+                // own disable is unavailable and a removable field threat remains.
+                ClientCard pumpkingBridge = GetSamuelPumpkingBridgeTarget(
+                    reviveTargets, CardId.GreatMammothOfTheNetherworld);
+                if (pumpkingBridge != null)
+                {
+                    return new InterruptPlan
+                    {
+                        Mode = InterruptMode.SamuelPreemptMammoth,
+                        EnemyTarget = mammothTarget,
+                        SamuelReviveTarget = pumpkingBridge,
+                        Reason = "revive Pumpking to fetch Mammoth before open play"
+                    };
+                }
             }
 
             return null;
@@ -715,8 +924,15 @@ namespace WindBot.Game.AI.Decks
             pendingInterruptMode = plan != null ? plan.Mode : InterruptMode.Hold;
             plannedSamuelReviveId = plan != null && plan.SamuelReviveTarget != null
                 ? plan.SamuelReviveTarget.Id : 0;
-            samuelNegateTarget = plan != null ? plan.EnemyTarget : null;
+            samuelNegateTarget = plan != null
+                && plan.Mode != InterruptMode.SamuelReactiveReviveBeforeControl
+                    ? plan.EnemyTarget : null;
+            // Both chain-reactive and open-state pre-emptive negate plans use
+            // Samuel's own post-revive ATK check and optional disable prompt.
+            // Snakehair/Mammoth modes instead rely on those monsters' triggers.
             samuelOpponentNegatePending = plan != null
+                && (plan.Mode == InterruptMode.SamuelReactiveNegate
+                    || plan.Mode == InterruptMode.SamuelPreemptNegate)
                 && plan.EnemyTarget != null
                 && plan.EnemyTarget.IsMonster()
                 && plan.SamuelReviveTarget != null
@@ -735,8 +951,12 @@ namespace WindBot.Game.AI.Decks
             {
                 SetStrategicPlan(
                     plan.Mode == InterruptMode.SamuelReactiveNegate
+                        || plan.Mode == InterruptMode.SamuelPreemptNegate
+                        || plan.Mode == InterruptMode.SamuelPreemptSnakehair
                         ? StrategicGoal.NegateImmediateThreat
-                        : StrategicGoal.RemoveImmediateThreat,
+                        : plan.Mode == InterruptMode.SamuelReactiveReviveBeforeControl
+                            ? StrategicGoal.PreserveEndboard
+                            : StrategicGoal.RemoveImmediateThreat,
                     currentComboRoute,
                     plan.Reason);
                 DebugRoute("INTERRUPT mode=" + plan.Mode
@@ -769,6 +989,290 @@ namespace WindBot.Game.AI.Decks
             InterruptPlan samuelPlan = BuildSamuelOpponentPlan();
             return samuelPlan == null
                 || samuelPlan.Mode != InterruptMode.SamuelReactiveNegate;
+        }
+
+        private void ClearVarudrasDestroyPlan()
+        {
+            pendingVarudrasDestroyMode = VarudrasDestroyMode.None;
+            pendingVarudrasDestroyTarget = null;
+            varudrasNegatedChainSource = null;
+        }
+
+        private bool WillLeaveFieldAfterVarudrasNegate(ClientCard card)
+        {
+            if (card == null || !card.IsOnField())
+                return false;
+
+            // Negating the activation of a Spell/Trap that is itself in the
+            // Spell & Trap Zone removes that activation source before Varudras'
+            // optional follow-up target prompt is reached.
+            return card.Location == CardLocation.SpellZone
+                && (card.IsSpell() || card.IsTrap());
+        }
+
+        private ClientCard FindVarudrasEnemyTargetAfterNegate()
+        {
+            return GetEnemyFieldPriority(
+                    Enemy.GetMonsters().Concat(Enemy.GetSpells()).ToList(),
+                    false)
+                .FirstOrDefault(c => c != null
+                    && c.Controller == 1
+                    && c.IsOnField()
+                    && !(MatchesCard(c, varudrasNegatedChainSource)
+                        && WillLeaveFieldAfterVarudrasNegate(c)));
+        }
+
+        private bool HasLegalBloomSearchTargetInDeck()
+        {
+            return GetGlowUpBloomSearchPriority()
+                .Any(id => CheckRemainInDeck(id) > 0);
+        }
+
+        private bool NeedsNonZombieExtraDeckSummon()
+        {
+            return !zombieLockedThisTurn && !CanAcceptZombieLock();
+        }
+
+        private bool CanProfitablyDestroyBloomWithVarudras(ClientCard bloom = null)
+        {
+            if (bloom == null)
+            {
+                bloom = Bot.GetMonsters().FirstOrDefault(c => c != null
+                    && c.IsCode(CardId.GlowUpBloom)
+                    && c.IsFaceup());
+            }
+
+            if (bloom == null
+                || bloom.Controller != 0
+                || bloom.Location != CardLocation.MonsterZone
+                || !bloom.IsFaceup())
+            {
+                return false;
+            }
+
+            if (glowUpBloomEffectCommittedThisTurn
+                || activatedThisTurn.Contains(CardId.GlowUpBloom)
+                || !DefaultCheckWhetherBotCanSearch()
+                || !HasLegalBloomSearchTargetInDeck())
+            {
+                return false;
+            }
+
+            // On the opponent's turn the Bloom lock expires in that End Phase,
+            // before our next turn begins.
+            if (Duel.Player == 1)
+                return true;
+
+            // On our turn, self-pop Bloom only after the protected Pumpking board
+            // exists and no Varudras/Quicksilver conversion is still pending.
+            return HasCorePumpkingEndboard()
+                && !NeedsNonZombieExtraDeckSummon();
+        }
+
+        private bool IsUnlinkedFaceupCall(ClientCard card)
+        {
+            return card != null
+                && card.Controller == 0
+                && card.Location == CardLocation.SpellZone
+                && card.IsFaceup()
+                && card.IsCode(CardId.CallOfTheHaunted)
+                && (card.TargetCards == null || card.TargetCards.Count == 0);
+        }
+
+        private ClientCard FindProfitableVarudrasSelfDestroyTarget(
+            IEnumerable<ClientCard> source = null)
+        {
+            List<ClientCard> pool = (source
+                    ?? Bot.GetMonsters().Concat(Bot.GetSpells()))
+                .Where(c => c != null && c.Controller == 0 && c.IsOnField())
+                .ToList();
+
+            ClientCard bloom = pool.FirstOrDefault(c =>
+                c.IsCode(CardId.GlowUpBloom)
+                && c.Location == CardLocation.MonsterZone
+                && c.IsFaceup());
+            if (CanProfitablyDestroyBloomWithVarudras(bloom))
+                return bloom;
+
+            ClientCard gravityController = pool.FirstOrDefault(c =>
+                c.IsCode(CardId.GravityController)
+                && c.Location == CardLocation.MonsterZone
+                && c.IsFaceup());
+            if (gravityController != null)
+                return gravityController;
+
+            return pool.FirstOrDefault(IsUnlinkedFaceupCall);
+        }
+
+        private string GetVarudrasSelfDestroyReason(ClientCard target)
+        {
+            if (target == null)
+                return "unknown self-value";
+            if (target.IsCode(CardId.GlowUpBloom))
+            {
+                return Duel.Player == 1
+                    ? "opponent-turn Bloom trigger"
+                    : "safe Bloom trigger after core board";
+            }
+            if (target.IsCode(CardId.GravityController))
+                return "spent Gravity Controller";
+            if (target.IsCode(CardId.CallOfTheHaunted))
+                return "face-up Call with no linked monster";
+            return "approved self-value";
+        }
+
+        private bool PlanVarudrasPostNegateDestroy()
+        {
+            pendingVarudrasDestroyMode = VarudrasDestroyMode.None;
+            pendingVarudrasDestroyTarget = null;
+
+            ClientCard enemyTarget = FindVarudrasEnemyTargetAfterNegate();
+            if (enemyTarget != null)
+            {
+                pendingVarudrasDestroyMode =
+                    VarudrasDestroyMode.PostNegateRemoval;
+                pendingVarudrasDestroyTarget = enemyTarget;
+                DebugRoute("VARUDRAS post-negate plan=enemy target="
+                    + enemyTarget.Id
+                    + " reason=surviving enemy field card");
+                return true;
+            }
+
+            ClientCard selfValueTarget =
+                FindProfitableVarudrasSelfDestroyTarget();
+            if (selfValueTarget != null)
+            {
+                pendingVarudrasDestroyMode =
+                    VarudrasDestroyMode.PostNegateSelfValue;
+                pendingVarudrasDestroyTarget = selfValueTarget;
+                DebugRoute("VARUDRAS post-negate plan=self-value target="
+                    + selfValueTarget.Id
+                    + " reason=" + GetVarudrasSelfDestroyReason(selfValueTarget));
+                return true;
+            }
+
+            DebugRoute("VARUDRAS post-negate destroy=False reason="
+                + "no surviving enemy target or profitable self target");
+            return false;
+        }
+
+        private ClientCard FindBestVarudrasTargetFromPrompt(
+            IList<ClientCard> cards)
+        {
+            if (cards == null)
+                return null;
+
+            ClientCard enemyTarget = GetEnemyFieldPriority(cards, false)
+                .Where(cards.Contains)
+                .FirstOrDefault(c => c != null
+                    && c.Controller == 1
+                    && c.IsOnField()
+                    && !(MatchesCard(c, varudrasNegatedChainSource)
+                        && WillLeaveFieldAfterVarudrasNegate(c)));
+            if (enemyTarget != null)
+                return enemyTarget;
+
+            if (pendingVarudrasDestroyMode == VarudrasDestroyMode.PostNegateRemoval
+                || pendingVarudrasDestroyMode == VarudrasDestroyMode.PostNegateSelfValue
+                || pendingVarudrasDestroyMode == VarudrasDestroyMode.None)
+            {
+                return FindProfitableVarudrasSelfDestroyTarget(cards);
+            }
+
+            return null;
+        }
+
+        private int ScoreVarudrasDestroyLoss(ClientCard card)
+        {
+            if (card == null)
+                return int.MaxValue;
+            if (card.Controller == 1)
+                return -10000;
+
+            if (card.IsCode(CardId.GlowUpBloom))
+                return CanProfitablyDestroyBloomWithVarudras(card) ? 0 : 8800;
+            if (card.IsCode(CardId.GravityController))
+                return 10;
+            if (IsUnlinkedFaceupCall(card))
+                return 20;
+
+            if (card.IsCode(CardId.Varudras))
+                return 10000;
+            if (card.IsCode(CardId.TheUndyingLegion))
+                return 9900;
+            if (card.IsCode(CardId.OfficiatorOfDoomSamuel))
+                return 9800;
+            if (card.IsCode(CardId.PumpkingTheGreatGhostKing))
+                return 9700;
+            if (card.IsCode(CardId.PumpkingTheKingOfGraveGhosts))
+                return 9600;
+            if (card.IsCode(CardId.EldlichTheGoldenLord))
+                return 9500;
+            if (card.IsCode(CardId.CallOfTheHaunted))
+                return 9400;
+            if (IsLevel6Zombie(card))
+                return 9000;
+
+            if (card.IsSpell() || card.IsTrap())
+                return card.IsFacedown() ? 1000 : 2500;
+
+            return 4000 + Math.Max(0, card.GetDefensePower());
+        }
+
+        private IList<ClientCard> SelectVarudrasDestroyTarget(
+            IList<ClientCard> cards,
+            int min,
+            int max)
+        {
+            if (cards == null || cards.Count == 0)
+            {
+                ClearVarudrasDestroyPlan();
+                return null;
+            }
+
+            ClientCard planned =
+                FindMatchingCandidate(cards, pendingVarudrasDestroyTarget);
+            if (planned != null && planned.IsOnField())
+            {
+                string targetStage = pendingVarudrasDestroyMode
+                    == VarudrasDestroyMode.TriggeredEnemyRemoval
+                    ? "triggered" : "post-negate";
+                DebugRoute("VARUDRAS " + targetStage + " target="
+                    + planned.Id
+                    + " mode=" + pendingVarudrasDestroyMode);
+                ClearVarudrasDestroyPlan();
+                return Util.CheckSelectCount(
+                    new List<ClientCard> { planned }, cards, min, max);
+            }
+
+            // The field can change after the Yes/No answer. Re-plan only from the
+            // candidates the actual mandatory prompt supplies.
+            ClientCard recalculated = FindBestVarudrasTargetFromPrompt(cards);
+            if (recalculated != null)
+            {
+                DebugRoute("VARUDRAS recalculated mandatory target="
+                    + recalculated.Id
+                    + " mode=" + pendingVarudrasDestroyMode);
+                ClearVarudrasDestroyPlan();
+                return Util.CheckSelectCount(
+                    new List<ClientCard> { recalculated }, cards, min, max);
+            }
+
+            // Lua forces one field card after Yes. Never return null and let the
+            // engine pick an arbitrary friendly card.
+            ClientCard lowestLoss = cards
+                .Where(c => c != null && c.IsOnField())
+                .OrderBy(ScoreVarudrasDestroyLoss)
+                .ThenBy(c => c.Id)
+                .FirstOrDefault();
+            if (lowestLoss == null)
+                lowestLoss = cards.First(c => c != null);
+
+            DebugRoute("VARUDRAS emergency mandatory target="
+                + lowestLoss.Id);
+            ClearVarudrasDestroyPlan();
+            return Util.CheckSelectCount(
+                new List<ClientCard> { lowestLoss }, cards, min, max);
         }
 
         private bool HasSmallPumpkingOnField()
@@ -809,8 +1313,21 @@ namespace WindBot.Game.AI.Decks
         {
             if (CanUsePumpkingHandEffectNow())
                 return true;
-            if (callSetByPumpking && HasPumpkingInGrave() && HasOpenMainMonsterZone())
+
+            // callSetByPumpking is a historical route marker. Once the Set Call
+            // has already been flipped face-up/resolved (or has left the field),
+            // it is no longer an executable Pumpking action and must not keep
+            // Delta/Foolish/Extra Deck lines locked for the rest of the turn.
+            bool unusedSetCallAvailable = callSetByPumpking
+                && Bot.GetSpells().Any(c => c != null
+                    && c.IsCode(CardId.CallOfTheHaunted)
+                    && c.IsFacedown());
+            if (unusedSetCallAvailable && HasPumpkingInGrave()
+                && HasOpenMainMonsterZone())
+            {
                 return true;
+            }
+
             if (HasSmallPumpkingOnField() && !HasChangshiOnField()
                 && !pumpkingSummonEffectAttempted && HasOpenMainMonsterZone())
             {
@@ -1208,9 +1725,215 @@ namespace WindBot.Game.AI.Decks
             return 0;
         }
 
+        private bool CanPlanVampireSuckerBridge()
+        {
+            if (Duel.Player != 0 || Duel.Turn <= 1
+                || !Bot.HasInExtra(CardId.VampireSucker)
+                || !Bot.HasInGraveyard(CardId.EldlichTheGoldenLord))
+            {
+                return false;
+            }
+
+            // Fallen Angel already confirms the dedicated Flying Mary/Rank 10 line.
+            if (Bot.HasInMonstersZone(CardId.FallenAngelOfTheGoldenLand, faceUp: true))
+                return false;
+
+            return Bot.Hand.Any(c => c.IsSpell() || c.IsTrap())
+                || Bot.GetSpells().Any(c => c.IsSpell() || c.IsTrap());
+        }
+
+        private bool IsSpentZombieXyz(ClientCard card)
+        {
+            return card != null && card.IsFaceup() && IsZombie(card)
+                && card.HasType(CardType.Xyz)
+                && (card.Overlays == null || card.Overlays.Count == 0);
+        }
+
+        private bool IsExpendableZombieLinkMaterial(ClientCard card)
+        {
+            return IsDeltaToken(card) || IsSpentZombieXyz(card);
+        }
+
+        private bool IsInExtraMonsterZone(ClientCard card)
+        {
+            return card != null && card.Location == CardLocation.MonsterZone
+                && card.Sequence >= 5;
+        }
+
+        private bool IsVampireSuckerCandidateMaterial(ClientCard card)
+        {
+            return card != null && card.IsFaceup() && IsZombie(card)
+                && !card.HasType(CardType.Link);
+        }
+
+        private ClientCard GetNonLinkEmzOccupant()
+        {
+            return Bot.GetMonsters().FirstOrDefault(c => c != null
+                && c.IsFaceup() && IsInExtraMonsterZone(c)
+                && !c.HasType(CardType.Link));
+        }
+
+        private ClientCard GetMandatoryVampireSuckerEmzMaterial()
+        {
+            // Without an existing Link monster opening a Main Monster Zone, a
+            // non-Link monster occupying our EMZ has to be used to free that zone
+            // before Vampire Sucker can be Link Summoned there. This is the key
+            // case missed by a simple "two zero-material Xyz" count.
+            bool existingLink = Bot.GetMonsters().Any(c => c != null
+                && c.IsFaceup() && c.HasType(CardType.Link));
+            if (existingLink)
+                return null;
+
+            ClientCard occupant = GetNonLinkEmzOccupant();
+            return IsVampireSuckerCandidateMaterial(occupant) ? occupant : null;
+        }
+
+        private bool HasUnusableVampireSuckerEmzBlocker()
+        {
+            bool existingLink = Bot.GetMonsters().Any(c => c != null
+                && c.IsFaceup() && c.HasType(CardType.Link));
+            if (existingLink)
+                return false;
+
+            ClientCard occupant = GetNonLinkEmzOccupant();
+            return occupant != null && !IsVampireSuckerCandidateMaterial(occupant);
+        }
+
+        private int GetVampireSuckerMaterialLoss(ClientCard card)
+        {
+            if (card == null)
+                return 9999;
+            if (IsDeltaToken(card))
+                return 0;
+
+            if (card.HasType(CardType.Xyz))
+            {
+                int overlays = card.Overlays == null ? 0 : card.Overlays.Count;
+                if (overlays == 0)
+                    return 2;
+
+                // Live Xyz interaction is substantially more valuable than one
+                // Sucker draw. Undying is weighted highest because its materials
+                // represent a future opponent-turn removal, especially when it is
+                // the EMZ body that would be mandatory Link material.
+                int baseLoss;
+                if (card.IsCode(CardId.TheUndyingLegion))
+                    baseLoss = 260;
+                else if (card.IsCode(CardId.OfficiatorOfDoomSamuel))
+                    baseLoss = 220;
+                else if (card.IsCode(CardId.PumpkingTheGreatGhostKing))
+                    baseLoss = 210;
+                else if (card.IsCode(CardId.DhampirVampireSheridan))
+                    baseLoss = GetEnemyFieldPriority().Count > 0 ? 210 : 170;
+                else if (card.IsCode(CardId.WollowFounderOfTheDrudgeDragons))
+                    baseLoss = 140 + Enemy.Graveyard.Count * 10;
+                else
+                    baseLoss = 170;
+
+                return baseLoss + overlays * 45;
+            }
+
+            // Main Deck Zombies may still be combo bodies or interaction. Keep
+            // their ordering aligned with the existing material-value policy.
+            return 45 + GetZombieLinkMaterialValue(card) * 4;
+        }
+
+        private int GetVampireSuckerBridgeValue(ClientCard mandatoryEmz)
+        {
+            // The bridge produces Sucker, converts Eldlich's GY summon into one
+            // draw, and frees one net monster zone. Increase its value when board
+            // space is tight or when it clears an already-spent EMZ body.
+            int value = 150;
+            if (Bot.HasInGraveyard(CardId.EldlichTheGoldenLord))
+                value += 45;
+            if (GetOpenMainMonsterZoneCount() <= 1)
+                value += 35;
+            if (mandatoryEmz != null && IsSpentZombieXyz(mandatoryEmz))
+                value += 35;
+            return value;
+        }
+
+        private List<ClientCard> GetVampireSuckerMaterialPlan()
+        {
+            if (HasUnusableVampireSuckerEmzBlocker())
+            {
+                DebugRoute("HOLD Sucker: non-Zombie/non-material monster blocks the EMZ");
+                return new List<ClientCard>();
+            }
+
+            List<ClientCard> candidates = Bot.GetMonsters()
+                .Where(IsVampireSuckerCandidateMaterial)
+                .OrderBy(GetVampireSuckerMaterialLoss)
+                .ThenBy(GetZombieLinkMaterialValue)
+                .ThenBy(c => c.Attack)
+                .ToList();
+            if (candidates.Count < 2)
+                return new List<ClientCard>();
+
+            ClientCard mandatoryEmz = GetMandatoryVampireSuckerEmzMaterial();
+            List<ClientCard> plan = new List<ClientCard>();
+            if (mandatoryEmz != null)
+            {
+                plan.Add(mandatoryEmz);
+                ClientCard partner = candidates.FirstOrDefault(c => c != mandatoryEmz);
+                if (partner == null)
+                    return new List<ClientCard>();
+                plan.Add(partner);
+            }
+            else
+            {
+                plan.AddRange(candidates.Take(2));
+            }
+
+            int loss = plan.Sum(GetVampireSuckerMaterialLoss);
+            int bridgeValue = GetVampireSuckerBridgeValue(mandatoryEmz);
+            DebugRoute("SUCKER material plan="
+                + string.Join(",", plan.Select(c => c.Id + "#" + c.Sequence
+                    + "(mat=" + (c.Overlays == null ? 0 : c.Overlays.Count) + ")").ToArray())
+                + " loss=" + loss + " value=" + bridgeValue
+                + " mandatoryEmz=" + (mandatoryEmz == null ? 0 : mandatoryEmz.Id));
+
+            return loss <= bridgeValue ? plan : new List<ClientCard>();
+        }
+
+        private ClientCard GetVampireSuckerTokenPartner()
+        {
+            if (HasUnusableVampireSuckerEmzBlocker())
+                return null;
+
+            List<ClientCard> candidates = Bot.GetMonsters()
+                .Where(IsVampireSuckerCandidateMaterial)
+                .OrderBy(GetVampireSuckerMaterialLoss)
+                .ThenBy(GetZombieLinkMaterialValue)
+                .ThenBy(c => c.Attack)
+                .ToList();
+            if (candidates.Count == 0)
+                return null;
+
+            ClientCard mandatoryEmz = GetMandatoryVampireSuckerEmzMaterial();
+            return mandatoryEmz ?? candidates.First();
+        }
+
+        private bool IsVampireSuckerTokenPlanWorthwhile(out int tokenLoss)
+        {
+            tokenLoss = int.MaxValue;
+            ClientCard partner = GetVampireSuckerTokenPartner();
+            if (partner == null)
+                return false;
+
+            ClientCard mandatoryEmz = GetMandatoryVampireSuckerEmzMaterial();
+            tokenLoss = GetVampireSuckerMaterialLoss(partner);
+            int bridgeValue = GetVampireSuckerBridgeValue(mandatoryEmz);
+            DebugRoute("SUCKER token plan partner=" + partner.Id + "#" + partner.Sequence
+                + " mat=" + (partner.Overlays == null ? 0 : partner.Overlays.Count)
+                + " loss=" + tokenLoss + " value=" + bridgeValue
+                + " mandatoryEmz=" + (mandatoryEmz == null ? 0 : mandatoryEmz.Id));
+            return tokenLoss <= bridgeValue;
+        }
+
         private bool ShouldCreateDeltaTokenNow()
         {
-            if (Duel.Player != 0 || GetOpenMainMonsterZoneCount() < 2)
+            if (Duel.Player != 0 || !HasOpenMainMonsterZone())
                 return false;
 
             // A Level 5 Token is not a Rank 6 body. Do not occupy a Main Monster
@@ -1228,16 +1951,42 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // Create the Token only when it is the missing Zombie Link seed for a
-            // committed Eldlich/Fallen Angel route. Otherwise keep the zone open.
             bool eldlichLinkRoute = currentComboRoute == ComboRoute.EldlichRank10
                 || currentComboRoute == ComboRoute.BrickEldlich
                 || eldlichRouteActive;
-            if (!eldlichLinkRoute || !Bot.HasInExtra(CardId.FlyingMary))
+            if (!eldlichLinkRoute || !CanPlanVampireSuckerBridge()
+                || Bot.GetMonsters().Any(IsDeltaToken))
+            {
                 return false;
+            }
 
-            int currentLinkBodies = Bot.GetMonsters().Count(IsAllowedZombieLinkMaterial);
-            return currentLinkBodies == 1;
+            int tokenLoss;
+            if (!IsVampireSuckerTokenPlanWorthwhile(out tokenLoss))
+            {
+                DebugRoute("HOLD Delta Token: mandatory EMZ/live material costs more than Sucker draw");
+                return false;
+            }
+
+            List<ClientCard> noTokenPlan = GetVampireSuckerMaterialPlan();
+            if (noTokenPlan.Count < 2)
+            {
+                DebugRoute("Delta Token value: creates the only profitable legal Sucker pair");
+                return true;
+            }
+
+            int noTokenLoss = noTokenPlan.Sum(GetVampireSuckerMaterialLoss);
+            // Do not spend a Main Monster Zone for a negligible gain. Create the
+            // Token only when it saves a genuinely live body rather than replacing
+            // one already-spent Xyz with another cheap material.
+            if (tokenLoss + 30 < noTokenLoss)
+            {
+                DebugRoute("Delta Token value: lowers Sucker material loss from "
+                    + noTokenLoss + " to " + tokenLoss);
+                return true;
+            }
+
+            DebugRoute("HOLD Delta Token: existing Sucker pair is already efficient");
+            return false;
         }
 
         private int[] GetGlowUpBloomSearchPriority()
@@ -1306,24 +2055,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShouldPreferVampireSuckerOverFlyingMary()
         {
-            if (Duel.Player != 0 || Duel.Turn <= 1
-                || !Bot.HasInExtra(CardId.VampireSucker)
-                || !Bot.HasInGraveyard(CardId.EldlichTheGoldenLord)
-                || !HasOpenMainMonsterZone())
-            {
-                return false;
-            }
-
-            // Do not replace the confirmed Fallen Angel -> Flying Mary route.
-            if (Bot.HasInMonstersZone(CardId.FallenAngelOfTheGoldenLand, faceUp: true))
-                return false;
-
-            bool eldlichCanReturn = Bot.Hand.Any(c => c.IsSpell() || c.IsTrap())
-                || Bot.GetSpells().Any(c => c.IsSpell() || c.IsTrap());
-            if (!eldlichCanReturn)
-                return false;
-
-            return GetLinkZombieMaterials().Count >= 2;
+            return CanPlanVampireSuckerBridge()
+                && GetVampireSuckerMaterialPlan().Count == 2;
         }
 
         private bool ShouldFlyingMaryRevivePumpkingForComeback()
@@ -1352,12 +2085,21 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanSnakehairReachPumpkingBeforeHublot()
         {
-            return !HasPumpkingInHand()
-                && Bot.GetMonsterCount() == 0
+            // Snakehair's hand effect always bridges through Ectoplasmic first.
+            // Ectoplasmic then searches the missing starter: Hublot when absent,
+            // otherwise Pumpking. Do not require Pumpking to be missing here,
+            // because Snakehair -> Ectoplasmic -> Hublot is also a valid opener.
+            bool ectoplasmicHasStarterTarget =
+                (!HasHublotInHand() && CheckRemainInDeck(CardId.Hublot) > 0)
+                || (HasHublotInHand() && !HasPumpkingInHand()
+                    && CheckRemainInDeck(CardId.PumpkingTheKingOfGraveGhosts) > 0);
+
+            return Bot.GetMonsterCount() == 0
                 && !ectoplasmicSearchUsed
                 && !Bot.HasInHand(CardId.EctoplasmicFortification)
                 && Bot.HasInHand(CardId.StareOfTheSnakeHair)
                 && CheckRemainInDeck(CardId.EctoplasmicFortification) > 0
+                && ectoplasmicHasStarterTarget
                 && DefaultCheckWhetherBotCanSearch();
         }
 
@@ -1591,6 +2333,31 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Player == 1)
             {
+                // A Samuel -> Pumpking bridge already locked the intended
+                // follow-up target. Honour that plan before recalculating generic
+                // opponent-turn priorities from the possibly changed field state.
+                if (pendingSnakehairDisableTarget != null
+                    && IsLiveEnemyMonster(pendingSnakehairDisableTarget)
+                    && pendingSnakehairDisableTarget.IsAttack()
+                    && cards.Any(c => c.IsCode(CardId.StareOfTheSnakeHair)))
+                {
+                    DebugRoute("Pumpking opponent-turn bridge: fetch Snakehair target="
+                        + pendingSnakehairDisableTarget.Id);
+                    return SelectByIdPriority(cards, min, max,
+                        CardId.StareOfTheSnakeHair);
+                }
+
+                if (pendingMammothDestroyTarget != null
+                    && IsLiveEnemyFieldCard(pendingMammothDestroyTarget)
+                    && !pendingMammothDestroyTarget.IsShouldNotBeTarget()
+                    && cards.Any(c => c.IsCode(CardId.GreatMammothOfTheNetherworld)))
+                {
+                    DebugRoute("Pumpking opponent-turn bridge: fetch Mammoth target="
+                        + pendingMammothDestroyTarget.Id);
+                    return SelectByIdPriority(cards, min, max,
+                        CardId.GreatMammothOfTheNetherworld);
+                }
+
                 ClientCard dangerousAttack = Enemy.GetMonsters()
                     .Where(ShouldPreemptWithSnakehair)
                     .OrderByDescending(c => c.IsMonsterDangerous())
@@ -1619,12 +2386,15 @@ namespace WindBot.Game.AI.Decks
                         CardId.GreatMammothOfTheNetherworld);
                 }
 
-                // The activation guard should prevent this branch, but keep the
-                // selection restricted to interaction bodies if the prompt metadata
-                // differs from the locally observed Deck state.
+                // Mammoth and Snakehair are selected only with a legal live
+                // interaction target. If that target disappeared before the prompt,
+                // take Hublot as the opponent-turn setup body for a later Wollow.
+                DebugRoute("Pumpking opponent-turn summon: no live interaction; setup Hublot for Wollow");
                 return SelectByIdPriority(cards, min, max,
-                    CardId.GreatMammothOfTheNetherworld,
-                    CardId.StareOfTheSnakeHair);
+                    CardId.Hublot,
+                    CardId.OfficiatingReverie,
+                    CardId.ChangshiTheSpiridao,
+                    CardId.ArmyOfTheHaunted);
             }
 
             return SelectByIdPriority(cards, min, max,
@@ -1664,6 +2434,89 @@ namespace WindBot.Game.AI.Decks
                 && pumpkingComboState != PumpkingComboState.UndyingSummoned;
         }
 
+        private bool CanContinueCorePumpkingExtraDeckLineNow()
+        {
+            if (Duel.Player != 0 || zombieLockedThisTurn)
+                return false;
+
+            // Never abandon a concrete in-engine action merely because the route
+            // state looks old. Resolve Pumpking/Call/Changshi first, then reassess.
+            if (HasImmediatePumpkingActionPending())
+                return true;
+
+            if (ashReplayLineActive)
+            {
+                if (!HasGreatPumpkingOnField()
+                    && Bot.HasInExtra(CardId.PumpkingTheGreatGhostKing)
+                    && GetGreatPumpkingMaterials().Count == 2)
+                {
+                    return true;
+                }
+
+                if (HasGreatPumpkingOnField()
+                    && !HasSamuelOnField()
+                    && Bot.HasInExtra(CardId.OfficiatorOfDoomSamuel)
+                    && GetSamuelMaterials().Count == 2)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                // Great Pumpking's executor has a legal two-body fallback even
+                // after the ideal Samuel-first route has been disrupted.
+                if (!HasGreatPumpkingOnField()
+                    && Bot.HasInExtra(CardId.PumpkingTheGreatGhostKing)
+                    && GetRank6Materials(true).Count >= 2)
+                {
+                    return true;
+                }
+
+                if (!HasSamuelOnField()
+                    && Bot.HasInExtra(CardId.OfficiatorOfDoomSamuel))
+                {
+                    List<ClientCard> samuelMaterials = GetSamuelMaterials();
+                    if (samuelMaterials.Count == 2
+                        && CanNormalSamuelFirstReachGreatPumpking(samuelMaterials))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            // Do not let a generic Rank 6 cut in before the intended overlay.
+            if (HasGreatPumpkingOnField()
+                && HasSamuelOnField()
+                && Bot.HasInExtra(CardId.TheUndyingLegion))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ShouldHoldGenericRank6ForPumpkingCombo()
+        {
+            if (!IsPumpkingComboInProgress())
+                return false;
+
+            if (CanContinueCorePumpkingExtraDeckLineNow())
+                return true;
+
+            // The route marker can survive after Great Pumpking/Samuel were used as
+            // Link material or otherwise left the Extra Deck. Keeping that stale
+            // marker blocks Sheridan, Lars, and Wollow in both Main Phases.
+            DebugRoute("RELEASE stale Pumpking combo state=" + pumpkingComboState
+                + ": no executable Great Pumpking/Samuel/Undying step; allow generic Rank 6");
+            pumpkingComboState = PumpkingComboState.None;
+            if (currentComboRoute == ComboRoute.NormalPumpking
+                || currentComboRoute == ComboRoute.UraraRecovery)
+            {
+                currentComboRoute = ComboRoute.None;
+            }
+            return false;
+        }
+
         private int CountFreeLevel6ForGreatPumpking()
         {
             return Bot.GetMonsters().Count(c => IsLevel6Zombie(c));
@@ -1675,6 +2528,64 @@ namespace WindBot.Game.AI.Decks
                 && !c.IsCode(CardId.PumpkingTheGreatGhostKing));
             return otherZombieCount >= 2
                 && (Bot.HasInExtra(CardId.FlyingMary) || Bot.HasInExtra(CardId.VampireSucker));
+        }
+
+        private bool CanTakeProductivePumpkingExtraDeckStep()
+        {
+            if (Duel.Player != 0 || zombieLockedThisTurn)
+                return false;
+
+            // Two free Level 6 Zombies are already a guaranteed Great Pumpking.
+            // When its search is still live and a small Pumpking remains in Deck,
+            // resolve this line before Delta commits the board to Eldlich.
+            bool liveGreatPumpkingSearch = Bot.HasInExtra(CardId.PumpkingTheGreatGhostKing)
+                && !HasGreatPumpkingOnField()
+                && !greatPumpkingSearchAttempted
+                && !greatPumpkingSearchResolved
+                && CheckRemainInDeck(CardId.PumpkingTheKingOfGraveGhosts) > 0
+                && DefaultCheckWhetherBotCanSearch();
+            if (liveGreatPumpkingSearch && GetRank6Materials(true).Count >= 2)
+                return true;
+
+            // Once Great Pumpking exists, finish the Samuel half of the board.
+            // Army is checked explicitly because its executor is below Delta.
+            if (HasGreatPumpkingOnField() && !HasSamuelOnField())
+            {
+                if (Bot.HasInExtra(CardId.OfficiatorOfDoomSamuel)
+                    && GetRank6Materials(false).Count >= 2)
+                {
+                    return true;
+                }
+
+                if (HasUnusedArmySpecialSummonAvailable()
+                    && NeedsAdditionalLevel6BodyForCurrentPlan())
+                {
+                    return true;
+                }
+            }
+
+            // Great Pumpking + Samuel is not the finished Pumpking board while
+            // Undying is still available to overlay the Great Pumpking.
+            if (HasGreatPumpkingOnField() && HasSamuelOnField()
+                && Bot.HasInExtra(CardId.TheUndyingLegion))
+            {
+                return true;
+            }
+
+            // Delta also must not cut between concrete Pumpking actions that are
+            // already available now. This is action-based, so a disrupted route
+            // will release the hold instead of deadlocking for the rest of the turn.
+            return HasImmediatePumpkingActionPending();
+        }
+
+        private bool ShouldHoldRank6ForFlyingMaryRank10()
+        {
+            if (!eldlichRouteRank10CommitPending)
+                return false;
+
+            // The commitment ends only after a Rank 10 Xyz is actually present.
+            return !Bot.HasInMonstersZone(CardId.Varudras, faceUp: true)
+                && !Bot.HasInMonstersZone(CardId.MercuriumTheLivingQuicksilver, faceUp: true);
         }
 
         private bool ShouldContinueEldlichLine()
@@ -1901,6 +2812,21 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> cards, int min, int max)
         {
             List<int> priority = new List<int>();
+
+            // Recovery route after disruption: if two Level 6 bodies made the
+            // fallback Great Pumpking but no small Pumpking is accessible yet,
+            // search the small Pumpking first. It Sets Call, revives itself, and
+            // restarts Changshi -> Army -> Samuel before Eldlich is committed.
+            bool needSmallPumpkingStarter = !pumpkingHandEffectAttempted
+                && !HasPumpkingAccessible()
+                && cards.Any(c => c != null
+                    && c.IsCode(CardId.PumpkingTheKingOfGraveGhosts));
+            if (needSmallPumpkingStarter)
+            {
+                priority.Add(CardId.PumpkingTheKingOfGraveGhosts);
+                DebugRoute("Great Pumpking search: recover route with small Pumpking first");
+            }
+
             if (Duel.Turn == 1)
             {
                 priority.Add(CardId.ArmyOfTheHaunted);
@@ -1922,6 +2848,7 @@ namespace WindBot.Game.AI.Decks
             priority.AddRange(new[]
             {
                 CardId.ArmyOfTheHaunted,
+                CardId.PumpkingTheKingOfGraveGhosts,
                 CardId.StareOfTheSnakeHair,
                 CardId.EctoplasmicFortification,
                 CardId.VortexOfTime,
@@ -2341,6 +3268,290 @@ namespace WindBot.Game.AI.Decks
             return result.Take(take).ToList();
         }
 
+        private ClientCard GetBestInfiniteImpermanenceTarget()
+        {
+            ClientCard last = Util.GetLastChainCard();
+            if (last != null
+                && last.Controller == 1
+                && last.Location == CardLocation.MonsterZone
+                && last.IsFaceup()
+                && !last.IsDisabled()
+                && !last.IsShouldNotBeTarget())
+            {
+                return last;
+            }
+
+            return Enemy.GetMonsters()
+                .Where(c => c != null
+                    && c.Controller == 1
+                    && c.Location == CardLocation.MonsterZone
+                    && c.IsFaceup()
+                    && !c.IsDisabled()
+                    && !c.IsShouldNotBeTarget()
+                    && !currentNegateCardList.Contains(c))
+                .OrderBy(c => IsKnownLiveNegateMonster(c) ? 0 : 1)
+                .ThenBy(c => c.IsMonsterShouldBeDisabledBeforeItUseEffect() ? 0 : 1)
+                .ThenByDescending(c => c.IsMonsterDangerous())
+                .ThenByDescending(c => c.GetDefensePower())
+                .FirstOrDefault();
+        }
+
+        private IList<ClientCard> SelectInfiniteImpermanenceTarget(
+            IList<ClientCard> cards,
+            int min,
+            int max)
+        {
+            if (cards == null || min <= 0)
+                return null;
+
+            ClientCard exact = FindMatchingCandidate(
+                cards, pendingInfiniteImpermanenceTarget);
+            if (exact != null)
+            {
+                pendingInfiniteImpermanenceTarget = null;
+                DebugRoute("Infinite Impermanence target=" + exact.Id);
+                return Util.CheckSelectCount(
+                    new List<ClientCard> { exact }, cards, min, max);
+            }
+
+            List<ClientCard> legal = cards
+                .Where(c => c != null
+                    && c.Controller == 1
+                    && c.Location == CardLocation.MonsterZone
+                    && c.IsFaceup()
+                    && !c.IsDisabled())
+                .OrderBy(c => IsKnownLiveNegateMonster(c) ? 0 : 1)
+                .ThenBy(c => c.IsMonsterShouldBeDisabledBeforeItUseEffect() ? 0 : 1)
+                .ThenByDescending(c => c.IsMonsterDangerous())
+                .ThenByDescending(c => c.GetDefensePower())
+                .ToList();
+
+            pendingInfiniteImpermanenceTarget = null;
+            if (legal.Count > 0)
+            {
+                DebugRoute("Infinite Impermanence fallback target=" + legal[0].Id);
+                return Util.CheckSelectCount(legal, cards, min, max);
+            }
+            return null;
+        }
+
+        private ClientCard GetOpponentTurnCallReviveTarget(
+            IEnumerable<ClientCard> revivable)
+        {
+            if (revivable == null)
+                return null;
+
+            List<ClientCard> pool = revivable.Where(c => c != null).ToList();
+            bool enemyAttackThreat = Enemy.GetMonsters().Any(c => c.IsFaceup()
+                && c.IsAttack() && !c.IsDisabled() && !c.IsShouldNotBeTarget());
+            bool enemyFieldThreat = GetEnemyFieldPriority().Count > 0;
+            bool pumpkingCanDeployInteraction = !pumpkingSummonEffectAttempted
+                && ((enemyAttackThreat
+                        && CheckRemainInDeck(CardId.StareOfTheSnakeHair) > 0)
+                    || (enemyFieldThreat
+                        && CheckRemainInDeck(CardId.GreatMammothOfTheNetherworld) > 0));
+
+            ClientCard target = null;
+            if (pumpkingCanDeployInteraction)
+            {
+                target = pool.FirstOrDefault(c => c.IsCode(
+                    CardId.PumpkingTheKingOfGraveGhosts));
+                if (target != null)
+                    return target;
+            }
+
+            if (enemyAttackThreat)
+            {
+                target = pool.FirstOrDefault(c => c.IsCode(
+                    CardId.StareOfTheSnakeHair));
+                if (target != null)
+                    return target;
+            }
+
+            if (enemyFieldThreat)
+            {
+                target = pool.FirstOrDefault(c => c.IsCode(
+                    CardId.GreatMammothOfTheNetherworld));
+                if (target != null)
+                    return target;
+            }
+
+            // A chained Pumpking revival is still useful when the opponent has
+            // committed a chain and Pumpking's Deck summon has not been spent.
+            if (!pumpkingSummonEffectAttempted)
+            {
+                target = pool.FirstOrDefault(c => c.IsCode(
+                    CardId.PumpkingTheKingOfGraveGhosts));
+                if (target != null)
+                    return target;
+            }
+
+            return null;
+        }
+
+        private IList<ClientCard> SelectCallReviveTarget(
+            IList<ClientCard> cards,
+            int min,
+            int max)
+        {
+            if (cards == null || min <= 0)
+                return null;
+
+            ClientCard target = plannedCallReviveId != 0
+                ? cards.FirstOrDefault(c => c != null
+                    && c.IsCode(plannedCallReviveId))
+                : null;
+            if (target == null)
+            {
+                target = GetOpponentTurnCallReviveTarget(cards)
+                    ?? cards.FirstOrDefault(c => c.IsCode(
+                        CardId.PumpkingTheKingOfGraveGhosts))
+                    ?? cards.FirstOrDefault(c => c.IsCode(
+                        CardId.StareOfTheSnakeHair))
+                    ?? cards.FirstOrDefault(c => c.IsCode(
+                        CardId.GreatMammothOfTheNetherworld));
+            }
+
+            callReviveSelectionPending = false;
+            plannedCallReviveId = 0;
+            if (target == null)
+                return null;
+
+            DebugRoute("Call revive target=" + target.Id);
+            return Util.CheckSelectCount(
+                new List<ClientCard> { target }, cards, min, max);
+        }
+
+        private IList<ClientCard> SelectSamuelGraveRecycleTarget(
+            IList<ClientCard> cards,
+            int min,
+            int max)
+        {
+            if (cards == null || min <= 0)
+                return null;
+
+            List<ClientCard> own = cards.Where(c => c != null
+                    && c.Controller == 0
+                    && c.Location == CardLocation.Grave
+                    && c.IsMonster())
+                .ToList();
+
+            List<ClientCard> priority = new List<ClientCard>();
+            priority.AddRange(own.Where(c => c.IsCode(CardId.ChangshiTheSpiridao)));
+            priority.AddRange(own.Where(c => c.HasType(
+                    CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link))
+                .OrderBy(c => c.IsCode(CardId.OfficiatorOfDoomSamuel) ? 0 : 1)
+                .ThenBy(c => c.IsCode(CardId.PumpkingTheGreatGhostKing) ? 0 : 1)
+                .ThenBy(c => c.IsCode(CardId.TheUndyingLegion) ? 0 : 1));
+
+            // Only disturb the opposing GY after our Changshi / Extra Deck
+            // recycling objectives are unavailable.
+            priority.AddRange(GetEnemyGravePriority(cards).Where(cards.Contains));
+            priority.AddRange(own);
+            priority = priority.Distinct().ToList();
+
+            samuelGraveRecycleSelectionPending = false;
+            if (priority.Count == 0)
+                return null;
+
+            DebugRoute("Samuel GY recycle target=" + priority[0].Id
+                + " controller=" + priority[0].Controller);
+            return Util.CheckSelectCount(priority, cards, min, max);
+        }
+
+        private ClientCard GetUndyingReactiveTarget()
+        {
+            if (Duel.CurrentChain.Count == 0 || Duel.LastChainPlayer != 1)
+                return null;
+
+            ClientCard last = Util.GetLastChainCard();
+            if (last == null)
+                return null;
+
+            // First inspect the announced target, not only the chain source. If an
+            // opposing effect targets its monster in the GY to revive/equip/move it
+            // (Dux targeting Phalanx is the important example), overlay that target
+            // now. Removing the target from the GY makes the opposing effect resolve
+            // without it, which is genuine disruption and worth Undying's cost.
+            ClientCard announcedGraveTarget = Duel.ChainTargets.LastOrDefault(c =>
+                c != null
+                && c.Controller == 1
+                && c.Location == CardLocation.Grave
+                && c.IsMonster());
+            if (announcedGraveTarget != null)
+            {
+                DebugRoute("Undying intercept opposing GY target="
+                    + announcedGraveTarget.Id + " source=" + last.Id);
+                return announcedGraveTarget;
+            }
+
+            // Call occasionally loses its target metadata on some cores. Retain a
+            // conservative fallback only for that known revival card.
+            if (last.IsCode(CardId.CallOfTheHaunted))
+            {
+                return Enemy.Graveyard
+                    .Where(c => c != null && c.IsMonster())
+                    .OrderBy(c => c.IsCode(CardId.PumpkingTheKingOfGraveGhosts) ? 0 : 1)
+                    .ThenByDescending(c => c.IsMonsterDangerous())
+                    .ThenByDescending(c => c.Attack)
+                    .FirstOrDefault();
+            }
+
+            // Undying is not a negate. Absorbing a monster that already paid
+            // its cost and activated in the GY (for example Snakehair) normally
+            // does not stop that effect, while Undying spends two materials to
+            // gain only one. Do not chain merely because the source is in the GY.
+            if (last.Controller == 1
+                && last.Location == CardLocation.Grave
+                && last.IsMonster())
+            {
+                DebugRoute("HOLD Undying: absorbing activated GY source does not stop effect id="
+                    + last.Id);
+                return null;
+            }
+
+            // On-field removal is reserved for a genuinely dangerous face-up
+            // Attack Position monster; it is still removal, not a negate.
+            if (last.Controller == 1
+                && last.Location == CardLocation.MonsterZone
+                && last.IsFaceup()
+                && last.IsAttack()
+                && !last.IsShouldNotBeTarget()
+                && (last.IsMonsterDangerous()
+                    || last.IsMonsterShouldBeDisabledBeforeItUseEffect()
+                    || IsKnownLiveNegateMonster(last)))
+            {
+                return last;
+            }
+
+            return null;
+        }
+
+        private IList<ClientCard> SelectUndyingReactiveTarget(
+            IList<ClientCard> cards,
+            int min,
+            int max)
+        {
+            if (cards == null || min <= 0)
+                return null;
+
+            ClientCard exact = FindMatchingCandidate(cards, pendingUndyingTarget);
+            pendingUndyingTarget = null;
+            if (exact != null)
+            {
+                DebugRoute("Undying reactive target=" + exact.Id
+                    + " location=" + exact.Location);
+                return Util.CheckSelectCount(
+                    new List<ClientCard> { exact }, cards, min, max);
+            }
+
+            List<ClientCard> fallback = new List<ClientCard>();
+            fallback.AddRange(GetEnemyGravePriority(cards).Where(cards.Contains));
+            fallback.AddRange(GetEnemyFieldPriority(cards, false).Where(cards.Contains));
+            fallback = fallback.Distinct().ToList();
+            return Util.CheckSelectCount(fallback, cards, min, max);
+        }
+
         private bool IsHostileTargetHint(int hint)
         {
             return hint == HintMsg.Destroy
@@ -2348,6 +3559,120 @@ namespace WindBot.Game.AI.Decks
                 || hint == HintMsg.ReturnToHand
                 || hint == HintMsg.Remove
                 || hint == HintMsg.Disable;
+        }
+
+        private bool CanMammothTriggerAfterReverieRevive()
+        {
+            // Mammoth needs another face-up Zombie or Call of the Haunted already
+            // face-up. Do not revive it as "interaction" when its trigger would be dead.
+            return HasFaceupCall() || Bot.GetMonsters().Any(c => c != null
+                && c.IsFaceup() && IsZombie(c)
+                && !c.IsCode(CardId.GreatMammothOfTheNetherworld));
+        }
+
+        private ClientCard GetReverieSnakehairTarget()
+        {
+            ClientCard chainSource = Util.GetLastChainCard();
+            if (chainSource != null && chainSource.Controller == 1
+                && IsLiveEnemyMonster(chainSource) && chainSource.IsAttack()
+                && !chainSource.IsDisabled() && !chainSource.IsShouldNotBeTarget())
+            {
+                return chainSource;
+            }
+
+            return Enemy.GetMonsters()
+                .Where(ShouldPreemptWithSnakehair)
+                .OrderByDescending(c => c.IsMonsterShouldBeDisabledBeforeItUseEffect())
+                .ThenByDescending(c => c.IsMonsterDangerous())
+                .ThenByDescending(c => c.Attack)
+                .FirstOrDefault();
+        }
+
+        private int GetReverieZombieXyzScore(ClientCard card)
+        {
+            if (card == null || !card.HasType(CardType.Xyz) || !IsZombie(card))
+                return int.MinValue;
+
+            // Reverie revives an Xyz with no material. Great Pumpking still gives
+            // its Special-Summon search immediately, while Samuel remains useful as
+            // a body whose later trip to the GY recycles a monster. Undying,
+            // Sheridan, Wollow, and the other Xyz lose the effect that justified
+            // summoning them once their material count is zero, so do not revive
+            // them merely for raw ATK/DEF.
+            if (card.IsCode(CardId.PumpkingTheGreatGhostKing))
+            {
+                bool searchStillLive = !greatPumpkingSearchAttempted
+                    && !greatPumpkingSearchResolved;
+                int searchValue = searchStillLive ? 180 : 0;
+                int callProtection = HasFaceupCall() ? 40 : 0;
+                return 300 + searchValue + callProtection;
+            }
+
+            if (card.IsCode(CardId.OfficiatorOfDoomSamuel))
+            {
+                bool usefulRecycleExists = Bot.Graveyard.Any(c => c != null
+                    && (c.IsCode(CardId.ChangshiTheSpiridao)
+                        || c.HasType(CardType.Fusion | CardType.Synchro
+                            | CardType.Xyz | CardType.Link)));
+                return 340 + (usefulRecycleExists ? 40 : 0);
+            }
+
+            return int.MinValue;
+        }
+
+        private IList<ClientCard> SelectReverieReviveTarget(
+            IList<ClientCard> cards,
+            int min,
+            int max)
+        {
+            if (cards == null || min <= 0)
+                return null;
+
+            // Immediate interaction outranks generic recovery. Snakehair answers a
+            // live attack-position monster effect; Mammoth removes the best field
+            // problem only when its own summon trigger is live.
+            ClientCard snakehairTarget = GetReverieSnakehairTarget();
+            if (snakehairTarget != null
+                && cards.Any(c => c.IsCode(CardId.StareOfTheSnakeHair)))
+            {
+                pendingSnakehairDisableTarget = snakehairTarget;
+                DebugRoute("Reverie revive target=Snakehair interaction target="
+                    + snakehairTarget.Id);
+                return SelectByIdPriority(cards, min, max,
+                    CardId.StareOfTheSnakeHair);
+            }
+
+            ClientCard mammothTarget = GetMammothPreemptTarget()
+                ?? GetEnemyFieldPriority().FirstOrDefault(c =>
+                    c != null && !c.IsShouldNotBeTarget());
+            if (mammothTarget != null && CanMammothTriggerAfterReverieRevive()
+                && cards.Any(c => c.IsCode(CardId.GreatMammothOfTheNetherworld)))
+            {
+                pendingMammothDestroyTarget = mammothTarget;
+                DebugRoute("Reverie revive target=Mammoth interaction target="
+                    + mammothTarget.Id);
+                return SelectByIdPriority(cards, min, max,
+                    CardId.GreatMammothOfTheNetherworld);
+            }
+
+            // With no immediate interaction, the useful no-material Xyz revives
+            // are Great Pumpking and Samuel. Do not revive Undying or another Xyz
+            // whose relevant activated effect is dead without material.
+            ClientCard xyzTarget = cards
+                .Where(c => GetReverieZombieXyzScore(c) > int.MinValue)
+                .OrderByDescending(GetReverieZombieXyzScore)
+                .ThenByDescending(c => c.Defense)
+                .FirstOrDefault();
+            if (xyzTarget != null)
+            {
+                DebugRoute("Reverie revive target=Xyz " + xyzTarget.Id
+                    + " score=" + GetReverieZombieXyzScore(xyzTarget));
+                return Util.CheckSelectCount(
+                    new List<ClientCard> { xyzTarget }, cards, min, max);
+            }
+
+            DebugRoute("Reverie revive fallback: no interaction or Zombie Xyz candidate");
+            return SelectZombieToRevive(cards, min, max);
         }
 
         private IList<ClientCard> SelectZombieToRevive(IList<ClientCard> cards, int min, int max)
@@ -2647,35 +3972,25 @@ namespace WindBot.Game.AI.Decks
 
         private bool IsReverieRecoverableXyz(ClientCard card)
         {
-            if (card == null || !card.HasType(CardType.Xyz)
-                || !Bot.HasInGraveyard(CardId.OfficiatingReverie))
-            {
-                return false;
-            }
-
-            // Undying is the protected end-board Xyz and is never converted into
-            // a Link material. Samuel is the intended recyclable Xyz; other Xyz
-            // monsters are allowed only after spending all material.
-            if (card.IsCode(CardId.TheUndyingLegion))
-                return false;
-
-            return card.IsCode(CardId.OfficiatorOfDoomSamuel)
-                || card.Overlays == null || card.Overlays.Count == 0;
+            // Kept as the route-facing name used by older helpers. Material value
+            // no longer depends on Reverie being in the GY: every Zombie Xyz with
+            // zero material is already spent and may be converted immediately.
+            return IsSpentZombieXyz(card);
         }
 
         private bool IsAllowedZombieLinkMaterial(ClientCard card)
         {
             if (card == null || !card.IsFaceup() || !IsZombie(card)
-                || card.HasType(CardType.Link)
-                || card.IsCode(CardId.TheUndyingLegion))
+                || card.HasType(CardType.Link))
             {
                 return false;
             }
 
-            // Preserve live Xyz monsters. They become link material only when
-            // Reverie can replace the body and the Xyz is spent, or it is Samuel.
+            // Every zero-material Zombie Xyz is spent, including Samuel, Sheridan,
+            // Great Pumpking, or Undying. Preserve only Xyz monsters that still
+            // have material and therefore still have usable effects.
             if (card.HasType(CardType.Xyz))
-                return IsReverieRecoverableXyz(card);
+                return IsSpentZombieXyz(card);
 
             return true;
         }
@@ -2683,8 +3998,10 @@ namespace WindBot.Game.AI.Decks
         private int GetZombieLinkMaterialValue(ClientCard card)
         {
             if (IsDeltaToken(card)) return 0;
-            if (IsReverieRecoverableXyz(card)) return 1;
-            if (card != null && card.Level != 6) return 2;
+            // All zero-material Zombie Xyz monsters are equally spent. Use them
+            // before any Main Deck body that still carries summon/setup value.
+            if (IsSpentZombieXyz(card)) return 1;
+            if (card != null && card.Level != 6 && !card.HasType(CardType.Xyz)) return 2;
             if (card != null && card.IsCode(CardId.GreatMammothOfTheNetherworld)) return 10;
             if (card != null && card.IsCode(CardId.OfficiatingReverie)) return 11;
             if (card != null && card.IsCode(CardId.ChangshiTheSpiridao)) return 12;
@@ -2797,9 +4114,14 @@ namespace WindBot.Game.AI.Decks
         {
             if (!DefaultInfiniteImpermanence())
                 return false;
-            ClientCard target = Util.GetLastChainCard();
-            if (target != null && target.Controller == 1)
-                currentNegateCardList.Add(target);
+
+            ClientCard target = GetBestInfiniteImpermanenceTarget();
+            if (target == null)
+                return false;
+
+            pendingInfiniteImpermanenceTarget = target;
+            currentNegateCardList.Add(target);
+            DebugRoute("ACCEPT Infinite Impermanence target=" + target.Id);
             SelectSTPlace(Card, true);
             return true;
         }
@@ -2809,12 +4131,14 @@ namespace WindBot.Game.AI.Decks
             if (IsCardEffectNegated())
                 return false;
 
-            // Same policy as AI_Apophis: if a set copy is also activable, use that
-            // copy before activating one from the hand and accepting the Attribute lock.
-            if (Duel.MainPhase.ActivableCards.Any(c => c != null && c != Card
-                && c.IsCode(CardId.DominusImpulse) && c.IsOnField()
-                && !infiniteImpermanenceNegatedColumns.Contains(c.Sequence)))
+            // This deck repeatedly needs LIGHT Eldlich and EARTH Mezuki effects.
+            // Activating Dominus from the hand applies a permanent LIGHT/EARTH/WIND
+            // activation lock, which is far more damaging than stopping an ordinary
+            // extender such as Phalanx. Hold the hand copy and Set it on our turn;
+            // a Set Dominus keeps the negate without accepting that lock.
+            if (Card.Location == CardLocation.Hand)
             {
+                DebugRoute("HOLD Dominus in hand: preserve LIGHT/EARTH/WIND engine; Set it first");
                 return false;
             }
 
@@ -2824,6 +4148,7 @@ namespace WindBot.Game.AI.Decks
 
             currentNegateCardList.Add(last);
             SelectSTPlace(Card, true);
+            DebugRoute("ACCEPT set Dominus negate id=" + last.Id);
             return true;
         }
 
@@ -2919,7 +4244,8 @@ namespace WindBot.Game.AI.Decks
 
                 currentNegateCardList.Add(last);
                 pendingInterruptMode = InterruptMode.VarudrasHardNegate;
-                varudrasDestroySelectionPending = false;
+                ClearVarudrasDestroyPlan();
+                varudrasNegatedChainSource = last;
                 SetStrategicPlan(StrategicGoal.NegateImmediateThreat,
                     currentComboRoute, "Varudras hard negate");
                 ClearEnemyCommitment("opponent chain started");
@@ -2936,15 +4262,24 @@ namespace WindBot.Game.AI.Decks
                     || ActivateDescription == destroyedDesc
                     || ActivateDescription == -1))
             {
-                if (!hasEnemyFieldCard)
+                ClearVarudrasDestroyPlan();
+                ClientCard enemyTarget = GetEnemyFieldPriority(
+                        Enemy.GetMonsters().Concat(Enemy.GetSpells()).ToList(),
+                        false)
+                    .FirstOrDefault(c => c != null
+                        && c.Controller == 1
+                        && c.IsOnField());
+                if (enemyTarget == null)
                 {
-                    varudrasDestroySelectionPending = false;
                     DebugRoute("DECLINE Varudras destroy: no enemy field card");
                     return false;
                 }
 
-                varudrasDestroySelectionPending = true;
-                DebugRoute("ACCEPT Varudras destroy: enemy target reserved");
+                pendingVarudrasDestroyMode =
+                    VarudrasDestroyMode.TriggeredEnemyRemoval;
+                pendingVarudrasDestroyTarget = enemyTarget;
+                DebugRoute("ACCEPT Varudras destroy: enemy target="
+                    + enemyTarget.Id);
                 return true;
             }
 
@@ -2985,9 +4320,18 @@ namespace WindBot.Game.AI.Decks
             {
                 bool createToken = ShouldCreateDeltaTokenNow();
                 DebugRoute(createToken
-                    ? "ACCEPT Delta Token: missing Eldlich Link seed"
+                    ? "ACCEPT Delta Token: cheap Eldlich/Sucker Link material"
                     : "HOLD Delta Token: preserve Main Monster Zone");
                 return createToken;
+            }
+
+            // A ready Rank 6 Pumpking line has priority over committing Delta.
+            // In particular, Hublot + Reverie should become Great Pumpking, search
+            // the small Pumpking, and continue that combo before Eldlich starts.
+            if (CanTakeProductivePumpkingExtraDeckStep())
+            {
+                DebugRoute("HOLD Delta activation: complete available Great Pumpking/Pumpking action first");
+                return false;
             }
 
             // Field/Eldlich must be established before any optional Bloom lock.
@@ -3026,13 +4370,24 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location != CardLocation.Hand || IsCardEffectNegated())
                 return false;
 
-            // Snakehair is used before Hublot only as the bridge into
-            // Ectoplasmic Fortification, which then searches Pumpking.
-            if (HasPumpkingInHand() || Bot.HasInHand(CardId.EctoplasmicFortification))
+            // Hard route rule: Snakehair from the hand searches Ectoplasmic
+            // Fortification first. Ectoplasmic then chooses Pumpking or Hublot
+            // from the actual hand/Deck state. Having Pumpking already must not
+            // redirect Snakehair into Call or Vortex.
+            if (Bot.HasInHand(CardId.EctoplasmicFortification)
+                || CheckRemainInDeck(CardId.EctoplasmicFortification) <= 0)
+            {
                 return false;
-            if (CheckRemainInDeck(CardId.EctoplasmicFortification) <= 0)
+            }
+
+            bool ectoplasmicHasStarterTarget =
+                (!HasHublotInHand() && CheckRemainInDeck(CardId.Hublot) > 0)
+                || (HasHublotInHand() && !HasPumpkingInHand()
+                    && CheckRemainInDeck(CardId.PumpkingTheKingOfGraveGhosts) > 0);
+            if (!ectoplasmicHasStarterTarget)
                 return false;
 
+            DebugRoute("ACCEPT Snakehair hand effect: search Ectoplasmic first");
             return DefaultCheckWhetherBotCanSearch();
         }
 
@@ -3093,19 +4448,12 @@ namespace WindBot.Game.AI.Decks
 
             if (Duel.Player == 1)
             {
-                bool hasSnakehairLine = CheckRemainInDeck(CardId.StareOfTheSnakeHair) > 0
-                    && Enemy.GetMonsters().Any(c => c.IsFaceup() && c.IsAttack()
-                        && !c.IsDisabled() && !c.IsShouldNotBeTarget());
-                bool hasMammothLine = CheckRemainInDeck(CardId.GreatMammothOfTheNetherworld) > 0
-                    && GetEnemyFieldPriority().Any(c => !c.IsShouldNotBeTarget());
-                if (!hasSnakehairLine && !hasMammothLine)
-                {
-                    DebugRoute("HOLD opponent-turn Pumpking: no Mammoth/Snakehair interaction");
-                    return false;
-                }
-
+                // The Special-Summon trigger is free material on the opponent's
+                // turn and its hand/GY non-Zombie lock expires before our turn.
+                // Always take the Level 6 body; Mammoth/Snakehair are preferred
+                // when live, but a setup body is still better than declining.
                 pumpkingSummonEffectAttempted = true;
-                DebugRoute("ACCEPT opponent-turn Pumpking: summon Mammoth/Snakehair interaction");
+                DebugRoute("ACCEPT opponent-turn Pumpking: always summon Level 6 Zombie");
                 return true;
             }
 
@@ -3113,10 +4461,37 @@ namespace WindBot.Game.AI.Decks
             DebugRoute("ACCEPT revived Pumpking trigger: summon Changshi");
             return true;
         }
+        private bool ShouldDelayFoolishForGreatPumpkingSearch()
+        {
+            // Once Great Pumpking is on the field, let its delayed search finish
+            // before committing Foolish. The search result (normally Army in this
+            // route) determines what the graveyard still actually needs.
+            if (greatPumpkingSearchWindowPending
+                || (greatPumpkingSearchAttempted && !greatPumpkingSearchResolved)
+                || (HasGreatPumpkingOnField() && !greatPumpkingSearchResolved))
+            {
+                return true;
+            }
+
+            // In the Urara replay route the exact Hublot + small Pumpking pair is
+            // already ready to make Great Pumpking. Do not fire Foolish in the idle
+            // window between Changshi resolving and that Xyz Summon.
+            return ashReplayLineActive
+                && !greatPumpkingSearchResolved
+                && Bot.HasInExtra(CardId.PumpkingTheGreatGhostKing)
+                && GetGreatPumpkingMaterials().Count == 2;
+        }
+
         private bool FoolishBurialActivate()
         {
             if (IsCardEffectNegated() || HasImmediatePumpkingActionPending())
                 return false;
+
+            if (ShouldDelayFoolishForGreatPumpkingSearch())
+            {
+                DebugRoute("HOLD Foolish Burial: resolve Great Pumpking search first");
+                return false;
+            }
 
             // Do not use Foolish before an unused Hublot Normal Summon. Hublot is
             // the starter and its own mill can prepare the required GY resource.
@@ -3208,6 +4583,68 @@ namespace WindBot.Game.AI.Decks
                 DebugRoute("ACCEPT Hublot fallback Xyz trigger");
             return useFallback;
         }
+        private int GetReverieOverlayReloadScore(ClientCard card)
+        {
+            if (card == null || card.Controller != 0 || !card.IsFaceup()
+                || !card.IsOnField() || !IsZombie(card)
+                || !card.HasType(CardType.Xyz))
+            {
+                return int.MinValue;
+            }
+
+            int materials = card.Overlays == null ? 0 : card.Overlays.Count;
+
+            // The purpose of the banished effect is to reload a spent Xyz. A
+            // zero-material Xyz always beats adding another material to a live one.
+            int score = materials == 0 ? 10000 : -materials * 1000;
+
+            // Among equally spent Xyz, prefer effects that can create value during
+            // our current turn. Undying is deliberately last because its attach
+            // effect matters only on the opponent's turn.
+            if (card.IsCode(CardId.PumpkingTheGreatGhostKing))
+                score += Enemy.GetMonsterCount() + Enemy.GetSpellCount() > 0 ? 520 : 360;
+            else if (card.IsCode(CardId.OfficiatorOfDoomSamuel))
+                score += HasOpenMainMonsterZone()
+                    && Bot.Graveyard.Any(c => c != null && IsZombie(c) && c.IsCanRevive())
+                        ? 500 : 340;
+            else if (card.IsCode(CardId.DhampirVampireSheridan))
+                score += Enemy.GetMonsterCount() > 0 ? 430 : 220;
+            else if (card.IsCode(CardId.WollowFounderOfTheDrudgeDragons))
+                score += Enemy.Graveyard.Count > 0 ? 400 : 210;
+            else if (card.IsCode(CardId.TheUndyingLegion))
+                score += 40;
+            else
+                score += 180;
+
+            return score;
+        }
+
+        private IList<ClientCard> SelectReverieOverlayReloadTarget(
+            IList<ClientCard> cards,
+            int min,
+            int max)
+        {
+            if (cards == null || min <= 0)
+                return null;
+
+            ClientCard target = cards
+                .Where(c => GetReverieOverlayReloadScore(c) > int.MinValue)
+                .OrderByDescending(GetReverieOverlayReloadScore)
+                .ThenBy(c => c.Overlays == null ? 0 : c.Overlays.Count)
+                .ThenByDescending(c => c.Attack)
+                .FirstOrDefault();
+            if (target == null)
+                return null;
+
+            int materials = target.Overlays == null ? 0 : target.Overlays.Count;
+            DebugRoute("Reverie banished reload target=" + target.Id
+                + " materials=" + materials
+                + " score=" + GetReverieOverlayReloadScore(target));
+            reverieOverlaySelectionPending = false;
+            return Util.CheckSelectCount(
+                new List<ClientCard> { target }, cards, min, max);
+        }
+
         private bool OfficiatingReverieActivate()
         {
             if (IsCardEffectNegated())
@@ -3240,7 +4677,14 @@ namespace WindBot.Game.AI.Decks
                     && Bot.Graveyard.Any(c => c != Card && IsZombie(c) && c.IsCanRevive());
 
             if (Card.Location == CardLocation.Removed)
-                return Bot.GetMonsters().Any(c => c.IsFaceup() && IsZombie(c) && c.HasType(CardType.Xyz));
+            {
+                bool canReload = Bot.GetMonsters().Any(c => c.IsFaceup()
+                    && IsZombie(c) && c.HasType(CardType.Xyz));
+                reverieOverlaySelectionPending = canReload;
+                if (canReload)
+                    DebugRoute("ACCEPT Reverie banished effect: reload spent Zombie Xyz");
+                return canReload;
+            }
 
             return false;
         }
@@ -3326,30 +4770,38 @@ namespace WindBot.Game.AI.Decks
 
             if (Duel.Player == 0)
             {
-                // Pumpking's Lua grants the freshly Set Call permission to activate
-                // this turn. Do not depend on route flags here: after Pumpking is in
-                // the GY, the legal Call action must be taken immediately.
+                // Pumpking's freshly Set Call is the combo bridge on our turn.
                 if (HasPumpkingInGrave())
                 {
+                    plannedCallReviveId = CardId.PumpkingTheKingOfGraveGhosts;
+                    callReviveSelectionPending = true;
                     DebugRoute("ACCEPT Call of the Haunted immediately: revive Pumpking");
                     return true;
                 }
 
-                return revivable.Any(c => c.IsCode(
-                    CardId.PumpkingTheKingOfGraveGhosts,
-                    CardId.Hublot,
-                    CardId.ArmyOfTheHaunted,
-                    CardId.ChangshiTheSpiridao,
-                    CardId.OfficiatingReverie));
+                return false;
             }
 
-            return revivable.Any(c => c.IsCode(
-                CardId.GreatMammothOfTheNetherworld,
-                CardId.StareOfTheSnakeHair,
-                CardId.DoomkingBalerdroch,
-                CardId.PumpkingTheKingOfGraveGhosts,
-                CardId.Hublot,
-                CardId.Hublot));
+            // On the opponent's turn, never flip Call in an empty chain merely
+            // because a legal monster exists. Wait for an opposing commitment and
+            // revive only an interaction body; Army is not an interrupt target.
+            if (Duel.CurrentChain.Count == 0 || Duel.LastChainPlayer != 1)
+            {
+                DebugRoute("HOLD Call: wait for opposing chain");
+                return false;
+            }
+
+            ClientCard target = GetOpponentTurnCallReviveTarget(revivable);
+            if (target == null)
+            {
+                DebugRoute("HOLD Call: no Pumpking/Snakehair/Mammoth chain plan");
+                return false;
+            }
+
+            plannedCallReviveId = target.Id;
+            callReviveSelectionPending = true;
+            DebugRoute("ACCEPT Call on opponent chain: planned revive=" + target.Id);
+            return true;
         }
         private bool NeedsAdditionalLevel6BodyForCurrentPlan()
         {
@@ -3441,10 +4893,26 @@ namespace WindBot.Game.AI.Decks
 
         private bool GlowUpBloomActivate()
         {
-            if (IsCardEffectNegated() || Card.Location != CardLocation.Grave)
+            if (IsCardEffectNegated()
+                || Card.Location != CardLocation.Grave
+                || glowUpBloomEffectCommittedThisTurn)
+            {
                 return false;
+            }
             if (!DefaultCheckWhetherBotCanSearch())
                 return false;
+
+            bool acceptBloom;
+
+            // A Varudras self-pop on the opponent's turn is deliberate value: the
+            // Zombie-only restriction expires in that End Phase before our turn.
+            if (Duel.Player == 1)
+            {
+                acceptBloom = HasLegalBloomSearchTargetInDeck();
+                if (acceptBloom)
+                    glowUpBloomEffectCommittedThisTurn = true;
+                return acceptBloom;
+            }
 
             // A Bloom used as the emergency Normal-Summoned Zombie must remain a
             // silent Link seed. Taking its search here would Zombie-lock the Duel
@@ -3460,10 +4928,17 @@ namespace WindBot.Game.AI.Decks
             if (quicksilverLineActive)
             {
                 // Gravity Controller has already sent Quicksilver and Bloom to the GY.
-                return !Bot.GetMonsters().Any(c => c.IsCode(CardId.MercuriumTheLivingQuicksilver));
+                acceptBloom = !Bot.GetMonsters().Any(c =>
+                    c.IsCode(CardId.MercuriumTheLivingQuicksilver));
+            }
+            else
+            {
+                acceptBloom = CanAcceptZombieLock();
             }
 
-            return CanAcceptZombieLock();
+            if (acceptBloom)
+                glowUpBloomEffectCommittedThisTurn = true;
+            return acceptBloom;
         }
         private bool ChangshiTheSpiridaoActivate()
         {
@@ -3512,6 +4987,12 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.Location == CardLocation.Grave)
             {
+                if (CanTakeProductivePumpkingExtraDeckStep())
+                {
+                    DebugRoute("HOLD Eldlich GY effect: finish available Great Pumpking/Pumpking action first");
+                    return false;
+                }
+
                 // On later turns, establish Vampire Sucker before Eldlich returns
                 // so the Special Summon from the GY converts into a draw.
                 if (!Bot.HasInMonstersZone(CardId.VampireSucker, faceUp: true)
@@ -3552,6 +5033,12 @@ namespace WindBot.Game.AI.Decks
         // =====================================================================
         private bool PumpkingGreatGhostKingSummon()
         {
+            if (ShouldHoldRank6ForFlyingMaryRank10())
+            {
+                DebugRoute("HOLD Great Pumpking: finish Flying Mary Rank 10 line first");
+                return false;
+            }
+
             RecalculateStrategicPlan("evaluate Great Pumpking Xyz");
 
             if (ashReplayLineActive)
@@ -3598,7 +5085,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool DhampirVampireSheridanSummon()
         {
-            if (IsPumpkingComboInProgress())
+            if (ShouldHoldRank6ForFlyingMaryRank10())
+                return false;
+
+            if (ShouldHoldGenericRank6ForPumpkingCombo())
                 return false;
 
             ClientCard threat = Util.GetProblematicEnemyMonster(0, true)
@@ -3612,6 +5102,9 @@ namespace WindBot.Game.AI.Decks
         }
         private bool OfficiatorOfDoomSamuelSummon()
         {
+            if (ShouldHoldRank6ForFlyingMaryRank10())
+                return false;
+
             RecalculateStrategicPlan("evaluate Samuel Xyz");
             if (ashReplayLineActive
                 && currentComboRoute != ComboRoute.UraraRecovery)
@@ -3652,7 +5145,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool EvolzarLarsSummon()
         {
-            if (IsPumpkingComboInProgress())
+            if (ShouldHoldRank6ForFlyingMaryRank10())
+                return false;
+
+            if (ShouldHoldGenericRank6ForPumpkingCombo())
                 return false;
 
             // Turn 1 fallback board, or a later board that clearly needs a negate.
@@ -3667,7 +5163,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool WollowSummon()
         {
-            if (IsPumpkingComboInProgress())
+            if (ShouldHoldRank6ForFlyingMaryRank10())
+                return false;
+
+            if (ShouldHoldGenericRank6ForPumpkingCombo())
                 return false;
 
             bool graveyardMatchup = Enemy.Graveyard.Any(c => c.IsMonster()
@@ -3689,6 +5188,9 @@ namespace WindBot.Game.AI.Decks
         }
         private bool TheUndyingLegionSummon()
         {
+            if (ShouldHoldRank6ForFlyingMaryRank10())
+                return false;
+
             ClientCard greatPumpking = Bot.GetMonsters().FirstOrDefault(c => c.IsFaceup()
                 && c.IsCode(CardId.PumpkingTheGreatGhostKing));
             if (greatPumpking == null)
@@ -3732,9 +5234,12 @@ namespace WindBot.Game.AI.Decks
         private bool MercuriumSummon()
         {
             RecalculateStrategicPlan("evaluate Quicksilver fallback");
-            if (currentStrategicGoal != StrategicGoal.BuildQuicksilverFallback
-                || currentComboRoute != ComboRoute.QuicksilverFallback
-                || !ShouldUseQuicksilverFallback())
+            bool finishingEldlichRank10 = eldlichRouteRank10CommitPending
+                && !Bot.HasInExtra(CardId.Varudras);
+            if (!finishingEldlichRank10
+                && (currentStrategicGoal != StrategicGoal.BuildQuicksilverFallback
+                    || currentComboRoute != ComboRoute.QuicksilverFallback
+                    || !ShouldUseQuicksilverFallback()))
             {
                 return false;
             }
@@ -3751,6 +5256,11 @@ namespace WindBot.Game.AI.Decks
         {
             if (zombieLockedThisTurn || !CanUseLightMonsterEffects())
                 return false;
+            if (CanTakeProductivePumpkingExtraDeckStep())
+            {
+                DebugRoute("HOLD Fallen Angel: complete available Great Pumpking/Pumpking action first");
+                return false;
+            }
             if (!HasEldlichRouteExtraDeck() || !HasEldlichLinkSeedOnField())
                 return false;
 
@@ -3781,12 +5291,55 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
+        private List<ClientCard> GetFlyingMaryPumpkingResetMaterials()
+        {
+            // Later-turn board reset: a live small Pumpking plus a spent Zombie
+            // Xyz can become Flying Mary. Pumpking is then in the GY when Mary's
+            // ignition effect is checked, so Mary revives it and restarts the
+            // Pumpking summon trigger instead of leaving two dead bodies on board.
+            if (Duel.Player != 0 || Duel.Turn <= 2
+                || pumpkingSummonEffectAttempted || pumpkingSummonEffectResolved
+                || !HasOpenSpellZone())
+            {
+                return new List<ClientCard>();
+            }
+
+            ClientCard pumpking = Bot.GetMonsters().FirstOrDefault(c => c != null
+                && c.IsFaceup()
+                && c.IsCode(CardId.PumpkingTheKingOfGraveGhosts)
+                && IsZombie(c));
+            if (pumpking == null)
+                return new List<ClientCard>();
+
+            ClientCard spentPartner = Bot.GetMonsters()
+                .Where(c => c != null && c != pumpking
+                    && IsAllowedZombieLinkMaterial(c)
+                    && (IsSpentZombieXyz(c) || IsDeltaToken(c)))
+                .OrderBy(GetZombieLinkMaterialValue)
+                .ThenBy(GetMaterialValue)
+                .ThenBy(c => c.Attack)
+                .FirstOrDefault();
+            if (spentPartner == null)
+                return new List<ClientCard>();
+
+            return new List<ClientCard> { spentPartner, pumpking };
+        }
+
         private bool FlyingMarySummon()
         {
             if (ShouldPreferVampireSuckerOverFlyingMary())
             {
                 DebugRoute("HOLD Flying Mary: Vampire Sucker should precede Eldlich revival");
                 return false;
+            }
+
+            List<ClientCard> pumpkingResetMaterials =
+                GetFlyingMaryPumpkingResetMaterials();
+            if (pumpkingResetMaterials.Count == 2)
+            {
+                AI.SelectMaterials(pumpkingResetMaterials);
+                DebugRoute("ACCEPT Flying Mary board reset: spent Zombie Xyz + Pumpking");
+                return true;
             }
 
             // Eldlich route: Fallen Angel plus one Zombie. When the confirmed
@@ -3831,13 +5384,11 @@ namespace WindBot.Game.AI.Decks
             // confirms the dedicated Mary/Rank 10 route.
             if (ShouldPreferVampireSuckerOverFlyingMary())
             {
-                List<ClientCard> drawMaterials = GetLinkZombieMaterials()
-                    .Take(2)
-                    .ToList();
+                List<ClientCard> drawMaterials = GetVampireSuckerMaterialPlan();
                 if (drawMaterials.Count == 2)
                 {
                     AI.SelectMaterials(drawMaterials);
-                    DebugRoute("ACCEPT Vampire Sucker before Eldlich GY revival");
+                    DebugRoute("ACCEPT Vampire Sucker before Eldlich GY revival with value-approved materials");
                     return true;
                 }
             }
@@ -3950,8 +5501,12 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             if (Card.Location == CardLocation.Grave)
-                return Bot.Graveyard.Any(c => c.IsMonster())
+            {
+                bool hasRecycleTarget = Bot.Graveyard.Any(c => c.IsMonster())
                     || Enemy.Graveyard.Any(c => c.IsMonster());
+                samuelGraveRecycleSelectionPending = hasRecycleTarget;
+                return hasRecycleTarget;
+            }
 
             if (Duel.Phase != DuelPhase.Main1 && Duel.Phase != DuelPhase.Main2)
                 return false;
@@ -4067,8 +5622,17 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Phase != DuelPhase.Main1 && Duel.Phase != DuelPhase.Main2)
                 return false;
 
-            return Enemy.GetMonsters().Any(c => c.IsFaceup() && c.IsAttack() && !c.IsShouldNotBeTarget())
-                || Enemy.Graveyard.Any(c => c.IsMonster());
+            ClientCard target = GetUndyingReactiveTarget();
+            if (target == null)
+            {
+                DebugRoute("HOLD Undying: wait for a meaningful opposing chain");
+                return false;
+            }
+
+            pendingUndyingTarget = target;
+            DebugRoute("ACCEPT Undying reactive attach target=" + target.Id
+                + " location=" + target.Location);
+            return true;
         }
 
         private bool MercuriumActivate()
@@ -4085,7 +5649,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool FallenAngelActivate()
         {
-            return Card.Location == CardLocation.Grave && !IsCardEffectNegated();
+            bool activate = Card.Location == CardLocation.Grave && !IsCardEffectNegated();
+            if (activate && eldlichRouteRank10CommitPending)
+                DebugRoute("ACCEPT Fallen Angel GY trigger: summon Mad Golden for Rank 10 line");
+            return activate;
         }
 
         private bool EldlichTheMadGoldenLordActivate()
@@ -4103,6 +5670,15 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.Location == CardLocation.MonsterZone)
             {
+                if (eldlichRouteRank10CommitPending
+                    && (Bot.HasInGraveyard(CardId.EldlichTheGoldenLord)
+                        || Bot.Banished.Any(c => c != null && c.IsCode(CardId.EldlichTheGoldenLord))))
+                {
+                    flyingMaryComebackPumpkingPending = false;
+                    DebugRoute("ACCEPT Flying Mary Eldlich revive: finish committed Rank 10 line");
+                    return true;
+                }
+
                 if (ShouldFlyingMaryRevivePumpkingForComeback())
                 {
                     flyingMaryComebackPumpkingPending = true;
@@ -4136,9 +5712,15 @@ namespace WindBot.Game.AI.Decks
             if (IsCardEffectNegated())
                 return false;
 
-            // Its GY summon ignition and its draw trigger are both beneficial.
-            if (Duel.Player == 0 && Enemy.Graveyard.Any(c => c.IsMonster()) && HasOpenMainMonsterZone())
-                return true;
+            // Never use Sucker's ignition effect that revives an opponent's
+            // monster. It gives the opponent a body and is outside this deck's
+            // intended line. Keep accepting the separate mandatory draw trigger.
+            if (ActivateDescription == Util.GetStringId(CardId.VampireSucker, 0))
+            {
+                DebugRoute("HOLD Vampire Sucker opponent-GY revive effect");
+                return false;
+            }
+
             return true;
         }
 
@@ -4159,19 +5741,64 @@ namespace WindBot.Game.AI.Decks
             bool keyPrompt = pumpkingHandSelectionPending
                 || eldlichHandSelectionPending
                 || samuelReviveSelectionPending
+                || reverieOverlaySelectionPending
+                || samuelGraveRecycleSelectionPending
                 || mezukiReviveSelectionPending
                 || flyingMaryComebackPumpkingPending
+                || callReviveSelectionPending
+                || pendingInfiniteImpermanenceTarget != null
+                || pendingUndyingTarget != null
+                || eldlichRouteRank10CommitPending
                 || activateId == CardId.PumpkingTheKingOfGraveGhosts
                 || IsHublotId(activateId)
                 || activateId == CardId.ChangshiTheSpiridao
                 || activateId == CardId.OfficiatorOfDoomSamuel
-                || activateId == CardId.PumpkingTheGreatGhostKing;
+                || activateId == CardId.PumpkingTheGreatGhostKing
+                || activateId == CardId.FoolishBurial;
             if (keyPrompt)
             {
                 DebugRoute("SELECT prompt activateId=" + activateId
                     + " hint=" + hint + " min=" + min + " max=" + max
                     + " pendingPump=" + pumpkingHandSelectionPending);
                 DebugCards("CANDIDATES", cards);
+            }
+
+            // Reverie's banished effect uses HINTMSG_TARGET in Lua, not an Xyz-
+            // material hint. Intercept the legal candidate set before any generic
+            // target selector can place it under Undying by accident.
+            bool reverieOverlayPrompt = reverieOverlaySelectionPending
+                && cards != null
+                && cards.Count > 0
+                && cards.All(c => c != null
+                    && c.Controller == 0
+                    && c.IsOnField()
+                    && c.IsFaceup()
+                    && IsZombie(c)
+                    && c.HasType(CardType.Xyz));
+            if (reverieOverlayPrompt)
+            {
+                IList<ClientCard> reload = SelectReverieOverlayReloadTarget(
+                    cards, min, max);
+                if (reload != null)
+                    return reload;
+            }
+
+            // Fallen Angel's trigger can also lose activateId in MDPro3. During
+            // the committed Mary route, a legal Mad Golden candidate identifies
+            // this prompt unambiguously; lock it before generic SpSummon logic.
+            if (eldlichRouteRank10CommitPending
+                && hint == HintMsg.SpSummon
+                && cards != null
+                && cards.Count > 0)
+            {
+                ClientCard mad = cards.FirstOrDefault(c => c != null
+                    && c.IsCode(CardId.EldlichTheMadGoldenLord));
+                if (mad != null)
+                {
+                    DebugRoute("Fallen Angel target fallback: Mad Golden for committed Rank 10 line");
+                    return Util.CheckSelectCount(
+                        new List<ClientCard> { mad }, cards, min, max);
+                }
             }
 
             // Candidate-driven fallback for MDPro3 builds that temporarily lose the
@@ -4188,6 +5815,50 @@ namespace WindBot.Game.AI.Decks
             // pending through this cost prompt; its revive target is selected next.
             if (hint == HintMsg.RemoveXyz)
                 return SelectXyzDetachMaterial(cards, min, max);
+
+            if (callReviveSelectionPending
+                && hint == HintMsg.SpSummon
+                && cards != null
+                && cards.Count > 0
+                && cards.All(c => c != null
+                    && c.Controller == 0
+                    && c.Location == CardLocation.Grave))
+            {
+                IList<ClientCard> target = SelectCallReviveTarget(cards, min, max);
+                if (target != null)
+                    return target;
+            }
+
+            if (pendingInfiniteImpermanenceTarget != null
+                && hint == HintMsg.Disable)
+            {
+                IList<ClientCard> target = SelectInfiniteImpermanenceTarget(
+                    cards, min, max);
+                if (target != null)
+                    return target;
+            }
+
+            if (samuelGraveRecycleSelectionPending
+                && hint == HintMsg.ToDeck
+                && cards != null
+                && cards.Count > 0
+                && cards.All(c => c != null
+                    && c.Location == CardLocation.Grave))
+            {
+                IList<ClientCard> target = SelectSamuelGraveRecycleTarget(
+                    cards, min, max);
+                if (target != null)
+                    return target;
+            }
+
+            if (pendingUndyingTarget != null
+                && hint == HintMsg.XyzMaterial)
+            {
+                IList<ClientCard> target = SelectUndyingReactiveTarget(
+                    cards, min, max);
+                if (target != null)
+                    return target;
+            }
 
             // Candidate-driven Samuel target selection. MDPro3 can report
             // activateId=0 between Samuel's detach cost and HINTMSG_SPSUMMON, so
@@ -4407,27 +6078,15 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            if (varudrasDestroySelectionPending
-                || (activateId == CardId.Varudras && hint == HintMsg.Destroy))
+            bool varudrasFieldDestroyPrompt = cards != null
+                && cards.Count > 0
+                && cards.All(c => c != null && c.IsOnField())
+                && (pendingVarudrasDestroyMode != VarudrasDestroyMode.None
+                    || (activateId == CardId.Varudras
+                        && hint == HintMsg.Destroy));
+            if (varudrasFieldDestroyPrompt)
             {
-                List<ClientCard> enemyTargets = GetEnemyFieldPriority(cards, false)
-                    .Where(c => c != null && c.Controller == 1 && c.IsOnField())
-                    .Where(cards.Contains)
-                    .Take(max)
-                    .ToList();
-                DebugCards("VARUDRAS ENEMY TARGETS", enemyTargets);
-                if (enemyTargets.Count >= min)
-                {
-                    varudrasDestroySelectionPending = false;
-                    return Util.CheckSelectCount(enemyTargets, cards, min, max);
-                }
-
-                // The activation and post-negate Yes/No handlers reject the effect
-                // without an enemy field card, so reaching this branch indicates a
-                // protocol/state mismatch. Never intentionally queue a friendly card.
-                varudrasDestroySelectionPending = false;
-                DebugRoute("ERROR Varudras target prompt contained no enemy card; refusing self target");
-                return null;
+                return SelectVarudrasDestroyTarget(cards, min, max);
             }
 
             if (IsHublotId(activateId))
@@ -4512,19 +6171,14 @@ namespace WindBot.Game.AI.Decks
                 case CardId.StareOfTheSnakeHair:
                     if (hint == HintMsg.AddToHand)
                     {
-                        if (!HasPumpkingInHand()
-                            && CheckRemainInDeck(CardId.EctoplasmicFortification) > 0)
-                        {
-                            return SelectByIdPriority(cards, min, max,
-                                CardId.EctoplasmicFortification,
-                                CardId.CallOfTheHaunted,
-                                CardId.VortexOfTime);
-                        }
-
+                        // Never let the generic Call/Vortex priorities override
+                        // the intended starter chain: Snakehair -> Ectoplasmic ->
+                        // Pumpking or Hublot.
+                        DebugRoute("Snakehair search target: Ectoplasmic first");
                         return SelectByIdPriority(cards, min, max,
+                            CardId.EctoplasmicFortification,
                             CardId.CallOfTheHaunted,
-                            CardId.VortexOfTime,
-                            CardId.EctoplasmicFortification);
+                            CardId.VortexOfTime);
                     }
                     if (hint == HintMsg.Disable
                         && pendingSnakehairDisableTarget != null)
@@ -4590,27 +6244,48 @@ namespace WindBot.Game.AI.Decks
                     if (hint == HintMsg.ToGrave)
                     {
                         List<int> priority = new List<int>();
-                        if (!HasDirectPumpkingLineAvailable()
+
+                        // Foolish should create an executable body, not merely park
+                        // Reverie in the GY. Mezuki is first when it can immediately
+                        // revive a worthwhile Zombie; otherwise Bloom is the best
+                        // one-card bridge whenever its search and Zombie lock are legal.
+                        bool mezukiLive = CanUseEarthMonsterEffects()
+                            && HasOpenMainMonsterZone()
+                            && cards.Any(c => c.IsCode(CardId.Mezuki))
+                            && Bot.Graveyard.Any(IsWorthwhileMezukiReviveTarget);
+                        if (mezukiLive)
+                            priority.Add(CardId.Mezuki);
+
+                        bool bloomLive = cards.Any(c => c.IsCode(CardId.GlowUpBloom))
+                            && !glowUpBloomEffectCommittedThisTurn
+                            && !activatedThisTurn.Contains(CardId.GlowUpBloom)
                             && CanAcceptZombieLock()
-                            && DefaultCheckWhetherBotCanSearch())
-                        {
+                            && DefaultCheckWhetherBotCanSearch()
+                            && HasLegalBloomSearchTargetInDeck();
+                        if (bloomLive)
                             priority.Add(CardId.GlowUpBloom);
-                        }
+
                         if (HasFaceupFieldSpell()
+                            && CanUseLightMonsterEffects()
                             && !Bot.HasInGraveyard(CardId.EldlichTheGoldenLord))
                         {
                             priority.Add(CardId.EldlichTheGoldenLord);
                         }
+
                         priority.AddRange(new[]
                         {
-                            CardId.OfficiatingReverie,
                             CardId.Mezuki,
+                            CardId.GlowUpBloom,
+                            CardId.OfficiatingReverie,
                             CardId.ArmyOfTheHaunted,
                             CardId.PumpkingTheKingOfGraveGhosts,
                             CardId.DoomkingBalerdroch,
                             CardId.ChangshiTheSpiridao
                         });
-                        return SelectByIdPriority(cards, min, max, priority.ToArray());
+                        DebugRoute("Foolish target priority="
+                            + string.Join(",", priority.Distinct().Select(id => id.ToString()).ToArray()));
+                        return SelectByIdPriority(cards, min, max,
+                            priority.Distinct().ToArray());
                     }
                     break;
 
@@ -4618,16 +6293,9 @@ namespace WindBot.Game.AI.Decks
                     if (hint == HintMsg.Discard || hint == HintMsg.ToGrave)
                         return SelectReverieDiscard(cards, min, max);
                     if (hint == HintMsg.SpSummon)
-                        return SelectZombieToRevive(cards, min, max);
+                        return SelectReverieReviveTarget(cards, min, max);
                     if (hint == HintMsg.XyzMaterial)
-                    {
-                        return SelectByIdPriority(cards, min, max,
-                            CardId.PumpkingTheGreatGhostKing,
-                            CardId.TheUndyingLegion,
-                            CardId.OfficiatorOfDoomSamuel,
-                            CardId.DhampirVampireSheridan,
-                            CardId.WollowFounderOfTheDrudgeDragons);
-                    }
+                        return SelectReverieOverlayReloadTarget(cards, min, max);
                     break;
 
                 case CardId.ArmyOfTheHaunted:
@@ -4637,18 +6305,7 @@ namespace WindBot.Game.AI.Decks
 
                 case CardId.CallOfTheHaunted:
                     if (hint == HintMsg.SpSummon)
-                    {
-                        if (Duel.Player == 0 && HasPumpkingInGrave())
-                        {
-                            return SelectByIdPriority(cards, min, max,
-                                CardId.PumpkingTheKingOfGraveGhosts,
-                                CardId.GreatMammothOfTheNetherworld,
-                                CardId.StareOfTheSnakeHair,
-                                CardId.Hublot,
-                                CardId.Hublot);
-                        }
-                        return SelectZombieToRevive(cards, min, max);
-                    }
+                        return SelectCallReviveTarget(cards, min, max);
                     break;
 
                 case CardId.Mezuki:
@@ -4806,23 +6463,16 @@ namespace WindBot.Game.AI.Decks
                         return SelectEnemyField(cards, min, max);
                     }
                     if (cards.All(c => c.Location == CardLocation.Grave))
-                    {
-                        List<ClientCard> enemy = GetEnemyGravePriority(cards).Where(cards.Contains).ToList();
-                        if (enemy.Count > 0)
-                            return Util.CheckSelectCount(enemy, cards, min, max);
-                        return SelectByIdPriority(cards, min, max,
-                            CardId.GlowUpBloom,
-                            CardId.Mezuki,
-                            CardId.OfficiatingReverie,
-                            CardId.ArmyOfTheHaunted);
-                    }
+                        return SelectSamuelGraveRecycleTarget(cards, min, max);
                     break;
 
                 case CardId.WollowFounderOfTheDrudgeDragons:
-                case CardId.TheUndyingLegion:
                     if (cards.Any(c => c.Location == CardLocation.Grave))
                         return SelectEnemyGrave(cards, min, max);
                     return SelectEnemyField(cards, min, max);
+
+                case CardId.TheUndyingLegion:
+                    return SelectUndyingReactiveTarget(cards, min, max);
 
                 case CardId.EvolzarLars:
                     return SelectEnemyField(cards, min, max);
@@ -4845,8 +6495,20 @@ namespace WindBot.Game.AI.Decks
                 case CardId.FallenAngelOfTheGoldenLand:
                     if (hint == HintMsg.SpSummon)
                     {
+                        ClientCard mad = cards.FirstOrDefault(c => c != null
+                            && c.IsCode(CardId.EldlichTheMadGoldenLord));
+                        if (mad != null)
+                        {
+                            DebugRoute("Fallen Angel target: Mad Golden for committed Rank 10 line");
+                            return Util.CheckSelectCount(
+                                new List<ClientCard> { mad }, cards, min, max);
+                        }
+                        if (eldlichRouteRank10CommitPending)
+                        {
+                            DebugRoute("ABORT Flying Mary Rank 10 commit: Mad Golden is not a legal Fallen Angel target");
+                            eldlichRouteRank10CommitPending = false;
+                        }
                         return SelectByIdPriority(cards, min, max,
-                            CardId.EldlichTheMadGoldenLord,
                             CardId.EldlichTheGoldenLord,
                             CardId.FallenAngelOfTheGoldenLand);
                     }
@@ -4897,7 +6559,7 @@ namespace WindBot.Game.AI.Decks
                     break;
 
                 case CardId.InfiniteImpermanence:
-                    return SelectEnemyField(cards, min, max);
+                    return SelectInfiniteImpermanenceTarget(cards, min, max);
             }
 
             // Last-resort protection for target prompts whose solving-chain
@@ -5016,10 +6678,13 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            if (cards.Any(c => c.IsCode(CardId.TheUndyingLegion)))
+            ClientCard liveUndying = cards.FirstOrDefault(c =>
+                c.IsCode(CardId.TheUndyingLegion)
+                && c.Overlays != null && c.Overlays.Count > 0);
+            if (liveUndying != null)
             {
                 List<ClientCard> safeMaterials = cards
-                    .Where(c => !c.IsCode(CardId.TheUndyingLegion))
+                    .Where(c => c != liveUndying)
                     .OrderBy(GetZombieLinkMaterialValue)
                     .ThenBy(GetMaterialValue)
                     .ThenBy(c => c.Attack)
@@ -5027,7 +6692,7 @@ namespace WindBot.Game.AI.Decks
                     .ToList();
                 if (safeMaterials.Count >= min)
                 {
-                    DebugRoute("LINK MATERIAL SAFETY: preserve The Undying Legion");
+                    DebugRoute("LINK MATERIAL SAFETY: preserve live-material Undying");
                     return Util.CheckSelectCount(safeMaterials, cards, min, max);
                 }
             }
@@ -5129,9 +6794,7 @@ namespace WindBot.Game.AI.Decks
 
             if (desc == Util.GetStringId(CardId.Varudras, 3))
             {
-                bool acceptDestroy = Enemy.GetMonsters().Concat(Enemy.GetSpells())
-                    .Any(c => c != null && c.IsOnField());
-                varudrasDestroySelectionPending = acceptDestroy;
+                bool acceptDestroy = PlanVarudrasPostNegateDestroy();
                 DebugRoute("VARUDRAS post-negate destroy=" + acceptDestroy);
                 return acceptDestroy;
             }
@@ -5368,6 +7031,13 @@ namespace WindBot.Game.AI.Decks
                     {
                         quicksilverLineActive = true;
                         pumpkingComboState = PumpkingComboState.QuicksilverSummoned;
+                        if (eldlichRouteRank10CommitPending)
+                        {
+                            DebugRoute("RESOLVED Flying Mary Rank 10 line with Xyz=" + card.Id);
+                            eldlichRouteRank10CommitPending = false;
+                            eldlichRouteActive = false;
+                            eldlichRouteMarySummoned = false;
+                        }
                     }
                     else if (card.IsCode(CardId.GravityController))
                     {
@@ -5380,6 +7050,19 @@ namespace WindBot.Game.AI.Decks
                     else if (card.IsCode(CardId.FlyingMary))
                     {
                         eldlichRouteMarySummoned = true;
+                        if (eldlichRouteActive)
+                        {
+                            eldlichRouteRank10CommitPending = true;
+                            DebugRoute("COMMIT Flying Mary route: finish Level 10 Xyz before Rank 6 fallback");
+                        }
+                    }
+                    else if (card.IsCode(CardId.Varudras))
+                    {
+                        if (eldlichRouteRank10CommitPending)
+                            DebugRoute("RESOLVED Flying Mary Rank 10 line with Xyz=" + card.Id);
+                        eldlichRouteRank10CommitPending = false;
+                        eldlichRouteActive = false;
+                        eldlichRouteMarySummoned = false;
                     }
                 }
 
@@ -5616,7 +7299,7 @@ namespace WindBot.Game.AI.Decks
             pendingPumpkingHandCard = null;
             doomkingOptionPending = false;
             doomkingPreferNegate = false;
-            varudrasDestroySelectionPending = false;
+            ClearVarudrasDestroyPlan();
             if ((pendingInterruptMode == InterruptMode.SamuelPreemptSnakehair
                     || pendingInterruptMode == InterruptMode.SamuelPreemptMammoth)
                 && plannedSamuelReviveId != 0
@@ -5628,10 +7311,16 @@ namespace WindBot.Game.AI.Decks
             }
             ClearSamuelInterruptPlan();
             mezukiReviveSelectionPending = false;
+            reverieOverlaySelectionPending = false;
             mezukiLevel6ExtensionPending = false;
             eldlichHandSelectionPending = false;
             eldlichHandCostPromptCompleted = false;
             flyingMaryComebackPumpkingPending = false;
+            callReviveSelectionPending = false;
+            plannedCallReviveId = 0;
+            pendingInfiniteImpermanenceTarget = null;
+            samuelGraveRecycleSelectionPending = false;
+            pendingUndyingTarget = null;
             base.OnChainEnd();
         }
 
@@ -5647,7 +7336,7 @@ namespace WindBot.Game.AI.Decks
             pendingPumpkingHandCard = null;
             doomkingOptionPending = false;
             doomkingPreferNegate = false;
-            varudrasDestroySelectionPending = false;
+            ClearVarudrasDestroyPlan();
             ClearSamuelInterruptPlan();
             samuelFieldEffectCommittedThisTurn = false;
             pendingSnakehairDisableTarget = null;
@@ -5656,6 +7345,7 @@ namespace WindBot.Game.AI.Decks
             currentStrategicGoal = StrategicGoal.None;
             currentComboRoute = ComboRoute.None;
             mezukiReviveSelectionPending = false;
+            reverieOverlaySelectionPending = false;
             mezukiLevel6ExtensionPending = false;
             armySpecialSummonEffectCommittedThisTurn = false;
             eldlichHandSelectionPending = false;
@@ -5676,11 +7366,18 @@ namespace WindBot.Game.AI.Decks
             greatPumpkingBounceResolved = false;
             quicksilverLineActive = false;
             quicksilverLoadedBloom = false;
+            glowUpBloomEffectCommittedThisTurn = false;
             zombieLockedThisTurn = false;
             ashReplayLineActive = false;
             eldlichRouteActive = false;
             eldlichRouteMarySummoned = false;
+            eldlichRouteRank10CommitPending = false;
             flyingMaryComebackPumpkingPending = false;
+            callReviveSelectionPending = false;
+            plannedCallReviveId = 0;
+            pendingInfiniteImpermanenceTarget = null;
+            samuelGraveRecycleSelectionPending = false;
+            pendingUndyingTarget = null;
             selectedHublotSendId = 0;
             selectedHublotRecoverId = 0;
             selectedHublotRecover = false;
