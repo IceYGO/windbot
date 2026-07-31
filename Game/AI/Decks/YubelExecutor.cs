@@ -247,6 +247,7 @@ namespace WindBot.Game.AI.Decks
         int _gateDiscardPreferredId = 0;  // จะทิ้งใบไหนเป็น cost
         bool _gateWantsRecycle = false;   // กำลังจะกดโหมดเก็บ Continuous
         bool _spQuickMode = false;
+        bool engraverGYActivated = false;
         bool moonSummoned = false;
         bool requiemSummoned = false;
         bool thronePending = false;      // we're in a Throne activation flow
@@ -1036,6 +1037,7 @@ namespace WindBot.Game.AI.Decks
             _gateDiscardPreferredId = 0;
             _gateWantsRecycle = false;
             _spQuickMode = false;
+            engraverGYActivated = false;
             
             base.OnNewTurn();
         }
@@ -1497,8 +1499,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool ActRequiemEQ()
         {
-            if (!HasInExtra(CardId.NECROQUIP)) { return false; }
             if (Card.Location != CardLocation.Grave) { return false; }
+            if (!HasInExtra(CardId.NECROQUIP)) { return false; }            
             if (Bot.HasInMonstersZone(CardId.LACRIMA_CT))
             {   
                 AI.SelectCard(CardId.LACRIMA_CT);
@@ -1509,23 +1511,44 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.FIENDSMITH_ENGRAVER);
                 return true;
             }
+            else if (Bot.HasInMonstersZone(CardId.FABLED_LURRIE))
+            {
+                AI.SelectCard(CardId.FABLED_LURRIE);
+                return true;
+            }
             return false;
         }
 
         private bool SSNecroquip()
         {
-            if (Bot.HasInSpellZone(CardId.FIENDSMITHS_REQUIEM) && Bot.HasInMonstersZone(CardId.LACRIMA_CT))
+            if (!Bot.HasInSpellZone(CardId.FIENDSMITHS_REQUIEM)) return false;
+
+            bool engraverOnField = Bot.HasInMonstersZone(CardId.FIENDSMITH_ENGRAVER);
+            if (Bot.HasInMonstersZone(CardId.LACRIMA_CT))
             {
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.LACRIMA_CT);
                 return true;
             }
-            else if (Bot.HasInSpellZone(CardId.FIENDSMITHS_REQUIEM) && Bot.HasInMonstersZone(CardId.FIENDSMITH_ENGRAVER))
+            else if (engraverOnField && (!engraverGYActivated || DefaultCheckWhetherCardIdIsNegated(CardId.FIENDSMITH_ENGRAVER)))
             {
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.FIENDSMITH_ENGRAVER);
                 return true;
             }
+            else if (Bot.HasInMonstersZone(CardId.FABLED_LURRIE))
+            {
+                AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
+                AI.SelectNextCard(CardId.FABLED_LURRIE);
+                return true;
+            }
+            else if (engraverOnField)
+            {
+                AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
+                AI.SelectNextCard(CardId.FIENDSMITH_ENGRAVER);
+                return true;
+            }
+
             return false;
         }
 
@@ -1578,8 +1601,18 @@ namespace WindBot.Game.AI.Decks
         private bool ActEngraverGY()
         {
             if (Card.Location != CardLocation.Grave) return false;
-            if (Bot.HasInGraveyard(CardId.FABLED_LURRIE)) { AI.SelectCard(CardId.FABLED_LURRIE); return true; }
-            else if (Bot.HasInGraveyard(CardId.MOON_OF_THE_CLOSED_HEAVEN)) { AI.SelectCard(CardId.MOON_OF_THE_CLOSED_HEAVEN); return true; }
+            if (Bot.HasInGraveyard(CardId.FABLED_LURRIE)) 
+            {
+                engraverGYActivated = true;
+                AI.SelectCard(CardId.FABLED_LURRIE); 
+                return true; 
+            }
+            else if (Bot.HasInGraveyard(CardId.MOON_OF_THE_CLOSED_HEAVEN)) 
+            {
+                engraverGYActivated = true;
+                AI.SelectCard(CardId.MOON_OF_THE_CLOSED_HEAVEN); 
+                return true; 
+            }
             return false;
         }
 
