@@ -159,6 +159,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.UNCHAINED_SOUL_OF_RAGE, ActRageQuickLink);
             AddExecutor(ExecutorType.Activate, CardId.FIENDSMITHS_PARADISE, ActParadise);
 
+            // ===== Fiendsmith Line =====
             AddExecutor(ExecutorType.Activate, CardId.FIENDSMITH_ENGRAVER, ActEngraverHand);
             AddExecutor(ExecutorType.Activate, CardId.FIENDSMITH_TRACT, ActTract);
             AddExecutor(ExecutorType.SpSummon, CardId.FABLED_LURRIE);
@@ -170,6 +171,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.FIENDSMITH_ENGRAVER, ActEngraverGY);
             AddExecutor(ExecutorType.SpSummon, CardId.DDD_WAVE_HIGH_KING_CAESAR);
 
+            AddExecutor(ExecutorType.Activate, CardId.FIENDSMITH_ENGRAVER, ActEngraverField);
             AddExecutor(ExecutorType.Activate, CardId.LACRIMA_CT, ActLacimaCTGY);
 
             // Field & search line
@@ -247,6 +249,7 @@ namespace WindBot.Game.AI.Decks
         int _gateDiscardPreferredId = 0;  // จะทิ้งใบไหนเป็น cost
         bool _gateWantsRecycle = false;   // กำลังจะกดโหมดเก็บ Continuous
         bool _spQuickMode = false;
+        bool engraverFieldActivated = false;
         bool engraverGYActivated = false;
         bool moonSummoned = false;
         bool requiemSummoned = false;
@@ -1037,6 +1040,9 @@ namespace WindBot.Game.AI.Decks
             _gateDiscardPreferredId = 0;
             _gateWantsRecycle = false;
             _spQuickMode = false;
+
+            // reset Fiendsmith effects
+            engraverFieldActivated = false;
             engraverGYActivated = false;
             
             base.OnNewTurn();
@@ -1500,20 +1506,28 @@ namespace WindBot.Game.AI.Decks
         private bool ActRequiemEQ()
         {
             if (Card.Location != CardLocation.Grave) { return false; }
-            if (!HasInExtra(CardId.NECROQUIP)) { return false; }            
-            if (Bot.HasInMonstersZone(CardId.LACRIMA_CT))
-            {   
-                AI.SelectCard(CardId.LACRIMA_CT);
-                return true; 
+            // Use Requiem to go into Necroquip for Caesar
+            if (HasInExtra(CardId.NECROQUIP)) 
+            {
+                if (Bot.HasInMonstersZone(CardId.LACRIMA_CT))
+                {
+                    AI.SelectCard(CardId.LACRIMA_CT);
+                    return true;
+                }
+                else if (Bot.HasInMonstersZone(CardId.FIENDSMITH_ENGRAVER))
+                {
+                    AI.SelectCard(CardId.FIENDSMITH_ENGRAVER);
+                    return true;
+                }
+                else if (Bot.HasInMonstersZone(CardId.FABLED_LURRIE))
+                {
+                    AI.SelectCard(CardId.FABLED_LURRIE);
+                    return true;
+                }
             }
+            // Use Requiem to enable Engraver to send opponent monster to GY
             else if (Bot.HasInMonstersZone(CardId.FIENDSMITH_ENGRAVER))
             {
-                AI.SelectCard(CardId.FIENDSMITH_ENGRAVER);
-                return true;
-            }
-            else if (Bot.HasInMonstersZone(CardId.FABLED_LURRIE))
-            {
-                AI.SelectCard(CardId.FABLED_LURRIE);
                 return true;
             }
             return false;
@@ -1595,6 +1609,23 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.FIENDSMITH_TRACT);
                 return true;
             }
+            return false;
+        }
+
+        private bool ActEngraverField()
+        {
+            if (Card.Location != CardLocation.MonsterZone) return false;
+            if (!Bot.HasInSpellZone(CardId.FIENDSMITHS_REQUIEM)) return false;
+
+            ClientCard target = GetBestEnemyMonster(onlyFaceup: false, canBeTarget: true);
+            if (target != null)
+            {
+                engraverFieldActivated = true;
+                AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
+                AI.SelectNextCard(target);
+                return true;
+            }
+
             return false;
         }
 
