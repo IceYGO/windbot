@@ -1632,17 +1632,30 @@ namespace WindBot.Game.AI.Decks
         private bool ActEngraverGY()
         {
             if (Card.Location != CardLocation.Grave) return false;
-            if (Bot.HasInGraveyard(CardId.FABLED_LURRIE)) 
+            bool requiemInGrave = Bot.HasInGraveyard(CardId.FIENDSMITHS_REQUIEM);
+            if (requiemInGrave && !requiemSummoned)
             {
                 engraverGYActivated = true;
-                AI.SelectCard(CardId.FABLED_LURRIE); 
-                return true; 
+                AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
+                return true;
             }
-            else if (Bot.HasInGraveyard(CardId.MOON_OF_THE_CLOSED_HEAVEN)) 
+            else if (Bot.HasInGraveyard(CardId.FABLED_LURRIE))
             {
                 engraverGYActivated = true;
-                AI.SelectCard(CardId.MOON_OF_THE_CLOSED_HEAVEN); 
-                return true; 
+                AI.SelectCard(CardId.FABLED_LURRIE);
+                return true;
+            }
+            else if (Bot.HasInGraveyard(CardId.MOON_OF_THE_CLOSED_HEAVEN))
+            {
+                engraverGYActivated = true;
+                AI.SelectCard(CardId.MOON_OF_THE_CLOSED_HEAVEN);
+                return true;
+            }
+            else if (requiemInGrave && !Bot.HasInGraveyard(CardId.LACRIMA_CT))
+            {
+                engraverGYActivated = true;
+                AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
+                return true;
             }
             return false;
         }
