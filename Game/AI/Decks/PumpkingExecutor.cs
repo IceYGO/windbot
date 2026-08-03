@@ -14,7 +14,7 @@ namespace WindBot.Game.AI.Decks
     {
         public class CardId
         {
-            // Main Deck — Zombies
+
             public const int EldlichTheGoldenLord = 95440946;
             public const int DoomkingBalerdroch = 39185163;
             public const int ArmyOfTheHaunted = 18078153;
@@ -24,20 +24,17 @@ namespace WindBot.Game.AI.Decks
             public const int PumpkingTheKingOfGraveGhosts = 81684048;
             public const int StareOfTheSnakeHair = 54077752;
 
-            // MDPro3 currently exposes Hublot with the temporary custom ID.
-            // Change this single constant when the official database ID goes live.
-            public const int Hublot = 101306030;
+            public const int Hublot = 29081251;
 
             public const int Mezuki = 92826944;
             public const int VampireGrace = 40607210;
 
-            // Main Deck — hand traps
-            public const int MulcharmyPurulia = 84192580;
-            public const int MulcharmyFuwalos = 42141493;
+
+            public const int GhostBelle = 73642296;
             public const int AshBlossom = 14558127;
             public const int MaxxC = 23434538;
 
-            // Main Deck — Spells/Traps
+
             public const int FoolishBurial = 81439173;
             public const int Terraforming = 73628505;
             public const int EctoplasmicFortification = 16734927;
@@ -48,7 +45,7 @@ namespace WindBot.Game.AI.Decks
             public const int DominusImpulse = 40366667;
             public const int UpstartGoblin = 70368879;
 
-            // Extra Deck
+
             public const int EldlichTheMadGoldenLord = 74889525;
             public const int FallenAngelOfTheGoldenLand = 43143567;
             public const int Varudras = 70636044;
@@ -62,7 +59,7 @@ namespace WindBot.Game.AI.Decks
             public const int FlyingMary = 95784714;
             public const int GravityController = 23656668;
 
-            // Common opposing cards used by threat/protection-aware planners.
+
             public const int CrystalWingSynchroDragon = 50954680;
             public const int DarkMagician = 46986414;
             public const int EternalSoul = 48680970;
@@ -71,8 +68,7 @@ namespace WindBot.Game.AI.Decks
         private readonly HashSet<int> activatedThisTurn = new HashSet<int>();
         private readonly List<ClientCard> currentNegateCardList = new List<ClientCard>();
 
-        // Dominus Impulse activated from the hand prevents LIGHT/EARTH/WIND monster
-        // effects for the rest of the Duel. This flag intentionally does not reset.
+
         private bool dominusImpulseHandLock = false;
 
         private const int PumpkingHandMarker = CardId.PumpkingTheKingOfGraveGhosts + 1000;
@@ -93,9 +89,7 @@ namespace WindBot.Game.AI.Decks
             UndyingSummoned
         }
 
-        // V19 strategic layer: executors no longer decide only from "can this card
-        // activate?". They consult the current goal/route and record the exact
-        // purpose of reactive and pre-emptive interaction before any prompt arrives.
+
         private enum StrategicGoal
         {
             None,
@@ -152,9 +146,8 @@ namespace WindBot.Game.AI.Decks
         {
             public InterruptMode Mode;
             public ClientCard ChainSource;
-            // Primary strategic target. For a direct Samuel negate this is the
-            // monster Samuel disables; for a bridge plan it is the target that
-            // Snakehair/Mammoth will answer after the revive resolves.
+
+
             public ClientCard EnemyTarget;
             public ClientCard SamuelReviveTarget;
             public ClientCard SamuelDisableTarget;
@@ -178,9 +171,8 @@ namespace WindBot.Game.AI.Decks
         private bool pumpkingSearchSucceeded = false;
         private bool callSetByPumpking = false;
         private bool pumpkingHandEffectAttempted = false;
-        // The Pumpking hand effect has two separate prompts (Set, then discard).
-        // Track the accepted effect directly instead of relying only on
-        // Duel.GetCurrentSolvingChainInfo(), which can be unavailable between prompts.
+
+
         private bool pumpkingHandSelectionPending = false;
         private bool pumpkingCallPromptCompleted = false;
         private bool pumpkingDiscardSelfRequired = false;
@@ -192,138 +184,108 @@ namespace WindBot.Game.AI.Decks
         private bool samuelReviveResolved = false;
         private bool greatPumpkingSearchAttempted = false;
         private bool greatPumpkingSearchResolved = false;
-        // Great Pumpking's on-summon trigger can arrive with ActivateDescription=-1
-        // on MDPro3. Track the summon window instead of depending only on StringId.
+
+
         private bool greatPumpkingSearchWindowPending = false;
         private int selectedGreatPumpkingSearchId = 0;
         private bool greatPumpkingBounceAttempted = false;
         private bool greatPumpkingBounceResolved = false;
-        // A freshly summoned Sheridan with a live removal target must spend that
-        // ignition effect before it may be converted into Undying.
+
+
         private bool sheridanRemovalAttemptedThisTurn = false;
         private bool vampireGraceRouteActive = false;
         private bool vampireGraceReviveCommittedThisTurn = false;
         private bool zombieLockedThisTurn = false;
-        // Prompt state must be captured when the executor accepts the effect.
-        // Duel.LastChainPlayer / solving-chain metadata can change before the
-        // subsequent option or target selection prompt arrives.
+
+
         private bool doomkingOptionPending = false;
         private bool doomkingPreferNegate = false;
         private VarudrasDestroyMode pendingVarudrasDestroyMode = VarudrasDestroyMode.None;
         private ClientCard pendingVarudrasDestroyTarget = null;
         private ClientCard varudrasNegatedChainSource = null;
         private bool varudrasNegatedSourceWasAlreadyFaceup = false;
-        // Snapshot only cards that were already face-up before the current Chain.
-        // A Field/Continuous/Equip/Pendulum card newly activated in this Chain is
-        // deliberately absent, so Varudras does not spend another material to
-        // destroy a card whose activation was negated and will leave the field.
+
+
         private readonly List<ClientCard> opponentFaceupBeforeCurrentChain =
             new List<ClientCard>();
-        // Samuel selects its revive target after the detach-cost prompt. MDPro3
-        // may not expose a solving-chain card during that target prompt, so the
-        // accepted activation must carry an explicit pending state.
+
+
         private bool samuelReviveSelectionPending = false;
-        // On our turn Samuel may revive for immediate board value even when the
-        // revived monster does not complete Great Pumpking by itself. Preserve
-        // that exact target so Undying cannot consume Samuel before the value
-        // effect is used.
+
+
         private bool samuelOwnTurnValueRevivePending = false;
-        // Reverie's banished Standby effect targets a face-up Zombie Xyz, but the
-        // Lua prompt is HINTMSG_TARGET rather than HINTMSG_XYZMaterial. Preserve
-        // the accepted activation so MDPro3 cannot fall through to a generic target.
+
+
         private bool reverieOverlaySelectionPending = false;
-        // Samuel's field Quick Effect and its GY trigger use different HOPT keys in
-        // Lua. Track only the field effect here; the generic activated-card set
-        // must not let Samuel's GY trigger incorrectly consume the field interrupt.
+
+
         private bool samuelFieldEffectCommittedThisTurn = false;
-        // On the opponent's turn Samuel evaluates the total result of the revive:
-        // direct ATK-covered disable, Snakehair/Mammoth interaction, or a Pumpking
-        // bridge. The optional Samuel disable is only one part of that plan.
+
+
         private bool samuelOpponentNegatePending = false;
         private ClientCard samuelNegateTarget = null;
-        // Mezuki's target prompt can also lose solving-chain metadata on MDPro3.
-        // Keep its accepted revive flow separate from Samuel and generic prompts.
+
+
         private bool mezukiReviveSelectionPending = false;
-        // Mezuki is not a generic value button. It is committed only when the
-        // current plan is short of a Level 6 Zombie, and its target prompt must
-        // preserve that purpose even when MDPro3 reports activateId=0.
+
+
         private bool mezukiLevel6ExtensionPending = false;
-        // Army's hand/GY Ignition Effect is the free Level 6 body and must be
-        // committed before Mezuki spends a graveyard extender. Track this effect
-        // separately from Army's GY Set effect because they use different HOPT keys.
+
+
         private bool armySpecialSummonEffectCommittedThisTurn = false;
-        // Eldlich's hand effect has two HINTMSG_TOGRAVE prompts: first choose
-        // a Spell/Trap cost from our hand, then choose a card on the field.
-        // MDPro3 can lose the solving-chain metadata between those prompts, so
-        // preserve the accepted hand-effect flow explicitly.
+
+
         private bool eldlichHandSelectionPending = false;
         private bool eldlichHandCostPromptCompleted = false;
-        // Eldlich's GY effect commits one exact field cost from a strict
-        // whitelist. Unknown Set cards are never treated as disposable merely
-        // because no face-up cost exists.
+
+
         private ClientCard pendingEldlichGraveFieldCost = null;
-        // Preserve the exact Call set by Pumpking during the current turn. It may
-        // be spent only when the dedicated Eldlich/Flying Mary Rank 10 route is
-        // executable; an older Set Call remains live future interaction.
+
+
         private ClientCard freshSetCallByPumpkingInstance = null;
-        // Delta becomes expendable only after its current face-up instance has
-        // actually produced a Token. This state persists across turns while that
-        // exact Field Spell remains face-up.
+
+
         private ClientCard spentDeltaFieldInstance = null;
-        // The Token effect is accepted while Delta is already face-up. Mark the
-        // exact instance only after that Chain resolves successfully; relying on
-        // the Token's move event alone is not reliable in every MDPro3 build.
+
+
         private ClientCard pendingDeltaTokenFieldInstance = null;
 
-        // Changshi-in-hand rescue route:
-        // The route is role-based rather than card-name-pair based:
-        // reach Hublot, use Reverie to discard Changshi, make Great Pumpking
-        // with the Call-linked Level 6 plus any other Level 6 when a linked body
-        // exists, then make Samuel with the remaining two Level 6 bodies. Samuel
-        // revives Changshi so it can send Eldlich before Great becomes Undying.
+
         private bool changshiHandRescueRouteActive = false;
         private bool changshiHandRescueEldlichLoaded = false;
 
-        // Changshi -> Ash replay branch:
-        // Great Pumpking first, search Army, Army + Changshi make Samuel,
-        // Samuel revives Ash, then Great Pumpking returns Ash to the hand.
+
         private bool ashReplayLineActive = false;
 
-        // Delta -> Eldlich -> Fallen Angel -> Flying Mary -> Rank 10 route.
+
         private bool eldlichRouteActive = false;
         private bool eldlichRouteMarySummoned = false;
-        // Once the dedicated Flying Mary line has begun, do not fall back into
-        // Rank 6 summons. Mary must revive Eldlich and the two Level 10 bodies
-        // must be converted into Varudras.
+
+
         private bool eldlichRouteRank10CommitPending = false;
-        // Flying Mary's Lua uses HINTMSG_TARGET, and MDPro3 may report
-        // activateId=0 for that target prompt. Preserve the committed Eldlich
-        // revive explicitly so generic Level 5+ Zombie selection cannot choose
-        // Army, Pumpking, or another legal body and break the Rank 10 finish.
+
+
         private bool flyingMaryEldlichReviveSelectionPending = false;
-        // On our second or later turn, Flying Mary is a comeback bridge into the
-        // unused Pumpking Special-Summon effect. Preserve this intent across the
-        // target prompt because MDPro3 can temporarily report activateId=0.
+
+
         private bool flyingMaryComebackPumpkingPending = false;
-        // Opponent-turn Call is held for an opposing chain and carries a locked
-        // revive purpose into the target prompt, which may arrive with activateId=0.
+
+
         private bool callReviveSelectionPending = false;
         private int plannedCallReviveId = 0;
-        // Infinite Impermanence must negate the intended live monster, normally
-        // the current opposing chain source, rather than a generic field target.
+
+
         private ClientCard pendingInfiniteImpermanenceTarget = null;
-        // Samuel's GY trigger is a recycle effect, not generic grave disruption.
+
         private bool samuelGraveRecycleSelectionPending = false;
-        // Undying is saved for a real opposing action (especially a revival
-        // target) and records that exact monster before the target prompt.
+
+
         private ClientCard pendingUndyingTarget = null;
-        // Executor polling can ask for the same Sucker material plan repeatedly
-        // without any board change. Cache only the diagnostic text; the planner
-        // itself is still recalculated every time.
+
+
         private string lastSuckerMaterialPlanLog = null;
 
-        // Remember whether the Duel has exposed a real Pumpking starter.
-        // This flag intentionally does not reset each turn.
+
         private bool pumpkingStarterSeenThisDuel = false;
 
         private int selectedHublotSendId = 0;
@@ -340,43 +302,32 @@ namespace WindBot.Game.AI.Decks
         public PumpkingExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            // -----------------------------------------------------------------
-            // Counters and hand traps. Dominus logic is adapted from AI_Apophis:
-            // prefer an already-set copy, inspect the opponent's current chain,
-            // and mark the chain card to avoid spending multiple negates on it.
-            // -----------------------------------------------------------------
-            AddExecutor(ExecutorType.Activate, CardId.MulcharmyPurulia, MulcharmyPuruliaActivate);
-            AddExecutor(ExecutorType.Activate, CardId.MulcharmyFuwalos, MulcharmyFuwalosActivate);
+
+
+            AddExecutor(ExecutorType.Activate, CardId.GhostBelle, GhostBelleActivate);
             AddExecutor(ExecutorType.Activate, CardId.MaxxC, MaxxCActivate);
             AddExecutor(ExecutorType.Activate, CardId.AshBlossom, DefaultAshBlossomAndJoyousSpring);
             AddExecutor(ExecutorType.Activate, CardId.InfiniteImpermanence, InfiniteImpermanenceActivate);
             AddExecutor(ExecutorType.Activate, CardId.DominusImpulse, DominusImpulseActivate);
             AddExecutor(ExecutorType.Activate, CardId.VortexOfTime, VortexOfTimeActivate);
             AddExecutor(ExecutorType.Activate, CardId.DoomkingBalerdroch, DoomkingBalerdrochActivate);
-            // Samuel is narrower than Varudras: it can answer only a face-up
-            // on-field monster in the Main Phase and needs a suitable Zombie in
-            // the GY. Query it first, then preserve Varudras for chains Samuel
-            // cannot cover (Spell/Trap, hand/GY effects, or excessive ATK).
+
+
             AddExecutor(ExecutorType.Activate, CardId.OfficiatorOfDoomSamuel, OfficiatorOfDoomSamuelActivate);
             AddExecutor(ExecutorType.Activate, CardId.Varudras, VarudrasActivate);
             AddExecutor(ExecutorType.Activate, CardId.EvolzarLars, EvolzarLarsActivate);
             AddExecutor(ExecutorType.Activate, CardId.TheUndyingLegion, TheUndyingLegionActivate);
             AddExecutor(ExecutorType.Activate, CardId.PumpkingTheGreatGhostKing, PumpkingGreatGhostKingActivate);
 
-            // -----------------------------------------------------------------
-            // Searchers and starters.
-            // -----------------------------------------------------------------
+
             AddExecutor(ExecutorType.Activate, CardId.Terraforming, TerraformingActivate);
             AddExecutor(ExecutorType.Activate, CardId.StareOfTheSnakeHair, StareOfTheSnakeHairHandActivate);
             AddExecutor(ExecutorType.Activate, CardId.EctoplasmicFortification, EctoplasmicFortificationActivate);
 
-            // Pumpking line: resolve the hand searchers before committing the Normal
-            // Summon. Once Pumpking is already available, Hublot becomes a GY setup
-            // card instead of always milling/recovering Pumpking.
+
             AddExecutor(ExecutorType.Summon, CardId.Hublot, HublotSummon);
-            // Brick fallback: with no Pumpking starter, commit the cheapest
-            // legal Zombie Normal Summon so Delta/Eldlich can
-            // still leave a second Zombie beside Fallen Angel for Flying Mary.
+
+
             AddExecutor(ExecutorType.Summon, CardId.Mezuki, BrickZombieNormalSummon);
             AddExecutor(ExecutorType.Summon, CardId.AshBlossom, BrickZombieNormalSummon);
             AddExecutor(ExecutorType.Activate, CardId.Hublot, HublotActivate);
@@ -384,22 +335,14 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.CallOfTheHaunted, CallOfTheHauntedActivate);
             AddExecutor(ExecutorType.Activate, CardId.PumpkingTheKingOfGraveGhosts, PumpkingSummonActivate);
             AddExecutor(ExecutorType.Activate, CardId.ChangshiTheSpiridao, ChangshiTheSpiridaoActivate);
-            // Reverie is checked immediately after the forced Pumpking/Changshi
-            // steps. Its own guard keeps it from cutting ahead of those effects,
-            // but once Changshi has milled it can extend from the hand before Delta
-            // or a generic Extra Deck fallback consumes the board.
+
+
             AddExecutor(ExecutorType.Activate, CardId.OfficiatingReverie, OfficiatingReverieActivate);
 
-            // Delta is checked after an available Hublot/Pumpking action. This lets
-            // Hublot become the Zombie Link seed before Delta commits to Eldlich.
+
             AddExecutor(ExecutorType.Activate, CardId.DeltaOfInvitation, DeltaOfInvitationActivate);
 
-            // -----------------------------------------------------------------
-            // Main Deck extenders and grave effects.
-            // -----------------------------------------------------------------
-            // Generic extenders and Foolish are intentionally below the immediate
-            // Pumpking steps above. Their own conditions also refuse to cut across
-            // an accepted Pumpking/Call/Changshi action.
+
             AddExecutor(ExecutorType.Activate, CardId.EldlichTheGoldenLord, EldlichTheGoldenLordActivate);
             AddExecutor(ExecutorType.Activate, CardId.ArmyOfTheHaunted, ArmyOfTheHauntedActivate);
             AddExecutor(ExecutorType.Activate, CardId.Mezuki, MezukiActivate);
@@ -408,14 +351,10 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.GreatMammothOfTheNetherworld, GreatMammothActivate);
             AddExecutor(ExecutorType.Activate, CardId.StareOfTheSnakeHair, StareOfTheSnakeHairFieldActivate);
 
-            // -----------------------------------------------------------------
-            // Rank 6 / Rank 7 / Rank 10 and Link lines.
-            // -----------------------------------------------------------------
-            // Finish any available Rank 10 line with Varudras.
+
             AddExecutor(ExecutorType.SpSummon, CardId.Varudras, VarudrasSummon);
 
-            // Reserve the board for the confirmed Eldlich route before generic
-            // Rank 6 summons are allowed to consume its Zombie link seed.
+
             AddExecutor(ExecutorType.SpSummon, CardId.FallenAngelOfTheGoldenLand, FallenAngelSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.FlyingMary, FlyingMaryEldlichRouteSummon);
 
@@ -426,27 +365,20 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.WollowFounderOfTheDrudgeDragons, WollowSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.TheUndyingLegion, TheUndyingLegionSummon);
 
-            // On later turns, establish Vampire Sucker before reviving Eldlich so
-            // the GY summon draws a card. Generic Flying Mary remains the comeback
-            // option only when that draw line is unavailable.
-            AddExecutor(ExecutorType.SpSummon, CardId.VampireSucker, VampireSuckerSummon);
+
             AddExecutor(ExecutorType.SpSummon, CardId.FlyingMary, FlyingMarySummon);
 
-            // Extra Deck effects.
+
             AddExecutor(ExecutorType.Activate, CardId.DhampirVampireSheridan, DhampirVampireSheridanActivate);
             AddExecutor(ExecutorType.Activate, CardId.WollowFounderOfTheDrudgeDragons, WollowActivate);
             AddExecutor(ExecutorType.Activate, CardId.FallenAngelOfTheGoldenLand, FallenAngelActivate);
             AddExecutor(ExecutorType.Activate, CardId.EldlichTheMadGoldenLord, EldlichTheMadGoldenLordActivate);
             AddExecutor(ExecutorType.Activate, CardId.FlyingMary, FlyingMaryActivate);
-            AddExecutor(ExecutorType.Activate, CardId.VampireSucker, VampireSuckerActivate);
 
             AddExecutor(ExecutorType.Repos, MonsterRepos);
             AddExecutor(ExecutorType.SpellSet, SpellSet);
         }
 
-        // =====================================================================
-        // Common helpers
-        // =====================================================================
 
         private bool IsHublot(ClientCard card)
         {
@@ -458,23 +390,14 @@ namespace WindBot.Game.AI.Decks
             return id == CardId.Hublot;
         }
 
+        [System.Diagnostics.Conditional("PUMPKING_DEBUG")]
         private void DebugRoute(string message)
         {
-            Logger.DebugWriteLine("[Pumpking] " + message);
         }
 
+        [System.Diagnostics.Conditional("PUMPKING_DEBUG")]
         private void DebugCards(string label, IEnumerable<ClientCard> cards)
         {
-            if (cards == null)
-            {
-                DebugRoute(label + "=<null>");
-                return;
-            }
-
-            DebugRoute(label + "=" + string.Join(",",
-                cards.Where(c => c != null)
-                    .Select(c => c.Id + "@" + c.Location + "#" + c.Sequence)
-                    .ToArray()));
         }
 
         private void SetStrategicPlan(
@@ -500,9 +423,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool IsLaterTurnRecoveryState()
         {
-            // Recovery is a board state, not a card-name route. On our later turns,
-            // when the protected Samuel + Undying board is absent, prioritise one
-            // reliable interaction over optional battle scaling or draw bridges.
+
+
             return Duel.Player == 0
                 && Duel.Turn > 2
                 && !HasCorePumpkingEndboard()
@@ -518,9 +440,7 @@ namespace WindBot.Game.AI.Decks
             if (GetRank10Materials().Count != 2)
                 return false;
 
-            // Completing the confirmed Eldlich route is valid. Outside that line,
-            // Rank 10 bodies are "surplus" only after the protected Pumpking board
-            // is already present; never cannibalise the route while it is building.
+
             return eldlichRouteRank10CommitPending
                 || eldlichRouteMarySummoned
                 || HasCorePumpkingEndboard();
@@ -578,8 +498,7 @@ namespace WindBot.Game.AI.Decks
                 return;
             }
 
-            // A Flying Mary commitment is the point of no return: finish the
-            // Level 10 Xyz before considering any Pumpking recovery branch.
+
             if (eldlichRouteRank10CommitPending)
             {
                 SetStrategicPlan(StrategicGoal.CompleteEldlichRoute,
@@ -587,8 +506,7 @@ namespace WindBot.Game.AI.Decks
                 return;
             }
 
-            // Merely sending Eldlich with Delta must not overwrite a live
-            // Pumpking combo. Finish the concrete Rank 6 sequence first.
+
             if (IsPumpkingComboInProgress())
             {
                 int requiredLevel6Bodies = HasSamuelOnField() ? 2 : 3;
@@ -730,9 +648,7 @@ namespace WindBot.Game.AI.Decks
             if (publicThreat != null)
                 return publicThreat;
 
-            // Do not waste Mammoth merely because all remaining interaction is
-            // hidden. Prefer a Set Spell/Trap before falling back to a generic
-            // face-up Spell/Trap.
+
             ClientCard setBackrow = Enemy.GetSpells()
                 .Where(c => c != null && c.IsFacedown()
                     && CanMammothDestroyTarget(c))
@@ -780,9 +696,7 @@ namespace WindBot.Game.AI.Decks
                 return null;
             }
 
-            // Mad Golden targets a face-up monster we control before either
-            // player can respond. Chain Samuel now so its material and revival
-            // are not lost even when the revived Zombie cannot disable Mad Golden.
+
             return Duel.ChainTargets.LastOrDefault(c => c != null
                 && c.Controller == 0
                 && c.Location == CardLocation.MonsterZone
@@ -801,9 +715,7 @@ namespace WindBot.Game.AI.Decks
             if (legal.Count == 0)
                 return null;
 
-            // Pumpking is the best emergency body: after the current chain it can
-            // turn this non-negating Samuel activation into Mammoth/Snakehair or
-            // Hublot setup through its Special-Summon trigger.
+
             ClientCard pumpking = legal.FirstOrDefault(c =>
                 c.IsCode(CardId.PumpkingTheKingOfGraveGhosts));
             if (pumpking != null)
@@ -838,11 +750,7 @@ namespace WindBot.Game.AI.Decks
             if (!IsLiveEnemyMonster(monster) || monster.IsDisabled())
                 return false;
 
-            // During an opposing monster chain, stopping the actual chain source
-            // is useful even when the generic card database does not classify the
-            // monster as a boss. In an open state, however, do not spend Samuel on
-            // a body whose relevant effect is not live on the field (Assault Beast
-            // is the regression that exposed this distinction).
+
             if (isCurrentChainSource)
                 return IsOpponentChainWorthNegating(monster);
 
@@ -1139,9 +1047,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                // First choice: actually negate the current on-field monster chain
-                // when a legal Zombie revive has enough ATK. The target determines
-                // the required ATK; enemy ATK is never used as a value threshold.
+
                 if (IsSamuelReactiveSource(chainSource))
                 {
                     ClientCard directRevive = GetSamuelOpponentTurnReviveCandidate(
@@ -1160,16 +1066,13 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                // A boss such as Crystal Wing may exceed every revivable Zombie's
-                // ATK. Samuel can still be correct because the revive itself creates
-                // Snakehair/Mammoth interaction, directly or through Pumpking.
+
                 InterruptPlan bridge = BuildSamuelBridgePlan(
                     reviveTargets, chainSource);
                 if (bridge != null)
                     return bridge;
 
-                // If the chain source cannot be covered and no bridge is available,
-                // Samuel may still disable another genuinely valuable face-up monster.
+
                 ClientCard otherRevive;
                 ClientCard otherTarget = GetBestSamuelDirectDisableTarget(
                     reviveTargets, null, out otherRevive);
@@ -1192,9 +1095,7 @@ namespace WindBot.Game.AI.Decks
             if (!enemyCommitmentWindow || enemyCommitmentTurn != Duel.Turn)
                 return null;
 
-            // Open-state planning scans the whole opposing board. Do not equate
-            // "freshly summoned" with "worth negating" and do not spend Samuel
-            // merely because a low-value body happens to fit the ATK condition.
+
             ClientCard selectedRevive;
             ClientCard disableTarget = GetBestSamuelDirectDisableTarget(
                 reviveTargets, null, out selectedRevive);
@@ -1210,8 +1111,7 @@ namespace WindBot.Game.AI.Decks
                 };
             }
 
-            // No direct ATK-covered disable does not mean "hold". Check whether
-            // the revive creates interaction through Snakehair/Mammoth or Pumpking.
+
             return BuildSamuelBridgePlan(reviveTargets, null);
         }
 
@@ -1222,8 +1122,8 @@ namespace WindBot.Game.AI.Decks
                 ? plan.SamuelReviveTarget.Id : 0;
             samuelNegateTarget = plan != null
                 ? plan.SamuelDisableTarget : null;
-            // The revive is the primary value. Samuel's own disable is an optional
-            // bonus and may coexist with a separate Snakehair/Mammoth follow-up.
+
+
             samuelOpponentNegatePending = plan != null
                 && samuelNegateTarget != null
                 && samuelNegateTarget.IsMonster()
@@ -1367,11 +1267,23 @@ namespace WindBot.Game.AI.Decks
             return !zombieLockedThisTurn && !CanAcceptZombieLock();
         }
 
+        private bool HasVampireGraceInRouteState()
+        {
+            if (Bot.HasInGraveyard(CardId.VampireGrace)
+                || Bot.HasInMonstersZone(CardId.VampireGrace, faceUp: true))
+            {
+                return true;
+            }
+
+
+            return Bot.GetMonsters().Any(xyz => xyz != null
+                && xyz.Overlays != null
+                && xyz.Overlays.Contains(CardId.VampireGrace));
+        }
+
         private bool IsVampireGraceRouteLive()
         {
-            return vampireGraceRouteActive
-                && (Bot.HasInGraveyard(CardId.VampireGrace)
-                    || Bot.HasInMonstersZone(CardId.VampireGrace, faceUp: true));
+            return vampireGraceRouteActive && HasVampireGraceInRouteState();
         }
 
         private bool IsUnlinkedFaceupCall(ClientCard card)
@@ -1393,9 +1305,7 @@ namespace WindBot.Game.AI.Decks
                 return null;
             }
 
-            // TargetCards can retain a stale object after the revived monster is
-            // used as Xyz/Link material. Match it against the monsters that are
-            // actually still on our field instead of trusting the stored Location.
+
             return Bot.GetMonsters().FirstOrDefault(monster => monster != null
                 && monster.Controller == 0
                 && monster.Location == CardLocation.MonsterZone
@@ -1444,13 +1354,7 @@ namespace WindBot.Game.AI.Decks
                 return int.MaxValue;
             }
 
-            // Exact whitelist requested by the deck plan:
-            //  1) a face-up Call no longer linked to a monster;
-            //  2) the exact Delta instance that already produced its Token;
-            //  3) Flying Mary currently occupying an S/T Zone;
-            //  4) a Set Vortex of Time;
-            //  5) the exact Call freshly Set by Pumpking this turn, but only when
-            //     spending it completes the committed Eldlich Rank 10 route.
+
             if (IsUnlinkedFaceupCall(card))
                 return 0;
             if (IsSpentDeltaFieldCost(card))
@@ -1486,11 +1390,7 @@ namespace WindBot.Game.AI.Decks
             pendingVarudrasDestroyMode = VarudrasDestroyMode.None;
             pendingVarudrasDestroyTarget = null;
 
-            // First choice: the negated source itself, but only when it was
-            // already face-up before this Chain. This covers a monster effect on
-            // the field and an effect of a Field/Continuous/Equip/Pendulum card
-            // that was already established. A newly activated S/T is excluded:
-            // negating its activation already makes it leave the field.
+
             ClientCard persistentSource = GetPersistentVarudrasNegatedSource();
             if (persistentSource != null)
             {
@@ -1503,8 +1403,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // If the negated source was newly activated or came from hand/GY,
-            // skip it and spend the second material only on another enemy card.
+
             ClientCard otherEnemyTarget = FindOtherVarudrasEnemyTarget();
             if (otherEnemyTarget != null)
             {
@@ -1562,8 +1461,7 @@ namespace WindBot.Game.AI.Decks
                     new List<ClientCard> { planned }, cards, min, max);
             }
 
-            // Re-plan only among enemy cards from the real target prompt. Never
-            // convert a stale post-negate plan into destruction of our own card.
+
             ClientCard recalculated = FindBestVarudrasTargetFromPrompt(cards);
             if (recalculated != null)
             {
@@ -1607,9 +1505,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool HasSettableCallForPumpking()
         {
-            // Pumpking's Lua can Set Call only from the Deck or Graveyard.
-            // A copy already in the hand or on the field does not make the hand
-            // effect executable.
+
+
             return CheckRemainInDeck(CardId.CallOfTheHaunted) > 0
                 || Bot.Graveyard.Any(c => c != null
                     && c.IsCode(CardId.CallOfTheHaunted));
@@ -1617,7 +1514,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HasPumpkingDeckSummonTargetInDeck()
         {
-            // Pumpking summons a Level 6 Zombie whose ATK is not 1950.
+
             return CheckRemainInDeck(CardId.Hublot) > 0
                 || CheckRemainInDeck(CardId.GreatMammothOfTheNetherworld) > 0
                 || CheckRemainInDeck(CardId.ChangshiTheSpiridao) > 0
@@ -1640,9 +1537,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanRecoverPumpkingFromHublotNow()
         {
-            // Recover Pumpking only when the recovered card can immediately turn
-            // into the Call -> Pumpking -> Level 6 line. Otherwise it is a brick
-            // in hand and must not hold Delta/Eldlich behind a false Pumpking gate.
+
+
             return Duel.Player == 0
                 && !HasPumpkingInHand()
                 && !pumpkingHandEffectAttempted
@@ -1657,10 +1553,7 @@ namespace WindBot.Game.AI.Decks
             if (CanUsePumpkingHandEffectNow())
                 return true;
 
-            // callSetByPumpking is a historical route marker. Once the Set Call
-            // has already been flipped face-up/resolved (or has left the field),
-            // it is no longer an executable Pumpking action and must not keep
-            // Delta/Foolish/Extra Deck lines locked for the rest of the turn.
+
             bool unusedSetCallAvailable = callSetByPumpking
                 && Bot.GetSpells().Any(c => c != null
                     && c.IsCode(CardId.CallOfTheHaunted)
@@ -1691,9 +1584,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player != 0)
                 return false;
 
-            // The Normal Summon is a concrete action, not merely a route marker.
-            // Delta/Eldlich must not cut in after Ectoplasmic has already put
-            // Hublot in the hand while the no-Tribute summon is still available.
+
             if (summonCount > 0
                 && HasOpenMainMonsterZone()
                 && HasHublotInHand())
@@ -1715,14 +1606,11 @@ namespace WindBot.Game.AI.Decks
             if (!HasGreatPumpkingOnField())
                 return false;
 
-            // Any opposing field card is a profitable target. With only one such
-            // card the selector may pair it with one explicitly approved own card.
+
             if (GetEnemyFieldPriority().Count > 0)
                 return true;
 
-            // Own-only use is allowed for established utility: recover Ash,
-            // clear Gravity Controller, or return one excess face-up Call while
-            // leaving at least one Call available for Eldlich.
+
             return GetGreatPumpkingOwnUtilityBounceTarget(
                 Bot.GetMonsters().Concat(Bot.GetSpells())) != null;
         }
@@ -1757,8 +1645,8 @@ namespace WindBot.Game.AI.Decks
                 .ToList();
             if (faceupCalls.Count >= 2)
             {
-                // Returning a linked Call destroys its monster. Recycle only an
-                // orphan Call and leave the other face-up Call on field.
+
+
                 return faceupCalls.FirstOrDefault(c => GetCallLinkedMonster(c) == null);
             }
 
@@ -1811,9 +1699,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool IsKnownRank6ZombieXyz(ClientCard card)
         {
-            // ClientCard.Level is not the Xyz Rank in this MDPro3 build. Using
-            // Level == 6 therefore rejected legal bases such as Samuel and Great
-            // Pumpking. Keep the legality list explicit and still verify Zombie/Xyz.
+
+
             return card != null
                 && card.IsFaceup()
                 && IsZombie(card)
@@ -1839,9 +1726,7 @@ namespace WindBot.Game.AI.Decks
             if (!IsLiveEnemyFieldCard(card) || card.IsShouldNotBeTarget())
                 return false;
 
-            // Monsters must be face-up and destructible by effects. Spell/Trap
-            // cards may be face-down: an unknown Set backrow is still a legal and
-            // useful Mammoth target when no higher-priority public threat exists.
+
             if (card.Location == CardLocation.MonsterZone)
             {
                 return card.IsFaceup()
@@ -1878,8 +1763,7 @@ namespace WindBot.Game.AI.Decks
             if (currentNegateCardList.Contains(card))
                 return false;
 
-            // Do not waste a negate on a card that is already being negated in the
-            // same chain. Otherwise, an activable Dominus/Imperm is considered live.
+
             return true;
         }
 
@@ -1926,8 +1810,7 @@ namespace WindBot.Game.AI.Decks
 
             List<ClientCard> result = new List<ClientCard>();
 
-            // 1) A real monster problem: live negate, floodgate, dangerous boss,
-            // or a monster whose effect must be answered before it is used.
+
             result.AddRange(pool.Where(c => c.IsMonster()
                     && c.IsFaceup()
                     && !c.IsDisabled()
@@ -1940,18 +1823,16 @@ namespace WindBot.Game.AI.Decks
                 .ThenByDescending(c => c.IsFloodgate())
                 .ThenByDescending(c => c.GetDefensePower()));
 
-            // 2) Actual face-up floodgates. Do not treat every Field/Continuous
-            // Spell as a threat: Tenki and similar value cards belong below Set
-            // backrow unless they are explicitly recognised as floodgates.
+
             result.AddRange(pool.Where(c => (c.IsSpell() || c.IsTrap())
                 && c.IsFaceup()
                 && c.IsFloodgate()));
 
-            // 3) Unknown Set backrow before harmless face-up value cards.
+
             result.AddRange(pool.Where(c => (c.IsSpell() || c.IsTrap())
                 && c.IsFacedown()));
 
-            // Remaining known cards are fallback targets only.
+
             result.AddRange(pool.Where(c => c.IsMonster() && c.IsFaceup())
                 .OrderByDescending(c => c.GetDefensePower()));
             result.AddRange(pool.Where(c => c.IsMonster() && c.IsFacedown()));
@@ -1995,8 +1876,7 @@ namespace WindBot.Game.AI.Decks
                 result.Add(last);
             }
 
-            // Eldlich is sorcery-speed removal. Remove a live monster negate or
-            // monster floodgate before spending the effect on a Spell/Trap.
+
             result.AddRange(pool.Where(IsKnownLiveNegateMonster)
                 .OrderByDescending(c => c.GetDefensePower()));
             result.AddRange(pool.Where(c => c.IsMonster()
@@ -2114,15 +1994,14 @@ namespace WindBot.Game.AI.Decks
                 || IsHublotId(id)
                 || id == CardId.EctoplasmicFortification
                 || id == CardId.DeltaOfInvitation
-                || id == CardId.InfiniteImpermanence)
+                || id == CardId.InfiniteImpermanence
+                || id == CardId.GhostBelle
+                || id == CardId.CallOfTheHaunted)
             {
                 return 3;
             }
 
-            if (id == CardId.MulcharmyPurulia
-                || id == CardId.MulcharmyFuwalos
-                || id == CardId.AshBlossom
-                || id == CardId.CallOfTheHaunted
+            if (id == CardId.AshBlossom
                 || id == CardId.DominusImpulse)
             {
                 return 2;
@@ -2159,17 +2038,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool HasHublotInHand()
         {
-            // Use ClientCard.IsCode through IsHublot rather than ClientField.HasInHand
-            // so aliases/card-database mappings are handled consistently.
+
+
             return Bot.Hand.Any(IsHublot);
         }
 
         private int GetEctoplasmicSearchTargetId()
         {
-            // Patch 01 route rule:
-            // 1) no Hublot in hand -> search Hublot;
-            // 2) Hublot already in hand -> search Pumpking.
-            // Fall back only when the primary target is no longer in the Deck.
+
+
             if (!HasHublotInHand())
             {
                 if (CheckRemainInDeck(CardId.Hublot) > 0)
@@ -2202,7 +2079,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // Fallen Angel already confirms the dedicated Flying Mary/Rank 10 line.
+
             if (Bot.HasInMonstersZone(CardId.FallenAngelOfTheGoldenLand, faceUp: true))
                 return false;
 
@@ -2243,10 +2120,8 @@ namespace WindBot.Game.AI.Decks
 
         private ClientCard GetMandatoryVampireSuckerEmzMaterial()
         {
-            // Without an existing Link monster opening a Main Monster Zone, a
-            // non-Link monster occupying our EMZ has to be used to free that zone
-            // before Vampire Sucker can be Link Summoned there. This is the key
-            // case missed by a simple "two zero-material Xyz" count.
+
+
             bool existingLink = Bot.GetMonsters().Any(c => c != null
                 && c.IsFaceup() && c.HasType(CardType.Link));
             if (existingLink)
@@ -2280,10 +2155,7 @@ namespace WindBot.Game.AI.Decks
                 if (overlays == 0)
                     return 2;
 
-                // Live Xyz interaction is substantially more valuable than one
-                // Sucker draw. Undying is weighted highest because its materials
-                // represent a future opponent-turn removal, especially when it is
-                // the EMZ body that would be mandatory Link material.
+
                 int baseLoss;
                 if (card.IsCode(CardId.TheUndyingLegion))
                     baseLoss = 260;
@@ -2301,16 +2173,14 @@ namespace WindBot.Game.AI.Decks
                 return baseLoss + overlays * 45;
             }
 
-            // Main Deck Zombies may still be combo bodies or interaction. Keep
-            // their ordering aligned with the existing material-value policy.
+
             return 45 + GetZombieLinkMaterialValue(card) * 4;
         }
 
         private int GetVampireSuckerBridgeValue(ClientCard mandatoryEmz)
         {
-            // The bridge produces Sucker, converts Eldlich's GY summon into one
-            // draw, and frees one net monster zone. Increase its value when board
-            // space is tight or when it clears an already-spent EMZ body.
+
+
             int value = 150;
             if (Bot.HasInGraveyard(CardId.EldlichTheGoldenLord))
                 value += 45;
@@ -2433,8 +2303,7 @@ namespace WindBot.Game.AI.Decks
             if (card.HasType(CardType.Xyz))
                 return GetVampireSuckerMaterialLoss(card);
 
-            // A used low-Level body is an acceptable Mary seed. Preserve the
-            // Level 6 engine and small Pumpking when Delta can supply a Token.
+
             if (card.Level < 5)
                 return 35;
             if (card.IsCode(CardId.Hublot))
@@ -2473,9 +2342,7 @@ namespace WindBot.Game.AI.Decks
             if (!eldlichReady)
                 return false;
 
-            // Before Fallen Angel is made, the Token and Eldlich each need a Main
-            // Monster Zone. If Eldlich or Fallen is already on the field, only the
-            // Token needs a free zone because the next Link/Tribute frees space.
+
             int requiredOpenZones = (fallenAlreadyPresent || eldlichOnField) ? 1 : 2;
             if (GetOpenMainMonsterZoneCount() < requiredOpenZones)
                 return false;
@@ -2525,7 +2392,7 @@ namespace WindBot.Game.AI.Decks
             if (materials.Count == 2)
                 return HasFlyingMaryRank10FollowupZoneCapacity(materials);
 
-            // A face-up Delta can still supply the missing partner before Mary.
+
             return Bot.HasInSpellZone(CardId.DeltaOfInvitation, faceUp: true)
                 && HasOpenMainMonsterZone();
         }
@@ -2564,9 +2431,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player != 0 || !HasOpenMainMonsterZone())
                 return false;
 
-            // A Level 5 Token is not a Rank 6 body. Do not occupy a Main Monster
-            // Zone while Pumpking, Army, Mezuki, or the Urara route still needs
-            // room to produce Level 6 monsters.
+
             if (HasImmediatePumpkingActionPending()
                 || IsPumpkingComboInProgress()
                 || currentComboRoute == ComboRoute.NormalPumpking
@@ -2585,8 +2450,7 @@ namespace WindBot.Game.AI.Decks
             if (!eldlichLinkRoute || Bot.GetMonsters().Any(IsDeltaToken))
                 return false;
 
-            // Delta's Token is first a Flying Mary resource. On turn 1 this
-            // preserves live Samuel/Undying while Fallen Angel + Token become Mary.
+
             if (ShouldCreateDeltaTokenForFlyingMaryRank10())
                 return true;
 
@@ -2608,9 +2472,8 @@ namespace WindBot.Game.AI.Decks
             }
 
             int noTokenLoss = noTokenPlan.Sum(GetVampireSuckerMaterialLoss);
-            // Do not spend a Main Monster Zone for a negligible gain. Create the
-            // Token only when it saves a genuinely live body rather than replacing
-            // one already-spent Xyz with another cheap material.
+
+
             if (tokenLoss + 30 < noTokenLoss)
             {
                 DebugRoute("Delta Token value: lowers Sucker material loss from "
@@ -2624,6 +2487,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShouldPreferVampireSuckerOverFlyingMary()
         {
+            if (!Bot.HasInExtra(CardId.VampireSucker))
+                return false;
+
             if (eldlichRouteRank10CommitPending
                 || eldlichRouteMarySummoned
                 || (eldlichRouteActive && HasFaceupFallenAngel()))
@@ -2635,14 +2501,12 @@ namespace WindBot.Game.AI.Decks
             if (!CanPlanVampireSuckerBridge() || plan.Count != 2)
                 return false;
 
-            // Stable core board: use only effectively spent materials.
+
             bool surplusDrawBridge = HasCorePumpkingEndboard()
                 && plan.All(c => IsDeltaToken(c) || IsSpentZombieXyz(c))
                 && plan.Sum(GetVampireSuckerMaterialLoss) <= 10;
 
-            // Recovery regression: when the alternative is the generic Flying
-            // Mary board-reset line, prefer Sucker if the same board can create a
-            // reasonable draw bridge without consuming the committed Rank 10 line.
+
             bool recoveryDrawBridge = IsLaterTurnRecoveryState()
                 && GetFlyingMaryPumpkingResetMaterials().Count == 2
                 && plan.Sum(GetVampireSuckerMaterialLoss) <= 400;
@@ -2652,10 +2516,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShouldFlyingMaryRevivePumpkingForComeback()
         {
-            // Turn numbers 1 and 2 are always each player's first turn. Therefore
-            // Duel.Turn > 2 means this is our second-or-later turn regardless of
-            // whether the Bot went first or second. The relevant Pumpking effect is
-            // its Special-Summon trigger, not the hand effect that Sets Call.
+
+
             if (Duel.Player != 0 || Duel.Turn <= 2
                 || pumpkingSummonEffectAttempted
                 || pumpkingSummonEffectResolved)
@@ -2676,10 +2538,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanSnakehairReachPumpkingBeforeHublot()
         {
-            // Snakehair's hand effect always bridges through Ectoplasmic first.
-            // Ectoplasmic then searches the missing starter: Hublot when absent,
-            // otherwise Pumpking. Do not require Pumpking to be missing here,
-            // because Snakehair -> Ectoplasmic -> Hublot is also a valid opener.
+
+
             bool ectoplasmicHasStarterTarget =
                 (!HasHublotInHand() && CheckRemainInDeck(CardId.Hublot) > 0)
                 || (HasHublotInHand() && !HasPumpkingInHand()
@@ -2799,11 +2659,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // This route may begin either with Hublot already available or with
-            // Pumpking reviving itself and fetching Hublot from the Deck. Do not
-            // tie the route to one opening-card name; require only that Hublot and
-            // Reverie can still be reached and that Call is available now or can
-            // still be Set by Pumpking.
+
             bool hublotAccessible = HasHublotInHand()
                 || Bot.HasInMonstersZone(CardId.Hublot, faceUp: true)
                 || CheckRemainInDeck(CardId.Hublot) > 0
@@ -2931,8 +2787,7 @@ namespace WindBot.Game.AI.Decks
                 return CardId.ArmyOfTheHaunted;
             }
 
-            // With no Field Spell, prepare the Eldlich engine. Recover it only when
-            // an opposing floodgate/problem card makes the hand effect immediately useful.
+
             if (!HasFaceupFieldSpell()
                 && !Bot.HasInGraveyard(CardId.EldlichTheGoldenLord)
                 && cards.Any(c => c.IsCode(CardId.EldlichTheGoldenLord)))
@@ -2962,7 +2817,7 @@ namespace WindBot.Game.AI.Decks
             if (zombieLockedThisTurn)
                 return true;
 
-            // Do not lock before converting an already-available pair of Level 10s.
+
             if (Bot.HasInExtra(CardId.Varudras)
                 && Bot.GetMonsters().Count(c => c.IsFaceup() && c.Level == 10
                     && !c.HasType(CardType.Xyz | CardType.Link)) >= 2)
@@ -2989,9 +2844,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool HasChangshiDeckTargetAvailable()
         {
-            // Do not activate Changshi merely because a known card remains in
-            // the Deck. The same planner used by the selection prompt
-            // must find a target that produces concrete graveyard value now.
+
+
             return GetChangshiMillTargetId(null, false) != 0;
         }
 
@@ -2999,10 +2853,8 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> cards,
             bool logDecision = true)
         {
-            // Changshi is allowed to send from hand or Deck, but spending a hand
-            // card here is almost never worth it. At the prompt, restrict every
-            // route decision to candidates explicitly reported in the Deck. Before
-            // activation, use CheckRemainInDeck through the same priority planner.
+
+
             List<ClientCard> deckCards = cards == null
                 ? new List<ClientCard>()
                 : cards.Where(c => c != null && c.Location == CardLocation.Deck).ToList();
@@ -3046,10 +2898,7 @@ namespace WindBot.Game.AI.Decks
                 return CardId.VampireGrace;
             }
 
-            // When Reverie is already in hand, keep it there so it can discard a
-            // useful GY card and Special Summon itself. Army is the preferred Deck
-            // mill because Samuel can revive it, leaving Army + Reverie for Great
-            // Pumpking after Samuel detached the small Pumpking.
+
             if (Bot.HasInHand(CardId.OfficiatingReverie)
                 && available(CardId.ArmyOfTheHaunted))
             {
@@ -3058,9 +2907,7 @@ namespace WindBot.Game.AI.Decks
                 return CardId.ArmyOfTheHaunted;
             }
 
-            // The normal Samuel-first route needs a Level 6 Zombie in the GY.
-            // Hublot normally supplied Reverie; if it did not and Reverie is still
-            // in the Deck, Changshi may send that Deck copy.
+
             if (!hasLevel6ReviveTarget
                 && available(CardId.OfficiatingReverie))
             {
@@ -3079,8 +2926,7 @@ namespace WindBot.Game.AI.Decks
                 return CardId.Mezuki;
             }
 
-            // A face-up Field Spell gives Doomking a concrete Standby Phase
-            // self-revive. This is guaranteed delayed graveyard value.
+
             if (HasFaceupFieldSpell()
                 && !Bot.HasInGraveyard(CardId.DoomkingBalerdroch)
                 && !Bot.HasInMonstersZone(CardId.DoomkingBalerdroch, faceUp: true)
@@ -3133,9 +2979,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Player == 1)
             {
-                // A Samuel -> Pumpking bridge already locked the intended
-                // follow-up target. Honour that plan before recalculating generic
-                // opponent-turn priorities from the possibly changed field state.
+
+
                 if (pendingSnakehairDisableTarget != null
                     && IsLiveEnemyMonster(pendingSnakehairDisableTarget)
                     && pendingSnakehairDisableTarget.IsAttack()
@@ -3184,9 +3029,7 @@ namespace WindBot.Game.AI.Decks
                         CardId.GreatMammothOfTheNetherworld);
                 }
 
-                // The activation guard normally prevents reaching this branch.
-                // If the target disappeared while the chain was resolving, choose a
-                // recovery body but never default to Hublot as planned interaction.
+
                 DebugRoute("Pumpking opponent-turn target disappeared: forced recovery body");
                 return SelectByIdPriority(cards, min, max,
                     CardId.ArmyOfTheHaunted,
@@ -3269,8 +3112,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
 
-            // Never abandon a concrete in-engine action merely because the route
-            // state looks old. Resolve Pumpking/Call/Changshi first, then reassess.
             if (HasImmediatePumpkingActionPending())
                 return true;
 
@@ -3293,8 +3134,8 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                // Great Pumpking's executor has a legal two-body fallback even
-                // after the ideal Samuel-first route has been disrupted.
+
+
                 if (!HasGreatPumpkingOnField()
                     && Bot.HasInExtra(CardId.PumpkingTheGreatGhostKing)
                     && GetRank6Materials(true).Count >= 2)
@@ -3314,7 +3155,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            // Do not let a generic Rank 6 cut in before the intended overlay.
+
             if (Bot.HasInExtra(CardId.TheUndyingLegion)
                 && GetUndyingOverlayBases().Count > 0)
             {
@@ -3332,9 +3173,7 @@ namespace WindBot.Game.AI.Decks
             if (CanContinueCorePumpkingExtraDeckLineNow())
                 return true;
 
-            // The route marker can survive after Great Pumpking/Samuel were used as
-            // Link material or otherwise left the Extra Deck. Keeping that stale
-            // marker blocks Sheridan, Lars, and Wollow in both Main Phases.
+
             DebugRoute("RELEASE stale Pumpking combo state=" + pumpkingComboState
                 + ": no executable Great Pumpking/Samuel/Undying step; allow generic Rank 6");
             pumpkingComboState = PumpkingComboState.None;
@@ -3364,9 +3203,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player != 0 || zombieLockedThisTurn)
                 return false;
 
-            // Two free Level 6 Zombies are already a guaranteed Great Pumpking.
-            // When its search is still live and a small Pumpking remains in Deck,
-            // resolve this line before Delta commits the board to Eldlich.
+
             bool liveGreatPumpkingSearch = Bot.HasInExtra(CardId.PumpkingTheGreatGhostKing)
                 && !HasGreatPumpkingOnField()
                 && !greatPumpkingSearchAttempted
@@ -3376,8 +3213,7 @@ namespace WindBot.Game.AI.Decks
             if (liveGreatPumpkingSearch && GetRank6Materials(true).Count >= 2)
                 return true;
 
-            // Once Great Pumpking exists, finish the Samuel half of the board.
-            // Army is checked explicitly because its executor is below Delta.
+
             if (HasGreatPumpkingOnField() && !HasSamuelOnField())
             {
                 if (Bot.HasInExtra(CardId.OfficiatorOfDoomSamuel)
@@ -3393,17 +3229,14 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            // Great Pumpking + Samuel is not the finished Pumpking board while
-            // Undying is still available to overlay the Great Pumpking.
+
             if (HasGreatPumpkingOnField() && HasSamuelOnField()
                 && Bot.HasInExtra(CardId.TheUndyingLegion))
             {
                 return true;
             }
 
-            // Delta also must not cut between concrete Pumpking actions that are
-            // already available now. This is action-based, so a disrupted route
-            // will release the hold instead of deadlocking for the rest of the turn.
+
             return HasImmediatePumpkingActionPending();
         }
 
@@ -3412,7 +3245,7 @@ namespace WindBot.Game.AI.Decks
             if (!eldlichRouteRank10CommitPending)
                 return false;
 
-            // The commitment ends only after a Rank 10 Xyz is actually present.
+
             return !Bot.HasInMonstersZone(CardId.Varudras, faceUp: true);
         }
 
@@ -3493,11 +3326,7 @@ namespace WindBot.Game.AI.Decks
             if (!eldlichCanReachGrave)
                 return false;
 
-            // With a Zombie already face-up, Delta can make its Token first and
-            // then pay Eldlich by sending Delta itself. Without a Zombie seed,
-            // another Spell/Trap is required so Eldlich can enter the field before
-            // Delta creates the Token. These are alternative routes, not cumulative
-            // requirements.
+
             return HasEldlichLinkSeedOnField() || HasEldlichCostBesidesDelta();
         }
 
@@ -3511,9 +3340,7 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInMonstersZone(CardId.EldlichTheGoldenLord, faceUp: true))
                 return true;
 
-            // Eldlich in the GY is not enough by itself. The route still needs a
-            // Spell/Trap to send, a free Main Monster Zone, and the surviving
-            // Zombie that will Link with Fallen Angel into Flying Mary.
+
             return Bot.HasInGraveyard(CardId.EldlichTheGoldenLord)
                 && HasUsefulEldlichCost()
                 && HasOpenMainMonsterZone();
@@ -3521,10 +3348,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShouldStartAshReplayLine(bool ashAvailable)
         {
-            // Urara branch: Hublot + revived Pumpking + Changshi are present,
-            // Army remains searchable, and the board cannot realistically convert
-            // into the Eldlich/Flying Mary Rank 10 route. Pumpking may have reached
-            // the hand through Hublot, Snakehair/Ectoplasmic, or another legal line.
+
+
             if (Duel.Turn != 1 || !HasFaceupCall() || !HasHublotOnField())
                 return false;
             if (!Bot.HasInMonstersZone(CardId.PumpkingTheKingOfGraveGhosts, faceUp: true)
@@ -3540,8 +3365,7 @@ namespace WindBot.Game.AI.Decks
                 || !Bot.HasInExtra(CardId.TheUndyingLegion))
                 return false;
 
-            // Use this replay branch only when the board cannot realistically
-            // convert into the Eldlich/Flying Mary Rank 10 route.
+
             return !CanContinueEldlichRouteFromCurrentBoard();
         }
 
@@ -3588,9 +3412,7 @@ namespace WindBot.Game.AI.Decks
             if (pool.Count == 0)
                 return null;
 
-            // Pumpking is the highest-value later-turn revive: it creates a
-            // second Level 6 body from the Deck and normally opens another Rank 6
-            // conversion. Require both zones before committing the revive.
+
             bool hasPumpkingDeckFollowUp =
                 CheckRemainInDeck(CardId.ChangshiTheSpiridao) > 0
                 || CheckRemainInDeck(CardId.ArmyOfTheHaunted) > 0
@@ -3609,8 +3431,7 @@ namespace WindBot.Game.AI.Decks
                     return pumpking;
             }
 
-            // A properly summoned Great Pumpking immediately replaces itself
-            // with a search when that trigger has not been spent this turn.
+
             if (!greatPumpkingSearchAttempted && !greatPumpkingSearchResolved)
             {
                 ClientCard great = pool.FirstOrDefault(c =>
@@ -3619,7 +3440,7 @@ namespace WindBot.Game.AI.Decks
                     return great;
             }
 
-            // Immediate interaction bodies are also value-positive revives.
+
             ClientCard mammothTarget = GetMammothPreemptTarget();
             if (mammothTarget != null)
             {
@@ -3651,8 +3472,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            // Finally, use Samuel before overlaying it when the revive completes
-            // a fresh pair of Level 6 bodies for Lars/Wollow/Sheridan.
+
             bool hasExistingLevel6Partner = Bot.GetMonsters().Any(c =>
                 c != null
                 && c != Card
@@ -3715,8 +3535,8 @@ namespace WindBot.Game.AI.Decks
             }
             else if (ashReplayLineActive)
             {
-                // Fixed Urara route: Changshi milled Ash specifically so Samuel
-                // can revive it and Great Pumpking can return it to the hand.
+
+
                 target = cards.FirstOrDefault(c => c.IsCode(CardId.AshBlossom));
                 if (target == null)
                 {
@@ -3726,9 +3546,8 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                // Normal route: Samuel exists to restore a Level 6 body so the
-                // remaining Level 6 plus that monster can become Great Pumpking.
-                // Never revive Ash or an off-level monster in this branch.
+
+
                 List<ClientCard> level6Targets = cards
                     .Where(c => c != null && IsLevel6Zombie(c)
                         && !c.IsCode(CardId.AshBlossom))
@@ -3785,10 +3604,7 @@ namespace WindBot.Game.AI.Decks
                 DebugRoute("Great Pumpking rescue search: small Pumpking first");
             }
 
-            // Recovery route after disruption: if two Level 6 bodies made the
-            // fallback Great Pumpking but no small Pumpking is accessible yet,
-            // search the small Pumpking first. It Sets Call, revives itself, and
-            // restarts Changshi -> Army -> Samuel before Eldlich is committed.
+
             bool needSmallPumpkingStarter = !pumpkingHandEffectAttempted
                 && !HasPumpkingAccessible()
                 && cards.Any(c => c != null
@@ -3867,8 +3683,7 @@ namespace WindBot.Game.AI.Decks
 
             List<ClientCard> result = new List<ClientCard>();
 
-            // Two opposing problem cards always have priority over recycling one
-            // of our own cards.
+
             if (enemies.Count >= 2)
             {
                 result.AddRange(enemies.Take(2));
@@ -3907,9 +3722,7 @@ namespace WindBot.Game.AI.Decks
         {
             List<ClientCard> ordered = new List<ClientCard>();
 
-            // Highest priority: when Reverie is already in the GY, detach an Xyz
-            // monster used as material first. Reverie can replace the spent Xyz
-            // body, so named Level 6 resources are more valuable to preserve.
+
             bool reverieInGrave = Bot.HasInGraveyard(CardId.OfficiatingReverie);
             if (reverieInGrave)
             {
@@ -3918,9 +3731,7 @@ namespace WindBot.Game.AI.Decks
                     && !ordered.Contains(c)));
             }
 
-            // Next, put the first small Pumpking into the GY. Once another small
-            // Pumpking is already there, do not force an additional copy off the
-            // current Xyz before the named grave-value materials below.
+
             bool pumpkingInGrave = HasPumpkingInGrave();
             if (!pumpkingInGrave)
             {
@@ -3943,7 +3754,7 @@ namespace WindBot.Game.AI.Decks
                     && !ordered.Contains(c)));
             }
 
-            // Everything else is expendable only after the explicit priorities.
+
             ordered.AddRange(cards.Where(c => c != null && !ordered.Contains(c))
                 .OrderBy(GetMaterialValue)
                 .ThenBy(c => c.Attack));
@@ -3961,8 +3772,8 @@ namespace WindBot.Game.AI.Decks
 
         private IList<ClientCard> SelectDiscard(IList<ClientCard> cards, int min, int max)
         {
-            // Generic discard order for effects that do not have a route-specific
-            // cost selector. Route-specific effects such as Reverie override this.
+
+
             int[] priority =
             {
                 CardId.DoomkingBalerdroch,
@@ -3980,8 +3791,7 @@ namespace WindBot.Game.AI.Decks
                 CardId.CallOfTheHaunted,
                 CardId.EctoplasmicFortification,
                 CardId.VortexOfTime,
-                CardId.MulcharmyPurulia,
-                CardId.MulcharmyFuwalos,
+                CardId.GhostBelle,
                 CardId.MaxxC,
                 CardId.AshBlossom,
                 CardId.InfiniteImpermanence,
@@ -4000,12 +3810,11 @@ namespace WindBot.Game.AI.Decks
             int score = 500;
             int copies = candidates.Count(c => c != null && c.IsCode(card.Id));
 
-            // Best cost: Mezuki immediately becomes an extender in the GY.
+
             if (card.IsCode(CardId.Mezuki))
                 return 0;
 
-            // These cards are deliberately sent only when their GY condition is
-            // already live. Do not throw away an Eldlich/Doomking line blindly.
+
             if (card.IsCode(CardId.DoomkingBalerdroch))
                 score = HasFaceupFieldSpell() ? 10 : 110;
             else if (card.IsCode(CardId.ArmyOfTheHaunted))
@@ -4020,9 +3829,8 @@ namespace WindBot.Game.AI.Decks
                 score = 70;
             else if (IsGenericHandTrap(card))
             {
-                // Reverie must still be allowed to summon when Mezuki is absent.
-                // Spent hand traps and spare Mulcharmy/Maxx/Ash/Imperm/Dominus are
-                // acceptable costs before sacrificing a live combo starter.
+
+
                 score = activatedThisTurn.Contains(card.Id) ? 30 : 80;
             }
             else
@@ -4030,11 +3838,11 @@ namespace WindBot.Game.AI.Decks
                 score = GetGenericHandDispositionScore(card, candidates);
             }
 
-            // Spare copies are safer to discard regardless of category.
+
             if (copies > 1)
                 score -= 45 + Math.Min(copies - 1, 3) * 10;
 
-            // Preserve live Pumpking starters and the cards that secure Call/Field.
+
             if (card.IsCode(CardId.Hublot,
                     CardId.StareOfTheSnakeHair,
                     CardId.EctoplasmicFortification))
@@ -4101,8 +3909,7 @@ namespace WindBot.Game.AI.Decks
         private bool IsGenericHandTrap(ClientCard card)
         {
             return card != null && card.IsCode(
-                CardId.MulcharmyPurulia,
-                CardId.MulcharmyFuwalos,
+                CardId.GhostBelle,
                 CardId.MaxxC,
                 CardId.AshBlossom,
                 CardId.InfiniteImpermanence,
@@ -4136,21 +3943,19 @@ namespace WindBot.Game.AI.Decks
             int score = 500;
             int copies = handCandidates.Count(c => c != null && c.IsCode(card.Id));
 
-            // The Murakumo-style safety net must be willing to give up a spare
-            // copy. This is the key case that the Yubel report exposed.
+
             if (copies > 1)
                 score -= 500 + Math.Min(copies - 1, 3) * 20;
 
-            // A hand trap that already resolved this turn has the least remaining
-            // value in the hand. Keep this above the generic duplicate rule.
+
             if (IsGenericHandTrap(card) && activatedThisTurn.Contains(card.Id))
                 score -= 400;
 
-            // Prefer cards that continue to function or become stronger in the GY.
+
             if (HasGenericGraveyardValue(card))
                 score -= 180;
 
-            // Redundant utility cards are safer than live engine starters.
+
             if (IsGenericHandTrap(card))
                 score -= 40;
             if (card.IsCode(CardId.Terraforming)
@@ -4162,8 +3967,7 @@ namespace WindBot.Game.AI.Decks
             if (card.IsCode(CardId.CallOfTheHaunted) && HasFaceupCall())
                 score -= 100;
 
-            // Preserve the cards that start or secure the Pumpking route. A spare
-            // copy can still move ahead of these through the duplicate modifier.
+
             if (card.IsCode(CardId.Hublot,
                     CardId.StareOfTheSnakeHair,
                     CardId.EctoplasmicFortification))
@@ -4207,8 +4011,7 @@ namespace WindBot.Game.AI.Decks
                 .ThenBy(c => c.Id)
                 .ToList();
 
-            // Satisfy only the mandatory minimum. Generic prompts should never
-            // throw away extra cards merely because the server allows up to max.
+
             int take = Math.Min(Math.Max(min, 1), Math.Min(max, ordered.Count));
             List<ClientCard> selected = ordered.Take(take).ToList();
             DebugRoute("GENERIC HAND DISPOSITION hint=" + hint
@@ -4265,8 +4068,7 @@ namespace WindBot.Game.AI.Decks
             if (result.Count < min)
                 return null;
 
-            // Safety fallbacks select only the mandatory count. Card-specific
-            // handlers still control effects that intentionally choose more cards.
+
             int take = Math.Min(min, Math.Min(max, result.Count));
             return result.Take(take).ToList();
         }
@@ -4351,10 +4153,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> pool = revivable.Where(c => c != null).ToList();
             ClientCard chainSource = Util.GetLastChainCard();
 
-            // Snakehair must be planned against a concrete Attack Position
-            // monster. A monster effect that targets an opposing GY monster
-            // (Dux -> Phalanx) is also a high-value target even when the generic
-            // danger classifier does not know the archetype.
+
             bool chainTargetsEnemyGraveMonster = Duel.ChainTargets.Any(c =>
                 c != null
                 && c.Controller == 1
@@ -4384,9 +4183,7 @@ namespace WindBot.Game.AI.Decks
 
             ClientCard mammothTarget = GetMammothPreemptTarget();
 
-            // Pumpking is selected only after its exact Deck follow-up has been
-            // locked. This removes the old "any opposing chain is useful" fallback
-            // that spent Call on Upstart Goblin and later produced target=0.
+
             ClientCard pumpking = pool.FirstOrDefault(c => c.IsCode(
                 CardId.PumpkingTheKingOfGraveGhosts));
             if (pumpking != null && !pumpkingSummonEffectAttempted)
@@ -4442,9 +4239,7 @@ namespace WindBot.Game.AI.Decks
             if (card == null)
                 return false;
 
-            // Army can Special Summon itself from the hand/GY while a face-up Call
-            // exists. Do not consume it as Call's target until that once-per-turn
-            // action has already been committed this turn.
+
             return !card.IsCode(CardId.ArmyOfTheHaunted)
                 || armySpecialSummonEffectCommittedThisTurn;
         }
@@ -4538,8 +4333,7 @@ namespace WindBot.Game.AI.Decks
                 .ThenBy(c => c.IsCode(CardId.PumpkingTheGreatGhostKing) ? 0 : 1)
                 .ThenBy(c => c.IsCode(CardId.TheUndyingLegion) ? 0 : 1));
 
-            // Only disturb the opposing GY after our Changshi / Extra Deck
-            // recycling objectives are unavailable.
+
             priority.AddRange(GetEnemyGravePriority(cards).Where(cards.Contains));
             priority.AddRange(own);
             priority = priority.Distinct().ToList();
@@ -4586,9 +4380,8 @@ namespace WindBot.Game.AI.Decks
 
         private ClientCard GetUndyingOpenStateFieldTarget()
         {
-            // Undying costs one or two materials, so proactive use is reserved for
-            // a real boss/negate/floodgate or an Xyz whose existing materials are
-            // also stripped by the Lua operation before it becomes our material.
+
+
             return Enemy.GetMonsters()
                 .Where(c => c != null
                     && c.IsFaceup()
@@ -4624,9 +4417,7 @@ namespace WindBot.Game.AI.Decks
                 if (last == null)
                     return null;
 
-                // First inspect the announced target, not only the chain source. If
-                // Dux targets Phalanx (or another opposing effect targets a monster
-                // in its GY), overlaying that target makes the effect lose it.
+
                 ClientCard announcedGraveTarget = Duel.ChainTargets.LastOrDefault(c =>
                     c != null
                     && c.Controller == 1
@@ -4651,8 +4442,7 @@ namespace WindBot.Game.AI.Decks
                         return reviveTarget;
                 }
 
-                // Undying is removal, not a negate. Do not spend it on a GY source
-                // whose already-activated effect will resolve anyway.
+
                 if (last.Controller == 1
                     && last.Location == CardLocation.Grave
                     && last.IsMonster())
@@ -4673,8 +4463,7 @@ namespace WindBot.Game.AI.Decks
                     return last;
                 }
 
-                // Lua allows any opposing face-up Attack Position monster, not just
-                // the chain source. Remove the best live boss while the window is open.
+
                 ClientCard fieldTarget = GetUndyingOpenStateFieldTarget();
                 if (fieldTarget != null)
                 {
@@ -4731,8 +4520,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanMammothTriggerAfterReverieRevive()
         {
-            // Mammoth needs another face-up Zombie or Call of the Haunted already
-            // face-up. Do not revive it as "interaction" when its trigger would be dead.
+
+
             return HasFaceupCall() || Bot.GetMonsters().Any(c => c != null
                 && c.IsFaceup() && IsZombie(c)
                 && !c.IsCode(CardId.GreatMammothOfTheNetherworld));
@@ -4761,12 +4550,7 @@ namespace WindBot.Game.AI.Decks
             if (card == null || !card.HasType(CardType.Xyz) || !IsZombie(card))
                 return int.MinValue;
 
-            // Reverie revives an Xyz with no material. Great Pumpking still gives
-            // its Special-Summon search immediately, while Samuel remains useful as
-            // a body whose later trip to the GY recycles a monster. Undying,
-            // Sheridan, Wollow, and the other Xyz lose the effect that justified
-            // summoning them once their material count is zero, so do not revive
-            // them merely for raw ATK/DEF.
+
             if (card.IsCode(CardId.PumpkingTheGreatGhostKing))
             {
                 bool searchStillLive = !greatPumpkingSearchAttempted
@@ -4796,9 +4580,7 @@ namespace WindBot.Game.AI.Decks
             if (cards == null || min <= 0)
                 return null;
 
-            // Immediate interaction outranks generic recovery. Snakehair answers a
-            // live attack-position monster effect; Mammoth removes the best field
-            // problem only when its own summon trigger is live.
+
             ClientCard snakehairTarget = GetReverieSnakehairTarget();
             if (snakehairTarget != null
                 && cards.Any(c => c.IsCode(CardId.StareOfTheSnakeHair)))
@@ -4823,9 +4605,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.GreatMammothOfTheNetherworld);
             }
 
-            // With no immediate interaction, the useful no-material Xyz revives
-            // are Great Pumpking and Samuel. Do not revive Undying or another Xyz
-            // whose relevant activated effect is dead without material.
+
             ClientCard xyzTarget = cards
                 .Where(c => GetReverieZombieXyzScore(c) > int.MinValue)
                 .OrderByDescending(GetReverieZombieXyzScore)
@@ -4845,10 +4625,8 @@ namespace WindBot.Game.AI.Decks
 
         private IList<ClientCard> SelectZombieToRevive(IList<ClientCard> cards, int min, int max)
         {
-            // Doomking revives itself during the Standby Phase while any Field Spell
-            // is face-up. Spending Call on it in that state wastes the reusable trap
-            // and removes a stronger Pumpking follow-up. Filter it from the legal
-            // preference pool instead of merely lowering its priority.
+
+
             IList<ClientCard> selectable = cards;
             if (HasFaceupFieldSpell())
             {
@@ -4882,7 +4660,7 @@ namespace WindBot.Game.AI.Decks
                 CardId.StareOfTheSnakeHair
             });
 
-            // If there is no opponent card, avoid prioritising Mammoth merely for ATK.
+
             if (!enemyHasFieldCard)
                 priority.Remove(CardId.GreatMammothOfTheNetherworld);
 
@@ -4966,10 +4744,7 @@ namespace WindBot.Game.AI.Decks
             if (legal.Count == 0)
                 return null;
 
-            // Prefer bodies whose Special Summon creates additional value, but do
-            // not artificially stop at the four main-deck names. A properly
-            // summoned Zombie boss in the GY may be the only body whose ATK can
-            // legally cover the intended Samuel disable target.
+
             int[] priority =
             {
                 CardId.PumpkingTheKingOfGraveGhosts,
@@ -5057,8 +4832,19 @@ namespace WindBot.Game.AI.Decks
                 return 999;
             if (GetCallLinkedLevel6(new[] { card }) != null)
                 return 0;
+
+
+            if (card.IsCode(CardId.VampireGrace))
+                return 5;
             if (card.IsDisabled())
                 return 10;
+            if (IsHublot(card))
+                return 15;
+            if (card.IsCode(CardId.ChangshiTheSpiridao)
+                && !changshiMillResolved)
+            {
+                return 100;
+            }
             return 20;
         }
 
@@ -5094,9 +4880,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (IsVampireGraceRouteLive())
             {
-                // Grace route always makes Great Pumpking first so the Call-linked
-                // Level 6 is consumed and Call becomes Eldlich cost. Samuel then
-                // uses whichever two Level 6 Zombies remain.
+
+
                 if (!HasGreatPumpkingOnField())
                     return new List<ClientCard>();
                 return GetChangshiRescueRank6Materials(Bot.GetMonsters());
@@ -5106,18 +4891,15 @@ namespace WindBot.Game.AI.Decks
                 && HasGreatPumpkingOnField()
                 && Bot.HasInGraveyard(CardId.ChangshiTheSpiridao))
             {
-                // The second Rank 6 is purely role-based: use the two remaining
-                // Level 6 Zombies, prioritising a Call-linked body if one still
-                // exists so Call becomes a legal Eldlich cost.
+
+
                 return GetChangshiRescueRank6Materials(Bot.GetMonsters());
             }
 
             if (ashReplayLineActive)
             {
-                // Confirmed Urara route: Army + Changshi is the preferred pair.
-                // If Army was interrupted or has not reached the field, do not pass
-                // with two legal Level 6 bodies: keep Changshi and use the cheapest
-                // remaining Level 6 Zombie (normally Reverie).
+
+
                 List<ClientCard> ashMaterials = Bot.GetMonsters()
                     .Where(c => c.IsFaceup() && c.Level == 6
                         && !c.HasType(CardType.Xyz | CardType.Link))
@@ -5186,8 +4968,8 @@ namespace WindBot.Game.AI.Decks
                 && !HasGreatPumpkingOnField()
                 && GetRank6Materials(true).Count >= 4)
             {
-                // First Rank 6: linked Level 6 + Level 6. The remaining pair is
-                // reserved for Samuel, independent of the monster names involved.
+
+
                 return GetChangshiRescueRank6Materials(Bot.GetMonsters());
             }
 
@@ -5195,9 +4977,8 @@ namespace WindBot.Game.AI.Decks
                 && !HasGreatPumpkingOnField()
                 && Bot.HasInGraveyard(CardId.ChangshiTheSpiridao))
             {
-                // First Rank 6: linked Level 6 + any other Level 6. If the route
-                // began with Hublot there may be no linked body yet, in which case
-                // any two legal Level 6 Zombies make Great Pumpking.
+
+
                 return GetChangshiRescueRank6Materials(Bot.GetMonsters());
             }
 
@@ -5226,8 +5007,7 @@ namespace WindBot.Game.AI.Decks
             if (hublot != null && revived != null && hublot != revived)
                 return new List<ClientCard> { hublot, revived };
 
-            // Legal fallback for non-ideal boards: preserve Samuel and never put
-            // the small Pumpking back under an Xyz after Samuel detached it.
+
             List<ClientCard> fallback = GetRank6Materials(true)
                 .Where(c => !c.IsCode(CardId.PumpkingTheKingOfGraveGhosts))
                 .OrderBy(c => IsHublot(c) ? 0 : 1)
@@ -5258,9 +5038,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool IsReverieRecoverableXyz(ClientCard card)
         {
-            // Kept as the route-facing name used by older helpers. Material value
-            // no longer depends on Reverie being in the GY: every Zombie Xyz with
-            // zero material is already spent and may be converted immediately.
+
+
             return IsSpentZombieXyz(card);
         }
 
@@ -5272,9 +5051,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // Every zero-material Zombie Xyz is spent, including Samuel, Sheridan,
-            // Great Pumpking, or Undying. Preserve only Xyz monsters that still
-            // have material and therefore still have usable effects.
+
             if (card.HasType(CardType.Xyz))
                 return IsSpentZombieXyz(card);
 
@@ -5284,8 +5061,8 @@ namespace WindBot.Game.AI.Decks
         private int GetZombieLinkMaterialValue(ClientCard card)
         {
             if (IsDeltaToken(card)) return 0;
-            // All zero-material Zombie Xyz monsters are equally spent. Use them
-            // before any Main Deck body that still carries summon/setup value.
+
+
             if (IsSpentZombieXyz(card)) return 1;
             if (card != null && card.Level != 6 && !card.HasType(CardType.Xyz)) return 2;
             if (card != null && card.IsCode(CardId.GreatMammothOfTheNetherworld)) return 10;
@@ -5320,9 +5097,7 @@ namespace WindBot.Game.AI.Decks
             if (fallen == null)
                 return new List<ClientCard>();
 
-            // Fallen is mandatory for this route. The second material follows the
-            // global policy: Delta Token first, then Samuel/spent Xyz with Reverie
-            // in GY, and Level 6 bodies only as the final fallback.
+
             return GetPreferredZombieLinkMaterials(fallen, 2);
         }
 
@@ -5352,7 +5127,7 @@ namespace WindBot.Game.AI.Decks
                 zones.Add(i);
             }
 
-            // Prefer a column that is not directly opposite a set enemy card.
+
             foreach (int zoneId in zones)
             {
                 ClientCard opposite = Enemy.SpellZone[4 - zoneId];
@@ -5371,22 +5146,12 @@ namespace WindBot.Game.AI.Decks
             AI.SelectPlace(0);
         }
 
-        // =====================================================================
-        // Generic cards and interaction
-        // =====================================================================
 
-        private bool MulcharmyPuruliaActivate()
+        private bool GhostBelleActivate()
         {
-            if (IsCardEffectNegated())
+            if (!CanUseEarthMonsterEffects() || IsCardEffectNegated())
                 return false;
-            return Duel.Player == 1;
-        }
-
-        private bool MulcharmyFuwalosActivate()
-        {
-            if (!CanUseWindMonsterEffects() || IsCardEffectNegated())
-                return false;
-            return Duel.Player == 1;
+            return DefaultGhostBelleAndHauntedMansion();
         }
 
         private bool MaxxCActivate()
@@ -5417,11 +5182,7 @@ namespace WindBot.Game.AI.Decks
             if (IsCardEffectNegated())
                 return false;
 
-            // This deck repeatedly needs LIGHT Eldlich and EARTH Mezuki effects.
-            // Activating Dominus from the hand applies a permanent LIGHT/EARTH/WIND
-            // activation lock, which is far more damaging than stopping an ordinary
-            // extender such as Phalanx. Hold the hand copy and Set it on our turn;
-            // a Set Dominus keeps the negate without accepting that lock.
+
             if (Card.Location == CardLocation.Hand)
             {
                 DebugRoute("HOLD Dominus in hand: preserve LIGHT/EARTH/WIND engine; Set it first");
@@ -5454,8 +5215,7 @@ namespace WindBot.Game.AI.Decks
                 || GetEnemyFieldPriority().Count > ourZombieCount
                 || Enemy.GetMonsters().Sum(c => Math.Max(0, c.Attack)) >= Bot.LifePoints;
 
-            // The tails result banishes all our monsters, so only gamble readily
-            // with a small board or against a genuinely important activation.
+
             return ourZombieCount <= 1 || emergency;
         }
 
@@ -5464,7 +5224,7 @@ namespace WindBot.Game.AI.Decks
             if (IsCardEffectNegated())
                 return false;
 
-            // Standby Phase self-revival.
+
             if (Card.Location == CardLocation.Grave)
                 return HasFaceupFieldSpell() && HasOpenMainMonsterZone();
 
@@ -5472,9 +5232,7 @@ namespace WindBot.Game.AI.Decks
             if (last == null || last.IsCode(CardId.DoomkingBalerdroch))
                 return false;
 
-            // Capture the desired option now. At the later SelectOption prompt,
-            // LastChainPlayer may already point at Doomking itself rather than the
-            // opponent's original Zombie effect.
+
             if (Duel.LastChainPlayer == 1 && Duel.CurrentChain.Count > 0 && !last.IsDisabled())
             {
                 doomkingOptionPending = true;
@@ -5511,9 +5269,7 @@ namespace WindBot.Game.AI.Decks
                 + " chainCount=" + Duel.CurrentChain.Count
                 + " enemyField=" + hasEnemyFieldCard);
 
-            // Same effect-description split used by YubelExecutor: StringId 1 is
-            // shared by the quick negate and battle-start trigger. A live opponent
-            // chain identifies the negate branch.
+
             bool opponentChain = Duel.LastChainPlayer == 1
                 && Duel.CurrentChain.Count > 0;
             if (opponentChain
@@ -5546,9 +5302,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // Battle-start destroy and the trigger after Varudras is destroyed are
-            // optional. Record the target prompt now because solving-chain metadata
-            // is not reliable when the subsequent HINTMSG_DESTROY prompt arrives.
+
             if (!opponentChain
                 && (ActivateDescription == negateOrBattleDesc
                     || ActivateDescription == destroyedDesc
@@ -5586,9 +5340,6 @@ namespace WindBot.Game.AI.Decks
                 || Enemy.GetSpells().Any(c => c.IsFaceup() && !c.IsDisabled() && !c.IsShouldNotBeTarget());
         }
 
-        // =====================================================================
-        // Starters and Main Deck engine
-        // =====================================================================
 
         private bool TerraformingActivate()
         {
@@ -5618,25 +5369,21 @@ namespace WindBot.Game.AI.Decks
                 return createToken;
             }
 
-            // A ready Rank 6 Pumpking line has priority over committing Delta.
-            // In particular, Hublot + Reverie should become Great Pumpking, search
-            // the small Pumpking, and continue that combo before Eldlich starts.
+
             if (CanTakeProductivePumpkingActionNow())
             {
                 DebugRoute("HOLD Delta activation: complete available Hublot/Pumpking action first");
                 return false;
             }
 
-            // Do not open Delta merely to send Eldlich and stop. Route readiness
-            // accepts either a face-up Zombie (Token first, then Delta pays Eldlich)
-            // or a separate Spell/Trap (Eldlich first, then Token).
+
             if (!CanStartEldlichRoute())
             {
                 DebugRoute("HOLD Delta activation: no complete Eldlich/Flying Mary route available");
                 return false;
             }
 
-            // Field/Eldlich setup remains ahead of optional graveyard extenders.
+
             SelectSTPlace(Card, true);
             return true;
         }
@@ -5672,10 +5419,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location != CardLocation.Hand || IsCardEffectNegated())
                 return false;
 
-            // Hard route rule: Snakehair from the hand searches Ectoplasmic
-            // Fortification first. Ectoplasmic then chooses Pumpking or Hublot
-            // from the actual hand/Deck state. Having Pumpking already must not
-            // redirect Snakehair into Call or Vortex.
+
             if (ectoplasmicSearchUsed
                 || Bot.HasInHand(CardId.EctoplasmicFortification)
                 || CheckRemainInDeck(CardId.EctoplasmicFortification) <= 0)
@@ -5731,17 +5475,14 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // The hand effect immediately sets Call, Call revives Pumpking, and
-            // Pumpking then needs a second free Main Monster Zone for its Deck
-            // summon. With only one zone this line merely clogs the last slot.
+
             if (Duel.Player == 0 && GetOpenMainMonsterZoneCount() < 2)
             {
                 DebugRoute("HOLD Pumpking hand effect: need two open Main Monster Zones for Call + Deck summon");
                 return false;
             }
 
-            // Hublot is the ideal Normal Summon. Its executor is registered first,
-            // so this guard is only needed when the same idle prompt is re-queried.
+
             if (summonCount > 0
                 && !HasHublotOnField()
                 && HasHublotInHand()
@@ -5779,9 +5520,7 @@ namespace WindBot.Game.AI.Decks
                             && CanMammothDestroyTarget(pendingMammothDestroyTarget))
                         || GetMammothPreemptTarget() != null);
 
-                // Do not convert Pumpking into a setup-only Hublot on the
-                // opponent's turn. Use this once-per-turn trigger only when the
-                // summoned monster produces immediate interaction.
+
                 if (!hasSnakehairLine && !hasMammothLine)
                 {
                     DebugRoute("HOLD opponent-turn Pumpking: no live Snakehair/Mammoth interaction");
@@ -5799,9 +5538,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ShouldDelayFoolishForGreatPumpkingSearch()
         {
-            // Once Great Pumpking is on the field, let its delayed search finish
-            // before committing Foolish. The search result (normally Army in this
-            // route) determines what the graveyard still actually needs.
+
+
             if (greatPumpkingSearchWindowPending
                 || (greatPumpkingSearchAttempted && !greatPumpkingSearchResolved)
                 || (HasGreatPumpkingOnField() && !greatPumpkingSearchResolved))
@@ -5809,15 +5547,11 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // Once Great Pumpking has searched Army, finish the concrete
-            // Army -> Samuel -> Great Pumpking/Undying sequence before deciding
-            // what Foolish should send.
+
             if (CanTakeProductivePumpkingExtraDeckStep())
                 return true;
 
-            // In the Urara replay route the exact Hublot + small Pumpking pair is
-            // already ready to make Great Pumpking. Do not fire Foolish in the idle
-            // window between Changshi resolving and that Xyz Summon.
+
             return ashReplayLineActive
                 && !greatPumpkingSearchResolved
                 && Bot.HasInExtra(CardId.PumpkingTheGreatGhostKing)
@@ -5866,9 +5600,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanUseFoolishForDoomkingValue()
         {
-            // Under a face-up Field Spell, Doomking will revive itself in the next
-            // Standby Phase. Without that concrete payoff it is not worth spending
-            // the reserve Foolish Burial merely to park a card in the GY.
+
+
             return HasFaceupFieldSpell()
                 && !Bot.HasInGraveyard(CardId.DoomkingBalerdroch)
                 && !Bot.HasInMonstersZone(CardId.DoomkingBalerdroch, faceUp: true);
@@ -5885,9 +5618,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // Grace is a low-priority extender, never a standalone starter. Send
-            // it only when a qualifying Zombie-effect Special Summon is already
-            // executable after Foolish resolves.
+
             bool armyTrigger = HasFaceupCall()
                 && !armySpecialSummonEffectCommittedThisTurn
                 && (Bot.HasInHand(CardId.ArmyOfTheHaunted)
@@ -5905,7 +5636,7 @@ namespace WindBot.Game.AI.Decks
         private int GetFoolishBurialPlannedTargetId(
             IEnumerable<ClientCard> candidates = null)
         {
-            // First repair a concrete missing combo piece.
+
             if (IsFoolishCandidateAvailable(CardId.Mezuki, candidates)
                 && CanUseFoolishForMissingMezukiBody())
             {
@@ -5918,16 +5649,14 @@ namespace WindBot.Game.AI.Decks
                 return CardId.EldlichTheGoldenLord;
             }
 
-            // Doomking has a guaranteed delayed payoff under a face-up Field
-            // Spell, so it remains a concrete delayed-value target.
+
             if (IsFoolishCandidateAvailable(CardId.DoomkingBalerdroch, candidates)
                 && CanUseFoolishForDoomkingValue())
             {
                 return CardId.DoomkingBalerdroch;
             }
 
-            // Grace is intentionally last: it is selected only when the current
-            // board already guarantees its trigger and immediate Rank 6 value.
+
             if (IsFoolishCandidateAvailable(CardId.VampireGrace, candidates)
                 && CanUseFoolishForVampireGrace())
             {
@@ -5968,8 +5697,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // Do not use Foolish before an unused Hublot Normal Summon. Hublot is
-            // the starter and its own mill can prepare the required GY resource.
+
             if (summonCount > 0 && HasHublotInHand()
                 && HasOpenMainMonsterZone() && !ShouldDelayHublotForPumpkingSearch())
             {
@@ -6018,9 +5746,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // These are the deliberately expendable low-Level Zombies registered
-            // for this fallback. Hublot and every Pumpking starter are handled by
-            // their own higher-priority executors and are never spent as a brick.
+
             if (!Card.IsCode(CardId.Mezuki, CardId.AshBlossom))
                 return false;
 
@@ -6048,11 +5774,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // Hublot's trigger can restrict the available Extra Deck choice to a
-            // Zombie Xyz. During a later-turn recovery board, decline that shortcut
-            // when the same two Level 6 bodies can instead be overlaid normally into
-            // Lars. This prevents an automatic Wollow from replacing the stronger
-            // generic interaction.
+
             SurplusRank6Plan recoveryRank6Plan = GetSurplusRank6Plan();
             if (IsLaterTurnRecoveryState()
                 && (recoveryRank6Plan == SurplusRank6Plan.LarsNegate
@@ -6063,9 +5785,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // Decline the trigger caused by Call reviving Pumpking. Pumpking must
-            // resolve first and summon Changshi. In the normal route Hublot's Xyz
-            // trigger is saved for the monster revived by Samuel.
+
             if (samuelReviveResolved && HasSamuelOnField()
                 && CountFreeLevel6ForGreatPumpking() >= 2)
             {
@@ -6093,13 +5813,10 @@ namespace WindBot.Game.AI.Decks
 
             int materials = card.Overlays == null ? 0 : card.Overlays.Count;
 
-            // The purpose of the banished effect is to reload a spent Xyz. A
-            // zero-material Xyz always beats adding another material to a live one.
+
             int score = materials == 0 ? 10000 : -materials * 1000;
 
-            // Among equally spent Xyz, prefer effects that can create value during
-            // our current turn. Undying is deliberately last because its attach
-            // effect matters only on the opponent's turn.
+
             if (card.IsCode(CardId.PumpkingTheGreatGhostKing))
                 score += Enemy.GetMonsterCount() + Enemy.GetSpellCount() > 0 ? 520 : 360;
             else if (card.IsCode(CardId.OfficiatorOfDoomSamuel))
@@ -6213,8 +5930,8 @@ namespace WindBot.Game.AI.Decks
                 {
                     return false;
                 }
-                // Reverie only needs any other discardable card. Mezuki is the
-                // preferred cost, never a requirement for activating this extender.
+
+
                 if (Bot.Hand.Count <= 1 || !HasSurplusMainMonsterZoneForReverie())
                     return false;
 
@@ -6276,9 +5993,8 @@ namespace WindBot.Game.AI.Decks
             if ((Card.Location == CardLocation.Hand || Card.Location == CardLocation.Grave)
                 && HasFaceupCall())
             {
-                // Use exactly the same executability test as the Mezuki gate.
-                // This prevents "wait for Army" from remaining true when Army's
-                // own executor would decline the Special Summon.
+
+
                 if (!HasUnusedArmySpecialSummonAvailable())
                     return false;
 
@@ -6309,10 +6025,7 @@ namespace WindBot.Game.AI.Decks
             if (!armyAvailable)
                 return false;
 
-            // In the Urara route Army is legal only after Great Pumpking's search
-            // resolves. Outside that route it must not cut across a concrete
-            // Pumpking/Call/Changshi action. Most importantly, the gate is true
-            // only when the current plan still needs the Level 6 body.
+
             if (ashReplayLineActive)
             {
                 return HasGreatPumpkingOnField()
@@ -6352,10 +6065,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player == 0)
             {
 
-                // Pumpking's freshly Set Call is the dedicated combo bridge. It
-                // remains the one own-turn exception to the generic open-state
-                // rule because the entire Call -> Pumpking -> Deck summon line is
-                // planned as one route.
+
                 bool pumpkingComboRevive = callSetByPumpking
                     && Card.IsFacedown()
                     && HasPumpkingInGrave()
@@ -6370,9 +6080,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
 
-                // Lethal/value Call is not an interrupt. Never chain it into our
-                // own Great Pumpking search, bounce, Fallen Angel, or any other
-                // friendly effect. Re-evaluate only after the board is stable.
+
                 if (Duel.CurrentChain.Count > 0)
                 {
                     DebugRoute("HOLD Call lethal/extender: wait for open state");
@@ -6393,9 +6101,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // On the opponent's turn, never flip Call in an empty chain merely
-            // because a legal monster exists. Wait for an opposing commitment and
-            // revive only an interaction body; Army is not an interrupt target.
+
             if (Duel.CurrentChain.Count == 0 || Duel.LastChainPlayer != 1)
             {
                 DebugRoute("HOLD Call: wait for opposing chain");
@@ -6421,11 +6127,7 @@ namespace WindBot.Game.AI.Decks
 
             int requiredBodies = 0;
 
-            // Urara route is not automatically Mezuki-free. Great Pumpking must
-            // stay separate, while Samuel still needs two free Level 6 Zombies.
-            // Army normally supplies one of them; when Army was unavailable,
-            // negated, removed, or did not leave enough bodies, Mezuki may repair
-            // the route after Army has had its Special-Summon opportunity.
+
             if (ashReplayLineActive || currentComboRoute == ComboRoute.UraraRecovery)
             {
                 if (!HasGreatPumpkingOnField() || HasSamuelOnField())
@@ -6454,8 +6156,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // Later-turn comeback: reviving an unused small Pumpking is itself the
-            // Level 6 body that restarts the Pumpking/Changshi sequence.
+
             return !HasSmallPumpkingOnField()
                 && !pumpkingSummonEffectAttempted
                 && Bot.Graveyard.Any(c => c != Card
@@ -6468,8 +6169,7 @@ namespace WindBot.Game.AI.Decks
             if (!IsWorthwhileMezukiReviveTarget(target) || !IsLevel6Zombie(target))
                 return false;
 
-            // A fresh Pumpking is an immediate continuation only when there is one
-            // zone for the revived Pumpking and another for its Deck summon.
+
             if (target.IsCode(CardId.PumpkingTheKingOfGraveGhosts)
                 && !pumpkingSummonEffectAttempted
                 && GetOpenMainMonsterZoneCount() >= 2
@@ -6478,9 +6178,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // Otherwise Mezuki must complete a Rank 6 pair now. Merely increasing
-            // a planner counter is not enough; one revived body that cannot be used
-            // before the current Main Phase ends is preserved for a later turn.
+
             int resultingFreeLevel6 = CountFreeLevel6ForGreatPumpking() + 1;
             if (resultingFreeLevel6 < 2)
                 return false;
@@ -6514,8 +6212,7 @@ namespace WindBot.Game.AI.Decks
             if (HasImmediatePumpkingActionPending())
                 return false;
 
-            // Army is a no-cost Level 6 body under face-up Call. Never banish
-            // Mezuki before Army has used (or lost) that Special-Summon action.
+
             if (HasUnusedArmySpecialSummonAvailable())
             {
                 DebugRoute("HOLD Mezuki: unused Army Special Summon must resolve first");
@@ -6548,10 +6245,7 @@ namespace WindBot.Game.AI.Decks
             if (eldlichRouteRank10CommitPending)
                 return false;
 
-            // Grace's on-field ignition effect mills the opponent's Deck and is
-            // deliberately ignored. The bot uses only the GY trigger as a Level 6
-            // extender after a Zombie monster effect Special Summons another
-            // Level 5+ Zombie.
+
             if (IsCardEffectNegated()
                 || Card.Location != CardLocation.Grave
                 || vampireGraceReviveCommittedThisTurn
@@ -6564,8 +6258,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // After Grace enters the field, at least one other free Level 6 body
-            // must already exist so the paid summon converts into Rank 6 value now.
+
             if (CountFreeLevel6ForGreatPumpking() < 1)
             {
                 DebugRoute("HOLD Vampire Grace: paid revive has no immediate Rank 6 partner");
@@ -6640,9 +6333,6 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 }
 
-                // Eldlich revival is never blocked merely to manufacture a
-                // Vampire Sucker draw. Sucker is an optional surplus line only;
-                // recovery and committed Rank 10 routes continue immediately.
 
                 ClientCard exactCost = GetBestEldlichGraveFieldCost();
                 if (!HasOpenMainMonsterZone() || exactCost == null)
@@ -6692,9 +6382,7 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        // =====================================================================
-        // Extra Deck summon decisions
-        // =====================================================================
+
         private bool PumpkingGreatGhostKingSummon()
         {
 
@@ -6720,8 +6408,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // Normal route: Samuel first, detach Pumpking, revive a Level 6, then
-            // Hublot + the revived monster become Great Pumpking.
+
             List<ClientCard> comboMaterials = GetGreatPumpkingMaterials();
             if (comboMaterials.Count == 2)
             {
@@ -6734,9 +6421,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // If Samuel cannot still leave a third Level 6 body for Great Pumpking,
-            // do not consume the only two monsters. Make Great Pumpking first as the
-            // safe fallback instead.
+
             List<ClientCard> plannedSamuelMaterials = GetSamuelMaterials();
             bool samuelRouteAvailable = plannedSamuelMaterials.Count == 2
                 && CanNormalSamuelFirstReachGreatPumpking(plannedSamuelMaterials);
@@ -6759,8 +6444,7 @@ namespace WindBot.Game.AI.Decks
             if (card.IsAttack())
                 return card.Attack;
 
-            // These two cards have explicit Reposition rules before battle. Other
-            // Defence Position monsters are not assumed to be legally movable.
+
             if (BattlePhaseIsAvailableThisTurn()
                 && card.IsCode(CardId.OfficiatorOfDoomSamuel, CardId.Varudras))
             {
@@ -6823,8 +6507,7 @@ namespace WindBot.Game.AI.Decks
                 + wollowBaseAttack
                 + boost * (remainingAttackers.Count + 1);
 
-            // Wollow is the power choice when its graveyard scaling converts a
-            // non-lethal clear board into lethal damage.
+
             if (BattlePhaseIsAvailableThisTurn()
                 && Enemy.GetMonsterCount() + Enemy.GetSpellCount() == 0
                 && currentDamage < Enemy.LifePoints
@@ -6833,9 +6516,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // If Sheridan has no legal target (for example an untargetable boss),
-            // use Wollow only when the boost actually lets one of our attackers
-            // cross the opposing battle threshold.
+
             int enemyPower = Enemy.GetMonsters()
                 .Where(c => c != null && c.IsFaceup())
                 .Select(c => c.GetDefensePower())
@@ -6865,38 +6546,32 @@ namespace WindBot.Game.AI.Decks
             if (materials.Count != 2)
                 return SurplusRank6Plan.None;
 
-            // Do not compress two attackers when the current field already has a
-            // clean, confirmed lethal line.
+
             if (HasConfirmedLethalWithoutRank6Overlay())
                 return SurplusRank6Plan.None;
 
-            // Sheridan is the removal choice whenever a legal opposing field card
-            // should be sent away now.
+
             if (Bot.HasInExtra(CardId.DhampirVampireSheridan)
                 && GetSheridanSurplusRemovalTarget() != null)
             {
                 return SurplusRank6Plan.SheridanRemoval;
             }
 
-            // Recovery values a reliable interaction over optional battle scaling.
-            // This ordering also lets Hublot decline its Zombie-only Xyz trigger so
-            // the same Level 6 pair can be overlaid normally into Lars.
+
             if (IsLaterTurnRecoveryState()
                 && Bot.HasInExtra(CardId.EvolzarLars))
             {
                 return SurplusRank6Plan.LarsNegate;
             }
 
-            // Outside recovery, Wollow remains a battle-math choice only when its
-            // real graveyard boost changes the result.
+
             if (Bot.HasInExtra(CardId.WollowFounderOfTheDrudgeDragons)
                 && WouldWollowPowerMatter(materials))
             {
                 return SurplusRank6Plan.WollowPower;
             }
 
-            // With no immediate removal or power finish, a non-lethal board should
-            // become Lars so the leftover Level 6 bodies provide a negate next turn.
+
             return Bot.HasInExtra(CardId.EvolzarLars)
                 ? SurplusRank6Plan.LarsNegate
                 : SurplusRank6Plan.None;
@@ -7069,9 +6744,8 @@ namespace WindBot.Game.AI.Decks
                 && HasSafeGreatPumpkingBounceTarget()
                 && !greatPumpkingBounceAttempted)
             {
-                // Great Pumpking still has both a material and a profitable
-                // bounce. Resolve that value before converting any Rank 6 into
-                // Undying; do not consume Samuel as a side-route while waiting.
+
+
                 return false;
             }
 
@@ -7139,9 +6813,7 @@ namespace WindBot.Game.AI.Decks
             if (!HasEldlichRouteExtraDeck() || !HasEldlichLinkSeedOnField())
                 return false;
 
-            // The full route explicitly tributes Eldlich itself:
-            // Eldlich returns from the GY, Special Summons, then becomes the
-            // release for Fallen Angel while another Zombie remains for Link 2.
+
             ClientCard eldlich = Bot.GetMonsters().FirstOrDefault(c => c.IsFaceup()
                 && c.IsCode(CardId.EldlichTheGoldenLord));
             if (eldlich == null)
@@ -7209,10 +6881,8 @@ namespace WindBot.Game.AI.Decks
 
         private List<ClientCard> GetFlyingMaryPumpkingResetMaterials()
         {
-            // Later-turn board reset: a live small Pumpking plus a spent Zombie
-            // Xyz can become Flying Mary. Pumpking is then in the GY when Mary's
-            // ignition effect is checked, so Mary revives it and restarts the
-            // Pumpking summon trigger instead of leaving two dead bodies on board.
+
+
             if (Duel.Player != 0 || Duel.Turn <= 2
                 || pumpkingSummonEffectAttempted || pumpkingSummonEffectResolved
                 || !HasOpenSpellZone())
@@ -7269,8 +6939,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // Eldlich route: Fallen Angel plus one Zombie. When the confirmed
-            // Pumpking continuation exists, Samuel is the preferred second material.
+
             if (Bot.HasInGraveyard(CardId.EldlichTheGoldenLord))
             {
                 List<ClientCard> eldlichMaterials = GetFlyingMaryEldlichMaterials();
@@ -7281,9 +6950,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            // Turn 2+ utility line: Link two expendable Zombies into Mary, then
-            // revive Pumpking to restart the combo. A spent Xyz (or Samuel) is
-            // allowed only while Reverie is in the GY, so the lost body is replaced.
+
             if (Duel.Turn >= 2 && Bot.HasInGraveyard(CardId.PumpkingTheKingOfGraveGhosts))
             {
                 List<ClientCard> materials = GetLinkZombieMaterials()
@@ -7307,9 +6974,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // Sucker is preferred either as a cheap surplus draw bridge or in
-            // the exact recovery state where generic Flying Mary would otherwise
-            // consume the same board without an immediate Rank 10 payoff.
+
             if (!ShouldPreferVampireSuckerOverFlyingMary())
             {
                 DebugRoute("HOLD Vampire Sucker: no safe draw/recovery bridge");
@@ -7328,9 +6993,6 @@ namespace WindBot.Game.AI.Decks
         }
 
 
-        // =====================================================================
-        // Extra Deck effects
-        // =====================================================================
         private bool PumpkingGreatGhostKingActivate()
         {
             if (IsCardEffectNegated())
@@ -7342,9 +7004,7 @@ namespace WindBot.Game.AI.Decks
             bool searchWindow = ActivateDescription == searchDescription
                 || (greatPumpkingSearchWindowPending && !explicitBounce);
 
-            // Lua: the search is the delayed EVENT_SPSUMMON_SUCCESS trigger. Some
-            // MDPro3 builds report that action with description -1, so the verified
-            // summon window is the source of truth.
+
             if (searchWindow && !greatPumpkingSearchAttempted
                 && !greatPumpkingSearchResolved)
             {
@@ -7357,13 +7017,8 @@ namespace WindBot.Game.AI.Decks
 
             if (explicitBounce)
             {
-                // Preserving one orphan Call is a target-selection rule, not a
-                // reason to disable Great Pumpking's removal. Enemy cards retain
-                // priority; one excess face-up Call may be returned only when two
-                // or more are present.
 
-                // In the Urara line, do not spend this effect before Samuel has
-                // revived Ash. Otherwise Ash can never be recovered to the hand.
+
                 if (ashReplayLineActive
                     && !Bot.HasInMonstersZone(CardId.AshBlossom, faceUp: true))
                 {
@@ -7394,7 +7049,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            // The GY-trigger revival remains optional value after a card was sent.
+
             return Card.Location == CardLocation.Grave
                 && HasOpenMainMonsterZone()
                 && Enemy.Graveyard.Any(c => c.IsMonster());
@@ -7450,8 +7105,8 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 }
             }
-            // In the fixed Urara route, do not spend Samuel unless Ash is still a
-            // legal revive target.
+
+
             else if (ashReplayLineActive)
             {
                 if (!reviveTargets.Any(c => c.IsCode(CardId.AshBlossom)))
@@ -7538,18 +7193,14 @@ namespace WindBot.Game.AI.Decks
                     || chainTargetsEnemyGraveMonster);
             bool lateWindow = Duel.Phase >= DuelPhase.Main2;
 
-            // Against an announced opposing revival, use Wollow's one-material
-            // graveyard interruption rather than its two-material summon/set mode.
+
             if (chainTargetsEnemyGraveMonster && summonOrSetEffect)
             {
                 DebugRoute("HOLD Wollow summon/set mode: wait for graveyard-interrupt option");
                 return false;
             }
 
-            // A face-up revival card such as Eternal Soul announces its target in
-            // the opponent's GY even though the chain source remains on the field.
-            // Treat that target as the meaningful reactive window and shuffle it
-            // before the revival resolves.
+
             bool shouldActivate = reactingToEnemyGrave || lateWindow;
             DebugRoute(shouldActivate
                 ? chainTargetsEnemyGraveMonster
@@ -7605,9 +7256,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // Eternal Soul makes the opponent's Dark Magician unaffected by our
-            // effects. It remains targetable, so generic target checks alone are
-            // insufficient and would waste Mad Golden's Tribute cost.
+
             bool protectedDarkMagician = target.IsCode(CardId.DarkMagician)
                 && Enemy.GetSpells().Any(c => c != null
                     && c.IsFaceup()
@@ -7685,9 +7334,7 @@ namespace WindBot.Game.AI.Decks
             if (IsCardEffectNegated())
                 return false;
 
-            // Never use Sucker's ignition effect that revives an opponent's
-            // monster. It gives the opponent a body and is outside this deck's
-            // intended line. Keep accepting the separate mandatory draw trigger.
+
             if (ActivateDescription == Util.GetStringId(CardId.VampireSucker, 0))
             {
                 DebugRoute("HOLD Vampire Sucker opponent-GY revive effect");
@@ -7697,9 +7344,6 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        // =====================================================================
-        // Selection logic
-        // =====================================================================
 
         public override IList<ClientCard> OnSelectCard(
             IList<ClientCard> cards,
@@ -7738,9 +7382,7 @@ namespace WindBot.Game.AI.Decks
                 DebugCards("CANDIDATES", cards);
             }
 
-            // Eldlich's GY cost prompt may arrive with activateId=0. Resolve
-            // the exact committed whitelist instance before any generic ToGrave
-            // selector can consume unrelated backrow.
+
             if (pendingEldlichGraveFieldCost != null
                 && hint == HintMsg.ToGrave
                 && cards != null
@@ -7753,8 +7395,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard selectedCost = FindMatchingCandidate(
                     cards, pendingEldlichGraveFieldCost);
 
-                // If the exact object became stale, fall back only to another
-                // card that still belongs to the explicit whitelist.
+
                 if (selectedCost == null
                     || GetEldlichGraveFieldCostScore(selectedCost) == int.MaxValue)
                 {
@@ -7781,9 +7422,7 @@ namespace WindBot.Game.AI.Decks
                     new List<ClientCard> { selectedCost }, cards, min, max);
             }
 
-            // Reverie's banished effect uses HINTMSG_TARGET in Lua, not an Xyz-
-            // material hint. Intercept the legal candidate set before any generic
-            // target selector can place it under Undying by accident.
+
             bool reverieOverlayPrompt = reverieOverlaySelectionPending
                 && cards != null
                 && cards.Count > 0
@@ -7801,9 +7440,7 @@ namespace WindBot.Game.AI.Decks
                     return reload;
             }
 
-            // Fallen Angel's trigger can also lose activateId in MDPro3. During
-            // the committed Mary route, a legal Mad Golden candidate identifies
-            // this prompt unambiguously; lock it before generic SpSummon logic.
+
             if (eldlichRouteRank10CommitPending
                 && hint == HintMsg.SpSummon
                 && cards != null
@@ -7819,8 +7456,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            // Candidate-driven fallback for MDPro3 builds that temporarily lose the
-            // solving-chain card between Great Pumpking's trigger and its search.
+
             if (greatPumpkingSearchAttempted && !greatPumpkingSearchResolved
                 && hint == HintMsg.AddToHand
                 && cards.Any(c => c.Location == CardLocation.Deck))
@@ -7828,9 +7464,7 @@ namespace WindBot.Game.AI.Decks
                 return SelectGreatPumpkingSearchTarget(cards, min, max);
             }
 
-            // Apply one detach policy to every Xyz effect. The specific Urara
-            // Samuel exception is handled inside the helper. Keep Samuel's target
-            // pending through this cost prompt; its revive target is selected next.
+
             if (hint == HintMsg.RemoveXyz)
                 return SelectXyzDetachMaterial(cards, min, max);
 
@@ -7878,9 +7512,7 @@ namespace WindBot.Game.AI.Decks
                     return target;
             }
 
-            // Candidate-driven Samuel target selection. MDPro3 can report
-            // activateId=0 between Samuel's detach cost and HINTMSG_SPSUMMON, so
-            // do not depend on the current solving-chain lookup here.
+
             if (samuelReviveSelectionPending
                 && cards != null
                 && cards.Count > 0
@@ -7913,9 +7545,7 @@ namespace WindBot.Game.AI.Decks
                     return target;
             }
 
-            // Flying Mary's committed Eldlich target prompt uses HINTMSG_TARGET
-            // in Lua and may arrive with activateId=0. Lock Eldlich before any
-            // generic Level 5+ Zombie selector can choose Army/Pumpking instead.
+
             if (flyingMaryEldlichReviveSelectionPending
                 && hint == HintMsg.Target
                 && cards != null
@@ -7938,10 +7568,7 @@ namespace WindBot.Game.AI.Decks
                 flyingMaryEldlichReviveSelectionPending = false;
             }
 
-            // Flying Mary's comeback target prompt may also arrive with
-            // activateId=0. On our second-or-later turn, if Pumpking's Special-
-            // Summon effect has not been spent, revive Pumpking before Eldlich or
-            // any generic Level 5+ Zombie.
+
             if (flyingMaryComebackPumpkingPending
                 && hint == HintMsg.SpSummon
                 && cards != null
@@ -8012,16 +7639,11 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            // Pumpking's Lua asks for Set first and discard second. During these
-            // two selection messages the solving-chain lookup is not reliable on
-            // every core build, so the accepted-action flag is the source of truth.
+
             if (pumpkingHandSelectionPending)
             {
-                // Lua order is fixed: first select Call from Deck/GY, then select
-                // one card from the hand to discard. The second prompt has no
-                // HINT_SELECTMSG in the official script and therefore arrives as
-                // hint=0 on MDPro3. Track the completed first prompt instead of
-                // relying on HintMsg.Discard.
+
+
                 if (!pumpkingCallPromptCompleted
                     && cards.Any(c => c.IsCode(CardId.CallOfTheHaunted))
                     && (hint == HintMsg.Set
@@ -8070,8 +7692,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            // Great Pumpking's return prompt can also lose activateId. Preserve the
-            // Urara self-bounce rule before applying any generic enemy-target guard.
+
             if (greatPumpkingBounceAttempted
                 && !greatPumpkingBounceResolved
                 && hint == HintMsg.ReturnToHand)
@@ -8079,9 +7700,7 @@ namespace WindBot.Game.AI.Decks
                 return SelectGreatPumpkingBounceTargets(cards, min, max);
             }
 
-            // Eldlich hand effect: prompt 1 is a Spell/Trap cost from our hand;
-            // prompt 2 is the actual field target. Never let the Murakumo-style
-            // generic discard selector or the base selector confuse the two.
+
             if (eldlichHandSelectionPending && hint == HintMsg.ToGrave)
             {
                 bool allOurHand = cards != null
@@ -8188,6 +7807,15 @@ namespace WindBot.Game.AI.Decks
                             CardId.OfficiatorOfDoomSamuel);
                     }
 
+                    if (IsVampireGraceRouteLive()
+                        && !HasGreatPumpkingOnField())
+                    {
+                        DebugRoute("Hublot Grace Xyz target: Great Pumpking first to release Call");
+                        return SelectHublotXyzTarget(cards, min, max,
+                            CardId.PumpkingTheGreatGhostKing,
+                            CardId.OfficiatorOfDoomSamuel);
+                    }
+
                     if (Duel.Player == 1)
                     {
                         if (!Bot.HasInMonstersZone(CardId.OfficiatorOfDoomSamuel, faceUp: true))
@@ -8236,9 +7864,8 @@ namespace WindBot.Game.AI.Decks
                 case CardId.StareOfTheSnakeHair:
                     if (hint == HintMsg.AddToHand)
                     {
-                        // Never let the generic Call/Vortex priorities override
-                        // the intended starter chain: Snakehair -> Ectoplasmic ->
-                        // Pumpking or Hublot.
+
+
                         DebugRoute("Snakehair search target: Ectoplasmic first");
                         return SelectByIdPriority(cards, min, max,
                             CardId.EctoplasmicFortification,
@@ -8295,8 +7922,7 @@ namespace WindBot.Game.AI.Decks
                                 CardId.EldlichTheGoldenLord);
                         }
 
-                        // Zombie lock, insufficient monsters, or missing Extra Deck
-                        // pieces: send Doomking and stop the Eldlich line here.
+
                         selectedDeltaSendId = cards.Any(c => c.IsCode(CardId.DoomkingBalerdroch))
                             ? CardId.DoomkingBalerdroch
                             : CardId.EldlichTheGoldenLord;
@@ -8415,9 +8041,7 @@ namespace WindBot.Game.AI.Decks
                             return SelectEnemyField(cards, min, max);
                         }
 
-                        // Grave effect cost is selected by the exact field
-                        // instance, with fallback restricted to the same explicit
-                        // whitelist used by the activation gate.
+
                         ClientCard selectedCost = FindMatchingCandidate(
                             cards, pendingEldlichGraveFieldCost);
                         if (selectedCost == null
@@ -8482,20 +8106,20 @@ namespace WindBot.Game.AI.Decks
                             if (exact != null)
                             {
                                 samuelOpponentNegatePending = false;
+                                samuelNegateTarget = null;
                                 DebugRoute("Samuel negate target=" + exact.Id);
                                 return Util.CheckSelectCount(
                                     new List<ClientCard> { exact }, cards, min, max);
                             }
                         }
 
-                        // The optional Yes/No guard should make this path rare.
-                        // Never fall through to the generic enemy selector and turn
-                        // a bridge revive into a random negate on a low-value body.
+
                         List<ClientCard> meaningful = cards
                             .Where(c => IsWorthDisablingWithSamuel(c, false))
                             .OrderByDescending(c => ScoreSamuelDisableTarget(c, null))
                             .ToList();
                         samuelOpponentNegatePending = false;
+                        samuelNegateTarget = null;
                         if (meaningful.Count > 0)
                         {
                             DebugRoute("Samuel negate fallback target="
@@ -8612,10 +8236,7 @@ namespace WindBot.Game.AI.Decks
                     return SelectInfiniteImpermanenceTarget(cards, min, max);
             }
 
-            // Last-resort protection for target prompts whose solving-chain
-            // metadata disappeared. When the legal candidate list contains an
-            // opponent card, never fall through to a selector that can choose our
-            // own field card for a hostile removal/negation effect.
+
             if (IsHostileTargetHint(hint)
                 && cards != null
                 && cards.Any(c => c != null && c.Controller == 1))
@@ -8630,11 +8251,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            // Generic Murakumo-style hand disposition safety net, adapted from
-            // the Ryzeal selector pattern. Run it only after every card-specific
-            // flow above has had a chance to handle its own cost/target prompt.
-            // Pumpking's hint=0 discard is intentionally excluded because its
-            // two-step pending flow is handled at the top of this method.
+
             if (!pumpkingHandSelectionPending
                 && (hint == HintMsg.ToDeck
                     || hint == HintMsg.ToGrave
@@ -8659,7 +8276,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (selectedHublotXyzId != 0)
             {
-                if (changshiHandRescueRouteActive
+                if ((changshiHandRescueRouteActive || IsVampireGraceRouteLive())
                     && (selectedHublotXyzId == CardId.PumpkingTheGreatGhostKing
                         || selectedHublotXyzId == CardId.OfficiatorOfDoomSamuel))
                 {
@@ -8680,8 +8297,8 @@ namespace WindBot.Game.AI.Decks
 
                 if (selectedHublotXyzId == CardId.OfficiatorOfDoomSamuel)
                 {
-                    // Samuel should hold Pumpking whenever possible so its first
-                    // detach puts Pumpking back in the GY. Hublot is the other body.
+
+
                     ClientCard pumpking = cards.FirstOrDefault(c =>
                         c.IsCode(CardId.PumpkingTheKingOfGraveGhosts));
                     if (pumpking != null)
@@ -8762,9 +8379,8 @@ namespace WindBot.Game.AI.Decks
 
         public override int OnSelectOption(IList<int> options)
         {
-            // Hublot presents the ordinary Tribute Summon and its custom
-            // no-Tribute Summon Procedure as separate choices. The custom Lua
-            // description is StringId 0 (normally the second visible option).
+
+
             int hublotNoTribute = options.IndexOf(
                 Util.GetStringId(CardId.Hublot, 0));
             if (Duel.Player == 0 && HasHublotInHand() && hublotNoTribute >= 0)
@@ -8781,9 +8397,8 @@ namespace WindBot.Game.AI.Decks
                 if (doomkingOptionPending
                     || (chain != null && chain.ActivateId == CardId.DoomkingBalerdroch))
                 {
-                    // Lua order: StringId 1 = negate, StringId 2 = banish. Use the
-                    // choice captured at activation time instead of LastChainPlayer,
-                    // which is no longer reliable during this prompt.
+
+
                     int negate = options.IndexOf(Util.GetStringId(CardId.DoomkingBalerdroch, 1));
                     int banish = options.IndexOf(Util.GetStringId(CardId.DoomkingBalerdroch, 2));
                     DebugRoute("DOOMKING OPTION preferNegate=" + doomkingPreferNegate
@@ -8865,10 +8480,17 @@ namespace WindBot.Game.AI.Decks
                     && !samuelNegateTarget.IsDisabled();
                 if (!negate && Duel.Player == 0)
                 {
-                    // On our turn the revive is a combo action; take the optional
-                    // negate when the Lua has confirmed a legal enemy monster exists.
-                    negate = Enemy.GetMonsters().Any(c =>
-                        c.IsFaceup() && !c.IsDisabled());
+
+
+                    ClientCard ownTurnTarget = Enemy.GetMonsters()
+                        .Where(c => c != null
+                            && c.IsFaceup()
+                            && !c.IsDisabled()
+                            && IsWorthDisablingWithSamuel(c, false))
+                        .OrderByDescending(c => ScoreSamuelDisableTarget(c, null))
+                        .FirstOrDefault();
+                    samuelNegateTarget = ownTurnTarget;
+                    negate = ownTurnTarget != null;
                 }
                 DebugRoute("Samuel optional negate=" + negate
                     + " target=" + (samuelNegateTarget != null
@@ -8917,8 +8539,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool BattlePhaseIsAvailableThisTurn()
         {
-            // The starting player's first turn has no Battle Phase. On every
-            // later own turn, Main Phase 1 can still lead into battle.
+
+
             return Duel.Player == 0
                 && Duel.Turn > 1
                 && Duel.Phase == DuelPhase.Main1;
@@ -8944,8 +8566,7 @@ namespace WindBot.Game.AI.Decks
                     && !c.IsCode(CardId.OfficiatorOfDoomSamuel))
                 .Sum(GetPotentialAttackContribution);
 
-            // Samuel leaves Defence only when its own damage is the exact reason
-            // the current clear-board battle becomes lethal.
+
             return otherDamage < Enemy.LifePoints
                 && otherDamage + samuelAttack >= Enemy.LifePoints;
         }
@@ -8959,17 +8580,14 @@ namespace WindBot.Game.AI.Decks
 
             NamedCard data = NamedCard.Get(cardId);
 
-            // Undying has 0 DEF. Defence Position never protects it and only
-            // removes its ability to apply battle pressure on the next turn.
+
             if (cardId == CardId.TheUndyingLegion)
             {
                 DebugRoute("POSITION Undying: Attack; DEF is 0");
                 return CardPosition.FaceUpAttack;
             }
 
-            // Samuel is an interaction body, not a generic attacker. Keep it in
-            // Defence unless its own 2400 damage is required for a confirmed
-            // clear-board lethal this turn.
+
             if (cardId == CardId.OfficiatorOfDoomSamuel)
             {
                 if (ShouldUseSamuelAttackForConfirmedLethal())
@@ -8982,26 +8600,21 @@ namespace WindBot.Game.AI.Decks
                 return CardPosition.FaceUpDefence;
             }
 
-            // Never expose a newly summoned monster in Attack Position on the
-            // opponent's turn when its effect does not require that position.
+
             if (Duel.Player == 1)
             {
                 DebugRoute("POSITION " + cardId + ": Defence on opponent turn");
                 return CardPosition.FaceUpDefence;
             }
 
-            // Going first means there is no Battle Phase. Previous logic used
-            // 'enemy has no monsters' as a reason to choose Attack Position,
-            // which did the exact opposite of what a first-turn end board needs.
+
             if (Duel.Turn == 1)
             {
                 DebugRoute("POSITION " + cardId + ": Defence on first turn; no Battle Phase");
                 return CardPosition.FaceUpDefence;
             }
 
-            // Varudras needs to be the attacker for its EVENT_BATTLE_START
-            // destruction. Put it in Attack Position only when battle is actually
-            // available this turn; otherwise keep it protected in Defence.
+
             if (cardId == CardId.Varudras)
             {
                 if (BattlePhaseIsAvailableThisTurn())
@@ -9014,9 +8627,7 @@ namespace WindBot.Game.AI.Decks
                 return CardPosition.FaceUpDefence;
             }
 
-            // In Main Phase 1 of a later turn, monsters with real ATK should be
-            // able to attack directly or clear a monster. The absence of an enemy
-            // monster is no longer a special-case position rule.
+
             if (BattlePhaseIsAvailableThisTurn()
                 && data != null
                 && data.Attack > 0)
@@ -9024,9 +8635,7 @@ namespace WindBot.Game.AI.Decks
                 return CardPosition.FaceUpAttack;
             }
 
-            // Monsters summoned after battle, or passive bodies whose DEF is at
-            // least as useful as their ATK, enter Defence Position. Equal stats
-            // also prefer Defence when no attack can happen this turn.
+
             if (Duel.Phase >= DuelPhase.Main2
                 || data == null
                 || data.Defense >= data.Attack)
@@ -9042,16 +8651,14 @@ namespace WindBot.Game.AI.Decks
             if (Card == null || !Card.IsMonster() || Duel.Player != 0)
                 return false;
 
-            // No monster should be rotated into Attack Position on the first
-            // turn because the Battle Phase does not exist.
+
             if (Duel.Turn == 1)
                 return false;
 
             if (Duel.Phase == DuelPhase.Main1)
             {
-                // Samuel stays in Defence unless moving it is what creates a
-                // confirmed lethal line. Do not expose it merely because a Battle
-                // Phase exists or the opponent currently has no monster.
+
+
                 if (Card.IsCode(CardId.OfficiatorOfDoomSamuel))
                 {
                     if (Card.IsDefense()
@@ -9063,9 +8670,7 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 }
 
-                // Varudras must attack to unlock its battle-start removal. This
-                // is the only generic battle-role override; it no longer stays in
-                // Attack Position blindly across turns.
+
                 if (Card.IsCode(CardId.Varudras))
                 {
                     if (Card.IsDefense())
@@ -9076,16 +8681,11 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 }
 
-                // Other monsters move to Attack Position only because an actual
-                // Battle Phase is available, never merely because the opponent
-                // currently controls no monsters.
+
                 return Card.IsDefense() && Card.Attack > 0;
             }
 
-            // After battle, protect a body only when it did not attack and has a
-            // genuinely better DEF stat. The engine will reject illegal changes
-            // for monsters that attacked or changed position already. Varudras
-            // remains in Attack Position so its intended battle posture is clear.
+
             if (Duel.Phase >= DuelPhase.Main2
                 && !Card.IsCode(CardId.Varudras))
             {
@@ -9104,8 +8704,8 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.IsTrap())
             {
-                // Setting Dominus avoids the permanent Attribute lock from a hand
-                // activation whenever we have the opportunity to prepare it.
+
+
                 SelectSTPlace(Card, true);
                 return true;
             }
@@ -9119,9 +8719,6 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        // =====================================================================
-        // Turn/chain bookkeeping
-        // =====================================================================
 
         public override void OnMove(ClientCard card, int previousControler, int previousLocation,
             int currentControler, int currentLocation)
@@ -9153,9 +8750,8 @@ namespace WindBot.Game.AI.Decks
                 }
                 else if (movedToEnemyMonsterZone)
                 {
-                    // A summoned face-up monster exists before its trigger/Quick
-                    // Effect Chain starts. Newly activated S/T cards are not added
-                    // here; they enter the snapshot only after their Chain ends.
+
+
                     TrackOpponentFaceupMonsterAtOpenState(card);
                 }
 
@@ -9199,10 +8795,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                // Commitment windows are public-information timing markers. They
-                // let Samuel revive Snakehair/Mammoth immediately after a visible
-                // threat enters the field, before the opponent reaches an open
-                // state for an Ignition Effect. Facedown cards are never inferred.
+
                 if (Duel.Player == 1 && movedToEnemyMonsterZone && card.IsFaceup())
                 {
                     freshEnemyMonster = card;
@@ -9547,9 +9140,8 @@ namespace WindBot.Game.AI.Decks
                 if (chain.ActivateId == CardId.OfficiatorOfDoomSamuel
                     && selectedSamuelReviveId != 0)
                 {
-                    // Some MDPro3 builds report this Quick Effect with description
-                    // -1. Confirm success from the selected monster actually being
-                    // on our field instead of trusting the description value.
+
+
                     if (Bot.HasInMonstersZone(selectedSamuelReviveId, faceUp: true))
                     {
                         samuelReviveResolved = true;
@@ -9584,9 +9176,8 @@ namespace WindBot.Game.AI.Decks
                     }
                     else if (greatPumpkingSearchAttempted)
                     {
-                        // The on-summon trigger may resolve with description -1.
-                        // Once the accepted Great Pumpking chain resolves and it was
-                        // not the bounce effect, the search is complete.
+
+
                         greatPumpkingSearchResolved = true;
                         greatPumpkingSearchWindowPending = false;
                         DebugRoute("RESOLVED Great Pumpking search; desc="
@@ -9642,7 +9233,7 @@ namespace WindBot.Game.AI.Decks
             if (vampireGraceRouteActive && !IsVampireGraceRouteLive())
             {
                 vampireGraceRouteActive = false;
-                DebugRoute("CLEAR Vampire Grace route: Grace never reached GY/field");
+                DebugRoute("CLEAR Vampire Grace route: Grace no longer exists in field/GY/overlay route state");
             }
             base.OnChainEnd();
             RefreshOpponentFaceupBeforeChainSnapshot();
