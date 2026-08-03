@@ -1528,6 +1528,7 @@ namespace WindBot.Game.AI.Decks
             // Use Requiem to enable Engraver to send opponent monster to GY
             else if (Bot.HasInMonstersZone(CardId.FIENDSMITH_ENGRAVER))
             {
+                AI.SelectCard(CardId.FIENDSMITH_ENGRAVER);
                 return true;
             }
             return false;
