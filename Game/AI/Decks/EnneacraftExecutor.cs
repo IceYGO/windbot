@@ -30,8 +30,8 @@ namespace WindBot.Game.AI.Decks
             public const int MaxxC = 23434538;
         }
 
-        private const string Version = "13.2-BoardAnchorFallback";
-        private const string LogPrefix = "[Enneacraft V13.2] ";
+        private const string Version = "13.5-Level1ScaleOnly";
+        private const string LogPrefix = "[Enneacraft V13.5] ";
         private const int EnneacraftSetcode = 0x1d4;
         private const int PendulumActivateDescription = 1160;
 
@@ -175,6 +175,8 @@ namespace WindBot.Game.AI.Decks
         private int postReturnSearchAttempts;
         private bool reverthMainAttempted;
         private bool releaseMainAttempted;
+        private bool releaseGravePending;
+        private bool releaseGraveSelectionMade;
         private bool recoveryFlipStarted;
         private bool recoveryHadFacedownAtTurnStart;
         private bool recoveryReturnPending;
@@ -186,6 +188,7 @@ namespace WindBot.Game.AI.Decks
         private bool searchResolutionPending;
         private int searchResolutionSourceId;
         private int searchResolutionMovedId;
+        private ClientCard searchResolutionSourceCard;
 
         private SelectionMode selectionMode;
         private OptionMode optionMode;
@@ -198,11 +201,13 @@ namespace WindBot.Game.AI.Decks
 
         private readonly List<PendingFlip> pendingFlips = new List<PendingFlip>();
         private readonly HashSet<ClientCard> monstersSetThisTurn = new HashSet<ClientCard>();
-        private readonly HashSet<ClientCard> unresolvedLevel1ScalePlacements = new HashSet<ClientCard>();
+        private readonly HashSet<ClientCard> unresolvedRouteScalePlacements = new HashSet<ClientCard>();
         private readonly Dictionary<int, int> openingReturnExpected = new Dictionary<int, int>();
         private int openingReturnMovedCount;
         private readonly Dictionary<int, int> recoveryReturnExpected = new Dictionary<int, int>();
         private int recoveryReturnMovedCount;
+        private readonly Dictionary<int, int> enemyGraveBehaviorScores = new Dictionary<int, int>();
+        private readonly Dictionary<int, int> enemyGraveLastActivityTurn = new Dictionary<int, int>();
 
         public EnneacraftExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -254,6 +259,8 @@ namespace WindBot.Game.AI.Decks
                 enneapolisReturnAttempted = false;
                 reverthMainAttempted = false;
                 releaseMainAttempted = false;
+                releaseGravePending = false;
+                releaseGraveSelectionMade = false;
                 recoveryFlipStarted = false;
                 recoveryReturnPending = false;
                 recoveryReturnResolved = false;
@@ -263,10 +270,11 @@ namespace WindBot.Game.AI.Decks
                 openingReturnPending = false;
                 scaleRouteInterruptions = 0;
                 scaleRouteAborted = false;
-                unresolvedLevel1ScalePlacements.Clear();
+                unresolvedRouteScalePlacements.Clear();
                 searchResolutionPending = false;
                 searchResolutionSourceId = 0;
                 searchResolutionMovedId = 0;
+                searchResolutionSourceCard = null;
                 recoveryHadFacedownAtTurnStart = ownTurnCount >= 2
                     && GetFacedownEnneacraftMonsters().Any();
 
@@ -293,9 +301,26 @@ namespace WindBot.Game.AI.Decks
             base.OnNewTurn();
         }
 
+        public override void OnChaining(int player, ClientCard card)
+        {
+            if (player == 1 && card != null && card.Id != 0)
+            {
+                AddEnemyGraveBehaviorScore(card.Id, 8);
+
+                if ((card.Location & CardLocation.Grave) != 0)
+                    AddEnemyGraveBehaviorScore(card.Id, 220);
+                else if ((card.Location & CardLocation.Removed) != 0)
+                    AddEnemyGraveBehaviorScore(card.Id, 240);
+            }
+
+            base.OnChaining(player, card);
+        }
+
         public override void OnMove(ClientCard card, int previousControler, int previousLocation,
             int currentControler, int currentLocation)
         {
+            TrackEnemyGraveBehavior(card, previousControler, previousLocation,
+                currentControler, currentLocation);
             if (card != null && card.Id != 0
                 && (IsEnneacraftMonster(card) || card.IsCode(CardId.Release)
                     || card.IsCode(CardId.Reverth) || card.IsCode(CardId.Enneapolis)
@@ -314,17 +339,7 @@ namespace WindBot.Game.AI.Decks
                 && openingReturnExpected.ContainsKey(card.Id)
                 && openingReturnExpected[card.Id] > 0;
 
-            if (card != null && card.Id != 0
-                && previousControler == 0 && currentControler == 0
-                && (previousLocation & (int)CardLocation.Hand) != 0
-                && (currentLocation & (int)(CardLocation.SpellZone
-                    | CardLocation.PendulumZone)) != 0
-                && IsLevel1(card.Id) && IsEnneacraftMonster(card))
-            {
-                unresolvedLevel1ScalePlacements.Add(card);
-            }
-
-            if (card != null && unresolvedLevel1ScalePlacements.Contains(card)
+            if (card != null && unresolvedRouteScalePlacements.Contains(card)
                 && previousControler == 0
                 && (previousLocation & (int)(CardLocation.SpellZone
                     | CardLocation.PendulumZone)) != 0
@@ -332,16 +347,9 @@ namespace WindBot.Game.AI.Decks
                     || (currentLocation & (int)(CardLocation.SpellZone
                         | CardLocation.PendulumZone)) == 0))
             {
-                unresolvedLevel1ScalePlacements.Remove(card);
+                unresolvedRouteScalePlacements.Remove(card);
                 if (IsOwnMainPhase() && !expectedOpeningReturn)
-                {
-                    scaleRouteInterruptions++;
-                    if (scaleRouteInterruptions >= 2)
-                        scaleRouteAborted = true;
-                    DebugLog("SCALE ROUTE INTERRUPTED " + CardName(card.Id)
-                        + " count=" + scaleRouteInterruptions
-                        + " abort=" + scaleRouteAborted);
-                }
+                    RegisterScaleRouteInterruption(card);
             }
 
             if (searchResolutionPending && card != null && card.Id != 0
@@ -443,13 +451,30 @@ namespace WindBot.Game.AI.Decks
             if (searchResolutionPending)
             {
                 if (searchResolutionMovedId != 0)
+                {
                     DebugLog("SEARCH RESOLVED " + CardName(searchResolutionSourceId)
                         + " -> " + CardName(searchResolutionMovedId));
+                    unresolvedRouteScalePlacements.Remove(searchResolutionSourceCard);
+                }
                 else
-                    DebugLog("SEARCH FAILED/NEGATED " + CardName(searchResolutionSourceId));
+                {
+                    DebugLog("SEARCH FAILED/NEGATED " + CardName(searchResolutionSourceId)
+                        + " replan=" + GetTurnPlanStep());
+                }
                 searchResolutionPending = false;
                 searchResolutionSourceId = 0;
                 searchResolutionMovedId = 0;
+                searchResolutionSourceCard = null;
+            }
+
+            if (releaseGravePending)
+            {
+                if (releaseGraveSelectionMade)
+                    DebugLog("RELEASE GY RECOVERY RESOLVED");
+                else
+                    DebugLog("RELEASE GY RECOVERY FAILED replan=" + GetTurnPlanStep());
+                releaseGravePending = false;
+                releaseGraveSelectionMade = false;
             }
 
             for (int i = pendingFlips.Count - 1; i >= 0; --i)
@@ -680,6 +705,7 @@ namespace WindBot.Game.AI.Decks
             searchResolutionPending = true;
             searchResolutionSourceId = Card.Id;
             searchResolutionMovedId = 0;
+            searchResolutionSourceCard = Card;
             AddPendingFlip(Card.Id, 2);
             LogAccept("L1 reactive search");
             return true;
@@ -836,7 +862,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             desiredSearchId = ChoosePendulumSearchTarget(Card.Id);
-            unresolvedLevel1ScalePlacements.Remove(Card);
             selectionMode = SelectionMode.RevealThree;
             selectionSourceId = Card.Id;
             pendulumSearchAttempted.Add(Card.Id);
@@ -845,6 +870,7 @@ namespace WindBot.Game.AI.Decks
             searchResolutionPending = true;
             searchResolutionSourceId = Card.Id;
             searchResolutionMovedId = 0;
+            searchResolutionSourceCard = Card;
             LogAccept("pendulum search for " + CardName(desiredSearchId));
             return true;
         }
@@ -852,7 +878,10 @@ namespace WindBot.Game.AI.Decks
         private bool RoutePendulumPlacement()
         {
             if (!IsOwnMainPhase() || !IsPendulumPlacementPrompt(Card)
+                || Card == null || !IsLevel1(Card.Id)
                 || PendulumScaleCount() >= 2 || ShouldPrioritizeBoardOverScales())
+                return false;
+            if (Object.ReferenceEquals(Card, GetProtectedBoardAnchor(Bot.Hand)))
                 return false;
 
             TurnPlanStep step = GetTurnPlanStep();
@@ -872,6 +901,7 @@ namespace WindBot.Game.AI.Decks
             if (candidates.Count == 0 || !Object.ReferenceEquals(candidates[0], Card))
                 return false;
 
+            unresolvedRouteScalePlacements.Add(Card);
             LogAccept("route scale for " + step);
             return true;
         }
@@ -884,8 +914,18 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Grave
                 && ActivateDescription == Util.GetStringId(CardId.Release, 1))
             {
-                if (!IsOwnMainPhase() || !NeedLevel1Resource())
+                if (!IsOwnMainPhase() || releaseGravePending || !NeedLevel1Resource())
                     return false;
+                if (NeedsBoardAnchor() && Bot.Hand.Any(IsEnneacraftMonster))
+                    return false;
+                TurnPlanStep graveStep = GetTurnPlanStep();
+                if (graveStep != TurnPlanStep.OpeningPostSearch
+                    && graveStep != TurnPlanStep.RecoverySearch
+                    && graveStep != TurnPlanStep.RecoveryScale)
+                    return false;
+
+                releaseGravePending = true;
+                releaseGraveSelectionMade = false;
                 selectionMode = SelectionMode.RecoverFromExtra;
                 selectionSourceId = CardId.Release;
                 LogAccept("Release GY recover L1");
@@ -898,10 +938,10 @@ namespace WindBot.Game.AI.Decks
             if (!IsOwnMainPhase() || releaseMainAttempted || PendulumScaleCount() >= 2
                 || ShouldPrioritizeBoardOverScales())
                 return false;
-            TurnPlanStep step = GetTurnPlanStep();
-            if (step != TurnPlanStep.OpeningPreScale
-                && step != TurnPlanStep.OpeningPostSearch
-                && step != TurnPlanStep.RecoveryScale)
+            TurnPlanStep mainStep = GetTurnPlanStep();
+            if (mainStep != TurnPlanStep.OpeningPreScale
+                && mainStep != TurnPlanStep.OpeningPostSearch
+                && mainStep != TurnPlanStep.RecoveryScale)
                 return false;
             if (!ShouldUseReleaseForScale())
                 return false;
@@ -997,7 +1037,10 @@ namespace WindBot.Game.AI.Decks
         private bool FinalPendulumPlacement()
         {
             if (!IsOwnMainPhase() || !IsPendulumPlacementPrompt(Card)
+                || Card == null || !IsLevel1(Card.Id)
                 || PendulumScaleCount() >= 2)
+                return false;
+            if (Object.ReferenceEquals(Card, GetProtectedBoardAnchor(Bot.Hand)))
                 return false;
 
             TurnPlanStep plan = GetTurnPlanStep();
@@ -1010,7 +1053,8 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             finalScalePhaseStarted = true;
-            LogAccept("final scale L1 before L9");
+            unresolvedRouteScalePlacements.Add(Card);
+            LogAccept("final scale L1 only");
             return true;
         }
 
@@ -1087,15 +1131,20 @@ namespace WindBot.Game.AI.Decks
 
         private TurnPlanStep GetOpeningFinishStep()
         {
+            if (NeedsBoardAnchor() && Bot.Hand.Any(IsEnneacraftMonster))
+                return TurnPlanStep.OpeningBoard;
             if (OpenMonsterZones() > 0 && GetDeployableHandMonsters().Any())
                 return TurnPlanStep.OpeningBoard;
-            if (PendulumScaleCount() < 2 && Bot.Hand.Any(IsEnneacraftMonster))
+            if (PendulumScaleCount() < 2 && GetFinalScaleCandidates().Any())
                 return TurnPlanStep.OpeningFinalScales;
             return TurnPlanStep.Complete;
         }
 
         private TurnPlanStep GetRecoveryPlanStep()
         {
+            if (NeedsBoardAnchor() && Bot.Hand.Any(IsEnneacraftMonster))
+                return TurnPlanStep.RecoveryBoard;
+
             if (recoveryReturnResolved)
                 return GetRecoveryFinishStep();
 
@@ -1137,9 +1186,11 @@ namespace WindBot.Game.AI.Decks
 
         private TurnPlanStep GetRecoveryFinishStep()
         {
+            if (NeedsBoardAnchor() && Bot.Hand.Any(IsEnneacraftMonster))
+                return TurnPlanStep.RecoveryBoard;
             if (OpenMonsterZones() > 0 && GetDeployableHandMonsters().Any())
                 return TurnPlanStep.RecoveryBoard;
-            if (PendulumScaleCount() < 2 && Bot.Hand.Any(IsEnneacraftMonster))
+            if (PendulumScaleCount() < 2 && GetFinalScaleCandidates().Any())
                 return TurnPlanStep.RecoveryFinalScales;
             return TurnPlanStep.Complete;
         }
@@ -1234,12 +1285,17 @@ namespace WindBot.Game.AI.Decks
             if (reserveCount == 0)
                 return new List<ClientCard>();
 
-            List<ClientCard> handMonsters = Bot.Hand.Where(IsEnneacraftMonster).ToList();
-            ClientCard protectedAnchor = GetProtectedBoardAnchor(handMonsters);
-            int availableForScales = handMonsters.Count - (protectedAnchor == null ? 0 : 1);
+            // Level 9 Enneacrafts are monster resources only. Never reserve them as scales.
+            List<ClientCard> scaleCandidates = Bot.Hand.Where(c => c != null
+                    && IsEnneacraftMonster(c) && IsLevel1(c.Id))
+                .ToList();
+            ClientCard protectedAnchor = GetProtectedBoardAnchor(Bot.Hand);
+            int protectedScaleCount = protectedAnchor != null
+                && scaleCandidates.Contains(protectedAnchor) ? 1 : 0;
+            int availableForScales = scaleCandidates.Count - protectedScaleCount;
             reserveCount = Math.Min(reserveCount, Math.Max(0, availableForScales));
 
-            return handMonsters.Where(c => !Object.ReferenceEquals(c, protectedAnchor))
+            return scaleCandidates.Where(c => !Object.ReferenceEquals(c, protectedAnchor))
                 .OrderBy(ScaleReservationPriority)
                 .ThenBy(FinalScalePriority)
                 .Take(reserveCount)
@@ -1271,62 +1327,66 @@ namespace WindBot.Game.AI.Decks
 
         private int ScaleReservationPriority(ClientCard card)
         {
-            if (card == null)
+            if (card == null || !IsLevel1(card.Id))
                 return Int32.MaxValue;
             bool represented = HasCoreOnMonsterZone(card.Id)
                 || Bot.Hand.Count(c => c != null && c.Id == card.Id) >= 2;
-            if (!IsCore(card.Id) && IsLevel1(card.Id))
+            if (!IsCore(card.Id))
                 return 0;
-            if (IsCore(card.Id) && represented && IsLevel1(card.Id))
+            if (represented)
                 return 10;
-            if (!IsCore(card.Id) && IsLevel9(card.Id))
-                return 20;
-            if (IsCore(card.Id) && represented && IsLevel9(card.Id))
-                return 30;
-            if (IsCore(card.Id) && IsLevel1(card.Id))
-                return 40;
-            return 50;
+            return 40;
         }
 
         private List<ClientCard> GetRecoveryRouteScaleCandidates()
         {
             if (ShouldPrioritizeBoardOverScales())
                 return new List<ClientCard>();
-            List<ClientCard> safe = GetScaleCandidates(true, true, false);
+
+            ClientCard protectedAnchor = GetProtectedBoardAnchor(Bot.Hand);
+            List<ClientCard> safe = GetScaleCandidates(false)
+                .Where(c => !Object.ReferenceEquals(c, protectedAnchor))
+                .ToList();
             if (safe.Count > 0)
                 return safe;
-            return GetScaleCandidates(true, true, true);
+            return GetScaleCandidates(true)
+                .Where(c => !Object.ReferenceEquals(c, protectedAnchor))
+                .ToList();
         }
 
+
+        private void RegisterScaleRouteInterruption(ClientCard card)
+        {
+            scaleRouteInterruptions++;
+            if (scaleRouteInterruptions >= 2)
+                scaleRouteAborted = true;
+            DebugLog("SCALE ROUTE INTERRUPTED " + CardName(card == null ? 0 : card.Id)
+                + " count=" + scaleRouteInterruptions
+                + " abort=" + scaleRouteAborted
+                + " plan=" + GetTurnPlanStep());
+        }
 
         private List<ClientCard> GetPreFieldScaleCandidates()
         {
             if (PendulumScaleCount() >= 2 || ShouldPrioritizeBoardOverScales())
                 return new List<ClientCard>();
 
-            List<ClientCard> level1 = Bot.Hand.Where(c => c != null && IsLevel1(c.Id)
-                    && !pendulumSearchAttempted.Contains(c.Id))
+            ClientCard protectedAnchor = GetProtectedBoardAnchor(Bot.Hand);
+            return Bot.Hand.Where(c => c != null && IsLevel1(c.Id)
+                    && !pendulumSearchAttempted.Contains(c.Id)
+                    && !Object.ReferenceEquals(c, protectedAnchor))
                 .OrderBy(RouteScalePriority)
                 .ToList();
-            if (level1.Count > 0)
-                return level1;
-
-            if (IsEnneapolisOnField() || Bot.HasInHand(CardId.Enneapolis)
-                || Bot.HasInHand(CardId.Reset))
-            {
-                return Bot.Hand.Where(c => c != null && IsLevel9(c.Id))
-                    .OrderBy(RouteScalePriority)
-                    .ToList();
-            }
-            return new List<ClientCard>();
         }
 
         private List<ClientCard> GetPostReturnScaleCandidates()
         {
             if (PendulumScaleCount() >= 2 || ShouldPrioritizeBoardOverScales())
                 return new List<ClientCard>();
+            ClientCard protectedAnchor = GetProtectedBoardAnchor(Bot.Hand);
             return Bot.Hand.Where(c => c != null && IsLevel1(c.Id)
-                    && !pendulumSearchAttempted.Contains(c.Id))
+                    && !pendulumSearchAttempted.Contains(c.Id)
+                    && !Object.ReferenceEquals(c, protectedAnchor))
                 .OrderBy(c => IsCore(c.Id) ? 1 : 0)
                 .ThenBy(RouteScalePriority)
                 .ToList();
@@ -1336,22 +1396,22 @@ namespace WindBot.Game.AI.Decks
         {
             if (PendulumScaleCount() >= 2 || ShouldPrioritizeBoardOverScales())
                 return new List<ClientCard>();
+            ClientCard protectedAnchor = GetProtectedBoardAnchor(Bot.Hand);
             return Bot.Hand.Where(c => c != null && IsLevel1(c.Id)
                     && !pendulumSearchAttempted.Contains(c.Id)
-                    && CanUseCoreAsTemporaryScale(c))
+                    && CanUseCoreAsTemporaryScale(c)
+                    && !Object.ReferenceEquals(c, protectedAnchor))
                 .OrderBy(RouteScalePriority)
                 .ToList();
         }
 
-        private List<ClientCard> GetScaleCandidates(bool allowLevel1, bool allowLevel9,
-            bool allowLastCore)
+        private List<ClientCard> GetScaleCandidates(bool allowLastCore)
         {
-            List<ClientCard> cards = Bot.Hand.Where(c => c != null
-                    && ((allowLevel1 && IsLevel1(c.Id)) || (allowLevel9 && IsLevel9(c.Id))))
+            return Bot.Hand.Where(c => c != null && IsLevel1(c.Id)
+                    && IsEnneacraftMonster(c))
                 .Where(c => allowLastCore || CanUseCoreAsScale(c))
                 .OrderBy(FinalScalePriority)
                 .ToList();
-            return cards;
         }
 
         private List<ClientCard> GetFinalScaleCandidates()
@@ -1361,12 +1421,12 @@ namespace WindBot.Game.AI.Decks
                 return reserved.OrderBy(FinalScalePriority).ToList();
 
             ClientCard protectedAnchor = GetProtectedBoardAnchor(Bot.Hand);
-            List<ClientCard> safe = GetScaleCandidates(true, true, false)
+            List<ClientCard> safe = GetScaleCandidates(false)
                 .Where(c => !Object.ReferenceEquals(c, protectedAnchor))
                 .ToList();
             if (safe.Count > 0)
                 return safe;
-            return GetScaleCandidates(true, true, true)
+            return GetScaleCandidates(true)
                 .Where(c => !Object.ReferenceEquals(c, protectedAnchor))
                 .ToList();
         }
@@ -1520,6 +1580,8 @@ namespace WindBot.Game.AI.Decks
             }
             if (selected.Count == 0)
                 selected.Add(cards[0]);
+            if (selected.Count > 0)
+                unresolvedRouteScalePlacements.Add(selected[0]);
             return selected;
         }
 
@@ -1539,6 +1601,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (selected.Count == 0)
                 selected.Add(cards[0]);
+            releaseGraveSelectionMade = selected.Count > 0;
             return selected;
         }
 
@@ -1709,19 +1772,43 @@ namespace WindBot.Game.AI.Decks
 
         private IList<ClientCard> SelectEnemyGraveOrBanished(IList<ClientCard> cards, int min, int max)
         {
-            int count = Math.Min(max, 3);
-            List<ClientCard> selected = cards.Where(c => c != null && c.Controller == 1)
-                .OrderBy(EnemyGravePriority)
+            int count = Math.Min(max, Math.Max(min, 3));
+            List<ClientCard> ranked = cards.Where(c => c != null && c.Controller == 1)
+                .OrderByDescending(EnemyGraveResourceScore)
                 .ThenByDescending(c => c.Attack)
-                .Take(count)
                 .ToList();
+            List<ClientCard> selected = ranked.Take(count).ToList();
+
+            DebugLog("ENEMY GY RANK " + String.Join(", ", ranked.Select(c =>
+                CardText(c) + "=" + EnemyGraveResourceScore(c))));
+
+            if (selected.Count < min)
+            {
+                foreach (ClientCard card in cards.Where(c => c != null && !selected.Contains(c)))
+                {
+                    selected.Add(card);
+                    if (selected.Count >= min)
+                        break;
+                }
+            }
             return selected;
         }
 
-        private int EnemyGravePriority(ClientCard card)
+        private int EnemyGraveResourceScore(ClientCard card)
         {
-            if (card == null)
-                return Int32.MaxValue;
+            if (card == null || card.Id == 0)
+                return Int32.MinValue;
+
+            int score = GetEnemyGraveBehaviorScore(card.Id);
+            int lastActivityTurn;
+            if (enemyGraveLastActivityTurn.TryGetValue(card.Id, out lastActivityTurn))
+            {
+                int age = Math.Max(0, Duel.Turn - lastActivityTurn);
+                if (age == 0)
+                    score += 55;
+                else if (age <= 2)
+                    score += 25;
+            }
 
             bool monster = card.HasType(CardType.Monster);
             bool extraDeckMonster = card.HasType(CardType.Fusion)
@@ -1729,17 +1816,101 @@ namespace WindBot.Game.AI.Decks
                 || card.HasType(CardType.Xyz)
                 || card.HasType(CardType.Link);
 
-            if (card.Location == CardLocation.Removed && monster && !extraDeckMonster)
-                return 0;
-            if (card.Location == CardLocation.Grave && monster && !extraDeckMonster)
-                return 10;
-            if (card.Location == CardLocation.Removed && monster)
-                return 20;
-            if (card.Location == CardLocation.Grave && monster)
-                return 30;
-            if (card.Location == CardLocation.Removed)
-                return 40;
-            return 50;
+            if ((card.Location & CardLocation.Removed) != 0)
+            {
+                score += card.IsFacedown() ? -120 : 65;
+            }
+            else if ((card.Location & CardLocation.Grave) != 0)
+            {
+                score += 40;
+            }
+
+            if (monster)
+            {
+                score += 55;
+                score += extraDeckMonster ? 15 : 45;
+
+                // Low-stat Main Deck monsters are often engine pieces rather than finishers.
+                if (!extraDeckMonster && card.Attack >= 0 && card.Attack <= 2000)
+                    score += 15;
+            }
+            else
+            {
+                // Modern Spell/Trap engines also recur or activate from the GY.
+                score += card.HasType(CardType.Trap) ? 42 : 36;
+            }
+
+            return score;
+        }
+
+        private void TrackEnemyGraveBehavior(ClientCard card, int previousControler,
+            int previousLocation, int currentControler, int currentLocation)
+        {
+            if (card == null || card.Id == 0)
+                return;
+
+            bool wasEnemyCard = previousControler == 1 || currentControler == 1;
+            if (!wasEnemyCard)
+                return;
+
+            bool fromGrave = (previousLocation & (int)CardLocation.Grave) != 0;
+            bool fromRemoved = (previousLocation & (int)CardLocation.Removed) != 0;
+            bool toGrave = (currentLocation & (int)CardLocation.Grave) != 0;
+            bool toRemoved = (currentLocation & (int)CardLocation.Removed) != 0;
+
+            if (fromGrave || fromRemoved)
+            {
+                int score = 35;
+                if (currentControler == 1)
+                {
+                    if ((currentLocation & (int)(CardLocation.Hand
+                        | CardLocation.MonsterZone | CardLocation.SpellZone)) != 0)
+                    {
+                        score = 190;
+                    }
+                    else if (fromGrave && toRemoved)
+                    {
+                        // Banish-from-GY is frequently an activation cost or extender effect.
+                        score = 165;
+                    }
+                    else if ((currentLocation & (int)(CardLocation.Deck
+                        | CardLocation.Extra)) != 0)
+                    {
+                        score = 95;
+                    }
+                }
+
+                AddEnemyGraveBehaviorScore(card.Id, score);
+            }
+            else if (previousControler == 1
+                && (previousLocation & (int)CardLocation.Deck) != 0
+                && (toGrave || toRemoved))
+            {
+                // Cards deliberately sent or milled from the Deck are likely live resources.
+                AddEnemyGraveBehaviorScore(card.Id, 45);
+            }
+            else if (previousControler == 1 && (toGrave || toRemoved))
+            {
+                // Freshly loaded GY/banished cards receive a small recency preference.
+                AddEnemyGraveBehaviorScore(card.Id, 18);
+            }
+        }
+
+        private void AddEnemyGraveBehaviorScore(int cardId, int amount)
+        {
+            if (cardId == 0 || amount <= 0)
+                return;
+
+            int current;
+            enemyGraveBehaviorScores.TryGetValue(cardId, out current);
+            enemyGraveBehaviorScores[cardId] = Math.Min(700, current + amount);
+            enemyGraveLastActivityTurn[cardId] = Duel.Turn;
+        }
+
+        private int GetEnemyGraveBehaviorScore(int cardId)
+        {
+            int score;
+            return enemyGraveBehaviorScores.TryGetValue(cardId, out score) ? score : 0;
         }
 
         private IList<ClientCard> SelectAizaReturn(IList<ClientCard> cards, int min, int max)
@@ -2027,9 +2198,9 @@ namespace WindBot.Game.AI.Decks
 
         private int FinalScalePriority(ClientCard card)
         {
-            if (card == null)
+            if (card == null || !IsLevel1(card.Id))
                 return Int32.MaxValue;
-            int baseScore = IsLevel1(card.Id) ? 0 : 100;
+            int baseScore = 0;
             if (IsCore(card.Id) && !HasCoreOnMonsterZone(card.Id))
                 baseScore += 50;
             return baseScore + RouteScalePriority(card);
