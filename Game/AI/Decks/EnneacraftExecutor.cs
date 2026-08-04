@@ -30,8 +30,6 @@ namespace WindBot.Game.AI.Decks
             public const int MaxxC = 23434538;
         }
 
-        private const string Version = "13.5-Level1ScaleOnly";
-        private const string LogPrefix = "[Enneacraft V13.5] ";
         private const int EnneacraftSetcode = 0x1d4;
         private const int PendulumActivateDescription = 1160;
 
@@ -297,7 +295,6 @@ namespace WindBot.Game.AI.Decks
             reverthGravePending = false;
             pendingFlips.Clear();
 
-            DebugLog("NEW TURN " + StateText());
             base.OnNewTurn();
         }
 
@@ -326,9 +323,6 @@ namespace WindBot.Game.AI.Decks
                     || card.IsCode(CardId.Reverth) || card.IsCode(CardId.Enneapolis)
                     || card.IsCode(CardId.Reset)))
             {
-                DebugLog("MOVE " + CardName(card.Id) + "#" + card.Id
-                    + " P" + previousControler + ":" + (CardLocation)previousLocation
-                    + " -> P" + currentControler + ":" + (CardLocation)currentLocation);
             }
 
             bool expectedOpeningReturn = card != null && openingReturnPending
@@ -367,7 +361,6 @@ namespace WindBot.Game.AI.Decks
                 && IsEnneacraftMonster(card))
             {
                 monstersSetThisTurn.Add(card);
-                DebugLog("NEW SET THIS TURN " + CardName(card.Id));
             }
 
             if (card != null
@@ -390,8 +383,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     openingReturnExpected[card.Id] = remaining - 1;
                     openingReturnMovedCount++;
-                    DebugLog("OPENING POLIS MOVE " + CardName(card.Id)
-                        + " " + openingReturnMovedCount + "/2");
                 }
             }
 
@@ -405,8 +396,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     recoveryReturnExpected[card.Id] = remaining - 1;
                     recoveryReturnMovedCount++;
-                    DebugLog("RECOVERY POLIS MOVE " + CardName(card.Id)
-                        + " " + recoveryReturnMovedCount);
                 }
             }
 
@@ -420,7 +409,6 @@ namespace WindBot.Game.AI.Decks
                 if (openingReturnMovedCount >= 2)
                 {
                     openingPairReturned = true;
-                    DebugLog("OPENING POLIS RETURN CONFIRMED");
                 }
                 else
                 {
@@ -428,8 +416,6 @@ namespace WindBot.Game.AI.Decks
                     enneapolisReturnAttempted = false;
                     finalScalePhaseStarted = false;
                     scaleRouteAborted = true;
-                    DebugLog("OPENING POLIS RETURN FAILED count=" + openingReturnMovedCount
-                        + " fallback=board");
                 }
 
                 openingReturnPending = false;
@@ -440,9 +426,6 @@ namespace WindBot.Game.AI.Decks
             if (recoveryReturnPending)
             {
                 recoveryReturnResolved = recoveryReturnMovedCount > 0;
-                DebugLog(recoveryReturnResolved
-                    ? "RECOVERY POLIS RETURN CONFIRMED count=" + recoveryReturnMovedCount
-                    : "RECOVERY POLIS RETURN FAILED");
                 recoveryReturnPending = false;
                 recoveryReturnExpected.Clear();
                 recoveryReturnMovedCount = 0;
@@ -451,16 +434,7 @@ namespace WindBot.Game.AI.Decks
             if (searchResolutionPending)
             {
                 if (searchResolutionMovedId != 0)
-                {
-                    DebugLog("SEARCH RESOLVED " + CardName(searchResolutionSourceId)
-                        + " -> " + CardName(searchResolutionMovedId));
                     unresolvedRouteScalePlacements.Remove(searchResolutionSourceCard);
-                }
-                else
-                {
-                    DebugLog("SEARCH FAILED/NEGATED " + CardName(searchResolutionSourceId)
-                        + " replan=" + GetTurnPlanStep());
-                }
                 searchResolutionPending = false;
                 searchResolutionSourceId = 0;
                 searchResolutionMovedId = 0;
@@ -469,10 +443,6 @@ namespace WindBot.Game.AI.Decks
 
             if (releaseGravePending)
             {
-                if (releaseGraveSelectionMade)
-                    DebugLog("RELEASE GY RECOVERY RESOLVED");
-                else
-                    DebugLog("RELEASE GY RECOVERY FAILED replan=" + GetTurnPlanStep());
                 releaseGravePending = false;
                 releaseGraveSelectionMade = false;
             }
@@ -510,7 +480,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     result = SelectSpecialSetTarget(cards, CardId.Reverth, min, max);
                     reverthGravePending = false;
-                    DebugSelection("REVERTH GY SET", result, cards, min, max);
                     return Checked(result, cards, min, max);
                 }
                 if (cards.Any(c => c != null && c.Controller == 0
@@ -518,7 +487,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     result = SelectReverthFlipTarget(cards, min, max);
                     reverthGravePending = false;
-                    DebugSelection("REVERTH GY FLIP", result, cards, min, max);
                     return Checked(result, cards, min, max);
                 }
             }
@@ -527,7 +495,6 @@ namespace WindBot.Game.AI.Decks
             {
                 result = SelectSpecialSetTarget(cards, 0, min, max);
                 pendingTritoSpecialSet = false;
-                DebugSelection("TRITO SET", result, cards, min, max);
                 return Checked(result, cards, min, max);
             }
 
@@ -536,7 +503,6 @@ namespace WindBot.Game.AI.Decks
                 result = SelectPendingFlipTarget(cards, min, max);
                 if (result != null)
                 {
-                    DebugSelection("FLIP", result, cards, min, max);
                     return Checked(result, cards, min, max);
                 }
                 return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -598,7 +564,6 @@ namespace WindBot.Game.AI.Decks
             selectionSourceId = 0;
             desiredSearchId = 0;
 
-            DebugSelection(mode.ToString(), result, cards, min, max);
             return Checked(result, cards, min, max);
         }
 
@@ -707,7 +672,6 @@ namespace WindBot.Game.AI.Decks
             searchResolutionMovedId = 0;
             searchResolutionSourceCard = Card;
             AddPendingFlip(Card.Id, 2);
-            LogAccept("L1 reactive search");
             return true;
         }
 
@@ -725,7 +689,6 @@ namespace WindBot.Game.AI.Decks
                 pendingAstaOptionalBanish = true;
 
             AddPendingFlip(Card.Id, 2);
-            LogAccept("L9 reactive effect");
             return true;
         }
 
@@ -739,7 +702,6 @@ namespace WindBot.Game.AI.Decks
 
             selectionMode = SelectionMode.EnemyMonster;
             selectionSourceId = Card.Id;
-            LogAccept("L9 Pendulum battle effect");
             return true;
         }
 
@@ -755,7 +717,6 @@ namespace WindBot.Game.AI.Decks
 
             selectionMode = SelectionMode.ResetSetFaceup;
             selectionSourceId = CardId.Reset;
-            LogAccept("Reset GY re-set face-up monsters");
             return true;
         }
 
@@ -772,7 +733,6 @@ namespace WindBot.Game.AI.Decks
 
             optionMode = OptionMode.ReverthGrave;
             reverthGravePending = true;
-            LogAccept("Reverth GY deploy or flip");
             return true;
         }
 
@@ -783,15 +743,13 @@ namespace WindBot.Game.AI.Decks
                 || ActivateDescription != Util.GetStringId(CardId.Enneapolis, 1))
                 return false;
 
-            // During own-turn recovery, decline the one-card trigger and save the ignition
-            // effect so all face-up MZ Enneacrafts return together after the flip batch.
+
             if (Duel.Player == 0 && ownTurnCount >= 2 && recoveryFlipStarted)
                 return false;
 
             selectionMode = SelectionMode.EnneapolisFlippedTarget;
             selectionSourceId = CardId.Enneapolis;
             optionMode = OptionMode.EnneapolisDestination;
-            LogAccept("Enneapolis post-flip recycle");
             return true;
         }
 
@@ -811,7 +769,6 @@ namespace WindBot.Game.AI.Decks
                     && fieldStep != TurnPlanStep.RecoveryFieldAccess)
                     return false;
 
-                LogAccept("activate Enneapolis field");
                 return true;
             }
 
@@ -828,7 +785,6 @@ namespace WindBot.Game.AI.Decks
                 openingReturnMovedCount = 0;
                 selectionMode = SelectionMode.EnneapolisOpeningReturn;
                 selectionSourceId = CardId.Enneapolis;
-                LogAccept("opening return exactly two scales");
                 return true;
             }
 
@@ -839,7 +795,6 @@ namespace WindBot.Game.AI.Decks
                 recoveryReturnResolved = false;
                 selectionMode = SelectionMode.EnneapolisRecoveryReturn;
                 selectionSourceId = CardId.Enneapolis;
-                LogAccept("recovery return all face-up MZ after flip batch");
                 return true;
             }
 
@@ -871,7 +826,6 @@ namespace WindBot.Game.AI.Decks
             searchResolutionSourceId = Card.Id;
             searchResolutionMovedId = 0;
             searchResolutionSourceCard = Card;
-            LogAccept("pendulum search for " + CardName(desiredSearchId));
             return true;
         }
 
@@ -902,7 +856,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             unresolvedRouteScalePlacements.Add(Card);
-            LogAccept("route scale for " + step);
             return true;
         }
 
@@ -928,7 +881,6 @@ namespace WindBot.Game.AI.Decks
                 releaseGraveSelectionMade = false;
                 selectionMode = SelectionMode.RecoverFromExtra;
                 selectionSourceId = CardId.Release;
-                LogAccept("Release GY recover L1");
                 return true;
             }
 
@@ -949,7 +901,6 @@ namespace WindBot.Game.AI.Decks
             releaseMainAttempted = true;
             selectionMode = SelectionMode.ScaleFromDeck;
             selectionSourceId = CardId.Release;
-            LogAccept("Release place fresh L1 scale");
             return true;
         }
 
@@ -968,7 +919,6 @@ namespace WindBot.Game.AI.Decks
             resetMainAttempted = true;
             selectionMode = SelectionMode.EnneapolisFromDeckOrGrave;
             selectionSourceId = CardId.Reset;
-            LogAccept("Reset place Enneapolis");
             return true;
         }
 
@@ -993,7 +943,6 @@ namespace WindBot.Game.AI.Decks
             reverthMainAttempted = true;
             selectionMode = SelectionMode.ReverthShuffle;
             selectionSourceId = CardId.Reverth;
-            LogAccept("Reverth preserve Core Four and redraw the rest");
             return true;
         }
 
@@ -1013,7 +962,6 @@ namespace WindBot.Game.AI.Decks
 
             selectionMode = SelectionMode.SpecialSet;
             selectionSourceId = Card.Id;
-            LogAccept("special set Core Four/bonus");
             return true;
         }
 
@@ -1030,7 +978,6 @@ namespace WindBot.Game.AI.Decks
 
             recoveryFlipStarted = true;
             AddPendingFlip(Card.Id, 1);
-            DebugLog("FLIP " + CardName(Card.Id));
             return true;
         }
 
@@ -1054,7 +1001,6 @@ namespace WindBot.Game.AI.Decks
 
             finalScalePhaseStarted = true;
             unresolvedRouteScalePlacements.Add(Card);
-            LogAccept("final scale L1 only");
             return true;
         }
 
@@ -1195,7 +1141,6 @@ namespace WindBot.Game.AI.Decks
             return TurnPlanStep.Complete;
         }
 
-
         private bool NeedPostReturnSearch()
         {
             return MissingCoreIds().Count > 0 || !Bot.HasInHand(CardId.Reverth);
@@ -1221,12 +1166,6 @@ namespace WindBot.Game.AI.Decks
                 return true;
             return BuildSafeReverthSelection(GetReverthEligibleVisibleCards()).Count >= 2;
         }
-
-
-
-
-
-
 
         private bool ShouldUseReleaseForScale()
         {
@@ -1285,7 +1224,6 @@ namespace WindBot.Game.AI.Decks
             if (reserveCount == 0)
                 return new List<ClientCard>();
 
-            // Level 9 Enneacrafts are monster resources only. Never reserve them as scales.
             List<ClientCard> scaleCandidates = Bot.Hand.Where(c => c != null
                     && IsEnneacraftMonster(c) && IsLevel1(c.Id))
                 .ToList();
@@ -1354,16 +1292,11 @@ namespace WindBot.Game.AI.Decks
                 .ToList();
         }
 
-
         private void RegisterScaleRouteInterruption(ClientCard card)
         {
             scaleRouteInterruptions++;
             if (scaleRouteInterruptions >= 2)
                 scaleRouteAborted = true;
-            DebugLog("SCALE ROUTE INTERRUPTED " + CardName(card == null ? 0 : card.Id)
-                + " count=" + scaleRouteInterruptions
-                + " abort=" + scaleRouteAborted
-                + " plan=" + GetTurnPlanStep());
         }
 
         private List<ClientCard> GetPreFieldScaleCandidates()
@@ -1779,9 +1712,6 @@ namespace WindBot.Game.AI.Decks
                 .ToList();
             List<ClientCard> selected = ranked.Take(count).ToList();
 
-            DebugLog("ENEMY GY RANK " + String.Join(", ", ranked.Select(c =>
-                CardText(c) + "=" + EnemyGraveResourceScore(c))));
-
             if (selected.Count < min)
             {
                 foreach (ClientCard card in cards.Where(c => c != null && !selected.Contains(c)))
@@ -1830,13 +1760,12 @@ namespace WindBot.Game.AI.Decks
                 score += 55;
                 score += extraDeckMonster ? 15 : 45;
 
-                // Low-stat Main Deck monsters are often engine pieces rather than finishers.
                 if (!extraDeckMonster && card.Attack >= 0 && card.Attack <= 2000)
                     score += 15;
             }
             else
             {
-                // Modern Spell/Trap engines also recur or activate from the GY.
+
                 score += card.HasType(CardType.Trap) ? 42 : 36;
             }
 
@@ -1870,7 +1799,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     else if (fromGrave && toRemoved)
                     {
-                        // Banish-from-GY is frequently an activation cost or extender effect.
+
                         score = 165;
                     }
                     else if ((currentLocation & (int)(CardLocation.Deck
@@ -1886,12 +1815,12 @@ namespace WindBot.Game.AI.Decks
                 && (previousLocation & (int)CardLocation.Deck) != 0
                 && (toGrave || toRemoved))
             {
-                // Cards deliberately sent or milled from the Deck are likely live resources.
+
                 AddEnemyGraveBehaviorScore(card.Id, 45);
             }
             else if (previousControler == 1 && (toGrave || toRemoved))
             {
-                // Freshly loaded GY/banished cards receive a small recency preference.
+
                 AddEnemyGraveBehaviorScore(card.Id, 18);
             }
         }
@@ -1918,7 +1847,6 @@ namespace WindBot.Game.AI.Decks
             int limit = Math.Min(max, 3);
             List<ClientCard> selected = new List<ClientCard>();
 
-            // First rescue our cards that the current chain is targeting.
             foreach (ClientCard card in cards.Where(c => c != null && c.Controller == 0
                 && Duel.ChainTargets.Contains(c)).OrderBy(c => IsCore(c.Id) ? 0 : 1))
             {
@@ -1927,7 +1855,6 @@ namespace WindBot.Game.AI.Decks
                 selected.Add(card);
             }
 
-            // Then remove the opponent's highest-value legal cards.
             foreach (ClientCard card in cards.Where(c => c != null && c.Controller == 1)
                 .OrderByDescending(c => c.Attack))
             {
@@ -1937,7 +1864,6 @@ namespace WindBot.Game.AI.Decks
                     selected.Add(card);
             }
 
-            // Aiza must return at least one card. Prefer our non-core cards before a Core Four.
             foreach (ClientCard card in cards.Where(c => c != null && c.Controller == 0)
                 .OrderBy(c => IsCore(c.Id) ? 1 : 0))
             {
@@ -2323,86 +2249,5 @@ namespace WindBot.Game.AI.Decks
             return Util.CheckSelectCount(selected, cards, min, max);
         }
 
-        private void DebugSelection(string mode, IList<ClientCard> selected,
-            IList<ClientCard> cards, int min, int max)
-        {
-            DebugLog("SELECT " + mode + " min=" + min + " max=" + max
-                + " -> " + CardsText(selected) + " from " + CardsText(cards));
-        }
-
-        private void LogAccept(string reason)
-        {
-            DebugLog("ACT " + CardText(Card) + " desc=" + ActivateDescription
-                + " reason=" + reason + " | " + StateText());
-        }
-
-        private void DebugLog(string text)
-        {
-            Logger.DebugWriteLine(LogPrefix + text);
-        }
-
-        private string StateText()
-        {
-            return "version=" + Version
-                + " duelTurn=" + Duel.Turn
-                + " ownTurn=" + ownTurnCount
-                + " player=" + Duel.Player
-                + " phase=" + Duel.Phase
-                + " nextPlan=" + GetTurnPlanStep()
-                + " hand=" + Bot.Hand.Count
-                + " handCards=" + CardsText(Bot.Hand)
-                + " scales=" + PendulumScaleCount()
-                + " scaleCards=" + CardsText(GetPendulumScales())
-                + " boardCards=" + CardsText(Bot.MonsterZone.Where(c => c != null))
-                + " searchAttempts=" + pendulumSearchAttempted.Count
-                + " pairReturned=" + openingPairReturned
-                + " postSearchAttempts=" + postReturnSearchAttempts
-                + " polisAttempted=" + enneapolisReturnAttempted
-                + " reverthAttempted=" + reverthMainAttempted
-                + " recoveryReturned=" + recoveryReturnResolved
-                + " scaleInterruptions=" + scaleRouteInterruptions
-                + " scaleAborted=" + scaleRouteAborted
-                + " newSetThisTurn=" + monstersSetThisTurn.Count
-                + " openMZ=" + OpenMonsterZones();
-        }
-
-        private string CardsText(IEnumerable<ClientCard> cards)
-        {
-            if (cards == null)
-                return "[]";
-            return "[" + String.Join(",", cards.Where(c => c != null)
-                .Select(CardText).ToArray()) + "]";
-        }
-
-        private string CardText(ClientCard card)
-        {
-            if (card == null)
-                return "null";
-            return CardName(card.Id) + "#" + card.Id + "@" + card.Location
-                + "/" + (CardPosition)card.Position;
-        }
-
-        private string CardName(int id)
-        {
-            switch (id)
-            {
-                case CardId.Atori: return "Atori";
-                case CardId.Deftero: return "Deftero";
-                case CardId.Ekto: return "Ekto";
-                case CardId.Proto: return "Proto";
-                case CardId.Trito: return "Trito";
-                case CardId.Enato: return "Enato";
-                case CardId.Aiza: return "Aiza";
-                case CardId.Asta: return "Asta";
-                case CardId.Archa: return "Archa";
-                case CardId.Atil: return "Atil";
-                case CardId.Release: return "Release";
-                case CardId.Reverth: return "Reverth";
-                case CardId.Enneapolis: return "Enneapolis";
-                case CardId.Reset: return "Reset";
-                case CardId.MaxxC: return "Maxx C";
-                default: return id.ToString();
-            }
-        }
     }
 }
