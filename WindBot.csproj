@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
+    <Compile Include="Game\AI\Decks\EnneacraftExecutor.cs" />
     <Compile Include="Game\AI\AIUtil.cs" />
     <Compile Include="Game\AI\CardContainer.cs" />
     <Compile Include="Game\AI\CardExecutor.cs" />
@@ -122,6 +123,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Decks\AI_Enneacraft.ydk" />
     <None Include="sqlite3.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
