@@ -253,6 +253,7 @@ namespace WindBot.Game.AI.Decks
         bool engraverGYActivated = false;
         bool moonSummoned = false;
         bool requiemSummoned = false;
+        bool necroquipSummoned = false;
         bool thronePending = false;      // we're in a Throne activation flow
         bool throneSearched = false;     // after we chose the monster to search
         int throneDesiredPick = 0;       // preferred monster id to search
@@ -1472,6 +1473,11 @@ namespace WindBot.Game.AI.Decks
                 CardId.FIENDSMITHS_REQUIEM, CardId.MOON_OF_THE_CLOSED_HEAVEN,
                 CardId.FABLED_LURRIE, CardId.LACRIMA_CT
             };
+            // If we haven't summoned Necroquip but have the required Materials don't send it back with Desirae
+            if (!necroquipSummoned && Bot.HasInMonstersZone(CardId.LACRIMA_CT) && Bot.HasInGraveyard(CardId.FIENDSMITHS_REQUIEM))
+            {
+                targetPreferenceOrder.Remove(CardId.FIENDSMITHS_REQUIEM);
+            }
             int preferredLightFiend = targetPreferenceOrder.FirstOrDefault(c => Bot.HasInGraveyard(c));
             if (preferredLightFiend != 0)
             {
@@ -1542,24 +1548,28 @@ namespace WindBot.Game.AI.Decks
             bool engraverOnField = Bot.HasInMonstersZone(CardId.FIENDSMITH_ENGRAVER);
             if (Bot.HasInMonstersZone(CardId.LACRIMA_CT))
             {
+                necroquipSummoned = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.LACRIMA_CT);
                 return true;
             }
             else if (engraverOnField && (!engraverGYActivated || DefaultCheckWhetherCardIdIsNegated(CardId.FIENDSMITH_ENGRAVER)))
             {
+                necroquipSummoned = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.FIENDSMITH_ENGRAVER);
                 return true;
             }
             else if (Bot.HasInMonstersZone(CardId.FABLED_LURRIE))
             {
+                necroquipSummoned = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.FABLED_LURRIE);
                 return true;
             }
             else if (engraverOnField)
             {
+                necroquipSummoned = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.FIENDSMITH_ENGRAVER);
                 return true;
@@ -1657,6 +1667,12 @@ namespace WindBot.Game.AI.Decks
             {
                 engraverGYActivated = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
+                return true;
+            }
+            else if (Bot.HasInGraveyard(CardId.FIENDSMITHS_DESIRAE))
+            {
+                engraverGYActivated = true;
+                AI.SelectCard(CardId.FIENDSMITHS_DESIRAE);
                 return true;
             }
             return false;
