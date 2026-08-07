@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WindBot</RootNamespace>
     <AssemblyName>WindBot</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -21,6 +21,7 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\Release\</OutputPath>
@@ -30,15 +31,22 @@
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject />
+    <StartupObject>WindBot.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>WindBot.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Data.Sqlite">
@@ -50,15 +58,6 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
-    <Reference Include="YGOSharp.Network">
-      <HintPath>.\YGOSharp.Network.dll</HintPath>
-    </Reference>
-    <Reference Include="YGOSharp.OCGWrapper">
-      <HintPath>.\YGOSharp.OCGWrapper.dll</HintPath>
-    </Reference>
-    <Reference Include="YGOSharp.OCGWrapper.Enums">
-      <HintPath>.\YGOSharp.OCGWrapper.Enums.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config.cs" />
@@ -69,74 +68,10 @@
     <Compile Include="Game\AI\CardSelector.cs" />
     <Compile Include="Game\AI\DeckAttribute.cs" />
     <Compile Include="Game\AI\DecksManager.cs" />
-    <Compile Include="Game\AI\Decks\AltergeistExecutor.cs" />
-    <Compile Include="Game\AI\Decks\BraveExecutor.cs" />
-    <Compile Include="Game\AI\Decks\FamiliarPossessedExecutor.cs" />
-    <Compile Include="Game\AI\Decks\BlackwingExecutor.cs" />
-    <Compile Include="Game\AI\Decks\ExosisterExecutor.cs" />
-    <Compile Include="Game\AI\Decks\KashtiraExecutor.cs" />
-    <Compile Include="Game\AI\Decks\LuckyExecutor.cs" />
-    <Compile Include="Game\AI\Decks\MathMechExecutor.cs" />
-    <Compile Include="Game\AI\Decks\PureWindsExecutor.cs" />
-    <Compile Include="Game\AI\Decks\DragunExecutor.cs" />
-    <Compile Include="Game\AI\Decks\Level8Executor.cs" />
-    <Compile Include="Game\AI\Decks\SalamangreatExecutor.cs" />
-    <Compile Include="Game\AI\Decks\CyberDragonExecutor.cs" />
-    <Compile Include="Game\AI\Decks\DarkMagicianExecutor.cs" />
-    <Compile Include="Game\AI\Decks\DogmatikaExecutor.cs" />
-    <Compile Include="Game\AI\Decks\OrcustExecutor.cs" />
-    <Compile Include="Game\AI\Decks\SkyStrikerExecutor.cs" />
-    <Compile Include="Game\AI\Decks\MokeyMokeyKingExecutor.cs" />
-    <Compile Include="Game\AI\Decks\MokeyMokeyExecutor.cs" />
-    <Compile Include="Game\AI\Decks\TearlamentsExecutor.cs" />
-    <Compile Include="Game\AI\Decks\ThunderDragonExecutor.cs" />
-    <Compile Include="Game\AI\Decks\TimeThiefExecutor.cs" />
-    <Compile Include="Game\AI\Decks\ToadallyAwesomeExecutor.cs" />
-    <Compile Include="Game\AI\Decks\NekrozExecutor.cs" />
-    <Compile Include="Game\AI\Decks\GravekeeperExecutor.cs" />
-    <Compile Include="Game\AI\Decks\RainbowExecutor.cs" />
-    <Compile Include="Game\AI\Decks\BlueEyesExecutor.cs" />
-    <Compile Include="Game\AI\Decks\BlueEyesMaxDragonExecutor.cs" />
-    <Compile Include="Game\AI\Decks\BurnExecutor.cs" />
-    <Compile Include="Game\AI\Decks\ChainBurnExecutor.cs" />
-    <Compile Include="Game\AI\Decks\EvilswarmExecutor.cs" />
-    <Compile Include="Game\AI\Decks\GraydleExecutor.cs" />
-    <Compile Include="Game\AI\Decks\GrenMajuThunderBoarderExecutor.cs" />
-    <Compile Include="Game\AI\Decks\LightswornExecutor.cs" />
-    <Compile Include="Game\AI\Decks\LabrynthExecutor.cs" />
-    <Compile Include="Game\AI\Decks\LightswornShaddoldinosourExecutor.cs" />
-    <Compile Include="Game\AI\Decks\PhantasmExecutor.cs" />
-    <Compile Include="Game\AI\Decks\QliphortExecutor.cs" />
-    <Compile Include="Game\AI\Decks\ST1732Executor.cs" />
-    <Compile Include="Game\AI\Decks\SuperheavySamuraiExecutor.cs" />
-    <Compile Include="Game\AI\Decks\SwordsoulExecutor.cs" />
-    <Compile Include="Game\AI\Decks\TrickstarExecutor.cs" />
-    <Compile Include="Game\AI\Decks\WitchcraftExecutor.cs" />
-    <Compile Include="Game\AI\Decks\VoicelessExecutor.cs" />
-    <Compile Include="Game\AI\Decks\YosenjuExecutor.cs" />
-    <Compile Include="Game\AI\Decks\DragunityExecutor.cs" />
-    <Compile Include="Game\AI\Decks\FrogExecutor.cs" />
-    <Compile Include="Game\AI\Decks\HorusExecutor.cs" />
-    <Compile Include="Game\AI\Decks\DoEveryThingExecutor.cs" />
-    <Compile Include="Game\AI\Decks\OldSchoolExecutor.cs" />
-    <Compile Include="Game\AI\Decks\Rank5Executor.cs" />
-    <Compile Include="Game\AI\Decks\ZefraExecutor.cs" />
-    <Compile Include="Game\AI\Decks\ZoodiacExecutor.cs" />
-    <Compile Include="Game\AI\Decks\ZexalWeaponsExecutor.cs" />
+    <Compile Include="Game\AI\Decks\*.cs" />
     <Compile Include="Game\AI\DefaultExecutor.cs" />
     <Compile Include="Game\AI\Dialogs.cs" />
-    <Compile Include="Game\AI\Enums\DangerousMonster.cs" />
-    <Compile Include="Game\AI\Enums\FusionSpell.cs" />
-    <Compile Include="Game\AI\Enums\NotBeSynchroMaterialMonster.cs" />
-    <Compile Include="Game\AI\Enums\NotBeXyzMaterialMonster.cs" />
-    <Compile Include="Game\AI\Enums\ShouldBeDisabledBeforeItUseEffectMonster.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeSpellTarget.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeMonsterTarget.cs" />
-    <Compile Include="Game\AI\Enums\ShouldNotBeTarget.cs" />
-    <Compile Include="Game\AI\Enums\PreventActivationEffectInBattle.cs" />
-    <Compile Include="Game\AI\Enums\OneForXyz.cs" />
-    <Compile Include="Game\AI\Enums\InvincibleMonster.cs" />
-    <Compile Include="Game\AI\Enums\Floodgate.cs" />
+    <Compile Include="Game\AI\Enums\*.cs" />
     <Compile Include="Game\AI\Executor.cs" />
     <Compile Include="Game\AI\HintMsg.cs" />
     <Compile Include="Game\AI\Opcodes.cs" />
@@ -144,6 +79,7 @@
     <Compile Include="Game\AI\ExecutorType.cs" />
     <Compile Include="Game\BattlePhase.cs" />
     <Compile Include="Game\BattlePhaseAction.cs" />
+    <Compile Include="Game\ChainInfo.cs" />
     <Compile Include="Game\ClientCard.cs" />
     <Compile Include="Game\ClientField.cs" />
     <Compile Include="Game\Deck.cs" />
@@ -159,6 +95,30 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WindBotInfo.cs" />
+    <Compile Include="YGOSharp.Network\BinaryClient.cs" />
+    <Compile Include="YGOSharp.Network\Enums\CtosMessage.cs" />
+    <Compile Include="YGOSharp.Network\Enums\GameState.cs" />
+    <Compile Include="YGOSharp.Network\Enums\PlayerChange.cs" />
+    <Compile Include="YGOSharp.Network\Enums\PlayerState.cs" />
+    <Compile Include="YGOSharp.Network\Enums\PlayerType.cs" />
+    <Compile Include="YGOSharp.Network\Enums\StocMessage.cs" />
+    <Compile Include="YGOSharp.Network\NetworkClient.cs" />
+    <Compile Include="YGOSharp.Network\Utils\BinaryExtensions.cs" />
+    <Compile Include="YGOSharp.Network\YGOClient.cs" />
+    <Compile Include="YGOSharp.OCGWrapper.Enums\CardAttribute.cs" />
+    <Compile Include="YGOSharp.OCGWrapper.Enums\CardLinkMarker.cs" />
+    <Compile Include="YGOSharp.OCGWrapper.Enums\CardLocation.cs" />
+    <Compile Include="YGOSharp.OCGWrapper.Enums\CardPosition.cs" />
+    <Compile Include="YGOSharp.OCGWrapper.Enums\CardRace.cs" />
+    <Compile Include="YGOSharp.OCGWrapper.Enums\CardType.cs" />
+    <Compile Include="YGOSharp.OCGWrapper.Enums\DuelPhase.cs" />
+    <Compile Include="YGOSharp.OCGWrapper.Enums\GameMessage.cs" />
+    <Compile Include="YGOSharp.OCGWrapper.Enums\PlayerHintType.cs" />
+    <Compile Include="YGOSharp.OCGWrapper.Enums\Query.cs" />
+    <Compile Include="YGOSharp.OCGWrapper\Card.cs" />
+    <Compile Include="YGOSharp.OCGWrapper\CardsManager.cs" />
+    <Compile Include="YGOSharp.OCGWrapper\NamedCard.cs" />
+    <Compile Include="YGOSharp.OCGWrapper\NamedCardsManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

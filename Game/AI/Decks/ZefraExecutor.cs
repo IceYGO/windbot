@@ -430,7 +430,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 for (int i = 0; i < cardsid.Count; i++)
                 {
-                    if (res.Count >= 0 && res.Contains(cardsid[i])) continue;
+                    if (res.Contains(cardsid[i])) continue;
                     int times = 0;
                     for (int j = 0; j < cardsid.Count; j++)
                     {
@@ -2014,8 +2014,7 @@ namespace WindBot.Game.AI.Decks
                 ids.Add(CardId.TheMightyMasterofMagic);
                 result = func.CardsIdToClientCards(ids, cards);
             }
-            else if (p_summoning || ((Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon &&
-                Card.HasType(CardType.Pendulum)))
+            else if (p_summoning || (Card != null && (Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon && Card.HasType(CardType.Pendulum)))
             {
                 p_summoning = false;
                 if (p_count >= 3 && !Bot.HasInExtra(CardId.SaryujaSkullDread) && Bot.HasInExtra(CardId.MechaPhantomBeastAuroradon)) return Func.CheckSelectCount(Util, result, cards, min, min);

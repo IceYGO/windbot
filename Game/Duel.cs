@@ -20,6 +20,7 @@ namespace WindBot.Game
         public int LastChainPlayer { get; set; }
         public CardLocation LastChainLocation { get; set; }
         public IList<ClientCard> CurrentChain { get; set; }
+        public IList<ChainInfo> CurrentChainInfo { get; set; }
         public IList<ClientCard> ChainTargets { get; set; }
         public IList<ClientCard> LastChainTargets { get; set; }
         public IList<ClientCard> ChainTargetOnly { get; set; }
@@ -37,6 +38,7 @@ namespace WindBot.Game
             LastChainPlayer = -1;
             LastChainLocation = 0;
             CurrentChain = new List<ClientCard>();
+            CurrentChainInfo = new List<ChainInfo>();
             ChainTargets = new List<ClientCard>();
             LastChainTargets = new List<ClientCard>();
             ChainTargetOnly = new List<ClientCard>();
@@ -45,6 +47,8 @@ namespace WindBot.Game
             LastSummonedCards = new List<ClientCard>();
             SolvingChainIndex = 0;
             NegatedChainIndexList = new List<int>();
+            MainPhase = new MainPhase();
+            BattlePhase = new BattlePhase();
         }
 
         public ClientCard GetCard(int player, CardLocation loc, int seq)
@@ -174,10 +178,32 @@ namespace WindBot.Game
             return IsFirst ? player : 1 - player;
         }
 
+        /// <summary>
+        /// Returns the newest chain link while the chain is being built, including
+        /// while that link is selecting its activation cost or targets.
+        /// Unlike GetCurrentSolvingChainCard, this returns null once chain resolution
+        /// has started.
+        /// </summary>
+        public ClientCard GetCurrentChainCard()
+        {
+            if (SolvingChainIndex != 0 || CurrentChain.Count == 0) return null;
+            return CurrentChain[CurrentChain.Count - 1];
+        }
+
+        /// <summary>
+        /// Returns the chain link currently being resolved. This is null before the
+        /// engine starts resolving the chain, including during activation target selection.
+        /// </summary>
         public ClientCard GetCurrentSolvingChainCard()
         {
             if (SolvingChainIndex == 0 || SolvingChainIndex > CurrentChain.Count) return null;
             return CurrentChain[SolvingChainIndex - 1];
+        }
+
+        public ChainInfo GetCurrentSolvingChainInfo()
+        {
+            if (SolvingChainIndex == 0 || SolvingChainIndex > CurrentChainInfo.Count) return null;
+            return CurrentChainInfo[SolvingChainIndex - 1];
         }
 
         public bool IsCurrentSolvingChainNegated()

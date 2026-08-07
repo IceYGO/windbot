@@ -113,7 +113,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.WitchcrafterBystreet, WitchcraftRecycle);
             AddExecutor(ExecutorType.Activate, WitchcraftRecycle);
             AddExecutor(ExecutorType.Activate, CardId.MetalfoesFusion);
-            AddExecutor(ExecutorType.Activate, CardId.TGWonderMagician, TGWonderMagicianActivate);
+            AddExecutor(ExecutorType.Activate, CardId.TGWonderMagician);
             AddExecutor(ExecutorType.Activate, CardId.KnightmareUnicorn, KnightmareUnicornActivate);
             AddExecutor(ExecutorType.Activate, CardId.KnightmarePhoenix, KnightmarePhoenixActivate);
             AddExecutor(ExecutorType.Activate, CardId.CrystronHalqifibrax, CrystronHalqifibraxActivate);
@@ -201,8 +201,8 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnChainSolved(int chainIndex)
         {
-            ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
-            if (currentCard != null && currentCard.Controller == 1)
+            ChainInfo currentCard = Duel.GetCurrentSolvingChainInfo();
+            if (currentCard != null && currentCard.ActivatePlayer == 1)
             {
                 if (Duel.IsCurrentSolvingChainNegated())
                 {
@@ -212,16 +212,16 @@ namespace WindBot.Game.AI.Decks
                         if (Bot.MonsterZone.GetFirstMatchingCard(c => c.HasRace(CardRace.SpellCaster) && c.IsFaceup()) != null
                             && Bot.HasInSpellZone(CardId.MagicianRightHand, true))
                         {
-                            Logger.DebugWriteLine("MagicianRightHand negate: " + currentCard.Name ?? "???");
+                            Logger.DebugWriteLine("MagicianRightHand negate: " + currentCard.RelatedCard.Name ?? "???");
                             MagicianRightHand_used = true;
                         }
                     }
-                    if (!MagiciansLeftHand_used && currentCard.IsTrap() && currentCard.Controller == 1)
+                    if (!MagiciansLeftHand_used && currentCard.IsTrap() && currentCard.ActivatePlayer == 1)
                     {
                         if (Bot.MonsterZone.GetFirstMatchingCard(c => c.HasRace(CardRace.SpellCaster) && c.IsFaceup()) != null
                             && Bot.HasInSpellZone(CardId.MagiciansLeftHand, true))
                         {
-                            Logger.DebugWriteLine("MagiciansLeftHand negate: " + currentCard.Name ?? "???");
+                            Logger.DebugWriteLine("MagiciansLeftHand negate: " + currentCard.RelatedCard.Name ?? "???");
                             MagiciansLeftHand_used = true;
                         }
                     }
@@ -236,7 +236,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         for (int i = 0; i < 5; ++i)
                         {
-                            if (Enemy.SpellZone[i] == currentCard)
+                            if (Enemy.SpellZone[i] == currentCard.RelatedCard)
                             {
                                 Impermanence_list.Add(4 - i);
                                 break;
@@ -280,6 +280,20 @@ namespace WindBot.Game.AI.Decks
         // overwrite OnSelectCard to act normally in SelectUnselect
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(CardId.TGWonderMagician) &&
+                hint == HintMsg.Destroy)
+            {
+                List<ClientCard> targets = Enemy.SpellZone
+                    .GetMatchingCards(card => cards.Contains(card))
+                    .OrderByDescending(card => card.IsFloodgate())
+                    .ThenByDescending(card => card.IsFaceup())
+                    .ToList();
+                return Util.CheckSelectCount(targets, cards, min, max);
+            }
+
             // Patronus
             if (hint == HintMsg.AddToHand)
             {
@@ -2505,19 +2519,6 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             return false;
-        }
-
-        // activate of TGWonderMagician
-        public bool TGWonderMagicianActivate()
-        {
-            if (Card.Location != CardLocation.MonsterZone) return true;
-            Logger.DebugWriteLine("TGWonderMagician: " + ActivateDescription.ToString());
-            List<ClientCard> problem_cards = Enemy.SpellZone.GetMatchingCards(card => card.IsFloodgate()).ToList();
-            List<ClientCard> faceup_cards = Enemy.SpellZone.GetMatchingCards(card => card.IsFaceup()).ToList();
-            List<ClientCard> facedown_cards = Enemy.SpellZone.GetMatchingCards(card => card.IsFacedown()).ToList();
-            List<ClientCard> result = problem_cards.Union(faceup_cards).ToList().Union(facedown_cards).ToList();
-            AI.SelectCard(result);
-            return true;
         }
 
         // check whether summon BorrelswordDragon

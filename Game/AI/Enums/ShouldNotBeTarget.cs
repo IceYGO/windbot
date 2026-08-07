@@ -51,6 +51,11 @@
         RedEyesBDragon = 74677422, // sometimes the name of DragunofRedEyes will be changed to RedEyesBDragon
         TheArrivalCyberseIgnister = 11738489,
         MajespecterPorcupineYamaarashi = 51073802,
-        RaidraptorRisingRebellionFalcon = 71222868
+        RaidraptorRisingRebellionFalcon = 71222868,
+        Number97Draglubion = 28400508,
+        SaintAzamina = 85065943,
+        LunalightLigerDancer = 54701958,
+        DarklordEveningstar = 10136446,
+        RedHypernovaDragon = 30698243
     }
 }

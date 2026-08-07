@@ -57,7 +57,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.PhotonGeneratorUnit);
             AddExecutor(ExecutorType.Activate, CardId.DeFusion, DeFusionEffect);
 
-            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultUniqueTrap);
+            AddExecutor(ExecutorType.Activate, CardId.BottomlessTrapHole, DefaultBottomlessTrapHole);
             AddExecutor(ExecutorType.Activate, CardId.MirrorForce, DefaultUniqueTrap);
             AddExecutor(ExecutorType.Activate, CardId.AttackReflectorUnit);
             AddExecutor(ExecutorType.Activate, CardId.SevenToolsOfTheBandit, DefaultTrap);

@@ -19,6 +19,8 @@ namespace WindBot.Game
         public ClientCard BattlingMonster;
         public bool UnderAttack;
 
+        public HashSet<int> HintDescriptions { get; private set; }
+
         public ClientField()
         {
         }
@@ -32,6 +34,7 @@ namespace WindBot.Game
             Banished = new List<ClientCard>();
             Deck = new List<ClientCard>();
             ExtraDeck = new List<ClientCard>();
+            HintDescriptions = new HashSet<int>();
 
             for (int i = 0; i < deck; ++i)
                 Deck.Add(new ClientCard(0, CardLocation.Deck, -1));

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using YGOSharp.OCGWrapper.Enums;
@@ -15,9 +15,6 @@ namespace WindBot.Game.AI
         public IList<CardExecutor> Executors { get; private set; }
         public GameAI AI { get; private set; }
         public AIUtil Util { get; private set; }
-
-        protected MainPhase Main { get; private set; }
-        protected BattlePhase Battle { get; private set; }
 
         protected ExecutorType Type { get; private set; }
         protected ClientCard Card { get; private set; }
@@ -122,6 +119,27 @@ namespace WindBot.Game.AI
         public virtual void OnDraw(int player)
         {
             // Some AI need do something on draw
+        }
+
+        /// <summary>
+        /// Called when a PlayerHint is received (e.g. effect description add/remove; can be used to track "once per turn" usage).
+        /// </summary>
+        /// <param name="player">Player index</param>
+        /// <param name="hintType">Hint type, see PlayerHintType (DescAdd=6, DescRemove=7)</param>
+        /// <param name="description">Effect description id (peffect->description)</param>
+        public virtual void OnPlayerHint(int player, int hintType, int description)
+        {
+            // For overriding
+        }
+
+        /// <summary>
+        /// Called when a zone hint is received.
+        /// </summary>
+        /// <param name="player">Player index.</param>
+        /// <param name="zone">Zone data (hinted zones, bit field).</param>
+        public virtual void OnHintZone(int player, int zone)
+        {
+            // For overriding
         }
 
         public virtual void OnMove(ClientCard card, int previousControler, int previousLocation, int currentControler, int currentLocation)
@@ -237,14 +255,23 @@ namespace WindBot.Game.AI
             return 0;
         }
 
-        public void SetMain(MainPhase main)
+        /// <summary>
+        /// Called when card is successfully special summoned.
+        /// Used on monsters that can only special summoned once per turn.
+        /// </summary>
+        public virtual void OnSpSummoned()
         {
-            Main = main;
+            // For overriding
+            return;
         }
 
-        public void SetBattle(BattlePhase battle)
+        /// <summary>
+        /// Called when a monster's normal summon is attempted.
+        /// </summary>
+        public virtual void OnSummoning()
         {
-            Battle = battle;
+            // For overriding
+            return;
         }
 
         /// <summary>

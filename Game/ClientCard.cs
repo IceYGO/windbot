@@ -82,8 +82,7 @@ namespace WindBot.Game
             if (Data != null)
             {
                 Name = Data.Name;
-                if (Data.Alias != 0)
-                    Alias = Data.Alias;
+                Alias = Data.Alias;
             } else {
                 Name = null;
                 Alias = 0;
@@ -348,7 +347,12 @@ namespace WindBot.Game
 
         public bool IsOriginalCode(int id)
         {
-            return Id == id || Alias - Id < 20 && Alias == id;
+            return Id == id || System.Math.Abs(Alias - Id) < 20 && Alias == id;
+        }
+
+        public bool IsOnField()
+        {
+            return Location == CardLocation.MonsterZone || Location == CardLocation.SpellZone || Location == CardLocation.PendulumZone || Location == CardLocation.FieldZone;
         }
 
         public bool HasXyzMaterial()

@@ -358,7 +358,7 @@ namespace WindBot.Game.AI
         public IList<ClientCard> SelectPreferredCards(ClientCard preferred, IList<ClientCard> cards, int min, int max)
         {
             IList<ClientCard> selected = new List<ClientCard>();
-            if (cards.IndexOf(preferred) > 0 && selected.Count < max)
+            if (cards.IndexOf(preferred) >= 0 && selected.Count < max)
             {
                 selected.Add(preferred);
             }
@@ -387,13 +387,13 @@ namespace WindBot.Game.AI
         public IList<ClientCard> SelectPreferredCards(IList<ClientCard> preferred, IList<ClientCard> cards, int min, int max)
         {
             IList<ClientCard> selected = new List<ClientCard>();
-            IList<ClientCard> avail = cards.ToList(); // clone
-            while (preferred.Count > 0 && avail.IndexOf(preferred[0]) > 0 && selected.Count < max)
+            IList<ClientCard> available = cards.ToList();
+            foreach (ClientCard card in preferred)
             {
-                ClientCard card = preferred[0];
-                preferred.Remove(card);
-                avail.Remove(card);
-                selected.Add(card);
+                if (selected.Count >= max)
+                    break;
+                if (available.Remove(card))
+                    selected.Add(card);
             }
 
             return selected;
@@ -409,7 +409,7 @@ namespace WindBot.Game.AI
             {
                 foreach (ClientCard card in cards)
                 {
-                    if (card.IsCode(id) && selected.Count < max && selected.IndexOf(card) <= 0)
+                    if (card.IsCode(id) && selected.Count < max && !selected.Contains(card))
                         selected.Add(card);
                 }
                 if (selected.Count >= max)
@@ -424,7 +424,9 @@ namespace WindBot.Game.AI
         /// </summary>
         public IList<ClientCard> CheckSelectCount(IList<ClientCard> _selected, IList<ClientCard> cards, int min, int max)
         {
-            var selected = _selected.Distinct().ToList();
+            if (_selected.Any(card => !cards.Contains(card)))
+                Logger.DebugWriteLine("Selected cards contain cards outside the available candidates.", true);
+            var selected = _selected.Where(cards.Contains).Distinct().ToList();
             if (selected.Count < min)
             {
                 foreach (ClientCard card in cards)

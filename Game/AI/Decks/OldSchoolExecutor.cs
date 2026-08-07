@@ -69,10 +69,10 @@ namespace WindBot.Game.AI.Decks
             if (_lastDoubleSummon == Duel.Turn)
                 return false;
 
-            if (Main.SummonableCards.Count == 0)
+            if (Duel.MainPhase.SummonableCards.Count == 0)
                 return false;
 
-            if (Main.SummonableCards.Count == 1 && Main.SummonableCards[0].Level < 5)
+            if (Duel.MainPhase.SummonableCards.Count == 1 && Duel.MainPhase.SummonableCards[0].Level < 5)
             {
                 bool canTribute = false;
                 foreach (ClientCard handCard in Bot.Hand)

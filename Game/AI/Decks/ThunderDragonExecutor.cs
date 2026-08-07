@@ -590,7 +590,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     res.Reverse();
                     res.AddRange(pre_res);
-                    if(res.Count>=0) return Util.CheckSelectCount(res, cards, min, max);
+                    if(res.Count>0) return Util.CheckSelectCount(res, cards, min, max);
                     return null;
                 }
                 if (min == 2 && max == 2)
@@ -1203,7 +1203,7 @@ namespace WindBot.Game.AI.Decks
 
                 List<ClientCard> Spellcards = Bot.GetGraveyardSpells().Where(card => card != null && !card.IsCode(CardId.ThunderDragonFusion) && !card.IsCode(CardId.ChaosSpace)).ToList();
                 if (Spellcards.Count > 0) AI.SelectNextCard(Spellcards);
-                else if(NoThundercards.Count > 0 ) AI.SelectNextCard(Spellcards);
+                else if(NoThundercards.Count > 0 ) AI.SelectNextCard(NoThundercards);
                 else if(Thundercards.Count > 0) AI.SelectNextCard(Thundercards);
                 else AI.SelectNextCard(CardId.ChaosSpace);
                 AI.SelectThirdCard(CardId.ThunderDragonColossus, CardId.ThunderDragonTitan, CardId.ThunderDragonlord,CardId.TheChaosCreator);
@@ -2386,7 +2386,7 @@ namespace WindBot.Game.AI.Decks
                     cardsid.Add(card.Id);
             for (int i = 0; i < cardsid.Count; i++)
             {
-                if (res.Count >= 0 && res.Contains(cardsid[i])) continue;
+                if (res.Contains(cardsid[i])) continue;
                 int times = 0;
                 for (int j = 0; j < cardsid.Count; j++)
                 {

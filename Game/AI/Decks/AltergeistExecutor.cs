@@ -114,6 +114,7 @@ namespace WindBot.Game.AI.Decks
             // negate
             AddExecutor(ExecutorType.Activate, _CardId.ChickenGame, ChickenGame);
             AddExecutor(ExecutorType.Repos, EvenlyMatched_Repos);
+            AddExecutor(ExecutorType.GoToBattlePhase, EvenlyMatchedToBattle);
 
             AddExecutor(ExecutorType.Activate, CardId.MaxxC, G_activate);
             AddExecutor(ExecutorType.Activate, CardId.Anti_Spell, Anti_Spell_activate);
@@ -186,12 +187,42 @@ namespace WindBot.Game.AI.Decks
 
         public bool EvenlyMatched_ready()
         {
-            if (Bot.HasInHand(CardId.EvenlyMatched) && Bot.GetSpellCount() == 0)
-            {
-                if (Duel.Phase < DuelPhase.Main2 && Enemy.GetFieldCount() >= 3
-                    && Bot.HasInMonstersZone(CardId.Iblee)) return true;
-            }
-            return false;
+            if (!Bot.HasInHand(CardId.EvenlyMatched) ||
+                Duel.Turn < 2 ||
+                Duel.Phase >= DuelPhase.Main2 ||
+                Enemy.GetFieldCount() < 3 ||
+                Bot.GetSpellCount() != 0)
+                return false;
+
+            if (Bot.GetFieldCount() == 0)
+                return true;
+
+            ClientCard iblee = Bot.GetMonsters()
+                .FirstOrDefault(card => card.IsCode(CardId.Iblee));
+            return Bot.GetFieldCount() == 1 &&
+                iblee != null &&
+                GetEvenlyMatchedCrashTarget(iblee) != null;
+        }
+
+        private ClientCard GetEvenlyMatchedCrashTarget(ClientCard iblee)
+        {
+            ClientCard target = Enemy.GetMonsters()
+                .Where(card =>
+                    card.IsFaceup() &&
+                    card.IsDefense() &&
+                    card.Defense > iblee.Attack)
+                .OrderBy(card => card.Defense)
+                .FirstOrDefault();
+            if (target != null)
+                return target;
+
+            return Enemy.GetMonsters()
+                .Where(card =>
+                    card.IsAttack() &&
+                    card.Attack > iblee.Attack &&
+                    card.Attack - iblee.Attack < Bot.LifePoints)
+                .OrderBy(card => card.Attack)
+                .FirstOrDefault();
         }
 
         public bool has_altergeist_left()
@@ -210,6 +241,19 @@ namespace WindBot.Game.AI.Decks
                 return (!Card.HasPosition(CardPosition.Attack));
             }
             return false;
+        }
+
+        private bool EvenlyMatchedToBattle()
+        {
+            if (!EvenlyMatched_ready())
+                return false;
+
+            if (Bot.GetFieldCount() == 0)
+                return true;
+
+            return Bot.GetMonsters().Any(card =>
+                card.IsCode(CardId.Iblee) &&
+                card.IsAttack());
         }
 
         public bool isAltergeist(int id)
@@ -989,9 +1033,7 @@ namespace WindBot.Game.AI.Decks
         public bool EvenlyMatched_activate()
         {
             if (!spell_trap_activate()) return false;
-            return true;
 
-            // use after ToBattle fix
             int bot_count = Bot.GetFieldCount();
             if (Card.Location == CardLocation.Hand) bot_count += 1;
             int enemy_count = Enemy.GetFieldCount();
@@ -2745,18 +2787,11 @@ namespace WindBot.Game.AI.Decks
 
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
         {
-            if (EvenlyMatched_ready())
+            if (EvenlyMatched_ready() && attacker.IsCode(CardId.Iblee))
             {
-                List<ClientCard> enemy_m = Enemy.GetMonsters();
-                enemy_m.Sort(CardContainer.CompareCardAttack);
-                //enemy_m.Reverse();
-                foreach (ClientCard e_card in enemy_m)
-                {
-                    if (e_card.HasPosition(CardPosition.Attack))
-                    {
-                        return AI.Attack(attacker, e_card);
-                    }
-                }
+                ClientCard target = GetEvenlyMatchedCrashTarget(attacker);
+                if (target != null)
+                    return AI.Attack(attacker, target);
             }
             for (int i = 0; i < defenders.Count; ++i)
             {

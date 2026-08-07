@@ -63,6 +63,18 @@
         ThreeEyedGhost = 31464658,
         UrsarcticPolarStar = 62714453,
         BattlinBoxerPromoter = 83315222,
-        TGRocketSalamander = 77392987
+        TGRocketSalamander = 77392987,
+        GGolemRockHammer = 98875863,
+        WishDragon = 64583600,
+        ChaosWitch = 30327674,
+        FissioningMotherSpider = 34034150,
+        AncientGearStatue = 32762201,
+        SplittingPlanarian = 44175358,
+        TestBear = 62076252,
+        RescueHedgehog = 99742859,
+        SuperQuantalFairyZetan = 66646087,
+        LightWaterDragon = 82616239,
+        RescueACEQuickAttacker = 47425162,
+        MysticalCelticSage = 50073633
     }
 }

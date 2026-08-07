@@ -48,7 +48,7 @@ namespace WindBot.Game.AI.Decks
             public const int IP = 65741786;
         }
         // false: EDOPro
-        const bool IS_YGOPRO = true;
+        bool IS_YGOPRO = true;
         // YGOPro: 0x181
         // EDOPro: 0x182
         int SETCODE = 0x181;
@@ -865,7 +865,7 @@ namespace WindBot.Game.AI.Decks
             foreach (var card in remainCards)
             {
                 if (card == null) continue;
-                if (!cards.Contains(card)) first_cards.Add(card);
+                if (cards.Contains(card)) first_cards.Add(card);
             }
             foreach (var card in cards)
             {
@@ -993,7 +993,6 @@ namespace WindBot.Game.AI.Decks
                 return Util.CheckSelectCount(CardsIdToClientCards(ids, cards, false, true), cards, min, max);
 
             }
-            //!IS_YGOPRO && select_TearlamentsKitkallos && hint == HintMsg.AddToHand
             if ((IS_YGOPRO && hint == HintMsg.OperateCard) || (!IS_YGOPRO && select_TearlamentsKitkallos && hint == HintMsg.AddToHand))
             {
                 if (!IS_YGOPRO) select_TearlamentsKitkallos = false;
@@ -1600,7 +1599,7 @@ namespace WindBot.Game.AI.Decks
             else if (scards.Any(card => card != null && card.Level == 5) && mcards.Any(card => card != null && card.Level == 5))
             {
                 List<ClientCard> s = Bot.GetMonsters().Where(card => card != null && card.Level == 5 && card.Id == CardId.DivineroftheHerald && card.IsFaceup()).ToList();
-                if (s.Count >= 0)
+                if (s.Count > 0)
                 {
                     List<ClientCard> res = new List<ClientCard>() { s.FirstOrDefault() };
                     res.AddRange(Bot.GetMonsters().Where(card => card != null && card.Level == 5 && card.Id == CardId.ElShaddollWinda && card.IsFaceup()));

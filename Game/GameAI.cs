@@ -1,5 +1,6 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
 using WindBot.Game.AI;
 using YGOSharp.OCGWrapper.Enums;
 
@@ -48,6 +49,9 @@ namespace WindBot.Game
         public void OnDeckError(string card)
         {
             _dialogs.SendDeckSorry(card);
+            Thread.Sleep(1000);
+            _dialogs.SendSurrender();
+            Game.Connection.Close();
         }
 
         /// <summary>
@@ -114,16 +118,7 @@ namespace WindBot.Game
         /// </summary>
         public void OnNewPhase()
         {
-            m_selector.Clear();
-            m_position.Clear();
-            m_selector_pointer = -1;
-            m_materialSelector = null;
-            m_materialSelectorHint = 0;
-            m_option = -1;
-            m_yesno = -1;
-            m_announce = 0;
-           
-            m_place = 0;
+            ClearSelections();
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
                 _dialogs.SendNewTurn();
@@ -156,9 +151,23 @@ namespace WindBot.Game
             Executor.OnChaining(player,card);
         }
 
+        public void OnSummoning()
+        {
+            Executor.OnSummoning();
+        }
+
         public void OnChainSolved(int chainIndex)
         {
             Executor.OnChainSolved(chainIndex);
+        }
+
+        /// <summary>
+        /// Called when card is successfully special summoned.
+        /// Used on monsters that can only special summoned once per turn.
+        /// </summary>
+        public void OnSpSummoned()
+        {
+            Executor.OnSpSummoned();
         }
         
         /// <summary>
@@ -166,10 +175,46 @@ namespace WindBot.Game
         /// </summary>
         public void OnChainEnd()
         {
-            m_selector.Clear();
-            m_selector_pointer = -1;
+            ClearSelections();
             Executor.OnChainEnd();
             CheckSurrender();
+        }
+
+        private void ClearSelections()
+        {
+            m_selector.Clear();
+            m_position.Clear();
+            m_selector_pointer = -1;
+            m_materialSelector = null;
+            m_materialSelectorHint = 0;
+            m_place = 0;
+            m_option = -1;
+            m_number = -1;
+            m_announce = 0;
+            m_yesno = -1;
+            m_attributes.Clear();
+            m_races.Clear();
+        }
+
+        /// <summary>
+        /// Called when a PlayerHint message is received (e.g. effect description add/remove hints).
+        /// </summary>
+        /// <param name="player">Player index</param>
+        /// <param name="hintType">Hint type, see PlayerHintType (DescAdd=6, DescRemove=7)</param>
+        /// <param name="description">Effect description id (peffect->description)</param>
+        public void OnPlayerHint(int player, int hintType, int description)
+        {
+            Executor.OnPlayerHint(player, hintType, description);
+        }
+
+        /// <summary>
+        /// Called when a zone hint is received.
+        /// </summary>
+        /// <param name="player">Player index.</param>
+        /// <param name="zone">Zone data (hinted zones, bit field).</param>
+        public void OnHintZone(int player, int zone)
+        {
+            Executor.OnHintZone(player, zone);
         }
 
         /// <summary>
@@ -189,7 +234,6 @@ namespace WindBot.Game
         /// <returns>A new BattlePhaseAction containing the action to do.</returns>
         public BattlePhaseAction OnSelectBattleCmd(BattlePhase battle)
         {
-            Executor.SetBattle(battle);
             foreach (CardExecutor exec in Executor.Executors)
             {
                 if (exec.Type == ExecutorType.GoToMainPhase2 && battle.CanMainPhaseTwo && exec.Func()) // check if should enter main phase 2 directly
@@ -234,7 +278,12 @@ namespace WindBot.Game
                 return result;
 
             if (attackers.Count == 0)
-                return ToMainPhase2();
+            {
+                if (battle.CanMainPhaseTwo)
+                    return ToMainPhase2();
+                if (battle.CanEndPhase)
+                    return ToEndPhase();
+            }
 
             if (defenders.Count == 0)
             {
@@ -254,10 +303,12 @@ namespace WindBot.Game
                 }
             }
 
-            if (!battle.CanMainPhaseTwo)
-                return Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
+            if (battle.CanMainPhaseTwo)
+                return ToMainPhase2();
+            if (battle.CanEndPhase)
+                return ToEndPhase();
 
-            return ToMainPhase2();
+            return Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
         }
 
         /// <summary>
@@ -273,12 +324,14 @@ namespace WindBot.Game
         {
             // Check for the executor.
             IList<ClientCard> result = Executor.OnSelectCard(cards, min, max, hint, cancelable);
+            result = ValidateCardSelection(result, cards, min, max, cancelable);
             if (result != null)
                 return result;
 
             if (hint == HintMsg.SpSummon && min == 1 && max > min) // pendulum summon
             {
                 result = Executor.OnSelectPendulumSummon(cards, max);
+                result = ValidateCardSelection(result, cards, min, max, cancelable);
                 if (result != null)
                     return result;
             }
@@ -302,6 +355,7 @@ namespace WindBot.Game
                     if (hint == HintMsg.LinkMaterial)
                         result = Executor.OnSelectLinkMaterial(cards, min, max);
 
+                    result = ValidateCardSelection(result, cards, min, max, cancelable);
                     if (result != null)
                         return result;
 
@@ -340,6 +394,24 @@ namespace WindBot.Game
             return selected;
         }
 
+        private IList<ClientCard> ValidateCardSelection(IList<ClientCard> selected, IList<ClientCard> cards, int min, int max, bool cancelable)
+        {
+            if (selected == null)
+                return null;
+
+            bool validCount = selected.Count >= min && selected.Count <= max;
+            if (cancelable && selected.Count == 0)
+                validCount = true;
+
+            if (!validCount || selected.Distinct().Count() != selected.Count || selected.Any(card => card == null || !cards.Contains(card)))
+            {
+                Logger.WriteErrorLine("Invalid card selection returned by executor, using default selection.");
+                return null;
+            }
+
+            return selected;
+        }
+
         /// <summary>
         /// Called when the AI can chain (activate) a card.
         /// </summary>
@@ -348,7 +420,7 @@ namespace WindBot.Game
         /// <param name="forced">You can't return -1 if this param is true.</param>
         /// <param name="timing">Current hint timing</param>
         /// <returns>Index of the activated card or -1.</returns>
-        public int OnSelectChain(IList<ClientCard> cards, IList<int> descs, bool forced, int timing = -1)
+        public int OnSelectChain(IList<ClientCard> cards, IList<int> descs, IList<bool> forces, int timing = -1)
         {
             Executor.OnSelectChain(cards);
             foreach (CardExecutor exec in Executor.Executors)
@@ -363,8 +435,17 @@ namespace WindBot.Game
                     }
                 }
             }
-            // If we're forced to chain, we chain the first card. However don't do anything.
-            return forced ? 0 : -1;
+            for (int i = 0; i < forces.Count; ++i)
+            {
+                if (forces[i])
+                {
+                    // If the card is forced, we have to activate it.
+                    _dialogs.SendChaining(cards[i].Name);
+                    return i;
+                }
+            }
+            // Don't do anything.
+            return -1;
         }
         
         /// <summary>
@@ -436,7 +517,6 @@ namespace WindBot.Game
         /// <returns>A new MainPhaseAction containing the action to do.</returns>
         public MainPhaseAction OnSelectIdleCmd(MainPhase main)
         {
-            Executor.SetMain(main);
             CheckSurrender();
             foreach (CardExecutor exec in Executor.Executors)
             {
@@ -521,12 +601,15 @@ namespace WindBot.Game
         /// <returns>Index of the selected option.</returns>
         public int OnSelectOption(IList<int> options)
         {
+            int selectorSelected = m_option;
+            m_option = -1;
+
             int result = Executor.OnSelectOption(options);
-            if (result != -1)
+            if (result >= 0 && result < options.Count)
                 return result;
 
-            if (m_option != -1 && m_option < options.Count)
-                return m_option;
+            if (selectorSelected >= 0 && selectorSelected < options.Count)
+                return selectorSelected;
 
             return 0; // Always select the first option.
         }
@@ -556,9 +639,9 @@ namespace WindBot.Game
         /// <returns>Selected position.</returns>
         public CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
-            CardPosition selector_selected = GetSelectedPosition();
-
             CardPosition executor_selected = Executor.OnSelectPosition(cardId, positions);
+
+            CardPosition selector_selected = GetSelectedPosition();
 
             // Selects the selected position if available, the first available otherwise.
             if (positions.Contains(executor_selected))
@@ -572,191 +655,272 @@ namespace WindBot.Game
         /// <summary>
         /// Called when the AI has to tribute for a synchro monster or ritual monster.
         /// </summary>
-        /// <param name="cards">Available cards.</param>
+        /// <param name="cards">Available optional cards.</param>
+        /// <param name="mandatoryCards">Cards that must be included.</param>
         /// <param name="sum">Result of the operation.</param>
         /// <param name="min">Minimum cards.</param>
         /// <param name="max">Maximum cards.</param>
         /// <param name="mode">True for exact equal.</param>
         /// <returns></returns>
-        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, int hint, bool mode)
+        public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, IList<ClientCard> mandatoryCards,
+            int sum, int min, int max, int hint, bool mode)
         {
-            IList<ClientCard> selected = Executor.OnSelectSum(cards, sum, min, max, hint, mode);
-            if (selected != null)
-            {
+            int optionalSum = sum - mandatoryCards.Sum(card => card.OpParam1);
+            IList<ClientCard> selected = Executor.OnSelectSum(cards, optionalSum, min, max, hint, mode);
+            if (IsValidSumSelection(selected, cards, mandatoryCards, sum, min, max, mode))
                 return selected;
-            }
 
             if (hint == HintMsg.Release || hint == HintMsg.SynchroMaterial)
             {
                 if (m_materialSelector != null)
                 {
-                    selected = m_materialSelector.Select(cards, min, max);
+                    CardSelector selector = m_materialSelector;
+                    selected = selector.Select(cards, min, max);
                 }
                 else
                 {
                     switch (hint)
                     {
                         case HintMsg.SynchroMaterial:
-                            selected = Executor.OnSelectSynchroMaterial(cards, sum, min, max);
+                            selected = Executor.OnSelectSynchroMaterial(cards, optionalSum, min, max);
                             break;
                         case HintMsg.Release:
-                            selected = Executor.OnSelectRitualTribute(cards, sum, min, max);
+                            selected = Executor.OnSelectRitualTribute(cards, optionalSum, min, max);
                             break;
                     }
                 }
-                if (selected != null)
-                {
-                    int s1 = 0, s2 = 0;
-                    foreach (ClientCard card in selected)
-                    {
-                        s1 += card.OpParam1;
-                        s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                    }
-                    if ((mode && (s1 == sum || s2 == sum)) || (!mode && (s1 >= sum || s2 >= sum)))
-                    {
-                        return selected;
-                    }
-                }
+                if (IsValidSumSelection(selected, cards, mandatoryCards, sum, min, max, mode))
+                    return selected;
             }
 
-            if (mode)
+            IList<ClientCard> orderedCards = new List<ClientCard>();
+            if (selected != null)
             {
-                // equal
-
-                if (sum == 0 && min == 0)
+                foreach (ClientCard card in selected)
                 {
-                    return new List<ClientCard>();
-                }
-
-                if (min <= 1)
-                {
-                    // try special level first
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.OpParam2 == sum)
-                        {
-                            return new[] { card };
-                        }
-                    }
-                    // try level equal
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.OpParam1 == sum)
-                        {
-                            return new[] { card };
-                        }
-                    }
-                }
-
-                // try all
-                int s1 = 0, s2 = 0;
-                foreach (ClientCard card in cards)
-                {
-                    s1 += card.OpParam1;
-                    s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                }
-                if (s1 == sum || s2 == sum)
-                {
-                    return cards;
-                }
-
-                // try all combinations
-                int i = (min <= 1) ? 2 : min;
-                while (i <= max && i <= cards.Count)
-                {
-                    IEnumerable<IEnumerable<ClientCard>> combos = CardContainer.GetCombinations(cards, i);
-
-                    foreach (IEnumerable<ClientCard> combo in combos)
-                    {
-                        Logger.DebugWriteLine("--");
-                        s1 = 0;
-                        s2 = 0;
-                        foreach (ClientCard card in combo)
-                        {
-                            s1 += card.OpParam1;
-                            s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                        }
-                        if (s1 == sum || s2 == sum)
-                        {
-                            return combo.ToList();
-                        }
-                    }
-                    i++;
+                    if (card != null && cards.Contains(card) && !orderedCards.Contains(card))
+                        orderedCards.Add(card);
                 }
             }
-            else
+            foreach (ClientCard card in cards)
             {
-                // larger
-                if (min <= 1)
-                {
-                    // try special level first
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.OpParam2 >= sum)
-                        {
-                            return new[] { card };
-                        }
-                    }
-                    // try level equal
-                    foreach (ClientCard card in cards)
-                    {
-                        if (card.OpParam1 >= sum)
-                        {
-                            return new[] { card };
-                        }
-                    }
-                }
-
-                // try all combinations
-                int i = (min <= 1) ? 2 : min;
-                while (i <= max && i <= cards.Count)
-                {
-                    IEnumerable<IEnumerable<ClientCard>> combos = CardContainer.GetCombinations(cards, i);
-
-                    foreach (IEnumerable<ClientCard> combo in combos)
-                    {
-                        Logger.DebugWriteLine("----");
-                        int s1 = 0, s2 = 0;
-                        foreach (ClientCard card in combo)
-                        {
-                            s1 += card.OpParam1;
-                            s2 += (card.OpParam2 != 0) ? card.OpParam2 : card.OpParam1;
-                        }
-                        if (s1 >= sum || s2 >= sum)
-                        {
-                            return combo.ToList();
-                        }
-                    }
-                    i++;
-                }
+                if (!orderedCards.Contains(card))
+                    orderedCards.Add(card);
             }
+
+            selected = FindSumSelection(orderedCards, mandatoryCards, sum, min, max, mode);
+            if (selected != null)
+                return selected;
 
             Logger.WriteErrorLine("Fail to select sum.");
             return new List<ClientCard>();
+        }
+
+        private bool CanReachSum(IList<ClientCard> cards, int index, long currentSum, int min, int max)
+        {
+            if (currentSum > max)
+                return false;
+            if (index == cards.Count)
+                return currentSum >= min && currentSum <= max;
+
+            ClientCard card = cards[index];
+            if (CanReachSum(cards, index + 1, currentSum + card.OpParam1, min, max))
+                return true;
+            return card.OpParam2 > 0 && card.OpParam2 != card.OpParam1
+                && CanReachSum(cards, index + 1, currentSum + card.OpParam2, min, max);
+        }
+
+        private bool IsValidSumSelection(IList<ClientCard> selected, IList<ClientCard> cards,
+            IList<ClientCard> mandatoryCards, int sum, int min, int max, bool mode)
+        {
+            if (selected == null || selected.Distinct().Count() != selected.Count
+                || selected.Any(card => card == null || !cards.Contains(card)))
+                return false;
+
+            if (mode && (selected.Count < min || selected.Count > max))
+                return false;
+
+            IList<ClientCard> allSelected = mandatoryCards.Concat(selected).ToList();
+            if (mode)
+                return CanReachSum(allSelected, 0, 0, sum, sum);
+
+            // OCGCore's greater-than mode accepts only a minimal set: its maximum
+            // possible sum reaches the target, but removing the smallest minimum
+            // contribution would no longer reach it.
+            if (allSelected.Count == 0)
+                return sum <= 0;
+
+            long minimumSum = 0;
+            long maximumSum = 0;
+            int smallestMinimum = int.MaxValue;
+            foreach (ClientCard card in allSelected)
+            {
+                int minimum = card.OpParam2 > 0 ? System.Math.Min(card.OpParam1, card.OpParam2) : card.OpParam1;
+                int maximum = System.Math.Max(card.OpParam1, card.OpParam2);
+                minimumSum += minimum;
+                maximumSum += maximum;
+                smallestMinimum = System.Math.Min(smallestMinimum, minimum);
+            }
+            return IsValidGreaterSum(minimumSum, maximumSum, smallestMinimum, sum);
+        }
+
+        private IList<ClientCard> FindSumSelection(IList<ClientCard> cards, IList<ClientCard> mandatoryCards,
+            int sum, int min, int max, bool mode)
+        {
+            if (!mode)
+            {
+                long minimumSum = 0;
+                long maximumSum = 0;
+                int smallestMinimum = int.MaxValue;
+                foreach (ClientCard card in mandatoryCards)
+                {
+                    int minimum = card.OpParam2 > 0 ? System.Math.Min(card.OpParam1, card.OpParam2) : card.OpParam1;
+                    minimumSum += minimum;
+                    maximumSum += System.Math.Max(card.OpParam1, card.OpParam2);
+                    smallestMinimum = System.Math.Min(smallestMinimum, minimum);
+                }
+
+                IList<ClientCard> result = new List<ClientCard>();
+                long[] remainingMaximums = new long[cards.Count + 1];
+                for (int i = cards.Count - 1; i >= 0; --i)
+                {
+                    remainingMaximums[i] = remainingMaximums[i + 1]
+                        + System.Math.Max(cards[i].OpParam1, cards[i].OpParam2);
+                }
+                return TrySelectGreaterSum(cards, remainingMaximums, sum, 0, minimumSum, maximumSum,
+                    smallestMinimum, mandatoryCards.Count, result) ? result : null;
+            }
+
+            HashSet<long> mandatorySums = new HashSet<long> { 0 };
+            foreach (ClientCard card in mandatoryCards)
+            {
+                HashSet<long> nextSums = new HashSet<long>();
+                foreach (long current in mandatorySums)
+                {
+                    if (current + card.OpParam1 <= sum)
+                        nextSums.Add(current + card.OpParam1);
+                    if (card.OpParam2 > 0 && card.OpParam2 != card.OpParam1 && current + card.OpParam2 <= sum)
+                        nextSums.Add(current + card.OpParam2);
+                }
+                mandatorySums = nextSums;
+            }
+
+            HashSet<long> optionalSums = new HashSet<long>(mandatorySums.Select(value => (long)sum - value));
+            long maximumOptionalSum = optionalSums.Count > 0 ? optionalSums.Max() : -1;
+            int maximumCount = System.Math.Min(max, cards.Count);
+            for (int count = min; count <= maximumCount; ++count)
+            {
+                IList<ClientCard> result = new List<ClientCard>();
+                var failed = new HashSet<System.Tuple<int, int, long>>();
+                if (TrySelectCardsBySum(cards, optionalSums, maximumOptionalSum, 0, count, 0, result, failed))
+                    return result;
+            }
+            return null;
+        }
+
+        private bool TrySelectCardsBySum(IList<ClientCard> cards, ISet<long> targetSums, long maximumTarget,
+            int index, int remainingCount, long currentSum, IList<ClientCard> result,
+            ISet<System.Tuple<int, int, long>> failed)
+        {
+            if (remainingCount == 0)
+                return targetSums.Contains(currentSum);
+            if (currentSum > maximumTarget || cards.Count - index < remainingCount)
+                return false;
+
+            var state = System.Tuple.Create(index, remainingCount, currentSum);
+            if (failed.Contains(state))
+                return false;
+
+            ClientCard card = cards[index];
+            result.Add(card);
+            if (card.OpParam2 > 0 && card.OpParam2 != card.OpParam1
+                && TrySelectCardsBySum(cards, targetSums, maximumTarget, index + 1, remainingCount - 1,
+                    currentSum + card.OpParam2, result, failed))
+                return true;
+            if (TrySelectCardsBySum(cards, targetSums, maximumTarget, index + 1, remainingCount - 1,
+                currentSum + card.OpParam1, result, failed))
+                return true;
+            result.RemoveAt(result.Count - 1);
+
+            if (TrySelectCardsBySum(cards, targetSums, maximumTarget, index + 1, remainingCount, currentSum, result, failed))
+                return true;
+
+            failed.Add(state);
+            return false;
+        }
+
+        private bool TrySelectGreaterSum(IList<ClientCard> cards, IList<long> remainingMaximums,
+            int sum, int index, long minimumSum, long maximumSum, int smallestMinimum,
+            int selectedCount, IList<ClientCard> result)
+        {
+            if (selectedCount > 0 && IsValidGreaterSum(minimumSum, maximumSum, smallestMinimum, sum))
+                return true;
+            if (selectedCount > 0 && minimumSum - smallestMinimum >= sum)
+                return false;
+            if (index >= cards.Count || maximumSum + remainingMaximums[index] < sum)
+                return false;
+
+            ClientCard card = cards[index];
+            int minimum = card.OpParam2 > 0 ? System.Math.Min(card.OpParam1, card.OpParam2) : card.OpParam1;
+            result.Add(card);
+            if (TrySelectGreaterSum(cards, remainingMaximums, sum, index + 1, minimumSum + minimum,
+                maximumSum + System.Math.Max(card.OpParam1, card.OpParam2),
+                System.Math.Min(smallestMinimum, minimum), selectedCount + 1, result))
+                return true;
+            result.RemoveAt(result.Count - 1);
+
+            return TrySelectGreaterSum(cards, remainingMaximums, sum, index + 1, minimumSum, maximumSum,
+                smallestMinimum, selectedCount, result);
+        }
+
+        private bool IsValidGreaterSum(long minimumSum, long maximumSum, int smallestMinimum, int sum)
+        {
+            return maximumSum >= sum && minimumSum - smallestMinimum < sum;
         }
 
         /// <summary>
         /// Called when the AI has to tribute one or more cards.
         /// </summary>
         /// <param name="cards">List of available cards.</param>
-        /// <param name="min">Minimal quantity.</param>
-        /// <param name="max">Maximal quantity.</param>
+        /// <param name="min">Minimum tribute value.</param>
+        /// <param name="max">Maximum tribute value.</param>
         /// <param name="hint">The hint message of the select.</param>
         /// <param name="cancelable">True if you can return an empty list.</param>
         /// <returns>A new list containing the tributed cards.</returns>
         public IList<ClientCard> OnSelectTribute(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            // Always choose the minimum and lowest atk.
             List<ClientCard> sorted = new List<ClientCard>();
             sorted.AddRange(cards);
             sorted.Sort(CardContainer.CompareCardAttack);
 
-            IList<ClientCard> selected = new List<ClientCard>();
+            IList<ClientCard> selected = FindTributeSelection(sorted, min, max);
+            if (selected != null)
+                return selected;
 
-            for (int i = 0; i < min && i < sorted.Count; ++i)
-                selected.Add(sorted[i]);
+            Logger.WriteErrorLine("Fail to select tribute.");
+            return new List<ClientCard>();
+        }
 
-            return selected;
+        public bool IsValidTributeSelection(IList<ClientCard> selected, int min, int max)
+        {
+            return selected != null && CanReachSum(selected, 0, 0, min, max);
+        }
+
+        public IList<ClientCard> FindTributeSelection(IList<ClientCard> cards, int min, int max)
+        {
+            ISet<long> targetSums = new HashSet<long>();
+            for (int value = min; value <= max; ++value)
+                targetSums.Add(value);
+
+            int maximumCount = System.Math.Min(max, cards.Count);
+            for (int count = 0; count <= maximumCount; ++count)
+            {
+                IList<ClientCard> selected = new List<ClientCard>();
+                ISet<System.Tuple<int, int, long>> failed = new HashSet<System.Tuple<int, int, long>>();
+                if (TrySelectCardsBySum(cards, targetSums, max, 0, count, 0, selected, failed))
+                    return selected;
+            }
+            return null;
         }
 
         /// <summary>
@@ -766,8 +930,10 @@ namespace WindBot.Game
         /// <returns>True for yes, false for no.</returns>
         public bool OnSelectYesNo(int desc)
         {
-            if (m_yesno != -1)
-                return m_yesno > 0;
+            int selected = m_yesno;
+            m_yesno = -1;
+            if (selected != -1)
+                return selected > 0;
             return Executor.OnSelectYesNo(desc);
         }
 
@@ -787,13 +953,16 @@ namespace WindBot.Game
         /// <returns>Id of the selected card.</returns>
         public int OnAnnounceCard(IList<int> avail)
         {
+            int announced = m_announce;
+            m_announce = 0;
+
             int selected = Executor.OnAnnounceCard(avail);
             if (avail.Contains(selected))
                 return selected;
-            if (avail.Contains(m_announce))
-                return m_announce;
-            else if (m_announce > 0)
-                Logger.WriteErrorLine("Pre-announced card cant be used: " + m_announce);
+            if (avail.Contains(announced))
+                return announced;
+            else if (announced > 0)
+                Logger.WriteErrorLine("Pre-announced card cant be used: " + announced);
             return avail[0];
         }
 
@@ -854,7 +1023,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(card));
@@ -864,7 +1033,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cards));
@@ -874,7 +1043,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cardId));
@@ -884,7 +1053,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -894,7 +1063,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -904,7 +1073,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectNextCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectNextCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(loc));
@@ -914,7 +1083,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(card));
@@ -924,7 +1093,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cards));
@@ -934,7 +1103,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(cardId));
@@ -944,7 +1113,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -954,7 +1123,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(ids));
@@ -964,7 +1133,7 @@ namespace WindBot.Game
         {
             if (m_selector_pointer == -1)
             {
-                Logger.WriteErrorLine("Error: Call SelectThirdCard() before SelectCard()");
+                //Logger.WriteErrorLine("Called SelectThirdCard() before SelectCard()");
                 m_selector_pointer = 0;
             }
             m_selector.Insert(m_selector_pointer, new CardSelector(loc));
@@ -1009,6 +1178,11 @@ namespace WindBot.Game
         public bool HaveSelectedCards()
         {
             return m_selector.Count > 0 || m_materialSelector != null;
+        }
+
+        public bool HaveSelectedPosition()
+        {
+            return m_position.Count > 0;
         }
 
         public CardSelector GetSelectedCards()
@@ -1096,8 +1270,10 @@ namespace WindBot.Game
         /// <returns>Index of the selected number.</returns>
         public int OnAnnounceNumber(IList<int> numbers)
         {
-            if (numbers.Contains(m_number))
-                return numbers.IndexOf(m_number);
+            int selected = m_number;
+            m_number = -1;
+            if (numbers.Contains(selected))
+                return numbers.IndexOf(selected);
 
             return Program.Rand.Next(0, numbers.Count); // Returns a random number.
         }
@@ -1110,11 +1286,17 @@ namespace WindBot.Game
         /// <returns>A list of the selected attributes.</returns>
         public virtual IList<CardAttribute> OnAnnounceAttrib(int count, IList<CardAttribute> attributes)
         {
-            IList<CardAttribute> foundAttributes = m_attributes.Where(attributes.Contains).ToList();
-            if (foundAttributes.Count > 0)
-                return foundAttributes;
+            IList<CardAttribute> foundAttributes = m_attributes.Where(attributes.Contains).Distinct().Take(count).ToList();
+            m_attributes.Clear();
+            foreach (CardAttribute attribute in attributes)
+            {
+                if (foundAttributes.Count >= count)
+                    break;
+                if (!foundAttributes.Contains(attribute))
+                    foundAttributes.Add(attribute);
+            }
 
-            return attributes; // Returns the first available Attribute.
+            return foundAttributes;
         }
 
         /// <summary>
@@ -1125,11 +1307,17 @@ namespace WindBot.Game
         /// <returns>A list of the selected races.</returns>
         public virtual IList<CardRace> OnAnnounceRace(int count, IList<CardRace> races)
         {
-            IList<CardRace> foundRaces = m_races.Where(races.Contains).ToList();
-            if (foundRaces.Count > 0)
-                return foundRaces;
+            IList<CardRace> foundRaces = m_races.Where(races.Contains).Distinct().Take(count).ToList();
+            m_races.Clear();
+            foreach (CardRace race in races)
+            {
+                if (foundRaces.Count >= count)
+                    break;
+                if (!foundRaces.Contains(race))
+                    foundRaces.Add(race);
+            }
 
-            return races; // Returns the first available Races.
+            return foundRaces;
         }
 
         public BattlePhaseAction Attack(ClientCard attacker, ClientCard defender)
@@ -1162,6 +1350,7 @@ namespace WindBot.Game
 
         private bool ShouldExecute(CardExecutor exec, ClientCard card, ExecutorType type, int desc = -1, int timing = -1)
         {
+            Executor.SetCard(type, card, desc, timing);
             if (card.Id != 0 && type == ExecutorType.Activate)
             {
                 if (_activatedCards.ContainsKey(card.Id) && _activatedCards[card.Id] >= 9)
@@ -1169,7 +1358,6 @@ namespace WindBot.Game
                 if (!Executor.OnPreActivate(card))
                     return false;
             }
-            Executor.SetCard(type, card, desc, timing);
             bool result = card != null && exec.Type == type &&
                 (exec.CardId == -1 || exec.CardId == card.Id) &&
                 (exec.Func == null || exec.Func());

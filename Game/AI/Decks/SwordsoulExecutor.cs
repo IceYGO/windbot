@@ -695,8 +695,8 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnChainSolved(int chainIndex)
         {
-            ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
-            if (currentCard != null && !Duel.IsCurrentSolvingChainNegated() && currentCard.Controller == 1)
+            ChainInfo currentCard = Duel.GetCurrentSolvingChainInfo();
+            if (currentCard != null && !Duel.IsCurrentSolvingChainNegated() && currentCard.ActivatePlayer == 1)
             {
                 if (currentCard.IsCode(_CardId.MaxxC))
                     enemyActivateMaxxC = true;
@@ -706,7 +706,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     for (int i = 0; i < 5; ++i)
                     {
-                        if (Enemy.SpellZone[i] == currentCard)
+                        if (Enemy.SpellZone[i] == currentCard.RelatedCard)
                         {
                             infiniteImpermanenceList.Add(4 - i);
                             break;

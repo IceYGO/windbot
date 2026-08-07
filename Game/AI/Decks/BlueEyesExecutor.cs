@@ -155,6 +155,8 @@ namespace WindBot.Game.AI.Decks
         {
             Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
             IList<ClientCard> result = Util.SelectPreferredCards(UsedAlternativeWhiteDragon, cards, min, max);
+            foreach (ClientCard card in result)
+                UsedAlternativeWhiteDragon.Remove(card);
             return Util.CheckSelectCount(result, cards, min, max);
         }
 
@@ -166,7 +168,7 @@ namespace WindBot.Game.AI.Decks
 
             foreach (ClientCard AlternativeWhiteDragon in UsedAlternativeWhiteDragon)
             {
-                if (cards.IndexOf(AlternativeWhiteDragon) > 0)
+                if (cards.IndexOf(AlternativeWhiteDragon) >= 0)
                 {
                     UsedAlternativeWhiteDragon.Remove(AlternativeWhiteDragon);
                     Logger.DebugWriteLine("select UsedAlternativeWhiteDragon");
@@ -175,6 +177,22 @@ namespace WindBot.Game.AI.Decks
             }
 
             return null;
+        }
+
+        public override void OnSpSummoned()
+        {
+            // not special summoned by chain
+            if (Duel.GetCurrentSolvingChainCard() == null)
+            {
+                foreach (ClientCard card in Duel.LastSummonedCards)
+                {
+                    if (card.Controller == 0 && card.IsCode(CardId.AlternativeWhiteDragon))
+                    {
+                        AlternativeWhiteDragonSummoned = true;
+                    }
+                }
+            }
+            base.OnSpSummoned();
         }
 
         private bool DragonShrineEffect()
@@ -501,7 +519,6 @@ namespace WindBot.Game.AI.Decks
 
         private bool AlternativeWhiteDragonSummon()
         {
-            AlternativeWhiteDragonSummoned = true;
             return true;
         }
 

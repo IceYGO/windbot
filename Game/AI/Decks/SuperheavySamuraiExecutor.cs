@@ -80,7 +80,8 @@ namespace WindBot.Game.AI.Decks
         public SuperheavySamuraiExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, CardId.PSYFramelordOmega);
+            AddExecutor(ExecutorType.Repos, MonsterRepos);
+            AddExecutor(ExecutorType.Activate, CardId.PSYFramelordOmega,PSYFunction);
             AddExecutor(ExecutorType.Activate, CardId.IP,IPFunction);
             AddExecutor(ExecutorType.Activate, CardId.Sarutobi,SarutobiFunction);
             AddExecutor(ExecutorType.Activate, CardId.Unicorn,UnicornFunction);
@@ -101,9 +102,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.Scales);
             AddExecutor(ExecutorType.Activate, CardId.Scales,ScalesFunction);
 
-        //Synchron
-            AddExecutor(ExecutorType.SpSummon, CardId.ASStardustDragon,ASStardustDragonSynchronFunction2);
-            AddExecutor(ExecutorType.SpSummon, CardId.Fleur,FleurSynchronFunction2);
+            //Synchron
+            AddExecutor(ExecutorType.SpSummon, CardId.PSYFramelordOmega,PSYFramelordOmegaSynchronFunction);
             
         //Pendulum
             AddExecutor(ExecutorType.Activate, CardId.Wakaushi,WakaushiFunction);
@@ -183,7 +183,6 @@ namespace WindBot.Game.AI.Decks
         //Synchron
             AddExecutor(ExecutorType.SpSummon, CardId.Masurawo,MasurawoSynchronFunction);
             AddExecutor(ExecutorType.SpSummon, CardId.Sarutobi,DeSynchronFunction);
-            AddExecutor(ExecutorType.SpSummon, CardId.PSYFramelordOmega);
 
         //equip Soulhorns
             AddExecutor(ExecutorType.Activate, CardId.Soulhorns,SoulhornsEquipFunction);
@@ -218,6 +217,24 @@ namespace WindBot.Game.AI.Decks
         public override bool OnSelectHand()
         {
             return true;
+        }
+        private bool MonsterRepos()
+        {
+            if (Card.IsFacedown())
+                return true;
+            if (Card.IsFaceup() && Card.IsAttack() && (Card.Id == CardId.Masurawo || Card.Id == CardId.Sarutobi))
+                return true;
+            return false;
+        }
+        public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
+        {
+            YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
+            if (cardData != null)
+            {
+                if (cardId == CardId.Masurawo || cardId == CardId.Sarutobi)
+                    return CardPosition.FaceUpDefence;
+            }
+            return 0;
         }
         public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
@@ -268,8 +285,7 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
-            if (p_summoning || ((Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon &&
-                Card.HasType(CardType.Pendulum)))
+            if (p_summoning || (Card != null && (Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon && Card.HasType(CardType.Pendulum)))
             {
                 List<ClientCard> result = new List<ClientCard>();
                 List<ClientCard> scards = cards.Where(card => card != null && card.HasSetcode(0x9a) && card.Level == 4).ToList();
@@ -597,14 +613,6 @@ namespace WindBot.Game.AI.Decks
             AI.SelectMaterials(materials_lists[0]);
             return true;
         }
-        private bool FleurSynchronFunction2()
-        {
-            var materials_lists = Util.GetSynchroMaterials(Bot.MonsterZone,10,1,1,false,false,null,
-                card => { return !FinalCards(card.Id); });
-            if (materials_lists.Count <= 0) return false;
-            AI.SelectMaterials(materials_lists[0]);
-            return true;
-        }
         private bool DeSynchronFunction()
         {
             AI.SelectPosition(CardPosition.FaceUpDefence);
@@ -630,16 +638,25 @@ namespace WindBot.Game.AI.Decks
             {
                 return (Bot.HasInExtra(CardId.Fleur) || Bot.HasInExtra(CardId.Masurawo));
             }
-            return false;
-        }
-        private bool ASStardustDragonSynchronFunction2()
-        {
-            if (!activate_Scales || !activate_PSY) return false;
-            if (Bot.HasInGraveyard(CardId.Motorbike) || Bot.HasInGraveyard(CardId.PsyFramegearGamma))
+            else if (Bot.HasInMonstersZone(CardId.Motorbike))
             {
-                return (Bot.HasInExtra(CardId.Fleur) || Bot.HasInExtra(CardId.Masurawo));
+                AI.SelectMaterials(CardId.Motorbike);
+                return true;
+            }
+            else if (Bot.HasInMonstersZone(CardId.PsyFramegearGamma))
+            {
+                AI.SelectMaterials(CardId.PsyFramegearGamma);
+                return true;
             }
             return false;
+        }
+        private bool PSYFramelordOmegaSynchronFunction()
+        {
+            if (Bot.HasInMonstersZone(CardId.Motorbike))
+                AI.SelectMaterials(CardId.Motorbike);
+            else if (Bot.HasInMonstersZone(CardId.PsyFramegearGamma))
+                AI.SelectMaterials(CardId.PsyFramegearGamma);
+            return activate_PSY || activate_Scales;
         }
         private bool SavageDragonFunction()
         {
@@ -926,6 +943,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SoulpiercerEquipFunction()
         {
+            if (DefaultCheckWhetherCardIdIsNegated(Card.Id))
+                return false;
             if (Card.Location != CardLocation.Hand)
                 return false;
             int tributeId = -1;
@@ -1154,6 +1173,11 @@ namespace WindBot.Game.AI.Decks
                     return false;
             }
             AI.SelectMaterials(materials);
+            return true;
+        }
+        private bool PSYFunction()
+        {
+            activate_PSY = true;
             return true;
         }
         private bool IPFunction()
