@@ -2123,7 +2123,7 @@ namespace WindBot.Game.AI.Decks
         {
             return CheckRemainInDeck(id) > 0;
         }
-        private int CheckRemainInDeck(int id)
+        public override int CheckRemainInDeck(int id)
         {
             switch (id)
             {

@@ -534,8 +534,7 @@ namespace WindBot.Game.AI
                     {
                         if (pre_materials[i].Level > level - sum) break;
                         if (i > index + 1 && pre_materials[i].Level == pre_materials[i - 1].Level) continue;
-                        var new_temp_materials = new List<ClientCard>(temp_materials);
-                        new_temp_materials.Add(pre_materials[i]);
+                        var new_temp_materials = new List<ClientCard>(temp_materials) { pre_materials[i] };
                         materials_stack.Push(new object[] { pre_materials[i].Level, i, sum + pre_materials[i].Level, new_temp_materials });
                     }
                 }
@@ -560,6 +559,23 @@ namespace WindBot.Game.AI
                 if ((tuner_count_above ? tuner_materials.Count >= tuner_count : tuner_materials.Count == tuner_count)
                     && (n_tuner_count_above ? n_tuner_materials.Count >= n_tuner_count : n_tuner_materials.Count == n_tuner_count))
                     result.Add(materials);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Shuffle a list of cards using Fisher–Yates shuffle
+        /// </summary>
+        /// <param name="list">The original list</param>
+        /// <returns>The shuffled list</returns>
+        public List<ClientCard> CardListShuffle(List<ClientCard> list)
+        {
+            List<ClientCard> result = list;
+            int n = result.Count;
+            while (n-- > 1)
+            {
+                int index = Program.Rand.Next(n + 1);
+                (result[n], result[index]) = (result[index], result[n]);
             }
             return result;
         }

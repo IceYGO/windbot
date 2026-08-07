@@ -148,6 +148,7 @@ namespace WindBot.Game.AI
             public const int RoyalDecreel = 51452091;
             public const int NaturalExterio = 99916754;
             public const int NaturiaBeast = 33198837;
+            public const int NaturiaBarkion = 2956282;
             public const int SwordsmanLV7 = 37267041;
             public const int AntiSpellFragrance = 58921041;
             public const int Number41BagooskatheTerriblyTiredTapir = 90590303;
@@ -281,9 +282,14 @@ namespace WindBot.Game.AI
             AddExecutor(ExecutorType.SpellSet, DefaultSetForDiabellze);
         }
 
+        protected bool enemyActivateMaxxC = false;
+        protected bool enemyActivateLockBird = false;
+        protected bool enemyActivateDimensionShifter = false;
         protected int lightningStormOption = -1;
         Dictionary<int, int> calledbytheGraveIdCountMap = new Dictionary<int, int>();
         List<int> crossoutDesignatorIdList = new List<int>();
+        protected List<int> infiniteImpermanenceList = new List<int>();
+        protected List<int> currentNegatingIdList = new List<int>();
         int mistakenArrestAffectedCount = 0;
         /// <summary>
         /// List of effect IDs that have been resolved this turn.
@@ -679,7 +685,12 @@ namespace WindBot.Game.AI
                 if (currentChain.ActivatePlayer == 1)
                 {
                     if (currentChain.IsActivateCode(_CardId.MaxxC))
+                    {
+                        enemyActivateMaxxC = true;
                         enemyResolvedEffectIdList.Add(_CardId.MaxxC);
+                    }
+                    if (currentChain.IsActivateCode(_CardId.DimensionShifter))
+                        enemyActivateDimensionShifter = true;
                     if (currentChain.IsActivateCode(_CardId.MulcharmyPurulia))
                         enemyResolvedEffectIdList.Add(_CardId.MulcharmyPurulia);
                     if (currentChain.IsActivateCode(_CardId.MulcharmyFuwalos))
@@ -696,6 +707,17 @@ namespace WindBot.Game.AI
                             mistakenArrestAffectedCount = Math.Max(mistakenArrestAffectedCount, 2);
                         }
                     }
+                    if ((currentChain.IsActivateCode(_CardId.InfiniteImpermanence)))
+                    {
+                        for (int i = 0; i < 5; ++i)
+                        {
+                            if (Enemy.SpellZone[i] == currentChain.RelatedCard)
+                            {
+                                infiniteImpermanenceList.Add(4 - i);
+                                break;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -703,6 +725,8 @@ namespace WindBot.Game.AI
         public override void OnChainEnd()
         {
             lightningStormOption = -1;
+            infiniteImpermanenceList.Clear();
+            currentNegatingIdList.Clear();
             base.OnChainEnd();
         }
 
@@ -711,6 +735,10 @@ namespace WindBot.Game.AI
         /// </summary>
         public override void OnNewTurn()
         {
+            enemyActivateMaxxC = false;
+            enemyActivateLockBird = false;
+            enemyActivateDimensionShifter = false;
+
             infiniteImpermanenceNegatedColumns.Clear();
             resolvedEffectIdList.Clear();
             enemyResolvedEffectIdList.Clear();
@@ -729,6 +757,7 @@ namespace WindBot.Game.AI
                 }
             }
             crossoutDesignatorIdList.Clear();
+            currentNegatingIdList.Clear();
 
             base.OnNewTurn();
         }
@@ -1850,8 +1879,9 @@ namespace WindBot.Game.AI
         
         protected bool DefaultCheckWhetherCardIdIsNegated(int cardId)
         {
-            return crossoutDesignatorIdList.Contains(cardId)
+            bool isCrossoutOrCalledBy = crossoutDesignatorIdList.Contains(cardId)
                 || (calledbytheGraveIdCountMap.ContainsKey(cardId) && calledbytheGraveIdCountMap[cardId] > 0);
+            return isCrossoutOrCalledBy && !currentNegatingIdList.Contains(cardId);
         }
 
         protected int GetCalledbytheGraveIdCount(int cardId)
@@ -1957,6 +1987,143 @@ namespace WindBot.Game.AI
             if (resolvedEffectIdList.Contains(_CardId.LockBird))
                 return false;
             return true;
+        }
+
+        /// <summary>
+        /// Whether spell or trap will be negate. If so, return true.
+        /// </summary>
+        /// <param name="isCounter">is counter trap</param>
+        /// <param name="target">check target</param>
+        /// <returns></returns>
+        public bool CheckSpellWillBeNegate(bool isCounter = false, ClientCard target = null)
+        {
+            // target default set
+            if (target == null) target = Card;
+            if (CheckCalledbytheGrave(target.GetOriginCode()) > 0) return true;
+            // won't negate if not on field
+            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
+
+            // negate judge
+            if (Enemy.HasInMonstersZone(_CardId.NaturalExterio, true) && !isCounter) return true;
+            if (target.IsSpell())
+            {
+                if (Enemy.HasInMonstersZone(_CardId.NaturiaBeast, true)) return true;
+                if (Enemy.HasInSpellZone(_CardId.ImperialOrder, true) || Bot.HasInSpellZone(_CardId.ImperialOrder, true)) return true;
+                if (Enemy.HasInMonstersZone(_CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(_CardId.SwordsmanLV7, true)) return true;
+            }
+            if (target.IsTrap())
+            {
+                if (Enemy.HasInSpellZone(_CardId.RoyalDecreel, true) || Bot.HasInSpellZone(_CardId.RoyalDecreel, true)) return true;
+                if (Enemy.HasInMonstersZone(_CardId.NaturiaBarkion, true)  && !isCounter) return true; 
+            }
+            if (target.Location == CardLocation.SpellZone && (target.IsSpell() || target.IsTrap()))
+            {
+                int selfSeq = -1;
+                for (int i = 0; i < 5; ++i)
+                {
+                    if (Bot.SpellZone[i] == Card) selfSeq = i;
+                }
+                if (infiniteImpermanenceNegatedColumns.Contains(selfSeq)) return true;
+            }
+            // how to get here?
+            return false;
+        }
+
+        /// <summary>
+        /// Check whether'll be negated
+        /// </summary>
+        /// <param name="disablecheck">check whether card itself is disabled.</param>
+        /// <param name="toFieldCheck">check whether card will be going to the field</param>
+        /// <param name="type"></param>
+        /// <param name="ignore41">should Bagooska be ignored</param>
+        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0, bool ignore41 = false)
+        {
+            bool isMonster = type == 0 && Card.IsMonster();
+            isMonster |= (type & CardType.Monster) != 0;
+            bool isSpellOrTrap = type == 0 && (Card.IsSpell() || Card.IsTrap());
+            isSpellOrTrap |= (type & (CardType.Spell | CardType.Trap)) != 0;
+            bool isCounter = (type & CardType.Counter) != 0;
+            if (isSpellOrTrap && toFieldCheck)
+            {
+                if (CheckSpellWillBeNegate(isCounter)) return true;
+                if (DefaultCheckWhetherSpellActivateWillBeNegated(Card)) return true;
+            }
+            if (DefaultCheckWhetherCardIsNegated(Card)) return true;
+            if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
+            {
+                if ((toFieldCheck && ((type & CardType.Link) != 0)) || Card.IsDefense())
+                {
+                    if (Enemy.MonsterZone.Any(card => CheckNumber41(card, ignore41)) || Bot.MonsterZone.Any(card => CheckNumber41(card, ignore41))) return true;
+                }
+                if (Enemy.HasInSpellZone(_CardId.SkillDrain, true, true)) return true;
+            }
+            if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
+            return false;
+        }
+
+        public bool CheckNumber41(ClientCard card, bool ignoreSelf41 = false)
+        {
+            return card != null && card.IsFaceup() && card.IsCode(_CardId.Number41BagooskatheTerriblyTiredTapir) && card.IsDefense() && !card.IsDisabled()
+                && (!ignoreSelf41 || card.Controller == 0);
+        }
+
+        /// <summary>
+        /// check negated time count of id
+        /// </summary>
+        /// <param name="id">the id of the card we are checking</param>
+        public int CheckCalledbytheGrave(int id)
+        {
+            if (currentNegatingIdList.Contains(id)) return 1;
+            if (DefaultCheckWhetherCardIdIsNegated(id)) return 1;
+            return 0;
+        }
+
+        /// <summary>
+        /// Select spell/trap's place randomly to avoid InfiniteImpermanence and so on.
+        /// </summary>
+        /// <param name="card">Card to set(default current card)</param>
+        /// <param name="avoidImpermanence">Whether need to avoid InfiniteImpermanence</param>
+        /// <param name="avoidList">Whether need to avoid set in this place</param>
+        public void SelectSTPlace(ClientCard card = null, bool avoidImpermanence = false, List<int> avoidList = null)
+        {
+            if (card == null) card = Card;
+            List<int> list = new List<int>();
+            for (int seq = 0; seq < 5; ++seq)
+            {
+                if (Bot.SpellZone[seq] == null)
+                {
+                    if (card != null && card.Location == CardLocation.Hand && avoidImpermanence && infiniteImpermanenceList.Contains(seq)) continue;
+                    if (avoidList != null && avoidList.Contains(seq)) continue;
+                    list.Add(seq);
+                }
+            }
+            int n = list.Count;
+            while (n-- > 1)
+            {
+                int index = Program.Rand.Next(list.Count);
+                int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
+                int tempInt = list[index];
+                list[index] = list[nextIndex];
+                list[nextIndex] = tempInt;
+            }
+            if (avoidImpermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
+            {
+                foreach (int seq in list)
+                {
+                    ClientCard enemySpell = Enemy.SpellZone[4 - seq];
+                    if (enemySpell != null && enemySpell.IsFacedown()) continue;
+                    int zone = (int)System.Math.Pow(2, seq);
+                    AI.SelectPlace(zone);
+                    return;
+                }
+            }
+            foreach (int seq in list)
+            {
+                int zone = (int)System.Math.Pow(2, seq);
+                AI.SelectPlace(zone);
+                return;
+            }
+            AI.SelectPlace(0);
         }
     }
 }

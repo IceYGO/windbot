@@ -68,7 +68,6 @@ namespace WindBot.Game.AI.Decks
             return 1;
         }
 
-        List<int> Impermanence_list = new List<int>();
         bool NormalSummoned = false;
         ClientCard stage_locked = null;
         bool pink_ss = false;
@@ -78,7 +77,6 @@ namespace WindBot.Game.AI.Decks
         bool white_eff_used = false;
         bool lockbird_useful = false;
         bool lockbird_used = false;
-        List<int> currentNegatingIdList = new List<int>();
 
         List<int> SkyStrike_list = new List<int> {
             26077387, 8491308, 63288573, 90673288,
@@ -185,47 +183,10 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
                 if (has_setcard) return false;
-                AI.SelectPlace(SelectSTPlace());
+                SelectSTPlace();
                 return true;
             }
             return false;
-        }
-
-        public int SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false)
-        {
-            if (card == null) card = Card;
-            List<int> list = new List<int>();
-            for (int seq = 0; seq < 5; ++seq)
-            {
-                if (Bot.SpellZone[seq] == null)
-                {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
-                    list.Add(seq);
-                }
-            }
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(list.Count);
-                int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
-                int tempInt = list[index];
-                list[index] = list[nextIndex];
-                list[nextIndex] = tempInt;
-            }
-            if (avoid_Impermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
-            {
-                foreach (int seq in list)
-                {
-                    ClientCard enemySpell = Enemy.SpellZone[4 - seq];
-                    if (enemySpell != null && enemySpell.IsFacedown()) continue;
-                    return (int)System.Math.Pow(2, seq);
-                }
-            }
-            foreach (int seq in list)
-            {
-                return (int)System.Math.Pow(2, seq);
-            }
-            return 0;
         }
 
         public bool SpellSet()
@@ -233,14 +194,14 @@ namespace WindBot.Game.AI.Decks
             if (Card.IsCode(CardId.Sheep) && Bot.HasInSpellZone(CardId.Sheep)) return false;
             if (DefaultSpellSet())
             {
-                AI.SelectPlace(SelectSTPlace());
+                SelectSTPlace();
                 return true;
             } else if (Enemy.HasInSpellZone(58921041,true) || Bot.HasInSpellZone(58921041, true))
             {
                 if (Card.IsCode(CardId.Stage)) return !Bot.HasInSpellZone(CardId.Stage);
                 if (Card.IsSpell())
                 {
-                    AI.SelectPlace(SelectSTPlace());
+                    SelectSTPlace();
                     return true;
                 }
             }
@@ -524,7 +485,7 @@ namespace WindBot.Game.AI.Decks
             if (selected == null)
                 return false;
             AI.SelectCard(selected);
-            AI.SelectPlace(SelectSTPlace(Card, true));
+            SelectSTPlace(Card, true);
             return true;
         }
 
@@ -545,13 +506,13 @@ namespace WindBot.Game.AI.Decks
                     if (self_card.IsCode(CardId.Galaxy))
                         return false;
                 }
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
                 return true;
             }
             // activate when more than 2 cards
             if (Enemy.GetSpellCount() <= 1)
                 return false;
-            AI.SelectPlace(SelectSTPlace(Card, true));
+            SelectSTPlace(Card, true);
             return true;
         }
 
@@ -646,7 +607,7 @@ namespace WindBot.Game.AI.Decks
             if (!spell_trap_activate()) return false;
             if (Bot.Deck.Count > 15)
             {
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
                 return true;
             }
             return false;
@@ -1025,7 +986,7 @@ namespace WindBot.Game.AI.Decks
                 if (!spell_trap_activate()) return false;
                 if (Duel.Phase <= DuelPhase.Main1 && Ts_reborn())
                 {
-                    AI.SelectPlace(SelectSTPlace(Card, true));
+                    SelectSTPlace(Card, true);
                     return true;
                 }
                 return false;
@@ -1632,7 +1593,7 @@ namespace WindBot.Game.AI.Decks
                 if (Util.GetLastChainCard().IsMonster())
                 {
                     int code = Util.GetLastChainCard().GetOriginCode();
-                    if (CheckWhetherNegated(code)) return false;
+                    if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
                     ClientCard target = Enemy.Graveyard.GetFirstMatchingCard(c => c.GetOriginCode() == code);
                     if (target != null)
                     {
@@ -1661,14 +1622,14 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (enemy.IsMonsterDangerous())
                     {
-                        AI.SelectPlace(SelectSTPlace(Card, true));
+                        SelectSTPlace(Card, true);
                         return true;
                     }
                     if (enemy.IsFaceup() && (enemy.GetDefensePower() > bestenemy)) bestenemy = enemy.GetDefensePower();
                 }
                 if (bestPower <= bestenemy)
                 {
-                    AI.SelectPlace(SelectSTPlace(Card, true));
+                    SelectSTPlace(Card, true);
                     return true;
                 }
             }
@@ -1732,8 +1693,6 @@ namespace WindBot.Game.AI.Decks
             white_eff_used = false;
             lockbird_useful = false;
             lockbird_used = false;
-            Impermanence_list.Clear();
-            currentNegatingIdList.Clear();
             base.OnNewTurn();
         }
 
@@ -1749,24 +1708,13 @@ namespace WindBot.Game.AI.Decks
                     {
                         if (Enemy.SpellZone[i] == card)
                         {
-                            Impermanence_list.Add(4-i);
+                            infiniteImpermanenceList.Add(4-i);
                             break;
                         }
                     }
                 }
             }
             base.OnChaining(player, card);
-        }
-
-        public override void OnChainEnd()
-        {
-            currentNegatingIdList.Clear();
-            base.OnChainEnd();
-        }
-
-        public bool CheckWhetherNegated(int cardId)
-        {
-            return !DefaultCheckWhetherCardIdIsNegated(cardId) && !currentNegatingIdList.Contains(cardId);
         }
 
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
@@ -1818,7 +1766,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (IsTrickstar(attacker) && Bot.HasInHand(CardId.White) && !white_eff_used && !CheckWhetherNegated(CardId.White))
+                if (IsTrickstar(attacker) && Bot.HasInHand(CardId.White) && !white_eff_used && !DefaultCheckWhetherCardIdIsNegated(CardId.White))
                     attacker.RealPower += attacker.Attack;
             }
             return base.OnPreBattleBetween(attacker, defender);
@@ -1828,7 +1776,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (base.DefaultSetForDiabellze())
             {
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
                 return true;
             }
             return false;

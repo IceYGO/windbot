@@ -321,5 +321,34 @@ namespace WindBot.Game.AI
         {
             return Executors.All(exec => exec.Type != Type || exec.CardId != Card.Id);
         }
+
+        /// <summary>
+        /// check enemy's dangerous card in grave
+        /// </summary>
+        /// <param name="onlyMonster">If to only consider monsters</param>
+        public virtual List<ClientCard> CheckDangerousCardinEnemyGrave(bool onlyMonster = false)
+        {
+            return new List<ClientCard>();
+        }
+
+        /// <summary>
+        /// The number of a card remaining in the deck
+        /// </summary>
+        /// <returns>The number of the card in the deck as tracked by the specific bot</returns>
+        public virtual int CheckRemainInDeck(int id)
+        {
+            return 0;
+        }
+
+        public int CheckRemainInDeck(params int[] ids)
+        {
+            int sum = 0;
+            foreach (int id in ids)
+            {
+                sum += CheckRemainInDeck(id);
+            }
+            return sum;
+        }
+
     }
 }

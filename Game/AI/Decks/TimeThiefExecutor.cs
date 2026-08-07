@@ -479,59 +479,13 @@ namespace WindBot.Game.AI.Decks
             return Util.CheckSelectCount(selected, cards, min, max);
         }
 
-        public void SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false, List<int> avoid_list = null)
-        {
-            List<int> list = new List<int> { 0, 1, 2, 3, 4 };
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                int temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
-            foreach (int seq in list)
-            {
-                int zone = (int)System.Math.Pow(2, seq);
-                if (Bot.SpellZone[seq] == null)
-                {
-                    if (card != null && card.Location == CardLocation.Hand &&
-                        avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
-                    if (avoid_list != null && avoid_list.Contains(seq)) continue;
-                    AI.SelectPlace(zone);
-                    return;
-                };
-            }
-            AI.SelectPlace(0);
-        }
-
-        public bool SpellNegatable(bool isCounter = false, ClientCard target = null)
-        {
-            // target default set
-            if (target == null) target = Card;
-            // won't negate if not on field
-            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
-
-            // negate judge
-            if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !isCounter) return true;
-            if (target.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(CardId.NaturalBeast, true)) return true;
-                if (Enemy.HasInSpellZone(CardId.ImperialOrder, true) || Bot.HasInSpellZone(CardId.ImperialOrder, true)) return true;
-                if (Enemy.HasInMonstersZone(CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(CardId.SwordsmanLV7, true)) return true;
-            }
-            if (target.IsTrap())
-            {
-                if (Enemy.HasInSpellZone(CardId.RoyalDecreel, true) || Bot.HasInSpellZone(CardId.RoyalDecreel, true)) return true;
-            }
-            // how to get here?
-            return false;
-        }
+        
         private bool SummonToDef()
         {
             AI.SelectPosition(CardPosition.Defence);
             return true;
         }
+
         private bool RegulatorEffect()
         {
             if (Card.Location == CardLocation.MonsterZone)
@@ -821,7 +775,7 @@ namespace WindBot.Game.AI.Decks
         public bool PotofExtravaganceActivate()
         {
             // won't activate if it'll be negate
-            if (SpellNegatable()) return false;
+            if (CheckSpellWillBeNegate()) return false;
             SelectSTPlace(Card, true);
             AI.SelectOption(1);
             return true;
