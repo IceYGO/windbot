@@ -1,9 +1,10 @@
-using YGOSharp.OCGWrapper.Enums;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
-using System.Linq;
+using YGOSharp.OCGWrapper.Enums;
 
 
 namespace WindBot.Game.AI.Decks
@@ -23,6 +24,7 @@ namespace WindBot.Game.AI.Decks
             public const int VVRadiance = 86310763;
 
             public const int AshBlossom = 14558127;
+            public const int GhostMournerMoonlitChill = 52038441;
             public const int EffectVeiler = 97268402;
             public const int InfiniteImperm = 10045474;
             public const int Droll = 94145021;
@@ -34,17 +36,26 @@ namespace WindBot.Game.AI.Decks
             public const int SolemnStrike = 40605147;
 
             public const int DynaMondo = 73898890;
-            public const int LittleKnight = 29301450;
+            public const int SPLittleKnight = 29301450;
             public const int UnderworldGoddess = 98127546;
             public const int Ntss = 80532587;
             public const int ChaosAngel = 22850702;
             public const int Herald = 79606837;
+
+            // Problem cards 
+            public const int MaxxC = 23434538;
+            public const int NaturalExterio = 99916754;
+            public const int NaturalBeast = 33198837;
+            public const int ImperialOrder = 61740673;
+            public const int SwordsmanLV7 = 37267041;
+            public const int RoyalDecree = 51452091;
+            public const int Number41BagooskatheTerriblyTiredTapir = 90590303;
+            public const int InspectorBoarder = 15397015;
+            public const int DimensionShifter = 91800273;
         }
 
-        //bool KagariSummoned = false;
-        //bool ShizukuSummoned = false;
-        //bool HayateSummoned = false;
-        bool DivinerCheck = false; // In case of Trias in Hand, add either spell/ritual or board break
+        
+        
 
         public VoicelessExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -56,7 +67,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.Droll);
             AddExecutor(ExecutorType.Activate, CardId.CalledBy, CalledByEffect);
             AddExecutor(ExecutorType.Activate, CardId.Sauravis);
-            AddExecutor(ExecutorType.Activate, CardId.LittleKnight, SPLittleKnightActivate); //Borrowed from Louse's Labrynth Executor; hope it's ok
+            AddExecutor(ExecutorType.Activate, CardId.SPLittleKnight, SPLittleKnightActivate); //Borrowed from Louse's Labrynth Executor; hope it's ok
             AddExecutor(ExecutorType.Activate, CardId.ChaosAngel, ChaosAngelActivate);
             AddExecutor(ExecutorType.Activate, CardId.Ntss, NtssActivate);
 
@@ -78,37 +89,46 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.PrePrep, PrePrepSearch);
             AddExecutor(ExecutorType.Activate, CardId.Herald, HeraldSearch);
             AddExecutor(ExecutorType.Activate, CardId.ChaosAngel, ChaosAngelSummon);
-            AddExecutor(ExecutorType.SpSummon, CardId.LittleKnight, SPLittleKnightSpSummon);
+            AddExecutor(ExecutorType.SpSummon, CardId.SPLittleKnight, SPLittleKnightSpSummon);
             AddExecutor(ExecutorType.Activate, CardId.DynaMondo, DynaSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.UnderworldGoddess);
             AddExecutor(ExecutorType.Activate, CardId.UnderworldGoddess);
             
-            List<int> notToNegateIdList = new List<int>{
+            
+        }
+
+
+        private List<int> notToNegateIdList = new List<int>{
                 58699500, 20343502
             };
-            List<int> notToBeTrapTargetList = new List<int>{
+        private List<int> notToBeTrapTargetList = new List<int>{
                 72144675, 86188410, 41589166, 11443677, 72566043, 1688285, 59071624, 6511113, 48183890, 952523, 22423493, 73639099
             };
-            List<int> targetNegateIdList = new List<int> {
+        private List<int> targetNegateIdList = new List<int> {
                 _CardId.EffectVeiler, _CardId.InfiniteImpermanence, CardId.GhostMournerMoonlitChill, _CardId.BreakthroughSkill, 74003290, 67037924,
                 9753964, 66192538, 23204029, 73445448, 35103106, 30286474, 45002991, 5795980, 38511382, 53742162, 30430448
             };
-            List<int> notToDestroySpellTrap = new List<int> { 50005218, 6767771 };
+        private List<int> notToDestroySpellTrap = new List<int> { 50005218, 6767771 };
 
-            bool summoned = false; //Some unused variables since code was borrowed from Louse's lab
-            List<int> activatedCardIdList = new List<int>();
-            List<ClientCard> currentNegateMonsterList = new List<ClientCard>();
-            List<ClientCard> currentDestroyCardList = new List<ClientCard>();
-            List<ClientCard> setTrapThisTurn = new List<ClientCard>();
-            List<ClientCard> summonThisTurn = new List<ClientCard>();
-            List<ClientCard> enemySetThisTurn = new List<ClientCard>();
-            List<ClientCard> escapeTargetList = new List<ClientCard>();
-            List<ClientCard> summonInChainList = new List<ClientCard>();
-            int banSpSummonExceptFiendCount = 0;
-            int enemySpSummonFromExLastTurn = 0;
-            int enemySpSummonFromExThisTurn = 0;
-            List<int> chainSummoningIdList = new List<int>(3);
-        }
+        private bool DivinerCheck = false; // In case of Trias in Hand, add either spell/ritual or board break
+        private bool summoned = false; //Some unused variables since code was borrowed from Louse's lab
+        private List<int> activatedCardIdList = new List<int>();
+        private List<ClientCard> currentNegateMonsterList = new List<ClientCard>();
+        private List<ClientCard> currentDestroyCardList = new List<ClientCard>();
+        private List<ClientCard> setTrapThisTurn = new List<ClientCard>();
+        private List<ClientCard> summonThisTurn = new List<ClientCard>();
+        private List<ClientCard> enemySetThisTurn = new List<ClientCard>();
+        private List<ClientCard> escapeTargetList = new List<ClientCard>();
+        private List<ClientCard> summonInChainList = new List<ClientCard>();
+        private int banSpSummonExceptFiendCount = 0;
+        private int enemySpSummonFromExLastTurn = 0;
+        private int enemySpSummonFromExThisTurn = 0;
+        private List<int> chainSummoningIdList = new List<int>(3);
+        private bool enemy_activate_MaxxC = false;
+        private bool enemy_activate_DimensionShifter = false;
+        private Dictionary<int, int> CalledbytheGraveCount = new Dictionary<int, int>();
+        private List<int> infiniteImpermanenceList = new List<int>();
+        private int CrossoutDesignatorTarget = 0;
 
         public bool NtssActivate()
         {
@@ -246,7 +266,7 @@ namespace WindBot.Game.AI.Decks
         }
         public bool CheckCanDirectAttack()
         {
-            return Enemy.GetMonsterCount() == 0 && !activatedCardIdList.Contains(CardId.LittleKnight) && Duel.Turn > 1 && Duel.Player == 0 && Duel.Phase < DuelPhase.Main2;
+            return Enemy.GetMonsterCount() == 0 && !activatedCardIdList.Contains(CardId.SPLittleKnight) && Duel.Turn > 1 && Duel.Player == 0 && Duel.Phase < DuelPhase.Main2;
         }
 
         public bool SPLittleKnightSpSummon()
@@ -260,7 +280,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectMaterials(materialList);
                     return true;
                 }
-            } else if (!NegatedCheck(true, true, CardType.Monster | CardType.Link) && GetProblematicEnemyCardList(true, selfType: CardType.Monster).Count() > 0)
+            } else if (!NegatedCheck(true) && GetProblematicEnemyCardList(true, selfType: CardType.Monster).Count() > 0)
             {
                 // for remove 
                 List<ClientCard> materialList = SPLittleKnightSelectMaterial(true);
@@ -501,7 +521,7 @@ namespace WindBot.Game.AI.Decks
                 int zone = (int)System.Math.Pow(2, seq);
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceList.Contains(seq)) continue;
                     if (avoid_list != null && avoid_list.Contains(seq)) continue;
                     AI.SelectPlace(zone);
                     return;
@@ -515,11 +535,11 @@ namespace WindBot.Game.AI.Decks
         {
             if (Util.GetLastChainCard() != null && Util.GetLastChainCard().Id == CardId.MaxxC && Duel.LastChainPlayer == 1)
             {
-                enemy_activate_MaxxC = false;
+                enemy_activate_MaxxC = true;
             }
             if (Util.GetLastChainCard() != null && Util.GetLastChainCard().Id == CardId.DimensionShifter && Duel.LastChainPlayer == 1)
             {
-                enemy_activate_DimensionShifter = false;
+                enemy_activate_DimensionShifter = true;
             }
         }
 
@@ -535,8 +555,8 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.IsMonster() && Card.Location == CardLocation.MonsterZone && Card.IsDefense())
             {
-                if (Enemy.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.Numbe41BagooskatheTerriblyTiredTapir && card.IsDefense() && !card.IsDisabled()) != null
-                    || Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == CardId.Numbe41BagooskatheTerriblyTiredTapir && card.IsDefense() && !card.IsDisabled()) != null)
+                if (Enemy.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == _CardId.Number41BagooskatheTerriblyTiredTapir && card.IsDefense() && !card.IsDisabled()) != null
+                    || Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == _CardId.Number41BagooskatheTerriblyTiredTapir && card.IsDefense() && !card.IsDisabled()) != null)
                 {
                     return true;
                 }
@@ -627,6 +647,11 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
+        public virtual List<ClientCard> CheckDangerousCardinEnemyGrave(bool onlyMonster = false)
+        {
+            return new List<ClientCard>();
+        }
+
         public override bool OnSelectHand()
         {
             //go first
@@ -635,7 +660,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool BarrierFirst()
         {
-            if Bot.HasInSpellZone(CardId.VVBarrier, 0)
+            if (Bot.HasInSpellZone(CardId.VVBarrier))
                 return false;
             int target = GetCardToSearch();
             if (GetCardToSearch() > 0)
@@ -651,7 +676,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!Bot.HasInHand(CardId.Trias) && !Bot.HasInGraveyard(CardId.Trias))
                 AI.SelectCard(CardId.Trias);
-            else if (Util.GetProblematicEnemyMonster() != null && !Bot.HasInGraveyard())
+            else if (Util.GetProblematicEnemyMonster() != null && !Bot.HasInGraveyard(CardId.Herald))
                 AI.SelectCard(CardId.Herald);
             else
                 AI.SelectCard(CardId.Ntss);
@@ -661,8 +686,17 @@ namespace WindBot.Game.AI.Decks
         private bool SkullSearch()
         {
             if (Duel.CurrentChain.Count > 1) // chain blocking; don't search lo
+            {
                 if (Bot.HasInHand(CardId.Sauravis))
-                    AI.SelectCard(CardId.VVSauravis)
+                    AI.SelectCard(CardId.VVSauravis);
+                else
+                    AI.SelectCard(CardId.Sauravis);
+            } else
+            {
+                AI.SelectCard(CardId.Lo);
+            }
+                return true;
+
         }
 
         private bool SaffEffect()
@@ -685,14 +719,15 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.Sauravis);
 
             // select sacrifice
-            if (Bot.HasInHand(Trias) || Bot.HasInMonstersZone(Trias))
-                AI.SelectCard(CardId.Trias)
-            else if (Bot.HasInHand)
-                return true;
+            if (Bot.HasInHand(CardId.Trias) || Bot.HasInMonstersZone(CardId.Trias))
+                AI.SelectCard(CardId.Trias);
+            else if (Bot.HasInHand(CardId.Lo) || Bot.HasInMonstersZone(CardId.Lo))
+                AI.SelectCard(CardId.Lo);
+            return true;
         }
 
 
-        public override bool OnSelectYesNo(long desc)
+        public override bool OnSelectYesNo(int desc)
         {
             if (desc == Util.GetStringId(CardId.Saffira, 2)) // search ritual monster?
                 return true;
@@ -708,7 +743,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool LoSummon()
         {
-            if (!Bot.HasInHand(CardId.Diviner) && !Bot.HasInHand(CardId.PrePrep) && )
+            if (!Bot.HasInHand(CardId.Diviner) && !Bot.HasInHand(CardId.PrePrep) && Bot.HasInMonstersZone(CardId.Lo))
                 return true;
             return false;
         }
@@ -723,12 +758,13 @@ namespace WindBot.Game.AI.Decks
             // TODO: Add Blessing
         }
 
-        private int PrePrepSearch()
+        private bool PrePrepSearch()
         {
             if (GetCardToSearch() > 0)
                 AI.SelectCard(GetCardToSearch());
             else
                 AI.SelectCard(CardId.VVSkullGuard, CardId.Sauravis, CardId.VVPrayer);
+            return true;
         }
 
         private int GetCardToSearch()
@@ -739,7 +775,7 @@ namespace WindBot.Game.AI.Decks
             }
             else if (!Bot.HasInHand(CardId.Saffira) && Bot.GetRemainingCount(CardId.Saffira, 3) > 0)
             {
-                return CardId.Saffira
+                return CardId.Saffira;
             }
             else if (EmptyMainMonsterZone() && !Bot.HasInHand(CardId.VVSkullGuard) && Bot.GetRemainingCount(CardId.VVSkullGuard, 3) > 0)
             {
@@ -781,6 +817,67 @@ namespace WindBot.Game.AI.Decks
                     return false;
             }
             return true;
+        }
+
+        private List<T> ShuffleList<T>(IList<T> source)
+        {
+            Random rng = new Random();
+            List<T> list = new List<T>(source);
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+            return list;
+        }
+
+        private int CompareUsableAttack(ClientCard a, ClientCard b) 
+        {
+            return a.Attack.CompareTo(b.Attack);
+        }
+
+        private bool EmptyMainMonsterZone()
+        {
+            return Bot.MonsterZone.Any(c => c !=  null && c.Data != null);
+        }
+
+        public bool SpellNegatable(bool isCounter = false, ClientCard target = null)
+        {
+            // target default set
+            if (target == null) target = Card;
+            // won't negate if not on field
+            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
+
+            // negate judge
+            if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !isCounter) return true;
+            if (target.IsSpell())
+            {
+                if (Enemy.HasInMonstersZone(CardId.NaturalBeast, true)) return true;
+                if (Enemy.HasInSpellZone(CardId.ImperialOrder, true) || Bot.HasInSpellZone(CardId.ImperialOrder, true)) return true;
+                if (Enemy.HasInMonstersZone(CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(CardId.SwordsmanLV7, true)) return true;
+            }
+            if (target.IsTrap())
+            {
+                if (Enemy.HasInSpellZone(CardId.RoyalDecree, true) || Bot.HasInSpellZone(CardId.RoyalDecree, true)) return true;
+            }
+            if (target.Location == CardLocation.SpellZone && (target.IsSpell() || target.IsTrap()))
+            {
+                int selfSeq = -1;
+                for (int i = 0; i < 5; ++i)
+                {
+                    if (Bot.SpellZone[i] == Card) selfSeq = i;
+                }
+                if (infiniteImpermanenceList.Contains(selfSeq))
+                {
+                    return true;
+                }
+            }
+            // how to get here?
+            return false;
         }
 
     }
