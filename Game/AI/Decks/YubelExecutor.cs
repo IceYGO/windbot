@@ -1451,6 +1451,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location != CardLocation.Grave) return false;
             if (Bot.HasInMonstersZoneOrInGraveyard(CardId.FIENDSMITHS_DESIRAE) || Bot.HasInBanished(CardId.FIENDSMITHS_DESIRAE)) return false;
+            if (!Enemy.MonsterZone.Any(c => c != null && c.IsMonster())) return false;
             AI.SelectCard(CardId.FIENDSMITHS_DESIRAE);
             return DontSelfNG();
         }
