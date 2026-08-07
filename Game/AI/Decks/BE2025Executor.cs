@@ -66,6 +66,7 @@ namespace WindBot.Game.AI.Decks
             public const int KashtiraAriseHeart = 48626373;
             public const int GhostMournerMoonlitChill = 52038441;
             public const int NibiruThePrimalBeing = 27204311;
+            public const int AmeNoMurakumoNoMitsurugi = 19899073;
 
         }
 
@@ -253,48 +254,39 @@ namespace WindBot.Game.AI.Decks
             base.OnNewTurn();
         }
         public override bool OnSelectHand() { return true; /* Go first by default.*/}
-        public override int OnSelectOption(IList<int> options)
+        public override bool OnSelectYesNo(int desc)
         {
-            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
-            Logger.DebugWriteLine($"OnSelectOption: CurrentSolving={currentSolvingChain} count={options.Count} options=[{string.Join(", ", options.Select((v, i) => $"{i}:{v}"))}]");
-            /*if (currentSolvingChain != null)
+            if (desc == Util.GetStringId(CardId.AmeNoMurakumoNoMitsurugi, 3))
             {
-                Logger.DebugWriteLine("Custom select Option");
-                // 1190=Add to Hand, 1152=Special Summon, 1153=Set
-                if (currentSolvingChain.IsCode(CardId.TrueLight) && 
-                    options.Count == 2)
-                {
-                    Logger.DebugWriteLine("OnSelectOption True Light");
-                    bool maidenInGY = Bot.Graveyard.Any(c => c.Id == CardId.MaidenOfWhite);
-                    bool bewdInHandOrGY = Bot.HasInHand(new[] { CardId.BlueEyesWhiteDragon }) || Bot.Graveyard.Any(c => c.Id == CardId.BlueEyesWhiteDragon);
+                bool shouldDiscard = Bot.Hand.Count >= 2;
+                Logger.DebugWriteLine($"[MURAKUMO] BE2025 choose discard={shouldDiscard}, hand={Bot.Hand.Count}");
+                return shouldDiscard;
+            }
 
-                    if (!useWishes && Duel.Player == 0)
-                    {
-                        return 2;
-                    }
-                    if (useWishes && needBE && Duel.Player == 0)
-                    {
-                        return 2;
-                    }
-                    else if (Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon))
-                    {
-                        return 2;
-                    }
-                    else if (needBE && Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon))
-                    {
-                        return 1;
-                    }
-                }
-            }*/
-            Logger.DebugWriteLine("OnSelectOption Default");
-            return base.OnSelectOption(options);
+            return base.OnSelectYesNo(desc);
         }
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
-            Logger.DebugWriteLine("OnSelectCard " + cards.Count + " " + min + " " + max);
+            ChainInfo currentSolvingChain =
+        Duel.GetCurrentSolvingChainInfo();
 
-            Logger.DebugWriteLine("Use default.");
+            ClientCard solving =
+                Duel.GetCurrentSolvingChainCard();
+
+            Logger.DebugWriteLine(
+                $"OnSelectCard count={cards?.Count ?? 0}, " +
+                $"min={min}, max={max}, hint={hint}");
+
+            if (solving != null && solving.Controller == 1 && solving.IsCode(CardId.AmeNoMurakumoNoMitsurugi)
+                && cards != null && cards.Count > 0 && (hint == HintMsg.Discard || hint == HintMsg.ToGrave)
+                && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
+            {
+                List<ClientCard> discardOrder = cards.OrderBy(ScoreMurakumoDiscard).ToList();
+
+                ClientCard pick = discardOrder.FirstOrDefault();
+
+                return Util.CheckSelectCount(discardOrder, cards, min, max);
+            }
 
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
@@ -1656,6 +1648,29 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
+        }
+        private int ScoreMurakumoDiscard(ClientCard card)
+        {
+            if (card == null)
+                return int.MaxValue;
+
+            int score = 10000;
+
+            int copiesInHand = Bot.Hand.Count(c =>
+                c != null && c.IsCode(card.Id));
+
+            if (copiesInHand > 1)
+                score -= 5000;
+
+            int priorityIndex =
+                Array.IndexOf(PreferDiscard, card.Id);
+
+            if (priorityIndex >= 0)
+                score += priorityIndex;
+            else
+                score += PreferDiscard.Length + 100;
+
+            return score;
         }
         #endregion
 

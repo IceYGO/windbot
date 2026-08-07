@@ -55,13 +55,33 @@ namespace WindBot.Game.AI
             public const int CosmicCyclone = 8267140;
             public const int GalaxyCyclone = 5133471;
             public const int BookOfMoon = 14087893;
+            public const int BottomlessTrapHole = 29401950;
             public const int CompulsoryEvacuationDevice = 94192409;
+            public const int EnemyController = 98045062;
+            public const int DimensionalPrison = 70342110;
+            public const int RingOfDestruction = 83555666;
+            public const int RaigekiBreak = 4178474;
+            public const int KarmaCut = 71587526;
+            public const int SakuretsuArmor = 56120475;
+            public const int Crackdown = 36975314;
+            public const int DogmatikaPunishment = 82956214;
+            public const int DogmatikaAlbaZoa = 51522296;
+            public const int PaleozoicDinomischus = 38761908;
+            public const int DracobackTheDragonSteed = 38745520;
+            public const int PhoenixWingWindBlast = 63356631;
+            public const int QuakingMirrorForce = 40838625;
+            public const int DrowningMirrorForce = 47475363;
+            public const int BlazingMirrorForce = 75249652;
+            public const int StormingMirrorForce = 5650082;
+            public const int MirrorForce = 44095762;
+            public const int DarkMirrorForce = 20522190;
             public const int CallOfTheHaunted = 97077563;
             public const int Scapegoat = 73915051;
             public const int BreakthroughSkill = 78474168;
             public const int SolemnJudgment = 41420027;
             public const int SolemnWarning = 84749824;
             public const int SolemnStrike = 40605147;
+            public const int TreebornFrog = 12538374;
             public const int TorrentialTribute = 53582587;
             public const int EvenlyMatched = 15693423;
             public const int HeavyStorm = 19613556;
@@ -533,6 +553,9 @@ namespace WindBot.Game.AI
         /// <returns>Selected position, or 0 if no position is set for this card.</returns>
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
+            if (AI.HaveSelectedPosition())
+                return 0;
+
             YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
             if (cardData != null)
             {
@@ -576,11 +599,10 @@ namespace WindBot.Game.AI
         /// <returns>A new list containing the selected cards.</returns>
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            // wordaround for Dogmatika Alba Zoa
-            int albaZoaCount = Bot.ExtraDeck.Count / 2;
-            if (!cancelable && min == albaZoaCount && max == albaZoaCount
-                && Duel.Player == 1 && (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2) && cards.All(card =>
-                card.Controller == 0 && (card.Location == CardLocation.Hand || card.Location == CardLocation.Extra)))
+            ChainInfo currentSolving = Duel.GetCurrentSolvingChainInfo();
+            if (currentSolving != null &&
+                currentSolving.IsActivateCode(_CardId.DogmatikaAlbaZoa) &&
+                currentSolving.ActivatePlayer == 1)
             {
                 Logger.DebugWriteLine("Dogmatika Alba Zoa solved");
                 List<ClientCard> extraDeck = new List<ClientCard>(Bot.ExtraDeck);
@@ -637,7 +659,7 @@ namespace WindBot.Game.AI
 
         public override void OnReceivingAnnouce(int player, int data)
         {
-            if (player == 1 && data == Util.GetStringId(_CardId.LightningStorm, 0) || data == Util.GetStringId(_CardId.LightningStorm, 1))
+            if (player == 1 && (data == Util.GetStringId(_CardId.LightningStorm, 0) || data == Util.GetStringId(_CardId.LightningStorm, 1)))
             {
                 lightningStormOption = data - Util.GetStringId(_CardId.LightningStorm, 0);
             }
@@ -812,7 +834,9 @@ namespace WindBot.Game.AI
         {
             if (Util.IsAllEnemyBetter(true))
             {
-                ClientCard monster = Enemy.GetMonsters().GetHighestAttackMonster(true);
+                ClientCard monster = Enemy.GetMonsters()
+                    .Where(card => !IsCardAlreadyHandledInCurrentChain(card))
+                    .GetHighestAttackMonster(true);
                 if (monster != null && monster.HasType(CardType.Effect) && !monster.HasType(CardType.Link) && (monster.HasType(CardType.Xyz) || monster.Level > 4))
                 {
                     AI.SelectCard(monster);
@@ -828,7 +852,7 @@ namespace WindBot.Game.AI
         protected bool DefaultCompulsoryEvacuationDevice()
         {
             ClientCard target = Util.GetProblematicEnemyMonster(0, true);
-            if (target != null)
+            if (target != null && !IsCardAlreadyHandledInCurrentChain(target))
             {
                 AI.SelectCard(target);
                 return true;
@@ -836,7 +860,7 @@ namespace WindBot.Game.AI
             if (Util.IsChainTarget(Card))
             {
                 ClientCard monster = Util.GetBestEnemyMonster(false, true);
-                if (monster != null)
+                if (monster != null && !IsCardAlreadyHandledInCurrentChain(monster))
                 {
                     AI.SelectCard(monster);
                     return true;
@@ -1034,6 +1058,15 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnJudgment()
         {
+            ChainInfo lastChain = Duel.CurrentChainInfo.LastOrDefault();
+            if (lastChain != null &&
+                lastChain.ActivatePlayer == 1 &&
+                lastChain.RelatedCard.IsCode(_CardId.MysticalSpaceTyphoon, _CardId.GalaxyCyclone) &&
+                lastChain.Targets.Any(card => card.IsFacedown() && card.Controller == 0))
+            {
+                return false;
+            }
+
             return !Util.IsChainTargetOnly(Card) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && !DefaultOnlyHorusSpSummoning() && DefaultTrap();
         }
 
@@ -1042,7 +1075,10 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSolemnWarning()
         {
-            return (Bot.LifePoints > 2000) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1) && !DefaultOnlyHorusSpSummoning() && DefaultTrap();
+            return (Bot.LifePoints > 2000) && !(Duel.Player == 0 && Duel.LastChainPlayer == -1)
+                && !DefaultOnlyHorusSpSummoning()
+                && !(Util.GetLastChainCard()?.IsCode(_CardId.TreebornFrog) ?? false)
+                && DefaultTrap();
         }
 
         /// <summary>
@@ -1081,7 +1117,11 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTorrentialTribute()
         {
-            return !Util.HasChainedTrap(0) && Util.IsAllEnemyBetter(true);
+            if (Util.HasChainedTrap(0) || !Util.IsAllEnemyBetter(true))
+                return false;
+
+            return Enemy.GetMonsters()
+                .Any(card => !IsCardAlreadyHandledInCurrentChain(card));
         }
 
         /// <summary>
@@ -1204,7 +1244,8 @@ namespace WindBot.Game.AI
             bool enemyBetter = Util.IsAllEnemyBetter();
             if (Card.IsAttack() && enemyBetter)
                 return true;
-            if (Card.IsDefense() && !enemyBetter && (Card.Attack >= Card.Defense || Card.Attack >= Util.GetBestPower(Enemy)))
+            if (Card.IsDefense() && !enemyBetter &&
+                (Card.Attack > Card.Defense || (Duel.Phase == DuelPhase.Main1 && Card.Attack >= Util.GetBestPower(Enemy))))
                 return true;
 
             return false;
@@ -1293,6 +1334,98 @@ namespace WindBot.Game.AI
                 return false;
 
             return UniqueFaceupSpell();
+        }
+
+        /// <summary>
+        /// Activate Bottomless Trap Hole only if a summoned monster still needs handling.
+        /// </summary>
+        protected bool DefaultBottomlessTrapHole()
+        {
+            if (!DefaultUniqueTrap())
+                return false;
+
+            return Duel.LastSummonedCards.Any(card =>
+                card.Controller == 1 &&
+                card.Attack >= 1500 &&
+                !IsCardAlreadyHandledInCurrentChain(card));
+        }
+
+        /// <summary>
+        /// Check whether one of our earlier chain links will already neutralize this card.
+        /// </summary>
+        protected bool IsCardAlreadyHandledInCurrentChain(ClientCard card)
+        {
+            if (card == null)
+                return false;
+
+            bool targetedByOwnInterruption =
+                Duel.CurrentChainInfo.Any(chain =>
+                    chain.ActivatePlayer == 0 &&
+                    chain.Targets.Contains(card) &&
+                    chain.IsCode(
+                        _CardId.BookOfMoon,
+                        _CardId.CompulsoryEvacuationDevice,
+                        _CardId.EnemyController,
+                        _CardId.DimensionalPrison,
+                        _CardId.RingOfDestruction,
+                        _CardId.RaigekiBreak,
+                        _CardId.KarmaCut,
+                        _CardId.SakuretsuArmor,
+                        _CardId.Crackdown,
+                        _CardId.DogmatikaPunishment,
+                        _CardId.PaleozoicDinomischus,
+                        _CardId.DracobackTheDragonSteed,
+                        _CardId.PhoenixWingWindBlast));
+            if (targetedByOwnInterruption)
+                return true;
+
+            bool ownAttackPositionBoardInterruption =
+                card.Controller == 1 &&
+                card.Location == CardLocation.MonsterZone &&
+                card.IsAttack() &&
+                Duel.CurrentChainInfo.Any(chain =>
+                    chain.ActivatePlayer == 0 &&
+                    chain.IsCode(
+                        _CardId.DrowningMirrorForce,
+                        _CardId.BlazingMirrorForce,
+                        _CardId.StormingMirrorForce,
+                        _CardId.MirrorForce));
+            if (ownAttackPositionBoardInterruption)
+                return true;
+
+            bool ownPositionSpecificMirrorForce =
+                card.Controller == 1 &&
+                card.Location == CardLocation.MonsterZone &&
+                Duel.CurrentChainInfo.Any(chain =>
+                    chain.ActivatePlayer == 0 &&
+                    (chain.IsCode(_CardId.QuakingMirrorForce) &&
+                        card.IsAttack() &&
+                        !card.HasType(CardType.Link) ||
+                    chain.IsCode(_CardId.DarkMirrorForce) &&
+                        card.IsDefense()));
+            if (ownPositionSpecificMirrorForce)
+                return true;
+
+            bool ownTorrentialTribute =
+                card.Controller == 1 &&
+                card.Location == CardLocation.MonsterZone &&
+                Duel.CurrentChainInfo.Any(chain =>
+                    chain.ActivatePlayer == 0 &&
+                    chain.IsCode(_CardId.TorrentialTribute));
+            if (ownTorrentialTribute)
+                return true;
+
+            bool ownBottomlessTrapHole =
+                card.Controller == 1 &&
+                Duel.LastSummonedCards.Contains(card) &&
+                card.Attack >= 1500 &&
+                Duel.CurrentChainInfo.Any(chain =>
+                    chain.ActivatePlayer == 0 &&
+                    chain.IsCode(_CardId.BottomlessTrapHole));
+            if (ownBottomlessTrapHole)
+                return true;
+
+            return false;
         }
 
         /// <summary>

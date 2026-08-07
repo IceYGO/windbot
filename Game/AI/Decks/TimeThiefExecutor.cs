@@ -1,4 +1,4 @@
-﻿using YGOSharp.OCGWrapper;
+using YGOSharp.OCGWrapper;
 using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using WindBot;
@@ -15,7 +15,7 @@ namespace WindBot.Game.AI.Decks
         {
             //monsters
             public const int TimeThiefWinder = 56308388;
-            public const int TimeThiefBezelShip = 82496079;
+            public const int TimeThiefBezelShip = 82496097;
             public const int TimeThiefCronocorder = 74578720;
             public const int TimeThiefRegulator = 19891131;
             public const int PhotonTrasher = 65367484;
@@ -77,21 +77,21 @@ namespace WindBot.Game.AI.Decks
         {
             // executors
             //Spell activate
+            AddExecutor(ExecutorType.Activate, Spells.PotofExtravagance, PotofExtravaganceActivate);
             AddExecutor(ExecutorType.Activate, Spells.Raigeki, DefaultDarkHole);
             AddExecutor(ExecutorType.Activate, Spells.FoolishBurial, FoolishBurialTarget);
             AddExecutor(ExecutorType.Activate, Spells.TimeThiefStartup, TimeThiefStartupEffect);
-            AddExecutor(ExecutorType.Activate, Spells.TimeThiefHack);
-            AddExecutor(ExecutorType.Activate, Spells.PotofExtravagance, PotofExtravaganceActivate);
+            AddExecutor(ExecutorType.Activate, Spells.TimeThiefHack, TimeThiefHackEffect);
             AddExecutor(ExecutorType.Activate, Spells.HarpieFeatherDuster, DefaultHarpiesFeatherDusterFirst);
             AddExecutor(ExecutorType.Activate, Spells.PotOfDesires, PotOfDesireseff);
             // trap executors set
-            AddExecutor(ExecutorType.SpellSet, Traps.PhantomKnightsShade);
-            AddExecutor(ExecutorType.SpellSet, Traps.TimeThiefRetrograte);
-            AddExecutor(ExecutorType.SpellSet, Traps.TimeThiefFlyBack);
-            AddExecutor(ExecutorType.SpellSet, Traps.SolemnWarning);
-            AddExecutor(ExecutorType.SpellSet, Traps.SolemStrike);
-            AddExecutor(ExecutorType.SpellSet, Traps.SolemnJudgment);
-            AddExecutor(ExecutorType.SpellSet, Traps.Crackdown);
+            AddExecutor(ExecutorType.SpellSet, Traps.PhantomKnightsShade, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, Traps.TimeThiefRetrograte, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, Traps.TimeThiefFlyBack, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, Traps.SolemnWarning, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, Traps.SolemStrike, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, Traps.SolemnJudgment, DefaultSpellSet);
+            AddExecutor(ExecutorType.SpellSet, Traps.Crackdown, DefaultSpellSet);
             //normal summons
             AddExecutor(ExecutorType.Summon, Monsters.TimeThiefRegulator);
             AddExecutor(ExecutorType.SpSummon, Monsters.PhotonTrasher, SummonToDef);
@@ -101,25 +101,26 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, Monsters.TimeThiefCronocorder);
             AddExecutor(ExecutorType.Summon, Monsters.ThunderKingRaiOh, ThunderKingRaiOhsummon);
             //xyz summons
-            AddExecutor(ExecutorType.SpSummon, XYZs.TimeThiefRedoer);
-            AddExecutor(ExecutorType.SpSummon, XYZs.TimeThiefPerpetua);
-            AddExecutor(ExecutorType.SpSummon, XYZs.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
             AddExecutor(ExecutorType.SpSummon, XYZs.GagagaCowboy, GagagaCowboySummon);
-            AddExecutor(ExecutorType.SpSummon, XYZs.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
-            AddExecutor(ExecutorType.SpSummon, XYZs.NumberS39UtopiaOne);
-            AddExecutor(ExecutorType.SpSummon, XYZs.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.SpSummon, XYZs.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightSummon);
             AddExecutor(ExecutorType.SpSummon, XYZs.DarkRebellionXyzDragon, DarkRebellionXyzDragonSummon);
+            AddExecutor(ExecutorType.SpSummon, XYZs.Number39Utopia, DefaultNumberS39UtopiaTheLightningSummon);
+            AddExecutor(ExecutorType.SpSummon, XYZs.NumberS39UtopiatheLightning);
+            AddExecutor(ExecutorType.SpSummon, XYZs.NumberS39UtopiaOne);
+            AddExecutor(ExecutorType.SpSummon, XYZs.TimeThiefPerpetua, TimeThiefPerpetuaSummon);
+            AddExecutor(ExecutorType.SpSummon, XYZs.TimeThiefRedoer, TimeThiefRedoerSummon);
+            AddExecutor(ExecutorType.SpSummon, XYZs.TimeThiefPerpetua);
             //activate trap
             AddExecutor(ExecutorType.Activate, Traps.PhantomKnightsShade);
             AddExecutor(ExecutorType.Activate, Traps.TimeThiefRetrograte, RetrograteEffect);
-            AddExecutor(ExecutorType.Activate, Traps.TimeThiefFlyBack);
+            AddExecutor(ExecutorType.Activate, Traps.TimeThiefFlyBack, TimeThiefFlyBackEffect);
             AddExecutor(ExecutorType.Activate, Traps.SolemnWarning, DefaultSolemnWarning);
             AddExecutor(ExecutorType.Activate, Traps.SolemStrike, DefaultSolemnStrike);
             AddExecutor(ExecutorType.Activate, Traps.SolemnJudgment, DefaultSolemnJudgment);
             AddExecutor(ExecutorType.Activate, Traps.Crackdown, Crackdowneff);
             //xyz effects
             AddExecutor(ExecutorType.Activate, XYZs.TimeThiefRedoer, RedoerEffect);
-            AddExecutor(ExecutorType.Activate, XYZs.TimeThiefPerpetua, PerpertuaEffect);
+            AddExecutor(ExecutorType.Activate, XYZs.TimeThiefPerpetua, PerpetuaEffect);
             AddExecutor(ExecutorType.Activate, XYZs.EvilswarmExcitonKnight, DefaultEvilswarmExcitonKnightEffect);
             AddExecutor(ExecutorType.Activate, XYZs.GagagaCowboy);
             AddExecutor(ExecutorType.Activate, XYZs.NumberS39UtopiatheLightning, DefaultNumberS39UtopiaTheLightningEffect);
@@ -127,13 +128,355 @@ namespace WindBot.Game.AI.Decks
 
             //monster effects
             AddExecutor(ExecutorType.Activate, Monsters.TimeThiefRegulator, RegulatorEffect);
-            AddExecutor(ExecutorType.Activate, Monsters.TimeThiefWinder);
-            AddExecutor(ExecutorType.Activate, Monsters.TimeThiefCronocorder);
+            AddExecutor(ExecutorType.Activate, Monsters.TimeThiefWinder, TimeThiefWinderEffect);
+            AddExecutor(ExecutorType.Activate, Monsters.TimeThiefCronocorder, TimeThiefCronocorderEffect);
             AddExecutor(ExecutorType.Activate, Monsters.PerformTrickClown, TrickClownEffect);
-            AddExecutor(ExecutorType.Activate, Monsters.TimeThiefBezelShip);
+            AddExecutor(ExecutorType.Activate, Monsters.TimeThiefBezelShip, TimeThiefBezelShipEffect);
             AddExecutor(ExecutorType.Activate, Monsters.ThunderKingRaiOh, ThunderKingRaiOheff);
             AddExecutor(ExecutorType.Activate, Monsters.AshBlossomAndJoyousSpring, DefaultAshBlossomAndJoyousSpring);
             AddExecutor(ExecutorType.Activate, Monsters.MaxxC, DefaultMaxxC);
+        }
+
+        public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            ClientCard solvingChainCard = Duel.GetCurrentSolvingChainCard();
+
+            if (currentChainCard != null && currentChainCard.Controller == 0)
+            {
+                if (currentChainCard.IsCode(XYZs.DarkRebellionXyzDragon) &&
+                    cards.Any(card => card.Controller == 1 && card.Location == CardLocation.MonsterZone))
+                {
+                    ClientCard target = Util.GetProblematicEnemyMonster(0, true);
+                    if (target == null || !cards.Contains(target))
+                    {
+                        target = cards
+                            .Where(card => card.Controller == 1 && card.IsMonster())
+                            .OrderByDescending(card => card.Attack)
+                            .FirstOrDefault();
+                    }
+                    return SelectOneCard(target, cards, min, max);
+                }
+
+                if (hint == HintMsg.RemoveXyz && currentChainCard.IsCode(
+                    Monsters.TimeThiefWinder,
+                    Monsters.TimeThiefBezelShip,
+                    XYZs.TimeThiefPerpetua,
+                    XYZs.DarkRebellionXyzDragon))
+                {
+                    return SelectXyzDetachMaterial(cards, min, max);
+                }
+
+                if (hint == HintMsg.Target)
+                {
+                    if (currentChainCard.IsCode(
+                        Spells.TimeThiefStartup,
+                        Traps.TimeThiefFlyBack,
+                        Monsters.TimeThiefBezelShip))
+                    {
+                        return SelectXyzToReceiveMaterial(cards, min, max);
+                    }
+
+                    if (currentChainCard.IsCode(XYZs.TimeThiefPerpetua))
+                    {
+                        if (cards.Any(card => card.Location == CardLocation.Grave))
+                        {
+                            int[] reviveOrder =
+                            {
+                                XYZs.TimeThiefRedoer,
+                                Monsters.TimeThiefRegulator,
+                                Monsters.TimeThiefWinder,
+                                Monsters.TimeThiefBezelShip,
+                                Monsters.TimeThiefCronocorder
+                            };
+                            List<ClientCard> selected = new List<ClientCard>();
+                            foreach (int id in reviveOrder)
+                            {
+                                ClientCard target = cards.FirstOrDefault(card => card.IsCode(id));
+                                if (target != null)
+                                {
+                                    selected.Add(target);
+                                    break;
+                                }
+                            }
+                            return Util.CheckSelectCount(selected, cards, min, max);
+                        }
+
+                        return SelectXyzToReceiveMaterial(cards, min, max);
+                    }
+
+                }
+
+                if (hint == HintMsg.Faceup && currentChainCard.IsCode(Spells.TimeThiefHack))
+                {
+                    ClientCard target = cards
+                        .Where(card => card.Controller == 0 && card.HasType(CardType.Xyz))
+                        .OrderByDescending(card => card.Attack + card.Overlays.Count * 300)
+                        .FirstOrDefault();
+                    return SelectOneCard(target, cards, min, max);
+                }
+            }
+
+            if (solvingChainCard != null && solvingChainCard.Controller == 0)
+            {
+                if (solvingChainCard.IsCode(Monsters.TimeThiefRegulator) &&
+                    hint == HintMsg.SpSummon && min == 2)
+                {
+                    int[] summonOrder =
+                    {
+                        Monsters.TimeThiefWinder,
+                        Monsters.TimeThiefBezelShip,
+                        Monsters.TimeThiefCronocorder
+                    };
+                    List<ClientCard> selected = new List<ClientCard>();
+                    foreach (int id in summonOrder)
+                    {
+                        ClientCard target = cards.FirstOrDefault(card =>
+                            card.IsCode(id) && selected.All(selectedCard => selectedCard.Id != card.Id));
+                        if (target != null)
+                            selected.Add(target);
+                        if (selected.Count >= max)
+                            break;
+                    }
+                    foreach (ClientCard target in cards)
+                    {
+                        if (selected.Count >= max)
+                            break;
+                        if (selected.All(selectedCard => selectedCard.Id != target.Id))
+                            selected.Add(target);
+                    }
+                    return Util.CheckSelectCount(selected, cards, min, max);
+                }
+
+                if (solvingChainCard.IsCode(Monsters.TimeThiefWinder) && hint == HintMsg.AddToHand)
+                {
+                    int[] searchOrder = Bot.HasInMonstersZone(XYZs.TimeThiefRedoer)
+                        ? new[]
+                        {
+                            Traps.TimeThiefRetrograte,
+                            Traps.TimeThiefFlyBack,
+                            Spells.TimeThiefStartup,
+                            Monsters.TimeThiefBezelShip,
+                            Monsters.TimeThiefCronocorder,
+                            Spells.TimeThiefHack
+                        }
+                        : new[]
+                        {
+                            Spells.TimeThiefStartup,
+                            Monsters.TimeThiefBezelShip,
+                            Monsters.TimeThiefCronocorder,
+                            Traps.TimeThiefRetrograte,
+                            Traps.TimeThiefFlyBack,
+                            Spells.TimeThiefHack
+                        };
+                    ClientCard target = searchOrder
+                        .Select(id => cards.FirstOrDefault(card => card.IsCode(id)))
+                        .FirstOrDefault(card => card != null);
+                    return SelectOneCard(target, cards, min, max);
+                }
+
+                if (solvingChainCard.IsCode(Spells.TimeThiefStartup))
+                {
+                    if (hint == HintMsg.SpSummon)
+                    {
+                        int[] summonOrder = Bot.GetMonsterCount() == 0
+                            ? new[]
+                            {
+                                Monsters.TimeThiefRegulator,
+                                Monsters.TimeThiefWinder,
+                                Monsters.TimeThiefBezelShip,
+                                Monsters.TimeThiefCronocorder
+                            }
+                            : new[]
+                            {
+                                Monsters.TimeThiefWinder,
+                                Monsters.TimeThiefBezelShip,
+                                Monsters.TimeThiefCronocorder,
+                                Monsters.TimeThiefRegulator
+                            };
+                        ClientCard target = summonOrder
+                            .Select(id => cards.FirstOrDefault(card => card.IsCode(id)))
+                            .FirstOrDefault(card => card != null);
+                        return SelectOneCard(target, cards, min, max);
+                    }
+
+                    if (hint == HintMsg.XyzMaterial && min == 3)
+                    {
+                        List<ClientCard> selected = new List<ClientCard>();
+                        int[] monsterOrder =
+                        {
+                            Monsters.TimeThiefBezelShip,
+                            Monsters.TimeThiefCronocorder,
+                            Monsters.TimeThiefWinder,
+                            Monsters.TimeThiefRegulator
+                        };
+                        ClientCard monster = monsterOrder
+                            .Select(id => cards.FirstOrDefault(card => card.IsCode(id)))
+                            .FirstOrDefault(card => card != null) ??
+                            cards.FirstOrDefault(card => card.IsMonster());
+                        ClientCard spell = cards.FirstOrDefault(card => card.IsCode(Spells.TimeThiefHack)) ??
+                            cards.FirstOrDefault(card => card.IsSpell());
+                        ClientCard trap = cards.FirstOrDefault(card => card.IsCode(Traps.TimeThiefRetrograte)) ??
+                            cards.FirstOrDefault(card => card.IsCode(Traps.TimeThiefFlyBack)) ??
+                            cards.FirstOrDefault(card => card.IsTrap());
+                        if (monster != null) selected.Add(monster);
+                        if (spell != null) selected.Add(spell);
+                        if (trap != null) selected.Add(trap);
+                        return Util.CheckSelectCount(selected, cards, min, max);
+                    }
+                }
+
+                if (solvingChainCard.IsCode(XYZs.TimeThiefRedoer))
+                {
+                    if (hint == HintMsg.RemoveXyz)
+                    {
+                        List<ClientCard> selected = new List<ClientCard>();
+                        ClientCard trap = cards.FirstOrDefault(card => card.IsTrap());
+                        ClientCard spell = cards.FirstOrDefault(card => card.IsSpell());
+                        ClientCard monster = cards.FirstOrDefault(card => card.IsMonster());
+                        bool needsProtection = ShouldUseRedoerMonsterMaterial(solvingChainCard);
+                        if (trap != null)
+                            selected.Add(trap);
+                        if (spell != null)
+                            selected.Add(spell);
+                        if (monster != null && needsProtection)
+                            selected.Add(monster);
+                        return Util.CheckSelectCount(selected, cards, min, max);
+                    }
+
+                    if (hint == HintMsg.ToDeck)
+                    {
+                        ClientCard target = Util.GetProblematicEnemyCard();
+                        if (target == null || !cards.Contains(target))
+                        {
+                            target = cards
+                                .OrderByDescending(card => card.IsMonster() ? card.GetDefensePower() : 0)
+                                .FirstOrDefault();
+                        }
+                        return SelectOneCard(target, cards, min, max);
+                    }
+                }
+
+                if (hint == HintMsg.XyzMaterial && solvingChainCard.IsCode(
+                    XYZs.TimeThiefPerpetua,
+                    Traps.TimeThiefFlyBack,
+                    Monsters.TimeThiefBezelShip))
+                {
+                    if (cards.Any(card => card.Controller == 1))
+                    {
+                        ClientCard target = Bot.HasInMonstersZone(XYZs.TimeThiefRedoer)
+                            ? cards
+                                .OrderByDescending(card => card.IsTrap())
+                                .ThenByDescending(card => card.IsSpell())
+                                .ThenByDescending(card => card.IsMonster())
+                                .ThenByDescending(card => card.GetDefensePower())
+                                .FirstOrDefault()
+                            : cards
+                                .OrderByDescending(card => card.IsMonsterDangerous())
+                                .ThenByDescending(card => card.IsExtraCard())
+                                .ThenByDescending(card => card.IsMonster())
+                                .ThenByDescending(card => card.GetDefensePower())
+                                .FirstOrDefault();
+                        return SelectOneCard(target, cards, min, max);
+                    }
+
+                    return SelectMaterialToAttach(cards, min, max);
+                }
+
+                if (solvingChainCard.IsCode(Traps.TimeThiefRetrograte) && hint == HintMsg.Faceup)
+                {
+                    return SelectXyzToReceiveMaterial(cards, min, max);
+                }
+            }
+
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
+        }
+
+        private IList<ClientCard> SelectXyzToReceiveMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            ClientCard target = cards
+                .Where(card => card.Controller == 0 && card.IsFaceup() && card.HasType(CardType.Xyz))
+                .OrderByDescending(card => card.IsCode(XYZs.TimeThiefRedoer))
+                .ThenByDescending(card => card.HasSetcode(0x126))
+                .ThenBy(card => card.Overlays.Count)
+                .FirstOrDefault();
+            return SelectOneCard(target, cards, min, max);
+        }
+
+        public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            int[] materialOrder =
+            {
+                Monsters.PerformTrickClown,
+                Monsters.TimeThiefBezelShip,
+                Monsters.TimeThiefCronocorder,
+                Monsters.TimeThiefWinder,
+                Monsters.TimeThiefRegulator,
+                Monsters.PhotonTrasher,
+                Monsters.ThunderKingRaiOh
+            };
+            List<ClientCard> selected = materialOrder
+                .Select(id => cards.FirstOrDefault(card => card.IsCode(id)))
+                .Where(card => card != null)
+                .Distinct()
+                .ToList();
+            return Util.CheckSelectCount(selected, cards, min, max);
+        }
+
+        private IList<ClientCard> SelectXyzDetachMaterial(IList<ClientCard> cards, int min, int max)
+        {
+            int[] detachOrder =
+            {
+                Monsters.TimeThiefBezelShip,
+                Monsters.PerformTrickClown,
+                Monsters.TimeThiefCronocorder,
+                Monsters.TimeThiefRegulator,
+                Monsters.TimeThiefWinder
+            };
+            List<ClientCard> selected = detachOrder
+                .Select(id => cards.FirstOrDefault(card => card.IsCode(id)))
+                .Where(card => card != null)
+                .Distinct()
+                .ToList();
+            selected.AddRange(cards.Where(card =>
+                !selected.Contains(card) && card.Owner == 0 && card.IsMonster()));
+            selected.AddRange(cards.Where(card =>
+                !selected.Contains(card) && card.IsMonster()));
+            selected.AddRange(cards.Where(card =>
+                !selected.Contains(card) && card.IsSpell()));
+            selected.AddRange(cards.Where(card => !selected.Contains(card)));
+            return Util.CheckSelectCount(selected, cards, min, max);
+        }
+
+        private IList<ClientCard> SelectMaterialToAttach(IList<ClientCard> cards, int min, int max)
+        {
+            int[] materialOrder =
+            {
+                Traps.TimeThiefFlyBack,
+                Traps.TimeThiefRetrograte,
+                Spells.TimeThiefStartup,
+                Spells.TimeThiefHack,
+                Monsters.TimeThiefBezelShip,
+                Monsters.TimeThiefWinder,
+                Monsters.TimeThiefCronocorder,
+                Monsters.TimeThiefRegulator
+            };
+            ClientCard target = materialOrder
+                .Select(id => cards.FirstOrDefault(card => card.IsCode(id)))
+                .FirstOrDefault(card => card != null) ??
+                cards.FirstOrDefault(card => card.IsTrap()) ??
+                cards.FirstOrDefault(card => card.IsSpell()) ??
+                cards.FirstOrDefault(card => card.IsMonster()) ??
+                cards.FirstOrDefault();
+            return SelectOneCard(target, cards, min, max);
+        }
+
+        private IList<ClientCard> SelectOneCard(ClientCard target, IList<ClientCard> cards, int min, int max)
+        {
+            List<ClientCard> selected = new List<ClientCard>();
+            if (target != null)
+                selected.Add(target);
+            return Util.CheckSelectCount(selected, cards, min, max);
         }
 
         public void SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false, List<int> avoid_list = null)
@@ -152,7 +495,8 @@ namespace WindBot.Game.AI.Decks
                 int zone = (int)System.Math.Pow(2, seq);
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence) continue;
+                    if (card != null && card.Location == CardLocation.Hand &&
+                        avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     if (avoid_list != null && avoid_list.Contains(seq)) continue;
                     AI.SelectPlace(zone);
                     return;
@@ -193,8 +537,6 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.MonsterZone)
             {
                 if (DefaultCheckWhetherCardIsNegated(Card)) return false;
-                AI.SelectCard(Monsters.TimeThiefCronocorder);
-                AI.SelectCard(Monsters.TimeThiefWinder);
                 return true;
             }
 
@@ -206,121 +548,206 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool PerpertuaEffect()
+        private bool TimeThiefPerpetuaSummon()
         {
-            if (Bot.HasInGraveyard(XYZs.TimeThiefRedoer))
+            return Bot.HasInMonstersZone(XYZs.TimeThiefRedoer);
+        }
+
+        private bool TimeThiefRedoerSummon()
+        {
+            return !Bot.HasInMonstersZone(XYZs.TimeThiefRedoer);
+        }
+
+        private bool ShouldUseRedoerMonsterMaterial(ClientCard redoer)
+        {
+            if (redoer == null)
+                return false;
+
+            if (Util.IsChainTarget(redoer) ||
+                Card == redoer && DefaultOnBecomeTarget() ||
+                Duel.Player == 0 && Duel.Phase == DuelPhase.Main2)
             {
-                AI.SelectCard(XYZs.TimeThiefRedoer);
                 return true;
             }
 
-            if (Bot.HasInMonstersZone(XYZs.TimeThiefRedoer))
+            ClientCard opponent = Enemy.BattlingMonster;
+            if (Bot.BattlingMonster != redoer || opponent == null)
+                return false;
+
+            bool willBeDestroyed = Duel.Player == 0
+                ? opponent.IsAttack() && opponent.Attack >= redoer.Attack
+                : redoer.IsAttack()
+                    ? opponent.Attack >= redoer.Attack
+                    : opponent.Attack > redoer.Defense;
+            if (!willBeDestroyed)
+                return false;
+
+            return Bot.GetMonsters().Any(card => card != redoer) ||
+                Bot.LifePoints > opponent.Attack;
+        }
+
+        private bool PerpetuaEffect()
+        {
+            if (DefaultCheckWhetherCardIsNegated(Card))
+                return false;
+
+            if (ActivateDescription == Util.GetStringId(XYZs.TimeThiefPerpetua, 0) ||
+                Duel.Phase == DuelPhase.Standby)
             {
-                AI.SelectCard(Monsters.TimeThiefBezelShip);
-                AI.SelectNextCard(XYZs.TimeThiefRedoer);
                 return true;
+            }
+
+            if (ActivateDescription == Util.GetStringId(XYZs.TimeThiefPerpetua, 1) ||
+                ActivateDescription == -1)
+            {
+                return Bot.GetMonsters().Any(card =>
+                    card != Card &&
+                    card.IsFaceup() &&
+                    card.HasType(CardType.Xyz));
             }
 
             return false;
         }
 
-        private int _totalAttack;
-        private int _totalBotAttack;
         private bool RedoerEffect()
         {
+            if (DefaultCheckWhetherCardIsNegated(Card))
+                return false;
 
-            List<ClientCard> enemy = Enemy.GetMonstersInMainZone();
-            List<int> units = Card.Overlays;
-            if (Duel.Phase == DuelPhase.Standby && (AI.Executor.Util.GetStringId(XYZs.TimeThiefRedoer, 0) ==
-                                                    ActivateDescription))
+            if (Duel.Phase == DuelPhase.Standby &&
+                Util.GetStringId(XYZs.TimeThiefRedoer, 0) == ActivateDescription)
             {
-
                 return true;
             }
 
-            try
-            {
-                for (int i = 0; i < enemy.Count; i++)
-                {
-                    _totalAttack += enemy[i].Attack;
-                }
+            List<NamedCard> materials = Card.Overlays
+                .Select(NamedCard.Get)
+                .Where(material => material != null)
+                .ToList();
+            bool hasMonsterMaterial = materials.Any(material => material.HasType(CardType.Monster));
+            bool hasSpellMaterial = materials.Any(material => material.HasType(CardType.Spell));
+            bool hasTrapMaterial = materials.Any(material => material.HasType(CardType.Trap));
 
-                foreach (var t in Bot.GetMonsters())
-                {
-                    _totalBotAttack += t.Attack;
-                }
-
-                if (_totalAttack > Bot.LifePoints + _totalBotAttack)
-                {
-                    return false;
-                }
-
-
-
-                foreach (var t in enemy)
-                {
-                    if (t.Attack < 2400 || !t.IsAttack()) continue;
-                    try
-                    {
-                        AI.SelectCard(t.Id);
-                        AI.SelectCard(t.Id);
-                    }
-                    catch { }
-
-                    return true;
-                }
-            }
-            catch { }
-
-            if (Bot.UnderAttack)
-            {
-                //AI.SelectCard(Util.GetBestEnemyMonster());
+            if (hasMonsterMaterial && ShouldUseRedoerMonsterMaterial(Card))
                 return true;
-            }
 
-            return false;
+            if (hasTrapMaterial && Util.GetProblematicEnemyCard() != null)
+                return true;
 
+            if (hasSpellMaterial && Duel.Player == 0 &&
+                (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2))
+                return true;
+
+            return Duel.Player == 1 && Duel.Phase == DuelPhase.End &&
+                (hasSpellMaterial || hasTrapMaterial);
         }
+
         private bool RetrograteEffect()
         {
-            if (Card.Owner == 1)
-            {
-                return true;
-            }
-            return false;
-
+            ClientCard lastChainCard = Util.GetLastChainCard();
+            return Duel.LastChainPlayer == 1 &&
+                lastChainCard != null &&
+                (lastChainCard.IsSpell() || lastChainCard.IsTrap()) &&
+                !DefaultTrapWillBeNegated();
         }
+
         private bool TimeThiefStartupEffect()
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (Bot.HasInHand(Monsters.TimeThiefRegulator) && !(Bot.GetMonsterCount() > 0))
-                {
-                    AI.SelectCard(Monsters.TimeThiefRegulator);
-                    return true;
-                }
-                if (Bot.HasInHand(Monsters.TimeThiefWinder) && Bot.GetMonsterCount() > 1)
-                {
-                    AI.SelectCard(Monsters.TimeThiefWinder);
-                    return true;
-                }
-                return true;
-
+                return !DefaultSpellWillBeNegated();
             }
+
             if (Card.Location == CardLocation.Grave)
             {
-                AI.SelectCard(Monsters.TimeThiefCronocorder);
-                AI.SelectCard(Spells.TimeThiefHack);
-                AI.SelectCard(Traps.TimeThiefFlyBack);
                 return true;
             }
 
             return false;
-
         }
+
+        private bool TimeThiefHackEffect()
+        {
+            if (Card.Location == CardLocation.SpellZone && Card.IsFaceup())
+            {
+                return Duel.Player == 0 &&
+                    Duel.Phase == DuelPhase.Main1 &&
+                    Bot.GetMonsters().Any(card => card.IsFaceup() &&
+                        card.HasType(CardType.Xyz) && card.Overlays.Count > 0);
+            }
+
+            return !DefaultSpellWillBeNegated() &&
+                !Bot.HasInSpellZone(Spells.TimeThiefHack, true);
+        }
+
+        private bool TimeThiefFlyBackEffect()
+        {
+            if (Card.Location == CardLocation.Grave)
+                return Enemy.Graveyard.Count > 0;
+
+            return Card.Location == CardLocation.SpellZone &&
+                !DefaultTrapWillBeNegated();
+        }
+
+        private bool TimeThiefWinderEffect()
+        {
+            if (DefaultCheckWhetherCardIsNegated(Card))
+                return false;
+
+            if (Card.Location == CardLocation.Hand)
+            {
+                return Bot.GetMonsters().Any(card =>
+                    card.IsFaceup() && card.HasType(CardType.Xyz) && card.Overlays.Count > 0);
+            }
+
+            return Card.Location == CardLocation.MonsterZone;
+        }
+
+        private bool TimeThiefBezelShipEffect()
+        {
+            if (DefaultCheckWhetherCardIsNegated(Card))
+                return false;
+
+            if (Card.Location == CardLocation.Grave)
+                return true;
+
+            if (Card.Location == CardLocation.MonsterZone)
+            {
+                return DefaultOnBecomeTarget() ||
+                    Duel.Player == 1 ||
+                    Duel.Phase >= DuelPhase.Main2;
+            }
+
+            return false;
+        }
+
+        private bool TimeThiefCronocorderEffect()
+        {
+            if (Card.Location == CardLocation.Grave)
+                return true;
+
+            return Card.Location == CardLocation.MonsterZone &&
+                !DefaultCheckWhetherCardIsNegated(Card) &&
+                Bot.UnderAttack;
+        }
+
         private bool FoolishBurialTarget()
         {
-            AI.SelectCard(Monsters.PerformTrickClown);
+            if (Bot.LifePoints > 1000)
+            {
+                AI.SelectCard(
+                    Monsters.PerformTrickClown,
+                    Monsters.TimeThiefBezelShip,
+                    Monsters.TimeThiefCronocorder,
+                    Monsters.TimeThiefRegulator);
+            }
+            else
+            {
+                AI.SelectCard(
+                    Monsters.TimeThiefBezelShip,
+                    Monsters.TimeThiefCronocorder,
+                    Monsters.TimeThiefRegulator);
+            }
             return true;
         }
 
@@ -352,14 +779,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool DarkRebellionXyzDragonEffect()
         {
-            int oppoBestAttack = Util.GetBestAttack(Enemy);
-            ClientCard target = Util.GetOneEnemyBetterThanValue(oppoBestAttack, true);
-            if (target != null)
-            {
-                AI.SelectCard(0);
-                AI.SelectNextCard(target);
-            }
-            return true;
+            return Enemy.GetMonsters().Any(card =>
+                card.IsFaceup() && !card.IsShouldNotBeTarget());
         }
         private bool ThunderKingRaiOhsummon()
         {
@@ -372,21 +793,24 @@ namespace WindBot.Game.AI.Decks
         private bool ThunderKingRaiOheff()
         {
             if (DefaultOnlyHorusSpSummoning()) return false;
-            if (Duel.SummoningCards.Count > 0)
-            {
-                foreach (ClientCard m in Duel.SummoningCards)
-                {
-                    if (m.Attack >= 1900)
-                        return true;
-                }
-            }
-            return false;
+            ClientCard summonedCard = Duel.SummoningCards
+                .FirstOrDefault(card => card.Controller == 1);
+            return summonedCard != null &&
+                (summonedCard.IsExtraCard() ||
+                    summonedCard.IsMonsterDangerous() ||
+                    summonedCard.Attack >= Card.Attack);
         }
         private bool Crackdowneff()
         {
-            if (Util.GetOneEnemyBetterThanMyBest(true, true) != null && Bot.UnderAttack)
-                AI.SelectCard(Util.GetOneEnemyBetterThanMyBest(true, true));
-            return Util.GetOneEnemyBetterThanMyBest(true, true) != null && Bot.UnderAttack;
+            ClientCard target = Enemy.MonsterZone.GetFloodgate(true) ??
+                Enemy.MonsterZone.GetDangerousMonster(true);
+            if (target == null && (Bot.UnderAttack || DefaultOnBecomeTarget()))
+                target = Util.GetOneEnemyBetterThanMyBest(true, true);
+            if (target == null)
+                return false;
+
+            AI.SelectCard(target);
+            return true;
         }
         private bool PotOfDesireseff()
         {

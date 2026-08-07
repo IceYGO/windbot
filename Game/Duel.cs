@@ -178,6 +178,22 @@ namespace WindBot.Game
             return IsFirst ? player : 1 - player;
         }
 
+        /// <summary>
+        /// Returns the newest chain link while the chain is being built, including
+        /// while that link is selecting its activation cost or targets.
+        /// Unlike GetCurrentSolvingChainCard, this returns null once chain resolution
+        /// has started.
+        /// </summary>
+        public ClientCard GetCurrentChainCard()
+        {
+            if (SolvingChainIndex != 0 || CurrentChain.Count == 0) return null;
+            return CurrentChain[CurrentChain.Count - 1];
+        }
+
+        /// <summary>
+        /// Returns the chain link currently being resolved. This is null before the
+        /// engine starts resolving the chain, including during activation target selection.
+        /// </summary>
         public ClientCard GetCurrentSolvingChainCard()
         {
             if (SolvingChainIndex == 0 || SolvingChainIndex > CurrentChain.Count) return null;

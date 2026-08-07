@@ -145,10 +145,19 @@ namespace WindBot.Game.AI.Decks
             if (tributeId == -1 && Bot.HasInHand(CardId.StardustDragonAssaultMode))
                 tributeId = CardId.StardustDragonAssaultMode;
             if (tributeId == -1 && Bot.HasInHand(CardId.DragunitySpearOfDestiny))
-                tributeId = CardId.StardustDragonAssaultMode;
+                tributeId = CardId.DragunitySpearOfDestiny;
             if (tributeId == -1 && Bot.HasInHand(CardId.DragonsMirror)
                 && Bot.GetMonsterCount() == 0)
-                tributeId = CardId.StardustDragonAssaultMode;
+                tributeId = CardId.DragonsMirror;
+
+            if (tributeId == -1)
+            {
+                foreach (ClientCard card in Bot.Hand)
+                {
+                    tributeId = card.Id;
+                    break;
+                }
+            }
 
             if (tributeId == -1)
                 return false;

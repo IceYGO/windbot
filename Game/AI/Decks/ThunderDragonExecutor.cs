@@ -1203,7 +1203,7 @@ namespace WindBot.Game.AI.Decks
 
                 List<ClientCard> Spellcards = Bot.GetGraveyardSpells().Where(card => card != null && !card.IsCode(CardId.ThunderDragonFusion) && !card.IsCode(CardId.ChaosSpace)).ToList();
                 if (Spellcards.Count > 0) AI.SelectNextCard(Spellcards);
-                else if(NoThundercards.Count > 0 ) AI.SelectNextCard(Spellcards);
+                else if(NoThundercards.Count > 0 ) AI.SelectNextCard(NoThundercards);
                 else if(Thundercards.Count > 0) AI.SelectNextCard(Thundercards);
                 else AI.SelectNextCard(CardId.ChaosSpace);
                 AI.SelectThirdCard(CardId.ThunderDragonColossus, CardId.ThunderDragonTitan, CardId.ThunderDragonlord,CardId.TheChaosCreator);

@@ -215,6 +215,27 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(CardId.TGWonderMagician) &&
+                hint == HintMsg.Destroy)
+            {
+                ClientCard target = Util.GetProblematicEnemySpell();
+                if (target == null || !cards.Contains(target))
+                    target = Enemy.GetSpells().Find(card =>
+                        cards.Contains(card) &&
+                        (card.IsFacedown() ||
+                            card.HasType(CardType.Continuous) ||
+                            card.HasType(CardType.Field) ||
+                            card.HasType(CardType.Equip)));
+                if (target == null)
+                    target = cards.FirstOrDefault();
+                if (target != null)
+                    return Util.CheckSelectCount(
+                        new List<ClientCard> { target }, cards, min, max);
+            }
+
             if (hint != HintMsg.Destroy)
                 PhoenixSelectingTarget = 0;
 
@@ -586,10 +607,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard target = Util.GetProblematicEnemySpell();
             if (target == null)
                 target = Enemy.GetSpells().Find(card => card.IsFacedown() || card.HasType(CardType.Continuous) || card.HasType(CardType.Field) || card.HasType(CardType.Equip));
-            if (target == null)
-                return false;
-            AI.SelectCard(target);
-            return true;
+            return target != null;
         }
 
         private bool MechaPhantomBeastAuroradonSummon()

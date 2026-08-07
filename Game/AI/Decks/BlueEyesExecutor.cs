@@ -155,6 +155,8 @@ namespace WindBot.Game.AI.Decks
         {
             Logger.DebugWriteLine("OnSelectXyzMaterial " + cards.Count + " " + min + " " + max);
             IList<ClientCard> result = Util.SelectPreferredCards(UsedAlternativeWhiteDragon, cards, min, max);
+            foreach (ClientCard card in result)
+                UsedAlternativeWhiteDragon.Remove(card);
             return Util.CheckSelectCount(result, cards, min, max);
         }
 

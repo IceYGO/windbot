@@ -71,7 +71,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.Number61Volcasaurus, Number61VolcasaurusSummon);
             AddExecutor(ExecutorType.Activate, CardId.Number61Volcasaurus, Number61VolcasaurusEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.TirasKeeperOfGenesis);
-            AddExecutor(ExecutorType.Activate, CardId.TirasKeeperOfGenesis, TirasKeeperOfGenesisEffect);
+            AddExecutor(ExecutorType.Activate, CardId.TirasKeeperOfGenesis);
             AddExecutor(ExecutorType.SpSummon, CardId.SharkFortress);
             AddExecutor(ExecutorType.Activate, CardId.SharkFortress);
 
@@ -107,6 +107,26 @@ namespace WindBot.Game.AI.Decks
         public override bool OnSelectHand()
         {
             return false;
+        }
+
+        public override IList<ClientCard> OnSelectCard(
+            IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (currentChainCard != null &&
+                currentChainCard.Controller == 0 &&
+                currentChainCard.IsCode(CardId.TirasKeeperOfGenesis) &&
+                hint == HintMsg.Destroy)
+            {
+                ClientCard target = Util.GetProblematicEnemyCard();
+                if (target == null || !cards.Contains(target))
+                    target = Util.GetBestEnemyCard();
+                if (target != null && cards.Contains(target))
+                    return Util.CheckSelectCount(
+                        new List<ClientCard> { target }, cards, min, max);
+            }
+
+            return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
 
         public override void OnNewTurn()
@@ -299,18 +319,6 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             return false;
-        }
-
-        private bool TirasKeeperOfGenesisEffect()
-        {
-            ClientCard target = Util.GetProblematicEnemyCard();
-            if (target == null)
-                target = Util.GetBestEnemyCard();
-            if (target != null)
-            {
-                AI.SelectCard(target);
-            }
-            return true;
         }
 
         private bool GaiaDragonTheThunderChargerSummon()
