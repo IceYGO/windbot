@@ -9,7 +9,7 @@ using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game.AI.Decks
 {
-    [Deck("Voiceless", "AI_Voiceless")]
+    [Deck("Voiceless", "AI_Voiceless", "NotFinished")]
     public class VoicelessExecutor : DefaultExecutor
     {
         public class CardId
