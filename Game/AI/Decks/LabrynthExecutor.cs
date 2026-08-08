@@ -653,10 +653,10 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             if (currentSolvingChain != null)
             {
-                if (currentSolvingChain.Controller == 1 && currentSolvingChain.IsCode(_CardId.EvenlyMatched))
+                if (currentSolvingChain.ActivatePlayer == 1 && currentSolvingChain.IsActivateCode(_CardId.EvenlyMatched))
                 {
                     Logger.DebugWriteLine("=== Evenly Matched activated.");
                     List<ClientCard> banishList = new List<ClientCard>();
@@ -691,7 +691,7 @@ namespace WindBot.Game.AI.Decks
                     return Util.CheckSelectCount(banishList, cards, min, max);
                 }
             
-                if (currentSolvingChain.IsCode(CardId.LadyLabrynthOfTheSilverCastle) && min == 1 && max == 1 && hint == HintMsg.Set)
+                if (currentSolvingChain.IsActivateCode(CardId.LadyLabrynthOfTheSilverCastle) && min == 1 && max == 1 && hint == HintMsg.Set)
                 {
                     SortedDictionary<int, Func<bool>> trapCheckDict = new SortedDictionary<int, Func<bool>>{
                         {_CardId.DimensionalBarrier, DimensionalBarrierActivate},
@@ -776,12 +776,12 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                if (currentSolvingChain.IsCode(CardId.WelcomeLabrynth))
+                if (currentSolvingChain.IsActivateCode(CardId.WelcomeLabrynth))
                 {
                     banSpSummonExceptFiendCount = 2;
                 }
 
-                if (currentSolvingChain.IsCode(CardId.WelcomeLabrynth) || (currentSolvingChain.IsCode(CardId.TransactionRollback) && rollbackCopyCardId == CardId.WelcomeLabrynth))
+                if (currentSolvingChain.IsActivateCode(CardId.WelcomeLabrynth) || (currentSolvingChain.IsActivateCode(CardId.TransactionRollback) && rollbackCopyCardId == CardId.WelcomeLabrynth))
                 {
                     Logger.DebugWriteLine("rewrite welcome's select.");
                     List<ClientCard> selection = new List<ClientCard>();
@@ -895,8 +895,8 @@ namespace WindBot.Game.AI.Decks
                     if (selection.Count() > 0) return Util.CheckSelectCount(selection, cards, min, max);
                 }
 
-                bool searchFlag = currentSolvingChain.IsCode(CardId.AriannaTheLabrynthServant) && hint == HintMsg.AddToHand;
-                bool bigwelcomeSoving = currentSolvingChain.IsCode(CardId.BigWelcomeLabrynth) || (currentSolvingChain.IsCode(CardId.TransactionRollback) && rollbackCopyCardId == CardId.BigWelcomeLabrynth);
+                bool searchFlag = currentSolvingChain.IsActivateCode(CardId.AriannaTheLabrynthServant) && hint == HintMsg.AddToHand;
+                bool bigwelcomeSoving = currentSolvingChain.IsActivateCode(CardId.BigWelcomeLabrynth) || (currentSolvingChain.IsActivateCode(CardId.TransactionRollback) && rollbackCopyCardId == CardId.BigWelcomeLabrynth);
                 searchFlag |= bigwelcomeSoving && hint == HintMsg.SpSummon && Bot.GetMonsterCount() == 0;
                 if (searchFlag)
                 {
@@ -1646,19 +1646,19 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnChainSolved(int chainIndex)
         {
-            ChainInfo currentCard = Duel.GetCurrentSolvingChainInfo();
-            if (currentCard != null && !Duel.IsCurrentSolvingChainNegated())
+            ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentChain != null && !Duel.IsCurrentSolvingChainNegated())
             {
-                if (currentCard.ActivatePlayer == 1)
+                if (currentChain.ActivatePlayer == 1)
                 {
-                    if (currentCard.IsCode(_CardId.MaxxC))
+                    if (currentChain.IsActivateCode(_CardId.MaxxC))
                         enemyActivateMaxxC = true;
-                    if (currentCard.IsCode(CardId.DimensionShifter))
+                    if (currentChain.IsActivateCode(CardId.DimensionShifter))
                         dimensionShifterCount = 2;
                 }
-                if (currentCard.ActivatePlayer == 0)
+                if (currentChain.ActivatePlayer == 0)
                 {
-                    if (currentCard.IsCode(CardId.LabrynthCooclock))
+                    if (currentChain.IsActivateCode(CardId.LabrynthCooclock))
                         cooclockAffected = true;
                 }
             }
@@ -1720,8 +1720,8 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (currentControler == 0)
                 {
-                    ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
-                    if (currentLocation == (int)CardLocation.SpellZone && (currentSolvingChain == null || !currentSolvingChain.IsCode(CardId.AriasTheLabrynthButler))
+                    ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
+                    if (currentLocation == (int)CardLocation.SpellZone && (currentSolvingChain == null || !currentSolvingChain.IsActivateCode(CardId.AriasTheLabrynthButler))
                         && (card.HasType(CardType.Trap) || card.IsCode(CardId.WelcomeLabrynth, CardId.BigWelcomeLabrynth))
                     )
                     {

@@ -174,7 +174,7 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             ClientCard currentChainCard = Duel.GetCurrentChainCard();
-            ClientCard solvingChainCard = Duel.GetCurrentSolvingChainCard();
+            ChainInfo solvingChain = Duel.GetCurrentSolvingChainInfo();
 
             if (currentChainCard != null &&
                 currentChainCard.Controller == 0 &&
@@ -284,9 +284,9 @@ namespace WindBot.Game.AI.Decks
                 return Util.CheckSelectCount(targets, cards, min, max);
             }
 
-            if (solvingChainCard != null &&
-                solvingChainCard.Controller == 0 &&
-                solvingChainCard.IsCode(CardId.TrapDustshoot) &&
+            if (solvingChain != null &&
+                solvingChain.ActivatePlayer == 0 &&
+                solvingChain.IsActivateCode(CardId.TrapDustshoot) &&
                 hint == HintMsg.ToDeck)
             {
                 List<ClientCard> targets = cards
@@ -299,9 +299,9 @@ namespace WindBot.Game.AI.Decks
                 return Util.CheckSelectCount(targets, cards, min, max);
             }
 
-            if (solvingChainCard != null &&
-                solvingChainCard.Controller == 0 &&
-                solvingChainCard.IsCode(CardId.GravekeepersSpy) &&
+            if (solvingChain != null &&
+                solvingChain.ActivatePlayer == 0 &&
+                solvingChain.IsActivateCode(CardId.GravekeepersSpy) &&
                 hint == HintMsg.SpSummon)
             {
                 List<ClientCard> targets = cards
@@ -310,9 +310,9 @@ namespace WindBot.Game.AI.Decks
                 return Util.CheckSelectCount(targets, cards, min, max);
             }
 
-            if (solvingChainCard != null &&
-                solvingChainCard.Controller == 0 &&
-                solvingChainCard.IsCode(CardId.Sangan) &&
+            if (solvingChain != null &&
+                solvingChain.ActivatePlayer == 0 &&
+                solvingChain.IsActivateCode(CardId.Sangan) &&
                 hint == HintMsg.AddToHand)
             {
                 List<int> priority = new List<int>();

@@ -267,17 +267,12 @@ namespace WindBot.Game.AI.Decks
         }
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ChainInfo currentSolvingChain =
-        Duel.GetCurrentSolvingChainInfo();
-
-            ClientCard solving =
-                Duel.GetCurrentSolvingChainCard();
-
+            ChainInfo solving = Duel.GetCurrentSolvingChainInfo();
             Logger.DebugWriteLine(
                 $"OnSelectCard count={cards?.Count ?? 0}, " +
                 $"min={min}, max={max}, hint={hint}");
 
-            if (solving != null && solving.Controller == 1 && solving.IsCode(CardId.AmeNoMurakumoNoMitsurugi)
+            if (solving != null && solving.ActivatePlayer == 1 && solving.IsActivateCode(CardId.AmeNoMurakumoNoMitsurugi)
                 && cards != null && cards.Count > 0 && (hint == HintMsg.Discard || hint == HintMsg.ToGrave)
                 && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
             {
@@ -293,7 +288,7 @@ namespace WindBot.Game.AI.Decks
         public override void OnSpSummoned()
         {
             // not special summoned by chain
-            if (Duel.GetCurrentSolvingChainCard() == null)
+            if (Duel.GetCurrentSolvingChainInfo() == null)
             {
                 /*foreach (ClientCard card in Duel.LastSummonedCards)
                 {
@@ -1133,9 +1128,9 @@ namespace WindBot.Game.AI.Decks
         private bool BlueEyesSpiritDragonEffect()
         {
             if (!DontSelfNG()) return false;
-            ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
             if ((ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.BlueEyesSpiritDragon, 0)) &&
-                ((Duel.LastChainPlayer == 1) || (Duel.LastChainPlayer == 0 && currentCard != null && currentCard.IsCode(CardId.TrueLight))))
+                ((Duel.LastChainPlayer == 1) || (Duel.LastChainPlayer == 0 && currentChain != null && currentChain.IsActivateCode(CardId.TrueLight))))
             {
                 Logger.DebugWriteLine("Spirit 1 negate");
                 return true;

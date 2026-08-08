@@ -253,6 +253,7 @@ namespace WindBot.Game.AI.Decks
         bool engraverGYActivated = false;
         bool moonSummoned = false;
         bool requiemSummoned = false;
+        bool necroquipSummoned = false;
         bool thronePending = false;      // we're in a Throne activation flow
         bool throneSearched = false;     // after we chose the monster to search
         int throneDesiredPick = 0;       // preferred monster id to search
@@ -966,20 +967,19 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnChainSolved(int chainIndex)
         {
-            ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
-            var solving = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
             bool neg = Duel.IsCurrentSolvingChainNegated();
-            Logger.DebugWriteLine($"[CHAIN] Solved idx={chainIndex} negated={neg} solving={CardStr(solving)}");
-            if (currentCard != null && !Duel.IsCurrentSolvingChainNegated() && currentCard.Controller == 1)
+            Logger.DebugWriteLine($"[CHAIN] Solved idx={chainIndex} negated={neg} solving={CardStr(currentChain?.RelatedCard)}");
+            if (currentChain != null && !Duel.IsCurrentSolvingChainNegated() && currentChain.ActivatePlayer == 1)
             {
-                if (currentCard.IsCode(_CardId.MaxxC)) enemyActivateMaxxC = true;
-                if (currentCard.IsCode(CardId.Fuwalos)) enemyActivateMaxxC = true;
-                if (currentCard.IsCode(_CardId.LockBird)) enemyActivateLockBird = true;
-                if (currentCard.IsCode(_CardId.InfiniteImpermanence))
+                if (currentChain.IsActivateCode(_CardId.MaxxC)) enemyActivateMaxxC = true;
+                if (currentChain.IsActivateCode(CardId.Fuwalos)) enemyActivateMaxxC = true;
+                if (currentChain.IsActivateCode(_CardId.LockBird)) enemyActivateLockBird = true;
+                if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
                 {
                     for (int i = 0; i < 5; ++i)
                     {
-                        if (Enemy.SpellZone[i] == currentCard)
+                        if (Enemy.SpellZone[i] == currentChain.RelatedCard)
                         {
                             infiniteImpermanenceList.Add(4 - i);
                             break;
@@ -1451,6 +1451,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location != CardLocation.Grave) return false;
             if (Bot.HasInMonstersZoneOrInGraveyard(CardId.FIENDSMITHS_DESIRAE) || Bot.HasInBanished(CardId.FIENDSMITHS_DESIRAE)) return false;
+            if (!Enemy.MonsterZone.Any(c => c != null && c.IsMonster())) return false;
             AI.SelectCard(CardId.FIENDSMITHS_DESIRAE);
             return DontSelfNG();
         }
@@ -1471,6 +1472,11 @@ namespace WindBot.Game.AI.Decks
                 CardId.FIENDSMITHS_REQUIEM, CardId.MOON_OF_THE_CLOSED_HEAVEN,
                 CardId.FABLED_LURRIE, CardId.LACRIMA_CT
             };
+            // If we haven't summoned Necroquip but have the required Materials don't send it back with Desirae
+            if (!necroquipSummoned && Bot.HasInMonstersZone(CardId.LACRIMA_CT) && Bot.HasInGraveyard(CardId.FIENDSMITHS_REQUIEM))
+            {
+                targetPreferenceOrder.Remove(CardId.FIENDSMITHS_REQUIEM);
+            }
             int preferredLightFiend = targetPreferenceOrder.FirstOrDefault(c => Bot.HasInGraveyard(c));
             if (preferredLightFiend != 0)
             {
@@ -1541,24 +1547,28 @@ namespace WindBot.Game.AI.Decks
             bool engraverOnField = Bot.HasInMonstersZone(CardId.FIENDSMITH_ENGRAVER);
             if (Bot.HasInMonstersZone(CardId.LACRIMA_CT))
             {
+                necroquipSummoned = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.LACRIMA_CT);
                 return true;
             }
             else if (engraverOnField && (!engraverGYActivated || DefaultCheckWhetherCardIdIsNegated(CardId.FIENDSMITH_ENGRAVER)))
             {
+                necroquipSummoned = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.FIENDSMITH_ENGRAVER);
                 return true;
             }
             else if (Bot.HasInMonstersZone(CardId.FABLED_LURRIE))
             {
+                necroquipSummoned = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.FABLED_LURRIE);
                 return true;
             }
             else if (engraverOnField)
             {
+                necroquipSummoned = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(CardId.FIENDSMITH_ENGRAVER);
                 return true;
@@ -1656,6 +1666,12 @@ namespace WindBot.Game.AI.Decks
             {
                 engraverGYActivated = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
+                return true;
+            }
+            else if (Bot.HasInGraveyard(CardId.FIENDSMITHS_DESIRAE))
+            {
+                engraverGYActivated = true;
+                AI.SelectCard(CardId.FIENDSMITHS_DESIRAE);
                 return true;
             }
             return false;
@@ -2104,18 +2120,16 @@ namespace WindBot.Game.AI.Decks
         private bool YesNoFor(int desc, int cardId, int idx)
         {
             var info = Duel.GetCurrentSolvingChainInfo();
-            var card = Duel.GetCurrentSolvingChainCard();
             // ต้องทั้ง: คำอธิบายตรง + การ์ดบน chain ตอนนี้ตรง
             return desc == Util.GetStringId(cardId, idx)
-                   && ((info != null && info.IsCode(cardId)) || (card != null && card.IsCode(cardId)));
+                   && info != null && info.IsActivateCode(cardId);
         }
         public override bool OnSelectYesNo(int desc)
         {
             Logger.DebugWriteLine($"[DEBUG] OnSelectYesNo: desc={desc}");
             var info = Duel.GetCurrentSolvingChainInfo();
-            var solving = Duel.GetCurrentSolvingChainCard();
             DumpChain("OnSelectYesNo");
-            Logger.DebugWriteLine($"[THRONE] OnSelectYesNo desc={desc} stage={_throneStage} solving={CardStr(solving)}");
+            Logger.DebugWriteLine($"[THRONE] OnSelectYesNo desc={desc} stage={_throneStage} solving={CardStr(info?.RelatedCard)}");
             if (IsEnemyMurakumoSolving())
             {
                 bool discard = ShouldDiscardForMurakumo();
@@ -2129,7 +2143,7 @@ namespace WindBot.Game.AI.Decks
             { return false; }
             // --- Nightmare Throne ---
             // idx อาจต่างกันตามสคริปต์ แต่แนวคิดคือ anchor กับ desc+solving เสมอ
-            if (solving != null && solving.IsCode(CardId.NIGHTMARE_THRONE))
+            if (info != null && info.IsActivateCode(CardId.NIGHTMARE_THRONE))
             {
                 // เปิด map ช่วย debug ให้เห็นว่า desc ตรง index ไหนจริง ๆ
                 DebugThroneDescMap(desc);
@@ -2167,8 +2181,8 @@ namespace WindBot.Game.AI.Decks
                 var best = GetBestEnemyCard();
                 return best != null && ShouldVarudrasDetachForPop(best);
             }
-            if (solving != null
-                && solving.IsCode(CardId.VARUDASN_FINAL_BRINGER)
+            if (info != null
+                && info.IsActivateCode(CardId.VARUDASN_FINAL_BRINGER)
                 && Duel.CurrentChain.Count > 0) // แปลว่าอยู่ใน e1 ไม่ใช่ e2
             {
                 // มีเป้าศัตรูให้ทำลายไหม?
@@ -2200,8 +2214,8 @@ namespace WindBot.Game.AI.Decks
             bool isReleasePrompt =
             hint == (long)HintMsg.Release ||
             hint.ToString().ToLower().Contains("release"); // กันเหนียว
-            var solving = Duel.GetCurrentSolvingChainCard();
-            if (IsEnemyMurakumoSolving() && cards != null && cards.Count > 0 && (hint == HintMsg.Discard || 
+            var solving = Duel.GetCurrentSolvingChainInfo();
+            if (IsEnemyMurakumoSolving() && cards != null && cards.Count > 0 && (hint == HintMsg.Discard ||
                 hint == HintMsg.ToGrave) && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
             {
                 var discardOrder = cards
@@ -2223,7 +2237,7 @@ namespace WindBot.Game.AI.Decks
             if (cards != null && cards.Count > 0)
             {
                 // === Throne ===
-                if (_throneStage == ThroneStage.Searching && solving != null && solving.IsCode(CardId.NIGHTMARE_THRONE) && !throneSearched && cards != null && cards.Count > 0)
+                if (_throneStage == ThroneStage.Searching && solving != null && solving.IsActivateCode(CardId.NIGHTMARE_THRONE) && !throneSearched && cards != null && cards.Count > 0)
                 {
                     throneSearched = true;
                     _throneStage = ThroneStage.AwaitDestroyPrompt;
@@ -2240,7 +2254,7 @@ namespace WindBot.Game.AI.Decks
                     return new[] { chosen };
                 }
                 // === SPIRIT GATES selections ===
-                if (solving != null && solving.Id == CardId.SPIRIT_GATES && cards != null && cards.Count > 0)
+                if (solving != null && solving.ActivateId == CardId.SPIRIT_GATES && cards != null && cards.Count > 0)
                 {
                     // 2.1: เลือก Continuous Spell จากสุสาน (Recycle)
                     if (_gateWantsRecycle)
@@ -2313,7 +2327,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
                 // === Throne: เลือกการ์ดที่ค้นเจอ ===
-                if (solving != null && solving.Id == CardId.NIGHTMARE_THRONE && _throneStage == ThroneStage.Searching && thronePending && !throneSearched)
+                if (solving != null && solving.ActivateId == CardId.NIGHTMARE_THRONE && _throneStage == ThroneStage.Searching && thronePending && !throneSearched)
                 {
                     throneSearched = true;
                     _throneStage = ThroneStage.AwaitDestroyPrompt;
@@ -2338,7 +2352,7 @@ namespace WindBot.Game.AI.Decks
                     // ปล่อยให้ base ตัดสินใจ หรือจะ return null ก็ได้ตามฐานของคุณ
                 }
                 // --- Varudras: เลือกเป้าหมายทำลาย ---
-                if (solving != null && solving.Id == CardId.VARUDASN_FINAL_BRINGER && hint == 502 && cards != null && cards.Count > 0)
+                if (solving != null && solving.ActivateId == CardId.VARUDASN_FINAL_BRINGER && hint == 502 && cards != null && cards.Count > 0)
                 {
                     // พยายามเลือกฝั่งศัตรูก่อน (คัดใบที่อันตราย/ป่วนที่สุด)
                     var enemyPick = cards
@@ -2350,7 +2364,7 @@ namespace WindBot.Game.AI.Decks
                     return new[] { cards[0] }; // fallback
                 }
                 // --- Abomination: เลือกเป้าหมายทำลาย ---
-                if (solving != null && solving.Id == CardId.UNCHAINDEDABOMINATION && hint == 502 && cards != null && cards.Count > 0)
+                if (solving != null && solving.ActivateId == CardId.UNCHAINDEDABOMINATION && hint == 502 && cards != null && cards.Count > 0)
                 {
                     // พยายามเลือกฝั่งศัตรูก่อน (คัดใบที่อันตราย/ป่วนที่สุด)
                     var enemyPick = cards
@@ -2362,7 +2376,7 @@ namespace WindBot.Game.AI.Decks
                     return new[] { cards[0] }; // fallback
                 }
                 // --- Rage Quick Link ---
-                if (solving != null && solving.IsCode(CardId.UNCHAINED_SOUL_OF_RAGE) && cards.Any(c => c != null && c.Location == CardLocation.Extra))
+                if (solving != null && solving.IsActivateCode(CardId.UNCHAINED_SOUL_OF_RAGE) && cards.Any(c => c != null && c.Location == CardLocation.Extra))
                 {
                     // 1) เลือก S:P Little Knight ก่อนเสมอ ถ้ามี
                     var pickSP = cards.FirstOrDefault(c => c != null && c.Id == CardId.SP_LITTLE_KNIGHT);
@@ -2419,12 +2433,9 @@ namespace WindBot.Game.AI.Decks
         private bool IsEnemyMurakumoSolving()
         {
             var info = Duel.GetCurrentSolvingChainInfo();
-            var solving = Duel.GetCurrentSolvingChainCard();
-
             return info != null
                 && info.ActivatePlayer == 1
-                && solving != null
-                && solving.IsCode(CardId.AME_NO_MURAKUMO_NO_MITSURUGI);
+                && info.IsActivateCode(CardId.AME_NO_MURAKUMO_NO_MITSURUGI);
         }
 
         private bool ShouldDiscardForMurakumo()
@@ -2450,10 +2461,10 @@ namespace WindBot.Game.AI.Decks
                 var c = Duel.CurrentChain[i];
                 Logger.DebugWriteLine($"  [{i}] {CardStr(c)}");
             }
-            var solving = Duel.GetCurrentSolvingChainCard();
+            var solving = Duel.GetCurrentSolvingChainInfo();
             if (solving != null)
             {
-                Logger.DebugWriteLine($"  -> Solving: {CardStr(solving)}  ActivateDescription={ActivateDescription}");
+                Logger.DebugWriteLine($"  -> Solving: {CardStr(solving.RelatedCard)}  ActivateDescription={ActivateDescription}");
             }
             if (Duel.ChainTargets != null && Duel.ChainTargets.Count > 0)
             {

@@ -1087,9 +1087,7 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> eres = cards.Where(card => card != null && card.Controller == 1 && !key_no_remove_ids.Contains(card.Id)).ToList();
                 eres.Sort(CardContainer.CompareCardAttack);
                 eres.Reverse();
-                int emax = eres.Count > max ? max : eres.Count <= 0 ? min : eres.Count;
-                int mmax = res.Count > max ? max : res.Count <= 0 ? min : res.Count;
-                return eres.Count > 0 ? Util.CheckSelectCount(eres, cards, emax, emax) : res.Count > 0 ? Util.CheckSelectCount(res, cards, mmax, mmax) : null;
+                return eres.Count > 0 ? Util.CheckSelectCount(eres, cards, min, max) : res.Count > 0 ? Util.CheckSelectCount(res, cards, min, max) : null;
             }
             if (hint == HintMsg.AddToHand && cards.Any(card => card != null && card.Location == CardLocation.Deck))
             {
@@ -1272,8 +1270,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     return null;
                 }
-                int imax = e_cards.Count > max ? max : e_cards.Count < 0 ? min : e_cards.Count;
-                if (Duel.CurrentChain == null || Duel.ChainTargets == null) return Util.CheckSelectCount(cards, cards, imax, imax);
+                if (Duel.CurrentChain == null || Duel.ChainTargets == null) return Util.CheckSelectCount(cards, cards, min, max);
                 foreach (var card in Duel.CurrentChain)
                 {
                     if (card == null || card.Controller == 0 || card.Location != CardLocation.Grave) continue;
@@ -1369,8 +1366,7 @@ namespace WindBot.Game.AI.Decks
                 e_temp_1.AddRange(e_temp_2);
                 e_temp_1.AddRange(e_temp_4);
                 e_temp_1.AddRange(e_temp_3);
-                imax = e_temp_1.Count > max ? max : e_temp_1.Count < 0 ? min : e_temp_1.Count;
-                return e_temp_1.Count > 0 ? Util.CheckSelectCount(e_temp_1, cards, imax, imax) : Util.CheckSelectCount(e_cards, cards, max, max);
+                return e_temp_1.Count > 0 ? Util.CheckSelectCount(e_temp_1, cards, min, max) : Util.CheckSelectCount(e_cards, cards, min, max);
 
             }
             if (hint == HintMsg.SpSummon && cards.Any(card => card != null && (card.Level == 2 || card.LinkCount == 2) && card.Location == CardLocation.Grave))

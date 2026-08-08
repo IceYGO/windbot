@@ -2,7 +2,6 @@ using YGOSharp.OCGWrapper;
 using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -275,8 +274,8 @@ namespace WindBot.Game.AI.Decks
                         CardId.Neko_Sycro_Lollipop
                     };
                 if (Duel.CurrentChain.Any(i => i.Controller == 0 && i.IsCode(cards))
-                    && Duel.GetCurrentSolvingChainCard() != null
-                    && !Duel.GetCurrentSolvingChainCard().IsCode(cards)
+                    && Duel.GetCurrentSolvingChainInfo() != null
+                    && !Duel.GetCurrentSolvingChainInfo().IsActivateCode(cards)
                     && Bot.GetMonstersInMainZone().Count() > 3
                 )
                 {
@@ -289,9 +288,10 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
-            ClientCard card = Duel.GetCurrentSolvingChainCard();
-            if (card == null)
-                card = Card;
+            // 有连锁时用发动快照；无连锁回退到当前 Card
+            ChainInfo chainInfo = Duel.GetCurrentSolvingChainInfo();
+            int solvingId = chainInfo != null ? chainInfo.ActivateId : (Card != null ? Card.Id : 0);
+            CardLocation solvingLocation = chainInfo != null ? chainInfo.ActivateLocation : (Card != null ? Card.Location : 0);
             switch (hint)
             {
                 case HintMsg.Discard:
@@ -373,12 +373,12 @@ namespace WindBot.Game.AI.Decks
                         List<ClientCard> result = cards.Where(i => !Duel.ChainTargets.Contains(i) && i.Controller == 1)
                             .OrderByDescending(i => i.IsFaceup()).ToList();
                         if (result.Count() > 0)
-                            return Util.CheckSelectCount(result, cards, Math.Min(min, result.Count()), max);
-                        return Util.CheckSelectCount(cards.Where(i => i.Controller == 1).ToList(), cards, Math.Min(min, result.Count()), max);
+                            return Util.CheckSelectCount(result, cards, min, max);
+                        return Util.CheckSelectCount(cards.Where(i => i.Controller == 1).ToList(), cards, min, max);
                     }
                     break;
             }
-            switch (card.Id)
+            switch (solvingId)
             {
                 case CardId.Neko_Cake:
                     if (cards.Any(i => i.IsCode(CardId.Neko_Quick)) && !Bot.HasInHand(CardId.Neko_Quick))
@@ -462,8 +462,8 @@ namespace WindBot.Game.AI.Decks
                     }
                     else if (hint == HintMsg.PosChange)
                     {
-                        List<ClientCard> result = cards.Where(i =>i.Controller == 1).ToList();
-                        return Util.CheckSelectCount(result, cards, Math.Min(min, result.Count()), max);
+                        List<ClientCard> result = cards.Where(i => i.Controller == 1).ToList();
+                        return Util.CheckSelectCount(result, cards, min, max);
                     }
                     break;
                 case CardId.Neko_Quick:
@@ -485,7 +485,7 @@ namespace WindBot.Game.AI.Decks
                         return Util.CheckSelectCount(result, cards, min, max);
                     }
                 case CardId.Neko_Sycro_Lollipop:
-                    if (card.Location == CardLocation.MonsterZone)
+                    if (solvingLocation == CardLocation.MonsterZone)
                     {
                         List<ClientCard> result = new List<ClientCard>();
                         if (Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardIsNegated(i))
@@ -754,7 +754,11 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if (Card.IsCode(CardId.Neko_Sycro_Cookie) && !Enemy.GetMonsters().Any(i => i.IsFaceup() && !i.HasType(CardType.Link)))
+                if (Card.IsCode(CardId.Neko_Sycro_Cookie)
+                    && !Enemy.GetMonsters().Any(i => i.IsFaceup()
+                        && !i.HasType(CardType.Link | CardType.Token)
+                        && !i.IsShouldNotBeTarget()
+                        && !i.IsShouldNotBeMonsterTarget()))
                     return false;
                 Count.AddActivate(Card.Id);
                 return true;

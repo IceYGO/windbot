@@ -1306,35 +1306,29 @@ namespace WindBot.Game.AI.Decks
         #region work space #1
         public override void OnChainSolved(int chainIndex)
         {
-            ClientCard currentCard = Duel.GetCurrentSolvingChainCard();
-            var solving = Duel.GetCurrentSolvingChainCard();
-            bool neg = Duel.IsCurrentSolvingChainNegated();
-            if (currentCard != null && !Duel.IsCurrentSolvingChainNegated() && currentCard.Controller == 1)
+            ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentChain != null && !Duel.IsCurrentSolvingChainNegated() && currentChain.ActivatePlayer == 1)
             {
-                if (currentCard.IsCode(CardId.Lancea)) enemyActivateLancea = true;
-                if (currentCard.IsCode(_CardId.MaxxC)) enemyActivateMaxxC = true;
-                if (currentCard.IsCode(CardId.Fuwalos)) enemyActivateFuwalos = true;
-                if (currentCard.IsCode(_CardId.LockBird)) enemyActivateLockBird = true;
-                if (currentCard.IsCode(_CardId.InfiniteImpermanence))
+                if (currentChain.IsActivateCode(CardId.Lancea)) enemyActivateLancea = true;
+                if (currentChain.IsActivateCode(_CardId.MaxxC)) enemyActivateMaxxC = true;
+                if (currentChain.IsActivateCode(CardId.Fuwalos)) enemyActivateFuwalos = true;
+                if (currentChain.IsActivateCode(_CardId.LockBird)) enemyActivateLockBird = true;
+                if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
                 {
                     for (int i = 0; i < 5; ++i)
                     {
-                        if (Enemy.SpellZone[i] == currentCard)
+                        if (Enemy.SpellZone[i] == currentChain.RelatedCard)
                         {
                             infiniteImpermanenceList.Add(4 - i);
                             break;
                         }
                     }
                 }
-                var last = Duel.GetCurrentSolvingChainCard();
-                if (last != null)
-                {
-                    if (last.IsSpell() && (last.HasType(CardType.Field) || last.HasType(CardType.Continuous) || last.HasType(CardType.Equip)))
-                        _oppJustActivatedPersistentSpell = true;
-                    _prefWindowTTL = Math.Max(_prefWindowTTL, 2);
-                }
+                if (currentChain.IsSpell() && (currentChain.HasType(CardType.Field) || currentChain.HasType(CardType.Continuous) || currentChain.HasType(CardType.Equip)))
+                    _oppJustActivatedPersistentSpell = true;
+                _prefWindowTTL = Math.Max(_prefWindowTTL, 2);
             }
-            if (currentCard != null && currentCard.Controller == 0 && currentCard.IsCode(CardId.SplashMage))
+            if (currentChain != null && currentChain.ActivatePlayer == 0 && currentChain.IsActivateCode(CardId.SplashMage))
             {
                 if (Duel.IsCurrentSolvingChainNegated())
                     splashNegatedThisTurn = true;
@@ -1439,8 +1433,8 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            var solving = Duel.GetCurrentSolvingChainCard();
-            if (solving != null && solving.Controller == 1 && solving.IsCode(CardId.AmeNoMurakumoNoMitsurugi) && cards != null && cards.Count > 0
+            var solving = Duel.GetCurrentSolvingChainInfo();
+            if (solving != null && solving.ActivatePlayer == 1 && solving.IsActivateCode(CardId.AmeNoMurakumoNoMitsurugi) && cards != null && cards.Count > 0
                 && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
             {
                 List<ClientCard> discardOrder = cards.OrderBy(ScoreMalissMurakumoDiscard).ToList();
@@ -1452,7 +1446,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (cards != null && cards.Count > 0 && solving != null)
             {
-                if (solving.IsCode(CardId.MalissQ_RedRansom))
+                if (solving.IsActivateCode(CardId.MalissQ_RedRansom))
                 {
                     var searchPool = cards
                         .Where(c => c != null &&
@@ -1479,7 +1473,7 @@ namespace WindBot.Game.AI.Decks
                         }
                     }
                 }
-                if (hint == HintMsg.Set && solving.IsCode(CardId.MalissQ_WhiteBinder))
+                if (hint == HintMsg.Set && solving.IsActivateCode(CardId.MalissQ_WhiteBinder))
                 {
                     ClientCard pick = null;
                     pick = cards.FirstOrDefault(c => c.Id == CardId.MalissC_GWC06 && c.Location == CardLocation.Deck);
