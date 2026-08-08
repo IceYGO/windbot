@@ -130,7 +130,6 @@ namespace WindBot.Game.AI.Decks
             ReverthShuffle,
             EnneapolisOpeningReturn,
             EnneapolisRecoveryReturn,
-            EnneapolisFlippedTarget,
             EnneapolisFromDeckOrGrave,
             ResetSetFaceup,
             ReverthFlip,
@@ -151,18 +150,6 @@ namespace WindBot.Game.AI.Decks
         {
             Hand,
             PendulumZone
-        }
-
-        private sealed class PendingFlip
-        {
-            public int SourceId;
-            public int ChainEndsRemaining;
-
-            public PendingFlip(int sourceId, int chainEndsRemaining)
-            {
-                SourceId = sourceId;
-                ChainEndsRemaining = chainEndsRemaining;
-            }
         }
 
         private int ownTurnCount;
@@ -191,13 +178,11 @@ namespace WindBot.Game.AI.Decks
         private SelectionMode selectionMode;
         private OptionMode optionMode;
         private EnneapolisDestination enneapolisDestination;
-        private int selectionSourceId;
         private int desiredSearchId;
         private bool pendingAstaOptionalBanish;
         private bool pendingTritoSpecialSet;
         private bool reverthGravePending;
 
-        private readonly List<PendingFlip> pendingFlips = new List<PendingFlip>();
         private readonly HashSet<ClientCard> monstersSetThisTurn = new HashSet<ClientCard>();
         private readonly HashSet<ClientCard> unresolvedRouteScalePlacements = new HashSet<ClientCard>();
         private readonly Dictionary<int, int> openingReturnExpected = new Dictionary<int, int>();
@@ -210,7 +195,7 @@ namespace WindBot.Game.AI.Decks
         public EnneacraftExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
-            AddExecutor(ExecutorType.Activate, CardId.MaxxC, MaxxCEffect);
+            AddExecutor(ExecutorType.Activate, CardId.MaxxC, DefaultMaxxC);
 
             foreach (int id in Level9Ids)
                 AddExecutor(ExecutorType.Activate, id, Level9ReactiveEffect);
@@ -229,6 +214,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.Release, ReleaseEffect);
             AddExecutor(ExecutorType.Activate, CardId.Reset, ResetMainEffect);
+            AddExecutor(ExecutorType.Activate, CardId.Enneapolis, EnneapolisPostFlipEffect);
             AddExecutor(ExecutorType.Activate, CardId.Enneapolis, EnneapolisMainEffect);
             AddExecutor(ExecutorType.Activate, CardId.Reverth, ReverthMainEffect);
 
@@ -288,12 +274,10 @@ namespace WindBot.Game.AI.Decks
             pendulumSearchAttempted.Clear();
             selectionMode = SelectionMode.None;
             optionMode = OptionMode.None;
-            selectionSourceId = 0;
             desiredSearchId = 0;
             pendingAstaOptionalBanish = false;
             pendingTritoSpecialSet = false;
             reverthGravePending = false;
-            pendingFlips.Clear();
 
             base.OnNewTurn();
         }
@@ -318,12 +302,6 @@ namespace WindBot.Game.AI.Decks
         {
             TrackEnemyGraveBehavior(card, previousControler, previousLocation,
                 currentControler, currentLocation);
-            if (card != null && card.Id != 0
-                && (IsEnneacraftMonster(card) || card.IsCode(CardId.Release)
-                    || card.IsCode(CardId.Reverth) || card.IsCode(CardId.Enneapolis)
-                    || card.IsCode(CardId.Reset)))
-            {
-            }
 
             bool expectedOpeningReturn = card != null && openingReturnPending
                 && previousControler == 0 && currentControler == 0
@@ -447,15 +425,7 @@ namespace WindBot.Game.AI.Decks
                 releaseGraveSelectionMade = false;
             }
 
-            for (int i = pendingFlips.Count - 1; i >= 0; --i)
-            {
-                pendingFlips[i].ChainEndsRemaining--;
-                if (pendingFlips[i].ChainEndsRemaining <= 0)
-                    pendingFlips.RemoveAt(i);
-            }
-
             selectionMode = SelectionMode.None;
-            selectionSourceId = 0;
             desiredSearchId = 0;
             optionMode = OptionMode.None;
             pendingAstaOptionalBanish = false;
@@ -472,13 +442,36 @@ namespace WindBot.Game.AI.Decks
 
             IList<ClientCard> result = null;
             SelectionMode mode = selectionMode;
+            ClientCard solvingCard = Duel.GetCurrentSolvingChainCard();
+
+            if (solvingCard != null && solvingCard.Controller == 0)
+            {
+                if (solvingCard.IsCode(CardId.Enneapolis))
+                {
+                    result = SelectEnneapolisFlippedMonster(cards, min, max);
+                    return Checked(result, cards, min, max);
+                }
+
+                result = SelectFlipEffectCards(solvingCard, cards, min, max);
+                if (result != null)
+                    return Checked(result, cards, min, max);
+
+                if (solvingCard.IsCode(CardId.Trito) && pendingTritoSpecialSet
+                    && cards.Any(c => c != null && c.Controller == 0
+                        && c.Location == CardLocation.Hand && IsEnneacraftMonster(c)))
+                {
+                    result = SelectFaceDownSPSummonMonster(cards, min, max);
+                    pendingTritoSpecialSet = false;
+                    return Checked(result, cards, min, max);
+                }
+            }
 
             if (mode == SelectionMode.None && reverthGravePending)
             {
                 if (cards.Any(c => c != null && c.Controller == 0
                     && c.Location == CardLocation.Hand && IsEnneacraftMonster(c)))
                 {
-                    result = SelectSpecialSetTarget(cards, CardId.Reverth, min, max);
+                    result = SelectFaceDownSPSummonMonster(cards, min, max);
                     reverthGravePending = false;
                     return Checked(result, cards, min, max);
                 }
@@ -491,22 +484,8 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            if (mode == SelectionMode.None && pendingTritoSpecialSet)
-            {
-                result = SelectSpecialSetTarget(cards, 0, min, max);
-                pendingTritoSpecialSet = false;
-                return Checked(result, cards, min, max);
-            }
-
             if (mode == SelectionMode.None)
-            {
-                result = SelectPendingFlipTarget(cards, min, max);
-                if (result != null)
-                {
-                    return Checked(result, cards, min, max);
-                }
                 return base.OnSelectCard(cards, min, max, hint, cancelable);
-            }
 
             switch (mode)
             {
@@ -523,7 +502,7 @@ namespace WindBot.Game.AI.Decks
                     result = SelectRecoverFromExtra(cards, min, max);
                     break;
                 case SelectionMode.SpecialSet:
-                    result = SelectSpecialSetTarget(cards, selectionSourceId, min, max);
+                    result = SelectFaceDownSPSummonMonster(cards, min, max);
                     break;
                 case SelectionMode.ReverthShuffle:
                     result = SelectReverthShuffle(cards, min, max);
@@ -533,9 +512,6 @@ namespace WindBot.Game.AI.Decks
                     break;
                 case SelectionMode.EnneapolisRecoveryReturn:
                     result = SelectRecoveryPolisReturn(cards, min, max);
-                    break;
-                case SelectionMode.EnneapolisFlippedTarget:
-                    result = SelectEnneapolisFlippedTarget(cards, min, max);
                     break;
                 case SelectionMode.EnneapolisFromDeckOrGrave:
                     result = SelectByPriority(cards, new[] { CardId.Enneapolis }, min, max);
@@ -561,7 +537,6 @@ namespace WindBot.Game.AI.Decks
             }
 
             selectionMode = SelectionMode.None;
-            selectionSourceId = 0;
             desiredSearchId = 0;
 
             return Checked(result, cards, min, max);
@@ -602,7 +577,6 @@ namespace WindBot.Game.AI.Decks
                 optionMode = OptionMode.None;
                 reverthGravePending = false;
                 selectionMode = chooseSet ? SelectionMode.SpecialSet : SelectionMode.ReverthFlip;
-                selectionSourceId = CardId.Reverth;
                 return index;
             }
 
@@ -649,13 +623,6 @@ namespace WindBot.Game.AI.Decks
             return base.OnSelectPlace(cardId, player, location, available);
         }
 
-        private bool MaxxCEffect()
-        {
-            if (Card == null || Card.Location != CardLocation.Hand || Duel.Player != 1)
-                return false;
-            return true;
-        }
-
         private bool Level1ReactiveEffect()
         {
             if (Card == null || !IsLevel1(Card.Id)
@@ -665,13 +632,11 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             selectionMode = SelectionMode.SearchOne;
-            selectionSourceId = Card.Id;
             desiredSearchId = ChooseReactiveSearchTarget();
             searchResolutionPending = true;
             searchResolutionSourceId = Card.Id;
             searchResolutionMovedId = 0;
             searchResolutionSourceCard = Card;
-            AddPendingFlip(Card.Id, 2);
             return true;
         }
 
@@ -688,7 +653,6 @@ namespace WindBot.Game.AI.Decks
             if (Card.IsCode(CardId.Asta))
                 pendingAstaOptionalBanish = true;
 
-            AddPendingFlip(Card.Id, 2);
             return true;
         }
 
@@ -701,7 +665,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             selectionMode = SelectionMode.EnemyMonster;
-            selectionSourceId = Card.Id;
             return true;
         }
 
@@ -716,7 +679,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             selectionMode = SelectionMode.ResetSetFaceup;
-            selectionSourceId = CardId.Reset;
             return true;
         }
 
@@ -747,9 +709,6 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player == 0 && ownTurnCount >= 2 && recoveryFlipStarted)
                 return false;
 
-            selectionMode = SelectionMode.EnneapolisFlippedTarget;
-            selectionSourceId = CardId.Enneapolis;
-            optionMode = OptionMode.EnneapolisDestination;
             return true;
         }
 
@@ -784,7 +743,6 @@ namespace WindBot.Game.AI.Decks
                 openingReturnExpected.Clear();
                 openingReturnMovedCount = 0;
                 selectionMode = SelectionMode.EnneapolisOpeningReturn;
-                selectionSourceId = CardId.Enneapolis;
                 return true;
             }
 
@@ -794,7 +752,6 @@ namespace WindBot.Game.AI.Decks
                 recoveryReturnPending = true;
                 recoveryReturnResolved = false;
                 selectionMode = SelectionMode.EnneapolisRecoveryReturn;
-                selectionSourceId = CardId.Enneapolis;
                 return true;
             }
 
@@ -807,7 +764,8 @@ namespace WindBot.Game.AI.Decks
                 return false;
             if (ActivateDescription != Util.GetStringId(Card.Id, 0))
                 return false;
-            if (!IsOwnMainPhase() || pendulumSearchAttempted.Contains(Card.Id))
+            if (!IsOwnMainPhase() || Bot.LifePoints <= 900
+                || pendulumSearchAttempted.Contains(Card.Id))
                 return false;
 
             TurnPlanStep step = GetTurnPlanStep();
@@ -818,7 +776,6 @@ namespace WindBot.Game.AI.Decks
 
             desiredSearchId = ChoosePendulumSearchTarget(Card.Id);
             selectionMode = SelectionMode.RevealThree;
-            selectionSourceId = Card.Id;
             pendulumSearchAttempted.Add(Card.Id);
             if (step == TurnPlanStep.OpeningPostSearch)
                 postReturnSearchAttempts++;
@@ -880,7 +837,6 @@ namespace WindBot.Game.AI.Decks
                 releaseGravePending = true;
                 releaseGraveSelectionMade = false;
                 selectionMode = SelectionMode.RecoverFromExtra;
-                selectionSourceId = CardId.Release;
                 return true;
             }
 
@@ -900,7 +856,6 @@ namespace WindBot.Game.AI.Decks
 
             releaseMainAttempted = true;
             selectionMode = SelectionMode.ScaleFromDeck;
-            selectionSourceId = CardId.Release;
             return true;
         }
 
@@ -918,7 +873,6 @@ namespace WindBot.Game.AI.Decks
 
             resetMainAttempted = true;
             selectionMode = SelectionMode.EnneapolisFromDeckOrGrave;
-            selectionSourceId = CardId.Reset;
             return true;
         }
 
@@ -942,7 +896,6 @@ namespace WindBot.Game.AI.Decks
 
             reverthMainAttempted = true;
             selectionMode = SelectionMode.ReverthShuffle;
-            selectionSourceId = CardId.Reverth;
             return true;
         }
 
@@ -961,7 +914,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             selectionMode = SelectionMode.SpecialSet;
-            selectionSourceId = Card.Id;
             return true;
         }
 
@@ -977,7 +929,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             recoveryFlipStarted = true;
-            AddPendingFlip(Card.Id, 1);
             return true;
         }
 
@@ -1538,7 +1489,7 @@ namespace WindBot.Game.AI.Decks
             return selected;
         }
 
-        private IList<ClientCard> SelectSpecialSetTarget(IList<ClientCard> cards, int sourceId,
+        private IList<ClientCard> SelectFaceDownSPSummonMonster(IList<ClientCard> cards,
             int min, int max)
         {
             HashSet<ClientCard> deployable = new HashSet<ClientCard>(GetDeployableHandMonsters());
@@ -1640,7 +1591,8 @@ namespace WindBot.Game.AI.Decks
             return selected;
         }
 
-        private IList<ClientCard> SelectEnneapolisFlippedTarget(IList<ClientCard> cards, int min, int max)
+        private IList<ClientCard> SelectEnneapolisFlippedMonster(IList<ClientCard> cards,
+            int min, int max)
         {
             ClientCard target = cards.Where(c => c != null && c.Controller == 0
                     && c.Location == CardLocation.MonsterZone && IsEnneacraftMonster(c))
@@ -1652,6 +1604,7 @@ namespace WindBot.Game.AI.Decks
             enneapolisDestination = CanMoveFlippedToScale(target)
                 ? EnneapolisDestination.PendulumZone
                 : EnneapolisDestination.Hand;
+            optionMode = OptionMode.EnneapolisDestination;
             return new List<ClientCard> { target };
         }
 
@@ -1875,58 +1828,33 @@ namespace WindBot.Game.AI.Decks
             return selected;
         }
 
-        private IList<ClientCard> SelectPendingFlipTarget(IList<ClientCard> cards, int min, int max)
+        private IList<ClientCard> SelectFlipEffectCards(ClientCard solvingCard,
+            IList<ClientCard> cards, int min, int max)
         {
-            PendingFlip flip = FindPendingFlipForCandidates(cards);
-            if (flip == null)
-                return null;
-
-            IList<ClientCard> result = null;
-            if (flip.SourceId == CardId.Ekto || flip.SourceId == CardId.Proto)
+            if ((solvingCard.IsCode(CardId.Ekto) || solvingCard.IsCode(CardId.Proto))
+                && cards.Any(c => c != null && c.Controller == 1
+                    && c.Location == CardLocation.MonsterZone))
             {
-                result = SelectEnemyMonster(cards, min, max);
+                return SelectEnemyMonster(cards, min, max);
             }
-            else if (flip.SourceId == CardId.Trito)
+
+            if (solvingCard.IsCode(CardId.Trito)
+                && cards.Any(c => c != null && c.Controller == 1
+                    && c.Location == CardLocation.SpellZone))
             {
-                result = SelectEnemySpellTrap(cards, min, max);
                 pendingTritoSpecialSet = true;
+                return SelectEnemySpellTrap(cards, min, max);
             }
-            else if (flip.SourceId == CardId.Enato)
+
+            if (solvingCard.IsCode(CardId.Enato)
+                && cards.Any(c => c != null && c.Controller == 1
+                    && (c.Location == CardLocation.Grave
+                        || c.Location == CardLocation.Removed)))
             {
-                result = SelectEnemyGraveOrBanished(cards, min, max);
+                return SelectEnemyGraveOrBanished(cards, min, max);
             }
 
-            if (result != null)
-                pendingFlips.Remove(flip);
-            return result;
-        }
-
-        private PendingFlip FindPendingFlipForCandidates(IList<ClientCard> cards)
-        {
-            bool hasEnemySpellTrap = cards.Any(c => c != null && c.Controller == 1
-                && c.Location == CardLocation.SpellZone);
-            bool hasEnemyGrave = cards.Any(c => c != null && c.Controller == 1
-                && (c.Location == CardLocation.Grave || c.Location == CardLocation.Removed));
-            bool hasEnemyMonster = cards.Any(c => c != null && c.Controller == 1
-                && c.Location == CardLocation.MonsterZone);
-
-            if (hasEnemySpellTrap)
-                return pendingFlips.LastOrDefault(f => f.SourceId == CardId.Trito);
-            if (hasEnemyGrave)
-                return pendingFlips.LastOrDefault(f => f.SourceId == CardId.Enato);
-            if (hasEnemyMonster)
-            {
-                PendingFlip proto = pendingFlips.LastOrDefault(f => f.SourceId == CardId.Proto);
-                if (proto != null)
-                    return proto;
-                return pendingFlips.LastOrDefault(f => f.SourceId == CardId.Ekto);
-            }
             return null;
-        }
-
-        private void AddPendingFlip(int sourceId, int chainEndsRemaining)
-        {
-            pendingFlips.Add(new PendingFlip(sourceId, chainEndsRemaining));
         }
 
         private bool CanMoveFlippedToScale(ClientCard card)
