@@ -2,7 +2,6 @@ using YGOSharp.OCGWrapper;
 using YGOSharp.OCGWrapper.Enums;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -373,8 +372,8 @@ namespace WindBot.Game.AI.Decks
                         List<ClientCard> result = cards.Where(i => !Duel.ChainTargets.Contains(i) && i.Controller == 1)
                             .OrderByDescending(i => i.IsFaceup()).ToList();
                         if (result.Count() > 0)
-                            return Util.CheckSelectCount(result, cards, Math.Min(min, result.Count()), max);
-                        return Util.CheckSelectCount(cards.Where(i => i.Controller == 1).ToList(), cards, Math.Min(min, result.Count()), max);
+                            return Util.CheckSelectCount(result, cards, min, max);
+                        return Util.CheckSelectCount(cards.Where(i => i.Controller == 1).ToList(), cards, min, max);
                     }
                     break;
             }
@@ -462,8 +461,8 @@ namespace WindBot.Game.AI.Decks
                     }
                     else if (hint == HintMsg.PosChange)
                     {
-                        List<ClientCard> result = cards.Where(i =>i.Controller == 1).ToList();
-                        return Util.CheckSelectCount(result, cards, Math.Min(min, result.Count()), max);
+                        List<ClientCard> result = cards.Where(i => i.Controller == 1).ToList();
+                        return Util.CheckSelectCount(result, cards, min, max);
                     }
                     break;
                 case CardId.Neko_Quick:
@@ -754,7 +753,11 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if (Card.IsCode(CardId.Neko_Sycro_Cookie) && !Enemy.GetMonsters().Any(i => i.IsFaceup() && !i.HasType(CardType.Link)))
+                if (Card.IsCode(CardId.Neko_Sycro_Cookie)
+                    && !Enemy.GetMonsters().Any(i => i.IsFaceup()
+                        && !i.HasType(CardType.Link | CardType.Token)
+                        && !i.IsShouldNotBeTarget()
+                        && !i.IsShouldNotBeMonsterTarget()))
                     return false;
                 Count.AddActivate(Card.Id);
                 return true;
