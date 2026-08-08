@@ -953,7 +953,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                if (currentSolvingChain.ActivatePlayer == 1 && currentSolvingChain.IsCode(_CardId.EvenlyMatched))
+                if (currentSolvingChain.ActivatePlayer == 1 && currentSolvingChain.IsActivateCode(_CardId.EvenlyMatched))
                 {
                     Logger.DebugWriteLine("=== Evenly Matched activated.");
                     List<ClientCard> banishList = new List<ClientCard>();
@@ -999,7 +999,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (hint == HintMsg.AddToHand)
                     {
-                        if (currentSolvingChain.IsCode(CardId.ThodeRyzeal))
+                        if (currentSolvingChain.IsActivateCode(CardId.ThodeRyzeal))
                         {
                             ClientCard ice = cards.FirstOrDefault(c => c.IsCode(CardId.IceRyzeal));
                             ClientCard ex = cards.FirstOrDefault(c => c.IsCode(CardId.ExRyzeal));
@@ -1033,7 +1033,7 @@ namespace WindBot.Game.AI.Decks
                             }
                         }
 
-                        if (currentSolvingChain.IsCode(CardId.ExRyzeal))
+                        if (currentSolvingChain.IsActivateCode(CardId.ExRyzeal))
                         {
                             ClientCard thode = cards.FirstOrDefault(c => c.IsCode(CardId.ThodeRyzeal));
                             ClientCard node = cards.FirstOrDefault(c => c.IsCode(CardId.NodeRyzeal));
@@ -1062,7 +1062,7 @@ namespace WindBot.Game.AI.Decks
                             }
                         }
 
-                        if (currentSolvingChain.IsCode(CardId.Bonfire) || currentSolvingChain.IsCode(CardId.SeventhTachyon))
+                        if (currentSolvingChain.IsActivateCode(CardId.Bonfire) || currentSolvingChain.IsActivateCode(CardId.SeventhTachyon))
                         {
                             if (!Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !CheckWhetherWillbeRemoved())
                             {
@@ -1096,7 +1096,7 @@ namespace WindBot.Game.AI.Decks
                             }
                         }
 
-                        if (currentSolvingChain.IsCode(CardId.RyzealDuodrive))
+                        if (currentSolvingChain.IsActivateCode(CardId.RyzealDuodrive))
                         {
                             // search spells
                             if (!CheckWhetherNegated(true, true, CardType.Spell))
@@ -1163,7 +1163,7 @@ namespace WindBot.Game.AI.Decks
 
                     if (hint == HintMsg.SpSummon)
                     {
-                        if (currentSolvingChain.IsCode(CardId.IceRyzeal))
+                        if (currentSolvingChain.IsActivateCode(CardId.IceRyzeal))
                         {
                             ClientCard thode = cards.FirstOrDefault(c => c.IsCode(CardId.ThodeRyzeal));
                             ClientCard ex = cards.FirstOrDefault(c => c.IsCode(CardId.ExRyzeal));
@@ -1194,7 +1194,7 @@ namespace WindBot.Game.AI.Decks
                             }
                         }
 
-                        if (currentSolvingChain.IsCode(CardId.TwinsOfTheEclipse))
+                        if (currentSolvingChain.IsActivateCode(CardId.TwinsOfTheEclipse))
                         {
                             ClientCard target = TwinsOfTheEclipseRebornTarget(new List<ClientCard>(cards));
 
@@ -1204,7 +1204,7 @@ namespace WindBot.Game.AI.Decks
 
                     if (hint == HintMsg.ToDeck)
                     {
-                        if (currentSolvingChain.IsCode(CardId.TripleTacticsTalent))
+                        if (currentSolvingChain.IsActivateCode(CardId.TripleTacticsTalent))
                         {
                             foreach (ClientCard hand in cards)
                             {
@@ -1222,7 +1222,7 @@ namespace WindBot.Game.AI.Decks
 
                     if (hint == HintMsg.XyzMaterial)
                     {
-                        if (currentSolvingChain.IsCode(CardId.RyzealDeadnader, CardId.RyzealDuodrive, CardId.RyzealPlugIn))
+                        if (currentSolvingChain.IsActivateCode(CardId.RyzealDeadnader, CardId.RyzealDuodrive, CardId.RyzealPlugIn))
                         {
                             // material that have effect
                             ClientCard effectTarget = cards.FirstOrDefault(c => c.IsCode(CardId.TwinsOfTheEclipse, CardId.MereologicAggregator));
@@ -1250,7 +1250,7 @@ namespace WindBot.Game.AI.Decks
 
                     if (hint == HintMsg.RemoveXyz)
                     {
-                        if (currentSolvingChain.IsCode(CardId.RyzealDuodrive))
+                        if (currentSolvingChain.IsActivateCode(CardId.RyzealDuodrive))
                         {
                             List<ClientCard> resultList = new List<ClientCard>();
 
@@ -1301,7 +1301,7 @@ namespace WindBot.Game.AI.Decks
                     }
 
                     // gain material by plugin
-                    if (currentSolvingChain.IsCode(CardId.RyzealPlugIn) && cards.All(c => c.Location == CardLocation.MonsterZone))
+                    if (currentSolvingChain.IsActivateCode(CardId.RyzealPlugIn) && cards.All(c => c.Location == CardLocation.MonsterZone))
                     {
                         ClientCard abyssDweller = cards.FirstOrDefault(c => c != null && !c.IsDisabled() && c.IsCode(CardId.AbyssDweller) && c.Overlays.Count() < 2);
                         if (abyssDweller != null && AbyssDwellerSummonCheck())
@@ -1350,7 +1350,7 @@ namespace WindBot.Game.AI.Decks
                     }
 
                     // double attack
-                    if (currentSolvingChain.IsCode(CardId.Number60DugaresTheTimeless) && cards.All(c => c.Location == CardLocation.MonsterZone))
+                    if (currentSolvingChain.IsActivateCode(CardId.Number60DugaresTheTimeless) && cards.All(c => c.Location == CardLocation.MonsterZone))
                     {
                         ClientCard maxAttackMonster = cards.Where(c => c != null && (c.HasPosition(CardPosition.FaceUpAttack) || !summonThisTurn.Contains(c)))
                             .OrderByDescending(c => c.Attack).FirstOrDefault();
@@ -1538,7 +1538,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             if (currentSolvingChain != null)
             {
                 // TODO
@@ -1706,26 +1706,26 @@ namespace WindBot.Game.AI.Decks
             {
                 if (!Duel.IsCurrentSolvingChainNegated())
                 {
-                    if (currentChain.IsCode(_CardId.LockBird))
+                    if (currentChain.IsActivateCode(_CardId.LockBird))
                         lockBirdSolved = true;
-                    if (currentChain.IsCode(_CardId.DimensionShifter))
+                    if (currentChain.IsActivateCode(_CardId.DimensionShifter))
                         dimensionShifterCount = 2;
                     if (currentChain.ActivatePlayer == 1)
                     {
-                        if (currentChain.IsCode(_CardId.MaxxC))
+                        if (currentChain.IsActivateCode(_CardId.MaxxC))
                             enemyActivateMaxxC = true;
-                        if (currentChain.IsCode(_CardId.MulcharmyPurulia))
+                        if (currentChain.IsActivateCode(_CardId.MulcharmyPurulia))
                             enemyActivatePurulia = true;
-                        if (currentChain.IsCode(_CardId.MulcharmyFuwalos))
+                        if (currentChain.IsActivateCode(_CardId.MulcharmyFuwalos))
                             enemyActivateFuwalos = true;
-                        if (currentChain.IsCode(_CardId.MulcharmyNyalus))
+                        if (currentChain.IsActivateCode(_CardId.MulcharmyNyalus))
                             enemyActivateNyalus = true;
                     }
                     if (currentChain.ActivatePlayer == 0)
                     {
                         foreach (int checkId in CheckBotSolvedList)
                         {
-                            if (currentChain.IsCode(checkId))
+                            if (currentChain.IsActivateCode(checkId))
                             {
                                 botSolvedCardIdList.Add(checkId);
                             }
@@ -1830,7 +1830,7 @@ namespace WindBot.Game.AI.Decks
         public override void OnSpSummoned()
         {
             // not special summoned by chain
-            if (Duel.GetCurrentSolvingChainCard() == null)
+            if (Duel.GetCurrentSolvingChainInfo() == null)
             {
                 foreach (ClientCard card in Duel.LastSummonedCards)
                 {

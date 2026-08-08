@@ -111,11 +111,11 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             ClientCard currentChainCard = Duel.GetCurrentChainCard();
-            ClientCard solvingChainCard = Duel.GetCurrentSolvingChainCard();
+            ChainInfo solvingChain = Duel.GetCurrentSolvingChainInfo();
 
-            if (solvingChainCard != null &&
-                solvingChainCard.Controller == 0 &&
-                solvingChainCard.IsCode(CardId.GracefulCharity) &&
+            if (solvingChain != null &&
+                solvingChain.ActivatePlayer == 0 &&
+                solvingChain.IsActivateCode(CardId.GracefulCharity) &&
                 hint == HintMsg.Discard)
             {
                 List<ClientCard> selected = new List<ClientCard>();
@@ -196,9 +196,9 @@ namespace WindBot.Game.AI.Decks
                 return Util.CheckSelectCount(selected, cards, min, max);
             }
 
-            if (solvingChainCard != null &&
-                solvingChainCard.Controller == 0 &&
-                solvingChainCard.IsCode(CardId.Confiscation) &&
+            if (solvingChain != null &&
+                solvingChain.ActivatePlayer == 0 &&
+                solvingChain.IsActivateCode(CardId.Confiscation) &&
                 hint == HintMsg.Discard)
             {
                 List<ClientCard> targets = new List<ClientCard>();
@@ -317,9 +317,9 @@ namespace WindBot.Game.AI.Decks
                 return Util.CheckSelectCount(targets, cards, min, max);
             }
 
-            if (solvingChainCard != null &&
-                solvingChainCard.Controller == 0 &&
-                solvingChainCard.IsCode(CardId.Sangan) &&
+            if (solvingChain != null &&
+                solvingChain.ActivatePlayer == 0 &&
+                solvingChain.IsActivateCode(CardId.Sangan) &&
                 hint == HintMsg.AddToHand)
             {
                 List<int> priority = Duel.Player == 0

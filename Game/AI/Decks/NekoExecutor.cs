@@ -274,8 +274,8 @@ namespace WindBot.Game.AI.Decks
                         CardId.Neko_Sycro_Lollipop
                     };
                 if (Duel.CurrentChain.Any(i => i.Controller == 0 && i.IsCode(cards))
-                    && Duel.GetCurrentSolvingChainCard() != null
-                    && !Duel.GetCurrentSolvingChainCard().IsCode(cards)
+                    && Duel.GetCurrentSolvingChainInfo() != null
+                    && !Duel.GetCurrentSolvingChainInfo().IsActivateCode(cards)
                     && Bot.GetMonstersInMainZone().Count() > 3
                 )
                 {
@@ -288,9 +288,10 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
-            ClientCard card = Duel.GetCurrentSolvingChainCard();
-            if (card == null)
-                card = Card;
+            // 有连锁时用发动快照；无连锁回退到当前 Card
+            ChainInfo chainInfo = Duel.GetCurrentSolvingChainInfo();
+            int solvingId = chainInfo != null ? chainInfo.ActivateId : (Card != null ? Card.Id : 0);
+            CardLocation solvingLocation = chainInfo != null ? chainInfo.ActivateLocation : (Card != null ? Card.Location : 0);
             switch (hint)
             {
                 case HintMsg.Discard:
@@ -377,7 +378,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     break;
             }
-            switch (card.Id)
+            switch (solvingId)
             {
                 case CardId.Neko_Cake:
                     if (cards.Any(i => i.IsCode(CardId.Neko_Quick)) && !Bot.HasInHand(CardId.Neko_Quick))
@@ -484,7 +485,7 @@ namespace WindBot.Game.AI.Decks
                         return Util.CheckSelectCount(result, cards, min, max);
                     }
                 case CardId.Neko_Sycro_Lollipop:
-                    if (card.Location == CardLocation.MonsterZone)
+                    if (solvingLocation == CardLocation.MonsterZone)
                     {
                         List<ClientCard> result = new List<ClientCard>();
                         if (Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardIsNegated(i))
