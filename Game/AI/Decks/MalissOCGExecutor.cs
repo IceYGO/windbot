@@ -585,7 +585,7 @@ namespace WindBot.Game.AI.Decks
                         if (result.Count() > max)
                             result = result.Take(max).ToList();
                         if (result.Count() > 0)
-                            return Util.CheckSelectCount(result, cards, result.Count(), result.Count());
+                            return Util.CheckSelectCount(result, cards, min, max);
                         if (cards.Any(i => TrashCards(i.Id, CardLocation.Grave)))
                             return Util.CheckSelectCount(cards.Where(i => TrashCards(i.Id, CardLocation.Grave)).ToList(), cards, min, min);
 

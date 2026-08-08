@@ -800,7 +800,8 @@ namespace WindBot.Game.AI.Decks
                             List<ClientCard> targetList = GetNormalEnemySpellTargetList(true, false, CardType.Monster);
                             if (hint == HintMsg.RemoveXyz)
                             {
-                                return Util.CheckSelectCount(cards, cards, min, Math.Min(targetList.Count, max));
+                                int detachCount = Math.Max(min, Math.Min(targetList.Count, max));
+                                return Util.CheckSelectCount(cards, cards, detachCount, detachCount);
                             }
                             if (hint == HintMsg.Destroy)
                             {
@@ -813,7 +814,7 @@ namespace WindBot.Game.AI.Decks
                                         if (destroyList.Count >= max)
                                         {
                                             currentNegateCardList.AddRange(destroyList);
-                                            return Util.CheckSelectCount(destroyList, cards, min, Math.Min(targetList.Count, max));
+                                            return Util.CheckSelectCount(destroyList, cards, min, max);
                                         }
                                     }
                                 }

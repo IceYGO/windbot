@@ -285,14 +285,13 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
-            if (p_summoning || (Card != null && (Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && hint == HintMsg.SpSummon && Card.HasType(CardType.Pendulum)))
+            if (hint == HintMsg.SpSummon
+                && (p_summoning || (Card != null && (Card == Bot.SpellZone[0] || Card == Bot.SpellZone[4]) && Card.HasType(CardType.Pendulum))))
             {
-                List<ClientCard> result = new List<ClientCard>();
                 List<ClientCard> scards = cards.Where(card => card != null && card.HasSetcode(0x9a) && card.Level == 4).ToList();
-                if (scards.Count <2) scards = cards.Where(card => card != null && card.HasSetcode(0x9a)).ToList();
+                if (scards.Count < 2) scards = cards.Where(card => card != null && card.HasSetcode(0x9a)).ToList();
                 p_summoning = false;
-                if (scards.Count > 0) return Util.CheckSelectCount(result, scards, 1, 1);
-                else if (min == 0) return result; // empty
+                return Util.CheckSelectCount(scards, cards, min, min);
             }
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
