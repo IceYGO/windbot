@@ -18,8 +18,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
 
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v3
@@ -55,46 +53,16 @@ jobs:
           dist/WindBot.7z
 
   mono-build:
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:20.04
+      image: mono:6.8.0.123
 
     env:
-      DEBIAN_FRONTEND: noninteractive
       Solution_Name: WindBot.sln
 
     steps:
-    - name: Install Mono 6.12.0
-      run: |
-        set -eu
-        apt-get update
-        apt-get install -y --no-install-recommends ca-certificates git gnupg
-        gpg --homedir /tmp --no-default-keyring \
-          --keyring gnupg-ring:/usr/share/keyrings/mono-official-archive-keyring.gpg \
-          --keyserver hkp://keyserver.ubuntu.com:80 \
-          --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-        chmod +r /usr/share/keyrings/mono-official-archive-keyring.gpg
-        echo "deb [signed-by=/usr/share/keyrings/mono-official-archive-keyring.gpg] https://download.mono-project.com/repo/ubuntu stable-focal main" \
-          > /etc/apt/sources.list.d/mono-official-stable.list
-        apt-get update
-        apt-get install -y --no-install-recommends mono-devel msbuild
-
-    - name: Verify Mono version
-      run: |
-        set -eu
-        mono_version="$(mono --version | awk 'NR == 1 { print $5 }')"
-        case "$mono_version" in
-          6.12.0.*) ;;
-          *) echo "Expected Mono 6.12.0, found $mono_version" >&2; exit 1 ;;
-        esac
-        mono --version
-        msbuild -version
-
     - name: Checkout
       uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
 
     - name: Build with Mono MSBuild
       run: msbuild "$Solution_Name" /t:Build /p:Configuration=Release /p:Platform=x86
