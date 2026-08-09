@@ -188,42 +188,42 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnChainSolved(int chainIndex)
         {
-            ChainInfo currentCard = Duel.GetCurrentSolvingChainInfo();
-            if (currentCard != null && currentCard.ActivatePlayer == 1)
+            ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentChain != null && currentChain.ActivatePlayer == 1)
             {
                 if (Duel.IsCurrentSolvingChainNegated())
                 {
                     // MagiciansLeftHand / MagicianRightHand
-                    if (!MagicianRightHand_used && currentCard.IsSpell())
+                    if (!MagicianRightHand_used && currentChain.IsSpell())
                     {
                         if (Bot.MonsterZone.GetFirstMatchingCard(c => c.HasRace(CardRace.SpellCaster) && c.IsFaceup()) != null
                             && Bot.HasInSpellZone(CardId.MagicianRightHand, true))
                         {
-                            Logger.DebugWriteLine("MagicianRightHand negate: " + currentCard.RelatedCard.Name ?? "???");
+                            Logger.DebugWriteLine("MagicianRightHand negate: " + currentChain.RelatedCard.Name ?? "???");
                             MagicianRightHand_used = true;
                         }
                     }
-                    if (!MagiciansLeftHand_used && currentCard.IsTrap() && currentCard.ActivatePlayer == 1)
+                    if (!MagiciansLeftHand_used && currentChain.IsTrap() && currentChain.ActivatePlayer == 1)
                     {
                         if (Bot.MonsterZone.GetFirstMatchingCard(c => c.HasRace(CardRace.SpellCaster) && c.IsFaceup()) != null
                             && Bot.HasInSpellZone(CardId.MagiciansLeftHand, true))
                         {
-                            Logger.DebugWriteLine("MagiciansLeftHand negate: " + currentCard.RelatedCard.Name ?? "???");
+                            Logger.DebugWriteLine("MagiciansLeftHand negate: " + currentChain.RelatedCard.Name ?? "???");
                             MagiciansLeftHand_used = true;
                         }
                     }
                 }
                 if (!Duel.IsCurrentSolvingChainNegated())
                 {
-                    if (currentCard.IsCode(_CardId.MaxxC))
+                    if (currentChain.IsActivateCode(_CardId.MaxxC))
                         enemyActivateMaxxC = true;
-                    if (currentCard.IsCode(CardId.DimensionShifter))
+                    if (currentChain.IsActivateCode(CardId.DimensionShifter))
                         enemyActivateDimensionShifter = true;
-                    if (currentCard.IsCode(_CardId.InfiniteImpermanence))
+                    if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
                     {
                         for (int i = 0; i < 5; ++i)
                         {
-                            if (Enemy.SpellZone[i] == currentCard.RelatedCard)
+                            if (Enemy.SpellZone[i] == currentChain.RelatedCard)
                             {
                                 infiniteImpermanenceList.Add(4 - i);
                                 break;

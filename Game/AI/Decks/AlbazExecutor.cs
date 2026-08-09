@@ -538,10 +538,10 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             if (currentSolvingChain != null)
             {
-                if (currentSolvingChain.Controller == 1 && currentSolvingChain.IsCode(_CardId.EvenlyMatched))
+                if (currentSolvingChain.ActivatePlayer == 1 && currentSolvingChain.IsActivateCode(_CardId.EvenlyMatched))
                 {
                     Logger.DebugWriteLine("=== Evenly Matched activated.");
                     List<ClientCard> banishList = new List<ClientCard>();
@@ -584,7 +584,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>();
 
-                    switch (currentSolvingChain.Id)
+                    switch (currentSolvingChain.ActivateId)
                     {
                         case CardId.AluberTheJesterOfDespia:
                         case CardId.AluberTheJesterOfDespia + 1:
@@ -668,7 +668,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                switch (currentSolvingChain.Id)
+                switch (currentSolvingChain.ActivateId)
                 {
                     // for lubellion
                     case CardId.TheBystialLubellion:
@@ -1910,7 +1910,7 @@ namespace WindBot.Game.AI.Decks
             bool handToDeck = hint == HintMsg.ToDeck && cards.All(c => c.Location == CardLocation.Hand);
             if (min == 1 && max == 1 && (discardHand || handToDeck))
             {
-                if (currentSolvingChain != null && currentSolvingChain.IsCode(CardId.BrandedOpening))
+                if (currentSolvingChain != null && currentSolvingChain.IsActivateCode(CardId.BrandedOpening))
                 {
                     ClientCard tragedy = cards.FirstOrDefault(card => card.IsCode(CardId.DespianTragedy));
                     if (tragedy != null)
@@ -2025,7 +2025,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // for shrouded/saronir
-            if (albionTheShroudedDragonSelecting || (currentSolvingChain != null && currentSolvingChain.IsCode(CardId.BystialSaronir)))
+            if (albionTheShroudedDragonSelecting || (currentSolvingChain != null && currentSolvingChain.IsActivateCode(CardId.BystialSaronir)))
             {
                 // send retribution first
                 ClientCard retribution = cards.FirstOrDefault(c => c.IsCode(CardId.BrandedRetribution));
@@ -2113,15 +2113,15 @@ namespace WindBot.Game.AI.Decks
                 // 1190=Add to Hand, 1152=Special Summon
                 if (options.Count == 2 && options.Contains(1190) && options.Contains(1152))
                 {
-                    if (currentSolvingChain.IsCode(CardId.BrandedOpening))
+                    if (currentSolvingChain.IsActivateCode(CardId.BrandedOpening))
                     {
                         return (CheckShouldNoMoreSpSummon() && !summoned && Duel.Player == 0) ? options.IndexOf(1190) : options.IndexOf(1152);
                     }
 
                     if (fusionTarget != null && (
-                        currentSolvingChain.IsCode(CardId.DespianQuaeritis)
-                        || currentSolvingChain.IsCode(CardId.TitanikladTheAshDragon)
-                        || currentSolvingChain.IsCode(CardId.SprindTheIrondashDragon)
+                        currentSolvingChain.IsActivateCode(CardId.DespianQuaeritis)
+                        || currentSolvingChain.IsActivateCode(CardId.TitanikladTheAshDragon)
+                        || currentSolvingChain.IsActivateCode(CardId.SprindTheIrondashDragon)
                         ))
                     {
                         if (fusionTarget.IsCode(CardId.FallenOfAlbaz))
@@ -2141,7 +2141,7 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 // 1190=Add to Hand, 1153=Set
-                if (currentSolvingChain.IsCode(CardId.AlbionTheBrandedDragon) && fusionTarget != null)
+                if (currentSolvingChain.IsActivateCode(CardId.AlbionTheBrandedDragon) && fusionTarget != null)
                 {
                     if (fusionTarget.IsOriginalCode(CardId.BrandedInHighSpirits) && Duel.Player == 0)
                     {
@@ -2168,7 +2168,7 @@ namespace WindBot.Game.AI.Decks
         public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
             ChainInfo currentSovingChain = Duel.GetCurrentSolvingChainInfo();
-            if (currentSovingChain != null && currentSovingChain.ActivatePlayer == 0 && currentSovingChain.IsCode(CardId.SprindTheIrondashDragon))
+            if (currentSovingChain != null && currentSovingChain.ActivatePlayer == 0 && currentSovingChain.IsActivateCode(CardId.SprindTheIrondashDragon))
             {
                 return SprindTheIrondashDragonMoveZone(available, null);
             }
@@ -2238,10 +2238,10 @@ namespace WindBot.Game.AI.Decks
 
             if (desc == Util.GetStringId(CardId.SprindTheIrondashDragon, 2))
             {
-                ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+                ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
                 if (currentSolvingChain != null)
                 {
-                    int value = SprindTheIrondashDragonDestroyValue(currentSolvingChain.Sequence);
+                    int value = SprindTheIrondashDragonDestroyValue(currentSolvingChain.RelatedCard.Sequence);
                     return value > 0;
                 }
             }
@@ -2251,8 +2251,8 @@ namespace WindBot.Game.AI.Decks
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
-            ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
-            if (currentSolvingChain != null && currentSolvingChain.IsCode(CardId.AlbionTheSanctifireDragon))
+            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentSolvingChain != null && currentSolvingChain.IsActivateCode(CardId.AlbionTheSanctifireDragon))
             {
                 sanctifireSelectPositionCount++;
                 if (sanctifireSelectPositionCount >= 2)
@@ -2356,30 +2356,30 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnChainSolved(int chainIndex)
         {
-            ChainInfo currentCard = Duel.GetCurrentSolvingChainInfo();
-            if (currentCard != null)
+            ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentChain != null)
             {
                 // if activation is negated, it can activate again.
-                if (currentCard.ActivatePlayer == 0)
+                if (currentChain.ActivatePlayer == 0)
                 {
                     List<int> activateCheck = new List<int> { CardId.NadirServant, CardId.FusionDeployment, CardId.BrandedFusion, CardId.BrandedInRed };
-                    if (currentCard.IsCode(activateCheck))
+                    if (currentChain.IsActivateCode(activateCheck))
                     {
-                        activatedCardIdList.Add(currentCard.ActivateId);
+                        activatedCardIdList.Add(currentChain.ActivateId);
                     }
                 }
                 if (!Duel.IsCurrentSolvingChainNegated())
                 {
-                    if (currentCard.ActivatePlayer == 1)
+                    if (currentChain.ActivatePlayer == 1)
                     {
-                        if (currentCard.IsCode(_CardId.MaxxC))
+                        if (currentChain.IsActivateCode(_CardId.MaxxC))
                             enemyActivateMaxxC = true;
-                        if (currentCard.IsCode(_CardId.LockBird))
+                        if (currentChain.IsActivateCode(_CardId.LockBird))
                             enemyActivateLockBird = true;
-                        if (currentCard.IsCode(CardId.DimensionShifter))
+                        if (currentChain.IsActivateCode(CardId.DimensionShifter))
                             dimensionShifterCount = 2;
                     }
-                    if (currentCard.ActivatePlayer == 0 && currentCard.IsCode(CardId.NadirServant))
+                    if (currentChain.ActivatePlayer == 0 && currentChain.IsActivateCode(CardId.NadirServant))
                     {
                         nadirActivated = true;
                     }
@@ -2433,7 +2433,6 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (currentControler == 0)
                 {
-                    ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
                     if (previousLocation == (int)CardLocation.Grave && currentLocation != (int)CardLocation.Grave)
                     {
                         sendToGYThisTurn.Remove(card);

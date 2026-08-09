@@ -121,10 +121,10 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(
             IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            ClientCard solvingChainCard = Duel.GetCurrentSolvingChainCard();
-            if (solvingChainCard != null &&
-                solvingChainCard.Controller == 0 &&
-                solvingChainCard.IsCode(CardId.PacifisThePhantasmCity) &&
+            ChainInfo solvingChain = Duel.GetCurrentSolvingChainInfo();
+            if (solvingChain != null &&
+                solvingChain.ActivatePlayer == 0 &&
+                solvingChain.IsActivateCode(CardId.PacifisThePhantasmCity) &&
                 hint == HintMsg.AddToHand)
             {
                 IList<ClientCard> targets = Util.SelectPreferredCards(

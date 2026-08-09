@@ -140,7 +140,7 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             ClientCard currentChainCard = Duel.GetCurrentChainCard();
-            ClientCard solvingChainCard = Duel.GetCurrentSolvingChainCard();
+            ChainInfo solvingChain = Duel.GetCurrentSolvingChainInfo();
 
             if (currentChainCard != null && currentChainCard.Controller == 0)
             {
@@ -217,9 +217,9 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            if (solvingChainCard != null && solvingChainCard.Controller == 0)
+            if (solvingChain != null && solvingChain.ActivatePlayer == 0)
             {
-                if (solvingChainCard.IsCode(Monsters.TimeThiefRegulator) &&
+                if (solvingChain.IsActivateCode(Monsters.TimeThiefRegulator) &&
                     hint == HintMsg.SpSummon && min == 2)
                 {
                     int[] summonOrder =
@@ -248,7 +248,7 @@ namespace WindBot.Game.AI.Decks
                     return Util.CheckSelectCount(selected, cards, min, max);
                 }
 
-                if (solvingChainCard.IsCode(Monsters.TimeThiefWinder) && hint == HintMsg.AddToHand)
+                if (solvingChain.IsActivateCode(Monsters.TimeThiefWinder) && hint == HintMsg.AddToHand)
                 {
                     int[] searchOrder = Bot.HasInMonstersZone(XYZs.TimeThiefRedoer)
                         ? new[]
@@ -275,7 +275,7 @@ namespace WindBot.Game.AI.Decks
                     return SelectOneCard(target, cards, min, max);
                 }
 
-                if (solvingChainCard.IsCode(Spells.TimeThiefStartup))
+                if (solvingChain.IsActivateCode(Spells.TimeThiefStartup))
                 {
                     if (hint == HintMsg.SpSummon)
                     {
@@ -326,7 +326,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                if (solvingChainCard.IsCode(XYZs.TimeThiefRedoer))
+                if (solvingChain.IsActivateCode(XYZs.TimeThiefRedoer))
                 {
                     if (hint == HintMsg.RemoveXyz)
                     {
@@ -334,7 +334,7 @@ namespace WindBot.Game.AI.Decks
                         ClientCard trap = cards.FirstOrDefault(card => card.IsTrap());
                         ClientCard spell = cards.FirstOrDefault(card => card.IsSpell());
                         ClientCard monster = cards.FirstOrDefault(card => card.IsMonster());
-                        bool needsProtection = ShouldUseRedoerMonsterMaterial(solvingChainCard);
+                        bool needsProtection = ShouldUseRedoerMonsterMaterial(solvingChain.RelatedCard);
                         if (trap != null)
                             selected.Add(trap);
                         if (spell != null)
@@ -357,7 +357,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                if (hint == HintMsg.XyzMaterial && solvingChainCard.IsCode(
+                if (hint == HintMsg.XyzMaterial && solvingChain.IsActivateCode(
                     XYZs.TimeThiefPerpetua,
                     Traps.TimeThiefFlyBack,
                     Monsters.TimeThiefBezelShip))
@@ -383,7 +383,7 @@ namespace WindBot.Game.AI.Decks
                     return SelectMaterialToAttach(cards, min, max);
                 }
 
-                if (solvingChainCard.IsCode(Traps.TimeThiefRetrograte) && hint == HintMsg.Faceup)
+                if (solvingChain.IsActivateCode(Traps.TimeThiefRetrograte) && hint == HintMsg.Faceup)
                 {
                     return SelectXyzToReceiveMaterial(cards, min, max);
                 }

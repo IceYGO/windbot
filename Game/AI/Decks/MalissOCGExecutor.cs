@@ -322,10 +322,10 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
-            ClientCard card = Duel.GetCurrentSolvingChainCard();
-            if (card == null)
-                card = Card;
-            switch (card.Id)
+            // 有连锁时用发动快照卡号；无连锁回退到当前 Card.Id
+            ChainInfo chainInfo = Duel.GetCurrentSolvingChainInfo();
+            int solvingId = chainInfo != null ? chainInfo.ActivateId : (Card != null ? Card.Id : 0);
+            switch (solvingId)
             {
                 case CardId.Maliss_White_Rabbit:
                     if (cards.Any(i => i.Id == CardId.Maliss_TB_11) && Count.CheckCard(CardId.Maliss_TB_11))
@@ -585,7 +585,7 @@ namespace WindBot.Game.AI.Decks
                         if (result.Count() > max)
                             result = result.Take(max).ToList();
                         if (result.Count() > 0)
-                            return Util.CheckSelectCount(result, cards, result.Count(), result.Count());
+                            return Util.CheckSelectCount(result, cards, min, max);
                         if (cards.Any(i => TrashCards(i.Id, CardLocation.Grave)))
                             return Util.CheckSelectCount(cards.Where(i => TrashCards(i.Id, CardLocation.Grave)).ToList(), cards, min, min);
 
@@ -703,7 +703,7 @@ namespace WindBot.Game.AI.Decks
                 case CardId.Backup_Ignister:
                     if (hint == HintMsg.AddToHand)
                     {
-                        if (card.Id == CardId.Dimension_Shifter || card.Id == CardId.Artifact_Lancea)
+                        if (solvingId == CardId.Dimension_Shifter || solvingId == CardId.Artifact_Lancea)
                         {
                             if (!Bot.Hand.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare))
                                 && cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare))
@@ -743,7 +743,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     else if (hint == HintMsg.Discard)
                     {
-                        if (card.Id == CardId.Dimension_Shifter || card.Id == CardId.Artifact_Lancea)
+                        if (solvingId == CardId.Dimension_Shifter || solvingId == CardId.Artifact_Lancea)
                         {
                             if (cards.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)))
                                 return Util.CheckSelectCount(cards.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster) && Count.CheckCardRemoved(i.Id) && Count.CheckCard(i.Id) && !i.IsCode(CardId.Maliss_March_Hare)).ToList(), cards, min, max);

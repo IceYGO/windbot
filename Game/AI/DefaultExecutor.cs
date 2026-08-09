@@ -644,7 +644,7 @@ namespace WindBot.Game.AI
             base.OnHintZone(player, zone);
             ChainInfo currentChainInfo = Duel.GetCurrentSolvingChainInfo();
             if (currentChainInfo != null) {
-                if (currentChainInfo.IsCode(_CardId.InfiniteImpermanence)) {
+                if (currentChainInfo.IsActivateCode(_CardId.InfiniteImpermanence)) {
                     // Zone bit mapping: 0x100=col0, 0x200=col1, 0x400=col2, 0x800=col3, 0x1000=col4.
                     for (int i = 0; i <= 4; i++)
                     {
@@ -766,7 +766,8 @@ namespace WindBot.Game.AI
         {
             if (card != null)
             {
-                ClientCard currentSolvingChain = Duel.GetCurrentSolvingChainCard();
+                // 用发动快照识别卡名，避免 RelatedCard 离场后 Id 变化
+                ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
                 if (currentSolvingChain != null && currentLocation == (int)CardLocation.Removed)
                 {
                     int originId = card.Id;
@@ -775,11 +776,11 @@ namespace WindBot.Game.AI
                         if (card.Data.Alias > 0) originId = card.Data.Alias;
                         else originId = card.Id;
                     }
-                    if (currentSolvingChain.IsCode(_CardId.CalledByTheGrave))
+                    if (currentSolvingChain.IsActivateCode(_CardId.CalledByTheGrave))
                     {
                         calledbytheGraveIdCountMap[originId] = 2;
                     }
-                    if (currentSolvingChain.IsCode(_CardId.CrossoutDesignator))
+                    if (currentSolvingChain.IsActivateCode(_CardId.CrossoutDesignator))
                     {
                         crossoutDesignatorIdList.Add(originId);
                     }
