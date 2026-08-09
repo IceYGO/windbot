@@ -195,11 +195,6 @@ namespace WindBot.Game.AI.Decks
         bool potActivate = false;
         List<ClientCard> removeChosenList = new List<ClientCard>();
 
-        /// <summary>
-        /// Shuffle List<ClientCard> and return a random-order card list
-        /// </summary>
-        public List<ClientCard> ShuffleCardList(List<ClientCard> list) => Util.ShuffleCardList(list);
-
         public ClientCard GetProblematicEnemyMonster(int attack = 0, bool canBeTarget = false)
         {
             List<ClientCard> floodagateList = Enemy.GetMonsters().Where(c => c?.Data != null &&
@@ -257,7 +252,7 @@ namespace WindBot.Game.AI.Decks
                 && c.IsFloodgate() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
             if (problemEnemySpellList.Count > 0)
             {
-                return ShuffleCardList(problemEnemySpellList)[0];
+                return Util.ShuffleCardList(problemEnemySpellList)[0];
             }
 
             List<ClientCard> dangerList = Enemy.MonsterZone.Where(c => c?.Data != null && !removeChosenList.Contains(c)
@@ -298,7 +293,7 @@ namespace WindBot.Game.AI.Decks
                 .ToList();
             if (spells.Count > 0)
             {
-                return ShuffleCardList(spells)[0];
+                return Util.ShuffleCardList(spells)[0];
             }
 
             return null;
@@ -318,7 +313,7 @@ namespace WindBot.Game.AI.Decks
 
             // after GetHighestAttackMonster, the left monsters must be face-down.
             if (monsters.Count > 0 && !onlyFaceup)
-                return ShuffleCardList(monsters)[0];
+                return Util.ShuffleCardList(monsters)[0];
 
             return null;
         }
@@ -329,7 +324,7 @@ namespace WindBot.Game.AI.Decks
                 && c.IsFloodgate() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
             if (problemEnemySpellList.Count > 0)
             {
-                return ShuffleCardList(problemEnemySpellList)[0];
+                return Util.ShuffleCardList(problemEnemySpellList)[0];
             }
 
             List<ClientCard> spells = Enemy.GetSpells().Where(card => !(card.IsFaceup() && card.IsCode(_CardId.EvenlyMatched))).ToList();
@@ -338,12 +333,12 @@ namespace WindBot.Game.AI.Decks
                 (ecard.HasType(CardType.Continuous) || ecard.HasType(CardType.Field) || ecard.HasType(CardType.Pendulum))).ToList();
             if (faceUpList.Count > 0)
             {
-                return ShuffleCardList(faceUpList)[0];
+                return Util.ShuffleCardList(faceUpList)[0];
             }
 
             if (spells.Count > 0 && !onlyFaceup)
             {
-                return ShuffleCardList(spells)[0];
+                return Util.ShuffleCardList(spells)[0];
             }
 
             return null;
@@ -372,7 +367,7 @@ namespace WindBot.Game.AI.Decks
                     graveMonsterList.Reverse();
                     return graveMonsterList[0];
                 }
-                return ShuffleCardList(Enemy.Graveyard.ToList())[0];
+                return Util.ShuffleCardList(Enemy.Graveyard.ToList())[0];
             }
 
             return null;
@@ -943,7 +938,7 @@ namespace WindBot.Game.AI.Decks
                     if (faceDownList.Count > 0)
                     {
                         allBotCards.RemoveAll(c => faceDownList.Contains(c));
-                        importantList.AddRange(ShuffleCardList(faceDownList));
+                        importantList.AddRange(Util.ShuffleCardList(faceDownList));
                     }
                     
                     importantList.Reverse();
@@ -1728,7 +1723,7 @@ namespace WindBot.Game.AI.Decks
                     if (targetList.Count() > 0)
                     {
                         mikailisEffect1Activated = true;
-                        AI.SelectCard(ShuffleCardList(targetList));
+                        AI.SelectCard(Util.ShuffleCardList(targetList));
                         return true;
                     }
                 }
@@ -1967,7 +1962,7 @@ namespace WindBot.Game.AI.Decks
                         (card.Location == CardLocation.MonsterZone || card.Location == CardLocation.SpellZone || card.Location == CardLocation.FieldZone)).ToList();
                     if (currentTargetList.Count() > 0)
                     {
-                        target = ShuffleCardList(currentTargetList)[0];
+                        target = Util.ShuffleCardList(currentTargetList)[0];
                         Logger.DebugWriteLine("===Exosister: magnifica target 2: " + target?.Name);
                     }
                 }
@@ -2451,7 +2446,7 @@ namespace WindBot.Game.AI.Decks
                 if (targetList.Count() > 0)
                 {
                     oncePerTurnEffectActivatedList.Add(Card.Id);
-                    List<ClientCard> shuffleTargetList = ShuffleCardList(targetList);
+                    List<ClientCard> shuffleTargetList = Util.ShuffleCardList(targetList);
                     Logger.DebugWriteLine("===Exosister: returnia target 2: " + shuffleTargetList[0]?.Name);
                     AI.SelectCard(shuffleTargetList);
                     return true;

@@ -812,7 +812,7 @@ namespace WindBot.Game.AI.Decks
             card = Enemy.MonsterZone.GetHighestAttackMonster(canBeTarget);
             if (card != null) return card;
             List<ClientCard> monsters = Enemy.GetMonsters();
-            if (monsters.Count > 0 && !onlyFaceup) return ShuffleCardList(monsters)[0];
+            if (monsters.Count > 0 && !onlyFaceup) return Util.ShuffleCardList(monsters)[0];
             return null;
         }
         public ClientCard GetBestEnemySpell(bool onlyFaceup = false, bool canBeTarget = false)
@@ -821,7 +821,7 @@ namespace WindBot.Game.AI.Decks
                 && c.IsFloodgate() && c.IsFaceup() && (!canBeTarget || !c.IsShouldNotBeTarget())).ToList();
             if (problemEnemySpellList.Count > 0)
             {
-                return ShuffleCardList(problemEnemySpellList)[0];
+                return Util.ShuffleCardList(problemEnemySpellList)[0];
             }
 
             List<ClientCard> spells = Enemy.GetSpells().Where(card => !(card.IsFaceup() && card.IsCode(_CardId.EvenlyMatched))).ToList();
@@ -829,17 +829,16 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> faceUpList = spells.Where(ecard => ecard.IsFaceup() && (ecard.HasType(CardType.Continuous) || ecard.HasType(CardType.Field) || ecard.HasType(CardType.Pendulum))).ToList();
             if (faceUpList.Count > 0)
             {
-                return ShuffleCardList(faceUpList)[0];
+                return Util.ShuffleCardList(faceUpList)[0];
             }
 
             if (spells.Count > 0 && !onlyFaceup)
             {
-                return ShuffleCardList(spells)[0];
+                return Util.ShuffleCardList(spells)[0];
             }
 
             return null;
         }
-        public List<ClientCard> ShuffleCardList(List<ClientCard> list) => Util.ShuffleCardList(list);
         public ClientCard GetBestEnemyCard(bool onlyFaceup = false, bool canBeTarget = false, bool checkGrave = false)
         {
             ClientCard card = GetBestEnemyMonster(onlyFaceup, canBeTarget);
@@ -857,7 +856,7 @@ namespace WindBot.Game.AI.Decks
                     graveMonsterList.Reverse();
                     return graveMonsterList[0];
                 }
-                return ShuffleCardList(Enemy.Graveyard.ToList())[0];
+                return Util.ShuffleCardList(Enemy.Graveyard.ToList())[0];
             }
             return null;
         }
