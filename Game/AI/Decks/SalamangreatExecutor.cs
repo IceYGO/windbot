@@ -946,23 +946,10 @@ namespace WindBot.Game.AI.Decks
         }
         public int SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false)
         {
-            List<int> list = new List<int>();
-            list.Add(0);
-            list.Add(1);
-            list.Add(2);
-            list.Add(3);
-            list.Add(4);
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                int temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
+            List<int> list = Util.ShuffleList(new List<int> { 0, 1, 2, 3, 4 });
             foreach (int seq in list)
             {
-                int zone = (int)System.Math.Pow(2, seq);
+                int zone = (int)Math.Pow(2, seq);
                 if (Bot.SpellZone[seq] == null)
                 {
                     if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
@@ -1211,17 +1198,7 @@ namespace WindBot.Game.AI.Decks
 
         public int SelectSetPlace(List<int> avoid_list = null, bool avoid = true)
         {
-            List<int> list = new List<int>();
-            list.Add(5);
-            list.Add(6);
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                int temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
+            List<int> list = Util.ShuffleList(new List<int> {5, 6});
             foreach (int seq in list)
             {
                 int zone = (int)System.Math.Pow(2, seq);
