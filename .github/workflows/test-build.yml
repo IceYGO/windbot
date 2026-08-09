@@ -16,8 +16,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
 
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v3
@@ -51,3 +49,18 @@ jobs:
         title: "Development Build"
         files: |
           dist/WindBot.7z
+
+  mono-build:
+    runs-on: ubuntu-latest
+    container:
+      image: mono:6.8.0.123
+
+    env:
+      Solution_Name: WindBot.sln
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Build with Mono MSBuild
+      run: msbuild "$Solution_Name" /t:Build /p:Configuration=Release /p:Platform=x86
