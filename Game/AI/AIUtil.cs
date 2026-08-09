@@ -565,7 +565,7 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// Shuffle a list of cards using Fisher–Yates shuffle
+        /// Shuffle a list using Fisher–Yates shuffle
         /// </summary>
         /// <param name="list">The original list</param>
         /// <returns>The shuffled copy of the list</returns>
