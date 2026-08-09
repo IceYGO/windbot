@@ -258,7 +258,7 @@ namespace WindBot.Game.AI.Decks
         bool throneSearched = false;     // after we chose the monster to search
         int throneDesiredPick = 0;       // preferred monster id to search
 
-        public List<T> ShuffleList<T>(List<T> list) => ShuffleList(list);
+        public List<T> ShuffleList<T>(List<T> list) => Util.ShuffleList(list);
 
         public override bool OnSelectHand() { return true; }
 
