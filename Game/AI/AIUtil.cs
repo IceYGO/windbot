@@ -567,17 +567,20 @@ namespace WindBot.Game.AI
         /// Shuffle a list of cards using Fisher–Yates shuffle
         /// </summary>
         /// <param name="list">The original list</param>
-        /// <returns>The shuffled list</returns>
-        public List<ClientCard> CardListShuffle(List<ClientCard> list)
+        /// <returns>The shuffled copy of the list</returns>
+        public List<T> ShuffleList<T>(IList<T> list)
         {
-            List<ClientCard> result = list;
+            List<T> result = new List<T>(list);
             int n = result.Count;
             while (n-- > 1)
             {
-                int index = Program.Rand.Next(n + 1);
-                (result[n], result[index]) = (result[index], result[n]);
+                int index = Program.Rand.Next(result.Count);
+                int nextIndex = (index + Program.Rand.Next(result.Count - 1)) % result.Count;
+                (result[nextIndex], result[index]) = (result[index], result[nextIndex]);
             }
             return result;
         }
+
+        public List<ClientCard> CardListShuffle(IList<ClientCard> list) => ShuffleList(list);    
     }
 }

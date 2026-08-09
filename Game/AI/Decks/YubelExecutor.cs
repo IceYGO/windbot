@@ -617,7 +617,7 @@ namespace WindBot.Game.AI.Decks
                     if (Enemy.SpellZone[i] != null && Enemy.SpellZone[i].IsFaceup() && Bot.SpellZone[4 - i] == null)
                     {
                         avoid_list.Add(4 - i);
-                        setFornfiniteImpermanence += (int)System.Math.Pow(2, 4 - i);
+                        setFornfiniteImpermanence += (int)Math.Pow(2, 4 - i);
                     }
                 }
                 if (Bot.HasInHand(_CardId.InfiniteImpermanence))

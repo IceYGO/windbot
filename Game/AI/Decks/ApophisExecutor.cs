@@ -1200,7 +1200,7 @@ namespace WindBot.Game.AI.Decks
                 zoneIdList.AddRange(ShuffleList(new List<int> { 1, 3 }));
                 foreach (int zoneId in zoneIdList)
                 {
-                    int zone = (int)System.Math.Pow(2, zoneId);
+                    int zone = (int)Math.Pow(2, zoneId);
                     if ((available & zone) != 0 && Bot.MonsterZone[zoneId] == null)
                     {
                         List<int> infiniteImpermanenceList = Bot.GetSpells().Where(c => c.IsCode(_CardId.InfiniteImpermanence)).Select(c => c.Sequence).ToList();
@@ -1230,7 +1230,7 @@ namespace WindBot.Game.AI.Decks
                         List<int> zoneIdList = ShuffleList(new List<int> { 0, 1, 2, 3, 4 });
                         foreach (int zoneId in zoneIdList)
                         {
-                            int zone = (int)System.Math.Pow(2, zoneId);
+                            int zone = (int)Math.Pow(2, zoneId);
                             if ((available & zone) != 0 && Bot.MonsterZone[zoneId] == null)
                             {
                                 return zone;
@@ -1243,7 +1243,7 @@ namespace WindBot.Game.AI.Decks
                         List<int> zoneIdList = ShuffleList(new List<int> { 0, 1, 2, 3, 4 });
                         foreach (int zoneId in zoneIdList)
                         {
-                            int zone = (int)System.Math.Pow(2, zoneId);
+                            int zone = (int)Math.Pow(2, zoneId);
                             if ((available & zone) != 0 && Bot.MonsterZone[zoneId] == null && !infiniteImpermanenceNegatedColumns.Contains(zoneId))
                             {
                                 return zone;
@@ -2907,7 +2907,7 @@ namespace WindBot.Game.AI.Decks
                     if (Enemy.SpellZone[i] != null && Enemy.SpellZone[i].IsFaceup() && Bot.SpellZone[4 - i] == null)
                     {
                         avoid_list.Add(4 - i);
-                        setForInfiniteImpermanence += (int)System.Math.Pow(2, 4 - i);
+                        setForInfiniteImpermanence += (int)Math.Pow(2, 4 - i);
                     }
                 }
                 if (Bot.HasInHand(_CardId.InfiniteImpermanence))

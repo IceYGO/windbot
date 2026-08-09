@@ -2010,7 +2010,7 @@ namespace WindBot.Game.AI.Decks
             return 1;
         }
 
-        private int CheckRemainInDeck(int id)
+        public override int CheckRemainInDeck(int id)
         {
             return Bot.GetRemainingCount(id, GetInitialDeckCount(id));
         }

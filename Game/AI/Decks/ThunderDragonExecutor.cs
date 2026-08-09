@@ -191,7 +191,7 @@ namespace WindBot.Game.AI.Decks
 
         }
         #region DeckCheck
-        public int CheckRemainInDeck(int id)
+        public override int CheckRemainInDeck(int id)
         {
             switch (id)
             {
@@ -549,9 +549,7 @@ namespace WindBot.Game.AI.Decks
                          || (copy_cards[i].Id == CardId.ThunderDragonmatrix && HasInZoneNoActivate(CardId.ThunderDragonmatrix, CardLocation.MonsterZone)))
                     {
                         if (i <= 0) continue;
-                        ClientCard temp = copy_cards[0];
-                        copy_cards[0] = copy_cards[i];
-                        copy_cards[i] = temp;
+                        (copy_cards[i], copy_cards[0]) = (copy_cards[0], copy_cards[i]);
                     }
                 }
                 return Util.CheckSelectCount(copy_cards, cards, min, max);
@@ -696,7 +694,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
             }
             AI.SelectCard(CardId.BystialDruiswurm, CardId.BystialMagnamhut, CardId.TheBystialLubellion);
             return true;
@@ -735,7 +733,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     if (Card.Location == CardLocation.Hand)
                     {
-                        AI.SelectPlace(SelectSTPlace(Card, true));
+                        SelectSTPlace(Card, true);
                     }
                     AI.SelectCard(m);
                     return true;
@@ -793,7 +791,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.Location == CardLocation.Hand)
             {
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
             }
             if (LastChainCard != null) AI.SelectCard(LastChainCard);
             else
@@ -811,28 +809,6 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             return true;
-        }
-        public int SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false)
-        {
-            List<int> list = new List<int> { 0, 1, 2, 3, 4 };
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                int temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
-            foreach (int seq in list)
-            {
-                int zone = (int)System.Math.Pow(2, seq);
-                if (Bot.SpellZone[seq] == null)
-                {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
-                    return zone;
-                };
-            }
-            return 0;
         }
         public bool is_should_not_negate()
         {
@@ -1008,7 +984,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Card.Location == CardLocation.Hand)
                 {
-                    AI.SelectPlace(SelectSTPlace(Card, true));
+                    SelectSTPlace(Card, true);
                 }
                 if (card.Location == CardLocation.Grave && card.HasType(CardType.Monster))
                 {
@@ -1384,9 +1360,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         if (i > 0)
                         {
-                            ClientCard temp = link_materials[0];
-                            link_materials[0] = link_materials[i];
-                            link_materials[i] = temp;
+                            (link_materials[i], link_materials[0]) = (link_materials[0], link_materials[i]);
                         }
                         index = i;
                         break;
@@ -1687,7 +1661,7 @@ namespace WindBot.Game.AI.Decks
             else AI.SelectCard(CardId.ThunderDragonmatrix);
             if (Card.Location == CardLocation.Hand)
             {
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
             }
             return true;
         }
@@ -2309,7 +2283,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (Card.Location == CardLocation.Hand)
                 {
-                    AI.SelectPlace(SelectSTPlace(Card, true));
+                    SelectSTPlace(Card, true);
                 }
                 return false;
             }
@@ -2357,7 +2331,7 @@ namespace WindBot.Game.AI.Decks
                 activate_ChaosSpace_hand = true;
                 if (Card.Location == CardLocation.Hand)
                 {
-                    AI.SelectPlace(SelectSTPlace(Card, true));
+                    SelectSTPlace(Card, true);
                 }
                 return true;
             }
@@ -2422,7 +2396,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.Location == CardLocation.Hand)
             {
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
             }
             return true;
         }

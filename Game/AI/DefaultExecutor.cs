@@ -611,16 +611,7 @@ namespace WindBot.Game.AI
                 currentSolving.ActivatePlayer == 1)
             {
                 Logger.DebugWriteLine("Dogmatika Alba Zoa solved");
-                List<ClientCard> extraDeck = new List<ClientCard>(Bot.ExtraDeck);
-                int shuffleCount = extraDeck.Count;
-                while (shuffleCount-- > 1)
-                {
-                    int index = Program.Rand.Next(extraDeck.Count);
-                    ClientCard tempCard = extraDeck[shuffleCount];
-                    extraDeck[shuffleCount] = extraDeck[index];
-                    extraDeck[index] = tempCard;
-                }
-
+                List<ClientCard> extraDeck = Util.CardListShuffle(Bot.ExtraDeck);
                 return Util.CheckSelectCount(extraDeck, cards, min, max);
             }
 
@@ -2098,29 +2089,21 @@ namespace WindBot.Game.AI
                     list.Add(seq);
                 }
             }
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(list.Count);
-                int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
-                int tempInt = list[index];
-                list[index] = list[nextIndex];
-                list[nextIndex] = tempInt;
-            }
+            list = Util.ShuffleList(list);
             if (avoidImpermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
             {
                 foreach (int seq in list)
                 {
                     ClientCard enemySpell = Enemy.SpellZone[4 - seq];
                     if (enemySpell != null && enemySpell.IsFacedown()) continue;
-                    int zone = (int)System.Math.Pow(2, seq);
+                    int zone = (int)Math.Pow(2, seq);
                     AI.SelectPlace(zone);
                     return;
                 }
             }
             foreach (int seq in list)
             {
-                int zone = (int)System.Math.Pow(2, seq);
+                int zone = (int)Math.Pow(2, seq);
                 AI.SelectPlace(zone);
                 return;
             }

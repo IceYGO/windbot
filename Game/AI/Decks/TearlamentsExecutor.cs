@@ -606,10 +606,7 @@ namespace WindBot.Game.AI.Decks
                         if (mcard_3[listindex] != null) fusionMaterial.Remove(mcard_3[listindex]);
                         if (listindex > 0 && mcard_0[0] != null && mcard_0[listindex] != null && mcard_0[listindex].Id == CardId.ElShaddollWinda)
                         {
-                            ClientCard temp = mcard_0[0];
-                            mcard_0[0] = mcard_0[listindex];
-                            mcard_0[listindex] = temp;
-
+                            (mcard_0[listindex], mcard_0[0]) = (mcard_0[0], mcard_0[listindex]);
                         }
                         return true;
 
@@ -1637,7 +1634,7 @@ namespace WindBot.Game.AI.Decks
             ids.AddRange(new List<int>() { CardId.TearlamentsScheiren, CardId.TearlamentsMerrli, CardId.TearlamentsHavnis, CardId.TearlamentsReinoheart });
             return ids;
         }
-        public int CheckRemainInDeck(int id)
+        public override int CheckRemainInDeck(int id)
         {
             switch (id)
             {

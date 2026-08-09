@@ -326,7 +326,7 @@ namespace WindBot.Game.AI
         /// check enemy's dangerous card in grave
         /// </summary>
         /// <param name="onlyMonster">If to only consider monsters</param>
-        public virtual List<ClientCard> CheckDangerousCardinEnemyGrave(bool onlyMonster = false)
+        public virtual List<ClientCard> CheckDangerousCardInEnemyGrave(bool onlyMonster = false)
         {
             return new List<ClientCard>();
         }

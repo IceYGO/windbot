@@ -491,7 +491,7 @@ namespace WindBot.Game.AI.Decks
         /// <summary>
         /// check enemy's dangerous card in grave
         /// </summary>
-        public override List<ClientCard> CheckDangerousCardinEnemyGrave(bool onlyMonster = false)
+        public override List<ClientCard> CheckDangerousCardInEnemyGrave(bool onlyMonster = false)
         {
             List<ClientCard> result = Enemy.Graveyard.GetMatchingCards(card => 
                 (!onlyMonster || card.IsMonster()) && (card.HasSetcode(SetcodeOrcust) || card.HasSetcode(SetcodePhantom))).ToList();
@@ -1615,7 +1615,7 @@ namespace WindBot.Game.AI.Decks
 
             // avoid danger monster in grave
             if (Duel.LastChainPlayer == 1) return false;
-            List<ClientCard> targets = CheckDangerousCardinEnemyGrave(true);
+            List<ClientCard> targets = CheckDangerousCardInEnemyGrave(true);
             if (targets.Count() > 0) {
                 int code = targets[0].Id;
                 if (!(Card.Location == CardLocation.SpellZone))
@@ -2231,7 +2231,7 @@ namespace WindBot.Game.AI.Decks
             {
                 activatedCardIdList.Add(Card.Id);
                 List<ClientCard> banishTargetList = Duel.CurrentChain.Where(card => card.Controller == 1 && card.Location == CardLocation.Grave).ToList();
-                banishTargetList.AddRange(CheckDangerousCardinEnemyGrave(false));
+                banishTargetList.AddRange(CheckDangerousCardInEnemyGrave(false));
                 if (banishTargetList.Count() > 0)
                 {
                     ClientCard graveTarget = banishTargetList[0];

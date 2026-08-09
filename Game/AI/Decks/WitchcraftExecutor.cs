@@ -1,10 +1,11 @@
 ﻿using YGOSharp.OCGWrapper;
 using YGOSharp.OCGWrapper.Enums;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
-using System.Linq;
 
 
 namespace WindBot.Game.AI.Decks
@@ -406,7 +407,7 @@ namespace WindBot.Game.AI.Decks
         
 
         // check enemy's dangerous card in grave
-        public override List<ClientCard> CheckDangerousCardinEnemyGrave(bool onlyMonster = false)
+        public override List<ClientCard> CheckDangerousCardInEnemyGrave(bool onlyMonster = false)
         {
             List<ClientCard> result = Enemy.Graveyard.GetMatchingCards(card => 
             (!onlyMonster || card.IsMonster()) && card.HasSetcode(Orcust_setcode)).ToList();
@@ -787,7 +788,7 @@ namespace WindBot.Game.AI.Decks
                     if (Enemy.SpellZone[i] != null && Enemy.SpellZone[i].IsFaceup() && Bot.SpellZone[4 - i] == null)
                     {
                         avoid_list.Add(4 - i);
-                        Impermanence_set += (int)System.Math.Pow(2, 4 - i);
+                        Impermanence_set += (int)Math.Pow(2, 4 - i);
                     }
                 }
                 if (Bot.HasInHand(_CardId.InfiniteImpermanence))
@@ -1825,7 +1826,7 @@ namespace WindBot.Game.AI.Decks
 
             // avoid danger monster in grave
             if (Duel.LastChainPlayer == 1) return false;
-            List<ClientCard> targets = CheckDangerousCardinEnemyGrave(true);
+            List<ClientCard> targets = CheckDangerousCardInEnemyGrave(true);
             if (targets.Count() > 0)
             {
                 int code = targets[0].GetOriginCode();
@@ -2344,7 +2345,7 @@ namespace WindBot.Game.AI.Decks
             // recycle from grave
             if (Card.Location == CardLocation.Grave)
             {
-                List<ClientCard> enemy_danger = CheckDangerousCardinEnemyGrave();
+                List<ClientCard> enemy_danger = CheckDangerousCardInEnemyGrave();
                 if (enemy_danger.Count > 0)
                 {
                     AI.SelectCard(enemy_danger);

@@ -1,9 +1,11 @@
-﻿using YGOSharp.OCGWrapper.Enums;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using YGOSharp.OCGWrapper.Enums;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
-using System.Linq;
+
 
 namespace WindBot.Game.AI.Decks
 {
@@ -366,62 +368,12 @@ namespace WindBot.Game.AI.Decks
             return atk;
         }
 
-        public int SelectSTPlace(ClientCard card=null, bool avoid_Impermanence = false)
-        {
-            if (card == null) card = Card;
-            List<int> list = new List<int>();
-            for (int seq = 0; seq < 5; ++seq)
-            {
-                if (Bot.SpellZone[seq] == null)
-                {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
-                    list.Add(seq);
-                }
-            }
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(list.Count);
-                int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
-                int tempInt = list[index];
-                list[index] = list[nextIndex];
-                list[nextIndex] = tempInt;
-            }
-            if (avoid_Impermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
-            {
-                foreach (int seq in list)
-                {
-                    ClientCard enemySpell = Enemy.SpellZone[4 - seq];
-                    if (enemySpell != null && enemySpell.IsFacedown()) continue;
-                    return (int)System.Math.Pow(2, seq);
-                }
-            }
-            foreach (int seq in list)
-            {
-                return (int)System.Math.Pow(2, seq);
-            }
-            return 0;
-        }
-
         public int SelectSetPlace(List<int> avoid_list=null)
         {
-            List<int> list = new List<int>();
-            list.Add(0);
-            list.Add(1);
-            list.Add(2);
-            list.Add(3);
-            list.Add(4);
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                int temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
+            List<int> list = Util.ShuffleList(new List<int> { 0, 1, 2, 3, 4 });
             foreach (int seq in list)
             {
-                int zone = (int)System.Math.Pow(2, seq);
+                int zone = (int)Math.Pow(2, seq);
                 if (Bot.SpellZone[seq] == null)
                 {
                     if (avoid_list != null && avoid_list.Contains(seq)) continue;
@@ -451,19 +403,6 @@ namespace WindBot.Game.AI.Decks
             }
             // how to get here?
             return false;
-        }
-
-        public void RandomSort(List<ClientCard> list)
-        {
-
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                ClientCard temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
         }
 
         public int get_Hexstia_linkzone(int zone)
@@ -561,8 +500,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // spells
-            List<ClientCard> enemy_spells = Enemy.GetSpells();
-            RandomSort(enemy_spells);
+            List<ClientCard> enemy_spells = Util.CardListShuffle(Enemy.GetSpells());
             foreach(ClientCard sp in enemy_spells)
             {
                 if (sp.IsFaceup() && !sp.IsDisabled()) return sp;
@@ -572,8 +510,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> monsters = Enemy.GetMonsters();
             if (monsters.Count > 0)
             {
-                RandomSort(monsters);
-                return monsters[0];
+                return Util.CardListShuffle(monsters)[0];
             }
 
             return null;
@@ -626,7 +563,7 @@ namespace WindBot.Game.AI.Decks
                     if (Enemy.SpellZone[i] != null && Enemy.SpellZone[i].IsFaceup() && Bot.SpellZone[4 - i] == null)
                     {
                         avoid_list.Add(4 - i);
-                        Impermanence_set += (int)System.Math.Pow(2, 4 - i);
+                        Impermanence_set += (int)Math.Pow(2, 4 - i);
                     }
                 }
                 if (Bot.HasInHand(CardId.Impermanence))
@@ -642,7 +579,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 } else
                 {
-                    AI.SelectPlace(SelectSTPlace());
+                    SelectSTPlace();
                 }
                 return true;
             }
@@ -650,7 +587,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Card.IsSpell() && (!Card.IsCode(CardId.OneForOne) || Bot.GetRemainingCount(CardId.Meluseek,3) > 0))
                 {
-                    AI.SelectPlace(SelectSTPlace());
+                    SelectSTPlace();
                     return true;
                 }
             }
@@ -780,7 +717,7 @@ namespace WindBot.Game.AI.Decks
                     }
                     if (Card.Location == CardLocation.Hand)
                     {
-                        AI.SelectPlace(SelectSTPlace(Card, true));
+                        SelectSTPlace(Card, true);
                     }
                     AI.SelectCard(m);
                     return true;
@@ -843,7 +780,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.Location == CardLocation.Hand)
             {
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
             }
             if (LastChainCard != null) AI.SelectCard(LastChainCard);
             else
@@ -1039,7 +976,7 @@ namespace WindBot.Game.AI.Decks
             int enemy_count = Enemy.GetFieldCount();
             if (enemy_count - bot_count < 2) return false;
 
-            if (Card.Location == CardLocation.Hand) AI.SelectPlace(SelectSTPlace(Card, true));
+            if (Card.Location == CardLocation.Hand) SelectSTPlace(Card, true);
             return true;
         }
 
@@ -1048,13 +985,13 @@ namespace WindBot.Game.AI.Decks
             if (!spell_trap_activate()) return false;
             if (Util.GetProblematicEnemySpell() != null)
             {
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
                 return true;
             }
             // activate when more than 2 cards
             if (Enemy.GetSpellCount() <= 1)
                 return false;
-            AI.SelectPlace(SelectSTPlace(Card, true));
+            SelectSTPlace(Card, true);
             return true;
         }
 
@@ -1063,8 +1000,7 @@ namespace WindBot.Game.AI.Decks
             if (!spell_trap_activate()) return false;
             List<ClientCard> select_list = new List<ClientCard>();
             int activate_immediately = 0;
-            List<ClientCard> spells = Enemy.GetSpells();
-            RandomSort(spells);
+            List<ClientCard> spells = Util.CardListShuffle(Enemy.GetSpells());
             foreach(ClientCard card in spells)
             {
                 if (card != null)
@@ -1129,8 +1065,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(target);
                     return true;
                 }
-                List<ClientCard> spells = Enemy.GetSpells();
-                RandomSort(spells);
+                List<ClientCard> spells = Util.CardListShuffle(Enemy.GetSpells());
                 foreach(ClientCard card in spells)
                 {
                     if (card.IsFaceup() && !card.IsDisabled())
@@ -1139,8 +1074,7 @@ namespace WindBot.Game.AI.Decks
                         return true;
                     }
                 }
-                List<ClientCard> monsters = Enemy.GetMonsters();
-                RandomSort(monsters);
+                List<ClientCard> monsters = Util.CardListShuffle(Enemy.GetMonsters());
                 foreach (ClientCard card in monsters)
                 {
                     if (card.IsFaceup() && !card.IsDisabled() 
@@ -1373,8 +1307,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(target);
                     return true;
                 }
-                List<ClientCard> targets = Enemy.GetSpells();
-                RandomSort(targets);
+                List<ClientCard> targets = Util.CardListShuffle(Enemy.GetSpells());
                 if (targets.Count > 0)
                 {
                     AI.SelectCard(targets[0]);
@@ -2207,7 +2140,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.Deck.Count > 15 && spell_trap_activate())
             {
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
                 return true;
             }
             return false;
@@ -2228,13 +2161,13 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (important_count > 0)
                 {
-                    AI.SelectPlace(SelectSTPlace(Card, true));
+                    SelectSTPlace(Card, true);
                     AI.SelectOption(1);
                     return true;
                 }
                 return false;
             }
-            AI.SelectPlace(SelectSTPlace(Card, true));
+            SelectSTPlace(Card, true);
             AI.SelectOption(1);
             return true;
         }
@@ -2903,7 +2836,7 @@ namespace WindBot.Game.AI.Decks
                         {
                             if (Bot.MonsterZone[i] == null)
                             {
-                                int place = (int)System.Math.Pow(2, i);
+                                int place = (int)Math.Pow(2, i);
                                 return place;
                             }
                         }
@@ -2918,9 +2851,9 @@ namespace WindBot.Game.AI.Decks
                                 if (Bot.MonsterZone[i] != null && Bot.MonsterZone[i].IsCode(CardId.Hexstia))
                                 {
                                     int next_index = get_Hexstia_linkzone(i);
-                                    if (next_index != -1 && (available & (int)(System.Math.Pow(2, next_index))) > 0)
+                                    if (next_index != -1 && (available & (int)(Math.Pow(2, next_index))) > 0)
                                     {
-                                        return (int)(System.Math.Pow(2, next_index));
+                                        return (int)(Math.Pow(2, next_index));
                                     }
                                 }
                             }
@@ -2939,7 +2872,7 @@ namespace WindBot.Game.AI.Decks
                             {
                                 if (Bot.MonsterZone[i] != null && isAltergeist(Bot.MonsterZone[i]))
                                 {
-                                    if ((available & (int)System.Math.Pow(2, i - 1)) > 0) return (int)System.Math.Pow(2, i - 1);
+                                    if ((available & (int)Math.Pow(2, i - 1)) > 0) return (int)Math.Pow(2, i - 1);
                                 }
                             }
                         }
@@ -2956,7 +2889,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (base.DefaultSetForDiabellze())
             {
-                AI.SelectPlace(SelectSTPlace(Card, true));
+                SelectSTPlace(Card, true);
                 return true;
             }
             return false;

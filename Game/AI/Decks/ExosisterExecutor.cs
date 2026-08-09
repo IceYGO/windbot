@@ -516,7 +516,7 @@ namespace WindBot.Game.AI.Decks
         /// <summary>
         /// check enemy's dangerous card in grave
         /// </summary>
-        public override List<ClientCard> CheckDangerousCardinEnemyGrave(bool onlyMonster = false)
+        public override List<ClientCard> CheckDangerousCardInEnemyGrave(bool onlyMonster = false)
         {
             List<ClientCard> result = Enemy.Graveyard.GetMatchingCards(card => 
             (!onlyMonster || card.IsMonster()) && card.HasSetcode(SetcodeOrcust)).ToList();
@@ -1149,7 +1149,7 @@ namespace WindBot.Game.AI.Decks
 
             // avoid danger monster in grave
             if (Duel.LastChainPlayer == 1) return false;
-            List<ClientCard> targets = CheckDangerousCardinEnemyGrave(true);
+            List<ClientCard> targets = CheckDangerousCardInEnemyGrave(true);
             if (targets.Count() > 0)
             {
                 int code = targets[0].GetOriginCode();
