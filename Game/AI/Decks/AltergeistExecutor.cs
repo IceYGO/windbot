@@ -1554,6 +1554,7 @@ namespace WindBot.Game.AI.Decks
                     else if (faceup_Multifaker != null) bounce_self = faceup_Multifaker;
                     else bounce_self = faceup_monster;
                 }
+                if (bounce_self == null) return false;
 
                 ClientCard card_should_bounce_immediately = GetProblematicEnemyCard_Alter(true);
                 if (card_should_bounce_immediately != null && Duel.LastChainPlayer != 0 && !bot_can_s_Meluseek())
