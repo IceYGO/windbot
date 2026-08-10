@@ -14,33 +14,33 @@ A C# bot for [YGOPro](https://github.com/Fluorohydride/ygopro), compatible with 
 
 ### Supported commandlines
 
-`Name`  
+`Name`
 The nickname for the bot.
 
-`Deck`  
+`Deck`
 The deck to be used by the bot. Available decks are listed below. Keep empty to use random deck.
 
-`DeckFile`  
+`DeckFile`
 The deck file (.ydk) to be used by the bot. Will be set by `Deck` automatically, but you can override it.
 
 Note: Most cards not in the original deck are unknown to the bot, and won't be summoned or activated in the duel.
 
-`Dialog`  
+`Dialog`
 The dialog texts to be used by the bot. See Dialogs folder for list.
 
-`Host`  
+`Host`
 The IP of the host to be connected to.
 
-`Port`  
+`Port`
 The port of the host to be connected to.
 
-`HostInfo`  
+`HostInfo`
 The host info (password) to be used.
 
-`Version`  
+`Version`
 The version of YGOPro.
 
-`Hand`  
+`Hand`
 If you are testing deck, you may want to make sure the bot go first or second. `Hand=1` will make the bot always show Scissors, 2 for Rock, 3 for Paper.
 
 `Chat`
@@ -49,92 +49,69 @@ False to turn the chat of bot off.
 `Debug`
 Print verbose log of card movement info. False at default. (May be updated in future)
 
-`ServerMode` and `ServerPort`  
+`ServerMode` and `ServerPort`
 WindBot can run as a "server", provide a http interface to create bot.
 
 ### Available decks
 
-**Easy**:
-
-* Burn
-
-* Frog
-
-* Horus
-
-* MokeyMokey
-
-* MokeyMokeyKing
-
-* OldSchool
-
-**Normal**:
-
-* Altergeist
-
-* Blue-Eyes
-
-* BlueEyesMaxDragon
-
-* Brave
-
-* ChainBurn
-
-* DarkMagician
-
-* Dragun
-
-* Dragunity
-
-* GrenMajuThunderBoarder
-
-* Level VIII
-
-* LightswornShaddoldinosour
-
-* Orcust
-
-* Phantasm
-
-* Qliphort
-
-* Rainbow
-
-* Rank V
-
-* Salamangreat
-
-* SkyStriker
-
-* ST1732
-
-* ThunderDragon
-
-* Toadally Awesome
-
-* Trickstar
-
-* Yosenju
-
-* Zexal Weapons
-
-* Zoodiac
-
-### Unfinished decks
-
-* Blackwing
-
-* CyberDragon
-
-* Evilswarm
-
-* Gravekeeper
-
-* Graydle
-
-* Lightsworn
-
-* Nekroz
+| Easy           | Normal                    | Hard        | Test  |
+|----------------|---------------------------|-------------|-------|
+| Burn           | Albaz                     | Blackwing   | Lucky |
+| Frog           | Altergeist                | CyberDragon | Test  |
+| Horus          | Apophis                   | Evilswarm   |       |
+| MokeyMokey     | Archfiend                 | Gravekeeper |       |
+| MokeyMokeyKing | BE2025                    | Graydle     |       |
+| OldSchool      | Blue-Eyes                 | Nekroz      |       |
+|                | BlueEyesMaxDragon         | Voiceless   |       |
+|                | Brave                     |             |       |
+|                | ChainBurn                 |             |       |
+|                | Chaos408                  |             |       |
+|                | DarkMagician              |             |       |
+|                | Dogmatika                 |             |       |
+|                | Dragun                    |             |       |
+|                | Dragunity                 |             |       |
+|                | Enneacraft                |             |       |
+|                | Exosister                 |             |       |
+|                | FamiliarPossessed         |             |       |
+|                | GrenMajuThunderBoarder    |             |       |
+|                | HeroBeat1103              |             |       |
+|                | Kashtira                  |             |       |
+|                | Labrynth                  |             |       |
+|                | Level VIII                |             |       |
+|                | Lightsworn                |             |       |
+|                | LightswornShaddoldinosour |             |       |
+|                | Maliss                    |             |       |
+|                | MalissOCG                 |             |       |
+|                | MathMech                  |             |       |
+|                | Monarch506                |             |       |
+|                | Monarch506Nerfed          |             |       |
+|                | Neko                      |             |       |
+|                | Orcust                    |             |       |
+|                | Phantasm                  |             |       |
+|                | Pumpking                  |             |       |
+|                | PureWinds                 |             |       |
+|                | Qliphort                  |             |       |
+|                | Rainbow                   |             |       |
+|                | Rank V                    |             |       |
+|                | Rank8                     |             |       |
+|                | Ryzeal                    |             |       |
+|                | SacredBeast               |             |       |
+|                | Salamangreat              |             |       |
+|                | SkyStriker                |             |       |
+|                | ST1732                    |             |       |
+|                | SuperheavySamurai         |             |       |
+|                | Swordsoul                 |             |       |
+|                | Tearlaments               |             |       |
+|                | ThunderDragon             |             |       |
+|                | TimeThief                 |             |       |
+|                | Toadally Awesome          |             |       |
+|                | Trickstar                 |             |       |
+|                | Witchcraft                |             |       |
+|                | Yosenju                   |             |       |
+|                | Yubel                     |             |       |
+|                | Zefra                     |             |       |
+|                | Zexal Weapons             |             |       |
+|                | Zoodiac                   |             |       |
 
 ### Template Generator
 
@@ -143,7 +120,7 @@ A tool which generates a WindBot deck code template from a YGOPro deck file.
 You can use it to create a new deck for WindBot quickly.
 
 https://mercury233.me/windbot/gen.html
- 
+
 ### Server mode
 
 WindBot can run as a "server", provide a http interface to create bot.
