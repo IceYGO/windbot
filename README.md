@@ -159,6 +159,10 @@ Note: Currently the server bind to all interfaces, so it requires elevated privi
 netsh http add urlacl url=http://+:2399/ user=Everyone
 ```
 
+### Changelog
+
+View [CHANGELOG.MD](CHANGELOG.md) for information regarding the changes made during updates
+
 ### TODO list
 
 * More decks
