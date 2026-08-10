@@ -54,7 +54,7 @@ WindBot can run as a "server", provide a http interface to create bot.
 
 ### Available decks
 
-| Easy           | Normal                    | Hard        | Test  |
+| Easy           | Normal                    | NotFinished | Test  |
 |----------------|---------------------------|-------------|-------|
 | Burn           | Albaz                     | Blackwing   | Lucky |
 | Frog           | Altergeist                | CyberDragon | Test  |
