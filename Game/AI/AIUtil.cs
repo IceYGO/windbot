@@ -580,7 +580,7 @@ namespace WindBot.Game.AI
             int n = result.Count;
             while (n-- > 1)
             {
-                int index = Program.Rand.Next(result.Count);
+                int index = Program.Rand.Next(n + 1);
                 (result[n], result[index]) = (result[index], result[n]);
             }
             return result;
