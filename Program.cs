@@ -108,9 +108,7 @@ namespace WindBot
                     string port = queryParams.Get("port");
                     if (port != null)
                         Info.Port = Int32.Parse(port);
-                    string deckfile = queryParams.Get("deckfile");
-                    if (deckfile != null)
-                        Info.DeckFile = deckfile;
+                    string deckfile = queryParams.Get("deckfile"); // Obsoleted
                     string dialog = queryParams.Get("dialog");
                     if (dialog != null)
                         Info.Dialog = dialog;
@@ -130,9 +128,14 @@ namespace WindBot
                     if (chat != null)
                         Info.Chat = bool.Parse(chat);
 
-                    if (Info.Name == null || Info.Host == null || port == null)
+                    if (Info.Name == null || Info.Host == null || port == null || deckfile != null)
                     {
                         ctx.Response.StatusCode = 400;
+                        ctx.Response.Close();
+                    }
+                    else if (Info.Deck != null && !DecksManager.HasDeck(Info.Deck))
+                    {
+                        ctx.Response.StatusCode = 404;
                         ctx.Response.Close();
                     }
                     else

@@ -73,5 +73,10 @@ namespace WindBot.Game.AI
             executor.Deck = infos.Deck;
             return executor;
         }
+
+        public static bool HasDeck(string name)
+        {
+            return _decks.ContainsKey(name);
+        }
     }
 }
