@@ -64,6 +64,7 @@ namespace WindBot.Game.AI.Decks
             public const int GhostMournerMoonlitChill = 52038441;
             public const int NibiruThePrimalBeing = 27204311;
             public const int AmeNoMurakumoNoMitsurugi = 19899073;
+            public const int DogmatikaMaximus = 95679145;
         }
         private readonly Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>
         {
@@ -834,6 +835,12 @@ namespace WindBot.Game.AI.Decks
                     return targetList;
             }
 
+            if (trigger != null && trigger.IsCode(CardId.DogmatikaMaximus))
+            {
+                List<ClientCard> sendCards = cards.Where(c => c != null).OrderBy(c => ExtraDeckSendScore(c)).Take(min).ToList();
+                Logger.DebugWriteLine($"[DogmatikaMaximus] Sacred Beast send to grave => " + string.Join(", ", sendCards.Select(c => $"{c.Name}({c.Id})")));
+                return sendCards;
+            }
 
             Logger.DebugWriteLine("Use default.");
             return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -1953,6 +1960,23 @@ namespace WindBot.Game.AI.Decks
             if (card.IsCode(CardId.HamonSacredBeastOfSinfulCatastrophe, CardId.RavielSacredBeastOfEndlessEternity)) return 50;
             if (card.IsCode(CardId.AshBlossom, CardId.MaxxC, CardId.CalledByTheGrave)) return 70;
             return 20;
+        }
+        private int ExtraDeckSendScore(ClientCard card)
+        {
+            // TODO(foohyfooh): Account for conditions regarding the remaining count of cards or existing board such as
+            // - keep 3 copies of Level 10 with 0 ATK if bot has The Chaotic Phantasmal Sacred Beasts still and Heavy Polymerization in hand
+            // - Dimensional Barrier or Grisaille Prison preventing specific summon
+            if (card.IsCode(CardId.SuperVehicroidMobileBase)) return 1;
+            if (card.IsCode(CardId.SaintAzamina)) return 2;
+            if (card.IsCode(CardId.SuperdreadnoughtRailCannonGustavRocket)) return 3;
+            if (card.IsCode(CardId.SuperdreadnoughtRailCannonGustavMax)) return 4;
+            if (card.IsCode(CardId.ThunderDragonColossus)) return 5;
+            if (card.IsCode(CardId.VarudrasTheFinalBringer)) return 6;
+            if (card.IsCode(CardId.Linkuriboh)) return 7;
+            if (card.IsCode(CardId.SPLittleKnight)) return 8;
+            if (card.IsCode(CardId.PhantasmalSacredBeastsOfChaos)) return int.MaxValue;
+            // Send unknown cards first
+            return 0;
         }
         private bool IsNeverDiscard(int id)
         {
