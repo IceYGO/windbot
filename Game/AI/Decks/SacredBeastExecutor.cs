@@ -835,7 +835,10 @@ namespace WindBot.Game.AI.Decks
                     return targetList;
             }
 
-            if (trigger != null && trigger.IsCode(CardId.DogmatikaMaximus))
+            if (currentSolvingChain != null
+                && currentSolvingChain.ActivatePlayer == 1
+                && currentSolvingChain.IsActivateCode(CardId.DogmatikaMaximus)
+                && hint == HintMsg.ToGrave)
             {
                 List<ClientCard> sendCards = cards.Where(c => c != null).OrderBy(c => ExtraDeckSendScore(c)).Take(min).ToList();
                 Logger.DebugWriteLine($"[DogmatikaMaximus] Sacred Beast send to grave => " + string.Join(", ", sendCards.Select(c => $"{c.Name}({c.Id})")));
