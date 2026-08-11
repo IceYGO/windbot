@@ -8,6 +8,7 @@ namespace WindBot.Game
         public bool IsFirst { get; set; }
         public bool IsNewRule { get; set; }
         public bool IsNewRule2020 { get; set; }
+        public bool DeckReversed { get; set; }
 
         public ClientField[] Fields { get; private set; }
 
@@ -49,6 +50,7 @@ namespace WindBot.Game
             NegatedChainIndexList = new List<int>();
             MainPhase = new MainPhase();
             BattlePhase = new BattlePhase();
+            DeckReversed = false;
         }
 
         public ClientCard GetCard(int player, CardLocation loc, int seq)
@@ -123,12 +125,15 @@ namespace WindBot.Game
             {
                 case CardLocation.Hand:
                     Fields[player].Hand.Add(card);
+                    ResetSequence(Fields[player].Hand);
                     break;
                 case CardLocation.Grave:
                     Fields[player].Graveyard.Add(card);
+                    ResetSequence(Fields[player].Graveyard);
                     break;
                 case CardLocation.Removed:
                     Fields[player].Banished.Add(card);
+                    ResetSequence(Fields[player].Banished);
                     break;
                 case CardLocation.MonsterZone:
                     Fields[player].MonsterZone[seq] = card;
@@ -137,10 +142,18 @@ namespace WindBot.Game
                     Fields[player].SpellZone[seq] = card;
                     break;
                 case CardLocation.Deck:
-                    Fields[player].Deck.Add(card);
+                    if (seq == 0 && Fields[player].Deck.Count > 0)
+                        Fields[player].Deck.Insert(0, card);
+                    else
+                        Fields[player].Deck.Add(card);
+                    ResetSequence(Fields[player].Deck);
                     break;
                 case CardLocation.Extra:
-                    Fields[player].ExtraDeck.Add(card);
+                    if (seq >= 0 && seq < Fields[player].ExtraDeck.Count)
+                        Fields[player].ExtraDeck.Insert(seq, card);
+                    else
+                        Fields[player].ExtraDeck.Add(card);
+                    ResetSequence(Fields[player].ExtraDeck);
                     break;
             }
         }
@@ -151,12 +164,15 @@ namespace WindBot.Game
             {
                 case CardLocation.Hand:
                     Fields[player].Hand.Remove(card);
+                    ResetSequence(Fields[player].Hand);
                     break;
                 case CardLocation.Grave:
                     Fields[player].Graveyard.Remove(card);
+                    ResetSequence(Fields[player].Graveyard);
                     break;
                 case CardLocation.Removed:
                     Fields[player].Banished.Remove(card);
+                    ResetSequence(Fields[player].Banished);
                     break;
                 case CardLocation.MonsterZone:
                     Fields[player].MonsterZone[seq] = null;
@@ -166,11 +182,19 @@ namespace WindBot.Game
                     break;
                 case CardLocation.Deck:
                     Fields[player].Deck.Remove(card);
+                    ResetSequence(Fields[player].Deck);
                     break;
                 case CardLocation.Extra:
                     Fields[player].ExtraDeck.Remove(card);
+                    ResetSequence(Fields[player].ExtraDeck);
                     break;
             }
+        }
+
+        private static void ResetSequence(IList<ClientCard> cards)
+        {
+            for (int i = 0; i < cards.Count; ++i)
+                cards[i].Sequence = i;
         }
 
         public int GetLocalPlayer(int player)

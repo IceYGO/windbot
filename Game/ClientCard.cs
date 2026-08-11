@@ -32,7 +32,7 @@ namespace WindBot.Game
         public int BaseDefense { get; private set; }
         public int RealPower { get; set; }
         public List<int> Overlays { get; private set; }
-        public int Owner { get; private set; }
+        public int Owner { get; internal set; }
         public int Controller { get; set; }
         public int Disabled { get; private set; }
         public int ProcCompleted { get; private set; }
@@ -62,6 +62,7 @@ namespace WindBot.Game
         public ClientCard(int id, CardLocation loc, int sequence, int position)
         {
             SetId(id);
+            Owner = -1;
             Sequence = sequence;
             Position = position;
             Overlays = new List<int>();
