@@ -577,15 +577,22 @@ namespace WindBot.Game.AI
         public List<T> ShuffleList<T>(IList<T> list)
         {
             List<T> result = new List<T>(list);
-            int n = result.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                (result[n], result[index]) = (result[index], result[n]);
-            }
+            ShuffleListInPlace(result);
             return result;
         }
 
-        public List<ClientCard> ShuffleCardList(IList<ClientCard> list) => ShuffleList(list);
+        /// <summary>
+        /// Shuffle a list in place using Fisher–Yates shuffle
+        /// </summary>
+        /// <param name="list">The list to shuffle</param>
+        public void ShuffleListInPlace<T>(IList<T> list)
+        {
+            int n = list.Count;
+            while (n-- > 1)
+            {
+                int index = Program.Rand.Next(n + 1);
+                (list[n], list[index]) = (list[index], list[n]);
+            }
+        }
     }
 }

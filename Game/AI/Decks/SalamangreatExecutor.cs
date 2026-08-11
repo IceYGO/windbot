@@ -946,7 +946,8 @@ namespace WindBot.Game.AI.Decks
         }
         public int SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false)
         {
-            List<int> list = Util.ShuffleList(new List<int> { 0, 1, 2, 3, 4 });
+            List<int> list = new List<int> { 0, 1, 2, 3, 4 };
+            Util.ShuffleListInPlace(list);
             foreach (int seq in list)
             {
                 int zone = (int)Math.Pow(2, seq);
@@ -1198,7 +1199,8 @@ namespace WindBot.Game.AI.Decks
 
         public int SelectSetPlace(List<int> avoid_list = null, bool avoid = true)
         {
-            List<int> list = Util.ShuffleList(new List<int> {5, 6});
+            List<int> list = new List<int> { 5, 6 };
+            Util.ShuffleListInPlace(list);
             foreach (int seq in list)
             {
                 int zone = (int)System.Math.Pow(2, seq);
