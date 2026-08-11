@@ -421,21 +421,6 @@ namespace WindBot.Game.AI.Decks
             return base.OnSelectPosition(cardId, positions);
         }
 
-        // shuffle List<ClientCard>
-        public List<ClientCard> CardListShuffle(List<ClientCard> list)
-        {
-            List<ClientCard> result = list;
-            int n = result.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                ClientCard temp = result[index];
-                result[index] = result[n];
-                result[n] = temp;
-            }
-            return result;
-        }
-
         // check negated time count of id
         public int CheckCalledbytheGrave(int id)
         {
@@ -860,15 +845,7 @@ namespace WindBot.Game.AI.Decks
                     list.Add(seq);
                 }
             }
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(list.Count);
-                int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
-                int tempInt = list[index];
-                list[index] = list[nextIndex];
-                list[nextIndex] = tempInt;
-            }
+            Util.ShuffleListInPlace(list);
             if (avoid_Impermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
             {
                 foreach (int seq in list)
@@ -1510,7 +1487,7 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 }
                 // shuffle and select randomly
-                targets = CardListShuffle(targets);
+                Util.ShuffleListInPlace(targets);
                 AI.SelectCard(selected_cost);
                 AI.SelectNextCard(targets);
                 return true;
@@ -2003,9 +1980,12 @@ namespace WindBot.Game.AI.Decks
 
             IList<ClientCard> dangerours_spells = Enemy.SpellZone.GetMatchingCards(card => card.IsFloodgate() && !card.IsDisabled() && card.IsSpell());
             IList<ClientCard> dangerours_traps = Enemy.SpellZone.GetMatchingCards(card => card.IsFloodgate() && !card.IsDisabled() && card.IsTrap());
-            List<ClientCard> faceup_spells = CardListShuffle(Enemy.SpellZone.GetMatchingCards(card => card.IsFaceup() && card.IsSpell()).ToList());
-            List<ClientCard> faceup_traps = CardListShuffle(Enemy.SpellZone.GetMatchingCards(card => card.IsFaceup() && card.IsTrap()).ToList());
-            List<ClientCard> setcards = CardListShuffle(Enemy.SpellZone.GetMatchingCards(card => card.IsFacedown()).ToList());
+            List<ClientCard> faceup_spells = Enemy.SpellZone.GetMatchingCards(card => card.IsFaceup() && card.IsSpell()).ToList();
+            List<ClientCard> faceup_traps = Enemy.SpellZone.GetMatchingCards(card => card.IsFaceup() && card.IsTrap()).ToList();
+            List<ClientCard> setcards = Enemy.SpellZone.GetMatchingCards(card => card.IsFacedown()).ToList();
+            Util.ShuffleListInPlace(faceup_spells);
+            Util.ShuffleListInPlace(faceup_traps);
+            Util.ShuffleListInPlace(setcards);
             if (Duel.Player == 0 || Duel.Phase == DuelPhase.End)
             {
                 IList<ClientCard> targets_1 = dangerours_spells.Union(dangerours_traps).Union(faceup_spells).Union(faceup_traps).Union(setcards).ToList();
@@ -2265,7 +2245,8 @@ namespace WindBot.Game.AI.Decks
                 // select randomly (TODO)
                 IList<ClientCard> target_1 = Bot.Graveyard.GetMatchingCards(card => card.IsSpell() && CheckRemainInDeck(card.Id) > 0);
                 IList<ClientCard> target_2 = Enemy.Graveyard.GetMatchingCards(card => card.IsSpell() && CheckRemainInDeck(card.Id) > 0);
-                List<ClientCard> targets = CardListShuffle(target_1.Union(target_2).ToList());
+                List<ClientCard> targets = target_1.Union(target_2).ToList();
+                Util.ShuffleListInPlace(targets);
                 AI.SelectCard(targets);
                 return true;
             }
@@ -2283,10 +2264,12 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                List<ClientCard> tobanish_spells = CardListShuffle(Bot.Graveyard.GetMatchingCards(card => card.IsSpell() && !card.HasSetcode(Witchcraft_setcode) && card.Id != CardId.MetalfoesFusion).ToList());
+                List<ClientCard> tobanish_spells = Bot.Graveyard.GetMatchingCards(card => card.IsSpell() && !card.HasSetcode(Witchcraft_setcode) && card.Id != CardId.MetalfoesFusion).ToList();
+                Util.ShuffleListInPlace(tobanish_spells);
                 if (Bot.HasInGraveyard(CardId.Patronus))
                 {
-                    List<ClientCard> witchcraft_spells = CardListShuffle(Bot.Graveyard.GetMatchingCards(card => card.IsSpell() && card.HasSetcode(Witchcraft_setcode)).ToList());
+                    List<ClientCard> witchcraft_spells = Bot.Graveyard.GetMatchingCards(card => card.IsSpell() && card.HasSetcode(Witchcraft_setcode)).ToList();
+                    Util.ShuffleListInPlace(witchcraft_spells);
                     tobanish_spells = witchcraft_spells.Union(tobanish_spells).ToList();
                 }
                 int max_level = tobanish_spells.Count();
@@ -2480,7 +2463,8 @@ namespace WindBot.Game.AI.Decks
                 {
                     return false;
                 }
-                List<ClientCard> targets = CardListShuffle(Bot.Banished.GetMatchingCards(card => card.HasSetcode(Witchcraft_setcode)).ToList());
+                List<ClientCard> targets = Bot.Banished.GetMatchingCards(card => card.HasSetcode(Witchcraft_setcode)).ToList();
+                Util.ShuffleListInPlace(targets);
                 AI.SelectCard(targets);
                 return true;
             }
@@ -2698,7 +2682,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> spells = Enemy.GetSpells();
             List<ClientCard> faceups = new List<ClientCard>();
             List<ClientCard> facedowns = new List<ClientCard>();
-            CardListShuffle(spells);
+            Util.ShuffleListInPlace(spells);
             foreach (ClientCard card in spells)
             {
                 if (card.HasPosition(CardPosition.FaceUp) && !(card.IsShouldNotBeTarget() || card.IsShouldNotBeMonsterTarget())) faceups.Add(card);

@@ -203,7 +203,7 @@ namespace WindBot.Game.AI.Decks
                     list.Add(seq);
                 }
             }
-            list = Util.ShuffleList(list);
+            Util.ShuffleListInPlace(list);
             if (avoid_Impermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
             {
                 foreach (int seq in list)
@@ -463,7 +463,7 @@ namespace WindBot.Game.AI.Decks
         public bool Stage_Lock()
         {
             if (Card.Location != CardLocation.SpellZone) return false;
-            List<ClientCard> spells = Util.ShuffleCardList(Enemy.GetSpells());
+            List<ClientCard> spells = Util.ShuffleList(Enemy.GetSpells());
             if (spells.Count == 0) return false;
             foreach (ClientCard card in spells)
             {
@@ -1352,7 +1352,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(target);
             } else
             {
-                List<ClientCard> spells = Util.ShuffleCardList(Enemy.GetSpells());
+                List<ClientCard> spells = Util.ShuffleList(Enemy.GetSpells());
                 foreach (ClientCard card in spells)
                 {
                     if ((card != stage_locked || card.HasPosition(CardPosition.FaceUp)) && !(card.IsShouldNotBeTarget() || card.IsShouldNotBeMonsterTarget())) AI.SelectNextCard(card);

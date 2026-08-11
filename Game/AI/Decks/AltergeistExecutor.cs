@@ -378,15 +378,7 @@ namespace WindBot.Game.AI.Decks
                     list.Add(seq);
                 }
             }
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(list.Count);
-                int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
-                int tempInt = list[index];
-                list[index] = list[nextIndex];
-                list[nextIndex] = tempInt;
-            }
+            Util.ShuffleListInPlace(list);
             if (avoid_Impermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
             {
                 foreach (int seq in list)
@@ -405,20 +397,8 @@ namespace WindBot.Game.AI.Decks
 
         public int SelectSetPlace(List<int> avoid_list=null)
         {
-            List<int> list = new List<int>();
-            list.Add(0);
-            list.Add(1);
-            list.Add(2);
-            list.Add(3);
-            list.Add(4);
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                int temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
+            List<int> list = new List<int> { 0, 1, 2, 3, 4 };
+            Util.ShuffleListInPlace(list);
             foreach (int seq in list)
             {
                 int zone = (int)System.Math.Pow(2, seq);
@@ -451,19 +431,6 @@ namespace WindBot.Game.AI.Decks
             }
             // how to get here?
             return false;
-        }
-
-        public void RandomSort(List<ClientCard> list)
-        {
-
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                ClientCard temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
         }
 
         public int get_Hexstia_linkzone(int zone)
@@ -562,7 +529,7 @@ namespace WindBot.Game.AI.Decks
 
             // spells
             List<ClientCard> enemy_spells = Enemy.GetSpells();
-            RandomSort(enemy_spells);
+            Util.ShuffleListInPlace(enemy_spells);
             foreach(ClientCard sp in enemy_spells)
             {
                 if (sp.IsFaceup() && !sp.IsDisabled()) return sp;
@@ -572,7 +539,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> monsters = Enemy.GetMonsters();
             if (monsters.Count > 0)
             {
-                RandomSort(monsters);
+                Util.ShuffleListInPlace(monsters);
                 return monsters[0];
             }
 
@@ -1064,7 +1031,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> select_list = new List<ClientCard>();
             int activate_immediately = 0;
             List<ClientCard> spells = Enemy.GetSpells();
-            RandomSort(spells);
+            Util.ShuffleListInPlace(spells);
             foreach(ClientCard card in spells)
             {
                 if (card != null)
@@ -1130,7 +1097,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
                 List<ClientCard> spells = Enemy.GetSpells();
-                RandomSort(spells);
+                Util.ShuffleListInPlace(spells);
                 foreach(ClientCard card in spells)
                 {
                     if (card.IsFaceup() && !card.IsDisabled())
@@ -1140,7 +1107,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
                 List<ClientCard> monsters = Enemy.GetMonsters();
-                RandomSort(monsters);
+                Util.ShuffleListInPlace(monsters);
                 foreach (ClientCard card in monsters)
                 {
                     if (card.IsFaceup() && !card.IsDisabled() 
@@ -1374,7 +1341,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
                 List<ClientCard> targets = Enemy.GetSpells();
-                RandomSort(targets);
+                Util.ShuffleListInPlace(targets);
                 if (targets.Count > 0)
                 {
                     AI.SelectCard(targets[0]);
