@@ -1474,10 +1474,12 @@ namespace WindBot.Game
 
             _duel.MainPhase = new MainPhase();
             MainPhase main = _duel.MainPhase;
+            int[] actionCounts = new int[6];
             int count;
             for (int k = 0; k < 5; k++)
             {
                 count = packet.ReadByte();
+                actionCounts[k] = count;
                 for (int i = 0; i < count; ++i)
                 {
                     packet.ReadInt32(); // card id
@@ -1508,6 +1510,7 @@ namespace WindBot.Game
                 }
             }
             count = packet.ReadByte();
+            actionCounts[5] = count;
             for (int i = 0; i < count; ++i)
             {
                 packet.ReadInt32(); // card id
@@ -1528,9 +1531,65 @@ namespace WindBot.Game
 
             main.CanBattlePhase = packet.ReadByte() != 0;
             main.CanEndPhase = packet.ReadByte() != 0;
-            packet.ReadByte(); // CanShuffle
+            bool canShuffle = packet.ReadByte() != 0;
 
-            Connection.Send(CtosMessage.Response, _ai.OnSelectIdleCmd(main).ToValue());
+            MainPhaseAction action = _ai.OnSelectIdleCmd(main);
+            bool isValid = action.Index >= 0;
+            if (isValid)
+            {
+                switch (action.Action)
+                {
+                    case MainPhaseAction.MainAction.Summon:
+                    case MainPhaseAction.MainAction.SpSummon:
+                    case MainPhaseAction.MainAction.Repos:
+                    case MainPhaseAction.MainAction.SetMonster:
+                    case MainPhaseAction.MainAction.SetSpell:
+                    case MainPhaseAction.MainAction.Activate:
+                        isValid = action.Index < actionCounts[(int)action.Action];
+                        break;
+                    case MainPhaseAction.MainAction.ToBattlePhase:
+                        isValid = main.CanBattlePhase;
+                        break;
+                    case MainPhaseAction.MainAction.ToEndPhase:
+                        isValid = main.CanEndPhase;
+                        break;
+                    case MainPhaseAction.MainAction.Shuffle:
+                        isValid = canShuffle;
+                        break;
+                    default:
+                        isValid = false;
+                        break;
+                }
+            }
+
+            if (!isValid)
+            {
+                Logger.WriteErrorLine("Invalid SelectIdleCmd response: Action=" + action.Action
+                    + ", Index=" + action.Index + ", Counts=" + string.Join(",", actionCounts)
+                    + ", CanBattlePhase=" + main.CanBattlePhase + ", CanEndPhase=" + main.CanEndPhase
+                    + ", CanShuffle=" + canShuffle);
+                _ai.ClearSelections();
+
+                if (main.CanEndPhase)
+                    action = new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase);
+                else if (main.CanBattlePhase)
+                    action = new MainPhaseAction(MainPhaseAction.MainAction.ToBattlePhase);
+                else if (canShuffle)
+                    action = new MainPhaseAction(MainPhaseAction.MainAction.Shuffle);
+                else
+                {
+                    for (int actionType = 0; actionType < actionCounts.Length; ++actionType)
+                    {
+                        if (actionCounts[actionType] > 0)
+                        {
+                            action = new MainPhaseAction((MainPhaseAction.MainAction)actionType, 0);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            Connection.Send(CtosMessage.Response, action.ToValue());
         }
 
         private void OnSelectOption(BinaryReader packet)
