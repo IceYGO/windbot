@@ -614,21 +614,161 @@ namespace WindBot.Game
             return 0; // Always select the first option.
         }
 
-        public int OnSelectPlace(int cardId, int player, CardLocation location, int available)
+        public uint OnSelectPlace(int cardId, int count, uint available)
         {
+            if (count > 1)
+            {
+                m_place = 0;
+                return OnSelectDisfield(cardId, count, available);
+            }
+
+            int player;
+            CardLocation location;
+            int filter;
+            if ((available & 0x7fu) != 0)
+            {
+                player = 0;
+                location = CardLocation.MonsterZone;
+                filter = (int)(available & (uint)Zones.MonsterZones);
+            }
+            else if ((available & 0x1f00u) != 0)
+            {
+                player = 0;
+                location = CardLocation.SpellZone;
+                filter = (int)((available >> 8) & (uint)Zones.SpellZones);
+            }
+            else if ((available & 0x2000u) != 0)
+            {
+                player = 0;
+                location = CardLocation.FieldZone;
+                filter = Zones.FieldZone;
+            }
+            else if ((available & 0xc000u) != 0)
+            {
+                player = 0;
+                location = CardLocation.PendulumZone;
+                filter = (int)((available >> 14) & (uint)Zones.PendulumZones);
+            }
+            else if ((available & 0x7f0000u) != 0)
+            {
+                player = 1;
+                location = CardLocation.MonsterZone;
+                filter = (int)((available >> 16) & (uint)Zones.MonsterZones);
+            }
+            else if ((available & 0x1f000000u) != 0)
+            {
+                player = 1;
+                location = CardLocation.SpellZone;
+                filter = (int)((available >> 24) & (uint)Zones.SpellZones);
+            }
+            else if ((available & 0x20000000u) != 0)
+            {
+                player = 1;
+                location = CardLocation.FieldZone;
+                filter = Zones.FieldZone;
+            }
+            else
+            {
+                player = 1;
+                location = CardLocation.PendulumZone;
+                filter = (int)((available >> 30) & (uint)Zones.PendulumZones);
+            }
+
             int selector_selected = m_place;
             m_place = 0;
 
-            int executor_selected = Executor.OnSelectPlace(cardId, player, location, available);
+            int executor_selected = Executor.OnSelectPlace(cardId, player, location, filter);
 
-            if ((executor_selected & available) > 0)
-                return executor_selected & available;
-            if ((selector_selected & available) > 0)
-                return selector_selected & available;
+            if ((executor_selected & filter) > 0)
+                filter &= executor_selected;
+            else if ((selector_selected & filter) > 0)
+                filter &= selector_selected;
 
-            // TODO: LinkedZones
+            // TODO: Some helpers for prefering linked zones or non-linked zones
 
-            return 0;
+            int sequence = 0;
+            if (location != CardLocation.PendulumZone && location != CardLocation.FieldZone)
+            {
+                if ((filter & Zones.z2) != 0) sequence = 2;
+                else if ((filter & Zones.z1) != 0) sequence = 1;
+                else if ((filter & Zones.z3) != 0) sequence = 3;
+                else if ((filter & Zones.z0) != 0) sequence = 0;
+                else if ((filter & Zones.z4) != 0) sequence = 4;
+                else if ((filter & Zones.z6) != 0) sequence = 6;
+                else if ((filter & Zones.z5) != 0) sequence = 5;
+            }
+            else
+            {
+                location = CardLocation.SpellZone;
+                if ((filter & Zones.FieldZone) != 0) sequence = 5;
+                if ((filter & Zones.z0) != 0) sequence = 6;
+                if ((filter & Zones.z1) != 0) sequence = 7;
+            }
+            return 1u << (player * 16 + (location == CardLocation.MonsterZone ? 0 : 8) + sequence);
+        }
+
+        public uint OnSelectDisfield(int hint, int count, uint available)
+        {
+            int required = System.Math.Max(1, count);
+            uint executorSelected = Executor.OnSelectDisfield(hint, count, available) & available;
+            int executorSelectedCount = 0;
+            for (uint pending = executorSelected; pending != 0; pending &= pending - 1u)
+                ++executorSelectedCount;
+            bool selectsMirroredExtraMonsterZones =
+                (executorSelected & ((1u << 5) | (1u << 22))) == ((1u << 5) | (1u << 22))
+                || (executorSelected & ((1u << 6) | (1u << 21))) == ((1u << 6) | (1u << 21));
+            if (executorSelectedCount == required && !selectsMirroredExtraMonsterZones)
+                return executorSelected;
+
+            // Select zones in central order, opponent's zones first.
+            IList<uint> zones = new List<uint>();
+            int[] monsterZoneOrder = { 2, 1, 3, 0, 4, 6, 5 };
+            int[] spellZoneOrder = { 2, 1, 3, 0, 4 };
+            foreach (int player in new[] { 1, 0 })
+            {
+                int offset = player * 16;
+                foreach (int sequence in monsterZoneOrder)
+                {
+                    uint zone = 1u << (offset + sequence);
+                    if ((available & zone) != 0)
+                        zones.Add(zone);
+                }
+                foreach (int sequence in spellZoneOrder)
+                {
+                    uint zone = 1u << (offset + 8 + sequence);
+                    if ((available & zone) != 0)
+                        zones.Add(zone);
+                }
+            }
+            foreach (int player in new[] { 0, 1 })
+            {
+                int offset = player * 16 + 8;
+                foreach (int sequence in new[] { 5, 7, 6 })
+                {
+                    uint zone = 1u << (offset + sequence);
+                    if ((available & zone) != 0)
+                        zones.Add(zone);
+                }
+            }
+
+            uint selected = 0;
+            int remaining = required;
+            foreach (uint zone in zones)
+            {
+                if (remaining == 0)
+                    break;
+
+                // Each extra monster zone has two protocol coordinates, but selecting both is invalid.
+                if ((zone == (1u << 5) && (selected & (1u << 22)) != 0)
+                    || (zone == (1u << 22) && (selected & (1u << 5)) != 0)
+                    || (zone == (1u << 6) && (selected & (1u << 21)) != 0)
+                    || (zone == (1u << 21) && (selected & (1u << 6)) != 0))
+                    continue;
+
+                selected |= zone;
+                --remaining;
+            }
+            return selected;
         }
 
         /// <summary>

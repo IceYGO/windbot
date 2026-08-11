@@ -723,6 +723,7 @@ namespace WindBot.Game.AI.Decks
             if (!HasMekkKnightSummonInHand())
                 return false;
 
+            // 选择移走后原纵列仍保留两张卡的机界骑士，继续满足手卡中机界骑士的纵列条件。
             ClientCard target = Bot.GetMonsters()
                 .Where(c => c.IsFaceup() && c.IsCode(
                     CardId.MekkKnightPurpleNightfall,
@@ -735,37 +736,13 @@ namespace WindBot.Game.AI.Decks
                         : c.Sequence == 6 ? 3
                         : -1;
                     return sourceColumn >= 0
-                        && (c.Sequence < 5 || Bot.MonsterZone[sourceColumn] == null)
                         && GetColumnCardCount(sourceColumn) >= 3;
                 });
             if (target == null)
                 return false;
 
-            int targetColumn = target.Sequence < 5 ? target.Sequence
-                : target.Sequence == 5 ? 1
-                : 3;
-            int destinationZones = 0;
-            int minimumColumnCards = int.MaxValue;
-            for (int column = 0; column < 5; ++column)
-            {
-                if (column == targetColumn || Bot.MonsterZone[column] != null)
-                    continue;
-
-                int columnCards = GetColumnCardCount(column);
-                if (columnCards < minimumColumnCards)
-                {
-                    minimumColumnCards = columnCards;
-                    destinationZones = 1 << column;
-                }
-                else if (columnCards == minimumColumnCards)
-                    destinationZones |= 1 << column;
-            }
-            if (destinationZones == 0)
-                return false;
-
-            // 移走后原纵列仍有两张卡，并空出主怪兽区域给下一只机界骑士。
             AI.SelectCard(target);
-            AI.SelectPlace(destinationZones);
+            // 卡组里两种机界骑士都只会存在于主怪兽区域，不考虑额外怪兽区域，不用选具体移动目标位置
             return true;
         }
 

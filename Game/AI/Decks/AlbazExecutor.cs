@@ -2228,12 +2228,6 @@ namespace WindBot.Game.AI.Decks
 
         public override int OnSelectPlace(int cardId, int player, CardLocation location, int available)
         {
-            ChainInfo currentSovingChain = Duel.GetCurrentSolvingChainInfo();
-            if (currentSovingChain != null && currentSovingChain.ActivatePlayer == 0 && currentSovingChain.IsActivateCode(CardId.SprindTheIrondashDragon))
-            {
-                return SprindTheIrondashDragonMoveZone(available, null);
-            }
-
             if (player == 0 && location == CardLocation.MonsterZone)
             {
                 List<int> zoneIdList = Util.ShuffleList(new List<int> { 5, 6 });
@@ -2249,6 +2243,18 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             return base.OnSelectPlace(cardId, player, location, available);
+        }
+
+        public override uint OnSelectDisfield(int hint, int count, uint available)
+        {
+            ChainInfo currentSovingChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentSovingChain != null && currentSovingChain.ActivatePlayer == 0 && currentSovingChain.IsActivateCode(CardId.SprindTheIrondashDragon))
+            {
+                int selected = SprindTheIrondashDragonMoveZone((int)(available & (uint)Zones.MainMonsterZones), null);
+                if (selected > 0 && ((uint)selected & available) != 0)
+                    return (uint)selected;
+            }
+            return base.OnSelectDisfield(hint, count, available);
         }
 
         public override bool OnSelectYesNo(int desc)
