@@ -28,6 +28,8 @@ namespace WindBot.Game
         private Duel _duel;
         private int _hand;
         private bool _debug;
+        private bool _isTag;
+        private bool _chatPlayerOrderSwapped;
         private int _select_hint;
         private GameMessage _lastMessage;
 
@@ -161,8 +163,9 @@ namespace WindBot.Game
         {
             /*int lflist = (int)*/ packet.ReadUInt32();
             /*int rule = */ packet.ReadByte();
-            /*int mode = */ packet.ReadByte();
+            int mode = packet.ReadByte();
             int duel_rule = packet.ReadByte();
+            _isTag = (mode == 2);
             _ai.Duel.IsNewRule = (duel_rule >= 4);
             _ai.Duel.IsNewRule2020 = (duel_rule >= 5);
             BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
@@ -180,6 +183,7 @@ namespace WindBot.Game
 
         private void OnChangeSide(BinaryReader packet)
         {
+            _chatPlayerOrderSwapped = false;
             BinaryWriter deck = GamePacketFactory.Create(CtosMessage.UpdateDeck);
             deck.Write(Deck.Cards.Count + Deck.ExtraCards.Count);
             deck.Write(Deck.SideCards.Count);
@@ -241,7 +245,9 @@ namespace WindBot.Game
                 _room.Names[pos] = null;
             }
 
-            if (_room.IsHost && _room.IsReady[0] && _room.IsReady[1])
+            bool allPlayersReady = _room.IsReady[0] && _room.IsReady[1] &&
+                (!_isTag || (_room.IsReady[2] && _room.IsReady[3]));
+            if (_room.IsHost && allPlayersReady)
                 Connection.Send(CtosMessage.HsStart);
         }
 
@@ -297,14 +303,20 @@ namespace WindBot.Game
         private void OnChat(BinaryReader packet)
         {
             if (Program.ServerMode) return;
-            int player = packet.ReadInt16();
+            int player = packet.ReadUInt16();
             string message = packet.ReadUnicode(256);
-            string myName = (player != 0) ? _room.Names[1] : _room.Names[0];
-            string otherName = (player == 0) ? _room.Names[1] : _room.Names[0];
             if (player < 4)
-                Logger.DebugWriteLine(otherName + " say to " + myName + ": " + message);
-            else
+            {
+                int namePosition = player;
+                if (_chatPlayerOrderSwapped)
+                    namePosition = _isTag ? player ^ 2 : 1 - player;
+                string playerName = _room.Names[namePosition] ?? "Player " + namePosition;
+                Logger.DebugWriteLine(playerName + " says: " + message);
+            }
+            else if (player == 8 || (player >= 11 && player <= 19))
                 Logger.DebugWriteLine("System message(" + player + "): " + message);
+            else
+                Logger.DebugWriteLine("Spectator or unknown message(" + player + "): " + message);
         }
 
         private void OnErrorMsg(BinaryReader packet)
@@ -379,6 +391,9 @@ namespace WindBot.Game
         {
             int type = packet.ReadByte();
             _duel.IsFirst = (type & 0xF) == 0;
+            // The server may reorder player types for turn order, while room names remain in lobby slots.
+            int roomTeam = _isTag ? _room.Position / 2 : _room.Position;
+            _chatPlayerOrderSwapped = roomTeam != (_duel.IsFirst ? 0 : 1);
             _duel.Turn = 0;
             _duel.LastChainLocation = 0;
             _duel.LastChainPlayer = -1;
@@ -406,7 +421,15 @@ namespace WindBot.Game
             _duel.SolvingChainIndex = 0;
             _duel.NegatedChainIndexList.Clear();
 
-            Logger.DebugWriteLine("Duel started: " + _room.Names[0] + " versus " + _room.Names[1]);
+            if (_isTag)
+            {
+                Logger.DebugWriteLine("Duel started: " + _room.Names[0] + " and " + _room.Names[1] +
+                    " versus " + _room.Names[2] + " and " + _room.Names[3]);
+            }
+            else
+            {
+                Logger.DebugWriteLine("Duel started: " + _room.Names[0] + " versus " + _room.Names[1]);
+            }
             _ai.OnStart();
         }
 
@@ -414,7 +437,17 @@ namespace WindBot.Game
         {
             int result = GetLocalPlayer(packet.ReadByte());
 
-            string otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
+            string otherName;
+            if (_isTag)
+            {
+                int opponentTeamPosition = _room.Position < 2 ? 2 : 0;
+                otherName = _room.Names[opponentTeamPosition] + " and " +
+                    _room.Names[opponentTeamPosition + 1];
+            }
+            else
+            {
+                otherName = _room.Position == 0 ? _room.Names[1] : _room.Names[0];
+            }
             string textResult = (result == 2 ? "Draw" : result == 0 ? "Win" : "Lose");
             Logger.DebugWriteLine("Duel finished against " + otherName + ", result: " + textResult);
         }
