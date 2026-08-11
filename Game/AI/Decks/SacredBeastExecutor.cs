@@ -288,19 +288,31 @@ namespace WindBot.Game.AI.Decks
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             Logger.DebugWriteLine("OnSelectCard " + cards.Count + " " + min + " " + max + " hint=" + hint + " cancelable=" + cancelable + " cards=[" + string.Join(", ", cards.Select(c => c == null ? "null" : $"{c.Name}({c.Id}) C{c.Controller} L{c.Location}")) + "]");
 
-            if (currentSolvingChain != null && currentSolvingChain.ActivatePlayer == 1 && currentSolvingChain.IsActivateCode(CardId.AmeNoMurakumoNoMitsurugi) && cards != null && cards.Count > 0
-                && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
+            if (currentSolvingChain != null && currentSolvingChain.ActivatePlayer == 1)
             {
-                HashSet<int> protect = new HashSet<int>();
-
-                ClientCard discard = cards.OrderBy(c => DiscardScore(c, protect)).FirstOrDefault(c => DiscardScore(c, protect) < 9999);
-
-                if (discard != null)
+                if (currentSolvingChain.IsActivateCode(CardId.AmeNoMurakumoNoMitsurugi) 
+                    && cards != null && cards.Count > 0 && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) 
+                    && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
                 {
-                    Logger.DebugWriteLine($"[MURAKUMO] Sacred Beast discard => " + $"{discard.Name}({discard.Id})");
-                    return new List<ClientCard> { discard };
+                    HashSet<int> protect = new HashSet<int>();
+
+                    ClientCard discard = cards.OrderBy(c => DiscardScore(c, protect)).FirstOrDefault(c => DiscardScore(c, protect) < 9999);
+
+                    if (discard != null)
+                    {
+                        Logger.DebugWriteLine($"[MURAKUMO] Sacred Beast discard => " + $"{discard.Name}({discard.Id})");
+                        return new List<ClientCard> { discard };
+                    }
+                }
+
+                if (currentSolvingChain.IsActivateCode(CardId.DogmatikaMaximus) && hint == HintMsg.ToGrave)
+                {
+                    List<ClientCard> sendCards = cards.Where(c => c != null).OrderBy(c => ExtraDeckSendScore(c)).Take(min).ToList();
+                    Logger.DebugWriteLine($"[DogmatikaMaximus] Sacred Beast send to grave => " + string.Join(", ", sendCards.Select(c => $"{c.Name}({c.Id})")));
+                    return sendCards;
                 }
             }
+
             ClientCard trigger = Util.GetLastChainCard();
             if (resolvingChantFusion)
             {
@@ -833,16 +845,6 @@ namespace WindBot.Game.AI.Decks
 
                 if (targetList.Count >= min)
                     return targetList;
-            }
-
-            if (currentSolvingChain != null
-                && currentSolvingChain.ActivatePlayer == 1
-                && currentSolvingChain.IsActivateCode(CardId.DogmatikaMaximus)
-                && hint == HintMsg.ToGrave)
-            {
-                List<ClientCard> sendCards = cards.Where(c => c != null).OrderBy(c => ExtraDeckSendScore(c)).Take(min).ToList();
-                Logger.DebugWriteLine($"[DogmatikaMaximus] Sacred Beast send to grave => " + string.Join(", ", sendCards.Select(c => $"{c.Name}({c.Id})")));
-                return sendCards;
             }
 
             Logger.DebugWriteLine("Use default.");
