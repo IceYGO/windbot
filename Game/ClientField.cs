@@ -206,9 +206,9 @@ namespace WindBot.Game
             return HasInCards(ExtraDeck, cardId);
         }
 
-        public bool HasAttackingMonster()
+        public bool HasAttackingMonster(bool strict = false)
         {
-            return GetMonsters().Any(card => card.IsAttack());
+            return GetMonsters().Any(card => card.IsAttack() || (!strict && card.IsMonsterAttackWhileInDefPos()));
         }
 
         public bool HasDefendingMonster()

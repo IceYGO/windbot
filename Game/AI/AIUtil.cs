@@ -18,11 +18,13 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// Get the total ATK Monster of the player.
+        /// Get the total attacking power of the player's monsters.
         /// </summary>
         public int GetTotalAttackingMonsterAttack(int player)
         {
-            return Duel.Fields[player].GetMonsters().Where(m => m.IsAttack()).Sum(m => (int?)m.Attack) ?? 0;
+            return Duel.Fields[player].GetMonsters()
+                .Where(m => m.IsAttack() || m.IsMonsterAttackWhileInDefPos())
+                .Sum(m => (int?)m.GetAttackPower()) ?? 0;
         }
         /// <summary>
         /// Get the best ATK or DEF power of the field.

@@ -1755,12 +1755,12 @@ namespace WindBot.Game.AI.Decks
                 ClientCard defender = defenders[i];
                 if (defender.HasPosition(CardPosition.Attack) && !defender.IsMonsterDangerous() && (lowestattack == null || defender.Attack < lowestattack.Attack)) lowestattack = defender;
             }
-            if (lowestattack != null && attacker.Attack - lowestattack.Attack >= Enemy.LifePoints) return AI.Attack(attacker, lowestattack);
+            if (lowestattack != null && attacker.GetAttackPower() - lowestattack.Attack >= Enemy.LifePoints) return AI.Attack(attacker, lowestattack);
             for (int i = 0; i < defenders.Count; ++i)
             {
                 ClientCard defender = defenders[i];
 
-                attacker.RealPower = attacker.Attack;
+                attacker.RealPower = attacker.GetAttackPower();
                 defender.RealPower = defender.GetDefensePower();
 
                 if (!defender.IsMonsterHasPreventActivationEffectInBattle() && !attacker.IsDisabled())

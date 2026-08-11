@@ -1229,7 +1229,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard defender in defenders)
             {
-                attacker.RealPower = attacker.Attack;
+                attacker.RealPower = attacker.GetAttackPower();
                 defender.RealPower = defender.GetDefensePower();
                 if (attacker.IsCode(CardId.Borrelsword) && !attacker.IsDisabled())
                     return AI.Attack(attacker, defender);

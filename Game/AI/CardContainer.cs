@@ -16,6 +16,17 @@ namespace WindBot.Game.AI
             return 1;
         }
 
+        public static int CompareCardAttackPower(ClientCard cardA, ClientCard cardB)
+        {
+            int powerA = cardA.GetAttackPower();
+            int powerB = cardB.GetAttackPower();
+            if (powerA < powerB)
+                return -1;
+            if (powerA == powerB)
+                return 0;
+            return 1;
+        }
+
         public static int CompareCardLevel(ClientCard cardA, ClientCard cardB)
         {
             if (cardA.Level < cardB.Level)

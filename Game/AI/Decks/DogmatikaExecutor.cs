@@ -1063,7 +1063,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (attackers.Count() > 0 && defenders.Count() > 0)
             {
-                List<ClientCard> sortedAttacker = attackers.OrderBy(card => card.Attack).ToList();
+                List<ClientCard> sortedAttacker = attackers.OrderBy(card => card.GetAttackPower()).ToList();
                 for (int k = 0; k < sortedAttacker.Count; ++k)
                 {
                     ClientCard attacker = sortedAttacker[k];
@@ -1081,7 +1081,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (ClientCard defender in defenders)
             {
-                attacker.RealPower = attacker.Attack;
+                attacker.RealPower = attacker.GetAttackPower();
                 defender.RealPower = defender.GetDefensePower();
                 if (!OnPreBattleBetween(attacker, defender))
                     continue;
