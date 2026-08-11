@@ -203,15 +203,7 @@ namespace WindBot.Game.AI.Decks
                     list.Add(seq);
                 }
             }
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(list.Count);
-                int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
-                int tempInt = list[index];
-                list[index] = list[nextIndex];
-                list[nextIndex] = tempInt;
-            }
+            Util.ShuffleListInPlace(list);
             if (avoid_Impermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
             {
                 foreach (int seq in list)
@@ -468,23 +460,10 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        public void RandomSort(List<ClientCard> list) {
-
-            int n = list.Count;
-            while(n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                ClientCard temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
-        }
-
         public bool Stage_Lock()
         {
             if (Card.Location != CardLocation.SpellZone) return false;
-            List<ClientCard> spells = Enemy.GetSpells();
-            RandomSort(spells);
+            List<ClientCard> spells = Util.ShuffleList(Enemy.GetSpells());
             if (spells.Count == 0) return false;
             foreach (ClientCard card in spells)
             {
@@ -1373,8 +1352,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(target);
             } else
             {
-                List<ClientCard> spells = Enemy.GetSpells();
-                RandomSort(spells);
+                List<ClientCard> spells = Util.ShuffleList(Enemy.GetSpells());
                 foreach (ClientCard card in spells)
                 {
                     if ((card != stage_locked || card.HasPosition(CardPosition.FaceUp)) && !(card.IsShouldNotBeTarget() || card.IsShouldNotBeMonsterTarget())) AI.SelectNextCard(card);

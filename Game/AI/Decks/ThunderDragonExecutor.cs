@@ -549,9 +549,7 @@ namespace WindBot.Game.AI.Decks
                          || (copy_cards[i].Id == CardId.ThunderDragonmatrix && HasInZoneNoActivate(CardId.ThunderDragonmatrix, CardLocation.MonsterZone)))
                     {
                         if (i <= 0) continue;
-                        ClientCard temp = copy_cards[0];
-                        copy_cards[0] = copy_cards[i];
-                        copy_cards[i] = temp;
+                        (copy_cards[i], copy_cards[0]) = (copy_cards[0], copy_cards[i]);
                     }
                 }
                 return Util.CheckSelectCount(copy_cards, cards, min, max);
@@ -815,14 +813,7 @@ namespace WindBot.Game.AI.Decks
         public int SelectSTPlace(ClientCard card = null, bool avoid_Impermanence = false)
         {
             List<int> list = new List<int> { 0, 1, 2, 3, 4 };
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(n + 1);
-                int temp = list[index];
-                list[index] = list[n];
-                list[n] = temp;
-            }
+            Util.ShuffleListInPlace(list);
             foreach (int seq in list)
             {
                 int zone = (int)System.Math.Pow(2, seq);
@@ -1384,9 +1375,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         if (i > 0)
                         {
-                            ClientCard temp = link_materials[0];
-                            link_materials[0] = link_materials[i];
-                            link_materials[i] = temp;
+                            (link_materials[i], link_materials[0]) = (link_materials[0], link_materials[i]);
                         }
                         index = i;
                         break;
