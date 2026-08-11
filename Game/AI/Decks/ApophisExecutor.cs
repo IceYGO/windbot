@@ -142,22 +142,9 @@ namespace WindBot.Game.AI.Decks
         int currentSummoningCount = 0;
 
         /// <summary>
-        /// Shuffle List<ClientCard> and return a random-order card list
+        /// Shuffle List<T> and return a random-order card list
         /// </summary>
-        public List<T> ShuffleList<T>(List<T> list)
-        {
-            List<T> result = list;
-            int n = result.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(result.Count);
-                int nextIndex = (index + Program.Rand.Next(result.Count - 1)) % result.Count;
-                T tempCard = result[index];
-                result[index] = result[nextIndex];
-                result[nextIndex] = tempCard;
-            }
-            return result;
-        }
+        public List<T> ShuffleList<T>(List<T> list) => Util.ShuffleList(list);
 
         public bool CheckCanBeTargeted(ClientCard card, bool canBeTarget, CardType selfType)
         {
@@ -1571,15 +1558,7 @@ namespace WindBot.Game.AI.Decks
                     list.Add(seq);
                 }
             }
-            int n = list.Count;
-            while (n-- > 1)
-            {
-                int index = Program.Rand.Next(list.Count);
-                int nextIndex = (index + Program.Rand.Next(list.Count - 1)) % list.Count;
-                int tempInt = list[index];
-                list[index] = list[nextIndex];
-                list[nextIndex] = tempInt;
-            }
+            list = ShuffleList(list);
             if (avoidImpermanence && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled()))
             {
                 foreach (int seq in list)
