@@ -255,9 +255,9 @@ namespace WindBot.Game
                 }
             }
 
-            // Sort the attackers and defenders, make monster with higher attack go first.
+            // Sort the attackers and defenders, make monster with higher battle power go first.
             List<ClientCard> attackers = new List<ClientCard>(battle.AttackableCards);
-            attackers.Sort(CardContainer.CompareCardAttack);
+            attackers.Sort(CardContainer.CompareCardAttackPower);
             attackers.Reverse();
 
             List<ClientCard> defenders = new List<ClientCard>(Duel.Fields[1].GetMonsters());
@@ -587,7 +587,7 @@ namespace WindBot.Game
                 }
             }
 
-            if (main.CanBattlePhase && Duel.Fields[0].HasAttackingMonster())
+            if (main.CanBattlePhase && (Duel.Fields[0].HasAttackingMonster() || !main.CanEndPhase))
                 return new MainPhaseAction(MainPhaseAction.MainAction.ToBattlePhase);
 
             _dialogs.SendEndTurn();

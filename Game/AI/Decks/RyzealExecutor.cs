@@ -858,7 +858,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (attackers.Count() > 0 && defenders.Count() > 0)
             {
-                List<ClientCard> sortedAttacker = attackers.OrderBy(card => card.Attack).ToList();
+                List<ClientCard> sortedAttacker = attackers.OrderBy(card => card.GetAttackPower()).ToList();
                 ClientCard rayLancer = attackers.FirstOrDefault(c => c.IsCode(CardId.FullArmoredUtopicRayLancer) && !c.IsDisabled());
                 if (rayLancer != null)
                 {

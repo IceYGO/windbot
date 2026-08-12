@@ -599,7 +599,7 @@ namespace WindBot.Game.AI.Decks
                 for (int i = 0; i < defenders.Count; i++)
                 {
                     ClientCard defender = defenders[i];                    
-                    attacker.RealPower = attacker.Attack;
+                    attacker.RealPower = attacker.GetAttackPower();
                     defender.RealPower = defender.GetDefensePower();
                     if (!OnPreBattleBetween(attacker, defender))
                         continue;                    

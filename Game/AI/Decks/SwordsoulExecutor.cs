@@ -2528,7 +2528,7 @@ namespace WindBot.Game.AI.Decks
                 // negate unbreakable monster
                 if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
                 {
-                    bool botCanAttack = Bot.GetMonsters().Any(card => card.IsAttack());
+                    bool botCanAttack = Bot.HasAttackingMonster();
                     if (Duel.Player == 0 && botCanAttack)
                     {
                         negateTargetList.AddRange(Enemy.GetMonsters().Where(card => card.IsFaceup() && card.IsMonsterDangerous()).ToList());

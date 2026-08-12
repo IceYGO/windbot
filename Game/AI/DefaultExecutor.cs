@@ -382,7 +382,7 @@ namespace WindBot.Game.AI
         {
             foreach (ClientCard defender in defenders)
             {
-                attacker.RealPower = attacker.Attack;
+                attacker.RealPower = attacker.GetAttackPower();
                 defender.RealPower = defender.GetDefensePower();
                 if (!OnPreBattleBetween(attacker, defender))
                     continue;
