@@ -36,8 +36,6 @@ namespace WindBot.Game
             Fields = new ClientField[2];
             Fields[0] = new ClientField();
             Fields[1] = new ClientField();
-            Fields[0].SetOpponent(Fields[1]);
-            Fields[1].SetOpponent(Fields[0]);
             LastChainPlayer = -1;
             LastChainLocation = 0;
             CurrentChain = new List<ClientCard>();
@@ -104,10 +102,7 @@ namespace WindBot.Game
                 ClientCard card = cards[seq];
                 if (card == null || subSeq >= card.Overlays.Count)
                     return null;
-                ClientCard overlay = new ClientCard(card.Overlays[subSeq], CardLocation.Overlay, 0, 0);
-                if (subSeq < card.OverlayOwners.Count)
-                    overlay.Owner = card.OverlayOwners[subSeq];
-                return overlay;
+                return new ClientCard(card.Overlays[subSeq], CardLocation.Overlay, 0, 0);
             }
 
             return cards[seq];

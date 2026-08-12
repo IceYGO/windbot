@@ -8,9 +8,9 @@ namespace WindBot.Game
 {
     public class ClientField
     {
-        private int _player;
-        private ClientField _opponent;
-        private IDictionary<int, int> _initialDeckCounts;
+        private IDictionary<int, int> _deckCounts;
+        private bool _deckCountsExact;
+        private bool _deckTrackingActive;
 
         public IList<ClientCard> Hand { get; private set; }
         public ClientCard[] MonsterZone { get; private set; }
@@ -32,7 +32,6 @@ namespace WindBot.Game
 
         public void Init(int deck, int extra, int player)
         {
-            _player = player;
             Hand = new List<ClientCard>();
             MonsterZone = new ClientCard[7];
             SpellZone = new ClientCard[8];
@@ -58,27 +57,97 @@ namespace WindBot.Game
             }
         }
 
-        internal void SetOpponent(ClientField opponent)
-        {
-            _opponent = opponent;
-        }
-
         public void SetInitialDeck(IEnumerable<NamedCard> cards)
         {
-            _initialDeckCounts = new Dictionary<int, int>();
+            _deckCounts = new Dictionary<int, int>();
+            _deckCountsExact = true;
+            _deckTrackingActive = true;
             foreach (NamedCard card in cards)
+                IncrementDeckCount(card.Id);
+        }
+
+        internal void SetDeckTrackingActive(bool active)
+        {
+            _deckTrackingActive = active;
+        }
+
+        internal void AddToDeck(int cardId)
+        {
+            if (!_deckTrackingActive || _deckCounts == null)
+                return;
+
+            if (cardId == 0)
             {
-                IncrementInitialDeckCount(card.Id);
-                if (card.Alias != 0 && System.Math.Abs(card.Alias - card.Id) < 20)
-                    IncrementInitialDeckCount(card.Alias);
+                _deckCountsExact = false;
+                Logger.DebugWriteLine("Deck tracking: an unknown card entered the deck.");
+                return;
+            }
+            IncrementDeckCount(cardId);
+        }
+
+        internal void RemoveFromDeck(int cardId)
+        {
+            if (!_deckTrackingActive || _deckCounts == null)
+                return;
+
+            int count = 0;
+            if (cardId != 0 && _deckCounts.TryGetValue(cardId, out count) && count > 0)
+            {
+                _deckCounts[cardId] = count - 1;
+                return;
+            }
+
+            // The server hides the code when a card moves directly from this deck to an
+            // opponent's hidden hand or deck. Reduce every per-card lower bound so callers
+            // never assume that the unknown departing card is still available.
+            foreach (int id in _deckCounts.Keys.ToList())
+                _deckCounts[id] = System.Math.Max(0, _deckCounts[id] - 1);
+            _deckCountsExact = false;
+            Logger.DebugWriteLine("Deck tracking: an unknown or untracked card left the deck.");
+        }
+
+        internal void ReplaceDeck(IEnumerable<ClientCard> cards)
+        {
+            if (!_deckTrackingActive || _deckCounts == null)
+                return;
+
+            _deckCounts.Clear();
+            _deckCountsExact = true;
+            foreach (ClientCard card in cards)
+            {
+                if (card == null || card.Id == 0)
+                {
+                    _deckCountsExact = false;
+                    continue;
+                }
+                IncrementDeckCount(card.Id);
             }
         }
 
-        private void IncrementInitialDeckCount(int cardId)
+        internal void ValidateDeckCount(int actualCount)
+        {
+            if (!_deckTrackingActive || _deckCounts == null || !_deckCountsExact)
+                return;
+
+            int trackedCount = _deckCounts.Values.Sum();
+            if (trackedCount == actualCount)
+                return;
+
+            if (trackedCount > actualCount)
+            {
+                int unknownDepartures = trackedCount - actualCount;
+                foreach (int id in _deckCounts.Keys.ToList())
+                    _deckCounts[id] = System.Math.Max(0, _deckCounts[id] - unknownDepartures);
+            }
+            _deckCountsExact = false;
+            Logger.DebugWriteLine("Deck tracking count mismatch: tracked=" + trackedCount + ", actual=" + actualCount + ".");
+        }
+
+        private void IncrementDeckCount(int cardId)
         {
             int count = 0;
-            _initialDeckCounts.TryGetValue(cardId, out count);
-            _initialDeckCounts[cardId] = count + 1;
+            _deckCounts.TryGetValue(cardId, out count);
+            _deckCounts[cardId] = count + 1;
         }
 
         public int GetMonstersExtraZoneCount()
@@ -207,22 +276,22 @@ namespace WindBot.Game
 
         /// <summary>
         /// Checks if the deck contains a specific card.
-        /// The bot can only check this by counting the appearances of the card outside the deck.
+        /// The bot tracks cards entering and leaving its own Main Deck.
         /// </summary>
         public bool HasInDeck(int cardId)
         {
             if (!CanQueryDeck()) return false;
-            return GetRemainingCount(cardId) > 0;
+            return GetTrackedDeckCount(cardId) > 0;
         }
 
         /// <summary>
         /// Checks if the deck contains specific cards.
-        /// The bot can only check this by counting the appearances of the card outside the deck.
+        /// The bot tracks cards entering and leaving its own Main Deck.
         /// </summary>
         public bool HasInDeck(params int[] cardIds)
         {
             if (!CanQueryDeck()) return false;
-            return cardIds.Any(id => GetRemainingCount(id) > 0);
+            return cardIds.Any(id => GetTrackedDeckCount(id) > 0);
         }
 
         public bool HasInHand(int cardId)
@@ -372,60 +441,41 @@ namespace WindBot.Game
 
         /// <summary>
         /// Deprecated. Will be removed in the future.
-        /// Use GetRemainingCount(int cardId) instead, which counts based on the initial deck.
+        /// Use GetRemainingCount(int cardId) instead.
         /// </summary>
-        /// <param name="initalCount_deprecated">The param is ignored.</param>
-        public int GetRemainingCount(int cardId, int initalCount_deprecated)
+        /// <param name="initialCount_deprecated">The param is ignored.</param>
+        public int GetRemainingCount(int cardId, int initialCount_deprecated)
         {
             return GetRemainingCount(cardId);
         }
 
         public int GetRemainingCount(int cardId)
         {
+            if (!CanQueryDeck()) return 0;
+            return GetTrackedDeckCount(cardId);
+        }
+
+        private int GetTrackedDeckCount(int cardId)
+        {
             int remaining = 0;
-            if (_initialDeckCounts?.TryGetValue(cardId, out remaining) != true)
-                Logger.DebugWriteLine($"GetRemainingCount: cardId {cardId} not found in the deck being used.");
-
-            // Known limitation: In tag duels, Owner identifies only the team. Cards left by a teammate in
-            // shared zones may therefore be subtracted from this bot's initial deck count.
-            remaining -= Hand.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
-            remaining -= SpellZone.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
-            remaining -= MonsterZone.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
-            remaining -= Graveyard.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
-            remaining -= Banished.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
-            remaining -= ExtraDeck.Count(card => card != null && card.Owner == _player && card.IsFaceup() && card.IsOriginalCode(cardId));
-            remaining -= MonsterZone.Where(card => card != null).Sum(card => CountMatchingOverlays(card, cardId));
-
-            // Known limitation: Cards moved into an opponent's hand or deck cannot be matched to stable slots
-            // after a shuffle, so those known copies are not included here.
-            if (_opponent != null && _opponent.MonsterZone != null)
+            bool found = false;
+            foreach (KeyValuePair<int, int> pair in _deckCounts)
             {
-                remaining -= _opponent.SpellZone.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
-                remaining -= _opponent.MonsterZone.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
-                remaining -= _opponent.MonsterZone.Where(card => card != null).Sum(card => CountMatchingOverlays(card, cardId));
-            }
-            return (remaining < 0) ? 0 : remaining;
-        }
-
-        public int GetRemainingCount(IList<int> cardIds) // params int[] will conflict with deprecated initalCount
-        {
-            return cardIds.Sum(id => GetRemainingCount(id));
-        }
-
-        private int CountMatchingOverlays(ClientCard card, int cardId)
-        {
-            int count = 0;
-            for (int i = 0; i < card.Overlays.Count; ++i)
-            {
-                if (i >= card.OverlayOwners.Count || card.OverlayOwners[i] != _player)
+                NamedCard card = NamedCard.Get(pair.Key);
+                if (pair.Key != cardId && (card == null || card.Alias != cardId || System.Math.Abs(card.Alias - card.Id) >= 20))
                     continue;
-
-                int overlayId = card.Overlays[i];
-                NamedCard overlayData = NamedCard.Get(overlayId);
-                if (overlayId == cardId || (overlayData != null && System.Math.Abs(overlayData.Alias - overlayId) < 20 && overlayData.Alias == cardId))
-                    count++;
+                found = true;
+                remaining += pair.Value;
             }
-            return count;
+            if (!found)
+                Logger.DebugWriteLine($"GetRemainingCount: cardId {cardId} not found in the deck being used.");
+            return remaining;
+        }
+
+        public int GetRemainingCount(IList<int> cardIds) // params int[] will conflict with deprecated initialCount
+        {
+            if (!CanQueryDeck()) return 0;
+            return cardIds.Sum(id => GetTrackedDeckCount(id));
         }
 
         private static int GetCount(IEnumerable<ClientCard> cards)
@@ -465,8 +515,13 @@ namespace WindBot.Game
 
         private bool CanQueryDeck()
         {
-            if (_initialDeckCounts != null) return true;
-            Logger.WriteErrorLine("Enemy.HasInDeck cannot be used because the opponent's deck is hidden to AI.");
+            if (_deckCounts != null && _deckTrackingActive) return true;
+            if (_deckCounts != null)
+            {
+                Logger.DebugWriteLine("Deck contents cannot be queried while this bot's deck is inactive in a tag duel.");
+                return false;
+            }
+            Logger.WriteErrorLine("Deck contents cannot be queried because this field's deck is hidden to AI.");
             return false;
         }
     }
