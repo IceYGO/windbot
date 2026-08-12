@@ -222,6 +222,27 @@ namespace WindBot.Game.AI
             return 0;
         }
 
+        /// <summary>
+        /// Selects zones from a full-field protocol bitmap. 
+        /// Bits 0-6 and 8-15 represent this client's monster and spell/trap zones; 
+        /// bits 16-22 and 24-31 represent the opponent's corresponding zones.
+        /// Bits 7 and 23 are unused.
+        /// 
+        /// Despite the name, this callback is not limited to effects that disable zones.
+        /// YGOPro card scripts also use Duel.SelectDisableField as a general zone picker because
+        /// it does not expose a dedicated API for every kind of placement. Override this method
+        /// when a card's movement or placement effect needs to control the selected zone.
+        /// </summary>
+        /// <returns>
+        /// Zero to use the default selection; otherwise exactly Math.Max(1, count) available
+        /// zone bits. The mirrored extra monster zone pairs (5, 22) and (6, 21) cannot both be selected.
+        /// </returns>
+        public virtual uint OnSelectDisfield(int hint, int count, uint available)
+        {
+            // For overriding
+            return 0u;
+        }
+
         public virtual CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
             // Overrided in DefaultExecutor
