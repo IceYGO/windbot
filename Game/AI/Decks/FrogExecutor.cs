@@ -106,7 +106,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             m_swapFrogSummoned = -1;
 
-            if (Bot.GetRemainingCount(CardId.Ronintoadin, 2) == 0)
+            if (!Bot.HasInDeck(CardId.Ronintoadin))
                 return false;
 
             AI.SelectCard(CardId.Ronintoadin);

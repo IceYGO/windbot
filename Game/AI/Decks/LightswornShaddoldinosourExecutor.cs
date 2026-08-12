@@ -566,7 +566,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SouleatingOviraptoreff()
         {
-            if (!OvertexCoatlseff_used && Bot.GetRemainingCount(CardId.OvertexCoatls, 3) > 0)
+            if (!OvertexCoatlseff_used && Bot.HasInDeck(CardId.OvertexCoatls))
             {
                 AI.SelectCard(CardId.OvertexCoatls);
                 AI.SelectOption(0);
@@ -982,7 +982,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FoolishBurialEffect()
         {
-            if (Bot.GetRemainingCount(CardId.DoubleEvolutionPill, 3) > 0)
+            if (Bot.HasInDeck(CardId.DoubleEvolutionPill))
             {
                 if (!OvertexCoatlseff_used)
                 {

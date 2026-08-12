@@ -402,7 +402,7 @@ namespace WindBot.Game.AI.Decks
             List<int> worthwhileHorusMonsters = HorusMonsterIds
                 .Where(id => !_horusSpecialSummonedThisTurn.Contains(id)
                     && !Bot.HasInGraveyard(id)
-                    && Bot.GetRemainingCount(id, id == CardId.ImsetyGloryOfHorus ? 3 : 2) > 0)
+                    && Bot.HasInDeck(id))
                 .ToList();
             if (worthwhileHorusMonsters.Count == 0)
                 return false;

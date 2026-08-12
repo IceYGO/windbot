@@ -193,13 +193,13 @@ namespace WindBot.Game.AI.Decks
         private bool TheMelodyOfAwakeningDragoneff()
         {
             Count_check();
-            if(TheMelody_count>=2 && Bot.GetRemainingCount(CardId.BlueEyesChaosMaxDragon,3)>0)
+            if(TheMelody_count>=2 && Bot.HasInDeck(CardId.BlueEyesChaosMaxDragon))
             {
                 AI.SelectCard(CardId.TheMelodyOfAwakeningDragon);
                 AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
                 return true;
             }
-            if(Bot.HasInHand(CardId.BlueEyesWhiteDragon) && Bot.GetRemainingCount(CardId.BlueEyesChaosMaxDragon, 3) > 0)
+            if(Bot.HasInHand(CardId.BlueEyesWhiteDragon) && Bot.HasInDeck(CardId.BlueEyesChaosMaxDragon))
             {
                 AI.SelectCard(CardId.BlueEyesWhiteDragon);
                 AI.SelectNextCard(CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesChaosMaxDragon, CardId.BlueEyesAlternativeWhiteDragon);
@@ -210,7 +210,7 @@ namespace WindBot.Game.AI.Decks
         private bool TheMelodyOfAwakeningDragoneffsecond()
         {
             Count_check();
-            if (RitualArtCanUse() && Bot.GetRemainingCount(CardId.BlueEyesChaosMaxDragon, 3) > 0 &&
+            if (RitualArtCanUse() && Bot.HasInDeck(CardId.BlueEyesChaosMaxDragon) &&
                 !Bot.HasInHand(CardId.BlueEyesChaosMaxDragon) && Bot.Hand.Count>=3)
             {
                 if(RitualArt_count>=2)
@@ -234,19 +234,19 @@ namespace WindBot.Game.AI.Decks
         private bool TenTousandHandseff()
         {
             Count_check();
-            if(Talismandra_count>=2 && Bot.GetRemainingCount(CardId.BlueEyesChaosMaxDragon,3)>0)
+            if(Talismandra_count>=2 && Bot.HasInDeck(CardId.BlueEyesChaosMaxDragon))
             {
                 AI.SelectCard(CardId.BlueEyesChaosMaxDragon);
                 return true;
             }
             if(Candoll_count>=2 || MaxDragon_count >= 2)
             {
-                if(RitualArtCanUse() && Bot.GetRemainingCount(CardId.AdvancedRitualArt,3)>0)
+                if(RitualArtCanUse() && Bot.HasInDeck(CardId.AdvancedRitualArt))
                 {
                     AI.SelectCard(CardId.AdvancedRitualArt);
                     return true;
                 }
-                if(ChaosFormCanUse() && Bot.GetRemainingCount(CardId.ChaosForm,1)>0)
+                if(ChaosFormCanUse() && Bot.HasInDeck(CardId.ChaosForm))
                 {
                     AI.SelectCard(CardId.ChaosForm);
                     return true;
@@ -261,12 +261,12 @@ namespace WindBot.Game.AI.Decks
             {
                 if (MaxDragon_count >= 1)
                 {
-                    if (RitualArtCanUse() && Bot.GetRemainingCount(CardId.AdvancedRitualArt, 3) > 0)
+                    if (RitualArtCanUse() && Bot.HasInDeck(CardId.AdvancedRitualArt))
                     {
                         AI.SelectCard(CardId.AdvancedRitualArt);
                         return true;
                     }
-                    if (ChaosFormCanUse() && Bot.GetRemainingCount(CardId.ChaosForm, 1) > 0)
+                    if (ChaosFormCanUse() && Bot.HasInDeck(CardId.ChaosForm))
                     {
                         AI.SelectCard(CardId.ChaosForm);
                         return true;
@@ -280,12 +280,12 @@ namespace WindBot.Game.AI.Decks
             }
             if (ChaosForm_count >= 1)
             {
-                if (RitualArtCanUse() && Bot.GetRemainingCount(CardId.AdvancedRitualArt, 3) > 0)
+                if (RitualArtCanUse() && Bot.HasInDeck(CardId.AdvancedRitualArt))
                 {
                     AI.SelectCard(CardId.AdvancedRitualArt);
                     return true;
                 }
-                if (ChaosFormCanUse() && Bot.GetRemainingCount(CardId.ChaosForm, 1) > 0)
+                if (ChaosFormCanUse() && Bot.HasInDeck(CardId.ChaosForm))
                 {
                     AI.SelectCard(CardId.ChaosForm);
                     return true;
@@ -298,22 +298,22 @@ namespace WindBot.Game.AI.Decks
             }
             if(MaxDragon_count>=1)
             {
-                if (RitualArtCanUse() && Bot.GetRemainingCount(CardId.AdvancedRitualArt, 3) > 0)
+                if (RitualArtCanUse() && Bot.HasInDeck(CardId.AdvancedRitualArt))
                 {
                     AI.SelectCard(CardId.AdvancedRitualArt);
                     return true;
                 }
-                if (ChaosFormCanUse() && Bot.GetRemainingCount(CardId.ChaosForm, 1) > 0)
+                if (ChaosFormCanUse() && Bot.HasInDeck(CardId.ChaosForm))
                 {
                     AI.SelectCard(CardId.ChaosForm);
                     return true;
                 }
             }            
-            if (RitualArtCanUse() && Bot.GetRemainingCount(CardId.AdvancedRitualArt, 3) > 0)
+            if (RitualArtCanUse() && Bot.HasInDeck(CardId.AdvancedRitualArt))
             {
                 AI.SelectCard(CardId.AdvancedRitualArt);                
             }
-            if (ChaosFormCanUse() && Bot.GetRemainingCount(CardId.ChaosForm, 1) > 0)
+            if (ChaosFormCanUse() && Bot.HasInDeck(CardId.ChaosForm))
             {
                 AI.SelectCard(CardId.ChaosForm);                
             }
@@ -322,7 +322,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RitualArtCanUse()
         {
-            return Bot.GetRemainingCount(CardId.BlueEyesWhiteDragon,2)>0;
+            return Bot.HasInDeck(CardId.BlueEyesWhiteDragon);
         }
 
         private bool ChaosFormCanUse()

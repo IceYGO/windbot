@@ -66,41 +66,6 @@ namespace WindBot.Game.AI.Decks
             public const int AmeNoMurakumoNoMitsurugi = 19899073;
             public const int DogmatikaMaximus = 95679145;
         }
-        private readonly Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>
-        {
-            { 3, new List<int>
-                {
-                    CardId.UnleashingTheSacredBeasts,
-                    CardId.HamonSacredBeastOfSinfulCatastrophe,
-                    CardId.RavielSacredBeastOfEndlessEternity,
-                    CardId.MulcharmyFuwalos,
-                    CardId.MartyrOfTheSacredBeasts,
-                    CardId.SkyfireOfTheSacredBeast,
-                    CardId.LightningCrash,
-                    CardId.FallenParadiseOfTheSacredBeasts,
-                    CardId.HeavyPolymerization,
-                    CardId.DivineAbyssOfTheSacredBeast,
-                    CardId.CardOfTheSoul
-                }
-            },
-
-            { 2, new List<int>
-                {
-                    CardId.AshBlossom
-                }
-            },
-
-            { 1, new List<int>
-                {
-                    CardId.UriaSacredBeastOfCataclysmicFire,
-                    CardId.ThunderKingTheLightningstrikeKaiju,
-                    CardId.TheOrchestratorOfTheSacredBeasts,
-                    CardId.MaxxC,
-                    CardId.CalledByTheGrave,
-                    CardId.DestructionChantOfTheSacredBeast
-                }
-            },
-        };
 
         const int SetcodeTimeLord = 0x4a;
         const int SetcodePhantom = 0xdb;
@@ -460,7 +425,7 @@ namespace WindBot.Game.AI.Decks
                 if (Duel.Player == 1)
                 {
                     if (!Bot.HasInSpellZone(CardId.DivineAbyssOfTheSacredBeast)
-                        && CheckRemainInDeck(CardId.DivineAbyssOfTheSacredBeast) > 0)
+                        && Bot.HasInDeck(CardId.DivineAbyssOfTheSacredBeast))
                     {
                         target = CardId.DivineAbyssOfTheSacredBeast;
                     }
@@ -468,7 +433,7 @@ namespace WindBot.Game.AI.Decks
 
                 if (target == 0 && Duel.Player == 0)
                 {
-                    if (CheckRemainInDeck(CardId.SkyfireOfTheSacredBeast) > 0)
+                    if (Bot.HasInDeck(CardId.SkyfireOfTheSacredBeast))
                         target = CardId.SkyfireOfTheSacredBeast;
                 }
 
@@ -850,17 +815,6 @@ namespace WindBot.Game.AI.Decks
             Logger.DebugWriteLine("Use default.");
             return base.OnSelectCard(cards, min, max, hint, cancelable);
         }
-        public int CheckRemainInDeck(int id)
-        {
-            for (int count = 1; count < 4; ++count)
-            {
-                if (DeckCountTable[count].Contains(id))
-                {
-                    return Bot.GetRemainingCount(id, count);
-                }
-            }
-            return 0;
-        }
         public bool CheckAtAdvantage()
         {
             if (GetProblematicEnemyMonster() == null && Bot.GetMonsters().Any(card => card.IsFaceup()))
@@ -901,7 +855,7 @@ namespace WindBot.Game.AI.Decks
                 if (alias != 0 && alias - code < 10) code = alias;
                 if (code == 0) return false;
                 if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
-                if (CheckRemainInDeck(code) > 0)
+                if (Bot.HasInDeck(code))
                 {
                     if (!(Card.Location == CardLocation.SpellZone))
                     {
@@ -1671,7 +1625,7 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 if (CountFaceupSpellTrap(CardId.DivineAbyssOfTheSacredBeast) < 3
                     && Bot.GetSpellCount() <= 3
-                    && CheckRemainInDeck(CardId.DivineAbyssOfTheSacredBeast) > 0)
+                    && Bot.HasInDeck(CardId.DivineAbyssOfTheSacredBeast))
                 {
                     AI.SelectCard(new List<int>{ CardId.DivineAbyssOfTheSacredBeast,
                                                  CardId.DivineAbyssOfTheSacredBeast });
@@ -1801,13 +1755,13 @@ namespace WindBot.Game.AI.Decks
             bool hasHamon = Bot.HasInHand(CardId.HamonSacredBeastOfSinfulCatastrophe);
             bool hasRaviel = Bot.HasInHand(CardId.RavielSacredBeastOfEndlessEternity);
 
-            if (!hasHamon && !useHamonSearchEffectAlready && CheckRemainInDeck(CardId.HamonSacredBeastOfSinfulCatastrophe) > 0)
+            if (!hasHamon && !useHamonSearchEffectAlready && Bot.HasInDeck(CardId.HamonSacredBeastOfSinfulCatastrophe))
             {
                 AI.SelectCard(CardId.HamonSacredBeastOfSinfulCatastrophe);
                 return true;
             }
 
-            if ((hasHamon || useHamonSearchEffectAlready) && !hasRaviel && CheckRemainInDeck(CardId.RavielSacredBeastOfEndlessEternity) > 0)
+            if ((hasHamon || useHamonSearchEffectAlready) && !hasRaviel && Bot.HasInDeck(CardId.RavielSacredBeastOfEndlessEternity))
             {
                 AI.SelectCard(CardId.RavielSacredBeastOfEndlessEternity);
                 return true;
@@ -1823,7 +1777,7 @@ namespace WindBot.Game.AI.Decks
             bool hasHamon = Bot.HasInHand(CardId.HamonSacredBeastOfSinfulCatastrophe);
             bool hasKaiju = Bot.HasInHand(CardId.ThunderKingTheLightningstrikeKaiju);
 
-            if (!hasHamon && !useHamonSearchEffectAlready && CheckRemainInDeck(CardId.HamonSacredBeastOfSinfulCatastrophe) > 0)
+            if (!hasHamon && !useHamonSearchEffectAlready && Bot.HasInDeck(CardId.HamonSacredBeastOfSinfulCatastrophe))
             {
                 AI.SelectCard(CardId.HamonSacredBeastOfSinfulCatastrophe);
                 SelectSTPlace(null, true);
@@ -1831,7 +1785,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            if (Enemy.GetMonsterCount() > 0 && !hasKaiju && CheckRemainInDeck(CardId.ThunderKingTheLightningstrikeKaiju) > 0)
+            if (Enemy.GetMonsterCount() > 0 && !hasKaiju && Bot.HasInDeck(CardId.ThunderKingTheLightningstrikeKaiju))
             {
                 AI.SelectCard(CardId.ThunderKingTheLightningstrikeKaiju);
                 SelectSTPlace(null, true);
@@ -1864,24 +1818,24 @@ namespace WindBot.Game.AI.Decks
         private int PickHamonSpellSearchTarget()
         {
             if (!HasCardAccessible(CardId.UnleashingTheSacredBeasts)
-                && CheckRemainInDeck(CardId.UnleashingTheSacredBeasts) > 0)
+                && Bot.HasInDeck(CardId.UnleashingTheSacredBeasts))
                 return CardId.UnleashingTheSacredBeasts;
 
             if (!HasCardAccessible(CardId.SkyfireOfTheSacredBeast)
-                && CheckRemainInDeck(CardId.SkyfireOfTheSacredBeast) > 0)
+                && Bot.HasInDeck(CardId.SkyfireOfTheSacredBeast))
                 return CardId.SkyfireOfTheSacredBeast;
 
             if (!HasCardAccessible(CardId.FallenParadiseOfTheSacredBeasts)
-                && CheckRemainInDeck(CardId.FallenParadiseOfTheSacredBeasts) > 0)
+                && Bot.HasInDeck(CardId.FallenParadiseOfTheSacredBeasts))
                 return CardId.FallenParadiseOfTheSacredBeasts;
 
-            if (CheckRemainInDeck(CardId.UnleashingTheSacredBeasts) > 0)
+            if (Bot.HasInDeck(CardId.UnleashingTheSacredBeasts))
                 return CardId.UnleashingTheSacredBeasts;
 
-            if (CheckRemainInDeck(CardId.SkyfireOfTheSacredBeast) > 0)
+            if (Bot.HasInDeck(CardId.SkyfireOfTheSacredBeast))
                 return CardId.SkyfireOfTheSacredBeast;
 
-            if (CheckRemainInDeck(CardId.FallenParadiseOfTheSacredBeasts) > 0)
+            if (Bot.HasInDeck(CardId.FallenParadiseOfTheSacredBeasts))
                 return CardId.FallenParadiseOfTheSacredBeasts;
 
             return 0;
@@ -1974,8 +1928,8 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location != CardLocation.Grave) return false;
 
             if (!Bot.HasInHand(CardId.HamonSacredBeastOfSinfulCatastrophe)
-                && CheckRemainInDeck(CardId.HamonSacredBeastOfSinfulCatastrophe) > 0
-                && CheckRemainInDeck(CardId.UnleashingTheSacredBeasts) > 0)
+                && Bot.HasInDeck(CardId.HamonSacredBeastOfSinfulCatastrophe)
+                && Bot.HasInDeck(CardId.UnleashingTheSacredBeasts))
             {
                 AI.SelectCard(CardId.HamonSacredBeastOfSinfulCatastrophe);
                 return true;
@@ -2058,14 +2012,14 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player == 1)
             {
                 if (!Bot.HasInSpellZone(CardId.DivineAbyssOfTheSacredBeast)
-                    && CheckRemainInDeck(CardId.DivineAbyssOfTheSacredBeast) > 0)
+                    && Bot.HasInDeck(CardId.DivineAbyssOfTheSacredBeast))
                 {
                     target = CardId.DivineAbyssOfTheSacredBeast;
                 }
             }
             if (target == 0 && Duel.Player == 0)
             {
-                if (CheckRemainInDeck(CardId.SkyfireOfTheSacredBeast) > 0)
+                if (Bot.HasInDeck(CardId.SkyfireOfTheSacredBeast))
                     target = CardId.SkyfireOfTheSacredBeast;
             }
 
@@ -2094,14 +2048,14 @@ namespace WindBot.Game.AI.Decks
             });
             AI.SelectNextCard(revealTarget);
 
-            if (CheckRemainInDeck(CardId.FallenParadiseOfTheSacredBeasts) > 0)
+            if (Bot.HasInDeck(CardId.FallenParadiseOfTheSacredBeasts))
                 AI.SelectNextCard(CardId.FallenParadiseOfTheSacredBeasts);
 
             return true;
         }
         private int CountAccessibleSkyfireCopiesForEffect()
         {
-            int count = CheckRemainInDeck(CardId.SkyfireOfTheSacredBeast);
+            int count = Bot.GetRemainingCount(CardId.SkyfireOfTheSacredBeast);
             count += Bot.Hand.Count(c => c != null && c.IsCode(CardId.SkyfireOfTheSacredBeast));
             count += Bot.Graveyard.Count(c => c != null && c.IsCode(CardId.SkyfireOfTheSacredBeast));
             return count;
@@ -2165,7 +2119,7 @@ namespace WindBot.Game.AI.Decks
             if (useRaviel) return false;
             if (Card.Location != CardLocation.Hand) return false;
             if (!Bot.HasInHand(CardId.UriaSacredBeastOfCataclysmicFire) &&
-                CheckRemainInDeck(CardId.UriaSacredBeastOfCataclysmicFire) > 0 &&
+                Bot.HasInDeck(CardId.UriaSacredBeastOfCataclysmicFire) &&
                 useHamonSearchEffectAlready
                 )
             {
@@ -2175,7 +2129,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             else if (!Bot.HasInHand(CardId.HamonSacredBeastOfSinfulCatastrophe) &&
-                CheckRemainInDeck(CardId.HamonSacredBeastOfSinfulCatastrophe) > 0 &&
+                Bot.HasInDeck(CardId.HamonSacredBeastOfSinfulCatastrophe) &&
                 !useHamonSearchEffectAlready
                 )
             {
@@ -2187,7 +2141,7 @@ namespace WindBot.Game.AI.Decks
             else if (useHamonSearchEffectAlready &&
                       !normalSummon &&
                       !Bot.HasInHand(CardId.MartyrOfTheSacredBeasts) &&
-                      (CheckRemainInDeck(CardId.MartyrOfTheSacredBeasts) > 0) &&
+                      Bot.HasInDeck(CardId.MartyrOfTheSacredBeasts) &&
                       HasOtherSacredBeastInHandForRavielCost())
             {
                 AI.SelectCard(CardId.MartyrOfTheSacredBeasts);
@@ -2234,7 +2188,7 @@ namespace WindBot.Game.AI.Decks
         private bool Uria_Hand_SearchDestructionChant()
         {
             if (Card.Location != CardLocation.Hand) return false;
-            if (CheckRemainInDeck(CardId.DestructionChantOfTheSacredBeast) <= 0) return false;
+            if (!Bot.HasInDeck(CardId.DestructionChantOfTheSacredBeast)) return false;
 
             ClientCard discard = GetBestDiscardCost(new int[]
             {
@@ -2254,7 +2208,7 @@ namespace WindBot.Game.AI.Decks
 
             if (ActivateDescription != Util.GetStringId(CardId.MartyrOfTheSacredBeasts, 1)) return false;
             if (Bot.GetMonstersInMainZone().Count(c => c != null) >= 3) return false;
-            if (CheckRemainInDeck(CardId.MartyrOfTheSacredBeasts) + Bot.Graveyard.Count(c => c != null && c.IsCode(CardId.MartyrOfTheSacredBeasts)) < 2) return false;
+            if (Bot.GetRemainingCount(CardId.MartyrOfTheSacredBeasts) + Bot.Graveyard.Count(c => c != null && c.IsCode(CardId.MartyrOfTheSacredBeasts)) < 2) return false;
 
             AI.SelectCard(new[] { CardId.MartyrOfTheSacredBeasts, CardId.MartyrOfTheSacredBeasts });
             Martyrx3 = true;

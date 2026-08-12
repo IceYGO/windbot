@@ -219,10 +219,10 @@ namespace WindBot.Game
         /// Checks if the deck contains specific cards.
         /// The bot can only check this by counting the appearances of the card outside the deck.
         /// </summary>
-        public bool HasInDeck(IList<int> cardId)
+        public bool HasInDeck(params int[] cardIds)
         {
             if (!CanQueryDeck()) return false;
-            return cardId.Any(id => GetRemainingCount(id) > 0);
+            return cardIds.Any(id => GetRemainingCount(id) > 0);
         }
 
         public bool HasInHand(int cardId)
@@ -370,7 +370,11 @@ namespace WindBot.Game
             return HasInHand(cardId) || HasInSpellZone(cardId) || HasInGraveyard(cardId);
         }
 
-        /// <param name="initalCount_deprecated">Deprecated now. The param is ignored.</param>
+        /// <summary>
+        /// Deprecated. Will be removed in the future.
+        /// Use GetRemainingCount(int cardId) instead, which counts based on the initial deck.
+        /// </summary>
+        /// <param name="initalCount_deprecated">The param is ignored.</param>
         public int GetRemainingCount(int cardId, int initalCount_deprecated)
         {
             return GetRemainingCount(cardId);
@@ -401,6 +405,11 @@ namespace WindBot.Game
                 remaining -= _opponent.MonsterZone.Where(card => card != null).Sum(card => CountMatchingOverlays(card, cardId));
             }
             return (remaining < 0) ? 0 : remaining;
+        }
+
+        public int GetRemainingCount(IList<int> cardIds) // params int[] will conflict with deprecated initalCount
+        {
+            return cardIds.Sum(id => GetRemainingCount(id));
         }
 
         private int CountMatchingOverlays(ClientCard card, int cardId)

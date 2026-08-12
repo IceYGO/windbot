@@ -567,7 +567,7 @@ namespace WindBot.Game.AI.Decks
         private bool SpeedroidTaketomborgeff()
         {
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
-            if ((Bot.GetRemainingCount(CardId.SpeedroidRedEyedDice, 1) >= 1) &&
+            if (Bot.HasInDeck(CardId.SpeedroidRedEyedDice) &&
                 Bot.HasInMonstersZone(CardId.SpeedroidTerrortop))
             {
                 AI.SelectCard(CardId.SpeedroidRedEyedDice);
@@ -605,7 +605,7 @@ namespace WindBot.Game.AI.Decks
             if (Enemy.HasInMonstersZone(CardId.ElShaddollWinda)) return false;
             if (WindwitchGlassBelleff_used && !Bot.HasInHand(CardId.WindwitchSnowBell)) return false;
             //AI.SelectPlace(Zones.z2, 1);
-            if (Bot.GetRemainingCount(CardId.WindwitchGlassBell, 3) >= 1)
+            if (Bot.HasInDeck(CardId.WindwitchGlassBell))
             {
                 AI.SelectCard(CardId.WindwitchGlassBell);
             }

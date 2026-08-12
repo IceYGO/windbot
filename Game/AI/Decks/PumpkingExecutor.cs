@@ -462,7 +462,7 @@ namespace WindBot.Game.AI.Decks
                 || Bot.HasInHand(CardId.DeltaOfInvitation)
                 || Bot.HasInHand(CardId.Terraforming);
             bool eldlichAccess = Bot.HasInGraveyard(CardId.EldlichTheGoldenLord)
-                || CheckRemainInDeck(CardId.EldlichTheGoldenLord) > 0;
+                || Bot.HasInDeck(CardId.EldlichTheGoldenLord);
             return fieldAccess && eldlichAccess;
         }
 
@@ -671,7 +671,7 @@ namespace WindBot.Game.AI.Decks
                 || pumpkingSummonEffectAttempted
                 || pumpkingSummonEffectResolved
                 || GetOpenMainMonsterZoneCount() < 2
-                || CheckRemainInDeck(deckFollowUpId) <= 0)
+                || !Bot.HasInDeck(deckFollowUpId))
             {
                 return null;
             }
@@ -1505,23 +1505,22 @@ namespace WindBot.Game.AI.Decks
 
         private bool HasSettableCallForPumpking()
         {
-
-
-            return CheckRemainInDeck(CardId.CallOfTheHaunted) > 0
+            return Bot.HasInDeck(CardId.CallOfTheHaunted)
                 || Bot.Graveyard.Any(c => c != null
                     && c.IsCode(CardId.CallOfTheHaunted));
         }
 
         private bool HasPumpkingDeckSummonTargetInDeck()
         {
-
-            return CheckRemainInDeck(CardId.Hublot) > 0
-                || CheckRemainInDeck(CardId.GreatMammothOfTheNetherworld) > 0
-                || CheckRemainInDeck(CardId.ChangshiTheSpiridao) > 0
-                || CheckRemainInDeck(CardId.StareOfTheSnakeHair) > 0
-                || CheckRemainInDeck(CardId.OfficiatingReverie) > 0
-                || CheckRemainInDeck(CardId.ArmyOfTheHaunted) > 0
-                || CheckRemainInDeck(CardId.VampireGrace) > 0;
+            return Bot.HasInDeck(
+                CardId.Hublot,
+                CardId.GreatMammothOfTheNetherworld,
+                CardId.ChangshiTheSpiridao,
+                CardId.StareOfTheSnakeHair,
+                CardId.OfficiatingReverie,
+                CardId.ArmyOfTheHaunted,
+                CardId.VampireGrace
+            );
         }
 
         private bool CanUsePumpkingHandEffectNow()
@@ -1987,33 +1986,7 @@ namespace WindBot.Game.AI.Decks
             return Util.CheckSelectCount(result, cards, min, max);
         }
 
-        private int GetInitialDeckCount(int id)
-        {
-            if (id == CardId.PumpkingTheKingOfGraveGhosts
-                || id == CardId.StareOfTheSnakeHair
-                || IsHublotId(id)
-                || id == CardId.EctoplasmicFortification
-                || id == CardId.DeltaOfInvitation
-                || id == CardId.InfiniteImpermanence
-                || id == CardId.GhostBelle
-                || id == CardId.CallOfTheHaunted)
-            {
-                return 3;
-            }
 
-            if (id == CardId.AshBlossom
-                || id == CardId.DominusImpulse)
-            {
-                return 2;
-            }
-
-            return 1;
-        }
-
-        private int CheckRemainInDeck(int id)
-        {
-            return Bot.GetRemainingCount(id, GetInitialDeckCount(id));
-        }
 
         private bool HasPumpkingInHand()
         {
@@ -2049,11 +2022,11 @@ namespace WindBot.Game.AI.Decks
 
             if (!HasHublotInHand())
             {
-                if (CheckRemainInDeck(CardId.Hublot) > 0)
+                if (Bot.HasInDeck(CardId.Hublot))
                     return CardId.Hublot;
 
                 if (!HasPumpkingInHand()
-                    && CheckRemainInDeck(CardId.PumpkingTheKingOfGraveGhosts) > 0)
+                    && Bot.HasInDeck(CardId.PumpkingTheKingOfGraveGhosts))
                 {
                     return CardId.PumpkingTheKingOfGraveGhosts;
                 }
@@ -2062,7 +2035,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             if (!HasPumpkingInHand()
-                && CheckRemainInDeck(CardId.PumpkingTheKingOfGraveGhosts) > 0)
+                && Bot.HasInDeck(CardId.PumpkingTheKingOfGraveGhosts))
             {
                 return CardId.PumpkingTheKingOfGraveGhosts;
             }
@@ -2541,15 +2514,15 @@ namespace WindBot.Game.AI.Decks
 
 
             bool ectoplasmicHasStarterTarget =
-                (!HasHublotInHand() && CheckRemainInDeck(CardId.Hublot) > 0)
+                (!HasHublotInHand() && Bot.HasInDeck(CardId.Hublot))
                 || (HasHublotInHand() && !HasPumpkingInHand()
-                    && CheckRemainInDeck(CardId.PumpkingTheKingOfGraveGhosts) > 0);
+                    && Bot.HasInDeck(CardId.PumpkingTheKingOfGraveGhosts));
 
             return Bot.GetMonsterCount() == 0
                 && !ectoplasmicSearchUsed
                 && !Bot.HasInHand(CardId.EctoplasmicFortification)
                 && Bot.HasInHand(CardId.StareOfTheSnakeHair)
-                && CheckRemainInDeck(CardId.EctoplasmicFortification) > 0
+                && Bot.HasInDeck(CardId.EctoplasmicFortification)
                 && ectoplasmicHasStarterTarget
                 && DefaultCheckWhetherBotCanSearch();
         }
@@ -2560,7 +2533,7 @@ namespace WindBot.Game.AI.Decks
                 && !HasPumpkingInHand()
                 && Bot.GetMonsterCount() == 0
                 && Bot.HasInHand(CardId.EctoplasmicFortification)
-                && CheckRemainInDeck(CardId.PumpkingTheKingOfGraveGhosts) > 0
+                && Bot.HasInDeck(CardId.PumpkingTheKingOfGraveGhosts)
                 && DefaultCheckWhetherBotCanSearch();
         }
 
@@ -2613,7 +2586,7 @@ namespace WindBot.Game.AI.Decks
                 && HasSettableCallForPumpking()
                 && HasOpenSpellZone()
                 && GetOpenMainMonsterZoneCount() >= 3
-                && CheckRemainInDeck(CardId.EldlichTheGoldenLord) > 0
+                && Bot.HasInDeck(CardId.EldlichTheGoldenLord)
                 && cards != null
                 && cards.Any(c => c != null && c.IsCode(CardId.VampireGrace));
         }
@@ -2662,22 +2635,22 @@ namespace WindBot.Game.AI.Decks
 
             bool hublotAccessible = HasHublotInHand()
                 || Bot.HasInMonstersZone(CardId.Hublot, faceUp: true)
-                || CheckRemainInDeck(CardId.Hublot) > 0
+                || Bot.HasInDeck(CardId.Hublot)
                 || (cards != null && cards.Any(c => c != null && IsHublot(c)));
-            bool reverieAvailable = CheckRemainInDeck(CardId.OfficiatingReverie) > 0
+            bool reverieAvailable = Bot.HasInDeck(CardId.OfficiatingReverie)
                 || (cards != null && cards.Any(c => c != null
                     && c.Location == CardLocation.Deck
                     && c.IsCode(CardId.OfficiatingReverie)));
             bool pumpkingAvailable = HasPumpkingAccessible()
-                || CheckRemainInDeck(CardId.PumpkingTheKingOfGraveGhosts) > 0;
+                || Bot.HasInDeck(CardId.PumpkingTheKingOfGraveGhosts);
             bool callAvailable = HasAnyCall() || HasSettableCallForPumpking();
 
             return hublotAccessible
                 && reverieAvailable
                 && pumpkingAvailable
                 && callAvailable
-                && CheckRemainInDeck(CardId.ArmyOfTheHaunted) > 0
-                && CheckRemainInDeck(CardId.EldlichTheGoldenLord) > 0
+                && Bot.HasInDeck(CardId.ArmyOfTheHaunted)
+                && Bot.HasInDeck(CardId.EldlichTheGoldenLord)
                 && Bot.HasInExtra(CardId.PumpkingTheGreatGhostKing)
                 && Bot.HasInExtra(CardId.OfficiatorOfDoomSamuel)
                 && Bot.HasInExtra(CardId.TheUndyingLegion)
@@ -2695,7 +2668,7 @@ namespace WindBot.Game.AI.Decks
 
             if (HasChangshiOnField()
                 && !changshiMillAttempted
-                && CheckRemainInDeck(CardId.EldlichTheGoldenLord) > 0)
+                && Bot.HasInDeck(CardId.EldlichTheGoldenLord))
             {
                 return true;
             }
@@ -2859,7 +2832,7 @@ namespace WindBot.Game.AI.Decks
                 ? new List<ClientCard>()
                 : cards.Where(c => c != null && c.Location == CardLocation.Deck).ToList();
             Func<int, bool> available = id => cards == null
-                ? CheckRemainInDeck(id) > 0
+                ? Bot.HasInDeck(id)
                 : deckCards.Any(c => c.IsCode(id));
 
             if (changshiHandRescueRouteActive
@@ -3208,7 +3181,7 @@ namespace WindBot.Game.AI.Decks
                 && !HasGreatPumpkingOnField()
                 && !greatPumpkingSearchAttempted
                 && !greatPumpkingSearchResolved
-                && CheckRemainInDeck(CardId.PumpkingTheKingOfGraveGhosts) > 0
+                && Bot.HasInDeck(CardId.PumpkingTheKingOfGraveGhosts)
                 && DefaultCheckWhetherBotCanSearch();
             if (liveGreatPumpkingSearch && GetRank6Materials(true).Count >= 2)
                 return true;
@@ -3278,7 +3251,7 @@ namespace WindBot.Game.AI.Decks
 
             bool snakehairBridge = Bot.HasInHand(CardId.StareOfTheSnakeHair)
                 && (Bot.HasInHand(CardId.EctoplasmicFortification)
-                    || CheckRemainInDeck(CardId.EctoplasmicFortification) > 0);
+                    || Bot.HasInDeck(CardId.EctoplasmicFortification));
             if (Bot.HasInHand(CardId.PumpkingTheKingOfGraveGhosts)
                 || HasHublotInHand()
                 || Bot.HasInHand(CardId.EctoplasmicFortification)
@@ -3322,7 +3295,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             bool eldlichCanReachGrave = Bot.HasInGraveyard(CardId.EldlichTheGoldenLord)
-                || CheckRemainInDeck(CardId.EldlichTheGoldenLord) > 0;
+                || Bot.HasInDeck(CardId.EldlichTheGoldenLord);
             if (!eldlichCanReachGrave)
                 return false;
 
@@ -3357,7 +3330,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             bool armyAvailable = Bot.HasInHand(CardId.ArmyOfTheHaunted)
                 || Bot.HasInGraveyard(CardId.ArmyOfTheHaunted)
-                || CheckRemainInDeck(CardId.ArmyOfTheHaunted) > 0;
+                || Bot.HasInDeck(CardId.ArmyOfTheHaunted);
             if (!ashAvailable || !armyAvailable)
                 return false;
             if (!Bot.HasInExtra(CardId.PumpkingTheGreatGhostKing)
@@ -3413,13 +3386,14 @@ namespace WindBot.Game.AI.Decks
                 return null;
 
 
-            bool hasPumpkingDeckFollowUp =
-                CheckRemainInDeck(CardId.ChangshiTheSpiridao) > 0
-                || CheckRemainInDeck(CardId.ArmyOfTheHaunted) > 0
-                || CheckRemainInDeck(CardId.OfficiatingReverie) > 0
-                || CheckRemainInDeck(CardId.Hublot) > 0
-                || CheckRemainInDeck(CardId.GreatMammothOfTheNetherworld) > 0
-                || CheckRemainInDeck(CardId.StareOfTheSnakeHair) > 0;
+            bool hasPumpkingDeckFollowUp = Bot.HasInDeck(
+                CardId.ChangshiTheSpiridao,
+                CardId.ArmyOfTheHaunted,
+                CardId.OfficiatingReverie,
+                CardId.Hublot,
+                CardId.GreatMammothOfTheNetherworld,
+                CardId.StareOfTheSnakeHair
+            );
             if (!pumpkingSummonEffectAttempted
                 && !pumpkingSummonEffectResolved
                 && GetOpenMainMonsterZoneCount() >= 2
@@ -4189,7 +4163,7 @@ namespace WindBot.Game.AI.Decks
             if (pumpking != null && !pumpkingSummonEffectAttempted)
             {
                 if (snakehairTarget != null
-                    && CheckRemainInDeck(CardId.StareOfTheSnakeHair) > 0)
+                    && Bot.HasInDeck(CardId.StareOfTheSnakeHair))
                 {
                     pendingSnakehairDisableTarget = snakehairTarget;
                     pendingMammothDestroyTarget = null;
@@ -4199,7 +4173,7 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 if (mammothTarget != null
-                    && CheckRemainInDeck(CardId.GreatMammothOfTheNetherworld) > 0)
+                    && Bot.HasInDeck(CardId.GreatMammothOfTheNetherworld))
                 {
                     pendingMammothDestroyTarget = mammothTarget;
                     pendingSnakehairDisableTarget = null;
@@ -5422,15 +5396,15 @@ namespace WindBot.Game.AI.Decks
 
             if (ectoplasmicSearchUsed
                 || Bot.HasInHand(CardId.EctoplasmicFortification)
-                || CheckRemainInDeck(CardId.EctoplasmicFortification) <= 0)
+                || !Bot.HasInDeck(CardId.EctoplasmicFortification))
             {
                 return false;
             }
 
             bool ectoplasmicHasStarterTarget =
-                (!HasHublotInHand() && CheckRemainInDeck(CardId.Hublot) > 0)
+                (!HasHublotInHand() && Bot.HasInDeck(CardId.Hublot))
                 || (HasHublotInHand() && !HasPumpkingInHand()
-                    && CheckRemainInDeck(CardId.PumpkingTheKingOfGraveGhosts) > 0);
+                    && Bot.HasInDeck(CardId.PumpkingTheKingOfGraveGhosts));
             if (!ectoplasmicHasStarterTarget)
                 return false;
 
@@ -5510,12 +5484,12 @@ namespace WindBot.Game.AI.Decks
 
             if (Duel.Player == 1)
             {
-                bool hasSnakehairLine = CheckRemainInDeck(CardId.StareOfTheSnakeHair) > 0
+                bool hasSnakehairLine = Bot.HasInDeck(CardId.StareOfTheSnakeHair)
                     && ((pendingSnakehairDisableTarget != null
                             && IsLiveEnemyMonster(pendingSnakehairDisableTarget)
                             && pendingSnakehairDisableTarget.IsAttack())
                         || Enemy.GetMonsters().Any(ShouldPreemptWithSnakehair));
-                bool hasMammothLine = CheckRemainInDeck(CardId.GreatMammothOfTheNetherworld) > 0
+                bool hasMammothLine = Bot.HasInDeck(CardId.GreatMammothOfTheNetherworld)
                     && ((pendingMammothDestroyTarget != null
                             && CanMammothDestroyTarget(pendingMammothDestroyTarget))
                         || GetMammothPreemptTarget() != null);
@@ -5563,7 +5537,7 @@ namespace WindBot.Game.AI.Decks
             IEnumerable<ClientCard> candidates = null)
         {
             return candidates == null
-                ? CheckRemainInDeck(cardId) > 0
+                ? Bot.HasInDeck(cardId)
                 : candidates.Any(c => c != null && c.IsCode(cardId));
         }
 
@@ -8461,8 +8435,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (desc == Util.GetStringId(CardId.DeltaOfInvitation, 3))
             {
-                return CheckRemainInDeck(CardId.EldlichTheGoldenLord) > 0
-                    || CheckRemainInDeck(CardId.DoomkingBalerdroch) > 0;
+                return Bot.HasInDeck(CardId.EldlichTheGoldenLord)
+                    || Bot.HasInDeck(CardId.DoomkingBalerdroch);
             }
 
             if (desc == Util.GetStringId(CardId.Hublot, 3))
