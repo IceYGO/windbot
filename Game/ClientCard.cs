@@ -127,12 +127,25 @@ namespace WindBot.Game
             if ((flag & (int)Query.ReasonCard) != 0)
                 packet.ReadInt32(); // Int8 * 4
             if ((flag & (int)Query.EquipCard) != 0)
-                packet.ReadInt32(); // Int8 * 4
+            {
+                int controller = duel.GetLocalPlayer(packet.ReadByte());
+                int location = packet.ReadByte();
+                int sequence = packet.ReadByte();
+                int subSequence = packet.ReadByte();
+                SetEquipTarget(duel.GetCard(controller, location, sequence, subSequence));
+            }
             if ((flag & (int)Query.TargetCard) != 0)
             {
+                ClearOutgoingCardTargets();
                 int count = packet.ReadInt32();
                 for (int i = 0; i < count; ++i)
-                    packet.ReadInt32(); // Int8 * 4
+                {
+                    int controller = duel.GetLocalPlayer(packet.ReadByte());
+                    int location = packet.ReadByte();
+                    int sequence = packet.ReadByte();
+                    int subSequence = packet.ReadByte();
+                    AddCardTarget(duel.GetCard(controller, location, sequence, subSequence));
+                }
             }
             if ((flag & (int)Query.OverlayCard) != 0)
             {
@@ -167,18 +180,59 @@ namespace WindBot.Game
             }
         }
 
+        public void SetEquipTarget(ClientCard target)
+        {
+            if (EquipTarget == target)
+            {
+                if (target != null && !target.EquipCards.Contains(this))
+                    target.EquipCards.Add(this);
+                return;
+            }
+
+            if (EquipTarget != null)
+                EquipTarget.EquipCards.RemoveAll(card => card == this);
+            EquipTarget = target;
+            if (target != null && !target.EquipCards.Contains(this))
+                target.EquipCards.Add(this);
+        }
+
+        public void ClearEquipRelations()
+        {
+            SetEquipTarget(null);
+            foreach (ClientCard equipCard in EquipCards.ToList())
+                equipCard.SetEquipTarget(null);
+            EquipCards.Clear();
+        }
+
+        public void AddCardTarget(ClientCard target)
+        {
+            if (target == null) return;
+            if (!TargetCards.Contains(target))
+                TargetCards.Add(target);
+            if (!target.OwnTargets.Contains(this))
+                target.OwnTargets.Add(this);
+        }
+
+        public void RemoveCardTarget(ClientCard target)
+        {
+            if (target == null) return;
+            TargetCards.RemoveAll(card => card == target);
+            target.OwnTargets.RemoveAll(card => card == this);
+        }
+
+        private void ClearOutgoingCardTargets()
+        {
+            foreach (ClientCard card in TargetCards.ToList())
+                RemoveCardTarget(card);
+            TargetCards.Clear();
+        }
+
         public void ClearCardTargets()
         {
-            foreach (ClientCard card in TargetCards)
-            {
-                card.OwnTargets.Remove(this);
-            }
-            foreach (ClientCard card in OwnTargets)
-            {
-                card.TargetCards.Remove(this);
-            }
+            ClearOutgoingCardTargets();
+            foreach (ClientCard card in OwnTargets.ToList())
+                card.RemoveCardTarget(this);
             OwnTargets.Clear();
-            TargetCards.Clear();
         }
 
         public bool HasLinkMarker(int dir)
