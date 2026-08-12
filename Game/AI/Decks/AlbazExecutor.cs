@@ -5083,24 +5083,30 @@ namespace WindBot.Game.AI.Decks
             {
                 List<ClientCard> targetedBotMonsterList = Duel.LastChainTargets.Where(c => c.Location == CardLocation.MonsterZone && c.Controller == 0).ToList();
                 ClientCard lastChainCard = Util.GetLastChainCard();
+                List<ClientCard> becomeTargetDestroyList = enemyTargetList.Where(c => c.Location == CardLocation.MonsterZone).ToList();
+                if (becomeTargetDestroyList.Count == 0)
+                {
+                    becomeTargetDestroyList = enemyTargetList.Where(c => c.Location == CardLocation.SpellZone
+                        && (c != lastChainCard || c.HasType(CardType.Continuous | CardType.Equip | CardType.Field | CardType.Pendulum))).ToList();
+                }
                 // if it's a negate effect, only destroy not important monster
                 if (lastChainCard != null && lastChainCard.IsCode(targetNegateIdList))
                 {
                     targetedBotMonsterList = targetedBotMonsterList.Where(c => !c.IsCode(CardId.BlazingCartesiaTheVirtuous) || c.Attack < 2500).OrderBy(c => c.Attack).ToList();
                 }
-                if (targetedBotMonsterList.Count > 0)
+                if (targetedBotMonsterList.Count > 0 && becomeTargetDestroyList.Count > 0)
                 {
                     AI.SelectCard(targetedBotMonsterList);
-                    AI.SelectNextCard(enemyTargetList);
+                    AI.SelectNextCard(becomeTargetDestroyList);
                     currentDestroyCardList.Add(targetedBotMonsterList[0]);
-                    currentDestroyCardList.Add(enemyTargetList[0]);
+                    currentDestroyCardList.Add(becomeTargetDestroyList[0]);
                     activatedCardIdList.Add(Card.Id);
                     return true;
                 }
             }
 
             // end phase
-            if (Duel.Player == 1 && Duel.Phase == DuelPhase.End)
+            if (Duel.Player == 1 && Duel.Phase == DuelPhase.End && enemyTargetList.Count > 0)
             {
                 List<ClientCard> botTargetList = Bot.MonsterZone.Where(c => c != null && c.GetDefensePower() <= 2500).OrderBy(c => c.GetDefensePower()).ToList();
                 if (botTargetList.Count > 0)
