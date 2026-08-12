@@ -102,6 +102,7 @@ namespace WindBot.Game
             _messages.Add(GameMessage.ShuffleExtra, OnShuffleExtra);
             _messages.Add(GameMessage.ShuffleSetCard, OnShuffleSetCard);
             _messages.Add(GameMessage.SwapGraveDeck, OnSwapGraveDeck);
+            _messages.Add(GameMessage.ReverseDeck, OnReverseDeck);
             _messages.Add(GameMessage.TagSwap, OnTagSwap);
             _messages.Add(GameMessage.NewTurn, OnNewTurn);
             _messages.Add(GameMessage.NewPhase, OnNewPhase);
@@ -157,6 +158,11 @@ namespace WindBot.Game
             _messages.Add(GameMessage.FlipSummoned, OnSummoned);
             _messages.Add(GameMessage.ConfirmCards, OnConfirmCards);
             _messages.Add(GameMessage.PlayerHint, OnPlayerHint);
+
+            // ConfirmDecktop, DeckTop and ConfirmExtratop are intentionally not registered.
+            // Effects that inspect or return cards may temporarily reveal cards in either Main Deck
+            // or the opponent's face-down Extra Deck, but deck executors currently cannot rely on
+            // that transient knowledge when making decisions.
         }
 
         private void OnJoinGame(BinaryReader packet)
@@ -403,14 +409,15 @@ namespace WindBot.Game
             int duel_rule = packet.ReadByte();
             _ai.Duel.IsNewRule = (duel_rule >= 4);
             _ai.Duel.IsNewRule2020 = (duel_rule >= 5);
+            _duel.DeckReversed = false;
             _duel.Fields[GetLocalPlayer(0)].LifePoints = packet.ReadInt32();
             _duel.Fields[GetLocalPlayer(1)].LifePoints = packet.ReadInt32();
             int deck = packet.ReadInt16();
             int extra = packet.ReadInt16();
-            _duel.Fields[GetLocalPlayer(0)].Init(deck, extra);
+            _duel.Fields[GetLocalPlayer(0)].Init(deck, extra, GetLocalPlayer(0));
             deck = packet.ReadInt16();
             extra = packet.ReadInt16();
-            _duel.Fields[GetLocalPlayer(1)].Init(deck, extra);
+            _duel.Fields[GetLocalPlayer(1)].Init(deck, extra, GetLocalPlayer(1));
 
             // in case of ending duel in chain's solving
             _duel.CurrentChain.Clear();
@@ -518,41 +525,59 @@ namespace WindBot.Game
                 int loc = packet.ReadByte();
                 int seq = packet.ReadByte();
                 /*int sseq = */packet.ReadByte();
-                ClientCard card = _duel.GetCard(player, (CardLocation)loc, seq);
-                if (card == null) continue;
-                ClientCard[] zone = (loc == (int)CardLocation.MonsterZone) ? _duel.Fields[player].MonsterZone : _duel.Fields[player].SpellZone;
-                zone[seq] = list[i];
+                ClientCard card = list[i];
+                if (loc == 0 || card == null) continue;
+                ClientCard[] zone = (location == (int)CardLocation.MonsterZone) ? _duel.Fields[player].MonsterZone : _duel.Fields[player].SpellZone;
+                int previousSequence = card.Sequence;
+                ClientCard swappedCard = zone[seq];
+                zone[previousSequence] = swappedCard;
+                zone[seq] = card;
+                card.Sequence = seq;
+                if (swappedCard != null)
+                    swappedCard.Sequence = previousSequence;
             }
         }
 
         private void OnSwapGraveDeck(BinaryReader packet)
         {
             int player = GetLocalPlayer(packet.ReadByte());
-            IList<ClientCard> tmpDeckList = _duel.Fields[player].Deck.ToList();
-            _duel.Fields[player].Deck.Clear();
-            int seq = 0;
-            foreach(var card in _duel.Fields[player].Graveyard)
+            ClientField field = _duel.Fields[player];
+            IList<ClientCard> oldDeck = field.Deck.ToList();
+            IList<ClientCard> oldGraveyard = field.Graveyard.ToList();
+            field.Deck.Clear();
+            field.Graveyard.Clear();
+
+            int deckSequence = 0;
+            int extraSequence = field.ExtraDeck.TakeWhile(card => !card.IsFaceup()).Count();
+            foreach (ClientCard card in oldGraveyard)
             {
+                card.LastLocation = CardLocation.Grave;
                 if (card.IsExtraCard())
                 {
-                    _duel.Fields[player].ExtraDeck.Add(card);
-                    card.Location = CardLocation.Extra;
-                    card.Position = (int)CardPosition.FaceDown;
-                    // TODO: face-up P cards
+                    _duel.AddCard(CardLocation.Extra, card, player, extraSequence++,
+                        (int)CardPosition.FaceDownDefence, card.Id);
                 }
                 else
                 {
-                    _duel.Fields[player].Deck.Add(card);
-                    card.Location = CardLocation.Deck;
-                    card.Sequence = seq++;
+                    _duel.AddCard(CardLocation.Deck, card, player, deckSequence++,
+                        (int)CardPosition.FaceDownDefence, card.Id);
                 }
             }
-            _duel.Fields[player].Graveyard.Clear();
-            foreach (var card in tmpDeckList)
+
+            int graveSequence = 0;
+            foreach (ClientCard card in oldDeck)
             {
-                _duel.Fields[player].Graveyard.Add(card);
-                card.Location = CardLocation.Grave;
+                card.LastLocation = CardLocation.Deck;
+                _duel.AddCard(CardLocation.Grave, card, player, graveSequence++,
+                    (int)CardPosition.FaceUp, card.Id);
             }
+        }
+
+        private void OnReverseDeck(BinaryReader packet)
+        {
+            // DeckReversed is currently unused by the bot.
+            // YGOPro does not refresh deck card sequences on reverse.
+            _duel.DeckReversed = !_duel.DeckReversed;
         }
 
         private void OnTagSwap(BinaryReader packet)
@@ -560,25 +585,48 @@ namespace WindBot.Game
             int player = GetLocalPlayer(packet.ReadByte());
             int mcount = packet.ReadByte();
             int ecount = packet.ReadByte();
-            /*int pcount = */ packet.ReadByte();
+            int pcount = packet.ReadByte();
             int hcount = packet.ReadByte();
-            /*int topcode =*/ packet.ReadInt32();
-            _duel.Fields[player].Deck.Clear();
+            /*int topcode = */ packet.ReadInt32();
+            ClientField field = _duel.Fields[player];
+
+            field.Deck.Clear();
             for (int i = 0; i < mcount; ++i)
             {
-                _duel.Fields[player].Deck.Add(new ClientCard(0, CardLocation.Deck, -1));
+                ClientCard card = new ClientCard(0, CardLocation.Deck, i, (int)CardPosition.FaceDownDefence);
+                card.Owner = player;
+                card.Controller = player;
+                field.Deck.Add(card);
             }
-            _duel.Fields[player].ExtraDeck.Clear();
-            for (int i = 0; i < ecount; ++i)
-            {
-                int code = packet.ReadInt32() & 0x7fffffff;
-                _duel.Fields[player].ExtraDeck.Add(new ClientCard(code, CardLocation.Extra, -1));
-            }
-            _duel.Fields[player].Hand.Clear();
+
+            field.Hand.Clear();
             for (int i = 0; i < hcount; ++i)
             {
-                int code = packet.ReadInt32();
-                _duel.Fields[player].Hand.Add(new ClientCard(code, CardLocation.Hand,-1));
+                uint encodedCode = packet.ReadUInt32();
+                int code = (int)(encodedCode & 0x7fffffff);
+                int position = (encodedCode & 0x80000000) != 0
+                    ? (int)CardPosition.FaceUp
+                    : (int)CardPosition.FaceDown;
+                ClientCard card = new ClientCard(code, CardLocation.Hand, i, position);
+                card.Owner = player;
+                card.Controller = player;
+                field.Hand.Add(card);
+            }
+
+            field.ExtraDeck.Clear();
+            int faceupSequence = Math.Max(0, ecount - pcount);
+            for (int i = 0; i < ecount; ++i)
+            {
+                uint encodedCode = packet.ReadUInt32();
+                int code = (int)(encodedCode & 0x7fffffff);
+                bool isFaceup = i >= faceupSequence || (encodedCode & 0x80000000) != 0;
+                int position = isFaceup
+                    ? (int)CardPosition.FaceUpDefence
+                    : (int)CardPosition.FaceDownDefence;
+                ClientCard card = new ClientCard(code, CardLocation.Extra, i, position);
+                card.Owner = player;
+                card.Controller = player;
+                field.ExtraDeck.Add(card);
             }
         }
 
