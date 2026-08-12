@@ -656,7 +656,9 @@ namespace WindBot.Game
 
         private void OnMove(BinaryReader packet)
         {
-            // TODO: update equip cards and target cards
+            // TODO: update equip cards and target cards.
+            // MSG_MOVE stores an overlay material's index in the position byte and combines
+            // CardLocation.Overlay with the host card's zone in the location byte.
             int cardId = packet.ReadInt32();
             int previousControler = GetLocalPlayer(packet.ReadByte());
             int previousLocation = packet.ReadByte();
@@ -665,9 +667,20 @@ namespace WindBot.Game
             int currentControler = GetLocalPlayer(packet.ReadByte());
             int currentLocation = packet.ReadByte();
             int currentSequence = packet.ReadSByte();
-            int currentPosition = packet.ReadSByte();
+            int currentPosition = packet.ReadByte();
             packet.ReadInt32(); // reason
 
+            // Keep logical locations for AI callbacks. The compound protocol locations are
+            // still needed below to find the host card and the material by index.
+            int previousMoveLocation = (previousLocation & (int)CardLocation.Overlay) != 0
+                ? (int)CardLocation.Overlay
+                : previousLocation;
+            int currentMoveLocation = (currentLocation & (int)CardLocation.Overlay) != 0
+                ? (int)CardLocation.Overlay
+                : currentLocation;
+
+            // GetCard uses previousPosition as the material index when previousLocation has
+            // the Overlay flag. Overlay materials are otherwise stored only as IDs on their host.
             ClientCard card = _duel.GetCard(previousControler, previousLocation, previousSequence, previousPosition);
             if (card != null)
             {
@@ -675,8 +688,10 @@ namespace WindBot.Game
             }
             if ((previousLocation & (int)CardLocation.Overlay) != 0)
             {
-                previousLocation = previousLocation & 0x7f;
-                ClientCard overlayTarget = _duel.GetCard(previousControler, (CardLocation)previousLocation, previousSequence);
+                // Detach by index rather than ID because a host may have multiple materials
+                // with the same card ID. GetCard reconstructed the material object above.
+                int overlayTargetLocation = previousLocation & 0x7f;
+                ClientCard overlayTarget = _duel.GetCard(previousControler, (CardLocation)overlayTargetLocation, previousSequence);
                 if (overlayTarget != null && previousPosition < overlayTarget.Overlays.Count)
                 {
                     if (_debug)
@@ -686,20 +701,32 @@ namespace WindBot.Game
                 if (card == null)
                     card = new ClientCard(cardId, CardLocation.Overlay, 0, 0);
                 card.LastLocation = CardLocation.Overlay;
-                previousLocation = 0; // the card is removed when it go to overlay, so here we treat it as a new card
+                // The reconstructed material is not present in any regular field list. Route it
+                // through the same add path as a newly appearing card if it leaves the overlay.
+                previousLocation = 0;
             }
             else
                 _duel.RemoveCard((CardLocation)previousLocation, card, previousControler, previousSequence);
 
             if ((currentLocation & (int)CardLocation.Overlay) != 0)
             {
-                currentLocation = currentLocation & 0x7f;
-                ClientCard overlayTarget = _duel.GetCard(currentControler, (CardLocation)currentLocation, currentSequence);
+                // WindBot stores attached materials only as IDs on the host, so Duel no longer
+                // retains this ClientCard. Normalize it for OnMove and any executor references to it.
+                int overlayTargetLocation = currentLocation & 0x7f;
+                ClientCard overlayTarget = _duel.GetCard(currentControler, (CardLocation)overlayTargetLocation, currentSequence);
                 if (overlayTarget != null)
                 {
                     if (_debug)
                         Logger.WriteLine("(" + previousControler.ToString() + " 's " + (overlayTarget.Name ?? "UnKnowCard") + " overlay " + (NamedCard.Get(cardId)?.Name) + ")");
                     overlayTarget.Overlays.Add(cardId);
+                }
+                if (card != null)
+                {
+                    card.SetId(cardId);
+                    card.Location = CardLocation.Overlay;
+                    card.Sequence = currentPosition;
+                    card.Position = 0;
+                    card.Controller = currentControler;
                 }
             }
             else
@@ -709,8 +736,8 @@ namespace WindBot.Game
                     if (_debug)
                         Logger.WriteLine("(" + previousControler.ToString() + " 's " + (NamedCard.Get(cardId)?.Name)
                         + " appear in " + (CardLocation)currentLocation + ")");
-                    // YGOPro creates a client card when the previous location is 0. An overlay
-                    // material is reconstructed above, so reuse that instance to preserve LastLocation.
+                    // Reuse a reconstructed overlay material so its LastLocation survives the
+                    // move. For a genuinely new card, create the client object before adding it.
                     if (card == null)
                         card = new ClientCard(cardId, (CardLocation)currentLocation, currentSequence, currentPosition);
                     _duel.AddCard((CardLocation)currentLocation, card, currentControler, currentSequence, currentPosition, cardId);
@@ -726,8 +753,10 @@ namespace WindBot.Game
                         (CardLocation)previousLocation + " move to " + (CardLocation)currentLocation + ")");
                 }
             }
-        
-            _ai.OnMove(card, previousControler, previousLocation, currentControler, currentLocation);
+
+            // Report Overlay as the material's location instead of the encoded host zone. This
+            // prevents deck executors from treating material attachment as entry to a field zone.
+            _ai.OnMove(card, previousControler, previousMoveLocation, currentControler, currentMoveLocation);
         }
 
         private void OnSwap(BinaryReader packet)
