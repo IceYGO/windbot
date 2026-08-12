@@ -575,19 +575,9 @@ namespace WindBot.Game
 
         private void OnReverseDeck(BinaryReader packet)
         {
+            // DeckReversed is currently unused by the bot.
+            // YGOPro does not refresh deck card sequences on reverse.
             _duel.DeckReversed = !_duel.DeckReversed;
-            for (int player = 0; player < 2; ++player)
-            {
-                IList<ClientCard> deck = _duel.Fields[player].Deck;
-                for (int left = 0, right = deck.Count - 1; left < right; ++left, --right)
-                {
-                    ClientCard card = deck[left];
-                    deck[left] = deck[right];
-                    deck[right] = card;
-                }
-                for (int sequence = 0; sequence < deck.Count; ++sequence)
-                    deck[sequence].Sequence = sequence;
-            }
         }
 
         private void OnTagSwap(BinaryReader packet)
