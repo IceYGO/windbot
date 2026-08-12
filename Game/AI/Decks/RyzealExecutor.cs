@@ -151,6 +151,7 @@ namespace WindBot.Game.AI.Decks
         const int SetcodeFloowandereeze = 0x16d;
         const int SetcodeLabrynth = 0x17e;
         const int SetcodeTearlaments = 0x181;
+        const int SetcodeKashtira = 0x189;
         const int SetcodeHorus = 0x19d;
         const int SetcodeRyzeal = 0x1be;
         const int hintTimingMainEnd = 0x4;
@@ -160,7 +161,8 @@ namespace WindBot.Game.AI.Decks
         };
         List<int> AlbazFusionList = new List<int>
         {
-            1906812, 38811586, 41373230, 44146295, 51409648, 51409648, 87746184
+            // Don't add Fusion monsters commonly used outside Branded, such as Albion.
+            1906812, 38811586, 44146295, 51409648, 70534340
         };
         Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>{
             {3, new List<int> { CardId.IceRyzeal, CardId.ThodeRyzeal, CardId.ExRyzeal, _CardId.AshBlossom, _CardId.EffectVeiler, CardId.SeventhTachyon,
@@ -187,8 +189,9 @@ namespace WindBot.Game.AI.Decks
         int dimensionShifterCount = 0;
         bool botActivateMulcharmy = false;
         bool botSolvingCross = false;
+        // Do not scan Branded setcode directly: cards such as Fallen & Ecclesia also belong to other strategies.
         List<int> CheckSetcodeList = new List<int> { SetcodePhantomKnight, SetcodeOrcust, SetcodeAtlantean, SetcodeRyzeal, SetcodeTenpaiDragon, SetcodeSangen,
-            SetcodeInfernoid, SetcodeSkyStriker, SetcodeLabrynth, SetcodeTearlaments };
+            SetcodeInfernoid, SetcodeSkyStriker, SetcodeLabrynth, SetcodeTearlaments, SetcodeKashtira };
         List<int> CheckBotSolvedList = new List<int> { _CardId.MaxxC, _CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos, _CardId.MulcharmyNyalus,
             CardId.AbyssDweller, _CardId.EvilswarmExcitonKnight, CardId.RyzealPlugIn };
 
@@ -206,7 +209,7 @@ namespace WindBot.Game.AI.Decks
 
         List<ClientCard> hardToDestroyCardList = new List<ClientCard>();
         List<ClientCard> cannotDestroyCardList = new List<ClientCard>();
-        HashSet<int> enemyDeckTypeRecord = new HashSet<int>();
+        Dictionary<int, HashSet<int>> enemyDeckTypeRecord = new Dictionary<int, HashSet<int>>();
 
         public bool CheckCanBeTargeted(ClientCard card, bool canBeTarget, CardType selfType)
         {
@@ -1190,13 +1193,7 @@ namespace WindBot.Game.AI.Decks
                         {
                             foreach (ClientCard hand in cards)
                             {
-                                foreach (int setcode in CheckSetcodeList)
-                                {
-                                    if (hand.HasSetcode(setcode))
-                                    {
-                                        enemyDeckTypeRecord.Add(setcode);
-                                    }
-                                }
+                                RecordEnemyDeckType(hand);
                             }
                             return Util.CheckSelectCount(Util.ShuffleList(cards), cards, min, max);
                         }
@@ -1451,7 +1448,7 @@ namespace WindBot.Game.AI.Decks
         public override bool OnSelectHand()
         {
             HashSet<int> tenpaiList = new HashSet<int> { SetcodeTenpaiDragon, SetcodeSangen };
-            bool maybeTenpai = enemyDeckTypeRecord.Count() > 0 && enemyDeckTypeRecord.All(c => tenpaiList.Contains(c));
+            bool maybeTenpai = enemyDeckTypeRecord.Count > 0 && enemyDeckTypeRecord.Keys.All(c => tenpaiList.Contains(c));
             return !maybeTenpai;
         }
 
@@ -1666,7 +1663,7 @@ namespace WindBot.Game.AI.Decks
 
                 if (card.HasSetcode(SetcodeFloowandereeze))
                 {
-                    enemyDeckTypeRecord.Add(SetcodeFloowandereeze);
+                    RecordEnemyDeckType(SetcodeFloowandereeze, card.Id);
                 }
             }
 
@@ -1779,16 +1776,10 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (card.Owner == 1)
                 {
-                    foreach (int setcode in CheckSetcodeList)
-                    {
-                        if (card.HasSetcode(setcode))
-                        {
-                            enemyDeckTypeRecord.Add(setcode);
-                        }
-                    }
+                    RecordEnemyDeckType(card);
                     if (card.IsCode(AlbazFusionList))
                     {
-                        enemyDeckTypeRecord.Add(SetcodeBranded);
+                        RecordEnemyDeckType(SetcodeBranded, card.Id);
                     }
                 }
                 if (currentControler == 1 && (currentLocation == (int)CardLocation.MonsterZone || currentLocation == (int)CardLocation.SpellZone))
@@ -1807,6 +1798,34 @@ namespace WindBot.Game.AI.Decks
             }
 
             base.OnMove(card, previousControler, previousLocation, currentControler, currentLocation);
+        }
+
+        private void RecordEnemyDeckType(ClientCard card)
+        {
+            foreach (int setcode in CheckSetcodeList)
+            {
+                if (card.HasSetcode(setcode))
+                {
+                    RecordEnemyDeckType(setcode, card.Id);
+                }
+            }
+        }
+
+        private void RecordEnemyDeckType(int setcode, int cardId)
+        {
+            HashSet<int> cardIds;
+            if (!enemyDeckTypeRecord.TryGetValue(setcode, out cardIds))
+            {
+                cardIds = new HashSet<int>();
+                enemyDeckTypeRecord.Add(setcode, cardIds);
+            }
+            cardIds.Add(cardId);
+        }
+
+        private bool EnemyDeckHasType(int setcode, int minimumCardIdCount = 1)
+        {
+            HashSet<int> cardIds;
+            return enemyDeckTypeRecord.TryGetValue(setcode, out cardIds) && cardIds.Count >= minimumCardIdCount;
         }
 
         public override void OnSpSummoned()
@@ -2945,15 +2964,16 @@ namespace WindBot.Game.AI.Decks
 
         public bool AbyssDwellerSummonCheck()
         {
-            bool flag = enemyDeckTypeRecord.Contains(SetcodeAtlantean);
-            flag |= enemyDeckTypeRecord.Contains(SetcodeOrcust);
-            flag |= enemyDeckTypeRecord.Contains(SetcodePhantomKnight);
-            flag |= enemyDeckTypeRecord.Count() > 0 && enemyDeckTypeRecord.All(c => c == SetcodeTearlaments);
+            bool flag = EnemyDeckHasType(SetcodeAtlantean);
+            flag |= EnemyDeckHasType(SetcodeOrcust);
+            flag |= EnemyDeckHasType(SetcodePhantomKnight);
+            // Tearlaments Kashtira alone is shared evidence, so require another distinct Tearlaments card.
+            flag |= EnemyDeckHasType(SetcodeTearlaments, 2);
 
             int enemyDeckTotalCount = Enemy.Hand.Count() + Enemy.Deck.Count() + Enemy.Graveyard.Count() + Enemy.Banished.Count() + Enemy.ExtraDeck.Count();
             if (enemyDeckTotalCount > 65)
             {
-                flag |= !enemyDeckTypeRecord.Contains(SetcodeInfernoid);
+                flag |= !EnemyDeckHasType(SetcodeInfernoid);
             }
 
             return flag;
@@ -2961,9 +2981,9 @@ namespace WindBot.Game.AI.Decks
 
         public bool Number41BagooskatheTerriblyTiredTapirSummonCheck()
         {
-            bool flag = enemyDeckTypeRecord.Contains(SetcodeFloowandereeze);
-            flag |= enemyDeckTypeRecord.Contains(SetcodeBranded);
-            flag |= enemyDeckTypeRecord.Contains(SetcodeRyzeal);
+            bool flag = EnemyDeckHasType(SetcodeFloowandereeze);
+            flag |= EnemyDeckHasType(SetcodeBranded);
+            // flag |= EnemyDeckHasType(SetcodeRyzeal); // not very effective
             flag &= Util.IsTurn1OrMain2();
 
             return flag;
@@ -2972,7 +2992,7 @@ namespace WindBot.Game.AI.Decks
         public bool TornadoDragonSummonCheck()
         {
             if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
-            bool flag = enemyDeckTypeRecord.Contains(SetcodeLabrynth);
+            bool flag = EnemyDeckHasType(SetcodeLabrynth);
             flag |= Enemy.SpellZone.Any(c => c != null && c.IsFaceup() && !c.IsDisabled() && c.IsFloodgate());
             flag |= Enemy.SpellZone.Count(c => c != null && !c.IsShouldNotBeMonsterTarget() && !NotToDestroySpellTrap.Contains(c.Id)) >= 3;
             flag |= !Util.IsTurn1OrMain2() && !botSolvedCardIdList.Contains(_CardId.EvilswarmExcitonKnight) && Enemy.GetMonsterCount() == 0
@@ -3185,7 +3205,7 @@ namespace WindBot.Game.AI.Decks
                 have2MaterialDuo = duoDriveOverlayCount >= 2;
             }
 
-            if (photonDragon != null && have2MaterialDuo && enemyDeckTypeRecord.Contains(SetcodeSkyStriker))
+            if (photonDragon != null && have2MaterialDuo && EnemyDeckHasType(SetcodeSkyStriker))
             {
                 if (Card != photonDragon) return false;
 
@@ -3234,7 +3254,7 @@ namespace WindBot.Game.AI.Decks
             ClientCard deadnader = Duel.MainPhase.SpecialSummonableCards.FirstOrDefault(c => c.IsCode(CardId.RyzealDeadnader));
             if (deadnader == null)
             {
-                ClientCard tornadoDragon = Duel.MainPhase.SummonableCards.FirstOrDefault(c => c.IsCode(CardId.TornadoDragon));
+                ClientCard tornadoDragon = Duel.MainPhase.SpecialSummonableCards.FirstOrDefault(c => c.IsCode(CardId.TornadoDragon));
                 if (tornadoDragon != null && TornadoDragonSummonCheck() && Card == tornadoDragon)
                 {
                     if (materialExceptNode.Count() >= 2)
@@ -3424,8 +3444,8 @@ namespace WindBot.Game.AI.Decks
             // tornado dragon
             if (deadnader == null)
             {
-                ClientCard tornadoDragon = Duel.MainPhase.SummonableCards.FirstOrDefault(c => c.IsCode(CardId.TornadoDragon));
-                if (tornadoDragon != null && TornadoDragonSummonCheck())
+                ClientCard tornadoDragon = Duel.MainPhase.SpecialSummonableCards.FirstOrDefault(c => c.IsCode(CardId.TornadoDragon));
+                if (tornadoDragon != null && TornadoDragonSummonCheck() && Card == tornadoDragon)
                 {
                     // Select 2 monster with lowest defense
                     List<ClientCard> materialList = GetLevel4OnField(null);
@@ -3877,7 +3897,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player == 1)
             {
                 if (CheckWhetherNegated(true)) return false;
-                if (enemyDeckTypeRecord.Contains(SetcodeAtlantean)) return true;
+                if (EnemyDeckHasType(SetcodeAtlantean)) return true;
                 return Enemy.GetMonsterCount() + Enemy.GetSpellCount() > 0;
             }
 
