@@ -32,6 +32,7 @@ namespace WindBot.Game
         public int BaseDefense { get; private set; }
         public int RealPower { get; set; }
         public List<int> Overlays { get; private set; }
+        internal List<int> OverlayOwners { get; private set; }
         public int Owner { get; internal set; }
         public int Controller { get; set; }
         public int Disabled { get; private set; }
@@ -66,6 +67,7 @@ namespace WindBot.Game
             Sequence = sequence;
             Position = position;
             Overlays = new List<int>();
+            OverlayOwners = new List<int>();
             EquipCards = new List<ClientCard>();
             OwnTargets = new List<ClientCard>();
             TargetCards = new List<ClientCard>();
@@ -136,10 +138,21 @@ namespace WindBot.Game
             }
             if ((flag & (int)Query.OverlayCard) != 0)
             {
+                List<int> previousOverlays = new List<int>(Overlays);
+                List<int> previousOverlayOwners = new List<int>(OverlayOwners);
                 Overlays.Clear();
+                OverlayOwners.Clear();
                 int count = packet.ReadInt32();
                 for (int i = 0; i < count; ++i)
-                    Overlays.Add(packet.ReadInt32());
+                {
+                    int overlayId = packet.ReadInt32();
+                    int overlayOwner = Controller;
+                    // QUERY_OVERLAY_CARD omits the owner, so preserve ownership learned from MSG_MOVE.
+                    if (i < previousOverlays.Count && i < previousOverlayOwners.Count && previousOverlays[i] == overlayId)
+                        overlayOwner = previousOverlayOwners[i];
+                    Overlays.Add(overlayId);
+                    OverlayOwners.Add(overlayOwner);
+                }
             }
             if ((flag & (int)Query.Counters) != 0)
             {

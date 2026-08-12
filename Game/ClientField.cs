@@ -1,12 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using WindBot.Game.AI;
+using YGOSharp.OCGWrapper;
 using YGOSharp.OCGWrapper.Enums;
 
 namespace WindBot.Game
 {
     public class ClientField
     {
+        private int _player;
+        private ClientField _opponent;
+        private IDictionary<int, int> _initialDeckCounts;
+
         public IList<ClientCard> Hand { get; private set; }
         public ClientCard[] MonsterZone { get; private set; }
         public ClientCard[] SpellZone { get; private set; }
@@ -27,6 +32,7 @@ namespace WindBot.Game
 
         public void Init(int deck, int extra, int player)
         {
+            _player = player;
             Hand = new List<ClientCard>();
             MonsterZone = new ClientCard[7];
             SpellZone = new ClientCard[8];
@@ -50,6 +56,29 @@ namespace WindBot.Game
                 card.Controller = player;
                 ExtraDeck.Add(card);
             }
+        }
+
+        internal void SetOpponent(ClientField opponent)
+        {
+            _opponent = opponent;
+        }
+
+        public void SetInitialDeck(IEnumerable<NamedCard> cards)
+        {
+            _initialDeckCounts = new Dictionary<int, int>();
+            foreach (NamedCard card in cards)
+            {
+                IncrementInitialDeckCount(card.Id);
+                if (card.Alias != 0 && System.Math.Abs(card.Alias - card.Id) < 20)
+                    IncrementInitialDeckCount(card.Alias);
+            }
+        }
+
+        private void IncrementInitialDeckCount(int cardId)
+        {
+            int count = 0;
+            _initialDeckCounts.TryGetValue(cardId, out count);
+            _initialDeckCounts[cardId] = count + 1;
         }
 
         public int GetMonstersExtraZoneCount()
@@ -174,6 +203,26 @@ namespace WindBot.Game
         public ClientCard GetFieldSpellCard()
         {
             return SpellZone[5];
+        }
+
+        /// <summary>
+        /// Checks if the deck contains a specific card.
+        /// The bot can only check this by counting the appearances of the card outside the deck.
+        /// </summary>
+        public bool HasInDeck(int cardId)
+        {
+            if (!CanQueryDeck()) return false;
+            return GetRemainingCount(cardId) > 0;
+        }
+
+        /// <summary>
+        /// Checks if the deck contains specific cards.
+        /// The bot can only check this by counting the appearances of the card outside the deck.
+        /// </summary>
+        public bool HasInDeck(IList<int> cardId)
+        {
+            if (!CanQueryDeck()) return false;
+            return cardId.Any(id => GetRemainingCount(id) > 0);
         }
 
         public bool HasInHand(int cardId)
@@ -321,15 +370,53 @@ namespace WindBot.Game
             return HasInHand(cardId) || HasInSpellZone(cardId) || HasInGraveyard(cardId);
         }
 
-        public int GetRemainingCount(int cardId, int initialCount)
+        /// <param name="initalCount_deprecated">Deprecated now. The param is ignored.</param>
+        public int GetRemainingCount(int cardId, int initalCount_deprecated)
         {
-            int remaining = initialCount;
-            remaining = remaining - Hand.Count(card => card != null && card.IsOriginalCode(cardId));
-            remaining = remaining - SpellZone.Count(card => card != null && card.IsOriginalCode(cardId));
-            remaining = remaining - MonsterZone.Count(card => card != null && card.IsOriginalCode(cardId));
-            remaining = remaining - Graveyard.Count(card => card != null && card.IsOriginalCode(cardId));
-            remaining = remaining - Banished.Count(card => card != null && card.IsOriginalCode(cardId));
+            return GetRemainingCount(cardId);
+        }
+
+        public int GetRemainingCount(int cardId)
+        {
+            int remaining = 0;
+            if (_initialDeckCounts?.TryGetValue(cardId, out remaining) != true)
+                Logger.DebugWriteLine($"GetRemainingCount: cardId {cardId} not found in the deck being used.");
+
+            // Known limitation: In tag duels, Owner identifies only the team. Cards left by a teammate in
+            // shared zones may therefore be subtracted from this bot's initial deck count.
+            remaining -= Hand.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
+            remaining -= SpellZone.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
+            remaining -= MonsterZone.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
+            remaining -= Graveyard.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
+            remaining -= Banished.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
+            remaining -= ExtraDeck.Count(card => card != null && card.Owner == _player && card.IsFaceup() && card.IsOriginalCode(cardId));
+            remaining -= MonsterZone.Where(card => card != null).Sum(card => CountMatchingOverlays(card, cardId));
+
+            // Known limitation: Cards moved into an opponent's hand or deck cannot be matched to stable slots
+            // after a shuffle, so those known copies are not included here.
+            if (_opponent != null && _opponent.MonsterZone != null)
+            {
+                remaining -= _opponent.SpellZone.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
+                remaining -= _opponent.MonsterZone.Count(card => card != null && card.Owner == _player && card.IsOriginalCode(cardId));
+                remaining -= _opponent.MonsterZone.Where(card => card != null).Sum(card => CountMatchingOverlays(card, cardId));
+            }
             return (remaining < 0) ? 0 : remaining;
+        }
+
+        private int CountMatchingOverlays(ClientCard card, int cardId)
+        {
+            int count = 0;
+            for (int i = 0; i < card.Overlays.Count; ++i)
+            {
+                if (i >= card.OverlayOwners.Count || card.OverlayOwners[i] != _player)
+                    continue;
+
+                int overlayId = card.Overlays[i];
+                NamedCard overlayData = NamedCard.Get(overlayId);
+                if (overlayId == cardId || (overlayData != null && System.Math.Abs(overlayData.Alias - overlayId) < 20 && overlayData.Alias == cardId))
+                    count++;
+            }
+            return count;
         }
 
         private static int GetCount(IEnumerable<ClientCard> cards)
@@ -365,6 +452,13 @@ namespace WindBot.Game
         private static bool HasInCards(IEnumerable<ClientCard> cards, IList<int> cardId, bool notDisabled = false, bool hasXyzMaterial = false, bool faceUp = false)
         {
             return cards.Any(card => card != null && card.IsCode(cardId) && !(notDisabled && card.IsDisabled()) && !(hasXyzMaterial && !card.HasXyzMaterial()) && !(faceUp && card.IsFacedown()));
+        }
+
+        private bool CanQueryDeck()
+        {
+            if (_initialDeckCounts != null) return true;
+            Logger.WriteErrorLine("Enemy.HasInDeck cannot be used because the opponent's deck is hidden to AI.");
+            return false;
         }
     }
 }

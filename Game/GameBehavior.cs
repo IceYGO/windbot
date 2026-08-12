@@ -50,6 +50,7 @@ namespace WindBot.Game
             _ai.Executor = DecksManager.Instantiate(_ai, _duel);
             Game.SetDeckContext(_ai.Executor.GetType().Name);
             Deck = Deck.Load(Game.DeckFile ?? _ai.Executor.Deck);
+            _duel.Fields[0].SetInitialDeck(Deck.Cards);
 
             _select_hint = 0;
         }
@@ -745,6 +746,8 @@ namespace WindBot.Game
                     if (_debug)
                         Logger.WriteLine("(" + previousControler.ToString() + " 's " + (overlayTarget.Name ?? "UnKnowCard") + " deattach " + (NamedCard.Get(cardId)?.Name) + ")");
                     overlayTarget.Overlays.RemoveAt(previousPosition);
+                    if (previousPosition < overlayTarget.OverlayOwners.Count)
+                        overlayTarget.OverlayOwners.RemoveAt(previousPosition);
                 }
                 if (card == null)
                     card = new ClientCard(cardId, CardLocation.Overlay, 0, 0);
@@ -767,6 +770,7 @@ namespace WindBot.Game
                     if (_debug)
                         Logger.WriteLine("(" + previousControler.ToString() + " 's " + (overlayTarget.Name ?? "UnKnowCard") + " overlay " + (NamedCard.Get(cardId)?.Name) + ")");
                     overlayTarget.Overlays.Add(cardId);
+                    overlayTarget.OverlayOwners.Add(card != null && card.Owner >= 0 ? card.Owner : previousControler);
                 }
                 if (card != null)
                 {
