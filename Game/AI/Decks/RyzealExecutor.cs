@@ -1802,8 +1802,11 @@ namespace WindBot.Game.AI.Decks
 
         private void RecordEnemyDeckType(ClientCard card)
         {
+            bool hasTearlamentsAndKashtira = card.HasSetcode(SetcodeTearlaments) && card.HasSetcode(SetcodeKashtira);
             foreach (int setcode in CheckSetcodeList)
             {
+                // A dual-archetype card is used by both decks, so it is not reliable evidence for either one.
+                if (hasTearlamentsAndKashtira && (setcode == SetcodeTearlaments || setcode == SetcodeKashtira)) continue;
                 if (card.HasSetcode(setcode))
                 {
                     RecordEnemyDeckType(setcode, card.Id);
@@ -2967,8 +2970,7 @@ namespace WindBot.Game.AI.Decks
             bool flag = EnemyDeckHasType(SetcodeAtlantean);
             flag |= EnemyDeckHasType(SetcodeOrcust);
             flag |= EnemyDeckHasType(SetcodePhantomKnight);
-            // Tearlaments Kashtira alone is shared evidence, so require another distinct Tearlaments card.
-            flag |= EnemyDeckHasType(SetcodeTearlaments, 2);
+            flag |= EnemyDeckHasType(SetcodeTearlaments);
 
             int enemyDeckTotalCount = Enemy.Hand.Count() + Enemy.Deck.Count() + Enemy.Graveyard.Count() + Enemy.Banished.Count() + Enemy.ExtraDeck.Count();
             if (enemyDeckTotalCount > 65)
