@@ -181,9 +181,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool ImperialOrderfirst()
         {
-            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsCode(CardId.PotOfDesires))
+            ClientCard lastChainCard = Util.GetLastChainCard();
+            if (lastChainCard == null || lastChainCard.IsCode(CardId.PotOfDesires))
                 return false;
-            return DefaultOnBecomeTarget() && Util.GetLastChainCard().HasType(CardType.Spell);
+            return DefaultOnBecomeTarget() && lastChainCard.HasType(CardType.Spell);
         }
 
         private bool ImperialOrdereff()

@@ -64,6 +64,7 @@ namespace WindBot.Game.AI.Decks
             public const int GhostMournerMoonlitChill = 52038441;
             public const int NibiruThePrimalBeing = 27204311;
             public const int AmeNoMurakumoNoMitsurugi = 19899073;
+            public const int DogmatikaMaximus = 95679145;
         }
         private readonly Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>
         {
@@ -287,19 +288,31 @@ namespace WindBot.Game.AI.Decks
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             Logger.DebugWriteLine("OnSelectCard " + cards.Count + " " + min + " " + max + " hint=" + hint + " cancelable=" + cancelable + " cards=[" + string.Join(", ", cards.Select(c => c == null ? "null" : $"{c.Name}({c.Id}) C{c.Controller} L{c.Location}")) + "]");
 
-            if (currentSolvingChain != null && currentSolvingChain.ActivatePlayer == 1 && currentSolvingChain.IsActivateCode(CardId.AmeNoMurakumoNoMitsurugi) && cards != null && cards.Count > 0
-                && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
+            if (currentSolvingChain != null && currentSolvingChain.ActivatePlayer == 1)
             {
-                HashSet<int> protect = new HashSet<int>();
-
-                ClientCard discard = cards.OrderBy(c => DiscardScore(c, protect)).FirstOrDefault(c => DiscardScore(c, protect) < 9999);
-
-                if (discard != null)
+                if (currentSolvingChain.IsActivateCode(CardId.AmeNoMurakumoNoMitsurugi) 
+                    && cards != null && cards.Count > 0 && (hint == HintMsg.Discard || hint == HintMsg.ToGrave) 
+                    && cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand))
                 {
-                    Logger.DebugWriteLine($"[MURAKUMO] Sacred Beast discard => " + $"{discard.Name}({discard.Id})");
-                    return new List<ClientCard> { discard };
+                    HashSet<int> protect = new HashSet<int>();
+
+                    ClientCard discard = cards.OrderBy(c => DiscardScore(c, protect)).FirstOrDefault(c => DiscardScore(c, protect) < 9999);
+
+                    if (discard != null)
+                    {
+                        Logger.DebugWriteLine($"[MURAKUMO] Sacred Beast discard => " + $"{discard.Name}({discard.Id})");
+                        return new List<ClientCard> { discard };
+                    }
+                }
+
+                if (currentSolvingChain.IsActivateCode(CardId.DogmatikaMaximus) && hint == HintMsg.ToGrave)
+                {
+                    List<ClientCard> sendCards = cards.Where(c => c != null).OrderBy(c => ExtraDeckSendScore(c)).Take(min).ToList();
+                    Logger.DebugWriteLine($"[DogmatikaMaximus] Sacred Beast send to grave => " + string.Join(", ", sendCards.Select(c => $"{c.Name}({c.Id})")));
+                    return sendCards;
                 }
             }
+
             ClientCard trigger = Util.GetLastChainCard();
             if (resolvingChantFusion)
             {
@@ -833,7 +846,6 @@ namespace WindBot.Game.AI.Decks
                 if (targetList.Count >= min)
                     return targetList;
             }
-
 
             Logger.DebugWriteLine("Use default.");
             return base.OnSelectCard(cards, min, max, hint, cancelable);
@@ -1918,6 +1930,23 @@ namespace WindBot.Game.AI.Decks
             if (card.IsCode(CardId.HamonSacredBeastOfSinfulCatastrophe, CardId.RavielSacredBeastOfEndlessEternity)) return 50;
             if (card.IsCode(CardId.AshBlossom, CardId.MaxxC, CardId.CalledByTheGrave)) return 70;
             return 20;
+        }
+        private int ExtraDeckSendScore(ClientCard card)
+        {
+            // TODO(foohyfooh): Account for conditions regarding the remaining count of cards or existing board such as
+            // - keep 3 copies of Level 10 with 0 ATK if bot has The Chaotic Phantasmal Sacred Beasts still and Heavy Polymerization in hand
+            // - Dimensional Barrier or Grisaille Prison preventing specific summon
+            if (card.IsCode(CardId.SuperVehicroidMobileBase)) return 1;
+            if (card.IsCode(CardId.SaintAzamina)) return 2;
+            if (card.IsCode(CardId.SuperdreadnoughtRailCannonGustavRocket)) return 3;
+            if (card.IsCode(CardId.SuperdreadnoughtRailCannonGustavMax)) return 4;
+            if (card.IsCode(CardId.ThunderDragonColossus)) return 5;
+            if (card.IsCode(CardId.VarudrasTheFinalBringer)) return 6;
+            if (card.IsCode(CardId.Linkuriboh)) return 7;
+            if (card.IsCode(CardId.SPLittleKnight)) return 8;
+            if (card.IsCode(CardId.PhantasmalSacredBeastsOfChaos)) return int.MaxValue;
+            // Send unknown cards first
+            return 0;
         }
         private bool IsNeverDiscard(int id)
         {
