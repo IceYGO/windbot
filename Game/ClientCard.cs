@@ -348,7 +348,7 @@ namespace WindBot.Game
 
         public bool IsOriginalCode(int id)
         {
-            return Id == id || System.Math.Abs(Alias - Id) < 20 && Alias == id;
+            return Id == id || Alias == id && NamedCard.IsAltartAlias(Id, Alias);
         }
 
         public bool IsOnField()

@@ -340,7 +340,7 @@ namespace WindBot.Game.AI
 
         private bool DefaultNoExecutor()
         {
-            return Executors.All(exec => exec.Type != Type || exec.CardId != Card.Id);
+            return Executors.All(exec => exec.Type != Type || !Card.IsOriginalCode(exec.CardId));
         }
     }
 }
