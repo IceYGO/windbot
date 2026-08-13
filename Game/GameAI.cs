@@ -1499,7 +1499,7 @@ namespace WindBot.Game
                     return false;
             }
             bool result = card != null && exec.Type == type &&
-                (exec.CardId == -1 || exec.CardId == card.Id) &&
+                (exec.CardId == -1 || card.IsOriginalCode(exec.CardId)) &&
                 (exec.Func == null || exec.Func());
             if (card.Id != 0 && type == ExecutorType.Activate && result)
             {

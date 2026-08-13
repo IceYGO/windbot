@@ -525,7 +525,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (CardExecutor exec in Executors)
             {
-                if (exec.Type == Type && exec.CardId == Card.Id)
+                if (exec.Type == Type && Card.IsOriginalCode(exec.CardId))
                     return false;
             }
             return Card.IsSpell();
@@ -535,7 +535,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (CardExecutor exec in Executors)
             {
-                if (exec.Type == Type && exec.CardId == Card.Id)
+                if (exec.Type == Type && Card.IsOriginalCode(exec.CardId))
                     return false;
             }
             return Card.IsTrap() && DefaultTrap();
@@ -545,7 +545,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (CardExecutor exec in Executors)
             {
-                if (exec.Type == Type && exec.CardId == Card.Id)
+                if (exec.Type == Type && Card.IsOriginalCode(exec.CardId))
                     return false;
             }
             return Card.IsMonster();

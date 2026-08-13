@@ -1452,7 +1452,7 @@ namespace WindBot.Game.AI
         {
             if (Type != ExecutorType.Activate)
                 return true;
-            if (Executors.Any(exec => exec.Type == Type && exec.CardId == Card.Id))
+            if (Executors.Any(exec => exec.Type == Type && Card.IsOriginalCode(exec.CardId)))
                 return false;
             return Duel.LastChainPlayer != 0;
         }
@@ -1462,7 +1462,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultChickenGame()
         {
-            if (Executors.Count(exec => exec.Type == Type && exec.CardId == Card.Id) > 1)
+            if (Executors.Count(exec => exec.Type == Type && Card.IsOriginalCode(exec.CardId)) > 1)
                 return false;
             if (Card.IsFacedown())
                 return true;
@@ -1874,7 +1874,7 @@ namespace WindBot.Game.AI
                 }
                 foreach (CardExecutor exec in Executors)
                 {
-                    if (exec.Type == ExecutorType.Activate && exec.CardId == Card.Id)
+                    if (exec.Type == ExecutorType.Activate && Card.IsOriginalCode(exec.CardId))
                     {
                         if (exec.Func == null || exec.Func())
                         {
