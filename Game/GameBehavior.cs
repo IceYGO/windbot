@@ -1812,7 +1812,7 @@ namespace WindBot.Game
             IList<NamedCard> all = NamedCardsManager.GetAllCards();
             foreach (NamedCard card in all)
             {
-                if (card.HasType(CardType.Token) || (card.Alias > 0 && card.Id - card.Alias < 10)) continue;
+                if (card.HasType(CardType.Token) || NamedCard.IsAltartAlias(card.Id, card.Alias)) continue;
                 Stack<int> stack = new Stack<int>();
                 for (int i = 0; i < opcodes.Count; i++)
                 {
