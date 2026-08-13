@@ -2154,8 +2154,8 @@ namespace WindBot.Game.AI.Decks
             {
                 if (NegatedCheck(true)) return false;
                 // select randomly (TODO)
-                IList<ClientCard> target_1 = Bot.Graveyard.GetMatchingCards(card => card.IsSpell() && Bot.HasInDeck(card.Id));
-                IList<ClientCard> target_2 = Enemy.Graveyard.GetMatchingCards(card => card.IsSpell() && Bot.HasInDeck(card.Id));
+                IList<ClientCard> target_1 = Bot.Graveyard.GetMatchingCards(card => card.IsSpell() && Bot.HasInDeck(card.GetNonAltartCode()));
+                IList<ClientCard> target_2 = Enemy.Graveyard.GetMatchingCards(card => card.IsSpell() && Bot.HasInDeck(card.GetNonAltartCode()));
                 List<ClientCard> targets = target_1.Union(target_2).ToList();
                 Util.ShuffleListInPlace(targets);
                 AI.SelectCard(targets);

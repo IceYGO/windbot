@@ -1097,7 +1097,7 @@ namespace WindBot.Game.AI.Decks
                             List<ClientCard> faceDownMonsters = botMonsters.Where(card => card.IsFacedown()).ToList();
                             banishList.AddRange(faceDownMonsters);
                             List<ClientCard> dumpMainMonsterList = botMonsters.Where(card => !banishList.Contains(card)
-                                && Bot.HasInDeck(card.Id)).ToList();
+                                && Bot.HasInDeck(card.GetNonAltartCode())).ToList();
                             dumpMainMonsterList.Sort(CardContainer.CompareCardAttack);
                             banishList.AddRange(dumpMainMonsterList);
                             // spells

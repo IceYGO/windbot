@@ -617,7 +617,7 @@ namespace WindBot.Game.AI.Decks
                     banishList.AddRange(faceDownMonsters);
                     List<ClientCard> notImportantMonster = botMonsters.Where(card => !banishList.Contains(card)
                         && ((card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link) && Bot.HasInExtra(card.Id))
-                        || Bot.HasInDeck(card.Id))).ToList();
+                        || Bot.HasInDeck(card.GetNonAltartCode()))).ToList();
                     notImportantMonster.Sort(CardContainer.CompareCardAttack);
                     banishList.AddRange(notImportantMonster);
 
@@ -629,7 +629,7 @@ namespace WindBot.Game.AI.Decks
 
                     List<ClientCard> importantMonster = botMonsters.Where(card => !banishList.Contains(card) && !card.IsCode(CardId.LovelyLabrynthOfTheSilverCastle)
                         && ((card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link) && !Bot.HasInExtra(card.Id))
-                        || !Bot.HasInDeck(card.Id))).ToList();
+                        || !Bot.HasInDeck(card.GetNonAltartCode()))).ToList();
                     importantMonster.Sort(CardContainer.CompareCardAttack);
                     banishList.AddRange(importantMonster);
 

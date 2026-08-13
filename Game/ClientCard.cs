@@ -376,6 +376,9 @@ namespace WindBot.Game
             return IsAttack() ? Attack : Defense;
         }
 
+        /// <summary>
+        /// Returns the database alias when present, including both alternate-artwork aliases and rule-name aliases.
+        /// </summary>
         public int GetOriginCode()
         {
             int code = Id;
@@ -385,6 +388,15 @@ namespace WindBot.Game
                 else code = Data.Id;
             }
             return code;
+        }
+
+        /// <summary>
+        /// Returns the original artwork card's code for alternate artwork card, while preserving the
+        /// card's own code for rule-name aliases.
+        /// </summary>
+        public int GetNonAltartCode()
+        {
+            return NamedCard.IsAltartAlias(Id, Alias) ? Alias : Id;
         }
 
         public bool Equals(ClientCard card)
