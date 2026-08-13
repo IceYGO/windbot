@@ -103,7 +103,7 @@ namespace WindBot.Game
             foreach (int id in _deckCounts.Keys.ToList())
                 _deckCounts[id] = System.Math.Max(0, _deckCounts[id] - 1);
             _deckCountsExact = false;
-            Logger.DebugWriteLine("Deck tracking: an unknown or untracked card left the deck.");
+            Logger.WriteErrorLine("Deck tracking: an unknown or untracked card left the deck.");
         }
 
         internal void ReplaceDeck(IEnumerable<ClientCard> cards)
