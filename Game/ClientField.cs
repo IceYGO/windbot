@@ -462,7 +462,7 @@ namespace WindBot.Game
             foreach (KeyValuePair<int, int> pair in _deckCounts)
             {
                 NamedCard card = NamedCard.Get(pair.Key);
-                if (pair.Key != cardId && (card == null || card.Alias != cardId || System.Math.Abs(card.Alias - card.Id) >= 20))
+                if (pair.Key != cardId && (card == null || card.Alias != cardId || !NamedCard.IsAltartAlias(card.Id, card.Alias)))
                     continue;
                 found = true;
                 remaining += pair.Value;
