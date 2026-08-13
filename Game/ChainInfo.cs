@@ -67,7 +67,7 @@ namespace WindBot.Game
 
         public bool IsActivateCode(int id)
         {
-            return ActivateId == id || Math.Abs(ActivateAlias - ActivateId) <= 20 && ActivateAlias == id;
+            return ActivateId == id || ActivateAlias == id && NamedCard.IsAltartAlias(ActivateId, ActivateAlias);
         }
 
         public bool IsActivateCode(IList<int> ids)

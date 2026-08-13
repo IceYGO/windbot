@@ -5829,7 +5829,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Owner != 1 && !Card.IsFloodgate()) return false;
             if (CheckWhetherNegated()) return false;
-            if (Executors.Any(e => e != null && e.Type == ExecutorType.Activate && e.CardId == Card.Id)) return false;
+            if (Executors.Any(e => e != null && e.Type == ExecutorType.Activate && Card.IsOriginalCode(e.CardId))) return false;
             if (Duel.LastChainPlayer == 1)
             {
                 ClientCard lastChainCard = Util.GetLastChainCard();
