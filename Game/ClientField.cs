@@ -9,7 +9,6 @@ namespace WindBot.Game
     public class ClientField
     {
         private IDictionary<int, int> _deckCounts;
-        private bool _deckCountsExact;
         private bool _deckTrackingActive;
 
         public IList<ClientCard> Hand { get; private set; }
@@ -60,7 +59,6 @@ namespace WindBot.Game
         public void SetInitialDeck(IEnumerable<NamedCard> cards)
         {
             _deckCounts = new Dictionary<int, int>();
-            _deckCountsExact = true;
             _deckTrackingActive = true;
             foreach (NamedCard card in cards)
                 IncrementDeckCount(card.Id);
@@ -78,8 +76,7 @@ namespace WindBot.Game
 
             if (cardId == 0)
             {
-                _deckCountsExact = false;
-                Logger.DebugWriteLine("Deck tracking: an unknown card entered the deck.");
+                Logger.WriteErrorLine("Deck tracking: an unknown card entered the deck.");
                 return;
             }
             IncrementDeckCount(cardId);
@@ -97,12 +94,6 @@ namespace WindBot.Game
                 return;
             }
 
-            // The server hides the code when a card moves directly from this deck to an
-            // opponent's hidden hand or deck. Reduce every per-card lower bound so callers
-            // never assume that the unknown departing card is still available.
-            foreach (int id in _deckCounts.Keys.ToList())
-                _deckCounts[id] = System.Math.Max(0, _deckCounts[id] - 1);
-            _deckCountsExact = false;
             Logger.WriteErrorLine("Deck tracking: an unknown or untracked card left the deck.");
         }
 
@@ -112,12 +103,11 @@ namespace WindBot.Game
                 return;
 
             _deckCounts.Clear();
-            _deckCountsExact = true;
             foreach (ClientCard card in cards)
             {
                 if (card == null || card.Id == 0)
                 {
-                    _deckCountsExact = false;
+                    Logger.WriteErrorLine("Deck tracking: an unknown card was found while replacing the deck.");
                     continue;
                 }
                 IncrementDeckCount(card.Id);
@@ -126,21 +116,14 @@ namespace WindBot.Game
 
         internal void ValidateDeckCount(int actualCount)
         {
-            if (!_deckTrackingActive || _deckCounts == null || !_deckCountsExact)
+            if (!_deckTrackingActive || _deckCounts == null)
                 return;
 
             int trackedCount = _deckCounts.Values.Sum();
             if (trackedCount == actualCount)
                 return;
 
-            if (trackedCount > actualCount)
-            {
-                int unknownDepartures = trackedCount - actualCount;
-                foreach (int id in _deckCounts.Keys.ToList())
-                    _deckCounts[id] = System.Math.Max(0, _deckCounts[id] - unknownDepartures);
-            }
-            _deckCountsExact = false;
-            Logger.DebugWriteLine("Deck tracking count mismatch: tracked=" + trackedCount + ", actual=" + actualCount + ".");
+            Logger.WriteErrorLine("Deck tracking count mismatch: tracked=" + trackedCount + ", actual=" + actualCount + ".");
         }
 
         private void IncrementDeckCount(int cardId)
