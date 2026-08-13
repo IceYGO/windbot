@@ -55,6 +55,7 @@ namespace WindBot
                 Console.BackgroundColor = ConsoleColor.Red;
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.Error.WriteLine("[" + DateTime.Now.ToString("yy-MM-dd HH:mm:ss") + "] " + message);
+                Console.ResetColor();
 
                 string context = _contextProvider?.Invoke();
                 if (!string.IsNullOrEmpty(context))
@@ -66,8 +67,6 @@ namespace WindBot
                     Console.Error.WriteLine("Call stack:");
                     Console.Error.WriteLine(callStack);
                 }
-
-                Console.ResetColor();
             }
         }
     }
