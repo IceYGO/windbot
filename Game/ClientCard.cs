@@ -180,6 +180,12 @@ namespace WindBot.Game
             }
         }
 
+        /// <summary>
+        /// Sets the monster equipped by this card and keeps both sides of the equip relation in sync.
+        /// For example, call this method on an equip spell such as Axe of Despair with the equipped
+        /// monster as <paramref name="target"/>; the spell stores the monster in <see cref="EquipTarget"/>,
+        /// while the monster stores the spell in <see cref="EquipCards"/>.
+        /// </summary>
         public void SetEquipTarget(ClientCard target)
         {
             if (EquipTarget == target)
@@ -196,6 +202,11 @@ namespace WindBot.Game
                 target.EquipCards.Add(this);
         }
 
+        /// <summary>
+        /// Clears every equip relation involving this card. On an equip spell such as Axe of Despair,
+        /// this detaches it from its equipped monster; on that monster, it detaches every equip card.
+        /// This is therefore broader than calling <see cref="SetEquipTarget"/> with a null target.
+        /// </summary>
         public void ClearEquipRelations()
         {
             SetEquipTarget(null);
@@ -204,6 +215,11 @@ namespace WindBot.Game
             EquipCards.Clear();
         }
 
+        /// <summary>
+        /// Adds an outgoing persistent card-target relation and keeps the target's incoming relation in sync.
+        /// This is separate from an equip relation: after Axe of Despair resolves, its equipped monster is
+        /// represented by <see cref="EquipTarget"/>, not by <see cref="TargetCards"/>.
+        /// </summary>
         public void AddCardTarget(ClientCard target)
         {
             if (target == null) return;
@@ -213,6 +229,10 @@ namespace WindBot.Game
                 target.OwnTargets.Add(this);
         }
 
+        /// <summary>
+        /// Removes one outgoing persistent card-target relation from this card and the matching incoming
+        /// relation from the target. It does not alter <see cref="EquipTarget"/> or <see cref="EquipCards"/>.
+        /// </summary>
         public void RemoveCardTarget(ClientCard target)
         {
             if (target == null) return;
@@ -220,6 +240,10 @@ namespace WindBot.Game
             target.OwnTargets.RemoveAll(card => card == this);
         }
 
+        /// <summary>
+        /// Clears only the persistent targets owned by this card while preserving cards that target this card.
+        /// Equip relations, such as Axe of Despair equipping a monster, are maintained separately.
+        /// </summary>
         private void ClearOutgoingCardTargets()
         {
             foreach (ClientCard card in TargetCards.ToList())
@@ -227,6 +251,11 @@ namespace WindBot.Game
             TargetCards.Clear();
         }
 
+        /// <summary>
+        /// Clears both outgoing and incoming persistent card-target relations involving this card.
+        /// It does not clear equip relations: a monster's Axe of Despair remains in <see cref="EquipCards"/>
+        /// until <see cref="ClearEquipRelations"/> is called.
+        /// </summary>
         public void ClearCardTargets()
         {
             ClearOutgoingCardTargets();
