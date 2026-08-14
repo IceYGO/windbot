@@ -288,10 +288,15 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
-            // 有连锁时用发动快照；无连锁回退到当前 Card
+            // 处理中的效果优先使用发动快照；发动时的选择使用最新连锁卡。
             ChainInfo chainInfo = Duel.GetCurrentSolvingChainInfo();
-            int solvingId = chainInfo != null ? chainInfo.ActivateId : (Card != null ? Card.Id : 0);
-            CardLocation solvingLocation = chainInfo != null ? chainInfo.ActivateLocation : (Card != null ? Card.Location : 0);
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            int solvingId = chainInfo != null && chainInfo.ActivatePlayer == 0
+                ? chainInfo.ActivateId
+                : currentChainCard != null && currentChainCard.Controller == 0 ? currentChainCard.Id : 0;
+            CardLocation solvingLocation = chainInfo != null && chainInfo.ActivatePlayer == 0
+                ? chainInfo.ActivateLocation
+                : currentChainCard != null && currentChainCard.Controller == 0 ? currentChainCard.Location : 0;
             switch (hint)
             {
                 case HintMsg.Discard:
