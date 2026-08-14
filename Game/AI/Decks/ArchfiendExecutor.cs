@@ -419,25 +419,27 @@ namespace WindBot.Game.AI.Decks
             result.AddRange(Enemy.Graveyard.GetMatchingCards(card => dangerMonsterIdList.Contains(card.Id)));
             return result;
         }
-        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0)
+        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0, ClientCard currentCard = null)
         {
-            bool isMonster = type == 0 && Card.IsMonster();
+            ClientCard checkCard = currentCard ?? Card;
+            if (checkCard == null) return true;
+            bool isMonster = type == 0 && checkCard.IsMonster();
             isMonster |= ((int)type & (int)CardType.Monster) != 0;
-            bool isSpellOrTrap = type == 0 && (Card.IsSpell() || Card.IsTrap());
+            bool isSpellOrTrap = type == 0 && (checkCard.IsSpell() || checkCard.IsTrap());
             isSpellOrTrap |= (((int)type & (int)CardType.Spell) != 0) || (((int)type & (int)CardType.Trap) != 0);
             bool isCounter = ((int)type & (int)CardType.Counter) != 0;
-            if (isSpellOrTrap && toFieldCheck && CheckSpellWillBeNegate(isCounter))
+            if (isSpellOrTrap && toFieldCheck && CheckSpellWillBeNegate(isCounter, checkCard))
                 return true;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return true;
-            if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
+            if (DefaultCheckWhetherCardIsNegated(checkCard)) return true;
+            if (isMonster && (toFieldCheck || checkCard.Location == CardLocation.MonsterZone))
             {
-                if ((toFieldCheck && (((int)type & (int)CardType.Link) != 0)) || Card.IsDefense())
+                if ((toFieldCheck && (((int)type & (int)CardType.Link) != 0)) || checkCard.IsDefense())
                 {
                     if (Enemy.MonsterZone.Any(card => CheckNumber41(card)) || Bot.MonsterZone.Any(card => CheckNumber41(card))) return true;
                 }
                 if (Enemy.HasInSpellZone(CardId.SkillDrain, true)) return true;
             }
-            if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
+            if (disablecheck) return (checkCard.Location == CardLocation.MonsterZone || checkCard.Location == CardLocation.SpellZone) && checkCard.IsDisabled() && checkCard.IsFaceup();
             return false;
         }
         public bool CheckNumber41(ClientCard card)
@@ -481,6 +483,7 @@ namespace WindBot.Game.AI.Decks
         public bool CheckSpellWillBeNegate(bool isCounter = false, ClientCard target = null)
         {
             if (target == null) target = Card;
+            if (target == null) return true;
             if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
 
             if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !isCounter) return true;
@@ -496,7 +499,7 @@ namespace WindBot.Game.AI.Decks
                 int selfSeq = -1;
                 for (int i = 0; i < 5; ++i)
                 {
-                    if (Bot.SpellZone[i] == Card) selfSeq = i;
+                    if (Bot.SpellZone[i] == target) selfSeq = i;
                 }
                 if (infiniteImpermanenceList.Contains(selfSeq)) return true;
             }
@@ -621,10 +624,10 @@ namespace WindBot.Game.AI.Decks
 
             return targetList;
         }
-        public List<ClientCard> GetMonsterListForTargetNegate(bool canBeTarget = false, CardType selfType = 0)
+        public List<ClientCard> GetMonsterListForTargetNegate(bool canBeTarget = false, CardType selfType = 0, ClientCard currentCard = null)
         {
             List<ClientCard> resultList = new List<ClientCard>();
-            if (CheckWhetherNegated())
+            if (CheckWhetherNegated(currentCard: currentCard))
             {
                 return resultList;
             }
@@ -783,7 +786,7 @@ namespace WindBot.Game.AI.Decks
                         case _CardId.InfiniteImpermanence:
                             {
                                 int sequence = lastChainCard.Sequence;
-                                List<ClientCard> targetList = GetMonsterListForTargetNegate(true, CardType.Trap);
+                                List<ClientCard> targetList = GetMonsterListForTargetNegate(true, CardType.Trap, lastChainCard);
                                 foreach (ClientCard target in targetList)
                                 {
                                     if (cards.Contains(target))

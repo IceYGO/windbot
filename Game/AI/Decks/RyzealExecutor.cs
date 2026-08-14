@@ -237,25 +237,27 @@ namespace WindBot.Game.AI.Decks
         /// Check whether'll be negated
         /// </summary>
         /// <param name="isCounter">check whether card itself is disabled.</param>
-        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0, bool ignore41 = false)
+        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0, bool ignore41 = false, ClientCard currentCard = null)
         {
-            bool isMonster = type == 0 && Card.IsMonster();
+            ClientCard checkCard = currentCard ?? Card;
+            if (checkCard == null) return true;
+            bool isMonster = type == 0 && checkCard.IsMonster();
             isMonster |= ((int)type & (int)CardType.Monster) != 0;
-            bool isSpellOrTrap = type == 0 && (Card.IsSpell() || Card.IsTrap());
+            bool isSpellOrTrap = type == 0 && (checkCard.IsSpell() || checkCard.IsTrap());
             isSpellOrTrap |= (((int)type & (int)CardType.Spell) != 0) || (((int)type & (int)CardType.Trap) != 0);
             bool isCounter = ((int)type & (int)CardType.Counter) != 0;
-            if (isSpellOrTrap && toFieldCheck && CheckSpellWillBeNegate(isCounter))
+            if (isSpellOrTrap && toFieldCheck && CheckSpellWillBeNegate(isCounter, checkCard))
                 return true;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return true;
-            if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
+            if (DefaultCheckWhetherCardIsNegated(checkCard)) return true;
+            if (isMonster && (toFieldCheck || checkCard.Location == CardLocation.MonsterZone))
             {
-                if ((toFieldCheck && (((int)type & (int)CardType.Link) != 0)) || Card.IsDefense())
+                if ((toFieldCheck && (((int)type & (int)CardType.Link) != 0)) || checkCard.IsDefense())
                 {
                     if (Enemy.MonsterZone.Any(card => CheckNumber41(card, ignore41)) || Bot.MonsterZone.Any(card => CheckNumber41(card, ignore41))) return true;
                 }
                 if (Enemy.HasInSpellZone(_CardId.SkillDrain, true, true)) return true;
             }
-            if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
+            if (disablecheck) return (checkCard.Location == CardLocation.MonsterZone || checkCard.Location == CardLocation.SpellZone) && checkCard.IsDisabled() && checkCard.IsFaceup();
             return false;
         }
 
@@ -275,6 +277,7 @@ namespace WindBot.Game.AI.Decks
         {
             // target default set
             if (target == null) target = Card;
+            if (target == null) return true;
             // won't negate if not on field
             if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
 
@@ -292,7 +295,7 @@ namespace WindBot.Game.AI.Decks
                 int selfSeq = -1;
                 for (int i = 0; i < 5; ++i)
                 {
-                    if (Bot.SpellZone[i] == Card) selfSeq = i;
+                    if (Bot.SpellZone[i] == target) selfSeq = i;
                 }
                 if (infiniteImpermanenceList.Contains(selfSeq)) return true;
             }
@@ -465,8 +468,9 @@ namespace WindBot.Game.AI.Decks
             checkFlag |= !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !activatedCardIdList.Contains(CardId.ExRyzeal)
                 && Bot.HasInHand(CardId.ExRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal) && !CheckWhetherWillbeRemoved();
 
-            checkFlag |= !activatedCardIdList.Contains(CardId.RyzealDuodrive + 1) && Bot.HasInExtra(CardId.RyzealDuodrive)
-                && !DefaultCheckWhetherCardIdIsNegated(CardId.RyzealDuodrive) && !CheckWhetherNegated(true, true, CardType.Monster)
+            ClientCard duodrive = Bot.ExtraDeck.FirstOrDefault(c => c.IsCode(CardId.RyzealDuodrive));
+            checkFlag |= !activatedCardIdList.Contains(CardId.RyzealDuodrive + 1) && duodrive != null
+                && !DefaultCheckWhetherCardIdIsNegated(CardId.RyzealDuodrive) && !CheckWhetherNegated(true, true, CardType.Monster, false, duodrive)
                 && summonCount > 0 && Bot.Hand.Count(c => c.Level == 4) > 0 && GetLevel4CountOnField() == 1 && !lockBirdSolved
                 && !skipDuodriver;
 
@@ -635,7 +639,8 @@ namespace WindBot.Game.AI.Decks
                     level4Count++;
                 }
             }
-            if (Bot.HasInHand(CardId.RyzealPlugIn) && !CheckWhetherNegated(true, true, CardType.Spell) && checkSupport)
+            ClientCard plugIn = Bot.Hand.FirstOrDefault(c => c.IsCode(CardId.RyzealPlugIn));
+            if (plugIn != null && !CheckWhetherNegated(true, true, CardType.Spell, false, plugIn) && checkSupport)
             {
                 bool flag = false;
                 List<ClientCard> graveTargetList = Bot.Graveyard.Where(
@@ -1054,19 +1059,16 @@ namespace WindBot.Game.AI.Decks
                         if (currentSolvingChain.IsActivateCode(CardId.RyzealDuodrive))
                         {
                             // search spells
-                            if (!CheckWhetherNegated(true, true, CardType.Spell))
+                            ClientCard cross = cards.FirstOrDefault(c => c.IsCode(CardId.RyzealCross));
+                            if (cross != null && !CheckWhetherNegated(true, true, CardType.Spell, false, cross))
                             {
-                                ClientCard cross = cards.FirstOrDefault(c => c.IsCode(CardId.RyzealCross));
-                                if (cross != null)
-                                {
-                                    return Util.CheckSelectCount(new List<ClientCard> { cross }, cards, min, max);
-                                }
+                                return Util.CheckSelectCount(new List<ClientCard> { cross }, cards, min, max);
+                            }
 
-                                ClientCard plugin = cards.FirstOrDefault(c => c.IsCode(CardId.RyzealPlugIn));
-                                if (plugin != null)
-                                {
-                                    return Util.CheckSelectCount(new List<ClientCard> { plugin }, cards, min, max);
-                                }
+                            ClientCard plugin = cards.FirstOrDefault(c => c.IsCode(CardId.RyzealPlugIn));
+                            if (plugin != null && !CheckWhetherNegated(true, true, CardType.Spell, false, plugin))
+                            {
+                                return Util.CheckSelectCount(new List<ClientCard> { plugin }, cards, min, max);
                             }
 
                             // search for spsummon
@@ -1280,7 +1282,7 @@ namespace WindBot.Game.AI.Decks
                         }
 
                         ClientCard tornadoDragon = cards.FirstOrDefault(c => c != null && !c.IsDisabled() && c.IsCode(CardId.TornadoDragon) && c.Overlays.Count() == 1);
-                        if (tornadoDragon != null && TornadoDragonSummonCheck())
+                        if (tornadoDragon != null && TornadoDragonSummonCheck(tornadoDragon))
                         {
                             return Util.CheckSelectCount(new List<ClientCard> { tornadoDragon }, cards, min, max);
                         }
@@ -2961,9 +2963,9 @@ namespace WindBot.Game.AI.Decks
             return flag;
         }
 
-        public bool TornadoDragonSummonCheck()
+        public bool TornadoDragonSummonCheck(ClientCard currentCard = null)
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+            if (CheckWhetherNegated(true, true, CardType.Monster, false, currentCard)) return false;
             bool flag = EnemyDeckHasType(SetcodeLabrynth);
             flag |= Enemy.SpellZone.Any(c => c != null && c.IsFaceup() && !c.IsDisabled() && c.IsFloodgate());
             flag |= Enemy.SpellZone.Count(c => c != null && !c.IsShouldNotBeMonsterTarget() && !NotToDestroySpellTrap.Contains(c.Id)) >= 3;

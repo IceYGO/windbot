@@ -195,6 +195,7 @@ namespace WindBot.Game.AI.Decks
         List<int> dimensionalBarrierAnnouced = new List<int>();
         List<int> chainSummoningIdList = new List<int>(3);
         ClientCard bigwelcomeEscaseTarget = null;
+        bool bigWelcomeActivatedAtMainEnd = false;
 
         public ClientCard GetProblematicEnemyMonster(int attack = 0, bool canBeTarget = false, bool ignoreCurrentDestroy = false, CardType selfType = 0)
         {
@@ -349,10 +350,10 @@ namespace WindBot.Game.AI.Decks
             return targetList;
         }
 
-        public List<ClientCard> GetMonsterListForTargetNegate(bool canBeTarget = false, CardType selfType = 0)
+        public List<ClientCard> GetMonsterListForTargetNegate(bool canBeTarget = false, CardType selfType = 0, ClientCard currentCard = null)
         {
             List<ClientCard> resultList = new List<ClientCard>();
-            if (CheckWhetherNegated())
+            if (CheckWhetherNegated(currentCard: currentCard))
             {
                 return resultList;
             }
@@ -457,6 +458,7 @@ namespace WindBot.Game.AI.Decks
         {
             // target default set
             if (target == null) target = Card;
+            if (target == null) return true;
             // won't negate if not on field
             if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
 
@@ -474,7 +476,7 @@ namespace WindBot.Game.AI.Decks
                 int selfSeq = -1;
                 for (int i = 0; i < 5; ++i)
                 {
-                    if (Bot.SpellZone[i] == Card) selfSeq = i;
+                    if (Bot.SpellZone[i] == target) selfSeq = i;
                 }
                 if (infiniteImpermanenceList.Contains(selfSeq)) return true;
             }
@@ -486,20 +488,22 @@ namespace WindBot.Game.AI.Decks
         /// Check whether'll be negated
         /// </summary>
         /// <param name="isCounter">check whether card itself is disabled.</param>
-        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0)
+        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0, ClientCard currentCard = null)
         {
-            if ((Card.IsSpell() || Card.IsTrap() || (((int)type & (int)CardType.Spell) == 0) || (((int)type & (int)CardType.Trap) == 0)) && CheckSpellWillBeNegate())
+            ClientCard checkCard = currentCard ?? Card;
+            if (checkCard == null) return true;
+            if ((checkCard.IsSpell() || checkCard.IsTrap() || (((int)type & (int)CardType.Spell) == 0) || (((int)type & (int)CardType.Trap) == 0)) && CheckSpellWillBeNegate(target: checkCard))
                 return true;
-            if (CheckCalledbytheGrave(Card.Id) > 0) return true;
-            if ((Card.IsMonster() || (((int)type & (int)CardType.Monster) == 0)) && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
+            if (CheckCalledbytheGrave(checkCard.Id) > 0) return true;
+            if ((checkCard.IsMonster() || (((int)type & (int)CardType.Monster) == 0)) && (toFieldCheck || checkCard.Location == CardLocation.MonsterZone))
             {
-                if ((toFieldCheck && (((int)type & (int)CardType.Link) == 0)) || Card.IsDefense())
+                if ((toFieldCheck && (((int)type & (int)CardType.Link) == 0)) || checkCard.IsDefense())
                 {
                     if (Enemy.MonsterZone.Any(card => CheckNumber41(card)) || Bot.MonsterZone.Any(card => CheckNumber41(card))) return true;
                 }
                 if (Enemy.HasInSpellZone(CardId.SkillDrain, true, true)) return true;
             }
-            if (disablecheck) return Card.IsDisabled();
+            if (disablecheck) return checkCard.IsDisabled();
             return false;
         }
 
@@ -601,6 +605,17 @@ namespace WindBot.Game.AI.Decks
             return 1;
         }
 
+        private bool CheckTrapForSet(ClientCard card)
+        {
+            if (card == null) return false;
+            if (card.IsCode(CardId.BigWelcomeLabrynth)) return BigWelcomeLabrynthSetCheck(card);
+            if (card.IsCode(CardId.WelcomeLabrynth)) return WelcomeLabrynthSetCheck(card);
+            if (card.IsCode(CardId.DestructiveDarumaKarmaCannon)) return DestructiveDarumaKarmaCannonSetCheck(card);
+            if (card.IsCode(_CardId.DimensionalBarrier)) return DimensionalBarrierSetCheck();
+            if (card.IsCode(_CardId.InfiniteImpermanence)) return InfiniteImpermanenceSetCheck(card);
+            return false;
+        }
+
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
@@ -643,17 +658,17 @@ namespace WindBot.Game.AI.Decks
             
                 if (currentSolvingChain.IsActivateCode(CardId.LadyLabrynthOfTheSilverCastle) && min == 1 && max == 1 && hint == HintMsg.Set)
                 {
-                    SortedDictionary<int, Func<bool>> trapCheckDict = new SortedDictionary<int, Func<bool>>{
-                        {_CardId.DimensionalBarrier, DimensionalBarrierActivate},
-                        {CardId.DestructiveDarumaKarmaCannon, DestructiveDarumaKarmaCannonSetCheck},
-                        {_CardId.InfiniteImpermanence, InfiniteImpermanenceSetCheck}
+                    List<int> trapCheckList = new List<int> {
+                        _CardId.DimensionalBarrier,
+                        CardId.DestructiveDarumaKarmaCannon,
+                        _CardId.InfiniteImpermanence
                     };
-                    foreach (KeyValuePair<int, Func<bool>> pair in trapCheckDict)
+                    foreach (int cardId in trapCheckList)
                     {
-                        ClientCard target = cards.FirstOrDefault(card => card.IsCode(pair.Key));
-                        if (target != null && pair.Value())
+                        ClientCard target = cards.FirstOrDefault(card => card.IsCode(cardId));
+                        if (CheckTrapForSet(target))
                         {
-                            SelectSTPlace(null, true);
+                            SelectSTPlace(target, true);
                             return Util.CheckSelectCount(new List<ClientCard> { target }, cards, min, max);
                         }
                     }
@@ -701,14 +716,14 @@ namespace WindBot.Game.AI.Decks
                         if (checkPair.Value != null && !Bot.HasInHand(checkPair.Key) && !Bot.HasInGraveyard(checkPair.Key)
                             && !Bot.GetSpells().Any(card => card.IsCode(checkPair.Key) && card.IsFacedown()))
                         {
-                            SelectSTPlace(null, true);
+                            SelectSTPlace(checkPair.Value, true);
                             return Util.CheckSelectCount(new List<ClientCard> { checkPair.Value }, cards, min, max);
                         }
                     }
                     if (welcomeCheck[CardId.BigWelcomeLabrynth] != null &&
                         !Bot.HasInHand(CardId.BigWelcomeLabrynth) && !Bot.GetSpells().Any(card => card.IsCode(CardId.BigWelcomeLabrynth) && card.IsFacedown()))
                     {
-                        SelectSTPlace(null, true);
+                        SelectSTPlace(welcomeCheck[CardId.BigWelcomeLabrynth], true);
                         return Util.CheckSelectCount(new List<ClientCard> { welcomeCheck[CardId.BigWelcomeLabrynth] }, cards, min, max);
                     }
 
@@ -720,7 +735,7 @@ namespace WindBot.Game.AI.Decks
                         ClientCard checkCard = cards.FirstOrDefault(card => card.IsCode(checkId));
                         if (checkCard != null)
                         {
-                            SelectSTPlace(null, true);
+                            SelectSTPlace(checkCard, true);
                             return Util.CheckSelectCount(new List<ClientCard> { checkCard }, cards, min, max);
                         }
                     }
@@ -749,7 +764,7 @@ namespace WindBot.Game.AI.Decks
                     ClientCard arianna = GetWelcomeOrBigWelcomeTarget(cards, CardId.AriannaTheLabrynthServant);
                     if (arianna != null && !summonInChainList.Any(card => card.IsCode(CardId.AriannaTheLabrynthServant)))
                     {
-                        bool canActivateCheck = !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !CheckWhetherNegated(true, true, CardType.Monster);
+                        bool canActivateCheck = !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !CheckWhetherNegated(true, true, CardType.Monster, arianna);
                         if (canActivateCheck)
                         {
                             bool checkFlag = !(!activatedCardIdList.Contains(CardId.BigWelcomeLabrynth) &&
@@ -770,7 +785,7 @@ namespace WindBot.Game.AI.Decks
                     ClientCard arias = GetWelcomeOrBigWelcomeTarget(cards, CardId.AriasTheLabrynthButler);
                     if (arias != null && !summonInChainList.Any(card => card.IsCode(CardId.AriasTheLabrynthButler)) && !Bot.HasInHandOrHasInMonstersZone(CardId.AriasTheLabrynthButler))
                     {
-                        bool canActivateCheck = !activatedCardIdList.Contains(CardId.AriasTheLabrynthButler) && !CheckWhetherNegated(true, true, CardType.Monster);
+                        bool canActivateCheck = !activatedCardIdList.Contains(CardId.AriasTheLabrynthButler) && !CheckWhetherNegated(true, true, CardType.Monster, arias);
                         if (canActivateCheck && Bot.HasInHand(CardId.LovelyLabrynthOfTheSilverCastle))
                         {
                             selection.Add(arias);
@@ -861,8 +876,9 @@ namespace WindBot.Game.AI.Decks
                     // search big welcome to activate this turn
                     if (Duel.Player == 0 && Duel.Phase <= DuelPhase.Main2)
                     {
-                        if (!summoned && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !CheckWhetherNegated(true, true, CardType.Monster)
-                            && CheckCalledbytheGrave(CardId.AriannaTheLabrynthServant) == 0 && arianna != null && !Bot.HasInHand(CardId.AriannaTheLabrynthServant))
+                        if (!summoned && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && arianna != null
+                            && !CheckWhetherNegated(true, true, CardType.Monster, arianna) && CheckCalledbytheGrave(CardId.AriannaTheLabrynthServant) == 0
+                            && !Bot.HasInHand(CardId.AriannaTheLabrynthServant))
                         {
                             return Util.CheckSelectCount(new List<ClientCard> { arianna }, cards, min, max);
                         }
@@ -898,25 +914,26 @@ namespace WindBot.Game.AI.Decks
                     }
                     if (arias != null || cooclock != null)
                     {
-                        SortedDictionary<int, Func<bool>> trapCheckDict = new SortedDictionary<int, Func<bool>> {
-                            {CardId.BigWelcomeLabrynth, BigWelcomeLabrynthSetCheck},
-                            {_CardId.DimensionalBarrier, DimensionalBarrierActivate},
-                            {CardId.DestructiveDarumaKarmaCannon, DestructiveDarumaKarmaCannonSetCheck},
-                            {CardId.WelcomeLabrynth, WelcomeLabrynthSetCheck}
+                        List<int> trapCheckList = new List<int> {
+                            CardId.BigWelcomeLabrynth,
+                            _CardId.DimensionalBarrier,
+                            CardId.DestructiveDarumaKarmaCannon,
+                            CardId.WelcomeLabrynth
                         };
-                        foreach (KeyValuePair<int, Func<bool>> checkPair in trapCheckDict)
+                        foreach (int trapId in trapCheckList)
                         {
-                            if (Bot.GetSpells().Any(card => card.IsFacedown() && !setTrapThisTurn.Contains(card) && card.IsCode(checkPair.Key))) continue;
-                            if (!activatedCardIdList.Contains(checkPair.Key))
+                            if (Bot.GetSpells().Any(card => card.IsFacedown() && !setTrapThisTurn.Contains(card) && card.IsCode(trapId))) continue;
+                            if (!activatedCardIdList.Contains(trapId))
                             {
-                                if (Bot.GetSpells().Any(card => card.IsFacedown() && setTrapThisTurn.Contains(card) && card.IsCode(checkPair.Key))
+                                if (Bot.GetSpells().Any(card => card.IsFacedown() && setTrapThisTurn.Contains(card) && card.IsCode(trapId))
                                     && cooclock != null)
                                 {
                                     return Util.CheckSelectCount(new List<ClientCard> { cooclock }, cards, min, max);
                                 }
-                                else if (Bot.HasInHand(checkPair.Key))
+                                else
                                 {
-                                    if (checkPair.Value())
+                                    ClientCard handTrap = Bot.Hand.FirstOrDefault(card => card.IsCode(trapId));
+                                    if (CheckTrapForSet(handTrap))
                                     {
                                         if (arias != null)
                                         {
@@ -935,7 +952,7 @@ namespace WindBot.Game.AI.Decks
                     bool lackUnimportantCost = !Bot.GetSpells().Any(card => card.IsFacedown() && card.IsCode(CardId.WelcomeLabrynth, CardId.BigWelcomeLabrynth));
                     if (lackUnimportantCost)
                     {
-                        List<ClientCard> handCost = Bot.Hand.Where(card => card != Card).ToList();
+                        List<ClientCard> handCost = Bot.Hand.ToList();
                         lackUnimportantCost &= handCost.Count() <= 2 && !handCost.Any(card => !card.IsCode(_CardId.MaxxC, _CardId.AshBlossom, CardId.LabrynthCooclock));
                     }
                     if (!lackUnimportantCost && cooclock != null && bigWelcome != null)
@@ -1012,8 +1029,9 @@ namespace WindBot.Game.AI.Decks
                         return Util.CheckSelectCount(new List<ClientCard> { lady }, cards, min, max);
                     }
 
-                    if (!activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !CheckWhetherNegated(true, true, CardType.Monster)
-                        && CheckCalledbytheGrave(CardId.AriannaTheLabrynthServant) == 0 && arianna != null && !Bot.HasInHand(CardId.AriannaTheLabrynthServant))
+                    if (!activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && arianna != null
+                        && !CheckWhetherNegated(true, true, CardType.Monster, arianna) && CheckCalledbytheGrave(CardId.AriannaTheLabrynthServant) == 0
+                        && !Bot.HasInHand(CardId.AriannaTheLabrynthServant))
                     {
                         return Util.CheckSelectCount(new List<ClientCard> { arianna }, cards, min, max);
                     }
@@ -1075,14 +1093,14 @@ namespace WindBot.Game.AI.Decks
                 // solved when have more than 1 monster
                 if (bigwelcomeSoving && hint == HintMsg.SpSummon)
                 {
-                    bool activateTimingFlag = Duel.Phase > DuelPhase.Main2 || (Card.IsCode(CardId.AriasTheLabrynthButler) && (CurrentTiming & hintTimingMainEnd) > 0);
+                    bool activateTimingFlag = Duel.Phase > DuelPhase.Main2 || bigWelcomeActivatedAtMainEnd;
 
                     bool needDestroyFlag = GetProblematicEnemyCardList(false).Count() > 0;
                     needDestroyFlag |= activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && activateTimingFlag;
                     needDestroyFlag |= Bot.UnderAttack && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0) && Duel.LastChainPlayer != 0;
                     needDestroyFlag |= Duel.Turn == 1 && Duel.Player == 0 && !activatedCardIdList.Contains(CardId.LovelyLabrynthOfTheSilverCastle + 1);
                     needDestroyFlag |= Duel.Turn == 1 && Enemy.GetMonsterCount() == 0 && Enemy.GetSpellCount() == 0 && Enemy.Hand.Count > 0
-                        && (CurrentTiming & hintTimingMainEnd) > 0;
+                        && bigWelcomeActivatedAtMainEnd;
 
                     if (needDestroyFlag && cards.Any(c => c.IsCode(CardId.LovelyLabrynthOfTheSilverCastle))
                         && !activatedCardIdList.Contains(CardId.LovelyLabrynthOfTheSilverCastle + 1))
@@ -1425,8 +1443,9 @@ namespace WindBot.Game.AI.Decks
                 if (GetEmptyMainMonsterZoneCount() > chainSummoningIdList.Count())
                 {
                     bool checkFlag = false;
-                    if (!activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && Bot.HasInHand(CardId.AriannaTheLabrynthServant)
-                        && !CheckWhetherNegated(true, true, CardType.Monster) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
+                    ClientCard arianna = Bot.Hand.FirstOrDefault(card => card.IsCode(CardId.AriannaTheLabrynthServant));
+                    if (!activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && arianna != null
+                        && !CheckWhetherNegated(true, true, CardType.Monster, arianna) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
                     {
                         checkFlag = true;
                         AI.SelectCard(CardId.AriannaTheLabrynthServant);
@@ -1638,6 +1657,7 @@ namespace WindBot.Game.AI.Decks
             furnitureActivating = false;
             dimensionBarrierAnnouncing = false;
             bigwelcomeEscaseTarget = null;
+            bigWelcomeActivatedAtMainEnd = false;
             base.OnChainEnd();
         }
 
@@ -1747,12 +1767,13 @@ namespace WindBot.Game.AI.Decks
             AI.SelectPlace(0);
         }
 
-        public void ResetCooclockEffect(bool onlyCheck)
+        public void ResetCooclockEffect(bool onlyCheck, ClientCard currentCard = null)
         {
-            if (!onlyCheck && cooclockAffected && setTrapThisTurn.Contains(Card))
+            ClientCard checkCard = currentCard ?? Card;
+            if (!onlyCheck && cooclockAffected && setTrapThisTurn.Contains(checkCard))
             {
                 cooclockAffected = false;
-                setTrapThisTurn.Remove(Card);
+                setTrapThisTurn.Remove(checkCard);
             }
         }
 
@@ -1970,19 +1991,19 @@ namespace WindBot.Game.AI.Decks
                 if (Duel.CurrentChain.Any(card => card.Controller == 0 && card.IsCode(CardId.AriannaTheLabrynthServant))) return false;
 
                 // set trap to activate
-                SortedList<int, Func<bool>> checkList = new SortedList<int, Func<bool>> {
-                    {CardId.BigWelcomeLabrynth, BigWelcomeLabrynthSetCheck},
-                    {CardId.WelcomeLabrynth, WelcomeLabrynthSetCheck},
-                    {CardId.DestructiveDarumaKarmaCannon, DestructiveDarumaKarmaCannonSetCheck},
-                    {_CardId.DimensionalBarrier, DimensionalBarrierActivate}
+                List<int> checkList = new List<int> {
+                    CardId.BigWelcomeLabrynth,
+                    CardId.WelcomeLabrynth,
+                    CardId.DestructiveDarumaKarmaCannon,
+                    _CardId.DimensionalBarrier
                 };
-                foreach (KeyValuePair<int, Func<bool>> pair in checkList)
+                foreach (int cardId in checkList)
                 {
-                    ClientCard setTarget = Bot.Hand.FirstOrDefault(card => card.IsCode(pair.Key));
-                    if (setTarget != null && !activatedCardIdList.Contains(pair.Key) && pair.Value())
+                    ClientCard setTarget = Bot.Hand.FirstOrDefault(card => card.IsCode(cardId));
+                    if (setTarget != null && !activatedCardIdList.Contains(cardId) && CheckTrapForSet(setTarget))
                     {
                         AI.SelectOption(1);
-                        AI.SelectCard(pair.Key);
+                        AI.SelectCard(cardId);
                         activatedCardIdList.Add(Card.Id);
                         SelectSTPlace(setTarget, true);
                         return true;
@@ -2543,19 +2564,21 @@ namespace WindBot.Game.AI.Decks
         {
             return WelcomeLabrynthActivateCheck(true);
         }
-        public bool WelcomeLabrynthSetCheck()
+        public bool WelcomeLabrynthSetCheck(ClientCard card = null)
         {
-            return !CheckShouldNoMoreSpSummon() && WelcomeLabrynthActivateCheck(true, true);
+            return !CheckShouldNoMoreSpSummon() && WelcomeLabrynthActivateCheck(true, true, card);
         }
-        public bool WelcomeLabrynthActivateCheck(bool onlyCheck = false, bool noSelect = false)
+        public bool WelcomeLabrynthActivateCheck(bool onlyCheck = false, bool noSelect = false, ClientCard currentCard = null)
         {
-            if (Card.Location == CardLocation.SpellZone || onlyCheck)
+            ClientCard checkCard = currentCard ?? Card;
+            if (checkCard == null) return false;
+            if (checkCard.Location == CardLocation.SpellZone || onlyCheck)
             {
                 if (GetEmptyMainMonsterZoneCount() == 0) return false;
                 if (CheckShouldNoMoreSpSummon()) return false;
-                bool activateTimingFlag = Duel.Phase > DuelPhase.Main2 || (Card.IsCode(CardId.AriasTheLabrynthButler) && (CurrentTiming & hintTimingMainEnd) > 0);
+                bool activateTimingFlag = Duel.Phase > DuelPhase.Main2 || (checkCard.IsCode(CardId.AriasTheLabrynthButler) && (CurrentTiming & hintTimingMainEnd) > 0);
 
-                bool becomeTarget = Card.Location == CardLocation.SpellZone && DefaultOnBecomeTarget();
+                bool becomeTarget = checkCard.Location == CardLocation.SpellZone && DefaultOnBecomeTarget(checkCard);
                 if ((Duel.Player == 0 && Duel.Phase <= DuelPhase.Main2 || Duel.Player == 1 && activateTimingFlag)
                     && Bot.HasInDeck(CardId.ArianeTheLabrynthServant) && Bot.HasInHandOrInSpellZone(CardId.TransactionRollback)
                     && !chainSummoningIdList.Contains(CardId.ArianeTheLabrynthServant))
@@ -2563,7 +2586,7 @@ namespace WindBot.Game.AI.Decks
                     if (!noSelect)
                     {
                         chainSummoningIdList.Add(CardId.ArianeTheLabrynthServant);
-                        activatedCardIdList.Add(Card.Id);
+                        activatedCardIdList.Add(checkCard.Id);
                     }
                     return true;
                 }
@@ -2571,15 +2594,17 @@ namespace WindBot.Game.AI.Decks
                     || !(Bot.HasInMonstersZone(CardId.LovelyLabrynthOfTheSilverCastle, true, false, true) || CheckBigWelcomeCanSpSummon(CardId.LovelyLabrynthOfTheSilverCastle));
                 ariannaCheck |= Duel.Player == 1 && activateTimingFlag;
                 ariannaCheck |= Duel.Player == 0;
+                bool ariannaNegated = DefaultCheckWhetherCardIdIsNegated(CardId.AriannaTheLabrynthServant)
+                    || Enemy.HasInSpellZone(CardId.SkillDrain, true, true);
                 if (ariannaCheck)
                 {
                     if (Bot.HasInDeck(CardId.AriannaTheLabrynthServant) && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)
-                        && !CheckWhetherNegated(true, true, CardType.Monster) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
+                        && !ariannaNegated && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
                     {
                         if (!noSelect)
                         {
                             chainSummoningIdList.Add(CardId.AriannaTheLabrynthServant);
-                            activatedCardIdList.Add(Card.Id);
+                            activatedCardIdList.Add(checkCard.Id);
                         }
                         return true;
                     }
@@ -2592,7 +2617,7 @@ namespace WindBot.Game.AI.Decks
                         if (!noSelect)
                         {
                             chainSummoningIdList.Add(CardId.AriasTheLabrynthButler);
-                            activatedCardIdList.Add(Card.Id);
+                            activatedCardIdList.Add(checkCard.Id);
                         }
                         return true;
                     }
@@ -2611,7 +2636,7 @@ namespace WindBot.Game.AI.Decks
                             chainSummoningIdList.Add(CardId.LovelyLabrynthOfTheSilverCastle);
                         }
                         else if (!activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && Bot.HasInDeck(CardId.AriannaTheLabrynthServant)
-                            && !CheckWhetherNegated(true, true, CardType.Monster) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
+                            && !ariannaNegated && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
                         {
                             chainSummoningIdList.Add(CardId.AriannaTheLabrynthServant);
                         }
@@ -2652,9 +2677,9 @@ namespace WindBot.Game.AI.Decks
                                 chainSummoningIdList.Add(selectId);
                             }
                         }
-                        ResetCooclockEffect(onlyCheck);
+                        ResetCooclockEffect(onlyCheck, checkCard);
 
-                        activatedCardIdList.Add(Card.Id);
+                        activatedCardIdList.Add(checkCard.Id);
                     }
                     return true;
                 }
@@ -2721,31 +2746,32 @@ namespace WindBot.Game.AI.Decks
         {
             return InfiniteImpermanenceActivateCheck(true);
         }
-        public bool InfiniteImpermanenceSetCheck()
+        public bool InfiniteImpermanenceSetCheck(ClientCard card = null)
         {
-            return InfiniteImpermanenceActivateCheck(true, true);
+            return InfiniteImpermanenceActivateCheck(true, true, card);
         }
-        public bool InfiniteImpermanenceActivateCheck(bool onlyCheck = false, bool noSelect = false)
+        public bool InfiniteImpermanenceActivateCheck(bool onlyCheck = false, bool noSelect = false, ClientCard currentCard = null)
         {
-            if (CheckWhetherNegated()) return false;
+            ClientCard checkCard = currentCard ?? Card;
+            if (CheckWhetherNegated(currentCard: checkCard)) return false;
 
             ClientCard LastChainCard = Util.GetLastChainCard();
 
             // negate spells
-            if (Card.Location == CardLocation.SpellZone)
+            if (checkCard.Location == CardLocation.SpellZone)
             {
                 int thisSeq = -1;
                 int thatSeq = -1;
                 for (int i = 0; i < 5; ++i)
                 {
-                    if (Bot.SpellZone[i] == Card) thisSeq = i;
+                    if (Bot.SpellZone[i] == checkCard) thisSeq = i;
                     if (LastChainCard != null
                         && LastChainCard.Controller == 1 && LastChainCard.Location == CardLocation.SpellZone && Enemy.SpellZone[i] == LastChainCard) thatSeq = i;
                     else if (Duel.Player == 0 && Util.GetProblematicEnemySpell() != null
                         && Enemy.SpellZone[i] != null && Enemy.SpellZone[i].IsFloodgate()) thatSeq = i;
                 }
                 if ( (thisSeq * thatSeq >= 0 && thisSeq + thatSeq == 4)
-                    || Util.IsChainTarget(Card)
+                    || Util.IsChainTarget(checkCard)
                     || (LastChainCard != null && LastChainCard.Controller == 1 && LastChainCard.IsCode(_CardId.HarpiesFeatherDuster)))
                 {
                     ClientCard target = GetProblematicEnemyMonster(canBeTarget: true, selfType: CardType.Trap);
@@ -2761,10 +2787,10 @@ namespace WindBot.Game.AI.Decks
                     if (!onlyCheck)
                     {
                         infiniteImpermanenceList.Add(thatSeq);
-                        if (cooclockAffected && setTrapThisTurn.Contains(Card))
+                        if (cooclockAffected && setTrapThisTurn.Contains(checkCard))
                         {
                             cooclockAffected = false;
-                            setTrapThisTurn.Remove(Card);
+                            setTrapThisTurn.Remove(checkCard);
                         }
                     }
                     return true;
@@ -2772,30 +2798,30 @@ namespace WindBot.Game.AI.Decks
             }
             
             // negate monster
-            List<ClientCard> shouldNegateList = GetMonsterListForTargetNegate(true, CardType.Trap);
+            List<ClientCard> shouldNegateList = GetMonsterListForTargetNegate(true, CardType.Trap, checkCard);
             if (shouldNegateList.Count() > 0)
             {
                 ClientCard negateTarget = shouldNegateList[0];
                 currentNegateMonsterList.Add(negateTarget);
 
-                if (Card.Location == CardLocation.SpellZone && !onlyCheck)
+                if (checkCard.Location == CardLocation.SpellZone && !onlyCheck)
                 {
                     for (int i = 0; i < 5; ++ i)
                     {
-                        if (Bot.SpellZone[i] == Card)
+                        if (Bot.SpellZone[i] == checkCard)
                         {
                             infiniteImpermanenceList.Add(i);
                             break;
                         }
                     }
                 }
-                if (Card.Location == CardLocation.Hand)
+                if (checkCard.Location == CardLocation.Hand)
                 {
-                    SelectSTPlace(Card, true);
+                    SelectSTPlace(checkCard, true);
                 }
                 if (!noSelect) AI.SelectCard(negateTarget);
                 currentDestroyCardList.Add(negateTarget);
-                ResetCooclockEffect(onlyCheck);
+                ResetCooclockEffect(onlyCheck, checkCard);
                 return true;
             }
 
@@ -2806,13 +2832,14 @@ namespace WindBot.Game.AI.Decks
         {
             return DestructiveDarumaKarmaCannonActivateCheck(false);
         }
-        public bool DestructiveDarumaKarmaCannonSetCheck()
+        public bool DestructiveDarumaKarmaCannonSetCheck(ClientCard card = null)
         {
-            return DestructiveDarumaKarmaCannonActivateCheck(true);
+            return DestructiveDarumaKarmaCannonActivateCheck(true, card);
         }
-        public bool DestructiveDarumaKarmaCannonActivateCheck(bool noSelect = false)
+        public bool DestructiveDarumaKarmaCannonActivateCheck(bool noSelect = false, ClientCard currentCard = null)
         {
-            bool becomeTarget = Card.Location == CardLocation.SpellZone && DefaultOnBecomeTarget();
+            ClientCard checkCard = currentCard ?? Card;
+            bool becomeTarget = !noSelect && checkCard != null && checkCard.Location == CardLocation.SpellZone && DefaultOnBecomeTarget(checkCard);
             bool activateFlag = becomeTarget && Util.IsOneEnemyBetter(true);
             bool canTriggerLovely =
                 (!activatedCardIdList.Contains(CardId.BigWelcomeLabrynth) && Bot.GetSpells().Any(card => card.IsFacedown() && card.IsCode(CardId.BigWelcomeLabrynth) && (!cooclockAffected || !setTrapThisTurn.Contains(card)))
@@ -2958,6 +2985,18 @@ namespace WindBot.Game.AI.Decks
 
             return DefaultOnBecomeTarget();
         }
+        public bool DimensionalBarrierSetCheck()
+        {
+            if (Duel.Player == 0 && Duel.Turn == 1) return false;
+            List<Func<bool>> checkList = new List<Func<bool>> {
+                DimensionalBarrierForRitual,
+                DimensionalBarrierForFusion,
+                DimensionalBarrierForSynchro,
+                DimensionalBarrierForXyz,
+                DimensionalBarrierForPendulum
+            };
+            return checkList.Any(check => check());
+        }
         public bool DimensionalBarrierForRitual()
         {
             foreach (ClientCard chainCard in Duel.CurrentChain)
@@ -3072,23 +3111,24 @@ namespace WindBot.Game.AI.Decks
         {
             return BigWelcomeLabrynthActivateCheck(true);
         }
-        public bool BigWelcomeLabrynthSetCheck()
+        public bool BigWelcomeLabrynthSetCheck(ClientCard card = null)
         {
-            return !CheckShouldNoMoreSpSummon() && BigWelcomeLabrynthActivateCheck(true, true);
+            return !CheckShouldNoMoreSpSummon() && BigWelcomeLabrynthActivateCheck(true, true, card);
         }
-        public bool BigWelcomeLabrynthActivateCheck(bool onlyCheck = false, bool noSelect = false)
+        public bool BigWelcomeLabrynthActivateCheck(bool onlyCheck = false, bool noSelect = false, ClientCard currentCard = null)
         {
-            if (CheckWhetherNegated()) return false;
-            if (Card.Location != CardLocation.SpellZone && !onlyCheck) return false;
+            ClientCard checkCard = currentCard ?? Card;
+            if (CheckWhetherNegated(currentCard: checkCard)) return false;
+            if (checkCard.Location != CardLocation.SpellZone && !onlyCheck) return false;
             if (GetEmptyMainMonsterZoneCount() == 0) return false;
-            bool activateTimingFlag = Duel.Phase > DuelPhase.Main2 || (Card.IsCode(CardId.AriasTheLabrynthButler) && (CurrentTiming & hintTimingMainEnd) > 0);
+            bool activateTimingFlag = Duel.Phase > DuelPhase.Main2 || (checkCard.IsCode(CardId.AriasTheLabrynthButler) && (CurrentTiming & hintTimingMainEnd) > 0);
 
             bool needDestroyFlag = GetProblematicEnemyCardList(false).Count() > 0;
             needDestroyFlag |= activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && activateTimingFlag;
             needDestroyFlag |= Bot.UnderAttack && (Bot.BattlingMonster?.GetDefensePower() ?? 0) <= (Enemy.BattlingMonster?.GetDefensePower() ?? 0) && Duel.LastChainPlayer != 0;
             needDestroyFlag |= Duel.Turn == 1 && Duel.Player == 0 && !activatedCardIdList.Contains(CardId.LovelyLabrynthOfTheSilverCastle + 1);
             needDestroyFlag |= Duel.Turn == 1 && Enemy.GetMonsterCount() == 0 && Enemy.GetSpellCount() == 0 && Enemy.Hand.Count > 0
-                && (CurrentTiming & hintTimingMainEnd) > 0;
+                && checkCard.IsCode(CardId.AriasTheLabrynthButler) && (CurrentTiming & hintTimingMainEnd) > 0;
 
             // do not activate when welcome is activating
             bool haveEnemyChain = false;
@@ -3119,7 +3159,8 @@ namespace WindBot.Game.AI.Decks
                     {
                         bigwelcomeEscaseTarget = target;
                         escapeTargetList.Add(target);
-                        activatedCardIdList.Add(Card.Id);
+                        activatedCardIdList.Add(checkCard.Id);
+                        bigWelcomeActivatedAtMainEnd = activateTimingFlag;
                     }
                     return true;
                 }
@@ -3128,7 +3169,7 @@ namespace WindBot.Game.AI.Decks
             if (Bot.GetMonsterCount() > 0)
             {
                 bool flag1 = needDestroyFlag && !activatedCardIdList.Contains(CardId.LovelyLabrynthOfTheSilverCastle + 1) && (Util.ChainContainPlayer(1) || Duel.LastChainPlayer != 0);
-                bool flag2 = DefaultOnBecomeTarget();
+                bool flag2 = DefaultOnBecomeTarget(checkCard);
                 bool flag3 = Duel.Player == 1 && !activatedCardIdList.Contains(CardId.BigWelcomeLabrynth) && activateTimingFlag;
                 bool flag4 = Duel.Player == 0 && Duel.LastChainPlayer != 0 && !activatedCardIdList.Contains(CardId.BigWelcomeLabrynth);
                 Logger.DebugWriteLine("[BigWelcome count>0]flag: "+ flag1 + " " + flag2 + " " + flag3 + " " + flag4);
@@ -3139,22 +3180,24 @@ namespace WindBot.Game.AI.Decks
                     bool haveLovely = Bot.GetMonsters().Any(card => card.IsFaceup() && card.IsCode(CardId.LovelyLabrynthOfTheSilverCastle));
                     if (!noSelect)
                     {
-                        activatedCardIdList.Add(Card.Id);
+                        activatedCardIdList.Add(checkCard.Id);
+                        bigWelcomeActivatedAtMainEnd = activateTimingFlag;
                     }
-                    ResetCooclockEffect(onlyCheck);
+                    ResetCooclockEffect(onlyCheck, checkCard);
                     return true;
                 }
             }
             else {
-                bool activateFlag = DefaultOnBecomeTarget();
+                bool activateFlag = DefaultOnBecomeTarget(checkCard);
                 activateFlag |= Duel.Player == 1 && !activatedCardIdList.Contains(CardId.BigWelcomeLabrynth) && activateTimingFlag;
                 activateFlag |= Duel.Player == 0 && !summoned && !Bot.HasInHand(CardId.AriannaTheLabrynthServant) && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)
                     && !(Duel.Phase < DuelPhase.Main1 && Bot.HasInHand(CardId.PotOfExtravagance) && Bot.ExtraDeck.Count() >= 3)
                     && !(Duel.CurrentChain.Any(card => card.IsCode(CardId.PotOfExtravagance) && card.Controller == 0));
                 if (activateFlag && !noSelect)
                 {
-                    activatedCardIdList.Add(Card.Id);
-                    ResetCooclockEffect(onlyCheck);
+                    activatedCardIdList.Add(checkCard.Id);
+                    bigWelcomeActivatedAtMainEnd = activateTimingFlag;
+                    ResetCooclockEffect(onlyCheck, checkCard);
                     return true;
                 }
             }
