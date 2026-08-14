@@ -33,6 +33,7 @@ namespace WindBot.Game.AI
 
             Bot = Duel.Fields[0];
             Enemy = Duel.Fields[1];
+            ClearCardContext();
         }
 
         public virtual int OnRockPaperScissors()
@@ -296,7 +297,7 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// Set global variables Type, Card, ActivateDescription for Executor
+        /// Set the context for the executor condition currently being evaluated.
         /// </summary>
         public void SetCard(ExecutorType type, ClientCard card, int description, int timing = -1)
         {
@@ -304,6 +305,14 @@ namespace WindBot.Game.AI
             Card = card;
             ActivateDescription = description;
             CurrentTiming = timing;
+        }
+
+        public void ClearCardContext()
+        {
+            Type = default(ExecutorType);
+            Card = null;
+            ActivateDescription = -1;
+            CurrentTiming = -1;
         }
 
         /// <summary>

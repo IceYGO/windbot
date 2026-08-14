@@ -1489,29 +1489,36 @@ namespace WindBot.Game
         private bool ShouldExecute(CardExecutor exec, ClientCard card, ExecutorType type, int desc = -1, int timing = -1)
         {
             Executor.SetCard(type, card, desc, timing);
-            if (card.Id != 0 && type == ExecutorType.Activate)
+            try
             {
-                if (_activatedCards.ContainsKey(card.Id) && _activatedCards[card.Id] >= 9)
-                    return false;
-                if (!Executor.OnPreActivate(card))
-                    return false;
+                if (card.Id != 0 && type == ExecutorType.Activate)
+                {
+                    if (_activatedCards.ContainsKey(card.Id) && _activatedCards[card.Id] >= 9)
+                        return false;
+                    if (!Executor.OnPreActivate(card))
+                        return false;
+                }
+                bool result = card != null && exec.Type == type &&
+                    (exec.CardId == -1 || card.IsOriginalCode(exec.CardId)) &&
+                    (exec.Func == null || exec.Func());
+                if (card.Id != 0 && type == ExecutorType.Activate && result)
+                {
+                    int count = card.IsDisabled() ? 3 : 1;
+                    if (!_activatedCards.ContainsKey(card.Id))
+                    {
+                        _activatedCards.Add(card.Id, count);
+                    }
+                    else
+                    {
+                        _activatedCards[card.Id] += count;
+                    }
+                }
+                return result;
             }
-            bool result = card != null && exec.Type == type &&
-                (exec.CardId == -1 || card.IsOriginalCode(exec.CardId)) &&
-                (exec.Func == null || exec.Func());
-            if (card.Id != 0 && type == ExecutorType.Activate && result)
+            finally
             {
-                int count = card.IsDisabled() ? 3 : 1;
-                if (!_activatedCards.ContainsKey(card.Id))
-                {
-                    _activatedCards.Add(card.Id, count);
-                }
-                else
-                {
-                    _activatedCards[card.Id] += count;
-                }
+                Executor.ClearCardContext();
             }
-            return result;
         }
     }
 }
