@@ -198,14 +198,14 @@ namespace WindBot.Game.AI.Decks
                 return CardPosition.FaceUpAttack;
             if (cardId == CardId.Herald_of_the_Arc_Light)
                 return CardPosition.FaceUpDefence;
-            if (Bot.HasInSpellZone(CardId.Neko_Field) || (Bot.HasInHand(CardId.Neko_Field) && ActivateNekoField()
+            if (Bot.HasInHandOrInSpellZone(CardId.Neko_Field)
                 && new[]
                     {
                         CardId.Neko_Cake,
                         CardId.Neko_Cookie,
                         CardId.Neko_Marshmallow,
                         CardId.Neko_Lollipop
-                    }.Contains(cardId))
+                    }.Contains(cardId)
             )
                 return CardPosition.FaceUpAttack;
             return base.OnSelectPosition(cardId, positions);
