@@ -72,15 +72,15 @@ namespace WindBot.Game
                 return;
 
             if (leavesBotDeck)
-                _duel.Fields[0].RemoveFromDeck(cardId);
+                _duel.Fields[0].TrackRemoveFromDeck(cardId);
             else
-                _duel.Fields[0].AddToDeck(cardId);
+                _duel.Fields[0].TrackAddToDeck(cardId);
         }
 
         private void ValidateBotDeckCount()
         {
             if (_botDeckActive)
-                _duel.Fields[0].ValidateDeckCount(_duel.Fields[0].Deck.Count);
+                _duel.Fields[0].ValidateTrackedDeckCount(_duel.Fields[0].Deck.Count);
         }
 
         public void OnPacket(BinaryReader packet)
@@ -451,7 +451,7 @@ namespace WindBot.Game
                 ? _room.Position % 2 == 0
                 : _room.Position % 2 == 1);
             _botDeckNeedsInitialHandSync = _isTag && !_botDeckActive;
-            _duel.Fields[0].SetDeckTrackingActive(_botDeckActive);
+            _duel.Fields[0].DeckTrackingActive = _botDeckActive;
             ValidateBotDeckCount();
 
             // in case of ending duel in chain's solving
@@ -582,7 +582,7 @@ namespace WindBot.Game
             IList<ClientCard> oldDeck = field.Deck.ToList();
             IList<ClientCard> oldGraveyard = field.Graveyard.ToList();
             if (player == 0 && _botDeckActive)
-                field.ReplaceDeck(oldGraveyard.Where(card => card != null && !card.IsExtraCard()));
+                field.TrackReplaceDeck(oldGraveyard.Where(card => card != null && !card.IsExtraCard()));
             field.Deck.Clear();
             field.Graveyard.Clear();
 
@@ -635,7 +635,7 @@ namespace WindBot.Game
                 if (_botDeckActive)
                     ValidateBotDeckCount();
                 _botDeckActive = !_botDeckActive;
-                field.SetDeckTrackingActive(_botDeckActive);
+                field.DeckTrackingActive = _botDeckActive;
             }
 
             field.Deck.Clear();
@@ -655,7 +655,7 @@ namespace WindBot.Game
                 // ocgcore draws an inactive tag partner's opening hand without sending DRAW
                 // to that client, so its first visible hand must be deducted here.
                 if (player == 0 && _botDeckActive && _botDeckNeedsInitialHandSync)
-                    field.RemoveFromDeck(code);
+                    field.TrackRemoveFromDeck(code);
                 int position = (encodedCode & 0x80000000) != 0
                     ? (int)CardPosition.FaceUp
                     : (int)CardPosition.FaceDown;
