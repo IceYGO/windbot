@@ -60,6 +60,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool _usedMeghalaDeckSummon;
         private bool _usedMeghalaHandSummon;
+        private bool _usedFonixHandSummon;
+        private bool _usedVortexHandSummon;
+        private bool _usedFonixFieldEffect;
+        private bool _usedVortexFieldEffect;
         private bool _usedSwenHandSummon;
         private bool _usedDachsHandSummon;
         private bool _usedDachsSearch;
@@ -75,6 +79,8 @@ namespace WindBot.Game.AI.Decks
         private bool _enemyDrollResolved;
         private bool _botDrawHandTrapResolved;
         private bool _enemyPuruliaResolved;
+        private bool _enemyMaxxCResolved;
+        private bool _enemyFuwalosResolved;
         private bool _botSummonedFromHandAfterPurulia;
         private bool _mstOfferedInCurrentChainSelection;
         private bool _radiantQuickPlayOfferedInCurrentChainSelection;
@@ -84,6 +90,8 @@ namespace WindBot.Game.AI.Decks
         private int _dropletCostCount;
         private int _favoriteHEROFusionTargetId;
         private readonly HashSet<int> _activatedRadiantCardsThisTurn = new HashSet<int>();
+        private readonly HashSet<ClientCard> _botFacedownSpellsSetFromGrave =
+            new HashSet<ClientCard>();
 
         public RadiantTyphoonExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -223,6 +231,10 @@ namespace WindBot.Game.AI.Decks
         {
             _usedMeghalaDeckSummon = false;
             _usedMeghalaHandSummon = false;
+            _usedFonixHandSummon = false;
+            _usedVortexHandSummon = false;
+            _usedFonixFieldEffect = false;
+            _usedVortexFieldEffect = false;
             _usedSwenHandSummon = false;
             _usedDachsHandSummon = false;
             _usedDachsSearch = false;
@@ -237,6 +249,8 @@ namespace WindBot.Game.AI.Decks
             _enemyDrollResolved = false;
             _botDrawHandTrapResolved = false;
             _enemyPuruliaResolved = false;
+            _enemyMaxxCResolved = false;
+            _enemyFuwalosResolved = false;
             _botSummonedFromHandAfterPurulia = false;
             _mstOfferedInCurrentChainSelection = false;
             _radiantQuickPlayOfferedInCurrentChainSelection = false;
@@ -277,6 +291,18 @@ namespace WindBot.Game.AI.Decks
         public override void OnMove(ClientCard card, int previousControler, int previousLocation,
             int currentControler, int currentLocation)
         {
+            if (card != null && _botFacedownSpellsSetFromGrave.Contains(card) &&
+                (currentControler != 0 || (currentLocation & (int)CardLocation.SpellZone) == 0 ||
+                 !card.IsFacedown()))
+            {
+                _botFacedownSpellsSetFromGrave.Remove(card);
+            }
+            if (card != null && currentControler == 0 &&
+                (previousLocation & (int)CardLocation.Grave) != 0 &&
+                (currentLocation & (int)CardLocation.SpellZone) != 0 && card.IsFacedown())
+            {
+                _botFacedownSpellsSetFromGrave.Add(card);
+            }
             if (card != null && card.IsCode(CardId.RadiantTyphoonVaruroonTheMarineEidolon) &&
                 (previousLocation & (int)CardLocation.MonsterZone) != 0 &&
                 (currentLocation & (int)CardLocation.MonsterZone) == 0)
@@ -344,6 +370,18 @@ namespace WindBot.Game.AI.Decks
                         currentChain.IsActivateCode(CardId.MulcharmyPurulia))
                     {
                         _enemyPuruliaResolved = true;
+                    }
+
+                    if (currentChain.ActivatePlayer == 1 &&
+                        currentChain.IsActivateCode(CardId.MaxxC))
+                    {
+                        _enemyMaxxCResolved = true;
+                    }
+
+                    if (currentChain.ActivatePlayer == 1 &&
+                        currentChain.IsActivateCode(CardId.MulcharmyFuwalos))
+                    {
+                        _enemyFuwalosResolved = true;
                     }
 
                     if (currentChain.ActivatePlayer == 0 && currentChain.IsActivateCode(CardId.MaxxC, CardId.MulcharmyFuwalos))
@@ -428,13 +466,25 @@ namespace WindBot.Game.AI.Decks
         {
             if (IsDescription(CardId.RadiantTyphoonVaruroonTheVibrantVortex, 0) || Card.Location == CardLocation.Hand)
             {
-                return CanSummonFromHandAfterPurulia();
+                bool shouldActivate = CanSummonFromHandAfterPurulia() &&
+                    !ShouldStopRadiantSpecialSummon(CardLocation.Hand);
+                if (shouldActivate)
+                {
+                    _usedVortexHandSummon = true;
+                }
+                return shouldActivate;
             }
 
             if (IsDescription(CardId.RadiantTyphoonVaruroonTheVibrantVortex, 1) || Card.Location == CardLocation.MonsterZone)
             {
                 ClientCard lastChainCard = Util.GetLastChainCard();
-                return Duel.LastChainPlayer == 1 && lastChainCard != null && lastChainCard.IsMonster() && !lastChainCard.IsDisabled();
+                bool shouldActivate = Duel.LastChainPlayer == 1 && lastChainCard != null &&
+                    lastChainCard.IsMonster() && !lastChainCard.IsDisabled();
+                if (shouldActivate)
+                {
+                    _usedVortexFieldEffect = true;
+                }
+                return shouldActivate;
             }
 
             if (IsDescription(CardId.RadiantTyphoonVaruroonTheVibrantVortex, 2) || Card.Location == CardLocation.Grave)
@@ -445,7 +495,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     _vortexMstTriggerPending = false;
                 }
-                return shouldActivate;
+                return shouldActivate && !ShouldStopRadiantSpecialSummon(CardLocation.Grave);
             }
             return false;
         }
@@ -454,7 +504,13 @@ namespace WindBot.Game.AI.Decks
         {
             if (IsDescription(CardId.RadiantTyphoonFonixTheGreatFlame, 0) || Card.Location == CardLocation.Hand)
             {
-                return CanSummonFromHandAfterPurulia();
+                bool shouldActivate = CanSummonFromHandAfterPurulia() &&
+                    !ShouldStopRadiantSpecialSummon(CardLocation.Hand);
+                if (shouldActivate)
+                {
+                    _usedFonixHandSummon = true;
+                }
+                return shouldActivate;
             }
 
             if (IsDescription(CardId.RadiantTyphoonFonixTheGreatFlame, 1) || Card.Location == CardLocation.MonsterZone)
@@ -465,6 +521,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     return false;
                 }
+                _usedFonixFieldEffect = true;
                 return true;
             }
 
@@ -476,7 +533,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     _fonixMstTriggerPending = false;
                 }
-                return shouldActivate;
+                return shouldActivate && !ShouldStopRadiantSpecialSummon(CardLocation.Grave);
             }
             return false;
         }
@@ -565,18 +622,237 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShiinaActivate()
         {
-            if (Duel.LastChainPlayer != 1)
+            ChainInfo lastChain = Duel.CurrentChainInfo.LastOrDefault();
+            if (lastChain == null || lastChain.ActivatePlayer != 1)
             {
                 return false;
             }
 
-            bool enemyHasExtraDeckMonster = Enemy.GetMonsters().Any(c => c.IsFaceup() &&
-                c.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link));
-            bool botHasEstablishedExtraDeckMonster = Bot.GetMonsters().Any(c => c.IsFaceup() &&
-                (c.HasType(CardType.Xyz) || (c.HasType(CardType.Link) && c.LinkCount >= 3)));
-            bool extraDeckBoardCondition = enemyHasExtraDeckMonster && !botHasEstablishedExtraDeckMonster;
-            bool backrowBoardCondition = Enemy.GetSpellCount() >= 3;
-            return extraDeckBoardCondition || backrowBoardCondition;
+            bool opponentActivatedMonster = IsShiinaMonsterActivation(lastChain);
+            bool opponentActivatedSpellTrap = IsShiinaSpellTrapActivation(lastChain);
+            if (opponentActivatedMonster == opponentActivatedSpellTrap)
+            {
+                // Do not guess when the protocol does not provide a unique
+                // active card type. Shiina's script uses re:IsActiveType(),
+                // so a static card type alone is not sufficient for Pendulum
+                // or other cards that can act from different zones.
+                return false;
+            }
+
+            if (opponentActivatedMonster)
+            {
+                bool enemyHasExtraDeckMonster = Enemy.GetMonsters().Any(c => c.IsFaceup() &&
+                    c.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link));
+                bool botHasUnusedXyzMonster = Bot.GetMonsters().Any(c => c.IsFaceup() &&
+                    !c.IsDisabled() && c.HasType(CardType.Xyz) &&
+                    !WasRadiantEffectUsedThisTurn(c.Id));
+                bool botHasUnusedLinkMonster = Bot.GetMonsters().Any(c => c.IsFaceup() &&
+                    !c.IsDisabled() && c.HasType(CardType.Link) &&
+                    !WasRadiantEffectUsedThisTurn(c.Id));
+                return enemyHasExtraDeckMonster && !botHasUnusedXyzMonster &&
+                    !botHasUnusedLinkMonster &&
+                    CanSafelyReturnOwnCardsWithShiina(true);
+            }
+
+            if (Duel.Player == 1 && !CanActivateShiinaSpellTrapEffectOnOpponentTurn())
+            {
+                return false;
+            }
+            return Enemy.GetSpellCount() >= 3 && CanSafelyReturnOwnCardsWithShiina(false);
+        }
+
+        private bool IsShiinaMonsterActivation(ChainInfo chain)
+        {
+            if (chain == null)
+            {
+                return false;
+            }
+            if (chain.HasLocation(CardLocation.MonsterZone))
+            {
+                return true;
+            }
+            if (chain.HasLocation(CardLocation.SpellZone | CardLocation.FieldZone))
+            {
+                return false;
+            }
+            return (chain.ActivateType & (int)CardType.Monster) != 0 &&
+                (chain.ActivateType & (int)(CardType.Spell | CardType.Trap)) == 0;
+        }
+
+        private bool IsShiinaSpellTrapActivation(ChainInfo chain)
+        {
+            if (chain == null)
+            {
+                return false;
+            }
+            if (chain.HasLocation(CardLocation.MonsterZone))
+            {
+                return false;
+            }
+            if (chain.HasLocation(CardLocation.SpellZone | CardLocation.FieldZone))
+            {
+                return true;
+            }
+            return (chain.ActivateType & (int)(CardType.Spell | CardType.Trap)) != 0 &&
+                (chain.ActivateType & (int)CardType.Monster) == 0;
+        }
+
+        private bool CanSafelyReturnOwnCardsWithShiina(bool returnsMonsters)
+        {
+            if (returnsMonsters)
+            {
+                return Bot.GetMonsters().Where(c => c.IsFaceup())
+                    .All(IsSafeShiinaOwnMonster);
+            }
+
+            return Bot.GetSpells().All(IsSafeShiinaOwnSpellTrap);
+        }
+
+        private bool IsSafeShiinaOwnMonster(ClientCard card)
+        {
+            if (card == null)
+            {
+                return true;
+            }
+            if (card.IsCode(CardId.ShiinaTwinTempestsOfCelestialThunder) &&
+                card.Location == CardLocation.MonsterZone)
+            {
+                // Shiina's own script explicitly excludes a Shiina in our
+                // Monster Zone from the monster return group.
+                return true;
+            }
+
+            // A negated monster no longer has the interruption value that the
+            // Shiina safety check is intended to preserve.
+            if (card.IsDisabled())
+            {
+                return true;
+            }
+
+            // Returning an Extra Deck monster sends it back to the Extra Deck,
+            // not to the hand. It is dangerous until that monster has already
+            // used its relevant effect this turn.
+            if (card.IsExtraCard())
+            {
+                return WasRadiantEffectUsedThisTurn(card.Id);
+            }
+
+            // Non-Radiant Main Deck monsters are not part of this deck's Shiina
+            // protection policy. They can be returned without blocking the
+            // monster-type activation.
+            if (!IsRadiantMonster(card))
+            {
+                return true;
+            }
+
+            // Swen, Dachs and Krosea already resolve their important summon
+            // effects when they appear. Their unused status must not prevent
+            // Shiina from returning them.
+            if (card.IsCode(CardId.RadiantTyphoonSwen, CardId.RadiantTyphoonDachs,
+                CardId.RadiantTyphoonKrosea))
+            {
+                return true;
+            }
+
+            // Meghala, Fonix and Vortex are the important Main Deck
+            // interruption/resources that should remain on the field until
+            // their relevant effect has been used for this turn.
+            if (card.IsCode(CardId.RadiantTyphoonMeghala,
+                CardId.RadiantTyphoonFonixTheGreatFlame,
+                CardId.RadiantTyphoonVaruroonTheVibrantVortex))
+            {
+                if (card.IsCode(CardId.RadiantTyphoonFonixTheGreatFlame,
+                    CardId.RadiantTyphoonVaruroonTheVibrantVortex))
+                {
+                    // Returning Fonix/Vortex is safe when their hand effect
+                    // is still available, because the hand special summon
+                    // line survives. If that hand effect was already used,
+                    // the field effect must also have been used first.
+                    return !WasRadiantHandEffectUsedThisTurn(card.Id) ||
+                        WasRadiantFieldEffectUsedThisTurn(card.Id);
+                }
+                if (card.IsCode(CardId.RadiantTyphoonMeghala) &&
+                    !_usedMeghalaDeckSummon &&
+                    Duel.Player == 1 && !HasFaceDownRadiantOrMstQuickPlaySpell())
+                {
+                    // On the opponent's turn, Meghala's unused field effect
+                    // has no immediate set payoff left when we no longer
+                    // control a facedown Radiant Quick-Play or Mystical Space
+                    // Typhoon.
+                    return true;
+                }
+                if (card.IsCode(CardId.RadiantTyphoonMeghala))
+                {
+                    // _usedMeghalaDeckSummon records the field trigger that
+                    // special summons from the Deck. The separate hand
+                    // special-summon procedure must not satisfy this check.
+                    return _usedMeghalaDeckSummon;
+                }
+                return WasRadiantEffectUsedThisTurn(card.Id);
+            }
+
+            // Other Radiant Main Deck monsters are not classified as a Shiina
+            // interruption lock. Preserve the explicit important-monster list
+            // above without making every archetype monster block the effect.
+            return true;
+        }
+
+        private bool CanActivateShiinaSpellTrapEffectOnOpponentTurn()
+        {
+            // On our turn the special facedown restriction does not apply.
+            if (Duel.Player != 1)
+            {
+                return true;
+            }
+
+            // The Spell/Trap effect returns every field Spell/Trap. On the
+            // opponent's turn this is allowed only when there is no facedown
+            // card we would lose, or every facedown card was set from our
+            // Graveyard by an effect. Tracking the ClientCard instance avoids
+            // treating an unrelated facedown card with the same code as safe.
+            return Bot.GetSpells().Where(c => c != null && c.IsFacedown())
+                .All(c => _botFacedownSpellsSetFromGrave.Contains(c));
+        }
+
+        private bool IsSafeShiinaOwnSpellTrap(ClientCard card)
+        {
+            if (card == null)
+            {
+                return true;
+            }
+            return !card.IsCode(CardId.RadiantTyphoonMandate) || !card.IsFaceup();
+        }
+
+        private bool WasRadiantHandEffectUsedThisTurn(int cardId)
+        {
+            if (cardId == CardId.RadiantTyphoonFonixTheGreatFlame)
+            {
+                return _usedFonixHandSummon;
+            }
+            if (cardId == CardId.RadiantTyphoonVaruroonTheVibrantVortex)
+            {
+                return _usedVortexHandSummon;
+            }
+            return false;
+        }
+
+        private bool WasRadiantFieldEffectUsedThisTurn(int cardId)
+        {
+            if (cardId == CardId.RadiantTyphoonFonixTheGreatFlame)
+            {
+                return _usedFonixFieldEffect;
+            }
+            if (cardId == CardId.RadiantTyphoonVaruroonTheVibrantVortex)
+            {
+                return _usedVortexFieldEffect;
+            }
+            return false;
+        }
+
+        private bool HasFaceDownRadiantOrMstQuickPlaySpell()
+        {
+            return Bot.GetSpells().Any(c => c != null && c.IsFacedown() &&
+                (IsRadiantQuickPlay(c) || c.IsCode(CardId.MysticalSpaceTyphoon)));
         }
 
         private bool MysticalSpaceTyphoonActivate()
@@ -1144,7 +1420,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SuperPolymerizationActivate()
         {
-            if (Bot.Hand.All(c => c == Card))
+            if (Bot.Hand.All(c => c == Card) || ShouldStopRadiantSpecialSummon(CardLocation.Extra))
             {
                 return false;
             }
@@ -1398,7 +1674,8 @@ namespace WindBot.Game.AI.Decks
         {
             // Its self summon is a SpSummon procedure. Any legal Activate candidate
             // while Meghala is in the monster zone is therefore its deck-summon trigger.
-            if (Card.Location != CardLocation.MonsterZone || _usedMeghalaDeckSummon)
+            if (Card.Location != CardLocation.MonsterZone || _usedMeghalaDeckSummon ||
+                ShouldStopRadiantSpecialSummon(CardLocation.Deck))
             {
                 return false;
             }
@@ -1432,7 +1709,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool SmallRadiantSpecialSummon()
         {
-            if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() >= 5)
+            if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() >= 5 ||
+                ShouldStopRadiantSpecialSummon(CardLocation.Hand))
             {
                 return false;
             }
@@ -1492,20 +1770,19 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            // MSG_SELECT_TRIBUTE is handled by GameAI's attack-order fallback and
-            // cannot be overridden by a deck executor. Predict its first two picks
-            // and accept the summon only when they do not spend two of our cards or
-            // consume an important card from hand.
-            List<ClientCard> projectedTributes = Enemy.GetMonsters().Concat(Bot.Hand.Where(c =>
-                    c != Card && c.IsMonster()))
-                .OrderBy(c => c.Attack)
-                .ThenBy(c => c.Controller == 0 ? 0 : 1).Take(2).ToList();
-            if (projectedTributes.Count < 2 || projectedTributes.All(c => c.Controller == 0))
+            // MSG_SELECT_TRIBUTE is handled by GameAI.OnSelectTribute rather than
+            // the deck's OnSelectCard callback. Predict the same generic selector
+            // and reject the summon if it would consume a monster from our hand.
+            List<ClientCard> tributeCandidates = Enemy.GetMonsters().Concat(Bot.Hand.Where(c =>
+                    c != Card && c.IsMonster())).ToList();
+            tributeCandidates.Sort(CardContainer.CompareCardAttack);
+            IList<ClientCard> projectedTributes = AI.FindTributeSelection(tributeCandidates, 2, 2);
+            if (projectedTributes == null || projectedTributes.Any(c => c.Controller == 0 &&
+                c.Location == CardLocation.Hand))
             {
                 return false;
             }
-            return projectedTributes.Where(c => c.Controller == 0)
-                .All(c => GetDiscardPriority(c) <= 4);
+            return true;
         }
 
         private bool RadiantQuickPlayMstStarterActivate()
@@ -1702,7 +1979,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool SeaSpiritSummon()
         {
-            if (!IsMainPhase() || !CanSummonSeaSpiritNow())
+            if (!IsMainPhase() || ShouldStopRadiantSpecialSummon(CardLocation.Extra) ||
+                !CanSummonSeaSpiritNow())
             {
                 return false;
             }
@@ -1797,7 +2075,8 @@ namespace WindBot.Game.AI.Decks
             // preserve Meghala when choosing the other face-up field material.
             if (IsDescription(CardId.FavoriteHEROFlameWingman, 1))
             {
-                return Bot.HasInExtra(CardId.FavoriteHEROShiningFlareWingman) &&
+                return !ShouldStopRadiantSpecialSummon(CardLocation.Extra) &&
+                    Bot.HasInExtra(CardId.FavoriteHEROShiningFlareWingman) &&
                     Bot.GetMonsters().Any(c => c != Card && c.IsFaceup() &&
                         CanUseAsExtraDeckMaterial(c));
             }
@@ -1851,7 +2130,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TotemBirdSummon()
         {
-            if (!IsMainPhase())
+            if (!IsMainPhase() || ShouldStopRadiantSpecialSummon(CardLocation.Extra))
             {
                 return false;
             }
@@ -1870,7 +2149,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool EnterblathnirSummon()
         {
-            if (!IsMainPhase() ||
+            if (!IsMainPhase() || ShouldStopRadiantSpecialSummon(CardLocation.Extra) ||
                 (Duel.Turn <= 1 && Duel.Phase != DuelPhase.Main2))
             {
                 return false;
@@ -1903,7 +2182,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool SPLittleKnightSummon()
         {
-            if (!IsMainPhase() || Util.GetProblematicEnemyCard(0, true) == null)
+            if (!IsMainPhase() || ShouldStopRadiantSpecialSummon(CardLocation.Extra) ||
+                Util.GetProblematicEnemyCard(0, true) == null)
             {
                 return false;
             }
@@ -1921,7 +2201,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HraesvelgrSummon()
         {
-            if (!IsMainPhase())
+            if (!IsMainPhase() || ShouldStopRadiantSpecialSummon(CardLocation.Extra))
             {
                 return false;
             }
@@ -1982,7 +2262,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool WynnSummon()
         {
-            if (!IsMainPhase() ||
+            if (!IsMainPhase() || ShouldStopRadiantSpecialSummon(CardLocation.Extra) ||
                 !Enemy.Graveyard.Any(c => c.Attribute == (int)CardAttribute.Wind))
             {
                 return false;
@@ -2013,7 +2293,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool GreatflySummon()
         {
-            if (Duel.IsFirst || !IsMainPhase() || Duel.Phase != DuelPhase.Main1 ||
+            if (Duel.IsFirst || ShouldStopRadiantSpecialSummon(CardLocation.Extra) ||
+                !IsMainPhase() || Duel.Phase != DuelPhase.Main1 ||
                 Enemy.GetMonsterCount() > 0)
             {
                 return false;
@@ -2046,7 +2327,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool GreatflyPrioritySummon()
         {
-            if (Duel.Turn <= 1 || !IsMainPhase() || Bot.GetMonsterCount() < 5)
+            if (Duel.Turn <= 1 || ShouldStopRadiantSpecialSummon(CardLocation.Extra) ||
+                !IsMainPhase() || Bot.GetMonsterCount() < 5)
             {
                 return false;
             }
@@ -2089,7 +2371,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TyphonSummon()
         {
-            if (!IsMainPhase())
+            if (!IsMainPhase() || ShouldStopRadiantSpecialSummon(CardLocation.Extra))
             {
                 return false;
             }
@@ -2100,7 +2382,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TyphonActivate()
         {
-            ClientCard target = Util.GetProblematicEnemyMonster(0, true) ?? Util.GetBestEnemyMonster(false, true);
+            ClientCard target = Util.GetProblematicEnemyMonster(0, false) ?? Util.GetBestEnemyMonster(false, false);
             if (target == null)
             {
                 return false;
@@ -2320,15 +2602,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     return activationSelection;
                 }
-            }
-
-            if (Card != null && Card.IsCode(CardId.TheWorldsGreatestGallantThief) &&
-                (hint == HintMsg.Release || hint == HintMsg.Tribute))
-            {
-                List<ClientCard> tributePriority = new List<ClientCard>();
-                tributePriority.AddRange(GetOrderedEnemyCards(cards.Where(c => c.Controller == 1)));
-                tributePriority.AddRange(cards.Where(c => c.Controller == 0).OrderBy(GetDiscardPriority));
-                return SelectCount(tributePriority, cards, min, max, Math.Max(min, 2));
             }
 
             ChainInfo solvingChain = Duel.GetCurrentSolvingChainInfo();
@@ -3192,6 +3465,32 @@ namespace WindBot.Game.AI.Decks
             return !_enemyPuruliaResolved || !_botSummonedFromHandAfterPurulia;
         }
 
+        private bool ShouldStopRadiantSpecialSummon(CardLocation summonLocation)
+        {
+            bool lockBirdActive = _enemyDrollResolved || Duel.CurrentChainInfo.Any(chain =>
+                chain != null && chain.ActivatePlayer == 0 &&
+                chain.IsActivateCode(CardId.DrollLockBird));
+            if (lockBirdActive || (Duel.Turn > 1 && Duel.Phase < DuelPhase.Main2))
+            {
+                return false;
+            }
+
+            bool enemyMaxxCActive = _enemyMaxxCResolved || Duel.CurrentChainInfo.Any(chain =>
+                chain != null && chain.ActivatePlayer == 1 && chain.IsActivateCode(CardId.MaxxC));
+            bool enemyFuwalosActive = _enemyFuwalosResolved || Duel.CurrentChainInfo.Any(chain =>
+                chain != null && chain.ActivatePlayer == 1 &&
+                chain.IsActivateCode(CardId.MulcharmyFuwalos));
+            bool atAdvantage = Util.GetProblematicEnemyMonster() == null &&
+                (Duel.Player == 0 || Bot.GetMonsterCount() > 0);
+
+            if (enemyMaxxCActive && atAdvantage)
+            {
+                return true;
+            }
+
+            return enemyFuwalosActive && (summonLocation & (CardLocation.Deck | CardLocation.Extra)) != 0;
+        }
+
         private bool ShouldPrioritizeGallantThiefSummon()
         {
             return Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() > 0 &&
@@ -3362,7 +3661,17 @@ namespace WindBot.Game.AI.Decks
             }
             if (cardId == CardId.RadiantTyphoonMeghala)
             {
-                return _usedMeghalaDeckSummon;
+                return _usedMeghalaDeckSummon || _usedMeghalaHandSummon;
+            }
+            if (cardId == CardId.RadiantTyphoonFonixTheGreatFlame)
+            {
+                return _usedFonixHandSummon ||
+                    _activatedRadiantCardsThisTurn.Contains(cardId);
+            }
+            if (cardId == CardId.RadiantTyphoonVaruroonTheVibrantVortex)
+            {
+                return _usedVortexHandSummon ||
+                    _activatedRadiantCardsThisTurn.Contains(cardId);
             }
             return _activatedRadiantCardsThisTurn.Contains(cardId);
         }
@@ -3374,7 +3683,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanUseAscendanceReviveNow()
         {
-            if (Bot.GetMonsterCount() >= 5)
+            if (Bot.GetMonsterCount() >= 5 || ShouldStopRadiantSpecialSummon(CardLocation.Grave))
             {
                 return false;
             }
