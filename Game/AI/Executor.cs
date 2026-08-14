@@ -189,7 +189,7 @@ namespace WindBot.Game.AI
             return null;
         }
 
-        public virtual IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int max)
+        public virtual IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int min, int max)
         {
             // For overriding
             return null;
@@ -281,6 +281,15 @@ namespace WindBot.Game.AI
         /// Used on monsters that can only special summoned once per turn.
         /// </summary>
         public virtual void OnSpSummoned()
+        {
+            // For overriding
+            return;
+        }
+
+        /// <summary>
+        /// Called when a monster's special summon is attempted.
+        /// </summary>
+        public virtual void OnSpSummoning()
         {
             // For overriding
             return;

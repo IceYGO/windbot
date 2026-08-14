@@ -2108,6 +2108,7 @@ namespace WindBot.Game
             ClientCard card = _duel.GetCard(currentControler, (CardLocation)currentLocation, currentSequence);
             _duel.SummoningCards.Add(card);
             _duel.LastSummonPlayer = currentControler;
+            _ai.OnSpSummoning();
         }
 
         private void OnSpSummoned(BinaryReader packet)
