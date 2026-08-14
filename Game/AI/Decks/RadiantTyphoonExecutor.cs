@@ -2986,7 +2986,10 @@ namespace WindBot.Game.AI.Decks
             {
                 return SelectAscendance(cards, min, max);
             }
-            if (chain.IsActivateCode(CardId.RadiantTyphoonVision) && hint == HintMsg.Discard)
+            bool isVisionHandDiscard = min == 1 && max == 1 && cards.Count > 0 &&
+                cards.All(c => c != null && c.Controller == 0 && c.Location == CardLocation.Hand);
+            if (chain.IsActivateCode(CardId.RadiantTyphoonVision) && isVisionHandDiscard &&
+                (hint == HintMsg.Discard || hint == HintMsg.ToGrave || hint == 0))
             {
                 return SelectVisionDiscard(cards, min, max);
             }
@@ -3305,9 +3308,10 @@ namespace WindBot.Game.AI.Decks
 
         private IList<ClientCard> SelectVisionDiscard(IList<ClientCard> cards, int min, int max)
         {
-            // Vision draws two cards and then asks for one discard. Keep this
-            // ranking in one method so later hand-value rules can be added
-            // without changing the resolution/selection routing above.
+            // Vision draws two cards and then asks for one discard. Some server
+            // builds expose this hand selection as Discard, ToGrave, or without
+            // a select hint, so the caller also verifies the exact one-card
+            // hand-candidate shape before using this ranking.
             List<ClientCard> priority = cards.OrderBy(GetVisionDiscardPriority)
                 .ThenBy(c => c.Id)
                 .ToList();
