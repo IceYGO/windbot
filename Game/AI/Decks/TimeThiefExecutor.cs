@@ -556,8 +556,7 @@ namespace WindBot.Game.AI.Decks
             if (redoer == null)
                 return false;
 
-            if (Util.IsChainTarget(redoer) ||
-                Card == redoer && DefaultOnBecomeTarget() ||
+            if (DefaultOnBecomeTarget(redoer) ||
                 Duel.Player == 0 && Duel.Phase == DuelPhase.Main2)
             {
                 return true;
