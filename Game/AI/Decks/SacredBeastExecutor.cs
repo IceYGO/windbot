@@ -117,8 +117,6 @@ namespace WindBot.Game.AI.Decks
         List<ClientCard> currentNegateCardList = new List<ClientCard>();
         List<ClientCard> currentDestroyCardList = new List<ClientCard>();
         List<ClientCard> enemyPlaceThisTurn = new List<ClientCard>();
-        int SPLittleKnightRemoveStep = 0;
-
         int myTurnCount = 0;
         bool useHamonSearchEffectAlready = false;
         bool useLightningCrash = false;
@@ -128,25 +126,18 @@ namespace WindBot.Game.AI.Decks
         bool useOchestFromField = false;
         bool useOchestFromGY = false;
         bool Martyrx3 = false;
-        bool resolvingUnleashing = false;
-        bool resolvingUnleashingHamonLine = false;
+        bool unleashingHamonLinePlan = false;
         int fallenParadiseCostCode = 0;
-        bool resolvingFallenParadise = false;
         int fallenParadiseTarget = 0;
         bool resolvingColossusSummon = false;
-        bool resolvingRavielBoardWipe = false;
         bool resolvingSPLittleKnightSummon = false;
         List<ClientCard> spLittleKnightMaterialPlan = new List<ClientCard>();
-        bool resolvingHeavyPolymerization = false;
-        int heavyPolyMaterialPicked = 0;
-        int heavyPolyMaterialNeed = 0;
         bool resolvingRank10Summon = false;
         List<ClientCard> rank10MaterialPlan = new List<ClientCard>();
         bool resolvingGustavRocketSummon = false;
         ClientCard gustavRocketDiscardPlan = null;
         bool gustavRocketDiscardSelected = false;
         bool gustavRocketMaxSelected = false;
-        bool resolvingChantFusion = false;
 
         public SacredBeastExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -211,7 +202,6 @@ namespace WindBot.Game.AI.Decks
                 myTurnCount++;
             }
             // reset
-            SPLittleKnightRemoveStep = 0;
             useLightningCrash = false;
             useHamonSearchEffectAlready = false;
             infiniteImpermanenceList.Clear();
@@ -223,28 +213,30 @@ namespace WindBot.Game.AI.Decks
             useRaviel = false;
             useOchestFromField = false;
             useOchestFromGY = false;
-            resolvingUnleashing = false;
-            resolvingUnleashingHamonLine = false;
-            resolvingFallenParadise = false;
+            unleashingHamonLinePlan = false;
             fallenParadiseTarget = 0;
             fallenParadiseCostCode = 0;
             Martyrx3 = false;
             resolvingColossusSummon = false;
-            resolvingRavielBoardWipe = false;
             resolvingSPLittleKnightSummon = false;
             spLittleKnightMaterialPlan.Clear();
-            resolvingHeavyPolymerization = false;
-            heavyPolyMaterialPicked = 0;
-            heavyPolyMaterialNeed = 0;
             resolvingRank10Summon = false;
             rank10MaterialPlan.Clear();
             resolvingGustavRocketSummon = false;
             gustavRocketDiscardPlan = null;
             gustavRocketDiscardSelected = false;
             gustavRocketMaxSelected = false;
-            resolvingChantFusion = false;
 
             base.OnNewTurn();
+        }
+        public override void OnChainEnd()
+        {
+            // Clear planned selections even when an effect is negated or stops resolving early.
+            unleashingHamonLinePlan = false;
+            fallenParadiseTarget = 0;
+            fallenParadiseCostCode = 0;
+
+            base.OnChainEnd();
         }
         public override bool OnSelectHand() { return true; /* Go first by default.*/}
         public override bool OnSelectYesNo(int desc)
@@ -275,7 +267,9 @@ namespace WindBot.Game.AI.Decks
                     return 0;
                 }
             }
-            if (resolvingFallenParadise)
+            if (currentSolvingChain != null
+                && currentSolvingChain.ActivatePlayer == 0
+                && currentSolvingChain.IsActivateCode(CardId.FallenParadiseOfTheSacredBeasts))
             {
                 Logger.DebugWriteLine("Fallen Paradise SelectYesNo: YES");
                 return 0;
@@ -285,6 +279,7 @@ namespace WindBot.Game.AI.Decks
         }
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
             ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
             Logger.DebugWriteLine("OnSelectCard " + cards.Count + " " + min + " " + max + " hint=" + hint + " cancelable=" + cancelable + " cards=[" + string.Join(", ", cards.Select(c => c == null ? "null" : $"{c.Name}({c.Id}) C{c.Controller} L{c.Location}")) + "]");
 
@@ -313,10 +308,13 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            ClientCard trigger = Util.GetLastChainCard();
-            if (resolvingChantFusion)
+            if (currentSolvingChain != null
+                && currentSolvingChain.ActivatePlayer == 0
+                && currentSolvingChain.IsActivateCode(CardId.DestructionChantOfTheSacredBeast)
+                && currentSolvingChain.HasLocation(CardLocation.Grave)
+                && min <= 1 && max == 1)
             {
-                if (hint == 509)
+                if (hint == HintMsg.SpSummon)
                 {
                     ClientCard fusion = cards.FirstOrDefault(c =>
                         c != null
@@ -330,7 +328,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                if (hint == 511)
+                if (hint == HintMsg.FusionMaterial)
                 {
                     ClientCard material = cards
                         .Where(c => c != null && IsPhantasmalChaosMaterial(c))
@@ -344,16 +342,16 @@ namespace WindBot.Game.AI.Decks
                         Logger.DebugWriteLine("Chant GY fusion material pick: " + material.Id);
                         return new List<ClientCard> { material };
                     }
-
-                    resolvingChantFusion = false;
                 }
             }
-            if (resolvingGustavRocketSummon)
+            if (resolvingGustavRocketSummon
+                && min <= 1 && max == 1)
             {
                 // discard cost จากมือ
                 ClientCard discard = null;
 
-                if (!gustavRocketDiscardSelected)
+                if (!gustavRocketDiscardSelected
+                    && hint == HintMsg.Discard)
                 {
                     if (gustavRocketDiscardPlan != null && cards.Contains(gustavRocketDiscardPlan))
                         discard = gustavRocketDiscardPlan;
@@ -390,28 +388,31 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 // เลือก Gustav Max เป็นตัวให้ Rocket ทับ
-                ClientCard gmax = cards.FirstOrDefault(c =>
-                    c != null
-                    && c.Controller == 0
-                    && c.Location == CardLocation.MonsterZone
-                    && c.IsFaceup()
-                    && c.IsCode(CardId.SuperdreadnoughtRailCannonGustavMax));
-
-                if (gmax != null)
+                if (hint == HintMsg.XyzMaterial)
                 {
-                    Logger.DebugWriteLine("Gustav Rocket overlay pick: Gustav Max");
-                    gustavRocketMaxSelected = true;
+                    ClientCard gmax = cards.FirstOrDefault(c =>
+                        c != null
+                        && c.Controller == 0
+                        && c.Location == CardLocation.MonsterZone
+                        && c.IsFaceup()
+                        && c.IsCode(CardId.SuperdreadnoughtRailCannonGustavMax));
 
-                    if (gustavRocketDiscardSelected)
+                    if (gmax != null)
                     {
-                        resolvingGustavRocketSummon = false;
-                        gustavRocketDiscardPlan = null;
-                    }
+                        Logger.DebugWriteLine("Gustav Rocket overlay pick: Gustav Max");
+                        gustavRocketMaxSelected = true;
 
-                    return new List<ClientCard> { gmax };
+                        if (gustavRocketDiscardSelected)
+                        {
+                            resolvingGustavRocketSummon = false;
+                            gustavRocketDiscardPlan = null;
+                        }
+
+                        return new List<ClientCard> { gmax };
+                    }
                 }
             }
-            if (resolvingRank10Summon && hint == 500)
+            if (resolvingRank10Summon && hint == HintMsg.XyzMaterial)
             {
                 List<ClientCard> picked = rank10MaterialPlan
                     .Where(c => c != null && cards.Contains(c))
@@ -453,7 +454,9 @@ namespace WindBot.Game.AI.Decks
                 resolvingRank10Summon = false;
                 rank10MaterialPlan.Clear();
             }
-            if (hint == 527 && cards.Any(c => c != null && c.Location == CardLocation.Deck && (c.IsCode(CardId.DivineAbyssOfTheSacredBeast) || c.IsCode(CardId.FallenParadiseOfTheSacredBeasts) || c.IsCode(CardId.SkyfireOfTheSacredBeast))))
+            if (hint == HintMsg.ToField
+                && min <= 1 && max == 1
+                && cards.Any(c => c != null && c.Location == CardLocation.Deck && (c.IsCode(CardId.DivineAbyssOfTheSacredBeast) || c.IsCode(CardId.FallenParadiseOfTheSacredBeasts) || c.IsCode(CardId.SkyfireOfTheSacredBeast))))
             {
                 int target = 0;
 
@@ -484,9 +487,12 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            if (resolvingHeavyPolymerization)
+            if (currentSolvingChain != null
+                && currentSolvingChain.ActivatePlayer == 0
+                && currentSolvingChain.IsActivateCode(CardId.HeavyPolymerization)
+                && min <= 1 && max == 1)
             {
-                if (hint == 509)
+                if (hint == HintMsg.SpSummon)
                 {
                     ClientCard fusion = cards.FirstOrDefault(c =>
                         c != null
@@ -501,62 +507,30 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 // เลือก material
-                if (hint == 511)
+                if (hint == HintMsg.FusionMaterial)
                 {
-                    ClientCard zeroExtra = cards.FirstOrDefault(c =>
-                        c != null
-                        && c.Location == CardLocation.Extra
-                        && (
-                            c.IsCode(CardId.SuperVehicroidMobileBase)
-                            || c.IsCode(CardId.SaintAzamina)
-                        ));
-
-                    if (zeroExtra != null)
-                    {
-                        heavyPolyMaterialPicked++;
-
-                        Logger.DebugWriteLine("Heavy Poly material pick extra 0: " + zeroExtra.Id);
-
-                        if (heavyPolyMaterialPicked >= heavyPolyMaterialNeed)
-                        {
-                            resolvingHeavyPolymerization = false;
-                            heavyPolyMaterialPicked = 0;
-                            heavyPolyMaterialNeed = 0;
-                        }
-
-                        return new List<ClientCard> { zeroExtra };
-                    }
-
-                    ClientCard ownSafe = cards
+                    ClientCard material = cards
                         .Where(c => c != null
                             && !c.IsCode(CardId.PhantasmalSacredBeastsOfChaos)
-                            && IsPhantasmalChaosMaterial(c))
-                        .OrderBy(c => HeavyPolyOwnMaterialScore(c))
+                            && (c.Location == CardLocation.Extra
+                                && c.IsCode(CardId.SuperVehicroidMobileBase, CardId.SaintAzamina)
+                                || IsPhantasmalChaosMaterial(c)))
+                        .OrderBy(c => c.Location == CardLocation.Extra ? 0 : 10)
+                        .ThenBy(c => HeavyPolyOwnMaterialScore(c))
                         .FirstOrDefault();
 
-                    if (ownSafe != null)
+                    if (material != null)
                     {
-                        heavyPolyMaterialPicked++;
-
-                        Logger.DebugWriteLine("Heavy Poly material pick own: " + ownSafe.Id);
-
-                        if (heavyPolyMaterialPicked >= heavyPolyMaterialNeed)
-                        {
-                            resolvingHeavyPolymerization = false;
-                            heavyPolyMaterialPicked = 0;
-                            heavyPolyMaterialNeed = 0;
-                        }
-
-                        return new List<ClientCard> { ownSafe };
+                        Logger.DebugWriteLine("Heavy Poly material pick: " + material.Id);
+                        return new List<ClientCard> { material };
                     }
 
                     Logger.DebugWriteLine("Heavy Poly no safe material.");
-                    resolvingHeavyPolymerization = false;
-                    heavyPolyMaterialPicked = 0;
-                    heavyPolyMaterialNeed = 0;
                 }
             }
-            if (resolvingSPLittleKnightSummon && hint == 533)
+            if (resolvingSPLittleKnightSummon
+                && hint == HintMsg.LinkMaterial
+                && min <= 1 && max == 1)
             {
                 ClientCard pick = spLittleKnightMaterialPlan
                     .FirstOrDefault(c => c != null && cards.Contains(c));
@@ -587,7 +561,10 @@ namespace WindBot.Game.AI.Decks
                 resolvingSPLittleKnightSummon = false;
                 spLittleKnightMaterialPlan.Clear();
             }
-            if (resolvingRavielBoardWipe)
+            if (currentChainCard != null
+                && currentChainCard.Controller == 0
+                && currentChainCard.IsCode(CardId.RavielSacredBeastOfEndlessEternity)
+                && hint == HintMsg.Release)
             {
                 List<ClientCard> martyrs = cards
                     .Where(c => c != null
@@ -603,15 +580,12 @@ namespace WindBot.Game.AI.Decks
                     Logger.DebugWriteLine("Raviel board wipe cost pick: "
                         + string.Join(", ", martyrs.Select(c => c.Id)));
 
-                    if (martyrs.Count >= 2 || max == 1)
-                        resolvingRavielBoardWipe = false;
-
                     return martyrs.Take(max).ToList();
                 }
-
-                resolvingRavielBoardWipe = false;
             }
-            if (resolvingColossusSummon)
+            if (resolvingColossusSummon
+                && hint == HintMsg.Release
+                && min <= 1 && max == 1)
             {
                 ClientCard orchest = cards.FirstOrDefault(c =>
                     c != null
@@ -628,10 +602,13 @@ namespace WindBot.Game.AI.Decks
                 resolvingColossusSummon = false;
             }
             // ===== Unleashing: prompt search / prompt discard =====
-            if (resolvingUnleashing)
+            if (currentSolvingChain != null
+                && currentSolvingChain.ActivatePlayer == 0
+                && currentSolvingChain.IsActivateCode(CardId.UnleashingTheSacredBeasts)
+                && !currentSolvingChain.HasLocation(CardLocation.Grave))
             {
                 Logger.DebugWriteLine(
-                    "Resolving Unleashing. HamonLine=" + resolvingUnleashingHamonLine
+                    "Resolving Unleashing. HamonLine=" + unleashingHamonLinePlan
                     + " min=" + min
                     + " max=" + max
                     + " cards=[" + string.Join(", ", cards.Select(c =>
@@ -639,7 +616,7 @@ namespace WindBot.Game.AI.Decks
                     )) + "]"
                 );
 
-                int[] searchIds = resolvingUnleashingHamonLine
+                int[] searchIds = unleashingHamonLinePlan
                     ? new[]
                     {
                         CardId.RavielSacredBeastOfEndlessEternity,
@@ -680,7 +657,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     List<ClientCard> discard = new List<ClientCard>();
 
-                    if (resolvingUnleashingHamonLine)
+                    if (unleashingHamonLinePlan)
                     {
                         discard = PickCardsByIdPriority(cards, new[]
                         {
@@ -737,19 +714,21 @@ namespace WindBot.Game.AI.Decks
                             + string.Join(", ", discard.Take(2).Select(c => c.Id))
                         );
 
-                        resolvingUnleashing = false;
-                        resolvingUnleashingHamonLine = false;
+                        unleashingHamonLinePlan = false;
 
                         return discard.Take(2).ToList();
                     }
                 }
                 Logger.DebugWriteLine("Unleashing prompt not handled, keep state.");
             }
-            // ===== Fallen Paradise: cost 3 1 by 1 / summon target =====
-            if (resolvingFallenParadise)
+            // ===== Fallen Paradise: cost 3 / summon target =====
+            if (currentSolvingChain != null
+                && currentSolvingChain.ActivatePlayer == 0
+                && currentSolvingChain.IsActivateCode(CardId.FallenParadiseOfTheSacredBeasts)
+                && min <= 1 && max == 1)
             {
-                // cost prompt: Lua select cost hint=504
-                if (hint == 504 && fallenParadiseCostCode != 0)
+                if (hint == HintMsg.ToGrave
+                    && fallenParadiseCostCode != 0)
                 {
                     ClientCard cost = cards.FirstOrDefault(c =>
                         c != null
@@ -767,8 +746,8 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                // summon target prompt: hint=509
-                if (hint == 509 && fallenParadiseTarget != 0)
+                if (hint == HintMsg.SpSummon
+                    && fallenParadiseTarget != 0)
                 {
                     ClientCard target = cards.FirstOrDefault(c =>
                         c != null && c.IsCode(fallenParadiseTarget));
@@ -777,7 +756,6 @@ namespace WindBot.Game.AI.Decks
                     {
                         Logger.DebugWriteLine("Fallen Paradise summon pick: " + target.Id);
 
-                        resolvingFallenParadise = false;
                         fallenParadiseTarget = 0;
                         fallenParadiseCostCode = 0;
 
@@ -785,8 +763,34 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
-            if (trigger != null && trigger.IsCode(CardId.DestructionChantOfTheSacredBeast))
+            if (currentSolvingChain != null
+                && currentSolvingChain.ActivatePlayer == 0
+                && currentSolvingChain.IsActivateCode(CardId.DestructionChantOfTheSacredBeast)
+                && min <= 1 && max == 1)
             {
+                if (!currentSolvingChain.HasLocation(CardLocation.Grave)
+                    && hint == HintMsg.SpSummon)
+                {
+                    int preferredTarget = PickDestructionChantSummonTarget();
+                    List<int> priorities = new List<int>();
+                    if (preferredTarget != 0)
+                        priorities.Add(preferredTarget);
+                    priorities.AddRange(new[]
+                    {
+                        CardId.RavielSacredBeastOfEndlessEternity,
+                        CardId.HamonSacredBeastOfSinfulCatastrophe,
+                        CardId.UriaSacredBeastOfCataclysmicFire,
+                        CardId.MartyrOfTheSacredBeasts
+                    });
+
+                    ClientCard summonTarget = PickCardsByIdPriority(cards, priorities, 1).FirstOrDefault();
+                    if (summonTarget != null)
+                    {
+                        Logger.DebugWriteLine("Chant summon target: " + summonTarget.Id);
+                        return new List<ClientCard> { summonTarget };
+                    }
+                }
+
                 List<ClientCard> enemyTargets = cards
                     .Where(c => c != null && c.Controller == 1 && c.IsOnField())
                     .ToList();
@@ -804,7 +808,12 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            if (trigger != null && trigger.IsCode(CardId.DivineAbyssOfTheSacredBeast))
+            if ((currentChainCard != null
+                    && currentChainCard.Controller == 0
+                    && currentChainCard.IsCode(CardId.DivineAbyssOfTheSacredBeast))
+                || (currentSolvingChain != null
+                    && currentSolvingChain.ActivatePlayer == 0
+                    && currentSolvingChain.IsActivateCode(CardId.DivineAbyssOfTheSacredBeast)))
             {
                 List<ClientCard> enemyMonsterTargets = cards
                     .Where(c => c != null
@@ -820,7 +829,7 @@ namespace WindBot.Game.AI.Decks
                         .ThenByDescending(c => c.Attack)
                         .FirstOrDefault();
 
-                    if (target != null)
+                    if (target != null && min <= 1 && max == 1)
                         return new List<ClientCard> { target };
                 }
 
@@ -831,20 +840,6 @@ namespace WindBot.Game.AI.Decks
 
                 if (abyssCopies.Count >= min)
                     return abyssCopies;
-            }
-
-            if (trigger != null && trigger.IsCode(CardId.SPLittleKnight))
-            {
-                List<ClientCard> targetList = cards
-                    .Where(c => c != null && c.Controller == 1)
-                    .OrderByDescending(c => c.IsMonsterDangerous() ? 100 : 0)
-                    .ThenByDescending(c => c.IsFloodgate() ? 80 : 0)
-                    .ThenByDescending(c => c.Attack)
-                    .Take(max)
-                    .ToList();
-
-                if (targetList.Count >= min)
-                    return targetList;
             }
 
             Logger.DebugWriteLine("Use default.");
@@ -1506,7 +1501,8 @@ namespace WindBot.Game.AI.Decks
                     }
                     if (nextMonster != null)
                     {
-                        SPLittleKnightRemoveStep = 1;
+                        AI.SelectCard(selfMonster);
+                        AI.SelectNextCard(nextMonster);
                         return true;
                     }
                 }
@@ -1673,8 +1669,6 @@ namespace WindBot.Game.AI.Decks
                     && Bot.GetSpellCount() <= 3
                     && CheckRemainInDeck(CardId.DivineAbyssOfTheSacredBeast) > 0)
                 {
-                    AI.SelectCard(new List<int>{ CardId.DivineAbyssOfTheSacredBeast,
-                                                 CardId.DivineAbyssOfTheSacredBeast });
                     return true;
                 }
                 List<ClientCard> targetList = GetNormalEnemyTargetList(canBeTarget: true, ignoreCurrentDestroy: true, selfType: CardType.Trap)
@@ -1682,7 +1676,6 @@ namespace WindBot.Game.AI.Decks
 
                 if (targetList.Count == 0) return false;
 
-                AI.SelectCard(targetList);
                 return true;
             }
 
@@ -1710,7 +1703,6 @@ namespace WindBot.Game.AI.Decks
                 int summonTarget = PickDestructionChantSummonTarget();
                 if (summonTarget == 0) return false;
 
-                AI.SelectCard(summonTarget);
                 return true;
             }
 
@@ -1720,8 +1712,6 @@ namespace WindBot.Game.AI.Decks
                     return false;
 
                 if (!CanMakePhantasmalFusion()) return false;
-                resolvingChantFusion = true;
-                AI.SelectCard(CardId.PhantasmalSacredBeastsOfChaos);
                 return true;
             }
 
@@ -1964,8 +1954,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location != CardLocation.Hand && Card.Location != CardLocation.SpellZone) return false;
             if (CheckWhetherNegated(true, true, CardType.Spell)) return false;
 
-            resolvingUnleashing = true;
-            resolvingUnleashingHamonLine = useHamonSearchEffectAlready;
+            unleashingHamonLinePlan = useHamonSearchEffectAlready;
 
             return true;
         }
@@ -2222,7 +2211,6 @@ namespace WindBot.Game.AI.Decks
 
             if (CountFaceupMartyrOnField() < 2) return false;
 
-            resolvingRavielBoardWipe = true;
             return true;
         }
         private bool Martyr_GY_EndPhaseRecovery()
@@ -2361,11 +2349,6 @@ namespace WindBot.Game.AI.Decks
             if (CountInExtraDeck(CardId.PhantasmalSacredBeastsOfChaos) <= 0)
                 return false;
 
-            resolvingHeavyPolymerization = true;
-            heavyPolyMaterialPicked = 0;
-            heavyPolyMaterialNeed = 3;
-
-            AI.SelectCard(CardId.PhantasmalSacredBeastsOfChaos);
             return true;
         }
         private int CountInExtraDeck(int id)
@@ -2399,7 +2382,6 @@ namespace WindBot.Game.AI.Decks
             int target = PickFallenParadiseSummonTarget();
             if (target == 0) return false;
 
-            resolvingFallenParadise = true;
             fallenParadiseTarget = target;
             fallenParadiseCostCode = costCode;
 
