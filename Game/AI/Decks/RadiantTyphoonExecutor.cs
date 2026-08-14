@@ -952,12 +952,17 @@ namespace WindBot.Game.AI.Decks
                 return enemyTarget;
             }
 
+            ClientCard ownMandate = GetFaceupMandate();
+            if (ownMandate != null && ShouldUseMstToTriggerMandateAgainstOpponentMonster())
+            {
+                return ownMandate;
+            }
+
             if (activatedRadiant != null && CanUseMysticalSpaceTyphoonOnOwnCard())
             {
                 return activatedRadiant;
             }
 
-            ClientCard ownMandate = GetFaceupMandate();
             if (ownMandate != null && ShouldUseMstToTriggerMeghala())
             {
                 return ownMandate;
@@ -1117,6 +1122,20 @@ namespace WindBot.Game.AI.Decks
             return !HasOtherSuitableActivationEffect();
         }
 
+        private bool ShouldUseMstToTriggerMandateAgainstOpponentMonster()
+        {
+            if (Card == null || !Card.IsCode(CardId.MysticalSpaceTyphoon) ||
+                Card.Location != CardLocation.Hand || Duel.CurrentChain.Count == 0 ||
+                Enemy.GetSpellCount() != 0 || _radiantQuickPlayOfferedInCurrentChainSelection ||
+                Duel.CurrentChain.Any(c => c.Controller == 0 && IsRadiantQuickPlay(c)))
+            {
+                return false;
+            }
+
+            ClientCard opponentSource = GetLatestOpponentFieldCardForChain();
+            return opponentSource != null && opponentSource.IsMonster();
+        }
+
         private bool HasOtherSuitableActivationEffect()
         {
             if (Duel.MainPhase == null)
@@ -1182,6 +1201,22 @@ namespace WindBot.Game.AI.Decks
             return null;
         }
 
+        private ClientCard GetLatestOpponentFieldCardForChain()
+        {
+            for (int i = Duel.CurrentChainInfo.Count - 1; i >= 0; --i)
+            {
+                ChainInfo chain = Duel.CurrentChainInfo[i];
+                if (chain == null || chain.ActivatePlayer != 1 ||
+                    Duel.NegatedChainIndexList.Contains(i + 1))
+                {
+                    continue;
+                }
+
+                return GetOpponentFieldCardForChain(chain);
+            }
+            return null;
+        }
+
         private ClientCard GetBestMandateNegationTarget()
         {
             ClientCard chainTarget = GetBestOpponentMandateChainTarget();
@@ -1213,7 +1248,7 @@ namespace WindBot.Game.AI.Decks
             return HasLiveOpponentChain() && !HasEffectiveOwnNegationForCurrentChain() &&
                 HasFaceupMandate() &&
                 GetOwnChainRadiantQuickPlay() != null &&
-                GetBestMandateNegationTarget() != null;
+                GetLatestOpponentFieldCardForChain() != null;
         }
 
         private bool CanUseMandateToNegateCurrentChain()
@@ -1221,7 +1256,7 @@ namespace WindBot.Game.AI.Decks
             ChainInfo latestChain = Duel.CurrentChainInfo.LastOrDefault();
             return HasLiveOpponentChain() && !HasEffectiveOwnNegationForCurrentChain() &&
                 HasFaceupMandate() &&
-                GetBestMandateNegationTarget() != null &&
+                GetLatestOpponentFieldCardForChain() != null &&
                 latestChain != null && latestChain.IsActivateCode(CardId.MysticalSpaceTyphoon);
         }
 
@@ -1229,7 +1264,7 @@ namespace WindBot.Game.AI.Decks
         {
             return HasLiveOpponentChain() && !HasEffectiveOwnNegationForCurrentChain() &&
                 HasFaceupMandate() &&
-                GetBestMandateNegationTarget() != null &&
+                GetLatestOpponentFieldCardForChain() != null &&
                 !Duel.CurrentChain.Any(c => c.Controller == 0 && IsRadiantQuickPlay(c)) &&
                 !Duel.CurrentChain.Any(c => c.Controller == 0 && c.IsCode(CardId.MysticalSpaceTyphoon)) &&
                 _mstOfferedInCurrentChainSelection &&
