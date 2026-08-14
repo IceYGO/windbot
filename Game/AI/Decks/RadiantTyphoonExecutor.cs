@@ -540,6 +540,22 @@ namespace WindBot.Game.AI.Decks
 
         private bool MandateActivate()
         {
+            // A face-down Continuous Spell is being offered as a card
+            // activation, not as one of Mandate's face-up effect descriptions.
+            // Do not let a non-(-1) description make the set card fall through
+            // to the effect-specific branches; the server has already confirmed
+            // that flipping this card is legal.
+            if (Card != null && Card.IsFacedown())
+            {
+                bool shouldActivate = !Bot.GetSpells().Any(c => c != Card &&
+                    c.IsCode(CardId.RadiantTyphoonMandate) && c.IsFaceup());
+                if (shouldActivate)
+                {
+                    _activatedRadiantCardsThisTurn.Add(Card.Id);
+                }
+                return shouldActivate;
+            }
+
             if (ActivateDescription == -1)
             {
                 bool shouldActivate = !Bot.GetSpells().Any(c => c != Card &&
