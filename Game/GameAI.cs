@@ -17,6 +17,8 @@ namespace WindBot.Game
         // record activated count to prevent infinite actions
         private Dictionary<int, int> _activatedCards;
 
+        private bool _selectingPendulumSummon;
+
         public GameAI(GameClient game, Duel duel)
         {
             Game = game;
@@ -119,6 +121,7 @@ namespace WindBot.Game
         public void OnNewPhase()
         {
             ClearSelections();
+            _selectingPendulumSummon = false;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
             {
                 _dialogs.SendNewTurn();
@@ -168,6 +171,12 @@ namespace WindBot.Game
         public void OnSpSummoned()
         {
             Executor.OnSpSummoned();
+        }
+
+        public void OnSpSummoning()
+        {
+            _selectingPendulumSummon = false;
+            Executor.OnSpSummoning();
         }
         
         /// <summary>
@@ -322,19 +331,22 @@ namespace WindBot.Game
         /// <returns>A new list containing the selected cards.</returns>
         public IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
-            // Check for the executor.
-            IList<ClientCard> result = Executor.OnSelectCard(cards, min, max, hint, cancelable);
-            result = ValidateCardSelection(result, cards, min, max, cancelable);
-            if (result != null)
-                return result;
+            IList<ClientCard> result;
 
-            if (hint == HintMsg.SpSummon && min == 1 && max > min) // pendulum summon
+            // Check for the pendulum summon selection first.
+            if (hint == HintMsg.SpSummon && _selectingPendulumSummon)
             {
-                result = Executor.OnSelectPendulumSummon(cards, max);
+                result = Executor.OnSelectPendulumSummon(cards, min, max);
                 result = ValidateCardSelection(result, cards, min, max, cancelable);
                 if (result != null)
                     return result;
             }
+
+            // Check for the executor.
+            result = Executor.OnSelectCard(cards, min, max, hint, cancelable);
+            result = ValidateCardSelection(result, cards, min, max, cancelable);
+            if (result != null)
+                return result;
 
             CardSelector selector = null;
             if (hint == HintMsg.FusionMaterial || hint == HintMsg.SynchroMaterial || hint == HintMsg.XyzMaterial || hint == HintMsg.LinkMaterial)
@@ -517,6 +529,7 @@ namespace WindBot.Game
         /// <returns>A new MainPhaseAction containing the action to do.</returns>
         public MainPhaseAction OnSelectIdleCmd(MainPhase main)
         {
+            _selectingPendulumSummon = false;
             CheckSurrender();
             foreach (CardExecutor exec in Executor.Executors)
             {
@@ -558,7 +571,12 @@ namespace WindBot.Game
                 {
                     if (ShouldExecute(exec, card, ExecutorType.SpSummon))
                     {
-                        _dialogs.SendSummon(card.Name);
+                        ClientCard leftScale = Executor.Util.GetPZone(0, 0);
+                        ClientCard rightScale = Executor.Util.GetPZone(0, 1);
+                        _selectingPendulumSummon = card.HasType(CardType.Pendulum)
+                            && (card == leftScale || card == rightScale);
+                        if (!_selectingPendulumSummon)
+                            _dialogs.SendSummon(card.Name);
                         return new MainPhaseAction(MainPhaseAction.MainAction.SpSummon, card.ActionIndex);
                     }
                 }

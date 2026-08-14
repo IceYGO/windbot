@@ -86,7 +86,6 @@ namespace WindBot.Game.AI.Decks
         private bool summoned = false;
         private bool link_summoned = false;
         private bool p_summoned = false;
-        private bool p_summoning = false;
         private bool activate_SupremeKingDragonDarkwurm_1 = false;
         private bool activate_p_Zefraath = false;
         private bool activate_OracleofZefra = false;
@@ -1226,7 +1225,6 @@ namespace WindBot.Game.AI.Decks
             //if (ActivateDescription == P_SPSUMMON_DESC)
             if (Card.Location == CardLocation.SpellZone)
             {
-                p_summoning = true;
                 p_summoned = true;
                 return true;
             }
@@ -1772,10 +1770,12 @@ namespace WindBot.Game.AI.Decks
 
             return base.OnSelectPlace(cardId, player, location, available);
         }
-        private IList<ClientCard> _OnSelectPendulumSummon(IList<ClientCard> cards, int min, int max)
+        public override IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int min, int max)
         {
             List<int> ids = func.GetSelectCardIdList();
             List<ClientCard> result = func.GetSelectCardList();
+            if (p_count >= 3 && !Bot.HasInExtra(CardId.SaryujaSkullDread) && Bot.HasInExtra(CardId.MechaPhantomBeastAuroradon))
+                return Func.CheckSelectCount(Util, result, cards, min, min);
             List<ClientCard> exs = func.CardsCheckWhere(cards, func.IsLocation, CardLocation.Extra);
             List<ClientCard> hs = func.CardsCheckWhere(cards, Func.NegateFunc(func.IsLocation), CardLocation.Extra);
             if (func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.PendulumZone, true), card => {
@@ -2013,12 +2013,6 @@ namespace WindBot.Game.AI.Decks
                 ids.Add(CardId.MythicalBeastJackalKing);
                 ids.Add(CardId.TheMightyMasterofMagic);
                 result = func.CardsIdToClientCards(ids, cards);
-            }
-            else if (p_summoning && hint == HintMsg.SpSummon)
-            {
-                p_summoning = false;
-                if (p_count >= 3 && !Bot.HasInExtra(CardId.SaryujaSkullDread) && Bot.HasInExtra(CardId.MechaPhantomBeastAuroradon)) return Func.CheckSelectCount(Util, result, cards, min, min);
-                return _OnSelectPendulumSummon(cards, min, max);
             }
             else if (hint == HintMsg.Destroy)
             {
