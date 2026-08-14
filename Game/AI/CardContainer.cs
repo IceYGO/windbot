@@ -114,6 +114,11 @@ namespace WindBot.Game.AI
             return cards.Where(card => card?.Data != null).Count(card => card.IsCode(id));
         }
 
+        public static int GetCardCount(this IEnumerable<ClientCard> cards, IList<int> ids)
+        {
+            return cards.Where(card => card?.Data != null).Count(card => card.IsCode(ids));
+        }
+
         public static List<ClientCard> GetMonsters(this IEnumerable<ClientCard> cards)
         {
             return cards.Where(card => card?.Data != null && card.HasType(CardType.Monster)).ToList();

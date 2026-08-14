@@ -471,16 +471,6 @@ namespace WindBot.Game
             return cards.Count(card => card != null);
         }
 
-        public int GetCountCardInZone(IEnumerable<ClientCard> cards, int cardId)
-        {
-            return cards.Count(card => card != null && card.IsCode(cardId));
-        }
-
-        public int GetCountCardInZone(IEnumerable<ClientCard> cards, List<int> cardId)
-        {
-            return cards.Count(card => card != null && card.IsCode(cardId));
-        }
-
         private static List<ClientCard> GetCards(IEnumerable<ClientCard> cards, CardType type)
         {
             return cards.Where(card => card != null && card.HasType(type)).ToList();

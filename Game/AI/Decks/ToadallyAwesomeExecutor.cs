@@ -204,7 +204,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SwapFrogSpsummon()
         {
-            if (Bot.GetCountCardInZone(Bot.Hand, CardId.GraydleSlimeJr)>=2 && !Bot.HasInGraveyard(CardId.GraydleSlimeJr))
+            if (Bot.Hand.GetCardCount(CardId.GraydleSlimeJr) >= 2 && !Bot.HasInGraveyard(CardId.GraydleSlimeJr))
                 AI.SelectCard(CardId.GraydleSlimeJr);
             else if (Bot.HasInGraveyard(CardId.Ronintoadin) && !Bot.HasInGraveyard(CardId.DupeFrog))
                 AI.SelectCard(CardId.DupeFrog);
@@ -287,12 +287,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool IceBarrierSummon()
         {
-            return Bot.GetCountCardInZone(Bot.Hand, CardId.PriorOfTheIceBarrier) > 0;
+            return Bot.HasInHand(CardId.PriorOfTheIceBarrier);
         }
 
         private bool PriorOfTheIceBarrierSummon()
         {
-            return Bot.GetCountCardInZone(Bot.Hand, CardId.PriorOfTheIceBarrier) >= 2;
+            return Bot.Hand.GetCardCount(CardId.PriorOfTheIceBarrier) >= 2;
         }
 
         private bool ToadallyAwesomeEffect()
@@ -329,7 +329,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
                 List<ClientCard> hands = Bot.Hand.GetMonsters();
-                if (Bot.GetCountCardInZone(Bot.Hand, CardId.GraydleSlimeJr) >= 2)
+                if (Bot.Hand.GetCardCount(CardId.GraydleSlimeJr) >= 2)
                 {
                     foreach (ClientCard monster in hands)
                     {
