@@ -322,9 +322,11 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             if (AI.HaveSelectedCards()) return null;
-            // 有连锁时用发动快照卡号；无连锁回退到当前 Card.Id
             ChainInfo chainInfo = Duel.GetCurrentSolvingChainInfo();
-            int solvingId = chainInfo != null ? chainInfo.ActivateId : (Card != null ? Card.Id : 0);
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            int solvingId = chainInfo != null && chainInfo.ActivatePlayer == 0
+                ? chainInfo.ActivateId
+                : currentChainCard != null && currentChainCard.Controller == 0 ? currentChainCard.Id : 0;
             ClientCard selectableChessyCat = cards.FirstOrDefault(i => i.IsCode(CardId.Maliss_Chessy_Cat));
             switch (solvingId)
             {
