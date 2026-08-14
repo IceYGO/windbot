@@ -1383,7 +1383,7 @@ namespace WindBot.Game.AI.Decks
         }
         private void AddGogoPick(List<int> picks, int cardId, int want = 1)
         {
-            int remain = Bot.GetRemainingCount(cardId);
+            int remain = Bot.GetCardCountInDeck(cardId);
             int already = picks.Count(x => x == cardId);
             int canAdd = Math.Max(0, Math.Min(want, remain - already));
 

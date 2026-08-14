@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WindBot.Game.AI;
@@ -443,22 +444,21 @@ namespace WindBot.Game
 
         /// <summary>
         /// Deprecated. Will be removed in the future.
-        /// Use GetRemainingCount(int cardId) instead.
         /// </summary>
         /// <param name="initialCount">The param is ignored now.</param>
-        [System.Obsolete]
-        public int GetRemainingCount(int cardId, int initialCount)
+        [Obsolete("Use GetCardCountInDeck instead.")]
+        public int GetRemainingCount(int cardId, int initialCount = 0)
         {
-            return GetRemainingCount(cardId);
+            return GetCardCountInDeck(cardId);
         }
 
-        public int GetRemainingCount(int cardId)
+        public int GetCardCountInDeck(int cardId)
         {
             if (!CanQueryDeck()) return 0;
             return GetTrackedDeckCount(cardId);
         }
 
-        public int GetRemainingCount(IList<int> cardIds) // params int[] will conflict with deprecated initialCount
+        public int GetCardCountInDeck(IList<int> cardIds)
         {
             if (!CanQueryDeck()) return 0;
             return cardIds.Sum(id => GetTrackedDeckCount(id));

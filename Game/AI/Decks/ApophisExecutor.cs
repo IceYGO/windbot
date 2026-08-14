@@ -2740,7 +2740,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            int remainApophisCount = Bot.GetRemainingCount(CardId.ApophisTheSwampDeity);
+            int remainApophisCount = Bot.GetCardCountInDeck(CardId.ApophisTheSwampDeity);
             if (remainApophisCount == 0)
             {
                 return false;

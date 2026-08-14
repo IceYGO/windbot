@@ -2786,7 +2786,7 @@ namespace WindBot.Game.AI.Decks
             foreach (int id in checkIdList)
             {
                 ClientCard target = Bot.Graveyard.FirstOrDefault(c => c.IsCode(id));
-                if (target != null && (Bot.GetRemainingCount(id) + Bot.ExtraDeck.Count(c => c.IsCode(id)) + Bot.Hand.Count(c => c.IsCode(id))) == 0)
+                if (target != null && (Bot.GetCardCountInDeck(id) + Bot.ExtraDeck.Count(c => c.IsCode(id)) + Bot.Hand.Count(c => c.IsCode(id))) == 0)
                 {
                     if (target.HasType(CardType.Xyz) && GetLevel4CountOnField() == 1) continue;
                     targetList.Add(target);
@@ -2814,7 +2814,7 @@ namespace WindBot.Game.AI.Decks
             List<int> checkIdList = new List<int> { CardId.RyzealPlugIn, CardId.RyzealDuodrive, CardId.RyzealDeadnader, CardId.NodeRyzeal, CardId.ExRyzeal, CardId.IceRyzeal, CardId.ThodeRyzeal };
             foreach (int id in checkIdList)
             {
-                int remainCount = Bot.GetRemainingCount(id) + Bot.ExtraDeck.Count(c => c.IsCode(id));
+                int remainCount = Bot.GetCardCountInDeck(id) + Bot.ExtraDeck.Count(c => c.IsCode(id));
                 if (!countDict.ContainsKey(remainCount))
                 {
                     countDict.Add(remainCount, new List<int>());
@@ -3074,7 +3074,7 @@ namespace WindBot.Game.AI.Decks
         {
             bool checkFlag = Duel.MainPhase.SpecialSummonableCards.Any(c => c.IsCode(CardId.RyzealDuodrive));
             checkFlag &= !Bot.HasInMonstersZone(CardId.RyzealDuodrive, true, true, true);
-            checkFlag &= Bot.GetRemainingCount(new[] { CardId.IceRyzeal, CardId.ThodeRyzeal, CardId.NodeRyzeal, CardId.ExRyzeal, CardId.RyzealPlugIn, CardId.RyzealCross }) >= 2;
+            checkFlag &= Bot.GetCardCountInDeck(new[] { CardId.IceRyzeal, CardId.ThodeRyzeal, CardId.NodeRyzeal, CardId.ExRyzeal, CardId.RyzealPlugIn, CardId.RyzealCross }) >= 2;
             checkFlag &= !DefaultCheckWhetherCardIdIsNegated(CardId.RyzealDuodrive);
             checkFlag &= !activatedCardIdList.Contains(CardId.RyzealDuodrive + 1);
             checkFlag &= !CheckWhetherNegated(true, true, CardType.Monster);

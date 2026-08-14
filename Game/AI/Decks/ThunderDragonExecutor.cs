@@ -2212,7 +2212,7 @@ namespace WindBot.Game.AI.Decks
                         || HasInZoneNoActivate(CardId.WhiteDragonWyverburster, CardLocation.Hand) || HasInZoneNoActivate(CardId.BlackDragonCollapserpent, CardLocation.Hand)
                         || HasInZoneNoActivate(CardId.TheChaosCreator, CardLocation.Hand)) && Bot.HasInDeck(CardId.BatterymanSolar))
                         AI.SelectCard(CardId.BatterymanSolar);
-                else if(Bot.HasInMonstersZone(CardId.ThunderDragonTitan,true,false,true) && Bot.GetRemainingCount(CardId.NormalThunderDragon)>1)
+                else if(Bot.HasInMonstersZone(CardId.ThunderDragonTitan,true,false,true) && Bot.GetCardCountInDeck(CardId.NormalThunderDragon)>1)
                         AI.SelectCard(CardId.NormalThunderDragon);
                 else if(!HasInZoneNoActivate(CardId.ThunderDragonroar,CardLocation.Deck))
                         AI.SelectCard(CardId.ThunderDragonroar);
@@ -2415,11 +2415,11 @@ namespace WindBot.Game.AI.Decks
                     else if (HasInZoneNoActivate(CardId.ThunderDragonroar, CardLocation.Hand) && handActivated
                             && Bot.HasInDeck(CardId.ThunderDragonlord))
                         AI.SelectCard(CardId.ThunderDragonlord);
-                    else if (Bot.HasInDeck(CardId.ThunderDragonlord) && Bot.GetRemainingCount(CardId.NormalThunderDragon) > 1)
+                    else if (Bot.HasInDeck(CardId.ThunderDragonlord) && Bot.GetCardCountInDeck(CardId.NormalThunderDragon) > 1)
                         AI.SelectCard(CardId.ThunderDragonlord);
                     else if (handActivated && Bot.HasInHand(CardId.ThunderDragonlord) && Bot.HasInDeck(CardId.ThunderDragonroar))
                         AI.SelectCard(CardId.ThunderDragonroar);
-                    else if (Bot.GetRemainingCount(CardId.NormalThunderDragon) > 1 && !handActivated)
+                    else if (Bot.GetCardCountInDeck(CardId.NormalThunderDragon) > 1 && !handActivated)
                         AI.SelectCard(CardId.NormalThunderDragon);
                     else
                         AI.SelectCard(CardId.ThunderDragonmatrix, CardId.ThunderDragondark, CardId.ThunderDragonroar, CardId.NormalThunderDragon);

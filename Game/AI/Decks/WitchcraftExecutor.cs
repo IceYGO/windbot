@@ -445,7 +445,7 @@ namespace WindBot.Game.AI.Decks
         {
             int discardable_hands = 0;
             int count_witchcraftspell = Bot.Hand.GetMatchingCardsCount(card => (card.IsSpell() && (card.HasSetcode(Witchcraft_setcode)) && card != except));
-            int count_remainhands = Bot.GetRemainingCount(new[] { CardId.MagiciansLeftHand, CardId.MagicianRightHand });
+            int count_remainhands = Bot.GetCardCountInDeck(new[] { CardId.MagiciansLeftHand, CardId.MagicianRightHand });
             int count_MagiciansRestage = Bot.Hand.GetMatchingCardsCount(card => card.Id == CardId.MagiciansRestage && card != except);
             int count_MetalfoesFusion = Bot.Hand.GetCardCount(CardId.MetalfoesFusion);
             int count_WitchcrafterBystreet = Bot.SpellZone.GetMatchingCardsCount(card => card.IsFaceup() && card.Id == CardId.WitchcrafterBystreet && !card.IsDisabled());
@@ -940,7 +940,7 @@ namespace WindBot.Game.AI.Decks
         /// </summary>
         public void SelectDiscardSpell()
         {
-            int count_remainhands = Bot.GetRemainingCount(new[] { CardId.MagiciansLeftHand, CardId.MagicianRightHand });
+            int count_remainhands = Bot.GetCardCountInDeck(new[] { CardId.MagiciansLeftHand, CardId.MagicianRightHand });
             int count_witchcraftspell = Bot.Hand.GetMatchingCardsCount(card => (card.IsSpell() && (card.HasSetcode(Witchcraft_setcode))));
             int WitchcrafterBystreet_count = Bot.SpellZone.GetMatchingCardsCount(card => card.IsFaceup() && card.Id == CardId.WitchcrafterBystreet);
             if (Bot.HasInHand(CardId.MagiciansRestage) && count_remainhands > 0)
@@ -1063,7 +1063,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (UseSSEffect.Contains(Card.Id)) return false;
             int count_spell = Bot.Hand.GetMatchingCardsCount(card => (card.IsSpell()));
-            int count_target = Bot.GetRemainingCount(new[] { CardId.MadameVerre, CardId.Haine, CardId.GolemAruru });
+            int count_target = Bot.GetCardCountInDeck(new[] { CardId.MadameVerre, CardId.Haine, CardId.GolemAruru });
             if (count_spell > 0 && count_target > 0)
             {
                 summoned = true;
@@ -1488,7 +1488,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // trap check
-            if (Bot.GetRemainingCount(CardId.Masterpiece) >= 2){
+            if (Bot.GetCardCountInDeck(CardId.Masterpiece) >= 2){
                 AI.SelectCard(CardId.Masterpiece);
                 ActivatedCards.Add(CardId.Schmietta);
                 return true;

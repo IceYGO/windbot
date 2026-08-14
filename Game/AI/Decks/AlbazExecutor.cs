@@ -3995,7 +3995,7 @@ namespace WindBot.Game.AI.Decks
                         }
                     } else
                     {
-                        if (Bot.GetRemainingCount(CardId.FallenOfAlbaz) >= albazCountCheck)
+                        if (Bot.GetCardCountInDeck(CardId.FallenOfAlbaz) >= albazCountCheck)
                         {
                             target = null;
                             return CardId.FallenOfAlbaz;

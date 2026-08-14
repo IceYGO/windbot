@@ -1150,7 +1150,7 @@ namespace WindBot.Game.AI.Decks
                     AI.SelectCard(target);
                     return true;
                 }
-                if(!Bot.HasInHand(CardId.OrcustHarpHorror) && Bot.GetRemainingCount(CardId.OrcustHarpHorror) > 1)
+                if(!Bot.HasInHand(CardId.OrcustHarpHorror) && Bot.GetCardCountInDeck(CardId.OrcustHarpHorror) > 1)
                 {
                     AI.SelectCard(CardId.OrcustHarpHorror);
                     return true;

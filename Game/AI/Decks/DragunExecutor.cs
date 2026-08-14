@@ -211,7 +211,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.HasInHand(CardId.RedEyesFusion))
                 return false;
-            if (!Bot.HasInDeck(CardId.RedEyesWyvern) && Bot.GetRemainingCount(CardId.RedEyesBDragon) == 1 && !Bot.HasInHand(CardId.RedEyesBDragon))
+            if (!Bot.HasInDeck(CardId.RedEyesWyvern) && Bot.GetCardCountInDeck(CardId.RedEyesBDragon) == 1 && !Bot.HasInHand(CardId.RedEyesBDragon))
                 return false;
             AI.SelectCard(CardId.RedEyesWyvern);
             return true;

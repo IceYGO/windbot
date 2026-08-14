@@ -606,7 +606,7 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInGraveyard(CardId.TreebornFrog) &&
                 Bot.HasInDeck(CardId.TreebornFrog))
                 priority.Add(CardId.TreebornFrog);
-            if (Bot.GetRemainingCount(CardId.DestinyHEROMalicious) >= 2)
+            if (Bot.GetCardCountInDeck(CardId.DestinyHEROMalicious) >= 2)
                 priority.Add(CardId.DestinyHEROMalicious);
             if (DiskCommanderEffectAvailable &&
                 HasRevivalAvailable() &&

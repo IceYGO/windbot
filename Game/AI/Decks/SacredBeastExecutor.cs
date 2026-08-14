@@ -2055,7 +2055,7 @@ namespace WindBot.Game.AI.Decks
         }
         private int CountAccessibleSkyfireCopiesForEffect()
         {
-            int count = Bot.GetRemainingCount(CardId.SkyfireOfTheSacredBeast);
+            int count = Bot.GetCardCountInDeck(CardId.SkyfireOfTheSacredBeast);
             count += Bot.Hand.Count(c => c != null && c.IsCode(CardId.SkyfireOfTheSacredBeast));
             count += Bot.Graveyard.Count(c => c != null && c.IsCode(CardId.SkyfireOfTheSacredBeast));
             return count;
@@ -2208,7 +2208,7 @@ namespace WindBot.Game.AI.Decks
 
             if (ActivateDescription != Util.GetStringId(CardId.MartyrOfTheSacredBeasts, 1)) return false;
             if (Bot.GetMonstersInMainZone().Count(c => c != null) >= 3) return false;
-            if (Bot.GetRemainingCount(CardId.MartyrOfTheSacredBeasts) + Bot.Graveyard.Count(c => c != null && c.IsCode(CardId.MartyrOfTheSacredBeasts)) < 2) return false;
+            if (Bot.GetCardCountInDeck(CardId.MartyrOfTheSacredBeasts) + Bot.Graveyard.Count(c => c != null && c.IsCode(CardId.MartyrOfTheSacredBeasts)) < 2) return false;
 
             AI.SelectCard(new[] { CardId.MartyrOfTheSacredBeasts, CardId.MartyrOfTheSacredBeasts });
             Martyrx3 = true;
