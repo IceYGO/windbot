@@ -68,17 +68,21 @@ namespace WindBot.Game.AI.Decks
         private bool _seaSpiritSummoned;
         private bool _marineQuickPlayTriggerPending;
         private bool _marineTrapPlacementPending;
-        private bool _marineTrapPlacementResolved;
+        private bool _marineTrapPlacementResolvedThisTurn;
+        private bool _marineMandatePayoffSecured;
         private bool _fonixMstTriggerPending;
         private bool _vortexMstTriggerPending;
         private bool _enemyDrollResolved;
         private bool _botDrawHandTrapResolved;
         private bool _enemyPuruliaResolved;
-        private bool _botSummonedAfterPurulia;
-        private int _botSummonCountThisTurn;
+        private bool _botSummonedFromHandAfterPurulia;
+        private bool _mstOfferedInCurrentChainSelection;
+        private bool _radiantQuickPlayOfferedInCurrentChainSelection;
         private ClientCard _fallenDodgeTarget;
         private ClientCard _mysticalSpaceTyphoonTarget;
+        private ClientCard _mandateNegationTarget;
         private int _dropletCostCount;
+        private int _favoriteHEROFusionTargetId;
         private readonly HashSet<int> _activatedRadiantCardsThisTurn = new HashSet<int>();
 
         public RadiantTyphoonExecutor(GameAI ai, Duel duel)
@@ -88,6 +92,8 @@ namespace WindBot.Game.AI.Decks
             // conversion. Its two targets are selected from the server candidates
             // in SelectActivationCard, where the two target requests can be told apart.
             AddExecutor(ExecutorType.Activate, CardId.EcclesiaAndTheDarkDragon, EcclesiaActivate);
+            AddExecutor(ExecutorType.Activate, CardId.GaruraWingsOfResonantLife, GaruraActivate);
+            AddExecutor(ExecutorType.Activate, CardId.AlbionTheBrandedDragon, AlbionActivate);
 
             // An empty field with Gallant Thief in hand and an opponent monster is
             // a committed summon line. Its summon has priority over every voluntary
@@ -182,10 +188,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.SuperStarslayerTYPHONSkyCrisis, TyphonSummon);
             AddExecutor(ExecutorType.Activate, CardId.SuperStarslayerTYPHONSkyCrisis, TyphonActivate);
             AddExecutor(ExecutorType.Activate, CardId.MudragonOfTheSwamp, MudragonActivate);
+            AddExecutor(ExecutorType.Activate, CardId.FavoriteHEROFlameWingman, FavoriteHEROFlameWingmanActivate);
+            AddExecutor(ExecutorType.Activate, CardId.FavoriteHEROShiningFlareWingman, FavoriteHEROShiningFlareWingmanActivate);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
             AddExecutor(ExecutorType.SpellSet, RadiantSpellSet);
-            AddExecutor(ExecutorType.SpellSet, DefaultSpellSet);
         }
 
         public override bool OnSelectHand()
@@ -203,6 +210,15 @@ namespace WindBot.Game.AI.Decks
             return base.OnPreActivate(card);
         }
 
+        public override void OnSelectChain(IList<ClientCard> cards)
+        {
+            _mstOfferedInCurrentChainSelection = cards.Any(c => c != null &&
+                c.Controller == 0 && c.IsCode(CardId.MysticalSpaceTyphoon));
+            _radiantQuickPlayOfferedInCurrentChainSelection = cards.Any(c => c != null &&
+                c.Controller == 0 && IsRadiantQuickPlay(c));
+            base.OnSelectChain(cards);
+        }
+
         public override void OnNewTurn()
         {
             _usedMeghalaDeckSummon = false;
@@ -215,16 +231,18 @@ namespace WindBot.Game.AI.Decks
             _seaSpiritSummoned = false;
             _marineQuickPlayTriggerPending = false;
             _marineTrapPlacementPending = false;
-            _marineTrapPlacementResolved = false;
+            _marineTrapPlacementResolvedThisTurn = false;
             _fonixMstTriggerPending = false;
             _vortexMstTriggerPending = false;
             _enemyDrollResolved = false;
             _botDrawHandTrapResolved = false;
             _enemyPuruliaResolved = false;
-            _botSummonedAfterPurulia = false;
-            _botSummonCountThisTurn = 0;
+            _botSummonedFromHandAfterPurulia = false;
+            _mstOfferedInCurrentChainSelection = false;
+            _radiantQuickPlayOfferedInCurrentChainSelection = false;
             _fallenDodgeTarget = null;
             _mysticalSpaceTyphoonTarget = null;
+            _mandateNegationTarget = null;
             _dropletCostCount = 0;
             _activatedRadiantCardsThisTurn.Clear();
             base.OnNewTurn();
@@ -277,6 +295,16 @@ namespace WindBot.Game.AI.Decks
             {
                 _vortexMstTriggerPending = false;
             }
+            if (card != null && card.IsCode(CardId.RadiantTyphoonMandate) &&
+                currentControler == 0 &&
+                (currentLocation & (int)CardLocation.SpellZone) != 0 && card.IsFaceup())
+            {
+                _marineMandatePayoffSecured = true;
+                if (_marineTrapPlacementPending)
+                {
+                    _marineTrapPlacementResolvedThisTurn = true;
+                }
+            }
             base.OnMove(card, previousControler, previousLocation, currentControler, currentLocation);
         }
 
@@ -296,9 +324,11 @@ namespace WindBot.Game.AI.Decks
                     bool isTrapPlacement = currentChain.ActivateDescription ==
                         Util.GetStringId(CardId.RadiantTyphoonVaruroonTheMarineEidolon, 2) ||
                         _marineTrapPlacementPending;
-                    if (isTrapPlacement && !Duel.IsCurrentSolvingChainNegated())
+                    if (isTrapPlacement && !Duel.IsCurrentSolvingChainNegated() &&
+                        HasEstablishedMandate())
                     {
-                        _marineTrapPlacementResolved = true;
+                        _marineTrapPlacementResolvedThisTurn = true;
+                        _marineMandatePayoffSecured = true;
                     }
                     _marineTrapPlacementPending = false;
                 }
@@ -314,7 +344,6 @@ namespace WindBot.Game.AI.Decks
                         currentChain.IsActivateCode(CardId.MulcharmyPurulia))
                     {
                         _enemyPuruliaResolved = true;
-                        _botSummonedAfterPurulia = _botSummonCountThisTurn > 0;
                     }
 
                     if (currentChain.ActivatePlayer == 0 && currentChain.IsActivateCode(CardId.MaxxC, CardId.MulcharmyFuwalos))
@@ -331,32 +360,32 @@ namespace WindBot.Game.AI.Decks
             _marineTrapPlacementPending = false;
             _fallenDodgeTarget = null;
             _mysticalSpaceTyphoonTarget = null;
+            _mandateNegationTarget = null;
+            _mstOfferedInCurrentChainSelection = false;
+            _radiantQuickPlayOfferedInCurrentChainSelection = false;
             _dropletCostCount = 0;
+            _favoriteHEROFusionTargetId = 0;
             base.OnChainEnd();
         }
 
         public override void OnSummoning()
         {
-            if (Duel.LastSummonPlayer == 0)
+            if (_enemyPuruliaResolved && Duel.LastSummonPlayer == 0 &&
+                Duel.SummoningCards.Any(c => c != null && c.Controller == 0 &&
+                    (c.LastLocation & CardLocation.Hand) != 0))
             {
-                _botSummonCountThisTurn++;
-                if (_enemyPuruliaResolved)
-                {
-                    _botSummonedAfterPurulia = true;
-                }
+                _botSummonedFromHandAfterPurulia = true;
             }
             base.OnSummoning();
         }
 
         public override void OnSpSummoned()
         {
-            if (Duel.LastSummonPlayer == 0)
+            if (_enemyPuruliaResolved && Duel.LastSummonPlayer == 0 &&
+                Duel.LastSummonedCards.Any(c => c != null && c.Controller == 0 &&
+                    (c.LastLocation & CardLocation.Hand) != 0))
             {
-                _botSummonCountThisTurn++;
-                if (_enemyPuruliaResolved)
-                {
-                    _botSummonedAfterPurulia = true;
-                }
+                _botSummonedFromHandAfterPurulia = true;
             }
             base.OnSpSummoned();
         }
@@ -399,7 +428,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (IsDescription(CardId.RadiantTyphoonVaruroonTheVibrantVortex, 0) || Card.Location == CardLocation.Hand)
             {
-                return CanTakeSummonActionAfterPurulia();
+                return CanSummonFromHandAfterPurulia();
             }
 
             if (IsDescription(CardId.RadiantTyphoonVaruroonTheVibrantVortex, 1) || Card.Location == CardLocation.MonsterZone)
@@ -425,7 +454,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (IsDescription(CardId.RadiantTyphoonFonixTheGreatFlame, 0) || Card.Location == CardLocation.Hand)
             {
-                return CanTakeSummonActionAfterPurulia();
+                return CanSummonFromHandAfterPurulia();
             }
 
             if (IsDescription(CardId.RadiantTyphoonFonixTheGreatFlame, 1) || Card.Location == CardLocation.MonsterZone)
@@ -480,15 +509,16 @@ namespace WindBot.Game.AI.Decks
 
             if (IsDescription(CardId.RadiantTyphoonMandate, 1))
             {
-                if (!CanUseMandateToNegateChainOne())
+                if (!CanUseMandateToNegateCurrentChain())
                 {
                     return false;
                 }
-                ClientCard target = GetOpponentChainOneFieldCard();
+                ClientCard target = GetBestOpponentMandateChainTarget();
                 if (target == null)
                 {
                     return false;
                 }
+                _mandateNegationTarget = target;
                 _activatedRadiantCardsThisTurn.Add(Card.Id);
                 return true;
             }
@@ -570,7 +600,7 @@ namespace WindBot.Game.AI.Decks
 
             // With a face-up Mandate, first put another Radiant quick-play into
             // the chain. MST then destroys that same quick-play so Mandate can
-            // negate the opponent's chain-one card.
+            // negate the opponent's relevant face-up field card in this chain.
             if (ShouldActivateRadiantQuickPlayForMandate())
             {
                 return false;
@@ -614,15 +644,16 @@ namespace WindBot.Game.AI.Decks
                 return activatedRadiant;
             }
 
-            ClientCard enemyChainOne = GetOpponentChainOneFieldCard();
-            if (enemyChainOne != null && (enemyChainOne.IsSpell() || enemyChainOne.IsTrap()))
+            ClientCard opponentChainTarget = GetBestOpponentMandateChainTarget();
+            if (opponentChainTarget != null &&
+                (opponentChainTarget.IsSpell() || opponentChainTarget.IsTrap()))
             {
-                return enemyChainOne;
+                return opponentChainTarget;
             }
 
             // If no Radiant quick-play is available, follow the opponent's chain
             // by destroying an opposing spell/trap. The Mandate effect, when
-            // legal, will still target the chain-one card above.
+            // legal, will still target the relevant opponent field card above.
             ClientCard enemyTarget = GetBestMandateMstTarget();
             if (enemyTarget != null)
             {
@@ -677,18 +708,17 @@ namespace WindBot.Game.AI.Decks
 
         private ClientCard GetBestMandateMstTarget()
         {
+            ClientCard activeOpponentCard = GetBestOpponentMandateChainTarget();
+            if (activeOpponentCard != null &&
+                (activeOpponentCard.IsSpell() || activeOpponentCard.IsTrap()))
+            {
+                return activeOpponentCard;
+            }
+
             ClientCard facedown = Enemy.GetSpells().FirstOrDefault(c => c.IsFacedown());
             if (facedown != null)
             {
                 return facedown;
-            }
-
-            ClientCard chainCard = Duel.CurrentChainInfo.Skip(1).FirstOrDefault(c =>
-                c.ActivatePlayer == 1 && c.RelatedCard != null && c.RelatedCard.IsOnField() &&
-                (c.RelatedCard.IsSpell() || c.RelatedCard.IsTrap()))?.RelatedCard;
-            if (chainCard != null)
-            {
-                return chainCard;
             }
 
             return Enemy.GetSpells().FirstOrDefault(c => c.IsFaceup() &&
@@ -764,6 +794,12 @@ namespace WindBot.Game.AI.Decks
             return GetFaceupMandate() != null;
         }
 
+        private bool HasEstablishedMandate()
+        {
+            return Bot.GetSpells().Any(c => c.IsCode(CardId.RadiantTyphoonMandate) &&
+                c.IsFaceup());
+        }
+
         private ClientCard GetFaceupMandate()
         {
             return Bot.GetSpells().FirstOrDefault(c => c.IsCode(CardId.RadiantTyphoonMandate) &&
@@ -807,24 +843,23 @@ namespace WindBot.Game.AI.Decks
                 c.IsOnField() && c.Location == CardLocation.SpellZone && IsRadiantQuickPlay(c));
         }
 
-        private ClientCard GetOpponentChainOneFieldCard()
+        private ClientCard GetOpponentFieldCardForChain(ChainInfo chain)
         {
-            if (Duel.CurrentChainInfo.Count == 0 || Duel.CurrentChainInfo[0].ActivatePlayer != 1)
+            if (chain == null || chain.ActivatePlayer != 1)
             {
                 return null;
             }
 
-            ChainInfo chainOne = Duel.CurrentChainInfo[0];
-            ClientCard related = chainOne.RelatedCard;
+            ClientCard related = chain.RelatedCard;
             ClientCard fieldCard = Enemy.GetMonsters().Concat(Enemy.GetSpells())
                 .FirstOrDefault(c => c == related);
-            if (fieldCard == null && chainOne.ActivateController == 1 &&
-                (chainOne.HasLocation(CardLocation.MonsterZone) ||
-                 chainOne.HasLocation(CardLocation.SpellZone) ||
-                 chainOne.HasLocation(CardLocation.FieldZone)))
+            if (fieldCard == null && chain.ActivateController == 1 &&
+                (chain.HasLocation(CardLocation.MonsterZone) ||
+                 chain.HasLocation(CardLocation.SpellZone) ||
+                 chain.HasLocation(CardLocation.FieldZone)))
             {
                 fieldCard = Enemy.GetMonsters().Concat(Enemy.GetSpells()).FirstOrDefault(c =>
-                    c.Location == chainOne.ActivateLocation && c.Sequence == chainOne.ActivateSequence);
+                    c.Location == chain.ActivateLocation && c.Sequence == chain.ActivateSequence);
             }
             if (fieldCard == null && related != null && related.IsOnField() && related.Controller == 1)
             {
@@ -837,33 +872,47 @@ namespace WindBot.Game.AI.Decks
             return fieldCard;
         }
 
+        private ClientCard GetBestOpponentMandateChainTarget()
+        {
+            for (int i = Duel.CurrentChainInfo.Count - 1; i >= 0; --i)
+            {
+                if (Duel.NegatedChainIndexList.Contains(i + 1))
+                {
+                    continue;
+                }
+
+                ClientCard target = GetOpponentFieldCardForChain(Duel.CurrentChainInfo[i]);
+                if (target != null && !target.IsDisabled())
+                {
+                    return target;
+                }
+            }
+            return null;
+        }
+
         private bool CanBuildMandateChainLine()
         {
             return !HasEffectiveOwnNegationForCurrentChain() && HasFaceupMandate() &&
                 GetOwnChainRadiantQuickPlay() != null &&
-                GetOpponentChainOneFieldCard() != null;
+                GetBestOpponentMandateChainTarget() != null;
         }
 
-        private bool CanUseMandateToNegateChainOne()
+        private bool CanUseMandateToNegateCurrentChain()
         {
             ChainInfo latestChain = Duel.CurrentChainInfo.LastOrDefault();
             return !HasEffectiveOwnNegationForCurrentChain() && HasFaceupMandate() &&
-                GetOpponentChainOneFieldCard() != null &&
+                GetBestOpponentMandateChainTarget() != null &&
                 latestChain != null && latestChain.IsActivateCode(CardId.MysticalSpaceTyphoon);
-        }
-
-        private bool HasOtherRadiantQuickPlayInHand()
-        {
-            return Bot.Hand.Any(c => c != Card && IsRadiantQuickPlay(c));
         }
 
         private bool ShouldActivateRadiantQuickPlayForMandate()
         {
             return !HasEffectiveOwnNegationForCurrentChain() && HasFaceupMandate() &&
-                GetOpponentChainOneFieldCard() != null &&
+                GetBestOpponentMandateChainTarget() != null &&
                 !Duel.CurrentChain.Any(c => c.Controller == 0 && IsRadiantQuickPlay(c)) &&
                 !Duel.CurrentChain.Any(c => c.Controller == 0 && c.IsCode(CardId.MysticalSpaceTyphoon)) &&
-                HasOtherRadiantQuickPlayInHand();
+                _mstOfferedInCurrentChainSelection &&
+                _radiantQuickPlayOfferedInCurrentChainSelection;
         }
 
         private bool HasEffectiveOwnNegationForCurrentChain()
@@ -933,9 +982,26 @@ namespace WindBot.Game.AI.Decks
                 if (chain.IsActivateCode(CardId.RadiantTyphoonMandate) &&
                     chain.ActivateDescription == Util.GetStringId(CardId.RadiantTyphoonMandate, 1))
                 {
-                    // Mandate ② always negates chain 1. It does not cover a
-                    // later opponent link inserted after chain 1.
-                    return latestOpponentIndex == 0 && GetOpponentChainOneFieldCard() != null;
+                    // Mandate negates the related chain effects of its selected
+                    // face-up card, so compare that target with the latest link.
+                    ClientCard opponentSource = GetOpponentFieldCardForChain(
+                        Duel.CurrentChainInfo[latestOpponentIndex]);
+                    if (opponentSource == null)
+                    {
+                        continue;
+                    }
+
+                    bool targetsLatestOpponentSource = chain.Targets.Any(target =>
+                        AreSameVisibleCard(target, opponentSource));
+                    if (!targetsLatestOpponentSource && _mandateNegationTarget != null)
+                    {
+                        targetsLatestOpponentSource = AreSameVisibleCard(
+                            _mandateNegationTarget, opponentSource);
+                    }
+                    if (targetsLatestOpponentSource)
+                    {
+                        return true;
+                    }
                 }
             }
 
@@ -960,8 +1026,8 @@ namespace WindBot.Game.AI.Decks
             ChainInfo lastChain = Duel.CurrentChainInfo.LastOrDefault();
             ClientCard respondingMonster = GetChainSourceCard(lastChain);
             bool respondingToEnemyFieldMonster = respondingMonster != null &&
-                respondingMonster.IsFaceup() && !respondingMonster.IsDisabled() &&
-                !respondingMonster.IsShouldNotBeTarget();
+                respondingMonster.IsFaceup() && respondingMonster.HasType(CardType.Effect) &&
+                !respondingMonster.IsDisabled();
             bool respondingToOwnFieldSpell = lastChain != null && lastChain.ActivatePlayer == 0 &&
                 (lastChain.ActivateType & (int)CardType.Spell) != 0 &&
                 lastChain.HasLocation(CardLocation.SpellZone | CardLocation.FieldZone);
@@ -1030,8 +1096,19 @@ namespace WindBot.Game.AI.Decks
 
         private List<ClientCard> GetDropletTargetMonsters()
         {
-            return Enemy.GetMonsters().Where(c => c != null && c.IsFaceup() &&
-                !c.IsDisabled() && !c.IsShouldNotBeTarget()).ToList();
+            return GetOrderedDropletTargets(Enemy.GetMonsters());
+        }
+
+        private List<ClientCard> GetOrderedDropletTargets(IEnumerable<ClientCard> cards)
+        {
+            ClientCard problem = Util.GetProblematicEnemyMonster(0, false);
+            return cards.Where(c => c != null && c.Controller == 1 && c.IsFaceup() &&
+                    c.HasType(CardType.Effect) && !c.IsDisabled())
+                .OrderByDescending(c => c == problem)
+                .ThenByDescending(c => c.IsFloodgate() || c.IsMonsterDangerous() ||
+                    c.IsMonsterInvincible() || c.IsMonsterShouldBeDisabledBeforeItUseEffect())
+                .ThenByDescending(c => Math.Max(c.Attack, c.Defense))
+                .ToList();
         }
 
         private List<ClientCard> GetOwnDropletChainCards()
@@ -1094,7 +1171,8 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> available = Bot.GetMonsters().Concat(Enemy.GetMonsters())
                 .Where(c => c.IsFaceup() &&
                     !(c.Controller == 0 && c.IsCode(CardId.RadiantTyphoonMeghala))).ToList();
-            ClientCard problem = Util.GetProblematicEnemyMonster(0, true) ?? Util.GetBestEnemyMonster(true, true);
+            ClientCard problem = Util.GetProblematicEnemyMonster(0, false) ??
+                Util.GetBestEnemyMonster(true, false);
             int bestScore = Int32.MinValue;
 
             for (int i = 0; i < available.Count; ++i)
@@ -1301,7 +1379,7 @@ namespace WindBot.Game.AI.Decks
             // the reliable discriminator after the server has supplied a legal effect.
             if (Card.Location == CardLocation.Hand)
             {
-                return CanTakeSummonActionAfterPurulia();
+                return CanSummonFromHandAfterPurulia();
             }
 
             if (Card.Location == CardLocation.MonsterZone)
@@ -1320,8 +1398,7 @@ namespace WindBot.Game.AI.Decks
         {
             // Its self summon is a SpSummon procedure. Any legal Activate candidate
             // while Meghala is in the monster zone is therefore its deck-summon trigger.
-            if (!CanTakeSummonActionAfterPurulia() || Card.Location != CardLocation.MonsterZone ||
-                _usedMeghalaDeckSummon)
+            if (Card.Location != CardLocation.MonsterZone || _usedMeghalaDeckSummon)
             {
                 return false;
             }
@@ -1355,7 +1432,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SmallRadiantSpecialSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() >= 5)
+            if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() >= 5)
             {
                 return false;
             }
@@ -1395,12 +1472,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool SmallRadiantNormalSummon()
         {
-            return CanTakeSummonActionAfterPurulia() && IsMainPhase();
+            return CanSummonFromHandAfterPurulia() && IsMainPhase();
         }
 
         private bool KroseaNormalSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase() || _enemyDrollResolved || HasRadiantSpellInHand() ||
+            if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() || _enemyDrollResolved || HasRadiantSpellInHand() ||
                 !CanUsePreferredKroseaTribute())
             {
                 return false;
@@ -1410,7 +1487,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GallantThiefSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() != 0 || Enemy.GetMonsterCount() == 0)
+            if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() != 0 || Enemy.GetMonsterCount() == 0)
             {
                 return false;
             }
@@ -1434,11 +1511,6 @@ namespace WindBot.Game.AI.Decks
         private bool RadiantQuickPlayMstStarterActivate()
         {
             if (Card.Location == CardLocation.Grave || !NeedMstStarter())
-            {
-                return false;
-            }
-
-            if (ShouldBlockAscendanceReviveAfterPurulia())
             {
                 return false;
             }
@@ -1468,11 +1540,6 @@ namespace WindBot.Game.AI.Decks
 
         private bool RadiantQuickPlayActivate()
         {
-            if (ShouldBlockAscendanceReviveAfterPurulia())
-            {
-                return false;
-            }
-
             if (Card.Location == CardLocation.Grave)
             {
                 return AcceptRadiantQuickPlayActivation();
@@ -1499,12 +1566,12 @@ namespace WindBot.Game.AI.Decks
                 return AcceptRadiantQuickPlayActivation();
             }
 
-            if (ShouldActivateRadiantQuickPlayForMandate() && Card.Location == CardLocation.Hand)
+            if (ShouldActivateRadiantQuickPlayForMandate())
             {
                 return AcceptRadiantQuickPlayActivation();
             }
 
-            if (CanTakeSummonActionAfterPurulia() && Bot.HasInHand(CardId.RadiantTyphoonMeghala))
+            if (CanSummonFromHandAfterPurulia() && Bot.HasInHand(CardId.RadiantTyphoonMeghala))
             {
                 if (CanSpecialSummonMeghalaFromHandNow() || !NeedMstStarter())
                 {
@@ -1558,12 +1625,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RadiantQuickPlayMandateChainActivate()
         {
-            if (Card.Location != CardLocation.Hand || !ShouldActivateRadiantQuickPlayForMandate())
-            {
-                return false;
-            }
-
-            if (ShouldBlockAscendanceReviveAfterPurulia())
+            if (!ShouldActivateRadiantQuickPlayForMandate())
             {
                 return false;
             }
@@ -1640,7 +1702,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SeaSpiritSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase() || !CanSummonSeaSpiritNow())
+            if (!IsMainPhase() || !CanSummonSeaSpiritNow())
             {
                 return false;
             }
@@ -1703,9 +1765,67 @@ namespace WindBot.Game.AI.Decks
                 Card.Location == CardLocation.Grave;
         }
 
+        private bool GaruraActivate()
+        {
+            return Card != null && Card.IsCode(CardId.GaruraWingsOfResonantLife) &&
+                Card.Location == CardLocation.Grave;
+        }
+
+        private bool AlbionActivate()
+        {
+            return Card != null && Card.IsCode(CardId.AlbionTheBrandedDragon) &&
+                Card.Location == CardLocation.Grave && Duel.Phase == DuelPhase.End;
+        }
+
+        private bool FavoriteHEROFlameWingmanActivate()
+        {
+            if (Card == null || !Card.IsCode(CardId.FavoriteHEROFlameWingman) ||
+                Card.Location != CardLocation.MonsterZone || !Card.IsFaceup())
+            {
+                return false;
+            }
+
+            // The attack-announcement effect is only offered when its battle
+            // target is face-up with at least 2200 ATK.
+            if (IsDescription(CardId.FavoriteHEROFlameWingman, 0))
+            {
+                return true;
+            }
+
+            // Use the Quick Effect as the intended upgrade into Shining Flare
+            // Wingman. Flame Wingman itself supplies the Fusion-monster material;
+            // preserve Meghala when choosing the other face-up field material.
+            if (IsDescription(CardId.FavoriteHEROFlameWingman, 1))
+            {
+                return Bot.HasInExtra(CardId.FavoriteHEROShiningFlareWingman) &&
+                    Bot.GetMonsters().Any(c => c != Card && c.IsFaceup() &&
+                        CanUseAsExtraDeckMaterial(c));
+            }
+            return false;
+        }
+
+        private bool FavoriteHEROShiningFlareWingmanActivate()
+        {
+            if (Card == null || !Card.IsCode(CardId.FavoriteHEROShiningFlareWingman) ||
+                Card.Location != CardLocation.MonsterZone || !Card.IsFaceup())
+            {
+                return false;
+            }
+
+            if (IsDescription(CardId.FavoriteHEROShiningFlareWingman, 0))
+            {
+                return !_enemyDrollResolved;
+            }
+
+            // Its battle-destruction damage is mandatory. Normally the server
+            // forces it directly, but accept it if several mandatory triggers
+            // are being ordered through the executor list.
+            return IsDescription(CardId.FavoriteHEROShiningFlareWingman, 1);
+        }
+
         private bool PostExpansionNormalSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsPostExpansionNormalSummonWindow() || Card == null ||
+            if (!CanSummonFromHandAfterPurulia() || !IsPostExpansionNormalSummonWindow() || Card == null ||
                 !IsRadiantCard(Card) || !Card.IsMonster() ||
                 Bot.GetMonsters().Any(c => c.IsCode(Card.Id)))
             {
@@ -1731,7 +1851,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TotemBirdSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase())
+            if (!IsMainPhase())
             {
                 return false;
             }
@@ -1750,7 +1870,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool EnterblathnirSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase() ||
+            if (!IsMainPhase() ||
                 (Duel.Turn <= 1 && Duel.Phase != DuelPhase.Main2))
             {
                 return false;
@@ -1783,7 +1903,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SPLittleKnightSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase() || Util.GetProblematicEnemyCard(0, true) == null)
+            if (!IsMainPhase() || Util.GetProblematicEnemyCard(0, true) == null)
             {
                 return false;
             }
@@ -1801,7 +1921,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HraesvelgrSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase())
+            if (!IsMainPhase())
             {
                 return false;
             }
@@ -1862,7 +1982,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool WynnSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase() ||
+            if (!IsMainPhase() ||
                 !Enemy.Graveyard.Any(c => c.Attribute == (int)CardAttribute.Wind))
             {
                 return false;
@@ -1891,31 +2011,47 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-    private bool GreatflySummon()
-    {
-        if (!CanTakeSummonActionAfterPurulia() || Duel.IsFirst || !IsMainPhase() ||
-            Duel.Phase != DuelPhase.Main1)
+        private bool GreatflySummon()
+        {
+            if (Duel.IsFirst || !IsMainPhase() || Duel.Phase != DuelPhase.Main1 ||
+                Enemy.GetMonsterCount() > 0)
             {
                 return false;
             }
-            int currentAttack = Bot.GetMonsters().Where(c => c.IsAttack()).Sum(c => Math.Max(0, c.Attack));
-            int windAttackers = Bot.GetMonsters().Count(c => c.IsAttack() && c.Attribute == (int)CardAttribute.Wind);
-            if (Enemy.GetMonsterCount() > 0 || currentAttack + windAttackers * 500 < Enemy.LifePoints)
-        {
-            return false;
-        }
-        return SelectGenericLinkTwoMaterials(true, CardId.RadiantTyphoonFonixTheGreatFlame);
-    }
 
-    private bool GreatflyPrioritySummon()
-    {
-        if (!CanTakeSummonActionAfterPurulia() || Duel.Turn <= 1 || !IsMainPhase() ||
-            Bot.GetMonsterCount() < 5)
-        {
-            return false;
+            List<ClientCard> materials = GetGenericLinkTwoMaterials(true,
+                CardId.RadiantTyphoonFonixTheGreatFlame);
+            if (materials.Count < 2)
+            {
+                return false;
+            }
+
+            List<ClientCard> remainingAttackers = Bot.GetMonsters().Where(c => c.IsAttack() &&
+                !materials.Contains(c)).ToList();
+            int postSummonAttack = remainingAttackers.Sum(c => Math.Max(0, c.Attack));
+            postSummonAttack += remainingAttackers.Count(c =>
+                c.Attribute == (int)CardAttribute.Wind) * 500;
+
+            ClientCard greatfly = Bot.ExtraDeck.FirstOrDefault(c => c.IsCode(CardId.Greatfly));
+            int greatflyBaseAttack = greatfly == null || greatfly.Attack <= 0 ? 1400 : greatfly.Attack;
+            postSummonAttack += greatflyBaseAttack + 500;
+            if (postSummonAttack < Enemy.LifePoints)
+            {
+                return false;
+            }
+
+            AI.SelectMaterials(materials);
+            return true;
         }
-        return SelectGenericLinkTwoMaterials(true, CardId.RadiantTyphoonFonixTheGreatFlame);
-    }
+
+        private bool GreatflyPrioritySummon()
+        {
+            if (Duel.Turn <= 1 || !IsMainPhase() || Bot.GetMonsterCount() < 5)
+            {
+                return false;
+            }
+            return SelectGenericLinkTwoMaterials(true, CardId.RadiantTyphoonFonixTheGreatFlame);
+        }
 
         private bool GreatflyActivate()
         {
@@ -1930,14 +2066,19 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-    private bool SelectGenericLinkTwoMaterials(bool requireWind, int excludedCardId = 0)
-    {
-        List<ClientCard> materials = Bot.GetMonsters().Where(c => c.IsFaceup() &&
-            CanUseAsLinkMaterial(c) &&
-            (!requireWind || c.Attribute == (int)CardAttribute.Wind) &&
-            (excludedCardId == 0 || !c.IsCode(excludedCardId)) &&
-            !ShouldWaitForRadiantTrigger(c))
-            .OrderBy(GetMaterialPriority).Take(2).ToList();
+        private List<ClientCard> GetGenericLinkTwoMaterials(bool requireWind, int excludedCardId = 0)
+        {
+            return Bot.GetMonsters().Where(c => c.IsFaceup() &&
+                    CanUseAsLinkMaterial(c) &&
+                    (!requireWind || c.Attribute == (int)CardAttribute.Wind) &&
+                    (excludedCardId == 0 || !c.IsCode(excludedCardId)) &&
+                    !ShouldWaitForRadiantTrigger(c))
+                .OrderBy(GetMaterialPriority).Take(2).ToList();
+        }
+
+        private bool SelectGenericLinkTwoMaterials(bool requireWind, int excludedCardId = 0)
+        {
+            List<ClientCard> materials = GetGenericLinkTwoMaterials(requireWind, excludedCardId);
             if (materials.Count < 2)
             {
                 return false;
@@ -1948,7 +2089,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TyphonSummon()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase())
+            if (!IsMainPhase())
             {
                 return false;
             }
@@ -1975,23 +2116,45 @@ namespace WindBot.Game.AI.Decks
 
         private bool RadiantSpellSet()
         {
-            if (Duel.Phase != DuelPhase.Main2 && Duel.Turn > 1)
-            {
-                return false;
-            }
-            return Card.IsCode(CardId.MysticalSpaceTyphoon, CardId.RadiantTyphoonVision,
+            bool usesRadiantSetTiming = Card.IsCode(CardId.MysticalSpaceTyphoon,
+                CardId.RadiantTyphoonVision,
                 CardId.RadiantTyphoonAscendance, CardId.RadiantTyphoonChant,
                 CardId.RadiantTyphoonMandate, CardId.ForbiddenDroplet,
                 CardId.SuperPolymerization, CardId.TheFallenTheVirtuous,
                 CardId.InfiniteImpermanence);
+            if (!usesRadiantSetTiming)
+            {
+                return DefaultSpellSet();
+            }
+            return Duel.Turn <= 1 || Duel.Phase == DuelPhase.Main2;
         }
 
         public override int OnSelectOption(IList<int> options)
         {
             int selected;
 
+            ChainInfo solvingChain = Duel.GetCurrentSolvingChainInfo();
+            if (solvingChain != null && solvingChain.IsActivateCode(CardId.AlbionTheBrandedDragon))
+            {
+                // 1153 = Set, 1190 = Add to hand. Preserve the interruption for
+                // the opponent's turn whenever the server offers a legal Set.
+                selected = options.IndexOf(1153);
+                if (selected >= 0)
+                {
+                    return selected;
+                }
+                selected = options.IndexOf(1190);
+                if (selected >= 0)
+                {
+                    return selected;
+                }
+            }
+
             if (ContainsOption(options, CardId.TheFallenTheVirtuous, 1, 2))
             {
+                // Deck-specific policy: use the destruction branch to start the
+                // Albion/Ecclesia resource loop; the shared name once-per-turn
+                // makes the revival branch substantially less valuable here.
                 selected = GetOptionIndex(options, CardId.TheFallenTheVirtuous, 1);
                 if (selected >= 0)
                 {
@@ -2026,14 +2189,6 @@ namespace WindBot.Game.AI.Decks
             if (ContainsOption(options, CardId.RadiantTyphoonAscendance, 2, 3))
             {
                 int preferredOffset;
-                if (!CanTakeSummonActionAfterPurulia())
-                {
-                    selected = GetOptionIndex(options, CardId.RadiantTyphoonAscendance, 3);
-                    if (selected >= 0)
-                    {
-                        return selected;
-                    }
-                }
                 if (Duel.Player != 0)
                 {
                     // Ascendance is revival-only during the opponent's turn.
@@ -2096,6 +2251,12 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnSelectYesNo(int desc)
         {
+            if (desc == Util.GetStringId(CardId.FavoriteHEROFlameWingman, 2))
+            {
+                return CanSummonFromHandAfterPurulia() && Bot.GetMonsterCount() < 5 &&
+                    Bot.Hand.Any(c => c.IsCode(CardId.RadiantTyphoonMeghala,
+                        CardId.RadiantTyphoonSwen, CardId.RadiantTyphoonDachs));
+            }
             if (desc == Util.GetStringId(CardId.RadiantTyphoonVaruroonTheVibrantVortex, 3))
             {
                 ChainInfo enemyMonsterEffect = Duel.CurrentChainInfo.LastOrDefault(info =>
@@ -2123,6 +2284,14 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectFusionMaterial(IList<ClientCard> cards, int min, int max)
         {
+            if (_favoriteHEROFusionTargetId == CardId.FavoriteHEROShiningFlareWingman)
+            {
+                List<ClientCard> priority = cards.Where(CanUseAsExtraDeckMaterial)
+                    .OrderBy(c => c.IsCode(CardId.FavoriteHEROFlameWingman) ? 0 :
+                        c.HasType(CardType.Fusion) ? 1 : 2)
+                    .ThenBy(GetMaterialPriority).ToList();
+                return SelectCount(priority, cards, min, max, min);
+            }
             return SelectExtraDeckMaterialsWithoutMeghala(cards, min, max);
         }
 
@@ -2180,7 +2349,7 @@ namespace WindBot.Game.AI.Decks
             if (chain.IsActivateCode(CardId.ForbiddenDroplet) &&
                 (hint == HintMsg.ToGrave || hint == HintMsg.Discard))
             {
-                ClientCard problem = Util.GetProblematicEnemyMonster(0, true);
+                ClientCard problem = Util.GetProblematicEnemyMonster(0, false);
                 List<ClientCard> enemyTargets = GetDropletTargetMonsters();
                 int targetCount = enemyTargets.Count(c => c == problem || c.Attack >= 2500);
                 bool twoCardBreakthrough = CanUseTwoCardDropletBreakthrough();
@@ -2283,10 +2452,15 @@ namespace WindBot.Game.AI.Decks
                 {
                     return SelectMandateRecycle(cards, min, max);
                 }
-                ClientCard chainOneTarget = GetOpponentChainOneFieldCard();
-                if (chainOneTarget != null && cards.Contains(chainOneTarget))
+                ClientCard mandateTarget = FindMatchingCard(cards, _mandateNegationTarget);
+                if (mandateTarget == null)
                 {
-                    return new List<ClientCard> { chainOneTarget };
+                    mandateTarget = FindMatchingCard(cards, GetBestOpponentMandateChainTarget());
+                }
+                if (mandateTarget != null)
+                {
+                    _mandateNegationTarget = mandateTarget;
+                    return new List<ClientCard> { mandateTarget };
                 }
             }
 
@@ -2434,6 +2608,35 @@ namespace WindBot.Game.AI.Decks
 
         private IList<ClientCard> SelectResolutionCard(ChainInfo chain, IList<ClientCard> cards, int min, int max, int hint)
         {
+            if (chain.IsActivateCode(CardId.FavoriteHEROShiningFlareWingman))
+            {
+                List<ClientCard> priority = cards.OrderBy(GetShiningFlareRecyclePriority)
+                    .ThenBy(GetMaterialPriority).ToList();
+                return SelectCount(priority, cards, min, max, 5);
+            }
+
+            if (chain.IsActivateCode(CardId.FavoriteHEROFlameWingman))
+            {
+                ClientCard shiningFlareWingman = cards.FirstOrDefault(c =>
+                    c.IsCode(CardId.FavoriteHEROShiningFlareWingman));
+                if (shiningFlareWingman != null)
+                {
+                    _favoriteHEROFusionTargetId = CardId.FavoriteHEROShiningFlareWingman;
+                    return SelectCount(new List<ClientCard> { shiningFlareWingman },
+                        cards, min, max, 1);
+                }
+
+                if (cards.Any(c => c.Location == CardLocation.Hand && c.IsMonster()))
+                {
+                    return SelectFavoriteHEROFlameWingmanHandSummon(cards, min, max);
+                }
+            }
+
+            if (chain.IsActivateCode(CardId.AlbionTheBrandedDragon))
+            {
+                return SelectByIds(cards, min, max, 1, CardId.TheFallenTheVirtuous);
+            }
+
             if (chain.IsActivateCode(CardId.ForbiddenDroplet))
             {
                 int desired = _dropletCostCount > 0 ? _dropletCostCount : min;
@@ -2444,7 +2647,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     targets.Add(respondingMonsterCandidate);
                 }
-                targets.AddRange(GetOrderedEnemyCards(cards.Where(c => c.Controller == 1 &&
+                targets.AddRange(GetOrderedDropletTargets(cards.Where(c => c.Controller == 1 &&
                     !targets.Contains(c))));
                 return SelectCount(targets, cards, min, max, desired);
             }
@@ -2513,6 +2716,55 @@ namespace WindBot.Game.AI.Decks
                 return SelectCount(targets, cards, min, max, 1);
             }
             return null;
+        }
+
+        private IList<ClientCard> SelectFavoriteHEROFlameWingmanHandSummon(IList<ClientCard> cards,
+            int min, int max)
+        {
+            List<int> ids = BuildSearchPriorityWithoutFieldMeghala(
+                CardId.RadiantTyphoonMeghala,
+                CardId.RadiantTyphoonSwen,
+                CardId.RadiantTyphoonDachs,
+                CardId.AshBlossomJoyousSpring,
+                CardId.MaxxC,
+                CardId.DrollLockBird);
+            List<ClientCard> priority = new List<ClientCard>();
+            foreach (int id in ids)
+            {
+                priority.AddRange(cards.Where(c => c.IsCode(id) && !priority.Contains(c)));
+            }
+            priority.AddRange(cards.Where(c => !priority.Contains(c)).OrderBy(GetDiscardPriority));
+            return SelectCount(priority, cards, min, max, 1);
+        }
+
+        private int GetShiningFlareRecyclePriority(ClientCard card)
+        {
+            if (card == null)
+            {
+                return 1000;
+            }
+            if (card.IsCode(CardId.AlbionTheBrandedDragon, CardId.EcclesiaAndTheDarkDragon))
+            {
+                return 100;
+            }
+            if (card.IsCode(CardId.RadiantTyphoonFonixTheGreatFlame,
+                CardId.RadiantTyphoonVaruroonTheVibrantVortex))
+            {
+                return 90;
+            }
+            if (card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link))
+            {
+                return 0;
+            }
+            if (IsRadiantCard(card) && WasRadiantEffectUsedThisTurn(card.Id))
+            {
+                return 10;
+            }
+            if (IsRadiantCard(card))
+            {
+                return 70;
+            }
+            return 30;
         }
 
         private IList<ClientCard> SelectMeghalaSummon(IList<ClientCard> cards, int min, int max)
@@ -2891,7 +3143,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card == null || !Card.IsCode(CardId.RadiantTyphoonVaruroonTheMarineEidolon) ||
                 Card.Controller != 0 || Card.Location != CardLocation.MonsterZone ||
-                _marineTrapPlacementResolved)
+                _marineTrapPlacementResolvedThisTurn)
             {
                 return false;
             }
@@ -2935,9 +3187,9 @@ namespace WindBot.Game.AI.Decks
             return Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2;
         }
 
-        private bool CanTakeSummonActionAfterPurulia()
+        private bool CanSummonFromHandAfterPurulia()
         {
-            return !_enemyPuruliaResolved || !_botSummonedAfterPurulia;
+            return !_enemyPuruliaResolved || !_botSummonedFromHandAfterPurulia;
         }
 
         private bool ShouldPrioritizeGallantThiefSummon()
@@ -2955,7 +3207,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanSpecialSummonMeghalaFromHandNow()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase() || _usedMeghalaHandSummon ||
+            if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() || _usedMeghalaHandSummon ||
                 Bot.GetMonsterCount() >= 5 ||
                 !Bot.HasInHand(CardId.RadiantTyphoonMeghala) ||
                 !IsCurrentSpecialSummonCandidate(CardId.RadiantTyphoonMeghala))
@@ -2965,15 +3217,9 @@ namespace WindBot.Game.AI.Decks
             return Bot.HasInGraveyard(CardId.MysticalSpaceTyphoon) || Enemy.GetSpellCount() == 0;
         }
 
-        private bool ShouldBlockAscendanceReviveAfterPurulia()
-        {
-            return !CanTakeSummonActionAfterPurulia() && Card != null &&
-                Card.IsCode(CardId.RadiantTyphoonAscendance) && CanUseAscendanceReviveNow();
-        }
-
         private bool CanSpecialSummonSmallRadiantFromHandNow()
         {
-            if (!CanTakeSummonActionAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() >= 5 ||
+            if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() >= 5 ||
                 (!Bot.HasInGraveyard(CardId.MysticalSpaceTyphoon) && Enemy.GetSpellCount() > 0))
             {
                 return false;
@@ -3224,8 +3470,16 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            return !card.IsCode(CardId.RadiantTyphoonVaruroonTheMarineEidolon) ||
-                _marineTrapPlacementResolved;
+            if (!card.IsCode(CardId.RadiantTyphoonVaruroonTheMarineEidolon))
+            {
+                return true;
+            }
+
+            // Preserve Marine until the deck has secured the intended Mandate
+            // payoff. Once secured, do not lock it out of material use on later
+            // turns merely because the turn-scoped trigger flag was reset.
+            return _marineTrapPlacementResolvedThisTurn ||
+                _marineMandatePayoffSecured || HasEstablishedMandate();
         }
 
         private IList<ClientCard> SelectExtraDeckMaterialsWithoutMeghala(IList<ClientCard> cards, int min, int max)
@@ -3284,9 +3538,18 @@ namespace WindBot.Game.AI.Decks
             {
                 return 3;
             }
-            if (card.IsCode(CardId.RadiantTyphoonVaruroonTheMarineEidolon) && Bot.HasInSpellZone(CardId.RadiantTyphoonMandate))
+            if (card.IsCode(CardId.RadiantTyphoonVaruroonTheMarineEidolon))
             {
-                return 5;
+                bool canStillDisrupt = Enemy.GetMonsters().Any(c => c.IsFaceup() &&
+                    c.Attack >= 2000);
+                if (canStillDisrupt)
+                {
+                    return 30;
+                }
+                if (_marineMandatePayoffSecured || HasEstablishedMandate())
+                {
+                    return 5;
+                }
             }
             if (card.IsCode(CardId.RadiantTyphoonVaruroonTheVibrantVortex,
                 CardId.RadiantTyphoonFonixTheGreatFlame,
@@ -3343,6 +3606,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool IsDropletCostCandidate(ClientCard card)
         {
+            // Set cards are legal Droplet costs, but this deck deliberately
+            // preserves its Set interaction and the face-up Mandate engine.
             return card != null && card.Controller == 0 && card != Card &&
                 !card.IsCode(CardId.RadiantTyphoonMeghala, CardId.RadiantTyphoonMandate) &&
                 !card.IsFacedown();
