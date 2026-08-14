@@ -232,7 +232,7 @@ namespace WindBot.Game.AI.Decks
         }
         public override void OnChainEnd()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(CardId.Dimension_Shifter) && !Count.CheckCard(Card.Id))
+            if (DefaultCheckWhetherCardIdIsNegated(CardId.Dimension_Shifter) && !Count.CheckCard(CardId.Dimension_Shifter))
                 Count.Dimension_Shifter = 0;
             Count.Oppo.Clear();
         }

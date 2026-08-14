@@ -311,10 +311,7 @@ namespace WindBot.Game.AI.Decks
             if (positions == null || positions.Count == 0)
                 return base.OnSelectPosition(cardId, positions);
 
-            bool isYubelFamily =
-                YUBEL_SET.Contains(cardId) ||
-                (Card != null && YUBEL_SET.Contains(Card.Id)) ||
-                (Card != null && (Card.Name?.Contains("Yubel") ?? false));
+            bool isYubelFamily = YUBEL_SET.Contains(cardId);
 
             if(!isYubelFamily)
                 return base.OnSelectPosition(cardId, positions);
@@ -2405,7 +2402,7 @@ namespace WindBot.Game.AI.Decks
             var solving = Duel.GetCurrentSolvingChainInfo();
             if (solving != null)
             {
-                Logger.DebugWriteLine($"  -> Solving: {CardStr(solving.RelatedCard)}  ActivateDescription={ActivateDescription}");
+                Logger.DebugWriteLine($"  -> Solving: {CardStr(solving.RelatedCard)}  ActivateDescription={solving.ActivateDescription}");
             }
             if (Duel.ChainTargets != null && Duel.ChainTargets.Count > 0)
             {

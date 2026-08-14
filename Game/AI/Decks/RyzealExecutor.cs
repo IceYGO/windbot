@@ -3890,7 +3890,7 @@ namespace WindBot.Game.AI.Decks
         public bool Number60DugaresTheTimelessDrawEffect()
         {
             if (lockBirdSolved || Bot.Deck.Count < 2) return false;
-            activatedCardIdList.Add(Card.Id);
+            activatedCardIdList.Add(CardId.Number60DugaresTheTimeless);
             return true;
         }
 

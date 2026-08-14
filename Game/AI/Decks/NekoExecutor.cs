@@ -673,15 +673,15 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SPNekoSycroCake()
         {
-            return Count.CheckActivate(Card.Id);
+            return Count.CheckActivate(CardId.Neko_Sycro_Cake);
         }
         private bool SPNekoSycroLollipop()
         {
-            return Count.CheckActivate(Card.Id) && Bot.Graveyard.Any(i => i.HasSetcode(SetCode.Neko) && !i.HasType(CardType.Link));
+            return Count.CheckActivate(CardId.Neko_Sycro_Lollipop) && Bot.Graveyard.Any(i => i.HasSetcode(SetCode.Neko) && !i.HasType(CardType.Link));
         }
         private bool SPNekoSycroCookie()
         {
-            return Count.CheckActivate(Card.Id) && Enemy.GetMonsters().Count(i => i.IsFaceup() && !i.HasType(CardType.Link) && !Duel.ChainTargets.Contains(i)) > 1;
+            return Count.CheckActivate(CardId.Neko_Sycro_Cookie) && Enemy.GetMonsters().Count(i => i.IsFaceup() && !i.HasType(CardType.Link) && !Duel.ChainTargets.Contains(i)) > 1;
         }
         private bool SPSycro()
         {

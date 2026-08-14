@@ -6133,8 +6133,7 @@ namespace WindBot.Game.AI.Decks
 
             return !HasSmallPumpkingOnField()
                 && !pumpkingSummonEffectAttempted
-                && Bot.Graveyard.Any(c => c != Card
-                    && c.IsCode(CardId.PumpkingTheKingOfGraveGhosts)
+                && Bot.Graveyard.Any(c => c.IsCode(CardId.PumpkingTheKingOfGraveGhosts)
                     && c.IsCanRevive());
         }
 
@@ -8146,7 +8145,7 @@ namespace WindBot.Game.AI.Decks
                 case CardId.EldlichTheMadGoldenLord:
                     if (hint == HintMsg.Release)
                     {
-                        List<ClientCard> tribute = cards.Where(c => c.Controller == 0 && IsZombie(c) && c != Card)
+                        List<ClientCard> tribute = cards.Where(c => c.Controller == 0 && IsZombie(c) && !c.IsCode(CardId.EldlichTheMadGoldenLord))
                             .OrderBy(GetMaterialValue).ToList();
                         return Util.CheckSelectCount(tribute, cards, min, max);
                     }

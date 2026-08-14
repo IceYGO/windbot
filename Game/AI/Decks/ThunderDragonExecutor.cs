@@ -807,11 +807,11 @@ namespace WindBot.Game.AI.Decks
         {
             int remaining = THUNDER_COUNTD;
             if (isOnlyTunder) remaining -= 4;
-            remaining = remaining - Bot.Hand.Count(card => card != null && card.HasRace(CardRace.Thunder) && !card.IsExtraCard() && !(isOnlyTunder & !Card.HasSetcode(0x11c)));
-            remaining = remaining - Bot.SpellZone.Count(card => card != null && card.HasRace(CardRace.Thunder) && !card.IsExtraCard() && !(isOnlyTunder & !Card.HasSetcode(0x11c)));
-            remaining = remaining - Bot.MonsterZone.Count(card => card != null && card.HasRace(CardRace.Thunder) && !card.IsExtraCard() && !(isOnlyTunder & !Card.HasSetcode(0x11c)));
-            remaining = remaining - Bot.Graveyard.Count(card => card != null && card.HasRace(CardRace.Thunder) && !card.IsExtraCard() && !(isOnlyTunder & !Card.HasSetcode(0x11c)));
-            remaining = remaining - Bot.Banished.Count(card => card != null && card.HasRace(CardRace.Thunder) && !card.IsExtraCard() && !(isOnlyTunder & !Card.HasSetcode(0x11c)));
+            remaining = remaining - Bot.Hand.Count(card => card != null && card.HasRace(CardRace.Thunder) && !card.IsExtraCard() && !(isOnlyTunder & !card.HasSetcode(0x11c)));
+            remaining = remaining - Bot.SpellZone.Count(card => card != null && card.HasRace(CardRace.Thunder) && !card.IsExtraCard() && !(isOnlyTunder & !card.HasSetcode(0x11c)));
+            remaining = remaining - Bot.MonsterZone.Count(card => card != null && card.HasRace(CardRace.Thunder) && !card.IsExtraCard() && !(isOnlyTunder & !card.HasSetcode(0x11c)));
+            remaining = remaining - Bot.Graveyard.Count(card => card != null && card.HasRace(CardRace.Thunder) && !card.IsExtraCard() && !(isOnlyTunder & !card.HasSetcode(0x11c)));
+            remaining = remaining - Bot.Banished.Count(card => card != null && card.HasRace(CardRace.Thunder) && !card.IsExtraCard() && !(isOnlyTunder & !card.HasSetcode(0x11c)));
             return (remaining < 0) ? 0 : remaining;
         }
         private int GetLinkMark(int cardId)
