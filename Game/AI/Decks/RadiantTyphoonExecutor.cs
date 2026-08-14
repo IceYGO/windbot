@@ -1818,6 +1818,11 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
+            if (Card.IsCode(CardId.RadiantTyphoonAscendance) && !CanActivateAscendanceNow())
+            {
+                return false;
+            }
+
             if (IsMainPhase() && Duel.CurrentChain.Count == 0 && CanSummonSeaSpiritNow())
             {
                 return false;
@@ -1960,13 +1965,29 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanActivateAscendanceNow()
         {
-            if (!Card.IsCode(CardId.RadiantTyphoonAscendance) || Enemy.GetSpellCount() > 0)
+            if (!Card.IsCode(CardId.RadiantTyphoonAscendance))
             {
                 return true;
             }
 
-            return !Bot.Hand.Concat(Bot.GetSpells()).Any(c => c != Card && IsRadiantQuickPlay(c)) &&
-                !CanSpecialSummonSmallRadiantFromHandNow();
+            // Ascendance is a late engine action. If the server still offers a
+            // direct hand Special Summon for Swen, Dachs, or Meghala, let that
+            // summon happen first even when Ascendance is also being offered as
+            // the MST starter against opposing backrow.
+            if (HasDirectSmallRadiantSpecialSummonNow())
+            {
+                return false;
+            }
+
+            // Other Radiant Quick-Play Spells have priority over Ascendance. Use
+            // the visible hand/field cards here because this is the same
+            // late-activation policy used by the existing main-phase logic.
+            if (Bot.Hand.Concat(Bot.GetSpells()).Any(c => c != Card && IsRadiantQuickPlay(c)))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private bool CanActivateAscendanceInCurrentTurn()
@@ -3536,6 +3557,22 @@ namespace WindBot.Game.AI.Decks
         {
             if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() >= 5 ||
                 (!Bot.HasInGraveyard(CardId.MysticalSpaceTyphoon) && Enemy.GetSpellCount() > 0))
+            {
+                return false;
+            }
+
+            return (Bot.Hand.Any(c => c.IsCode(CardId.RadiantTyphoonMeghala) && !_usedMeghalaHandSummon) &&
+                    IsCurrentSpecialSummonCandidate(CardId.RadiantTyphoonMeghala)) ||
+                (Bot.Hand.Any(c => c.IsCode(CardId.RadiantTyphoonSwen) && !_usedSwenHandSummon) &&
+                    IsCurrentSpecialSummonCandidate(CardId.RadiantTyphoonSwen)) ||
+                (Bot.Hand.Any(c => c.IsCode(CardId.RadiantTyphoonDachs) && !_usedDachsHandSummon) &&
+                    IsCurrentSpecialSummonCandidate(CardId.RadiantTyphoonDachs));
+        }
+
+        private bool HasDirectSmallRadiantSpecialSummonNow()
+        {
+            if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() >= 5 ||
+                ShouldStopRadiantSpecialSummon(CardLocation.Hand))
             {
                 return false;
             }
