@@ -302,7 +302,9 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectPlace(choose);
                 return choose;
             }
-            SelectSTPlace(Card, true);
+            ClientCard placingCard = Bot.Hand.FirstOrDefault(card => card.IsCode(cardId));
+            if (placingCard != null)
+                SelectSTPlace(placingCard, true); // TODO: return value instead of using AI.SelectPlace
             return base.OnSelectPlace(cardId, player, location, available);
         }
 
