@@ -160,14 +160,15 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnSelectYesNo(int desc)
         {
-            // Yosenju Kama 2 shouldn't attack directly at most times
-            if (Card == null)
+            if (desc == 31) // Direct attack?
+            {
+                // Yosenju Kama 2 shouldn't attack directly at most times
+                ClientCard attacker = Bot.BattlingMonster;
+                if (attacker != null && attacker.IsCode(CardId.YosenjuKama2))
+                    return Util.IsAllEnemyBetterThanValue(attacker.RealPower, false);
                 return true;
-            // Logger.DebugWriteLine(Card.Name);
-            if (Card.IsCode(CardId.YosenjuKama2))
-                return Card.ShouldDirectAttack;
-            else
-                return true;
+            }
+            return base.OnSelectYesNo(desc);
         }
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
