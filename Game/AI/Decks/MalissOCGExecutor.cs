@@ -325,6 +325,7 @@ namespace WindBot.Game.AI.Decks
             // 有连锁时用发动快照卡号；无连锁回退到当前 Card.Id
             ChainInfo chainInfo = Duel.GetCurrentSolvingChainInfo();
             int solvingId = chainInfo != null ? chainInfo.ActivateId : (Card != null ? Card.Id : 0);
+            ClientCard selectableChessyCat = cards.FirstOrDefault(i => i.IsCode(CardId.Maliss_Chessy_Cat));
             switch (solvingId)
             {
                 case CardId.Maliss_White_Rabbit:
@@ -386,7 +387,7 @@ namespace WindBot.Game.AI.Decks
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_White_Rabbit).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_Chessy_Cat)
                                 && !Bot.HasInHand(CardId.Maliss_Chessy_Cat)
-                                    && Check_Maliss_Chessy_Cat()
+                                    && Check_Maliss_Chessy_Cat(selectableChessyCat)
                                         && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_March_Hare)
@@ -402,7 +403,7 @@ namespace WindBot.Game.AI.Decks
                             && Count.CheckCardRemoved(CardId.Maliss_White_Rabbit) && Check_Maliss_White_Rabbit())
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_White_Rabbit).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_Chessy_Cat)
-                            && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat())
+                            && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat(selectableChessyCat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_March_Hare) && Check_Maliss_March_Hare(CardLocation.Removed))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_March_Hare).ToList(), cards, min, max);
@@ -418,7 +419,7 @@ namespace WindBot.Game.AI.Decks
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_White_Rabbit).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_Chessy_Cat)
                                 && !Bot.HasInHand(CardId.Maliss_Chessy_Cat)
-                                    && Check_Maliss_Chessy_Cat()
+                                    && Check_Maliss_Chessy_Cat(selectableChessyCat)
                                         && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_March_Hare) && Check_Maliss_March_Hare(CardLocation.Removed))
@@ -430,7 +431,7 @@ namespace WindBot.Game.AI.Decks
                             && Count.CheckCardRemoved(CardId.Maliss_White_Rabbit) && Check_Maliss_White_Rabbit())
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_White_Rabbit).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_Chessy_Cat)
-                            && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat())
+                            && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat(selectableChessyCat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_March_Hare) && Check_Maliss_March_Hare(CardLocation.Removed))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_March_Hare).ToList(), cards, min, max);
@@ -544,7 +545,7 @@ namespace WindBot.Game.AI.Decks
                             && Count.CheckCardRemoved(CardId.Maliss_White_Rabbit) && Check_Maliss_White_Rabbit())
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_White_Rabbit).ToList(), cards, min, max);
                         if (cards.Any(i => i.Id == CardId.Maliss_Chessy_Cat)
-                            && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat())
+                            && Count.CheckCardRemoved(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat(selectableChessyCat))
                             return Util.CheckSelectCount(cards.Where(i => i.Id == CardId.Maliss_Chessy_Cat).ToList(), cards, min, max);
                     }
                     break;
@@ -972,7 +973,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Summon_Maliss_Chessy_Cat()
         {
-            if (Check_Maliss_Chessy_Cat())
+            if (Check_Maliss_Chessy_Cat(Card))
             {
                 Count.AddSummon();
                 return true;
@@ -1034,11 +1035,12 @@ namespace WindBot.Game.AI.Decks
                 return cards.Any(i => Count.CheckCardRemoved(i.Id));
             }
         }
-        private bool Check_Maliss_Chessy_Cat()
+        private bool Check_Maliss_Chessy_Cat(ClientCard chessyCat)
         {
             return Bot.Hand.Any(i => i.HasSetcode(SetCode.Maliss)
                     && !i.HasType(CardType.Trap)
-                        && i != Card && Count.CheckCardRemoved(i.Id)
+                    && i != chessyCat
+                    && Count.CheckCardRemoved(i.Id)
                 ) && Count.CheckCard(CardId.Maliss_Chessy_Cat);
         }
         private bool Check_Maliss_White_Rabbit()
@@ -1105,7 +1107,7 @@ namespace WindBot.Game.AI.Decks
                     || (Count.CheckSummon() && (
                             (Count.CheckCard(CardId.Maliss_Dormouse) && !Bot.HasInMonstersZone(CardId.Maliss_Dormouse) && Check_Maliss_Dormouse())
                             || (Count.CheckCard(CardId.Maliss_White_Rabbit) && !Bot.HasInMonstersZone(CardId.Maliss_White_Rabbit) && Check_Maliss_White_Rabbit())
-                            || (Count.CheckCard(CardId.Maliss_Chessy_Cat) && !Bot.HasInMonstersZone(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat())
+                            || (Count.CheckCard(CardId.Maliss_Chessy_Cat) && !Bot.HasInMonstersZone(CardId.Maliss_Chessy_Cat) && Check_Maliss_Chessy_Cat(null))
                         )
                     )
                 )
@@ -1139,7 +1141,7 @@ namespace WindBot.Game.AI.Decks
             return (
                 (!Bot.HasInMonstersZone(CardId.Maliss_Dormouse) && Count.CheckCard(CardId.Maliss_Dormouse) && Count.CheckCardRemoved(CardId.Maliss_Dormouse) && Check_Maliss_Dormouse())
                 || (!Bot.HasInMonstersZone(CardId.Maliss_White_Rabbit) && Count.CheckCard(CardId.Maliss_White_Rabbit) && Count.CheckCardRemoved(CardId.Maliss_White_Rabbit) && Check_Maliss_White_Rabbit())
-                || (!Bot.HasInMonstersZone(CardId.Maliss_Chessy_Cat) && Count.CheckCard(CardId.Maliss_Chessy_Cat) && Count.CheckCardRemoved(CardId.Maliss_White_Rabbit) && Check_Maliss_Chessy_Cat())
+                || (!Bot.HasInMonstersZone(CardId.Maliss_Chessy_Cat) && Count.CheckCard(CardId.Maliss_Chessy_Cat) && Count.CheckCardRemoved(CardId.Maliss_White_Rabbit) && Check_Maliss_Chessy_Cat(null))
                 || (Count.CheckCardRemoved(CardId.Maliss_March_Hare) && Check_Maliss_March_Hare(CardLocation.Removed) && Bot.Banished.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Monster)))
             );
         }
