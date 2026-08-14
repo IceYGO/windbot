@@ -117,6 +117,8 @@ namespace WindBot.Game
                 return;
             }
 
+            // No currently OCG card moves a card directly from one player's Deck to another zone hidden to that player,
+            // so an unknown or untracked departure indicates a protocol parsing or state-sync error.
             Logger.WriteErrorLine("Deck tracking: an unknown or untracked card left the deck.");
         }
 
