@@ -63,43 +63,6 @@ namespace WindBot.Game.AI.Decks
         List<int> notToNegateIdList = new List<int> { 58699500, 20343502, 19403423 };
         List<int> notToDestroySpellTrap = new List<int> { 50005218, 6767771 };
 
-        Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>
-        {
-            { 3, new List<int>
-                {
-                    CardId.RegenArch,
-                    CardId.Origin,
-                    CardId.Royal,
-                    CardId.Highness,
-                    CardId.PMBeryl,
-                    CardId.Makourai,
-                    CardId.Strategy,
-                    CardId.Usurpation,
-                    CardId.PMLL,
-                }
-            },
-
-            { 2, new List<int>
-                {
-                    _CardId.AshBlossom,
-                    CardId.SMSkull,
-                    _CardId.PotOfExtravagance,
-                    _CardId.InfiniteImpermanence
-                }
-            },
-
-            { 1, new List<int>
-                {
-                    _CardId.MaxxC,
-                    //_CardId.CalledByTheGrave,
-                    CardId.PMDR,
-                    CardId.Simul,
-                    CardId.RegenSage,
-                    CardId.Playtime
-
-                }
-            },
-        };
 
         private static readonly int[] PreferDiscard =
         {
@@ -195,17 +158,6 @@ namespace WindBot.Game.AI.Decks
             return base.OnSelectYesNo(desc);
         }
 
-        public int CheckRemainInDeck(int id)
-        {
-            for (int count = 1; count < 4; ++count)
-            {
-                if (DeckCountTable[count].Contains(id))
-                {
-                    return Bot.GetRemainingCount(id, count);
-                }
-            }
-            return 0;
-        }
         public bool CheckAtAdvantage()
         {
             if (GetProblematicEnemyMonster() == null && Bot.GetMonsters().Any(card => card.IsFaceup()))
@@ -246,7 +198,7 @@ namespace WindBot.Game.AI.Decks
                 if (alias != 0 && alias - code < 10) code = alias;
                 if (code == 0) return false;
                 if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
-                if (CheckRemainInDeck(code) > 0)
+                if (Bot.HasInDeck(code))
                 {
                     if (!(Card.Location == CardLocation.SpellZone))
                     {
@@ -913,7 +865,7 @@ namespace WindBot.Game.AI.Decks
 
                                     foreach (int targetId in targetIdList)
                                     {
-                                        if (CheckRemainInDeck(targetId) <= 0) continue;
+                                        if (!Bot.HasInDeck(targetId)) continue;
 
                                         ClientCard target = cards.FirstOrDefault(c => c.IsCode(targetId));
                                         if (target != null)
@@ -1037,7 +989,7 @@ namespace WindBot.Game.AI.Decks
                                 List<ClientCard> faceDownMonsters = botMonsters.Where(card => card.IsFacedown()).ToList();
                                 banishList.AddRange(faceDownMonsters);
                                 List<ClientCard> dumpMainMonsterList = botMonsters.Where(card => !banishList.Contains(card)
-                                    && CheckRemainInDeck(card.Id) > 0).ToList();
+                                    && Bot.HasInDeck(card.GetNonAltartCode())).ToList();
                                 dumpMainMonsterList.Sort(CardContainer.CompareCardAttack);
                                 banishList.AddRange(dumpMainMonsterList);
                                 // spells
@@ -1196,10 +1148,10 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInHandOrHasInMonstersZone(CardId.PMBeryl) && DefaultCheckWhetherBotCanSearch())
             {
                 // for search drillbeam
-                activateFlag |= CheckRemainInDeck(CardId.PMDR) > 0;
+                activateFlag |= Bot.HasInDeck(CardId.PMDR);
                 activateFlag |= summonCount <= 0 && Card.Location == CardLocation.SpellZone && Card.IsFacedown();
             }
-            if (summonCount > 0 && !Bot.HasInHand(CardId.PMBeryl) && CheckRemainInDeck(CardId.PMBeryl) > 0 && DefaultCheckWhetherBotCanSearch())
+            if (summonCount > 0 && !Bot.HasInHand(CardId.PMBeryl) && Bot.HasInDeck(CardId.PMBeryl) && DefaultCheckWhetherBotCanSearch())
             {
                 // for search ether beryl
                 activateFlag |= Bot.HasInGraveyard(CardId.PMDR);
@@ -1208,7 +1160,7 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInHandOrHasInMonstersZone(CardId.SMSkull) && DefaultCheckWhetherBotCanSearch())
             {
                 // for search drillbeam
-                activateFlag |= CheckRemainInDeck(CardId.PMDR) > 0;
+                activateFlag |= Bot.HasInDeck(CardId.PMDR);
                 activateFlag |= summonCount <= 0 && Card.Location == CardLocation.SpellZone && Card.IsFacedown();
             }
             if (!Bot.HasInSpellZone(CardId.PMLL, true, true))
@@ -1218,7 +1170,7 @@ namespace WindBot.Game.AI.Decks
 
                 // for special summon
                 bool hasSMSkull = Bot.HasInHand(CardId.SMSkull)
-                                 || CheckRemainInDeck(CardId.SMSkull) > 0
+                                 || Bot.HasInDeck(CardId.SMSkull)
                                  || Bot.HasInGraveyard(CardId.SMSkull);
 
                 if (!hasSMSkull)
@@ -1262,7 +1214,7 @@ namespace WindBot.Game.AI.Decks
             {
                 loc = CardLocation.Hand;
             }
-            else if (CheckRemainInDeck(CardId.SMSkull) > 0)
+            else if (Bot.HasInDeck(CardId.SMSkull))
             {
                 loc = CardLocation.Deck;
             }
@@ -1401,8 +1353,8 @@ namespace WindBot.Game.AI.Decks
                 // summon to search?
                 if (!CheckWhetherNegated(true, true))
                 {
-                    summonFlag |= !activatedCardIdList.Contains(CardId.PMLL) && !Bot.HasInHandOrInSpellZone(CardId.PMLL) && CheckRemainInDeck(CardId.PMLL) > 0;
-                    summonFlag |= CheckRemainInDeck(CardId.PMDR) > 0;
+                    summonFlag |= !activatedCardIdList.Contains(CardId.PMLL) && !Bot.HasInHandOrInSpellZone(CardId.PMLL) && Bot.HasInDeck(CardId.PMLL);
+                    summonFlag |= Bot.HasInDeck(CardId.PMDR);
                 }
 
                 // summon to recycle beam
@@ -1446,7 +1398,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ShouldPMLLSearchDrillbeam()
         {
-            if (CheckRemainInDeck(CardId.PMDR) <= 0) return false;
+            if (!Bot.HasInDeck(CardId.PMDR)) return false;
 
             if (Bot.HasInHand(CardId.PMDR) || Bot.HasInSpellZone(CardId.PMDR))
                 return false;
@@ -1503,7 +1455,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool CanPlaytimeSummon(int id)
         {
-            return Bot.HasInHand(id) || CheckRemainInDeck(id) > 0;
+            return Bot.HasInHand(id) || Bot.HasInDeck(id);
         }
         private bool Usurpation()
         {
@@ -1568,7 +1520,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanSetArchfiendTrap(int id)
         {
-            return Bot.HasInGraveyard(id) || CheckRemainInDeck(id) > 0;
+            return Bot.HasInGraveyard(id) || Bot.HasInDeck(id);
         }
 
         private bool StrategyActivate()
@@ -1663,7 +1615,7 @@ namespace WindBot.Game.AI.Decks
             foreach (int id in priority)
             {
                 if (id == exceptId) continue;
-                if (CheckRemainInDeck(id) <= 0) continue;
+                if (!Bot.HasInDeck(id)) continue;
                 if (HasUnusedInHand(id)) continue;
 
                 return id;
@@ -1688,7 +1640,7 @@ namespace WindBot.Game.AI.Decks
                 CardId.Royal
             }
             .Where(id => id != CardId.Highness)
-            .Where(id => CheckRemainInDeck(id) > 0)
+            .Where(id => Bot.HasInDeck(id))
             .OrderBy(id => GetHighnessSearchPriority(id))
             .Take(2)
             .ToList();
@@ -1786,7 +1738,7 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (Bot.HasInHand(CardId.SMSkull) || CheckRemainInDeck(CardId.SMSkull) > 0 || Bot.HasInGraveyard(CardId.SMSkull))
+                if (Bot.HasInHand(CardId.SMSkull) || Bot.HasInDeck(CardId.SMSkull) || Bot.HasInGraveyard(CardId.SMSkull))
                 {
                     AI.SelectCard(CardId.SMSkull);
                     return true;

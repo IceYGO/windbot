@@ -384,8 +384,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DraconnetSummon()
         {
-            return Bot.GetRemainingCount(CardId.Digitron, 1) > 0
-                || Bot.GetRemainingCount(CardId.Bitron, 1) > 0;
+            return Bot.HasInDeck(CardId.Digitron, CardId.Bitron);
         }
 
         private bool DraconnetEffect()

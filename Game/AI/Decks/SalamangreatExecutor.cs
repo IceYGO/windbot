@@ -626,7 +626,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FalcoToGY(bool FromDeck)
         {
-            if (FromDeck && Bot.Deck.ContainsCardWithId(CardId.Falco))
+            if (FromDeck && Bot.HasInDeck(CardId.Falco))
             {
                 if (Bot.HasInGraveyard(salamangreat_spellTrap))
                 {

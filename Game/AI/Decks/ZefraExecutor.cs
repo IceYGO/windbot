@@ -600,9 +600,9 @@ namespace WindBot.Game.AI.Decks
             if (!Bot.HasInExtra(CardId.CrystronHalqifibrax)) extra_ids.Remove(CardId.CrystronHalqifibrax);
             if (extra_ids.Count <= 0) return extra_ids;
             bool DD_summon_check = false;
-            if (Bot.HasInExtra(CardId.CrystronHalqifibrax) && ((!summoned && HasInDeck(CardId.DDSavantKepler) && (HasInDeck(CardId.DarkContractwiththGate) || Bot.HasInHandOrInSpellZone(CardId.DarkContractwiththGate)
-                ) && !activate_DarkContractwiththGate && HasInDeck(CardId.DDLamia)) || (func.CardsCheckAny(Bot.Hand, func.HasType, CardType.Tuner) &&
-                (HasInDeck(CardId.AstrographSorcerer) || Bot.HasInHand(CardId.AstrographSorcerer)))))
+            if (Bot.HasInExtra(CardId.CrystronHalqifibrax) && ((!summoned && Bot.HasInDeck(CardId.DDSavantKepler) && (Bot.HasInDeck(CardId.DarkContractwiththGate) || Bot.HasInHandOrInSpellZone(CardId.DarkContractwiththGate)
+                ) && !activate_DarkContractwiththGate && Bot.HasInDeck(CardId.DDLamia)) || (func.CardsCheckAny(Bot.Hand, func.HasType, CardType.Tuner) &&
+                (Bot.HasInDeck(CardId.AstrographSorcerer) || Bot.HasInHand(CardId.AstrographSorcerer)))))
             {
                 DD_summon_check = true;
             }
@@ -646,10 +646,10 @@ namespace WindBot.Game.AI.Decks
         }
         private bool XyzModeCheck(bool flag1 = false)
         {
-            return !link_summoned && !(!Bot.HasInExtra(CardId.Raidraptor_ArsenalFalcon) & flag1) && HasInDeck(CardId.Blackwing_ZephyrostheElite) && Bot.HasInExtra(CardId.Raidraptor_ForceStrix) && Bot.HasInExtra(CardId.Raidraptor_WiseStrix)
-                && Bot.HasInExtra(CardId.TruKingofAllCalamities) && (HasInDeck(CardId.Raider_Wing) || Bot.HasInHand(CardId.Raider_Wing))
-                && (HasInDeck(CardId.Raidraptor_SingingLanius) || Bot.HasInHand(CardId.Raidraptor_SingingLanius))
-                && (HasInDeck(CardId.Rank_Up_MagicSoulShaveForce) || Bot.HasInHand(CardId.Rank_Up_MagicSoulShaveForce));
+            return !link_summoned && !(!Bot.HasInExtra(CardId.Raidraptor_ArsenalFalcon) & flag1) && Bot.HasInDeck(CardId.Blackwing_ZephyrostheElite) && Bot.HasInExtra(CardId.Raidraptor_ForceStrix) && Bot.HasInExtra(CardId.Raidraptor_WiseStrix)
+                && Bot.HasInExtra(CardId.TruKingofAllCalamities) && (Bot.HasInDeck(CardId.Raider_Wing) || Bot.HasInHand(CardId.Raider_Wing))
+                && (Bot.HasInDeck(CardId.Raidraptor_SingingLanius) || Bot.HasInHand(CardId.Raidraptor_SingingLanius))
+                && (Bot.HasInDeck(CardId.Rank_Up_MagicSoulShaveForce) || Bot.HasInHand(CardId.Rank_Up_MagicSoulShaveForce));
         }
         private bool Raidraptor_ForceStrixEffect()
         {
@@ -757,9 +757,9 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == -1)
             {
                 int count = 0;
-                if (HasInDeck(CardId.Raidraptor_SingingLanius)) ++count;
-                if (HasInDeck(CardId.Blackwing_ZephyrostheElite)) ++count;
-                if (HasInDeck(CardId.Raider_Wing)) ++count;
+                if (Bot.HasInDeck(CardId.Raidraptor_SingingLanius)) ++count;
+                if (Bot.HasInDeck(CardId.Blackwing_ZephyrostheElite)) ++count;
+                if (Bot.HasInDeck(CardId.Raider_Wing)) ++count;
                 if (count <= 1) return false;
                 AI.SelectCard(CardId.Raider_Wing);
                 return BeforeResult(ExecutorType.Activate);
@@ -821,7 +821,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool DDSavantKeplerSummon()
         {
-            if (HasInDeck(CardId.DarkContractwiththGate))
+            if (Bot.HasInDeck(CardId.DarkContractwiththGate))
             {
                 summoned = true;
                 return BeforeResult(ExecutorType.Summon);
@@ -854,14 +854,14 @@ namespace WindBot.Game.AI.Decks
         {
             int count = 0;
             if (!activate_DragonShrine && func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.DragonShrine) &&
-                (HasInDeck(CardId.FlameBeastoftheNekroz) || HasInDeck(CardId.DestrudotheLostDragon_Frisson) || HasInDeck(CardId.SupremeKingDragonDarkwurm))) ++count;
+                (Bot.HasInDeck(CardId.FlameBeastoftheNekroz) || Bot.HasInDeck(CardId.DestrudotheLostDragon_Frisson) || Bot.HasInDeck(CardId.SupremeKingDragonDarkwurm))) ++count;
             if (!activate_SpellPowerMastery && func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.SpellPowerMastery)
-                && (HasInDeck(CardId.TheMightyMasterofMagic) || HasInDeck(CardId.ServantofEndymion))) ++count;
+                && (Bot.HasInDeck(CardId.TheMightyMasterofMagic) || Bot.HasInDeck(CardId.ServantofEndymion))) ++count;
             if (func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.DarkContractwiththGate)) ++count;
             if (!activate_ZefraProvidence && func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.ZefraProvidence))
             {
                 if (func.CardsCheckCount(Bot.Hand, func.IsCode, CardId.OracleofZefra) <= 0 && !activate_OracleofZefra
-                    && HasInDeck(CardId.OracleofZefra))
+                    && Bot.HasInDeck(CardId.OracleofZefra))
                 {
                     count += 2;
                 }
@@ -871,11 +871,11 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             if (!activate_OracleofZefra && func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.OracleofZefra)) ++count;
-            if (func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.Terraforming) && HasInDeck(CardId.OracleofZefra)) ++count;
+            if (func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.Terraforming) && Bot.HasInDeck(CardId.OracleofZefra)) ++count;
             if (func.CardsCheckAny(Bot.Hand, func.IsCode, CardId.FoolishBurial)) ++count;
             if (func.CardsCheckCount(Bot.Hand, func.HasType, CardType.Pendulum) > 1 && Bot.SpellZone[0] == null &&
                 Bot.SpellZone[4] == null) ++count;
-            if (!summoned && Bot.HasInHand(CardId.DDSavantKepler) && HasInDeck(CardId.DarkContractwiththGate)) ++count;
+            if (!summoned && Bot.HasInHand(CardId.DDSavantKepler) && Bot.HasInDeck(CardId.DarkContractwiththGate)) ++count;
             return count;
         }
         private bool ServantofEndymionEffect_3()
@@ -915,7 +915,7 @@ namespace WindBot.Game.AI.Decks
             if (PendulumActivate())
             {
                 if (IsActivateBlackwing_ZephyrostheElite()) return BeforeResult(ExecutorType.Activate);
-                if ((!HasInDeck(CardId.TheMightyMasterofMagic) && !HasInDeck(CardId.MythicalBeastJackalKing) || GetSpellActivateCount() < 2)) return false;
+                if ((!Bot.HasInDeck(CardId.TheMightyMasterofMagic) && !Bot.HasInDeck(CardId.MythicalBeastJackalKing)) || GetSpellActivateCount() < 2) return false;
                 return BeforeResult(ExecutorType.Activate);
             }
             else if (Card.Location == CardLocation.SpellZone)
@@ -1303,7 +1303,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool MechaPhantomBeastAuroradonSummon()
         {
-            if (Bot.GetMonstersInMainZone().Count >= 4 || (!HasInDeck(CardId.MechaPhantomBeastO_Lion) && !IsCanSPSummonTunerLevel1()
+            if (Bot.GetMonstersInMainZone().Count >= 4 || (!Bot.HasInDeck(CardId.MechaPhantomBeastO_Lion) && !IsCanSPSummonTunerLevel1()
                 && !func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.MonsterZone | CardLocation.Grave, true), func.IsCode, CardId.Deskbot001))) return false;
             if (XyzModeCheck())
             {
@@ -1462,7 +1462,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (SpellActivate())
             {
-                return (HasInDeck(CardId.DDLamia) || func.HasInZone(Bot, CardLocation.PendulumZone, CardId.ServantofEndymion, true, true)) && BeforeResult(ExecutorType.Activate);
+                return (Bot.HasInDeck(CardId.DDLamia) || func.HasInZone(Bot, CardLocation.PendulumZone, CardId.ServantofEndymion, true, true)) && BeforeResult(ExecutorType.Activate);
             }
             return BeforeResult(ExecutorType.Activate);
         }
@@ -1547,7 +1547,7 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == -1) { link_summoned = true; return true; }
             else
             {
-                if (!HasInDeck(CardId.MechaPhantomBeastO_Lion)
+                if (!Bot.HasInDeck(CardId.MechaPhantomBeastO_Lion)
                     && Func.GetZoneCards(Enemy, CardLocation.Onfield).Count <= 0) return false;
                 List<ClientCard> tRelease = new List<ClientCard>();
                 List<ClientCard> nRelease = new List<ClientCard>();
@@ -1561,7 +1561,7 @@ namespace WindBot.Game.AI.Decks
                 opt_1 = false;
                 opt_2 = false;
                 if (count >= 3 && func.CardsCheckCount(Bot.Graveyard, func.HasType, CardType.Trap) > 0) opt_2 = true;
-                if (count >= 2 && CheckRemainInDeck(CardId.MechaPhantomBeastO_Lion) > 0) opt_1 = true;
+                if (count >= 2 && Bot.HasInDeck(CardId.MechaPhantomBeastO_Lion)) opt_1 = true;
                 if (count >= 1 && Func.GetZoneCards(Enemy, CardLocation.Onfield).Count > 0) opt_0 = true;
                 if (!opt_0 && !opt_1 && !opt_2) return false;
                 return true;
@@ -1583,7 +1583,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SupremeKingDragonDarkwurmSummon()
         {
-            if ((!activate_p_Zefraath && Bot.HasInHand(CardId.Zefraath) && !activate_SupremeKingDragonDarkwurm_1 && HasInDeck(CardId.SupremeKingGateZero) && func.CardsCheckAny(Bot.Hand, func.HasType, CardType.Tuner))
+            if ((!activate_p_Zefraath && Bot.HasInHand(CardId.Zefraath) && !activate_SupremeKingDragonDarkwurm_1 && Bot.HasInDeck(CardId.SupremeKingGateZero) && func.CardsCheckAny(Bot.Hand, func.HasType, CardType.Tuner))
                 || (func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.Hand), card => { return card.LinkCount > 5; }) &&
                 !Bot.HasInHand(CardId.SupremeKingGateZero) && !activate_SupremeKingDragonDarkwurm_2))
             {
@@ -1632,7 +1632,7 @@ namespace WindBot.Game.AI.Decks
         }
         private void HeavymetalfoesElectrumiteAddIds(List<int> ids)
         {
-            if (!summoned && HasInDeck(CardId.DarkContractwiththGate) && HasInDeck(CardId.DDLamia))
+            if (!summoned && Bot.HasInDeck(CardId.DarkContractwiththGate) && Bot.HasInDeck(CardId.DDLamia))
             {
                 if (!func.CardsCheckAny(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), func.HasType, CardType.Tuner))
                 {
@@ -1909,7 +1909,7 @@ namespace WindBot.Game.AI.Decks
                 else if (func.CardsCheckALL(cards, func.HasSetCode, true, 0x12a))
                 {
                     if (!func.HasInZone(Bot, CardLocation.PendulumZone | CardLocation.Hand, CardId.ServantofEndymion, true) ||
-                        (func.HasInZone(Bot, CardLocation.PendulumZone | CardLocation.Hand, CardId.ServantofEndymion, true) && (!HasInDeck(CardId.TheMightyMasterofMagic) || !HasInDeck(CardId.MythicalBeastJackalKing)))) ids.Add(CardId.ServantofEndymion);
+                        (func.HasInZone(Bot, CardLocation.PendulumZone | CardLocation.Hand, CardId.ServantofEndymion, true) && (!Bot.HasInDeck(CardId.TheMightyMasterofMagic) || !Bot.HasInDeck(CardId.MythicalBeastJackalKing)))) ids.Add(CardId.ServantofEndymion);
                     ids.Add(CardId.TheMightyMasterofMagic);
                     ids.Add(CardId.MythicalBeastJackalKing);
                     result = func.CardsIdToClientCards(ids, cards);
@@ -2118,96 +2118,6 @@ namespace WindBot.Game.AI.Decks
             IList<ClientCard> selectResult = Func.CheckSelectCount(Util, result, cards, min, max);
             if (selectResult == null) return base.OnSelectCard(cards, min, max, hint, cancelable);
             return selectResult;
-        }
-        private bool HasInDeck(int id)
-        {
-            return CheckRemainInDeck(id) > 0;
-        }
-        private int CheckRemainInDeck(int id)
-        {
-            switch (id)
-            {
-                case CardId.PSY_FrameDriver:
-                    return Bot.GetRemainingCount(CardId.PSY_FrameDriver, 1);
-                case CardId.Zefraath:
-                    return Bot.GetRemainingCount(CardId.Zefraath, 3);
-                case CardId.TheMightyMasterofMagic:
-                    return Bot.GetRemainingCount(CardId.TheMightyMasterofMagic, 1);
-                case CardId.AstrographSorcerer:
-                    return Bot.GetRemainingCount(CardId.AstrographSorcerer, 1);
-                case CardId.DestrudotheLostDragon_Frisson:
-                    return Bot.GetRemainingCount(CardId.DestrudotheLostDragon_Frisson, 1);
-                case CardId.SupremeKingGateZero:
-                    return Bot.GetRemainingCount(CardId.SupremeKingGateZero, 2);
-                case CardId.MythicalBeastJackalKing:
-                    return Bot.GetRemainingCount(CardId.MythicalBeastJackalKing, 1);
-                case CardId.SecretoftheYangZing:
-                    return Bot.GetRemainingCount(CardId.SecretoftheYangZing, 3);
-                case CardId.FlameBeastoftheNekroz:
-                    return Bot.GetRemainingCount(CardId.FlameBeastoftheNekroz, 1);
-                case CardId.StellarknightZefraxciton:
-                    return Bot.GetRemainingCount(CardId.StellarknightZefraxciton, 1);
-                case CardId.SupremeKingDragonDarkwurm:
-                    return Bot.GetRemainingCount(CardId.SupremeKingDragonDarkwurm, 1);
-                case CardId.Blackwing_ZephyrostheElite:
-                    return Bot.GetRemainingCount(CardId.Blackwing_ZephyrostheElite, 1);
-                case CardId.ShaddollZefracore:
-                    return Bot.GetRemainingCount(CardId.ShaddollZefracore, 1);
-                case CardId.Raidraptor_SingingLanius:
-                    return Bot.GetRemainingCount(CardId.Raidraptor_SingingLanius, 1);
-                case CardId.SatellarknightZefrathuban:
-                    return Bot.GetRemainingCount(CardId.SatellarknightZefrathuban, 1);
-                case CardId.Raider_Wing:
-                    return Bot.GetRemainingCount(CardId.Raider_Wing, 1);
-                case CardId.Zefraxi_TreasureoftheYangZing:
-                    return Bot.GetRemainingCount(CardId.Zefraxi_TreasureoftheYangZing, 2);
-                case CardId.RitualBeastTamerZeframpilica:
-                    return Bot.GetRemainingCount(CardId.RitualBeastTamerZeframpilica, 1);
-                case CardId.ServantofEndymion:
-                    return Bot.GetRemainingCount(CardId.ServantofEndymion, 3);
-                case CardId.PSY_FramegearGamma:
-                    return Bot.GetRemainingCount(CardId.PSY_FramegearGamma, 3);
-                case CardId.MechaPhantomBeastO_Lion:
-                    return Bot.GetRemainingCount(CardId.MechaPhantomBeastO_Lion, 1);
-                case CardId.MaxxC:
-                    return Bot.GetRemainingCount(CardId.MaxxC, 3);
-                case CardId.Deskbot001:
-                    return Bot.GetRemainingCount(CardId.Deskbot001, 1);
-                case CardId.JetSynchron:
-                    return Bot.GetRemainingCount(CardId.JetSynchron, 1);
-                case CardId.DDLamia:
-                    return Bot.GetRemainingCount(CardId.DDLamia, 1);
-                case CardId.DDSavantKepler:
-                    return Bot.GetRemainingCount(CardId.DDSavantKepler, 1);
-                case CardId.LightoftheYangZing:
-                    return Bot.GetRemainingCount(CardId.LightoftheYangZing, 1);
-                case CardId.Rank_Up_MagicSoulShaveForce:
-                    return Bot.GetRemainingCount(CardId.Rank_Up_MagicSoulShaveForce, 1);
-                case CardId.SpellPowerMastery:
-                    return Bot.GetRemainingCount(CardId.SpellPowerMastery, 3);
-                case CardId.DragonShrine:
-                    return Bot.GetRemainingCount(CardId.DragonShrine, 3);
-                case CardId.Terraforming:
-                    return Bot.GetRemainingCount(CardId.Terraforming, 1);
-                case CardId.ZefraProvidence:
-                    return Bot.GetRemainingCount(CardId.ZefraProvidence, 3);
-                case CardId.FoolishBurial:
-                    return Bot.GetRemainingCount(CardId.FoolishBurial, 1);
-                case CardId.CalledbytheGrave:
-                    return Bot.GetRemainingCount(CardId.CalledbytheGrave, 2);
-                case CardId.DarkContractwiththGate:
-                    return Bot.GetRemainingCount(CardId.DarkContractwiththGate, 1);
-                case CardId.OracleofZefra:
-                    return Bot.GetRemainingCount(CardId.OracleofZefra, 3);
-                case CardId.ZefraWar:
-                    return Bot.GetRemainingCount(CardId.ZefraWar, 1);
-                case CardId.ZefraDivineStrike:
-                    return Bot.GetRemainingCount(CardId.ZefraDivineStrike, 1);
-                case CardId.NinePillarsofYangZing:
-                    return Bot.GetRemainingCount(CardId.NinePillarsofYangZing, 1);
-                default:
-                    return 0;
-            }
         }
     }
 }

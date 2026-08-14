@@ -158,26 +158,26 @@ namespace WindBot.Game.AI.Decks
         private List<int> GetHeroSearchPriority()
         {
             List<int> priority = new List<int>();
-            int stratosCount = Bot.GetRemainingCount(CardId.ElementalHEROStratos, 1);
-            int neosAliusCount = Bot.GetRemainingCount(CardId.ElementalHERONeosAlius, 3);
-            int bubblemanCount = Bot.GetRemainingCount(CardId.ElementalHEROBubbleman, 1);
+            bool hasStratos = Bot.HasInDeck(CardId.ElementalHEROStratos);
+            bool hasNeosAlius = Bot.HasInDeck(CardId.ElementalHERONeosAlius);
+            bool hasBubbleman = Bot.HasInDeck(CardId.ElementalHEROBubbleman);
 
-            if (stratosCount > 0 &&
+            if (hasStratos &&
                 !Bot.HasInHand(CardId.ElementalHEROStratos) &&
                 !Bot.HasInMonstersZone(CardId.ElementalHEROStratos))
                 priority.Add(CardId.ElementalHEROStratos);
-            if (neosAliusCount > 0 &&
+            if (hasNeosAlius &&
                 !Bot.HasInHand(CardId.ElementalHERONeosAlius) &&
                 !Bot.HasInMonstersZone(CardId.ElementalHERONeosAlius))
                 priority.Add(CardId.ElementalHERONeosAlius);
-            if (bubblemanCount > 0 && !Bot.HasInHand(CardId.ElementalHEROBubbleman))
+            if (hasBubbleman && !Bot.HasInHand(CardId.ElementalHEROBubbleman))
                 priority.Add(CardId.ElementalHEROBubbleman);
 
-            if (neosAliusCount > 0 && !priority.Contains(CardId.ElementalHERONeosAlius))
+            if (hasNeosAlius && !priority.Contains(CardId.ElementalHERONeosAlius))
                 priority.Add(CardId.ElementalHERONeosAlius);
-            if (bubblemanCount > 0 && !priority.Contains(CardId.ElementalHEROBubbleman))
+            if (hasBubbleman && !priority.Contains(CardId.ElementalHEROBubbleman))
                 priority.Add(CardId.ElementalHEROBubbleman);
-            if (stratosCount > 0 && !priority.Contains(CardId.ElementalHEROStratos))
+            if (hasStratos && !priority.Contains(CardId.ElementalHEROStratos))
                 priority.Add(CardId.ElementalHEROStratos);
             return priority;
         }

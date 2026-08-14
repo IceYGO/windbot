@@ -403,7 +403,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TraptrixRafflesiaSummon()
         {
-            if (Util.IsTurn1OrMain2() && (Bot.GetRemainingCount(CardId.BottomlessTrapHole, 1) + Bot.GetRemainingCount(CardId.TraptrixTrapHoleNightmare, 1)) > 0)
+            if (Util.IsTurn1OrMain2() && Bot.HasInDeck(CardId.BottomlessTrapHole, CardId.TraptrixTrapHoleNightmare))
             {
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true;

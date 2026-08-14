@@ -111,13 +111,6 @@ namespace WindBot.Game.AI.Decks
             _CardId.MysticalSpaceTyphoon, 63166095, 9726840, 5380979, 92714517, 6153210, 32548318, 30271097, 45171524, 81560239
         };
 
-        Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>{
-            {3, new List<int> { CardId.TheManWithTheMark, CardId.PrimiteLordlyLode, CardId.TreasuresOfTheKings, CardId.DominusSpark,
-                                _CardId.InfiniteImpermanence, CardId.SongsOfTheDominators, CardId.DominusPurge, CardId.ApophisTheSerpent}},
-            {2, new List<int> { CardId.AnubisTheLastJudge, CardId.PrimiteDragonEtherBeryl, _CardId.PotOfExtravagance, CardId.DominusImpulse,
-                                CardId.ApophisTheSwampDeity, CardId.SolemnReport}},
-            {1, new List<int> { CardId.LabradoriteDragon, CardId.Terraforming, CardId.PrimiteDrillbeam, CardId.VerdictOfAnubis }}
-        };
         const int hintTimingMainEnd = 0x4;
         const int hintToHand = 0x200000;
 
@@ -155,30 +148,7 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        /// <summary>
-        /// Check remain cards in deck
-        /// </summary>
-        /// <param name="id">Card's ID</param>
-        public int CheckRemainInDeck(int id)
-        {
-            for (int count = 1; count < 4; ++count)
-            {
-                if (DeckCountTable[count].Contains(id)) {
-                    return Bot.GetRemainingCount(id, count);
-                }
-            }
-            return 0;
-        }
 
-        public int CheckRemainInDeck(params int[] ids)
-        {
-            int sum = 0;
-            foreach (int id in ids)
-            {
-                sum += CheckRemainInDeck(id);
-            }
-            return sum;
-        }
 
         /// <summary>
         /// Check whether'll be negated
@@ -1127,7 +1097,7 @@ namespace WindBot.Game.AI.Decks
                             List<ClientCard> faceDownMonsters = botMonsters.Where(card => card.IsFacedown()).ToList();
                             banishList.AddRange(faceDownMonsters);
                             List<ClientCard> dumpMainMonsterList = botMonsters.Where(card => !banishList.Contains(card)
-                                && CheckRemainInDeck(card.Id) > 0).ToList();
+                                && Bot.HasInDeck(card.GetNonAltartCode())).ToList();
                             dumpMainMonsterList.Sort(CardContainer.CompareCardAttack);
                             banishList.AddRange(dumpMainMonsterList);
                             // spells
@@ -1680,8 +1650,8 @@ namespace WindBot.Game.AI.Decks
                 // summon to search?
                 if (!CheckWhetherNegated(true, true) && CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth))
                 {
-                    summonFlag |= !activatedCardIdList.Contains(CardId.PrimiteLordlyLode) && !Bot.HasInHandOrInSpellZone(CardId.PrimiteLordlyLode) && CheckRemainInDeck(CardId.PrimiteLordlyLode) > 0;
-                    summonFlag |= CheckRemainInDeck(CardId.PrimiteDrillbeam) > 0;
+                    summonFlag |= !activatedCardIdList.Contains(CardId.PrimiteLordlyLode) && !Bot.HasInHandOrInSpellZone(CardId.PrimiteLordlyLode) && Bot.HasInDeck(CardId.PrimiteLordlyLode);
+                    summonFlag |= Bot.HasInDeck(CardId.PrimiteDrillbeam);
                 }
 
                 // summon to recycle beam
@@ -1699,8 +1669,8 @@ namespace WindBot.Game.AI.Decks
             }
 
             bool canSummonMan = Bot.HasInHand(CardId.TheManWithTheMark);
-            canSummonMan |= Bot.HasInHand(CardId.AnubisTheLastJudge) && DefaultCheckWhetherBotCanSearch() && CheckRemainInDeck(CardId.TheManWithTheMark) > 0 && !activatedCardIdList.Contains(CardId.AnubisTheLastJudge);
-            if (Bot.HasInHandOrInSpellZone(CardId.TreasuresOfTheKings) && !activatedCardIdList.Contains(CardId.TreasuresOfTheKings + 1) && DefaultCheckWhetherBotCanSearch() && CheckRemainInDeck(CardId.TheManWithTheMark) > 0)
+            canSummonMan |= Bot.HasInHand(CardId.AnubisTheLastJudge) && DefaultCheckWhetherBotCanSearch() && Bot.HasInDeck(CardId.TheManWithTheMark) && !activatedCardIdList.Contains(CardId.AnubisTheLastJudge);
+            if (Bot.HasInHandOrInSpellZone(CardId.TreasuresOfTheKings) && !activatedCardIdList.Contains(CardId.TreasuresOfTheKings + 1) && DefaultCheckWhetherBotCanSearch() && Bot.HasInDeck(CardId.TheManWithTheMark))
             {
                 canSummonMan |= Bot.Graveyard.Any(c => c.IsTrap());
                 int facedownCardCount = Bot.GetSpells().Count(c => c.IsFacedown());
@@ -1853,10 +1823,10 @@ namespace WindBot.Game.AI.Decks
             if (Bot.HasInHandOrHasInMonstersZone(CardId.PrimiteDragonEtherBeryl) && DefaultCheckWhetherBotCanSearch())
             {
                 // for search drillbeam
-                activateFlag |= CheckRemainInDeck(CardId.PrimiteDrillbeam) > 0;
+                activateFlag |= Bot.HasInDeck(CardId.PrimiteDrillbeam);
                 activateFlag |= summonCount <= 0 && Card.Location == CardLocation.SpellZone && Card.IsFacedown();
             }
-            if (summonCount > 0 && !Bot.HasInHand(CardId.PrimiteDragonEtherBeryl) && CheckRemainInDeck(CardId.PrimiteDragonEtherBeryl) > 0 && DefaultCheckWhetherBotCanSearch())
+            if (summonCount > 0 && !Bot.HasInHand(CardId.PrimiteDragonEtherBeryl) && Bot.HasInDeck(CardId.PrimiteDragonEtherBeryl) && DefaultCheckWhetherBotCanSearch())
             {
                 // for search ether beryl
                 activateFlag |= Bot.HasInGraveyard(CardId.PrimiteDrillbeam);
@@ -1873,7 +1843,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     loc = CardLocation.Hand;
                 }
-                else if (CheckRemainInDeck(CardId.LabradoriteDragon) > 0)
+                else if (Bot.HasInDeck(CardId.LabradoriteDragon))
                 {
                     loc = CardLocation.Deck;
                 }
@@ -1920,7 +1890,7 @@ namespace WindBot.Game.AI.Decks
             {
                 loc = CardLocation.Hand;
             }
-            else if (CheckRemainInDeck(CardId.LabradoriteDragon) > 0)
+            else if (Bot.HasInDeck(CardId.LabradoriteDragon))
             {
                 loc = CardLocation.Deck;
             }
@@ -1950,7 +1920,7 @@ namespace WindBot.Game.AI.Decks
             if (Bot.GetSpellCountWithoutField() == 5)
             {
                 // for search
-                if (!DefaultCheckWhetherBotCanSearch() || CheckRemainInDeck(CardId.TheManWithTheMark, CardId.AnubisTheLastJudge) == 0)
+                if (!DefaultCheckWhetherBotCanSearch() || !Bot.HasInDeck(CardId.TheManWithTheMark, CardId.AnubisTheLastJudge))
                 {
                     activateFlag = false;
                 }
@@ -1972,7 +1942,7 @@ namespace WindBot.Game.AI.Decks
             else
             {
                 // for set
-                if (CheckRemainInDeck(CardId.ApophisTheSerpent, CardId.ApophisTheSwampDeity) > 0)
+                if (Bot.HasInDeck(CardId.ApophisTheSerpent, CardId.ApophisTheSwampDeity))
                     activateFlag = true;
             }
 
@@ -2770,7 +2740,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            int remainApophisCount = CheckRemainInDeck(CardId.ApophisTheSwampDeity);
+            int remainApophisCount = Bot.GetCardCountInDeck(CardId.ApophisTheSwampDeity);
             if (remainApophisCount == 0)
             {
                 return false;
@@ -2898,7 +2868,7 @@ namespace WindBot.Game.AI.Decks
                 switch (Card.Id)
                 {
                     case CardId.Terraforming:
-                        setFlag |= CheckRemainInDeck(CardId.TreasuresOfTheKings) > 0 && DefaultCheckWhetherBotCanSearch();
+                        setFlag |= Bot.HasInDeck(CardId.TreasuresOfTheKings) && DefaultCheckWhetherBotCanSearch();
                         break;
                     case CardId.PrimiteLordlyLode:
                         setFlag |= PrimiteLordlyLodeActivateCheck() && !canSetSpells.Any(c => c.IsCode(CardId.PrimiteLordlyLode));
@@ -2924,7 +2894,7 @@ namespace WindBot.Game.AI.Decks
                         setFlag |= Bot.GetMonsters().Any(c => c != card && c.HasType(CardType.Continuous) && c.HasType(CardType.Trap));
                         break;
                     case CardId.ApophisTheSerpent:
-                        setFlag |= CheckRemainInDeck(CardId.ApophisTheSwampDeity) > 0;
+                        setFlag |= Bot.HasInDeck(CardId.ApophisTheSwampDeity);
                         setFlag |= Bot.HasInHandOrInSpellZone(CardId.ApophisTheSwampDeity);
                         break;
                     default:

@@ -412,7 +412,7 @@ namespace WindBot.Game.AI.Decks
                 };
                 if (!Util.ChainContainsCard(CardId.Awaken))
                 {
-                    if (!judge && Bot.GetRemainingCount(CardId.Ghost, 2) > 0)
+                    if (!judge && Bot.HasInDeck(CardId.Ghost))
                     {
                         AI.SelectCard(CardId.Ghost);
                         AI.SelectPosition(CardPosition.FaceUpDefence);
@@ -565,7 +565,7 @@ namespace WindBot.Game.AI.Decks
                     stage_locked = null;
                     return true;
                 }
-                else if (Enemy.LifePoints <= 1000 && Bot.GetRemainingCount(CardId.Pink,1) > 0)
+                else if (Enemy.LifePoints <= 1000 && Bot.HasInDeck(CardId.Pink))
                 {
                     AI.SelectCard(CardId.Pink, CardId.Yellow, CardId.Red, CardId.White);
                     stage_locked = null;
@@ -594,7 +594,7 @@ namespace WindBot.Game.AI.Decks
 
             if (NormalSummoned)
             {
-                if (Enemy.LifePoints <= 1000 && !pink_ss && Bot.GetRemainingCount(CardId.Pink,1) > 0)
+                if (Enemy.LifePoints <= 1000 && !pink_ss && Bot.HasInDeck(CardId.Pink))
                 {
                     AI.SelectCard(CardId.Pink, CardId.Yellow, CardId.Red, CardId.White);
                     stage_locked = null;
@@ -848,19 +848,19 @@ namespace WindBot.Game.AI.Decks
 
         public bool Yellow_eff()
         {
-            if (!Bot.HasInHand(CardId.Stage) && !Bot.HasInSpellZone(CardId.Stage) && Bot.GetRemainingCount(CardId.Stage, 3) > 0)
+            if (!Bot.HasInHand(CardId.Stage) && !Bot.HasInSpellZone(CardId.Stage) && Bot.HasInDeck(CardId.Stage))
             {
                 AI.SelectCard(CardId.Stage, CardId.Red, CardId.White, CardId.Pink, CardId.Re, CardId.Crown, CardId.Yellow);
                 return true;
             }
             if (Enemy.LifePoints <= 1000)
             {
-                if (Bot.GetRemainingCount(CardId.Pink, 1) > 0 && !pink_ss)
+                if (Bot.HasInDeck(CardId.Pink) && !pink_ss)
                 {
                     AI.SelectCard(CardId.Pink, CardId.Stage, CardId.Red, CardId.White, CardId.Re, CardId.Crown, CardId.Yellow);
                     return true;
                 }
-                else if (Bot.HasInGraveyard(CardId.Pink) && Bot.GetRemainingCount(CardId.Crown, 1) > 0)
+                else if (Bot.HasInGraveyard(CardId.Pink) && Bot.HasInDeck(CardId.Crown))
                 {
                     AI.SelectCard(CardId.Crown, CardId.Pink, CardId.Re, CardId.Stage, CardId.Red, CardId.White, CardId.Yellow);
                     return true;
@@ -868,19 +868,19 @@ namespace WindBot.Game.AI.Decks
             }
             if (Enemy.GetMonsterCount() == 0 && !Util.IsTurn1OrMain2())
             {
-                if (Bot.HasInGraveyard(CardId.Red) && Bot.GetRemainingCount(CardId.Pink, 1) > 0 && !pink_ss)
+                if (Bot.HasInGraveyard(CardId.Red) && Bot.HasInDeck(CardId.Pink) && !pink_ss)
                 {
                     AI.SelectCard(CardId.Pink, CardId.Red, CardId.White, CardId.Re, CardId.Stage, CardId.Crown, CardId.Yellow);
                 }
-                else if (Bot.HasInGraveyard(CardId.Pink) && Bot.HasInGraveyard(CardId.Red) && Bot.GetRemainingCount(CardId.Ring, 1) > 0)
+                else if (Bot.HasInGraveyard(CardId.Pink) && Bot.HasInGraveyard(CardId.Red) && Bot.HasInDeck(CardId.Ring))
                 {
                     AI.SelectCard(CardId.Crown, CardId.Red, CardId.White, CardId.Re, CardId.Stage, CardId.Pink, CardId.Yellow);
                 }
-                else if (Bot.GetRemainingCount(CardId.White, 2) > 0 && Enemy.LifePoints <= 4000)
+                else if (Bot.HasInDeck(CardId.White) && Enemy.LifePoints <= 4000)
                 {
                     AI.SelectCard(CardId.White, CardId.Red, CardId.Pink, CardId.Re, CardId.Stage, CardId.Crown, CardId.Yellow);
                 }
-                else if (Bot.HasInGraveyard(CardId.White) && Bot.GetRemainingCount(CardId.Crown, 1) > 0)
+                else if (Bot.HasInGraveyard(CardId.White) && Bot.HasInDeck(CardId.Crown))
                 {
                     AI.SelectCard(CardId.Crown, CardId.Red, CardId.Pink, CardId.Re, CardId.Stage, CardId.White, CardId.Yellow);
                 }
@@ -893,7 +893,7 @@ namespace WindBot.Game.AI.Decks
             if (Util.GetProblematicEnemyMonster() != null)
             {
                 int power = Util.GetProblematicEnemyMonster().GetDefensePower();
-                if (power >= 1800 && power <= 3600 && Bot.GetRemainingCount(CardId.White, 2) > 0 && !Bot.HasInHand(CardId.White))
+                if (power >= 1800 && power <= 3600 && Bot.HasInDeck(CardId.White) && !Bot.HasInHand(CardId.White))
                 {
                     AI.SelectCard(CardId.White, CardId.Red, CardId.Pink, CardId.Re, CardId.Stage, CardId.Crown, CardId.Yellow);
                 }
@@ -903,7 +903,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 return true;
             }
-            if ((Bot.HasInHand(CardId.Red) || Bot.HasInHand(CardId.Stage) || Bot.HasInHand(CardId.Yellow)) && Bot.GetRemainingCount(CardId.Re,1) > 0) {
+            if ((Bot.HasInHand(CardId.Red) || Bot.HasInHand(CardId.Stage) || Bot.HasInHand(CardId.Yellow)) && Bot.HasInDeck(CardId.Re)) {
                 AI.SelectCard(CardId.Re, CardId.Red, CardId.White, CardId.Crown, CardId.Pink, CardId.Stage, CardId.Yellow);
                 return true;
             }
@@ -1106,7 +1106,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (crystal_eff_used || Bot.HasInMonstersZone(CardId.Crystal)) return false;
             if (Bot.GetMonsterCount() == 0 || !Bot.HasInExtra(CardId.Crystal)) return false;
-            if (Card.IsCode(CardId.Ghost) && Bot.GetRemainingCount(CardId.Ghost, 2) <= 0) return false;
+            if (Card.IsCode(CardId.Ghost) && !Bot.HasInDeck(CardId.Ghost)) return false;
             int count = 0;
             if (!Card.IsCode(CardId.Urara)) count += 1;
             foreach(ClientCard hand in Bot.Hand)
