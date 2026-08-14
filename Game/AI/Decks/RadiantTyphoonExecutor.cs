@@ -586,7 +586,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     return false;
                 }
-                ClientCard target = GetBestOpponentMandateChainTarget();
+                ClientCard target = GetBestMandateNegationTarget();
                 if (target == null)
                 {
                     return false;
@@ -1182,25 +1182,54 @@ namespace WindBot.Game.AI.Decks
             return null;
         }
 
+        private ClientCard GetBestMandateNegationTarget()
+        {
+            ClientCard chainTarget = GetBestOpponentMandateChainTarget();
+            if (chainTarget != null)
+            {
+                return chainTarget;
+            }
+
+            return GetOrderedEnemyCards(Enemy.GetMonsters().Concat(Enemy.GetSpells())
+                .Where(c => c.IsFaceup() && !c.IsDisabled())).FirstOrDefault();
+        }
+
+        private bool HasLiveOpponentChain()
+        {
+            for (int i = 0; i < Duel.CurrentChainInfo.Count; ++i)
+            {
+                ChainInfo chain = Duel.CurrentChainInfo[i];
+                if (chain != null && chain.ActivatePlayer == 1 &&
+                    !Duel.NegatedChainIndexList.Contains(i + 1))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         private bool CanBuildMandateChainLine()
         {
-            return !HasEffectiveOwnNegationForCurrentChain() && HasFaceupMandate() &&
+            return HasLiveOpponentChain() && !HasEffectiveOwnNegationForCurrentChain() &&
+                HasFaceupMandate() &&
                 GetOwnChainRadiantQuickPlay() != null &&
-                GetBestOpponentMandateChainTarget() != null;
+                GetBestMandateNegationTarget() != null;
         }
 
         private bool CanUseMandateToNegateCurrentChain()
         {
             ChainInfo latestChain = Duel.CurrentChainInfo.LastOrDefault();
-            return !HasEffectiveOwnNegationForCurrentChain() && HasFaceupMandate() &&
-                GetBestOpponentMandateChainTarget() != null &&
+            return HasLiveOpponentChain() && !HasEffectiveOwnNegationForCurrentChain() &&
+                HasFaceupMandate() &&
+                GetBestMandateNegationTarget() != null &&
                 latestChain != null && latestChain.IsActivateCode(CardId.MysticalSpaceTyphoon);
         }
 
         private bool ShouldActivateRadiantQuickPlayForMandate()
         {
-            return !HasEffectiveOwnNegationForCurrentChain() && HasFaceupMandate() &&
-                GetBestOpponentMandateChainTarget() != null &&
+            return HasLiveOpponentChain() && !HasEffectiveOwnNegationForCurrentChain() &&
+                HasFaceupMandate() &&
+                GetBestMandateNegationTarget() != null &&
                 !Duel.CurrentChain.Any(c => c.Controller == 0 && IsRadiantQuickPlay(c)) &&
                 !Duel.CurrentChain.Any(c => c.Controller == 0 && c.IsCode(CardId.MysticalSpaceTyphoon)) &&
                 _mstOfferedInCurrentChainSelection &&
@@ -1823,6 +1852,11 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
+            if (Card.IsCode(CardId.RadiantTyphoonVision) && !CanActivateVisionInCurrentTurn())
+            {
+                return false;
+            }
+
             if (IsMainPhase() && Duel.CurrentChain.Count == 0 && CanSummonSeaSpiritNow())
             {
                 return false;
@@ -1838,6 +1872,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool RadiantQuickPlayActivate()
         {
+            if (Card.IsCode(CardId.RadiantTyphoonVision) && !CanActivateVisionInCurrentTurn())
+            {
+                return false;
+            }
+
             if (Card.Location == CardLocation.Grave)
             {
                 return AcceptRadiantQuickPlayActivation();
@@ -1933,6 +1972,11 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
+            if (Card.IsCode(CardId.RadiantTyphoonVision) && !CanActivateVisionInCurrentTurn())
+            {
+                return false;
+            }
+
             return CanActivateAscendanceInCurrentTurn() && CanActivateAscendanceNow() &&
                 AcceptRadiantQuickPlayActivation();
         }
@@ -2005,13 +2049,56 @@ namespace WindBot.Game.AI.Decks
             return !IsInChainWithOwnRadiantEffect();
         }
 
+        private bool CanActivateVisionInCurrentTurn()
+        {
+            if (!Card.IsCode(CardId.RadiantTyphoonVision))
+            {
+                return true;
+            }
+
+            return !IsInChainWithOwnRadiantMonsterEffect();
+        }
+
         private bool IsInChainWithOwnRadiantEffect()
         {
             return Duel.CurrentChainInfo.Any(chain => chain.ActivatePlayer == 0 &&
-                ((chain.HasType(CardType.Monster) && chain.RelatedCard != null &&
-                    IsRadiantCard(chain.RelatedCard)) ||
+                (IsOwnRadiantMonsterEffectChain(chain) ||
                  chain.IsActivateCode(CardId.RadiantTyphoonChant,
                      CardId.RadiantTyphoonVision, CardId.RadiantTyphoonAscendance)));
+        }
+
+        private bool IsInChainWithOwnRadiantMonsterEffect()
+        {
+            return Duel.CurrentChainInfo.Any(IsOwnRadiantMonsterEffectChain);
+        }
+
+        private bool IsOwnRadiantMonsterEffectChain(ChainInfo chain)
+        {
+            if (chain == null || chain.ActivatePlayer != 0)
+            {
+                return false;
+            }
+
+            if (chain.IsActivateCode(CardId.RadiantTyphoonFonixTheGreatFlame,
+                CardId.RadiantTyphoonVaruroonTheVibrantVortex,
+                CardId.RadiantTyphoonKrosea, CardId.RadiantTyphoonSwen,
+                CardId.RadiantTyphoonDachs, CardId.RadiantTyphoonMeghala,
+                CardId.RadiantTyphoonVaruroonTheMarineEidolon))
+            {
+                return true;
+            }
+
+            if (!chain.HasType(CardType.Monster))
+            {
+                return false;
+            }
+
+            if (chain.RelatedCard != null && IsRadiantCard(chain.RelatedCard))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private bool SeaSpiritSummon()
@@ -2765,7 +2852,7 @@ namespace WindBot.Game.AI.Decks
                 ClientCard mandateTarget = FindMatchingCard(cards, _mandateNegationTarget);
                 if (mandateTarget == null)
                 {
-                    mandateTarget = FindMatchingCard(cards, GetBestOpponentMandateChainTarget());
+                    mandateTarget = FindMatchingCard(cards, GetBestMandateNegationTarget());
                 }
                 if (mandateTarget != null)
                 {
