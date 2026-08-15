@@ -127,7 +127,6 @@ namespace WindBot.Game.AI.Decks
         private bool enemy_activate_MaxxC = false;
         private bool enemy_activate_DimensionShifter = false;
         private Dictionary<int, int> CalledbytheGraveCount = new Dictionary<int, int>();
-        private List<int> infiniteImpermanenceList = new List<int>();
         private int CrossoutDesignatorTarget = 0;
 
         public bool NtssActivate()
@@ -514,7 +513,7 @@ namespace WindBot.Game.AI.Decks
                 int zone = (int)System.Math.Pow(2, seq);
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceList.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     if (avoid_list != null && avoid_list.Contains(seq)) continue;
                     AI.SelectPlace(zone);
                     return;
@@ -847,7 +846,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (Bot.SpellZone[i] == Card) selfSeq = i;
                 }
-                if (infiniteImpermanenceList.Contains(selfSeq))
+                if (infiniteImpermanenceNegatedColumns.Contains(selfSeq))
                 {
                     return true;
                 }

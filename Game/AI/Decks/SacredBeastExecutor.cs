@@ -78,7 +78,6 @@ namespace WindBot.Game.AI.Decks
         List<int> notToNegateIdList = new List<int> { 58699500, 20343502, 19403423 };
         List<int> notToDestroySpellTrap = new List<int> { 50005218, 6767771 };
 
-        List<int> infiniteImpermanenceList = new List<int>();
         List<ClientCard> currentNegateCardList = new List<ClientCard>();
         List<ClientCard> currentDestroyCardList = new List<ClientCard>();
         List<ClientCard> enemyPlaceThisTurn = new List<ClientCard>();
@@ -169,7 +168,6 @@ namespace WindBot.Game.AI.Decks
             // reset
             useLightningCrash = false;
             useHamonSearchEffectAlready = false;
-            infiniteImpermanenceList.Clear();
             currentNegateCardList.Clear();
             currentDestroyCardList.Clear();
             enemyPlaceThisTurn.Clear();
@@ -870,17 +868,6 @@ namespace WindBot.Game.AI.Decks
             {
                 if (m.IsMonsterShouldBeDisabledBeforeItUseEffect() && !m.IsDisabled() && Duel.LastChainPlayer != 0)
                 {
-                    if (Card.Location == CardLocation.SpellZone)
-                    {
-                        for (int i = 0; i < 5; ++i)
-                        {
-                            if (Bot.SpellZone[i] == Card)
-                            {
-                                infiniteImpermanenceList.Add(i);
-                                break;
-                            }
-                        }
-                    }
                     if (Card.Location == CardLocation.Hand)
                     {
                         SelectSTPlace(Card, true);
@@ -909,7 +896,6 @@ namespace WindBot.Game.AI.Decks
                     ClientCard target = GetProblematicEnemyMonster(canBeTarget: true);
                     List<ClientCard> enemyMonsters = Enemy.GetMonsters();
                     AI.SelectCard(target);
-                    infiniteImpermanenceList.Add(this_seq);
                     return true;
                 }
             }
@@ -917,17 +903,6 @@ namespace WindBot.Game.AI.Decks
                 || LastChainCard.IsDisabled() || LastChainCard.IsShouldNotBeTarget() || LastChainCard.IsShouldNotBeSpellTrapTarget()))
                 return false;
 
-            if (Card.Location == CardLocation.SpellZone)
-            {
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card)
-                    {
-                        infiniteImpermanenceList.Add(i);
-                        break;
-                    }
-                }
-            }
             if (Card.Location == CardLocation.Hand)
             {
                 SelectSTPlace(Card, true);
@@ -1078,7 +1053,7 @@ namespace WindBot.Game.AI.Decks
             bool isSpellOrTrap = type == 0 && (Card.IsSpell() || Card.IsTrap());
             isSpellOrTrap |= (((int)type & (int)CardType.Spell) != 0) || (((int)type & (int)CardType.Trap) != 0);
             bool isCounter = ((int)type & (int)CardType.Counter) != 0;
-            if (isSpellOrTrap && toFieldCheck && CheckSpellWillBeNegate(isCounter))
+            if (isSpellOrTrap && toFieldCheck && DefaultSpellOrTrapWillBeNegated(Card, isCounter, true, type))
                 return true;
             if (DefaultCheckWhetherCardIsNegated(Card)) return true;
             if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
@@ -1100,8 +1075,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (avoidImpermanence && infiniteImpermanenceList.Contains(seq)) continue;
-                    //if (card != null && card.Location == CardLocation.Hand && avoidImpermanence && infiniteImpermanenceList.Contains(seq)) continue;
+                    if (avoidImpermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     if (avoidList != null && avoidList.Contains(seq)) continue;
                     list.Add(seq);
                 }
@@ -1125,30 +1099,6 @@ namespace WindBot.Game.AI.Decks
                 return;
             }
             AI.SelectPlace(0);
-        }
-        public bool CheckSpellWillBeNegate(bool isCounter = false, ClientCard target = null)
-        {
-            if (target == null) target = Card;
-            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
-
-            if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !isCounter) return true;
-            if (target.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(CardId.NaturalBeast, true)) return true;
-                if (Enemy.HasInSpellZone(CardId.ImperialOrder, true) || Bot.HasInSpellZone(CardId.ImperialOrder, true)) return true;
-                if (Enemy.HasInMonstersZone(CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(CardId.SwordsmanLV7, true)) return true;
-            }
-            if (target.IsTrap() && (Enemy.HasInSpellZone(CardId.RoyalDecree, true) || Bot.HasInSpellZone(CardId.RoyalDecree, true))) return true;
-            if (target.Location == CardLocation.SpellZone && (target.IsSpell() || target.IsTrap()))
-            {
-                int selfSeq = -1;
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card) selfSeq = i;
-                }
-                if (infiniteImpermanenceList.Contains(selfSeq)) return true;
-            }
-            return false;
         }
         public bool CheckLastChainShouldNegated()
         {

@@ -148,6 +148,8 @@ namespace WindBot.Game.AI
             public const int RoyalDecreel = 51452091;
             public const int NaturalExterio = 99916754;
             public const int NaturiaBeast = 33198837;
+            public const int Jinzo = 77585513;
+            public const int SpellCanceller = 84636823;
             public const int SwordsmanLV7 = 37267041;
             public const int AntiSpellFragrance = 58921041;
             public const int Number41BagooskatheTerriblyTiredTapir = 90590303;
@@ -539,6 +541,7 @@ namespace WindBot.Game.AI
                     _CardId.LazionTheTimelord
                     ))
                 return false;
+            // TODO: DefaultSpell/TrapWillBeNegated will check Infinite Impermanence, which may not be suitable for all decks.
             if ((card.Location == CardLocation.Hand || card.Location == CardLocation.SpellZone && card.IsFacedown()) &&
                 (card.IsSpell() && DefaultSpellWillBeNegated(card) || card.IsTrap() && DefaultTrapWillBeNegated(card)))
                 return false;
@@ -1260,17 +1263,75 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultSpellWillBeNegated(ClientCard currentCard = null)
         {
-            return (Bot.HasInSpellZone(_CardId.ImperialOrder, true, true) || Enemy.HasInSpellZone(_CardId.ImperialOrder, true)) && !Util.ChainContainsCard(_CardId.ImperialOrder)
-                || DefaultCheckWhetherCardIsNegated(currentCard ?? Card);
+            currentCard = currentCard ?? Card;
+            if (DefaultCheckWhetherCardIsNegated(currentCard)) return true;
+            return DefaultSpellOrTrapWillBeNegated(currentCard);
         }
 
         /// <summary>
         /// If trap will be negated
         /// </summary>
-        protected bool DefaultTrapWillBeNegated(ClientCard currentCard = null)
+        protected bool DefaultTrapWillBeNegated(ClientCard currentCard = null, bool isCounter = false)
         {
-            return (Bot.HasInSpellZone(_CardId.RoyalDecreel, true, true) || Enemy.HasInSpellZone(_CardId.RoyalDecreel, true)) && !Util.ChainContainsCard(_CardId.RoyalDecreel)
-                || DefaultCheckWhetherCardIsNegated(currentCard ?? Card);
+            currentCard = currentCard ?? Card;
+            if (DefaultCheckWhetherCardIsNegated(currentCard)) return true;
+            return DefaultSpellOrTrapWillBeNegated(currentCard, isCounter);
+        }
+
+        protected bool DefaultSpellOrTrapWillBeNegated(ClientCard card, bool isCounter = false, bool toFieldCheck = false, CardType type = 0)
+        {
+            if (card == null) return true;
+
+            bool isSpell = type == 0 ? card.IsSpell() : (type & CardType.Spell) != 0;
+            bool isTrap = type == 0 ? card.IsTrap() : (type & CardType.Trap) != 0;
+            // TODO: Get isCounter from the card passed in.
+            if (!isSpell && !isTrap) return false;
+            if (!toFieldCheck && card.Location != CardLocation.Hand && card.Location != CardLocation.SpellZone) return false;
+
+            // Assume that the opponent won't activate Naturia Beast or Exterio if their deck is insufficient.
+            // TODO: Macro Cosmos check for Naturia.
+            const int NATURIA_DECK_HOLD = 2;
+
+            bool isCardActivation = toFieldCheck || card.Location == CardLocation.Hand || card.IsFacedown();
+            if (isCardActivation && !isCounter && Enemy.Deck.Count > NATURIA_DECK_HOLD && Enemy.Graveyard.Count > 0
+                && Enemy.HasInMonstersZone(_CardId.NaturalExterio, true, false, true)) return true;
+
+            if (isSpell)
+            {
+                if (isCardActivation && Enemy.Deck.Count > 2 * NATURIA_DECK_HOLD
+                    && Enemy.HasInMonstersZone(_CardId.NaturiaBeast, true, false, true)) return true;
+                if (Bot.HasInMonstersZone(_CardId.SpellCanceller, true, false, true)
+                    || Enemy.HasInMonstersZone(_CardId.SpellCanceller, true, false, true)) return true;
+                if ((Bot.HasInSpellZone(_CardId.ImperialOrder, true, true) || Enemy.HasInSpellZone(_CardId.ImperialOrder, true, true))
+                    && !Util.ChainContainsCard(_CardId.ImperialOrder)) return true;
+                if (Bot.HasInMonstersZone(_CardId.SwordsmanLV7, true, false, true)
+                    || Enemy.HasInMonstersZone(_CardId.SwordsmanLV7, true, false, true)) return true;
+            }
+
+            if (isTrap)
+            {
+                if (Bot.HasInMonstersZone(_CardId.Jinzo, true, false, true)
+                    || Enemy.HasInMonstersZone(_CardId.Jinzo, true, false, true)) return true;
+                if ((Bot.HasInSpellZone(_CardId.RoyalDecreel, true, true) || Enemy.HasInSpellZone(_CardId.RoyalDecreel, true, true))
+                    && !Util.ChainContainsCard(_CardId.RoyalDecreel)) return true;
+            }
+
+            if (isSpell && card.IsSpell() && card.HasType(CardType.Field))
+            {
+                return false;
+            }
+
+            if (card.Location == CardLocation.SpellZone)
+            {
+                return infiniteImpermanenceNegatedColumns.Contains(card.Sequence);
+            }
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (Bot.SpellZone[i] == null && !infiniteImpermanenceNegatedColumns.Contains(i)) return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -1899,44 +1960,6 @@ namespace WindBot.Game.AI
                 }
             }
             return false;
-        }
-
-        /// <summary>
-        /// Check whether all available spell columns are negated.
-        /// </summary>
-        /// <returns></returns>
-        protected bool DefaultCheckAllAvailableSpellColumnNegated()
-        {
-            for (int i = 0; i < 5; i++) {
-                // occupied
-                if (Bot.SpellZone[i] != null) {
-                    continue;
-                }
-                // negated
-                if (infiniteImpermanenceNegatedColumns.Contains(i)) {
-                    continue;
-                }
-                // have empty column that's not negated
-                return false;
-            }
-            // all columns are negated
-            return true;
-        }
-
-        /// <summary>
-        /// Check whether the spells will be negated.
-        /// </summary>
-        /// <param name="card"></param>
-        /// <returns></returns>
-        protected bool DefaultCheckWhetherSpellActivateWillBeNegated(ClientCard card)
-        {
-            if (card == null) return false;
-            if (card.Location == CardLocation.SpellZone)
-            {
-                return infiniteImpermanenceNegatedColumns.Contains(card.Sequence);
-            }
-            // check whether will be negated by Infinite Impermanence
-            return DefaultCheckAllAvailableSpellColumnNegated();
         }
 
         /// <summary>

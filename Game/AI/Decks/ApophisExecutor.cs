@@ -163,8 +163,7 @@ namespace WindBot.Game.AI.Decks
             bool isCounter = (type & CardType.Counter) != 0;
             if (isSpellOrTrap && toFieldCheck)
             {
-                if (CheckSpellWillBeNegate(isCounter)) return true;
-                if (DefaultCheckWhetherSpellActivateWillBeNegated(Card)) return true;
+                if (DefaultSpellOrTrapWillBeNegated(Card, isCounter, true, type)) return true;
             }
             if (DefaultCheckWhetherCardIsNegated(Card)) return true;
             if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
@@ -176,41 +175,6 @@ namespace WindBot.Game.AI.Decks
                 if (Enemy.HasInSpellZone(_CardId.SkillDrain, true, true)) return true;
             }
             if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
-            return false;
-        }
-
-        /// <summary>
-        /// Whether spell or trap will be negate. If so, return true.
-        /// </summary>
-        /// <param name="isCounter">is counter trap</param>
-        /// <param name="target">check target</param>
-        /// <returns></returns>
-        public bool CheckSpellWillBeNegate(bool isCounter = false, ClientCard target = null)
-        {
-            // target default set
-            if (target == null) target = Card;
-            // won't negate if not on field
-            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
-
-            // negate judge
-            if (Enemy.HasInMonstersZone(_CardId.NaturalExterio, true) && !isCounter) return true;
-            if (target.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(_CardId.NaturiaBeast, true)) return true;
-                if (Enemy.HasInSpellZone(_CardId.ImperialOrder, true) || Bot.HasInSpellZone(_CardId.ImperialOrder, true)) return true;
-                if (Enemy.HasInMonstersZone(_CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(_CardId.SwordsmanLV7, true)) return true;
-            }
-            if (target.IsTrap() && (Enemy.HasInSpellZone(_CardId.RoyalDecreel, true) || Bot.HasInSpellZone(_CardId.RoyalDecreel, true))) return true;
-            if (target.Location == CardLocation.SpellZone && (target.IsSpell() || target.IsTrap()))
-            {
-                int selfSeq = -1;
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card) selfSeq = i;
-                }
-                if (infiniteImpermanenceNegatedColumns.Contains(selfSeq)) return true;
-            }
-            // how to get here?
             return false;
         }
 
