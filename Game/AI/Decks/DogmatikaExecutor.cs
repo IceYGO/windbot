@@ -648,7 +648,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (toFieldCheck || Card.IsDefense())
                 {
-                    if (Enemy.MonsterZone.Any(card => CheckNumber41(card)) || Bot.MonsterZone.Any(card => CheckNumber41(card)))
+                    if (DefaultCheckWhetherNumber41IsActive())
                     {
                         return true;
                     }
@@ -659,11 +659,6 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             return false;
-        }
-
-        public bool CheckNumber41(ClientCard card)
-        {
-            return card != null && card.IsFaceup() && card.IsCode(CardId.Number41BagooskatheTerriblyTiredTapir) && card.IsDefense() && !card.IsDisabled();
         }
 
         /// <summary>

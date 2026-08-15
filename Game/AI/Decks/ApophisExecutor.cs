@@ -169,20 +169,14 @@ namespace WindBot.Game.AI.Decks
             if (DefaultCheckWhetherCardIsNegated(Card)) return true;
             if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
             {
-                if ((toFieldCheck && ((type & CardType.Link) != 0)) || Card.IsDefense())
+                if (!ignore41 && ((toFieldCheck && (type & CardType.Link) == 0) || Card.IsDefense()))
                 {
-                    if (Enemy.MonsterZone.Any(card => CheckNumber41(card, ignore41)) || Bot.MonsterZone.Any(card => CheckNumber41(card, ignore41))) return true;
+                    if (DefaultCheckWhetherNumber41IsActive()) return true;
                 }
                 if (Enemy.HasInSpellZone(_CardId.SkillDrain, true, true)) return true;
             }
             if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
             return false;
-        }
-
-        public bool CheckNumber41(ClientCard card, bool ignoreSelf41 = false)
-        {
-            return card != null && card.IsFaceup() && card.IsCode(_CardId.Number41BagooskatheTerriblyTiredTapir) && card.IsDefense() && !card.IsDisabled()
-                && (!ignoreSelf41 || card.Controller == 0);
         }
 
         /// <summary>
@@ -238,7 +232,7 @@ namespace WindBot.Game.AI.Decks
             if (card.HasSetcode(_Setcode.Danger) && card.Location == CardLocation.Hand) return false;
             if (card.IsMonster() && card.Location == CardLocation.MonsterZone && card.HasPosition(CardPosition.Defence))
             {
-                if (Enemy.MonsterZone.Any(c => CheckNumber41(c)) || Bot.MonsterZone.Any(c => CheckNumber41(c))) return false;
+                if (DefaultCheckWhetherNumber41IsActive()) return false;
             }
             if (DefaultCheckWhetherCardIsNegated(card)) return false;
             if (card.Location == CardLocation.SpellZone)
@@ -264,7 +258,7 @@ namespace WindBot.Game.AI.Decks
             if (card.HasSetcode(_Setcode.Danger) && card.Location == CardLocation.Hand) return false;
             if (card.IsMonster() && chainInfo.HasLocation(CardLocation.MonsterZone) && chainInfo.HasPosition(CardPosition.Defence))
             {
-                if (Enemy.MonsterZone.Any(c => CheckNumber41(c)) || Bot.MonsterZone.Any(c => CheckNumber41(c))) return false;
+                if (DefaultCheckWhetherNumber41IsActive()) return false;
             }
             if (DefaultCheckWhetherCardIsNegated(card)) return false;
             if (Duel.Player == 1 && card.IsCode(_CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos, _CardId.MulcharmyNyalus)) return false;
@@ -510,10 +504,7 @@ namespace WindBot.Game.AI.Decks
                 if (chainingCard.Location == CardLocation.MonsterZone && chainingCard.Controller == 1 && !chainingCard.IsDisabled()
                 && CheckCanBeTargeted(chainingCard, canBeTarget, selfType) && !currentNegateCardList.Contains(chainingCard))
                 {
-                    if (chainingCard.HasPosition(CardPosition.Defence))
-                    {
-                        bool have41 = Bot.MonsterZone.Any(c => CheckNumber41(c)) | Enemy.MonsterZone.Any(c => CheckNumber41(c));
-                    }
+                    if (chainingCard.HasPosition(CardPosition.Defence) && DefaultCheckWhetherNumber41IsActive()) continue;
                     resultList.Add(chainingCard);
                 }
             }

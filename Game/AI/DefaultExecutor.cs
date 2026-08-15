@@ -1869,6 +1869,12 @@ namespace WindBot.Game.AI
             return calledbytheGraveIdCountMap[cardId];
         }
 
+        protected bool DefaultCheckWhetherNumber41IsActive()
+        {
+            return Bot.MonsterZone.Concat(Enemy.MonsterZone).Any(card =>
+                card != null && card.IsFaceup() && card.IsCode(_CardId.Number41BagooskatheTerriblyTiredTapir)
+                && card.IsDefense() && !card.IsDisabled());
+        }
 
         protected virtual bool DefaultSetForDiabellze()
         {

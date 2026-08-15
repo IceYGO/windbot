@@ -548,8 +548,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.IsMonster() && Card.Location == CardLocation.MonsterZone && Card.IsDefense())
             {
-                if (Enemy.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == _CardId.Number41BagooskatheTerriblyTiredTapir && card.IsDefense() && !card.IsDisabled()) != null
-                    || Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == _CardId.Number41BagooskatheTerriblyTiredTapir && card.IsDefense() && !card.IsDisabled()) != null)
+                if (DefaultCheckWhetherNumber41IsActive())
                 {
                     return true;
                 }
