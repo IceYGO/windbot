@@ -63,7 +63,6 @@ namespace WindBot.Game.AI.Decks
             public const int Iblee = 10158145;
         }
 
-        List<int> Impermanence_list = new List<int>();
         bool Multifaker_ssfromhand = false;
         bool Multifaker_ssfromdeck = false;
         bool Marionetter_reborn = false;
@@ -376,7 +375,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     list.Add(seq);
                 }
             }
@@ -736,17 +735,6 @@ namespace WindBot.Game.AI.Decks
             {
                 if (m.IsMonsterShouldBeDisabledBeforeItUseEffect() && !m.IsDisabled() && Duel.LastChainPlayer != 0)
                 {
-                    if (Card.Location == CardLocation.SpellZone)
-                    {
-                        for (int i = 0; i < 5; ++ i)
-                        {
-                            if (Bot.SpellZone[i] == Card)
-                            {
-                                Impermanence_list.Add(i);
-                                break;
-                            }
-                        }
-                    }
                     if (Card.Location == CardLocation.Hand)
                     {
                         AI.SelectPlace(SelectSTPlace(Card, true));
@@ -787,7 +775,6 @@ namespace WindBot.Game.AI.Decks
                         if (card.IsFaceup() && !card.IsShouldNotBeTarget() && !card.IsShouldNotBeSpellTrapTarget())
                         {
                             AI.SelectCard(card);
-                            Impermanence_list.Add(this_seq);
                             return true;
                         }
                     }
@@ -799,17 +786,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
             // negate monsters
             if (is_should_not_negate() && LastChainCard.Location == CardLocation.MonsterZone) return false;
-            if (Card.Location == CardLocation.SpellZone)
-            {
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card)
-                    {
-                        Impermanence_list.Add(i);
-                        break;
-                    }
-                }
-            }
             if (Card.Location == CardLocation.Hand)
             {
                 AI.SelectPlace(SelectSTPlace(Card, true));
@@ -2681,30 +2657,8 @@ namespace WindBot.Game.AI.Decks
             Silquitous_bounced = false;
             Silquitous_recycled = false;
             ss_other_monster = false;
-            Impermanence_list.Clear();
             attacked_Meluseek.Clear();
             base.OnNewTurn();
-        }
-
-        public override void OnChaining(int player, ClientCard card)
-        {
-            if (card == null) return;
-
-            if (player == 1)
-            {
-                if (card.IsCode(_CardId.InfiniteImpermanence))
-                {
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        if (Enemy.SpellZone[i] == card)
-                        {
-                            Impermanence_list.Add(4-i);
-                            break;
-                        }
-                    }
-                }
-            }
-            base.OnChaining(player, card);
         }
 
         public bool MonsterRepos()

@@ -68,7 +68,6 @@ namespace WindBot.Game.AI.Decks
             return 1;
         }
 
-        List<int> Impermanence_list = new List<int>();
         bool NormalSummoned = false;
         ClientCard stage_locked = null;
         bool pink_ss = false;
@@ -199,7 +198,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     list.Add(seq);
                 }
             }
@@ -1710,30 +1709,8 @@ namespace WindBot.Game.AI.Decks
             white_eff_used = false;
             lockbird_useful = false;
             lockbird_used = false;
-            Impermanence_list.Clear();
             currentNegatingIdList.Clear();
             base.OnNewTurn();
-        }
-
-        public override void OnChaining(int player, ClientCard card)
-        {
-            if (card == null) return;
-
-            if (player == 1)
-            {
-                if (card.IsCode(_CardId.InfiniteImpermanence))
-                {
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        if (Enemy.SpellZone[i] == card)
-                        {
-                            Impermanence_list.Add(4-i);
-                            break;
-                        }
-                    }
-                }
-            }
-            base.OnChaining(player, card);
         }
 
         public override void OnChainEnd()

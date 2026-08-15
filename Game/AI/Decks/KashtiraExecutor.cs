@@ -76,7 +76,6 @@ namespace WindBot.Game.AI.Decks
         int flag = -1;
         int pre_link_mode = -1;
         List<ClientCard> select_Cards = new List<ClientCard>();
-        List<int> Impermanence_list = new List<int>();
         List<int> should_not_negate = new List<int>
         {
             81275020, 28985331
@@ -425,17 +424,6 @@ namespace WindBot.Game.AI.Decks
             {
                 if (m.IsMonsterShouldBeDisabledBeforeItUseEffect() && !m.IsDisabled() && Duel.LastChainPlayer != 0)
                 {
-                    if (Card.Location == CardLocation.SpellZone)
-                    {
-                        for (int i = 0; i < 5; ++i)
-                        {
-                            if (Bot.SpellZone[i] == Card)
-                            {
-                                Impermanence_list.Add(i);
-                                break;
-                            }
-                        }
-                    }
                     if (Card.Location == CardLocation.Hand)
                     {
                         AI.SelectPlace(SelectSTPlace(Card, true));
@@ -472,7 +460,6 @@ namespace WindBot.Game.AI.Decks
                         if (card.IsFaceup() && !card.IsShouldNotBeTarget() && !card.IsShouldNotBeSpellTrapTarget())
                         {
                             AI.SelectCard(card);
-                            Impermanence_list.Add(this_seq);
                             return true;
                         }
                     }
@@ -483,17 +470,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
             // negate monsters
             if (is_should_not_negate() && LastChainCard.Location == CardLocation.MonsterZone) return false;
-            if (Card.Location == CardLocation.SpellZone)
-            {
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card)
-                    {
-                        Impermanence_list.Add(i);
-                        break;
-                    }
-                }
-            }
             if (Card.Location == CardLocation.Hand)
             {
                 AI.SelectPlace(SelectSTPlace(Card, true));
@@ -524,7 +500,7 @@ namespace WindBot.Game.AI.Decks
                 int zone = (int)System.Math.Pow(2, seq);
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     return zone;
                 };
             }

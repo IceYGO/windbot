@@ -174,7 +174,6 @@ namespace WindBot.Game.AI.Decks
             {CardId.Pittore, 3}, {CardId.Potterie, 2}, {CardId.Genni, 1}
         };
 
-        List<int> Impermanence_list = new List<int>();
         List<int> FirstCheckSS = new List<int>();
         List<int> UseSSEffect = new List<int>();
         List<int> ActivatedCards = new List<int>();
@@ -232,17 +231,6 @@ namespace WindBot.Game.AI.Decks
                         enemy_activate_MaxxC = true;
                     if (currentChain.IsActivateCode(CardId.DimensionShifter))
                         enemy_activate_DimensionShifter = true;
-                    if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
-                    {
-                        for (int i = 0; i < 5; ++i)
-                        {
-                            if (Enemy.SpellZone[i] == currentChain.RelatedCard)
-                            {
-                                Impermanence_list.Add(4 - i);
-                                break;
-                            }
-                        }
-                    }
                 }
             }
             base.OnChainSolved(chainIndex);
@@ -257,7 +245,6 @@ namespace WindBot.Game.AI.Decks
             enemy_activate_DimensionShifter = false;
             MagiciansLeftHand_used = false;
             MagicianRightHand_used = false;
-            Impermanence_list.Clear();
             FirstCheckSS.Clear();
             UseSSEffect.Clear();
             ActivatedCards.Clear();
@@ -752,7 +739,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     if (avoid_list != null && avoid_list.Contains(seq)) continue;
                     list.Add(seq);
                 }
@@ -2056,17 +2043,6 @@ namespace WindBot.Game.AI.Decks
                         || (m.IsMonsterHasPreventActivationEffectInBattle() && Bot.HasInMonstersZone(CardId.MadameVerre)))
                      )))
                 {
-                    if (Card.Location == CardLocation.SpellZone)
-                    {
-                        for (int i = 0; i < 5; ++i)
-                        {
-                            if (Bot.SpellZone[i] == Card)
-                            {
-                                Impermanence_list.Add(i);
-                                break;
-                            }
-                        }
-                    }
                     if (Card.Location == CardLocation.Hand)
                     {
                         SelectSTPlace(Card, true);
@@ -2103,7 +2079,6 @@ namespace WindBot.Game.AI.Decks
                         if (card.IsFaceup() && !card.IsShouldNotBeTarget() && !card.IsShouldNotBeSpellTrapTarget())
                         {
                             AI.SelectCard(card);
-                            Impermanence_list.Add(this_seq);
                             return true;
                         }
                     }
@@ -2114,17 +2089,6 @@ namespace WindBot.Game.AI.Decks
             if ((LastChainCard == null || LastChainCard.Controller != 1 || LastChainCard.Location != CardLocation.MonsterZone
                 || CheckLastChainNegated() || LastChainCard.IsShouldNotBeTarget() || LastChainCard.IsShouldNotBeSpellTrapTarget()))
                 return false;
-            if (Card.Location == CardLocation.SpellZone)
-            {
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card)
-                    {
-                        Impermanence_list.Add(i);
-                        break;
-                    }
-                }
-            }
             if (Card.Location == CardLocation.Hand)
             {
                 SelectSTPlace(Card, true);
