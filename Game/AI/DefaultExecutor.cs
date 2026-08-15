@@ -540,7 +540,7 @@ namespace WindBot.Game.AI
                     ))
                 return false;
             if ((card.Location == CardLocation.Hand || card.Location == CardLocation.SpellZone && card.IsFacedown()) &&
-                (card.IsSpell() && DefaultSpellWillBeNegated() || card.IsTrap() && DefaultTrapWillBeNegated()))
+                (card.IsSpell() && DefaultSpellWillBeNegated(card) || card.IsTrap() && DefaultTrapWillBeNegated(card)))
                 return false;
             return true;
         }
@@ -1255,19 +1255,19 @@ namespace WindBot.Game.AI
         /// <summary>
         /// If spell will be negated
         /// </summary>
-        protected bool DefaultSpellWillBeNegated()
+        protected bool DefaultSpellWillBeNegated(ClientCard currentCard = null)
         {
             return (Bot.HasInSpellZone(_CardId.ImperialOrder, true, true) || Enemy.HasInSpellZone(_CardId.ImperialOrder, true)) && !Util.ChainContainsCard(_CardId.ImperialOrder)
-                || DefaultCheckWhetherCardIsNegated(Card);
+                || DefaultCheckWhetherCardIsNegated(currentCard ?? Card);
         }
 
         /// <summary>
         /// If trap will be negated
         /// </summary>
-        protected bool DefaultTrapWillBeNegated()
+        protected bool DefaultTrapWillBeNegated(ClientCard currentCard = null)
         {
             return (Bot.HasInSpellZone(_CardId.RoyalDecreel, true, true) || Enemy.HasInSpellZone(_CardId.RoyalDecreel, true)) && !Util.ChainContainsCard(_CardId.RoyalDecreel)
-                || DefaultCheckWhetherCardIsNegated(Card);
+                || DefaultCheckWhetherCardIsNegated(currentCard ?? Card);
         }
 
         /// <summary>
@@ -1283,7 +1283,13 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultOnBecomeTarget()
         {
-            if (Util.IsChainTarget(Card)) return true;
+            return DefaultOnBecomeTarget(Card);
+        }
+
+        protected bool DefaultOnBecomeTarget(ClientCard card)
+        {
+            if (card == null) return false;
+            if (Util.IsChainTarget(card)) return true;
             int[] destroyAllList =
             {
                 _CardId.EvilswarmExcitonKnight,
@@ -1309,11 +1315,11 @@ namespace WindBot.Game.AI
             };
 
             if (Util.ChainContainsCard(destroyAllList)) return true;
-            if (Enemy.HasInSpellZone(destroyAllOpponentSpellList, true) && Card.Location == CardLocation.SpellZone) return true;
-            if (Util.ChainContainsCard(destroyAllMonsterList) && Card.Location == CardLocation.MonsterZone) return true;
-            if (Duel.CurrentChain.Any(c => c.Controller == 1 && c.IsCode(destroyAllOpponentMonsterList)) && Card.Location == CardLocation.MonsterZone) return true;
-            if (lightningStormOption == 0 && Card.Location == CardLocation.MonsterZone && Card.IsAttack()) return true;
-            if (lightningStormOption == 1 && Card.Location == CardLocation.SpellZone) return true;
+            if (Enemy.HasInSpellZone(destroyAllOpponentSpellList, true) && card.Location == CardLocation.SpellZone) return true;
+            if (Util.ChainContainsCard(destroyAllMonsterList) && card.Location == CardLocation.MonsterZone) return true;
+            if (Duel.CurrentChain.Any(c => c.Controller == 1 && c.IsCode(destroyAllOpponentMonsterList)) && card.Location == CardLocation.MonsterZone) return true;
+            if (lightningStormOption == 0 && card.Location == CardLocation.MonsterZone && card.IsAttack()) return true;
+            if (lightningStormOption == 1 && card.Location == CardLocation.SpellZone) return true;
             // TODO: ChainContainsCard(id, player)
             return false;
         }
