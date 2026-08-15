@@ -1744,7 +1744,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CheckWhetherNegated(int cardId)
         {
-            return !DefaultCheckWhetherCardIdIsNegated(cardId) && !currentNegatingIdList.Contains(cardId);
+            return DefaultCheckWhetherCardIdIsNegated(cardId) || currentNegatingIdList.Contains(cardId);
         }
 
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
