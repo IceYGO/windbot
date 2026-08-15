@@ -8413,23 +8413,6 @@ namespace WindBot.Game.AI.Decks
             return base.OnSelectOption(options);
         }
 
-        public override bool OnSelectBattleReplay()
-        {
-            ClientCard attacker = Bot.BattlingMonster;
-            if (attacker != null
-                && attacker.Controller == 0
-                && attacker.Location == CardLocation.MonsterZone
-                && attacker.IsFaceup()
-                && attacker.IsCode(CardId.Varudras)
-                && Enemy.GetMonsterCount() == 0)
-            {
-                DebugRoute("ACCEPT Battle Replay: Varudras continues as direct attack");
-                return true;
-            }
-
-            return base.OnSelectBattleReplay();
-        }
-
         public override bool OnSelectYesNo(int desc)
         {
             if (desc == Util.GetStringId(CardId.DeltaOfInvitation, 3))

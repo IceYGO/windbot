@@ -569,7 +569,9 @@ namespace WindBot.Game.AI
         {
             if (Bot.BattlingMonster == null)
                 return false;
-            List<ClientCard> defenders = new List<ClientCard>(Duel.Fields[1].GetMonsters());
+            List<ClientCard> defenders = Duel.Fields[1].GetMonsters();
+            if (defenders.Count == 0)
+                return true;
             defenders.Sort(CardContainer.CompareDefensePower);
             defenders.Reverse();
             BattlePhaseAction result = OnSelectAttackTarget(Bot.BattlingMonster, defenders);
