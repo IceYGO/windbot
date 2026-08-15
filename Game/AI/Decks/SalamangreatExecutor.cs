@@ -1236,7 +1236,7 @@ namespace WindBot.Game.AI.Decks
                 if (!OnPreBattleBetween(attacker, defender))
                     continue;
 
-                if (attacker.RealPower > defender.RealPower || (attacker.RealPower > defender.RealPower && attacker.IsLastAttacker && defender.IsAttack()))
+                if (attacker.RealPower > defender.RealPower || (attacker.RealPower >= defender.RealPower && attacker.IsLastAttacker && defender.IsAttack()))
                     return AI.Attack(attacker, defender);
             }
 
