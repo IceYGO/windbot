@@ -19,6 +19,10 @@ namespace WindBot.Game
 
         private bool _selectingPendulumSummon;
 
+        private ClientCard _pendingAttacker;
+        private ClientCard _pendingAttackTarget;
+        private ISet<ClientCard> _attackersWithInvalidPreselectedTarget = new HashSet<ClientCard>();
+
         public GameAI(GameClient game, Duel duel)
         {
             Game = game;
@@ -120,6 +124,9 @@ namespace WindBot.Game
         /// </summary>
         public void OnNewPhase()
         {
+            _pendingAttacker = null;
+            _pendingAttackTarget = null;
+            _attackersWithInvalidPreselectedTarget.Clear();
             ClearSelections();
             _selectingPendulumSummon = false;
             if (Duel.Player == 0 && Duel.Phase == DuelPhase.Draw)
@@ -133,6 +140,16 @@ namespace WindBot.Game
         public void OnMove(ClientCard card, int previousControler, int previousLocation, int currentControler, int currentLocation)
         {
             Executor.OnMove(card, previousControler, previousLocation, currentControler, currentLocation);
+        }
+
+        /// <summary>
+        /// Called when an attack has been declared and its battling monsters have been recorded.
+        /// </summary>
+        public void OnAttack()
+        {
+            _pendingAttacker = null;
+            _pendingAttackTarget = null;
+            _attackersWithInvalidPreselectedTarget.Clear();
         }
 
         /// <summary>
@@ -243,6 +260,9 @@ namespace WindBot.Game
         /// <returns>A new BattlePhaseAction containing the action to do.</returns>
         public BattlePhaseAction OnSelectBattleCmd(BattlePhase battle)
         {
+            _pendingAttacker = null;
+            _pendingAttackTarget = null;
+
             foreach (CardExecutor exec in Executor.Executors)
             {
                 if (exec.Type == ExecutorType.GoToMainPhase2 && battle.CanMainPhaseTwo && exec.Func()) // check if should enter main phase 2 directly
@@ -265,13 +285,18 @@ namespace WindBot.Game
             }
 
             // Sort the attackers and defenders, make monster with higher battle power go first.
-            List<ClientCard> attackers = new List<ClientCard>(battle.AttackableCards);
+            List<ClientCard> attackers = battle.AttackableCards
+                .Where(card => !_attackersWithInvalidPreselectedTarget.Contains(card))
+                .ToList();
             attackers.Sort(CardContainer.CompareCardAttackPower);
             attackers.Reverse();
 
             List<ClientCard> defenders = new List<ClientCard>(Duel.Fields[1].GetMonsters());
             defenders.Sort(CardContainer.CompareDefensePower);
             defenders.Reverse();
+
+            if (attackers.Count > 0)
+            { // bad indent, just to reduce the diff
 
             // Let executor decide which card should attack first.
             ClientCard selected = Executor.OnSelectAttacker(attackers, defenders);
@@ -285,14 +310,6 @@ namespace WindBot.Game
             BattlePhaseAction result = Executor.OnBattle(attackers, defenders);
             if (result != null)
                 return result;
-
-            if (attackers.Count == 0)
-            {
-                if (battle.CanMainPhaseTwo)
-                    return ToMainPhase2();
-                if (battle.CanEndPhase)
-                    return ToEndPhase();
-            }
 
             if (defenders.Count == 0)
             {
@@ -312,12 +329,18 @@ namespace WindBot.Game
                 }
             }
 
+            } // end of if (attackers.Count > 0)
+
             if (battle.CanMainPhaseTwo)
                 return ToMainPhase2();
             if (battle.CanEndPhase)
                 return ToEndPhase();
 
-            return Attack(attackers[0], (defenders.Count == 0) ? null : defenders[0]);
+            Logger.DebugWriteLine("No monster to attack, but can't leave battle phase.", true);
+            BattlePhaseAction fallbackAction = Attack(battle.AttackableCards[0], (defenders.Count == 0) ? null : defenders[0]);
+            _pendingAttacker = null; // don't fall into the preselected attack target logic which can cancel the attack and cause an infinite loop
+            _pendingAttackTarget = null;
+            return fallbackAction;
         }
 
         /// <summary>
@@ -340,6 +363,30 @@ namespace WindBot.Game
                 result = ValidateCardSelection(result, cards, min, max, cancelable);
                 if (result != null)
                     return result;
+            }
+
+            // Attack target selection uses GameMessage.SelectCard.
+            // Some scripts also use this HintMsg so check _pendingAttacker.
+            if (hint == HintMsg.AttackTarget && _pendingAttacker != null)
+            {
+                if (_pendingAttackTarget != null && cards.Contains(_pendingAttackTarget))
+                {
+                    var target = new List<ClientCard> { _pendingAttackTarget };
+                    return target;
+                }
+                else
+                {
+                    // TODO: Avoid this by redefining the attack logic.
+                    Logger.DebugWriteLine("The preselected attack target is not in the list of legal targets.", true);
+                    if (cancelable)
+                    {
+                        _attackersWithInvalidPreselectedTarget.Add(_pendingAttacker);
+                        _pendingAttacker = null;
+                        _pendingAttackTarget = null;
+                        return new List<ClientCard>();
+                    }
+                    // else: use default selection below, which will attack the monster we don't want.
+                }
             }
 
             // Check for the executor.
@@ -395,14 +442,15 @@ namespace WindBot.Game
 
             // Always select the first available cards and choose the minimum.
             IList<ClientCard> selected = new List<ClientCard>();
-
-            if (hint == HintMsg.AttackTarget && cancelable) return selected;
-
             if (cards.Count >= min)
             {
                 for (int i = 0; i < min; ++i)
                     selected.Add(cards[i]);
             }
+
+            if (hint == HintMsg.AttackTarget && cancelable)
+                Logger.DebugWriteLine("Attack target selection not covered by _pendingAttacker.", true);
+
             return selected;
         }
 
@@ -1105,6 +1153,15 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when the AI has to decide whether the pending attack should be a direct attack.
+        /// </summary>
+        public bool OnSelectBattleDirectAttack()
+        {
+            bool preselectedAnswer = _pendingAttackTarget == null;
+            return Executor.OnSelectBattleDirectAttack(_pendingAttacker, preselectedAnswer);
+        }
+
+        /// <summary>
         /// Called when the AI has to declare a card.
         /// </summary>
         /// <param name="avail">Available card's ids.</param>
@@ -1480,19 +1537,17 @@ namespace WindBot.Game
 
         public BattlePhaseAction Attack(ClientCard attacker, ClientCard defender)
         {
-            Executor.SetCard(0, attacker, -1);
             if (defender != null)
             {
                 string cardName = defender.Name ?? "monster";
-                attacker.ShouldDirectAttack = false;
                 _dialogs.SendAttack(attacker.Name, cardName);
-                SelectCard(defender);
             }
             else
             {
-                attacker.ShouldDirectAttack = true;
                 _dialogs.SendDirectAttack(attacker.Name);
             }
+            _pendingAttacker = attacker;
+            _pendingAttackTarget = defender;
             return new BattlePhaseAction(BattlePhaseAction.BattleAction.Attack, attacker.ActionIndex);
         }
 

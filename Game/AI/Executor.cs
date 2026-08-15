@@ -256,6 +256,16 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Called when the AI has to decide whether the pending attack should be a direct attack.
+        /// </summary>
+        /// <param name="attacker">The monster selected to attack.</param>
+        /// <param name="preselectedAnswer">Whether the preceding battle decision preselected a direct attack.</param>
+        public virtual bool OnSelectBattleDirectAttack(ClientCard attacker, bool preselectedAnswer)
+        {
+            return preselectedAnswer;
+        }
+
+        /// <summary>
         /// Called when the executor type is SummonOrSet
         /// </summary>
         /// <returns>True if select to set the monster.</returns>

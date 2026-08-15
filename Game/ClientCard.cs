@@ -46,7 +46,6 @@ namespace WindBot.Game
         public List<ClientCard> TargetCards { get; set; }
 
         public bool CanDirectAttack { get; set; }
-        public bool ShouldDirectAttack { get; set; }
         public bool Attacked { get; set; }
         public bool IsLastAttacker { get; set; }
         public bool IsSpecialSummoned { get; set; }
