@@ -457,6 +457,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool TotemBirdActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             ClientCard lastChainCard = Util.GetLastChainCard();
             return Duel.LastChainPlayer == 1 && lastChainCard != null &&
                 (lastChainCard.IsSpell() || lastChainCard.IsTrap()) && !lastChainCard.IsDisabled();
@@ -464,6 +469,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool VibrantVortexActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             if (IsDescription(CardId.RadiantTyphoonVaruroonTheVibrantVortex, 0) || Card.Location == CardLocation.Hand)
             {
                 bool shouldActivate = CanSummonFromHandAfterPurulia() &&
@@ -502,6 +512,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool FonixActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             if (IsDescription(CardId.RadiantTyphoonFonixTheGreatFlame, 0) || Card.Location == CardLocation.Hand)
             {
                 bool shouldActivate = CanSummonFromHandAfterPurulia() &&
@@ -606,6 +621,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool SPLittleKnightActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             if (IsDescription(CardId.SPLittleKnight, 0))
             {
                 ClientCard target = Util.GetProblematicEnemyCard(0, true) ?? Util.GetBestEnemyCard(false, true);
@@ -638,6 +658,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShiinaActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             ChainInfo lastChain = Duel.CurrentChainInfo.LastOrDefault();
             if (lastChain == null || lastChain.ActivatePlayer != 1)
             {
@@ -1127,7 +1152,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card == null || !Card.IsCode(CardId.MysticalSpaceTyphoon) ||
                 Duel.Player != 1 || Card.Location != CardLocation.SpellZone ||
-                !Card.IsFacedown() || !HasExactlyOneFaceDownMysticalSpaceTyphoon() ||
+                !Card.IsFacedown() || !HasMstResourceForMandateMonsterLine() ||
                 !HasFaceupMandate() || Duel.CurrentChain.Count == 0 ||
                 Enemy.GetSpellCount() != 0 || _radiantQuickPlayOfferedInCurrentChainSelection ||
                 Duel.CurrentChain.Any(c => c.Controller == 0 && IsRadiantQuickPlay(c)))
@@ -1138,6 +1163,26 @@ namespace WindBot.Game.AI.Decks
             ClientCard opponentSource = GetLatestOpponentFieldCardForChain();
             return opponentSource != null && opponentSource.IsMonster() &&
                 !opponentSource.IsDisabled();
+        }
+
+        private bool HasMstResourceForMandateMonsterLine()
+        {
+            int mstCount = GetFaceDownMysticalSpaceTyphoonCount();
+            if (mstCount == 0)
+            {
+                return false;
+            }
+
+            // Keep the existing last-copy line. When several MST are set and
+            // no other Radiant Quick-Play is available, spend only one MST and
+            // preserve the remaining copies for later back-row interaction.
+            return mstCount == 1 || !HasFaceDownRadiantQuickPlayBesidesMst();
+        }
+
+        private bool HasFaceDownRadiantQuickPlayBesidesMst()
+        {
+            return Bot.GetSpells().Any(c => c != null && c.IsFacedown() &&
+                IsRadiantQuickPlay(c));
         }
 
         private bool HasOtherSuitableActivationEffect()
@@ -1598,7 +1643,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MudragonActivate()
         {
-            if (Card == null || Card.Location != CardLocation.MonsterZone ||
+            if (IsDisabledOwnFieldMonster() || Card == null || Card.Location != CardLocation.MonsterZone ||
                 !Card.IsFaceup())
             {
                 return false;
@@ -1682,8 +1727,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            bool canDestroy = Enemy.GetMonsters().Concat(Enemy.GetSpells()).Any(c =>
-                c.IsFaceup() && !c.IsShouldNotBeTarget() && !c.IsShouldNotBeSpellTrapTarget());
+            bool canDestroy = GetOrderedFallenTargets(Enemy.GetMonsters().Concat(Enemy.GetSpells())).Count > 0;
             if (canDestroy)
             {
                 _fallenDodgeTarget = null;
@@ -1724,6 +1768,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool GallantThiefActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             if (IsDescription(CardId.TheWorldsGreatestGallantThief, 1))
             {
                 return Duel.LastChainPlayer == 1;
@@ -1738,6 +1787,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool KroseaActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             // Krosea has an activated hand effect and a separate on-summon trigger.
             // The latter can be offered with ActivateDescription == -1, so location is
             // the reliable discriminator after the server has supplied a legal effect.
@@ -1760,6 +1814,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool MeghalaActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             // Its self summon is a SpSummon procedure. Any legal Activate candidate
             // while Meghala is in the monster zone is therefore its deck-summon trigger.
             if (Card.Location != CardLocation.MonsterZone || _usedMeghalaDeckSummon ||
@@ -1773,6 +1832,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool SwenActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             // Swen has only one activated effect; do not reject its summon trigger when
             // the protocol omits the effect description and reports -1.
             if (Card.Location != CardLocation.MonsterZone || _usedSwenSearch || _enemyDrollResolved)
@@ -1785,6 +1849,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool DachsActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             // Dachs has only one activated effect; the legal field candidate is its
             // normal/special-summon search trigger regardless of description encoding.
             if (Card.Location != CardLocation.MonsterZone || _usedDachsSearch || _enemyDrollResolved)
@@ -2183,6 +2252,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool SeaSpiritActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             if (IsDescription(CardId.RadiantTyphoonVaruroonTheMarineEidolon, 0) ||
                 IsMarineEidolonSummonTrigger())
             {
@@ -2234,7 +2308,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FavoriteHEROFlameWingmanActivate()
         {
-            if (Card == null || !Card.IsCode(CardId.FavoriteHEROFlameWingman) ||
+            if (IsDisabledOwnFieldMonster() || Card == null || !Card.IsCode(CardId.FavoriteHEROFlameWingman) ||
                 Card.Location != CardLocation.MonsterZone || !Card.IsFaceup())
             {
                 return false;
@@ -2262,7 +2336,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FavoriteHEROShiningFlareWingmanActivate()
         {
-            if (Card == null || !Card.IsCode(CardId.FavoriteHEROShiningFlareWingman) ||
+            if (IsDisabledOwnFieldMonster() || Card == null || !Card.IsCode(CardId.FavoriteHEROShiningFlareWingman) ||
                 Card.Location != CardLocation.MonsterZone || !Card.IsFaceup())
             {
                 return false;
@@ -2412,6 +2486,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool HraesvelgrActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             bool opponentActivatedFromGrave = Duel.CurrentChainInfo.Any(chain =>
                 chain.ActivatePlayer == 1 && chain.HasLocation(CardLocation.Grave));
             bool opponentGraveCardTargeted = Duel.CurrentChainInfo.Any(chain =>
@@ -2449,6 +2528,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool WynnActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             if (IsDescription(CardId.WynnTheWindCharmerVerdant, 0))
             {
                 ClientCard target = Enemy.Graveyard.Where(c => c.IsMonster() &&
@@ -2514,6 +2598,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool GreatflyActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             ClientCard target = Bot.Graveyard.Where(c => c.IsMonster() &&
                     c.Attribute == (int)CardAttribute.Wind)
                 .OrderByDescending(c => c.Attack).FirstOrDefault();
@@ -2559,6 +2648,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool TyphonActivate()
         {
+            if (IsDisabledOwnFieldMonster())
+            {
+                return false;
+            }
+
             ClientCard target = Util.GetProblematicEnemyMonster(0, false) ?? Util.GetBestEnemyMonster(false, false);
             if (target == null)
             {
@@ -2971,7 +3065,7 @@ namespace WindBot.Game.AI.Decks
                             return new List<ClientCard> { dodgeTarget };
                         }
                     }
-                    List<ClientCard> targets = GetOrderedEnemyCards(cards.Where(c => c.Controller == 1 && c.IsFaceup()));
+                    List<ClientCard> targets = GetOrderedFallenTargets(cards.Where(c => c.Controller == 1));
                     return SelectCount(targets, cards, min, max, 1);
                 }
             }
@@ -3738,6 +3832,12 @@ namespace WindBot.Game.AI.Decks
             return ActivateDescription == Util.GetStringId(cardId, offset);
         }
 
+        private bool IsDisabledOwnFieldMonster()
+        {
+            return Card != null && Card.Controller == 0 &&
+                Card.Location == CardLocation.MonsterZone && Card.IsDisabled();
+        }
+
         private bool IsMarineEidolonSummonTrigger()
         {
             return Card != null && Card.IsCode(CardId.RadiantTyphoonVaruroonTheMarineEidolon) &&
@@ -3868,11 +3968,11 @@ namespace WindBot.Game.AI.Decks
                 !c.IsDisabled());
         }
 
-        private bool HasExactlyOneFaceDownMysticalSpaceTyphoon()
+        private int GetFaceDownMysticalSpaceTyphoonCount()
         {
             return Bot.GetSpells().Count(c => c != null &&
                 c.IsCode(CardId.MysticalSpaceTyphoon) && c.IsFacedown() &&
-                !c.IsDisabled()) == 1;
+                !c.IsDisabled());
         }
 
         private bool HasLiveOpponentFieldChain()
@@ -4407,6 +4507,68 @@ namespace WindBot.Game.AI.Decks
                 .ThenByDescending(c => c.IsFaceup())
                 .ThenByDescending(c => Math.Max(c.Attack, c.Defense))
                 .ToList();
+        }
+
+        private List<ClientCard> GetOrderedFallenTargets(IEnumerable<ClientCard> source)
+        {
+            ClientCard activeSource = GetLatestOpponentFieldCardForChain();
+            List<ClientCard> candidates = source.Where(c => !IsAlreadyHandledByMysticalSpaceTyphoon(c))
+                .Where(IsWorthwhileFallenTarget)
+                .Distinct().ToList();
+
+            return candidates
+                .OrderByDescending(c => AreSameVisibleCard(c, activeSource))
+                .ThenByDescending(c => c.IsMonster() && c.IsExtraCard())
+                .ThenByDescending(c => c.IsMonster() &&
+                    (c.IsFloodgate() || c.IsMonsterDangerous() ||
+                        c.IsMonsterShouldBeDisabledBeforeItUseEffect()))
+                .ThenByDescending(c => c.HasType(CardType.Field | CardType.Continuous))
+                .ThenByDescending(c => Math.Max(c.Attack, c.Defense))
+                .ToList();
+        }
+
+        private bool IsAlreadyHandledByMysticalSpaceTyphoon(ClientCard card)
+        {
+            if (card == null || _mysticalSpaceTyphoonTarget == null ||
+                !AreSameVisibleCard(card, _mysticalSpaceTyphoonTarget) ||
+                !_mysticalSpaceTyphoonTarget.IsOnField())
+            {
+                return false;
+            }
+
+            for (int i = 0; i < Duel.CurrentChainInfo.Count; ++i)
+            {
+                ChainInfo chain = Duel.CurrentChainInfo[i];
+                if (chain.ActivatePlayer == 0 && chain.IsActivateCode(CardId.MysticalSpaceTyphoon) &&
+                    !Duel.NegatedChainIndexList.Contains(i + 1))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool IsWorthwhileFallenTarget(ClientCard card)
+        {
+            if (card == null || card.Controller != 1 || !card.IsFaceup() ||
+                card.IsShouldNotBeTarget() || card.IsDisabled())
+            {
+                return false;
+            }
+
+            if (card.IsMonster())
+            {
+                return !card.IsShouldNotBeMonsterTarget() &&
+                    (card.IsExtraCard() || card.IsFloodgate() || card.IsMonsterDangerous() ||
+                        card.IsMonsterShouldBeDisabledBeforeItUseEffect() ||
+                        card.Attack >= 1800 || card.Defense >= 1800);
+            }
+
+            // Destroying a normal/Quick-Play Spell or a normal Trap after it
+            // has been activated usually does not negate its effect. Keep The
+            // Fallen for persistent field cards that retain value on the field.
+            return !card.IsShouldNotBeSpellTrapTarget() &&
+                card.HasType(CardType.Field | CardType.Continuous);
         }
 
         private bool IsEcclesiaFusionTarget(ClientCard card)
