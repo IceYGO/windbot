@@ -646,7 +646,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.IsMonster() && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
             {
-                if (toFieldCheck || Card.IsDefense())
+                if ((toFieldCheck && !Card.HasType(CardType.Link)) || Card.IsDefense())
                 {
                     if (DefaultCheckWhetherNumber41IsActive())
                     {

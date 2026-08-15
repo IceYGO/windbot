@@ -700,6 +700,7 @@ namespace WindBot.Game.AI
                     }
                 }
             }
+            base.OnChainSolved(chainIndex);
         }
 
         public override void OnChainEnd()
