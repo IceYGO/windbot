@@ -142,7 +142,6 @@ namespace WindBot.Game.AI.Decks
             70534340, 60465049, 24094258, 86066372
         };
 
-        List<int> currentNegatingIdList = new List<int>();
         bool enemyActivateMaxxC = false;
         bool enemyActivateLockBird = false;
         bool summoned = false;
@@ -403,7 +402,7 @@ namespace WindBot.Game.AI.Decks
         public List<ClientCard> GetMonsterListForTargetNegate(bool canBeMonsterTarget = false, bool canBeTrapTarget = false)
         {
             List<ClientCard> resultList = new List<ClientCard>();
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return resultList;
             }
@@ -471,7 +470,7 @@ namespace WindBot.Game.AI.Decks
         {
             ClientCard selectResult = null;
             // Ntss
-            if (baseAtk <= 2500 && Bot.HasInExtra(CardId.ElderEntityNtss) && CheckCalledbytheGrave(CardId.ElderEntityNtss) == 0)
+            if (baseAtk <= 2500 && Bot.HasInExtra(CardId.ElderEntityNtss) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.ElderEntityNtss))
             {
                 List<ClientCard> destroyList = GetNormalEnemyTargetList(true, false);
                 if (destroyList.Count() > 0)
@@ -488,7 +487,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // Garura
-            if (baseAtk <= 1500 && Bot.HasInExtra(CardId.GaruraWingsOfResonantLife) && CheckCalledbytheGrave(CardId.GaruraWingsOfResonantLife) == 0
+            if (baseAtk <= 1500 && Bot.HasInExtra(CardId.GaruraWingsOfResonantLife) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.GaruraWingsOfResonantLife)
                 && !activatedCardIdList.Contains(CardId.GaruraWingsOfResonantLife) && !enemyActivateLockBird)
             {
                 selectResult = Bot.ExtraDeck.FirstOrDefault(card => card.IsCode(CardId.GaruraWingsOfResonantLife));
@@ -499,7 +498,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // Ash Dragon
-            if (baseAtk <= 2500 && Bot.HasInExtra(CardId.TitanikladTheAshDragon) && CheckCalledbytheGrave(CardId.TitanikladTheAshDragon) == 0
+            if (baseAtk <= 2500 && Bot.HasInExtra(CardId.TitanikladTheAshDragon) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.TitanikladTheAshDragon)
                 && !discardExtraThisTurn.Contains(CardId.TitanikladTheAshDragon) && !enemyActivateLockBird)
             {
                 bool successFlag = !activatedCardIdList.Contains(CardId.DogmatikaEcclesia) && Bot.HasInDeck(CardId.DogmatikaEcclesia);
@@ -579,48 +578,6 @@ namespace WindBot.Game.AI.Decks
         }
 
         /// <summary>
-        /// Check negated turn count of id
-        /// </summary>
-        public int CheckCalledbytheGrave(int id)
-        {
-            if (currentNegatingIdList.Contains(id)) return 1;
-            if (DefaultCheckWhetherCardIdIsNegated(id)) return 1;
-            return 0;
-        }
-
-
-
-        /// <summary>
-        /// Check whether'll be negated
-        /// </summary>
-        /// <param name="isCounter">check whether card itself is disabled.</param>
-        public bool CheckWhetherNegated(bool toFieldCheck = false)
-        {
-            if ((Card.IsSpell() || Card.IsTrap()) && DefaultSpellOrTrapWillBeNegated(Card, false, toFieldCheck)){
-                return true;
-            }
-            if (DefaultCheckWhetherCardIsNegated(Card))
-            {
-                return true;
-            }
-            if (Card.IsMonster() && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
-            {
-                if ((toFieldCheck && !Card.HasType(CardType.Link)) || Card.IsDefense())
-                {
-                    if (DefaultCheckWhetherNumber41IsActive())
-                    {
-                        return true;
-                    }
-                }
-                if (Enemy.HasInSpellZone(CardId.SkillDrain, true, true))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
         /// Check whether cards will be removed. If so, do not send cards to grave.
         /// </summary>
         public bool CheckWhetherWillbeRemoved()
@@ -673,10 +630,12 @@ namespace WindBot.Game.AI.Decks
         /// </summary>
         public bool CheckLastChainShouldNegated()
         {
-            ClientCard lastcard = Util.GetLastChainCard();
-            if (lastcard == null || lastcard.Controller != 1) return false;
+            ChainInfo lastChainInfo = Duel.CurrentChainInfo.LastOrDefault();
+            ClientCard lastcard = lastChainInfo?.RelatedCard;
+            if (lastcard == null || lastChainInfo.ActivatePlayer != 1) return false;
             if (lastcard.IsMonster() && lastcard.HasSetcode(SetcodeTimeLord) && Duel.Phase == DuelPhase.Standby) return false;
             if (notToNegateIdList.Contains(lastcard.Id)) return false;
+            if (DefaultCheckWhetherCardEffectIsNegated(lastChainInfo)) return false;
             if (lastcard.IsCode(_CardId.LockBird))
             {
                 bool needToSearch = false;
@@ -847,7 +806,7 @@ namespace WindBot.Game.AI.Decks
                         if (ashDragon != null && !activatedCardIdList.Contains(CardId.TitanikladTheAshDragon) && !discardEnemyExtraIdList.Contains(CardId.TitanikladTheAshDragon))
                         {
                             bool checkFlag = !activatedCardIdList.Contains(CardId.DogmatikaEcclesia) && Bot.HasInDeck(CardId.DogmatikaEcclesia)
-                                && CheckCalledbytheGrave(CardId.DogmatikaEcclesia) == 0;
+                                && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.DogmatikaEcclesia, CardType.Monster);
                             checkFlag |= Bot.HasInDeck(CardId.DogmatikaFleurdelis) && !Bot.HasInHand(CardId.DogmatikaFleurdelis) && !enemyActivateLockBird;
                             if (checkFlag) discardList.Add(ashDragon);
                         }
@@ -947,7 +906,6 @@ namespace WindBot.Game.AI.Decks
             omegaActivateCount = 0;
             enemySpSummonFromExLastTurn = enemySpSummonFromExThisTurn;
             enemySpSummonFromExThisTurn = 0;
-            currentNegatingIdList.Clear();
 
             if (dimensionShifterCount > 0) dimensionShifterCount--;
 
@@ -1100,7 +1058,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaAlbaZoaActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Enemy.GetMonsters().Any(card => card != null && card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link)) 
                 && Duel.Phase == DuelPhase.Main1 && Enemy.ExtraDeck.Count() > 1)
             {
@@ -1112,7 +1070,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ThesIrisSwordsoulActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 if (CheckShouldNoMoreSpSummon())
@@ -1136,7 +1094,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaFleurdelisActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 bool canNegate = Bot.GetMonsters().Any(card => card.IsFaceup() && card.HasSetcode(SetcodeDogmatika)) && Enemy.GetMonsters().Any(card => card.IsFaceup());
@@ -1216,7 +1174,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaFleurdelisDelayActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 bool checkFlag = false;
@@ -1252,7 +1210,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaMaximusActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 if (CheckShouldNoMoreSpSummon()) return false;
@@ -1463,7 +1421,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DiabellstarTheBlackWitchActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.MonsterZone)
             {
                 AI.SelectCard(CardId.SinfulSpoilsOfDoom_Rciela, CardId.WANTED_SeekerOfSinfulSpoils);
@@ -1478,7 +1436,7 @@ namespace WindBot.Game.AI.Decks
         public bool DogmatikaEcclesiaSummon()
         {
             if (enemyActivateLockBird) return false;
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card)) return false;
             if (activatedCardIdList.Contains(Card.Id)) return false;
 
             summoned = true;
@@ -1487,7 +1445,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaEcclesiaActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             // sp summon
             if (Card.Location == CardLocation.Hand)
             {
@@ -1614,7 +1572,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool AshBlossomActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (CheckAtAdvantage() && Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC))
             {
                 return false;
@@ -1629,7 +1587,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool MaxxCActivate()
         {
-            if (CheckWhetherNegated() || Duel.LastChainPlayer == 0) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.LastChainPlayer == 0) return false;
             if (Enemy.HasInMonstersZone(CardId.KnightmareCorruptorIblee, true, false, true) && !confirmLink2) return false;
             return DefaultMaxxC();
         }
@@ -1672,12 +1630,13 @@ namespace WindBot.Game.AI.Decks
     
         public bool NadirServantActivate()
         {
-            if (CheckWhetherNegated() ||  CheckWhetherWillbeRemoved()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) ||  CheckWhetherWillbeRemoved()) return false;
             ClientCard discardExtra = null;
             int searchId = 0;
 
             // search ecclesia
-            if (!activatedCardIdList.Contains(CardId.DogmatikaEcclesia) && CheckCalledbytheGrave(CardId.DogmatikaEcclesia) == 0 && !Bot.HasInHand(CardId.DogmatikaEcclesia))
+            if (!activatedCardIdList.Contains(CardId.DogmatikaEcclesia)
+                && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.DogmatikaEcclesia, CardType.Monster) && !Bot.HasInHand(CardId.DogmatikaEcclesia))
             {
                 if (CheckHasExtraOnField() || !summoned)
                 {
@@ -1692,7 +1651,8 @@ namespace WindBot.Game.AI.Decks
             // search maximus
             if (searchId == 0 || discardExtra == null)
             {
-                if (!activatedCardIdList.Contains(CardId.DogmatikaMaximus) && CheckCalledbytheGrave(CardId.DogmatikaMaximus) == 0
+                if (!activatedCardIdList.Contains(CardId.DogmatikaMaximus)
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.DogmatikaMaximus, CardType.Monster)
                     && Bot.HasInGraveyard(CardId.DogmatikaMaximus) || Bot.HasInDeck(CardId.DogmatikaMaximus))
                 {
                     searchId = CardId.DogmatikaMaximus;
@@ -1743,7 +1703,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaLamityActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             // use lilith
             if (Bot.HasInExtra(CardId.DespianLuluwalilith))
             {
@@ -1762,7 +1722,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaLamityDelayActivate()
         {
-            if (CheckWhetherNegated() || Bot.HasInExtra(CardId.DespianLuluwalilith)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Bot.HasInExtra(CardId.DespianLuluwalilith)) return false;
             if (Bot.HasInMonstersZone(CardId.DogmatikaAlbaZoa, false, false, true)) return false;
             List<ClientCard> materialList = new List<ClientCard>();
             int totalLevel = 0;
@@ -1805,7 +1765,7 @@ namespace WindBot.Game.AI.Decks
         public bool DogmatikaMacabreActivate()
         {
             if (Bot.HasInMonstersZone(CardId.DogmatikaAlbaZoa)) return false;
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             List<ClientCard> gyMaterialList = Bot.Graveyard.Where(card => card != null && card.HasType(CardType.Fusion | CardType.Synchro))
                 .OrderByDescending(card => card.Level).ToList();
             List<ClientCard> selectMaterialList = new List<ClientCard>();
@@ -1924,7 +1884,7 @@ namespace WindBot.Game.AI.Decks
     
         public bool CalledbytheGraveActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (CheckAtAdvantage() && Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC))
             {
                 return false;
@@ -1936,7 +1896,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     int code = Util.GetLastChainCard().GetOriginCode();
                     if (code == 0) return false;
-                    if (CheckCalledbytheGrave(code) > 0) return false;
+                    if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                     if (Util.GetLastChainCard().IsCode(_CardId.MaxxC) && CheckAtAdvantage())
                     {
                         return false;
@@ -1948,7 +1908,7 @@ namespace WindBot.Game.AI.Decks
                             SelectSTPlace(null, true);
                         }
                         AI.SelectCard(code);
-                        currentNegatingIdList.Add(code);
+                        DefaultAddPendingNegatingCard(code);
                         CheckDeactiveFlag();
                         return true;
                     }
@@ -1965,7 +1925,7 @@ namespace WindBot.Game.AI.Decks
                         }
                         int code = cards.GetOriginCode();
                         AI.SelectCard(cards);
-                        currentNegatingIdList.Add(code);
+                        DefaultAddPendingNegatingCard(code);
                         return true;
                     }
                 }
@@ -1978,9 +1938,9 @@ namespace WindBot.Game.AI.Decks
                     {
                         enemyMonsters.Sort(CardContainer.CompareCardAttack);
                         enemyMonsters.Reverse();
-                        int code = enemyMonsters[0].Id;
+                        int code = enemyMonsters[0].GetOriginCode();
                         AI.SelectCard(enemyMonsters);
-                        currentNegatingIdList.Add(code);
+                        DefaultAddPendingNegatingCard(code);
                         return true;
                     }
                 }
@@ -1990,13 +1950,13 @@ namespace WindBot.Game.AI.Decks
             if (Duel.LastChainPlayer == 1) return false;
             List<ClientCard> targets = GetDangerousCardinEnemyGrave(true);
             if (targets.Count() > 0) {
-                int code = targets[0].Id;
+                int code = targets[0].GetOriginCode();
                 if (!(Card.Location == CardLocation.SpellZone))
                 {
                     SelectSTPlace(null, true);
                 }
                 AI.SelectCard(targets);
-                currentNegatingIdList.Add(code);
+                DefaultAddPendingNegatingCard(code);
                 return true;
             }
 
@@ -2005,7 +1965,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CrossoutDesignatorActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             // negate 
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard() != null)
             {
@@ -2013,7 +1973,7 @@ namespace WindBot.Game.AI.Decks
                 if (code == 0) return false;
                 // do not negate black witch
                 if (code == CardId.DiabellstarTheBlackWitch) return false;
-                if (CheckCalledbytheGrave(code) > 0) return false;
+                if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                 if (Bot.HasInDeck(code))
                 {
                     if (!(Card.Location == CardLocation.SpellZone))
@@ -2021,7 +1981,7 @@ namespace WindBot.Game.AI.Decks
                         SelectSTPlace(null, true);
                     }
                     AI.SelectAnnounceID(code);
-                    currentNegatingIdList.Add(code);
+                    DefaultAddPendingNegatingCard(code);
                     CheckDeactiveFlag();
                     return true;
                 }
@@ -2048,7 +2008,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaMatrixActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             // activate for search
             if (Card.Location == CardLocation.Hand || (Card.Location == CardLocation.SpellZone && Card.HasPosition(CardPosition.FaceDown)))
@@ -2138,7 +2098,8 @@ namespace WindBot.Game.AI.Decks
             bool hasExtraOnField = fieldMonsterList.Any(card => card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link));
 
             // search ecclesia
-            if (!activatedCardIdList.Contains(CardId.DogmatikaEcclesia) && CheckCalledbytheGrave(CardId.DogmatikaEcclesia) == 0)
+            if (!activatedCardIdList.Contains(CardId.DogmatikaEcclesia)
+                && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.DogmatikaEcclesia, CardType.Monster))
             {
                 if (hasExtraOnField || !summoned)
                 {
@@ -2180,7 +2141,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool InfiniteImpermanenceActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             ClientCard LastChainCard = Util.GetLastChainCard();
 
@@ -2233,7 +2194,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaPunishmentActivate()
         {
-            if (CheckWhetherNegated() || CheckWhetherWillbeRemoved()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || CheckWhetherWillbeRemoved()) return false;
 
             ClientCard targetCard = null;
             ClientCard extraToDiscard = null;
@@ -2333,7 +2294,8 @@ namespace WindBot.Game.AI.Decks
 
         public bool TitanikladTheAshDragonActivate()
         {
-            if (!activatedCardIdList.Contains(CardId.DogmatikaEcclesia) && Bot.HasInDeck(CardId.DogmatikaEcclesia) && CheckCalledbytheGrave(CardId.DogmatikaEcclesia) == 0)
+            if (!activatedCardIdList.Contains(CardId.DogmatikaEcclesia) && Bot.HasInDeck(CardId.DogmatikaEcclesia)
+                && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.DogmatikaEcclesia, CardType.Monster))
             {
                 AI.SelectOption(1);
                 AI.SelectCard(CardId.DogmatikaEcclesia);
@@ -2395,7 +2357,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Grave)
             {
                 if (!activatedCardIdList.Contains(CardId.DogmatikaEcclesia) && Bot.HasInDeck(CardId.DogmatikaEcclesia)
-                    && CheckCalledbytheGrave(CardId.DogmatikaEcclesia) == 0 && !enemyActivateLockBird)
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.DogmatikaEcclesia, CardType.Monster) && !enemyActivateLockBird)
                 {
                     AI.SelectCard(CardId.DogmatikaEcclesia);
                     return true;
@@ -2447,7 +2409,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave && omegaActivateCount <= 5)
             {
-                if (CheckWhetherNegated()) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 List<ClientCard> targets = GetDangerousCardinEnemyGrave(true);
                 if (targets.Count() > 0) {
                     AI.SelectCard(targets);
@@ -2521,7 +2483,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SuperStarslayerTYPHONActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             List<ClientCard> targetList = new List<ClientCard>();
             targetList.AddRange(Enemy.GetMonsters().Where(c => !currentDestroyCardList.Contains(c) &&
                 c.IsFloodgate() && c.IsFaceup()).OrderByDescending(card => card.Attack));
@@ -2635,7 +2597,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!Bot.HasInExtra(CardId.SuperStarslayerTYPHON) || Bot.GetMonsters().Any(card => card.IsFaceup()) || banSpSummonFromExTurn > 0) return false;
             if (enemySpSummonFromExLastTurn < 2 && enemySpSummonFromExThisTurn < 2) return false;
-            if (Card.IsCode(CardId.KnightmareCorruptorIblee) && !CheckWhetherNegated()) return false;
+            if (Card.IsCode(CardId.KnightmareCorruptorIblee) && !DefaultCheckWhetherCardWillBeNegatedOnField(Card)) return false;
             if (Card.Level > 4) return false;
             
             int currentAttack = 0;

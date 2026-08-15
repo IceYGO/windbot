@@ -467,7 +467,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool JetSynchronEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             AI.SelectCard(HandCosts);
             return true;
         }
@@ -491,7 +491,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DestrudoSummon()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return Bot.GetMonsterCount() < 3 && Bot.HasInExtra(new[] { CardId.CrystronNeedlefiber, CardId.KnightmarePhoenix });
         }
 
@@ -663,7 +663,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool KnightmarePhoenixEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             int costcount = Bot.Hand.GetMatchingCardsCount(card => card.IsCode(HandCosts));
             ClientCard target = Enemy.SpellZone.GetFloodgate();
             ClientCard anytarget = Enemy.SpellZone.GetFirstMatchingCard(card => !card.OwnTargets.Any(cont => cont.IsCode(CardId.TrickstarLightStage)));
@@ -690,7 +690,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool KnightmareMermaidEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             AI.SelectCard(HandCosts);
             return true;
         }
@@ -709,7 +709,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool OrcustKnightmareEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!Bot.HasInGraveyard(CardId.OrcustHarpHorror))
             {
                 AI.SelectCard(Util.GetBestBotMonster());
@@ -733,7 +733,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HarpHorrorEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             HarpHorrorUsed = true;
             AI.SelectCard(CardId.OrcustCymbalSkeleton);
             return true;
@@ -741,7 +741,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool WorldWandEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             AI.SelectCard(CardId.OrcustCymbalSkeleton);
             return true;
         }
@@ -792,7 +792,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CymbalSkeletonEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             int[] botTurnTargets = new[] { CardId.GalateaTheOrcustAutomaton, CardId.SheorcustDingirsu };
             int[] emenyTurnTargets = new[] { CardId.SheorcustDingirsu, CardId.GalateaTheOrcustAutomaton };
             if (Duel.Player == 0 && Bot.HasInGraveyard(CardId.GalateaTheOrcustAutomaton) && !Bot.HasInMonstersZone(CardId.GalateaTheOrcustAutomaton) && Bot.HasInExtra(CardId.SheorcustDingirsu) && !SheorcustDingirsuSummoned)
@@ -877,7 +877,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool AncientCloakEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Bot.HasInMonstersZone(CardId.SalamangreatAlmiraj) && Bot.HasInExtra(CardId.KnightmarePhoenix))
                 AI.SelectCard(CardId.ThePhantomKnightsofShadeBrigandine);
             else
@@ -892,7 +892,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SilentBootsEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Bot.HasInMonstersZone(CardId.SalamangreatAlmiraj) && Bot.HasInExtra(CardId.KnightmarePhoenix))
                 AI.SelectCard(CardId.ThePhantomKnightsofShadeBrigandine);
             else
@@ -1045,7 +1045,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 IList<ClientCard> costCards = Bot.Hand.GetMatchingCards(card => card.IsCode(HandCosts));
                 if (costCards.Count > 0)
                 {
@@ -1126,7 +1126,7 @@ namespace WindBot.Game.AI.Decks
             }
             else if (Bot.HasInGraveyard(CardId.ThePhantomKnightsofRustyBardiche) || Bot.GetMonsterCount() < 2)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 AI.SelectCard(CardId.ThePhantomKnightsofRustyBardiche);
                 return true;
             }

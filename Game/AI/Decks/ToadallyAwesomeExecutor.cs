@@ -231,7 +231,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (Bot.HasInHand(CardId.DupeFrog))
                 {
                     AI.SelectCard(
@@ -268,7 +268,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RonintoadinEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
         }
@@ -299,7 +299,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.CurrentChain.Count > 0)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 // negate effect, select a cost for it
                 List<ClientCard> monsters = Bot.GetMonsters();
                 IList<int> suitableCost = new[] {
@@ -384,7 +384,7 @@ namespace WindBot.Game.AI.Decks
             }
             else if (Duel.Phase == DuelPhase.Standby)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 SelectXYZDetach(Card.Overlays);
                 if (Duel.Player == 0)
                 {

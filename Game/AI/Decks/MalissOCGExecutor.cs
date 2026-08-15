@@ -233,7 +233,7 @@ namespace WindBot.Game.AI.Decks
         }
         public override void OnChainEnd()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(CardId.Dimension_Shifter) && !Count.CheckCard(CardId.Dimension_Shifter))
+            if (DefaultCheckWhetherCardEffectIsNegated(CardId.Dimension_Shifter) && !Count.CheckCard(CardId.Dimension_Shifter))
                 Count.Dimension_Shifter = 0;
             Count.Oppo.Clear();
             base.OnChainEnd();
@@ -833,7 +833,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Enemy_Turn()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Id == CardId.Dimension_Shifter)
             {
                 if (Duel.Player == 1 && Count.CheckCard(Card.Id))
@@ -846,13 +846,13 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Enemy_Chain()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             ClientCard LastChainCard = Util.GetLastChainCard();
             return LastChainCard != null && LastChainCard.Controller == 1;
         }
         private bool Effect_Infinite_Impermanence()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             ClientCard LastChainCard = Util.GetLastChainCard();
 
@@ -890,7 +890,7 @@ namespace WindBot.Game.AI.Decks
         private bool Effect_Maliss_Removed(int lp = 300)
         {
             int ct = 5 - Bot.GetMonstersInMainZone().Count;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.HasType(CardType.Monster) && !Card.IsCode(CardId.Maliss_March_Hare)
                 && ct - Duel.CurrentChain.Count(i => i.HasSetcode(SetCode.Maliss)
                     && i.Location == CardLocation.Removed
@@ -906,7 +906,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Maliss_Chessy_Cat()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.Maliss_Chessy_Cat, 0))
             {
                 if (!Count.CheckCard(CardId.Dimension_Shifter) && Count.CheckCard(CardId.Artifact_Lancea))
@@ -944,7 +944,7 @@ namespace WindBot.Game.AI.Decks
         private bool Effect_Maliss_March_Hare()
         {
             if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsCode(CardId.Allied_Code_Talker_Ignister)) return false;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 if (Duel.Player == 1
@@ -966,7 +966,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Maliss_Dormouse()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.MonsterZone)
             {
                 Count.AddCard(Card.Id);
@@ -986,7 +986,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_White_Rabbit()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.MonsterZone)
             {
                 Count.AddCard(Card.Id);
@@ -1081,7 +1081,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Maliss_TB_11()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Bot.GetMonsterCount() > 1
                 && (!Bot.HasInMonstersZone(CardId.Maliss_Red_Ransom) || !Bot.HasInMonstersZone(CardId.Maliss_White_Binder))
             )
@@ -1101,7 +1101,7 @@ namespace WindBot.Game.AI.Decks
         private bool Effect_Maliss_MTP_07()
         {
             if (Duel.LastChainPlayer == 0) return false;
-            if (DefaultCheckWhetherCardIsNegated(Card) || Duel.Player == 0 || Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) == 0 || !Bot.GetMonsters().Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link))) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.Player == 0 || Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) == 0 || !Bot.GetMonsters().Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link))) return false;
             if (Bot.GetMonsterCount() > 1
                 && (!Bot.HasInMonstersZone(CardId.Maliss_Red_Ransom) || !Bot.HasInMonstersZone(CardId.Maliss_White_Binder))
             )
@@ -1129,7 +1129,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Maliss_GWC_06()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Duel.Player == 0 && Bot.HasInGraveyard(CardId.Maliss_White_Binder))
                 return false;
             if (Bot.GetMonsters().Any(i => Count.CheckCardRemoved(i.Id)) && Bot.Graveyard.Any(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link)))
@@ -1141,7 +1141,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Remove()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return (
                 (!Bot.HasInMonstersZone(CardId.Maliss_Dormouse) && Count.CheckCard(CardId.Maliss_Dormouse) && Count.CheckCardRemoved(CardId.Maliss_Dormouse) && Check_Maliss_Dormouse())
                 || (!Bot.HasInMonstersZone(CardId.Maliss_White_Rabbit) && Count.CheckCard(CardId.Maliss_White_Rabbit) && Count.CheckCardRemoved(CardId.Maliss_White_Rabbit) && Check_Maliss_White_Rabbit())
@@ -1280,7 +1280,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Maliss_Link()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.MonsterZone)
             {
                 if (Card.IsCode(CardId.Maliss_White_Binder))
@@ -1338,7 +1338,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Maliss_in_the_Mirror()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.Maliss_in_the_Mirror, 0))
             {
                 ClientCard LastChainCard = Util.GetLastChainCard();
@@ -1381,7 +1381,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Effect_Maliss_Hearts_Crypter()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.MonsterZone)
             {
                 if (Enemy.GetMonsters().Count(i => !i.IsShouldNotBeTarget()) + Enemy.GetSpells().Count(i => !i.IsShouldNotBeTarget() && (i.HasType(CardType.Field | CardType.Continuous | CardType.Equip) || i.IsFacedown())) > 0 && Duel.LastChainPlayer != 0)

@@ -234,41 +234,16 @@ namespace WindBot.Game.AI.Decks
 
 
         /// <summary>
-        /// Check whether'll be negated
-        /// </summary>
-        /// <param name="isCounter">check whether card itself is disabled.</param>
-        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0)
-        {
-            bool isMonster = type == 0 && Card.IsMonster();
-            isMonster |= ((int)type & (int)CardType.Monster) != 0;
-            bool isSpellOrTrap = type == 0 && (Card.IsSpell() || Card.IsTrap());
-            isSpellOrTrap |= (((int)type & (int)CardType.Spell) != 0) || (((int)type & (int)CardType.Trap) != 0);
-            bool isCounter = ((int)type & (int)CardType.Counter) != 0;
-            if (isSpellOrTrap && toFieldCheck && DefaultSpellOrTrapWillBeNegated(Card, isCounter, true, type))
-                return true;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return true;
-            if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
-            {
-                if ((toFieldCheck && (((int)type & (int)CardType.Link) == 0)) || Card.IsDefense())
-                {
-                    if (DefaultCheckWhetherNumber41IsActive()) return true;
-                }
-                if (Enemy.HasInSpellZone(CardId.SkillDrain, true, true)) return true;
-            }
-            if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
-            return false;
-        }
-
-        /// <summary>
         /// Check whether last chain card should be disabled.
         /// </summary>
         public bool CheckLastChainShouldNegated()
         {
-            ClientCard lastcard = Util.GetLastChainCard();
-            if (lastcard == null || lastcard.Controller != 1) return false;
+            ChainInfo lastChainInfo = Duel.CurrentChainInfo.LastOrDefault();
+            ClientCard lastcard = lastChainInfo?.RelatedCard;
+            if (lastcard == null || lastChainInfo.ActivatePlayer != 1) return false;
             if (lastcard.IsMonster() && lastcard.HasSetcode(SetcodeTimeLord) && Duel.Phase == DuelPhase.Standby) return false;
             if (notToNegateIdList.Contains(lastcard.Id)) return false;
-            if (DefaultCheckWhetherCardIsNegated(lastcard)) return false;
+            if (DefaultCheckWhetherCardEffectIsNegated(lastChainInfo)) return false;
             if (Duel.Turn == 1 && lastcard.IsCode(_CardId.MaxxC)) return false;
 
             return true;
@@ -463,7 +438,7 @@ namespace WindBot.Game.AI.Decks
         public List<ClientCard> GetMonsterListForTargetNegate(bool canBeTarget = false, CardType selfType = 0)
         {
             List<ClientCard> resultList = new List<ClientCard>();
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return resultList;
             }
@@ -1067,7 +1042,7 @@ namespace WindBot.Game.AI.Decks
                                     checkFlag |= Bot.GetMonsters().Any(c => c.GetDefensePower() <= 1800 && c.HasAttribute(CardAttribute.Dark) && !c.IsCode(cannotBeFusionMaterialIdList));
                                     return checkFlag;
                                 } },
-                                {CardId.LubellionTheSearingDragon, () => !CheckWhetherNegated(true, true, CardType.Monster) && Bot.Hand.Count > 0 },
+                                {CardId.LubellionTheSearingDragon, () => !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.LubellionTheSearingDragon, CardType.Monster) && Bot.Hand.Count > 0 },
                                 {CardId.MirrorjadeTheIcebladeDragon, () => Bot.HasInMonstersZone(new List<int>{
                                     CardId.GranguignolTheDuskDragon, CardId.AlbionTheBrandedDragon, CardId.LubellionTheSearingDragon}) }
                             };
@@ -1221,7 +1196,7 @@ namespace WindBot.Game.AI.Decks
                         if (hint == HintMsg.OperateCard)
                         {
                             Dictionary<int, Func<bool>> openingCheckDict = new Dictionary<int, Func<bool>>{
-                                {CardId.AluberTheJesterOfDespia, () => !activatedCardIdList.Contains(CardId.AluberTheJesterOfDespia) && !DefaultCheckWhetherCardIdIsNegated(CardId.AluberTheJesterOfDespia)
+                                {CardId.AluberTheJesterOfDespia, () => !activatedCardIdList.Contains(CardId.AluberTheJesterOfDespia) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.AluberTheJesterOfDespia, CardType.Monster)
                                     && !(CheckWhetherCanSummon() && Bot.HasInHand(CardId.AluberTheJesterOfDespia))},
                                 {CardId.GuidingQuemTheVirtuous, () => true },
                                 {CardId.DespianTragedy, () => true }
@@ -1591,8 +1566,8 @@ namespace WindBot.Game.AI.Decks
                             Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
                             {
                                 {CardId.FallenOfAlbaz, () => CheckAlbazFusion() },
-                                {CardId.GuidingQuemTheVirtuous, () => !DefaultCheckWhetherCardIdIsNegated(CardId.GuidingQuemTheVirtuous) },
-                                {CardId.AluberTheJesterOfDespia, () => !DefaultCheckWhetherCardIdIsNegated(CardId.AluberTheJesterOfDespia) },
+                                {CardId.GuidingQuemTheVirtuous, () => !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.GuidingQuemTheVirtuous, CardType.Monster) },
+                                {CardId.AluberTheJesterOfDespia, () => !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.AluberTheJesterOfDespia, CardType.Monster) },
                                 {CardId.DespianTragedy, () => true }
                             };
 
@@ -1614,7 +1589,7 @@ namespace WindBot.Game.AI.Decks
                             Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
                             {
                                 {CardId.FallenOfAlbaz, () => CheckAlbazFusion() },
-                                {CardId.SpringansKitt, () => !DefaultCheckWhetherCardIdIsNegated(CardId.SpringansKitt) }
+                                {CardId.SpringansKitt, () => !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SpringansKitt, CardType.Monster) }
                             };
 
                             foreach (KeyValuePair<int, Func<bool>> pair in checkDict)
@@ -1635,7 +1610,7 @@ namespace WindBot.Game.AI.Decks
                             Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
                             {
                                 {CardId.FallenOfAlbaz, () => CheckAlbazFusion() },
-                                {CardId.GuidingQuemTheVirtuous, () => !DefaultCheckWhetherCardIdIsNegated(CardId.GuidingQuemTheVirtuous) }
+                                {CardId.GuidingQuemTheVirtuous, () => !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.GuidingQuemTheVirtuous, CardType.Monster) }
                             };
 
                             foreach (KeyValuePair<int, Func<bool>> pair in checkDict)
@@ -2496,7 +2471,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool TheBystialLubellionActivate()
         {
-            if (CheckWhetherNegated(true, Card.Location == CardLocation.MonsterZone, CardType.Monster)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 activatedCardIdList.Add(Card.Id);
@@ -2509,7 +2484,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool AlbionTheShroudedDragonActivate()
         {
-            if (CheckWhetherNegated(true, false, CardType.Monster) || CheckWhetherWillbeRemoved()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || CheckWhetherWillbeRemoved()) return false;
             bool checkFlag = Bot.HasInDeck(CardId.BrandedRetribution, CardId.BrandedOpening, CardId.BrightestBlazingBrandedKing, CardId.BrandedInHighSpirits);
             if (Bot.HasInGraveyard(CardId.BrandedRetribution))
             {
@@ -2540,7 +2515,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool BystialSaronirActivate()
         {
-            if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             // banish & spsummon
             if (Card.Location == CardLocation.Hand)
             {
@@ -2663,7 +2638,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool AluberTheJesterOfDespiaSummon()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster) || enemyActivateLockBird || activatedCardIdList.Contains(Card.Id)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card) || enemyActivateLockBird || activatedCardIdList.Contains(Card.Id)) return false;
             summoned = true;
             return true;
         }
@@ -2673,7 +2648,7 @@ namespace WindBot.Game.AI.Decks
             // search
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id);
                 return true;
             }
@@ -2689,7 +2664,7 @@ namespace WindBot.Game.AI.Decks
                     activatedCardIdList.Add(Card.Id);
                     return true;
                 }
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 AI.SelectCard(targetCardList);
                 activatedCardIdList.Add(Card.Id);
                 return true;
@@ -2753,7 +2728,8 @@ namespace WindBot.Game.AI.Decks
             enemyMonsterList = null;
             int costHandCount = Bot.Hand.Where(c => c != exceptCost).Count();
             if (costHandCount <= 0 || Enemy.GetMonsterCount() == 0) return false;
-            if (CheckWhetherNegated(true, true, CardType.Monster) || activatedCardIdList.Contains(CardId.FallenOfAlbaz) || nadirActivated) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(CardId.FallenOfAlbaz, CardType.Monster)
+                || activatedCardIdList.Contains(CardId.FallenOfAlbaz) || nadirActivated) return false;
             if (!Bot.HasInMonstersZone(CardId.MirrorjadeTheIcebladeDragon, faceUp: true) && !Bot.HasInSpellZone(CardId.MirrorjadeTheIcebladeDragon)
                 && Bot.HasInExtra(CardId.MirrorjadeTheIcebladeDragon))
             {
@@ -2871,7 +2847,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SpringansKittSummon()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster) || enemyActivateLockBird || activatedCardIdList.Contains(Card.Id + 1)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card) || enemyActivateLockBird || activatedCardIdList.Contains(Card.Id + 1)) return false;
             summoned = true;
             return true;
         }
@@ -2881,7 +2857,7 @@ namespace WindBot.Game.AI.Decks
             // spsummon
             if (Card.Location == CardLocation.Hand)
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (CheckShouldNoMoreSpSummon())
                 {
                     bool skipFlag = !summoned;
@@ -2898,7 +2874,7 @@ namespace WindBot.Game.AI.Decks
             // search
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id + 1);
                 return true;
             }
@@ -2908,7 +2884,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool GuidingQuemTheVirtuousSummon()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster) || CheckWhetherWillbeRemoved()) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card) || CheckWhetherWillbeRemoved()) return false;
             if (activatedCardIdList.Contains(Card.Id)) return false;
             summoned = true;
             return true;
@@ -2916,7 +2892,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool GuidingQuemTheVirtuousSummonForSearch()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster) || CheckWhetherWillbeRemoved()) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card) || CheckWhetherWillbeRemoved()) return false;
             if (activatedCardIdList.Contains(Card.Id)) return false;
             if (Bot.HasInGraveyard(CardId.BrandedRetribution) && Bot.HasInDeck(CardId.BrandedFusion, CardId.BrandedLost, CardId.BrandedInWhite, CardId.BrandedInRed))
             {
@@ -2945,7 +2921,7 @@ namespace WindBot.Game.AI.Decks
             // spsummon
             if ((ActivateDescription == -1 && quemSummonFlag == 0) || ActivateDescription == Util.GetStringId(CardId.GuidingQuemTheVirtuous, 1))
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 List<KeyValuePair<int, Func<ClientCard, bool>>> checkList = new List<KeyValuePair<int, Func<ClientCard, bool>>>
                 {
                     new KeyValuePair<int, Func<ClientCard, bool>>(CardId.AlbionTheSanctifireDragon, (c) => c.IsCanRevive() && !activatedCardIdList.Contains(CardId.AlbionTheSanctifireDragon) ),
@@ -2991,7 +2967,7 @@ namespace WindBot.Game.AI.Decks
             // send to GY
             if ((ActivateDescription == -1 && quemSummonFlag > 0) || ActivateDescription == Util.GetStringId(CardId.GuidingQuemTheVirtuous, 0))
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster) || CheckWhetherWillbeRemoved()) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || CheckWhetherWillbeRemoved()) return false;
                 quemSummonFlag = 0;
                 activatedCardIdList.Add(Card.Id);
                 return true;
@@ -3001,7 +2977,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool BlazingCartesiaTheVirtuousSummon()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card)) return false;
             bool checkFlag = Bot.HasInHandOrInSpellZone(CardId.BrandedOpening) && !activatedCardIdList.Contains(CardId.AluberTheJesterOfDespia) && Bot.HasInDeck(CardId.AluberTheJesterOfDespia);
             checkFlag |= Bot.HasInHand(CardId.AlbionTheShroudedDragon) && !activatedCardIdList.Contains(CardId.AlbionTheShroudedDragon);
             checkFlag |= Bot.HasInHandOrHasInMonstersZone(CardId.BystialSaronir) && !activatedCardIdList.Contains(CardId.BystialSaronir + 1);
@@ -3026,14 +3002,14 @@ namespace WindBot.Game.AI.Decks
             // sp summon
             if (Card.Location == CardLocation.Hand)
             {
-                if (CheckShouldNoMoreSpSummon() || CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (CheckShouldNoMoreSpSummon() || DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id);
                 return true;
             }
             // fusion
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (Duel.CurrentChain.Any(c => c != null && c.Controller == 0 && c.IsCode(CardId.BrandedInRed))) return false;
                 List<ClientCard> materialList = Bot.MonsterZone.Where(c => c != null && c.Attack <= 2500 && !c.IsCode(cannotBeFusionMaterialIdList)).ToList();
                 materialList.AddRange(Bot.Hand.Where(c => c.IsMonster()
@@ -3114,8 +3090,8 @@ namespace WindBot.Game.AI.Decks
                 {
                     Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
                     {
-                        {CardId.BystialSaronir, () => !activatedCardIdList.Contains(CardId.BystialSaronir + 1) && !DefaultCheckWhetherCardIdIsNegated(CardId.BystialSaronir) },
-                        {CardId.DespianTragedy, () => !activatedCardIdList.Contains(CardId.DespianTragedy) && !DefaultCheckWhetherCardIdIsNegated(CardId.DespianTragedy) }
+                        {CardId.BystialSaronir, () => !activatedCardIdList.Contains(CardId.BystialSaronir + 1) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.BystialSaronir) },
+                        {CardId.DespianTragedy, () => !activatedCardIdList.Contains(CardId.DespianTragedy) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.DespianTragedy) }
                     };
                     foreach (KeyValuePair<int, Func<bool>> pair in checkDict)
                     {
@@ -3191,7 +3167,7 @@ namespace WindBot.Game.AI.Decks
             // recycle
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id + 2);
                 return true;
             }
@@ -3322,7 +3298,7 @@ namespace WindBot.Game.AI.Decks
             // negate
             if (Card.Location == CardLocation.Hand || Card.Location == CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster) || !CheckLastChainShouldNegated()) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
                 if (Util.GetLastChainCard().Location == CardLocation.MonsterZone) currentNegateCardList.Add(Util.GetLastChainCard());
                 activatedCardIdList.Add(Card.Id);
                 return true;
@@ -3345,7 +3321,7 @@ namespace WindBot.Game.AI.Decks
             // search
             if (Card.Location == CardLocation.Removed)
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id + 1);
                 return true;
             }
@@ -3354,7 +3330,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool AshBlossomActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (Util.GetLastChainCard().IsCode(_CardId.MaxxC)) return false;
             if (DefaultAshBlossomAndJoyousSpring())
             {
@@ -3367,7 +3343,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool MaxxCActivate()
         {
-            if (CheckWhetherNegated(true) || Duel.LastChainPlayer == 0) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.LastChainPlayer == 0) return false;
             return DefaultMaxxC();
         }
 
@@ -3376,13 +3352,13 @@ namespace WindBot.Game.AI.Decks
             // search
             if (ActivateDescription != Util.GetStringId(Card.Id, 1))
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id);
                 return true;
             }
             // set
             else {
-                if (CheckWhetherNegated(true, false, CardType.Trap)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>{
                     {CardId.BrandedFusion, () => BrandedFusionActivateCheck()},
                     {CardId.BrandedLost, () => {
@@ -3428,7 +3404,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool NadirServantActivate()
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell) || CheckWhetherWillbeRemoved()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || CheckWhetherWillbeRemoved()) return false;
             bool checkResult = NadirServantActivateCheck(null, false, out _);
             if (checkResult)
             {
@@ -3477,7 +3453,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool FusionDeploymentActivate()
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (FusionDeploymentSpSummonTarget() > 0 && !Bot.HasInHand(CardId.BrandedLost))
             {
                 SelectSTPlace(Card, true);
@@ -3512,7 +3488,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, false, CardType.Spell)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id + 1);
                 SelectSTPlace(Card);
                 return true;
@@ -3535,7 +3511,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool _BrandedInWhiteActivateCheck(bool activate = false)
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell) || activatedCardIdList.Contains(CardId.BrandedInWhite) || nadirActivated) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || activatedCardIdList.Contains(CardId.BrandedInWhite) || nadirActivated) return false;
             if (CheckShouldNoMoreSpSummon() && Bot.MonsterZone.Any(c => c != null && c.GetDefensePower() >= 2000)) return false;
             if (BrandedInWhiteFusionTarget(Bot.ExtraDeck, out ClientCard _fusionTarget) > 0)
             {
@@ -3584,7 +3560,7 @@ namespace WindBot.Game.AI.Decks
                 } },
                 {CardId.GuardianChimera, () =>
                 {
-                    if (CheckWhetherNegated(true, true, CardType.Monster) || DefaultCheckWhetherCardIdIsNegated(CardId.GuardianChimera)) return false;
+                    if (DefaultCheckWhetherCardWillBeNegatedOnField(CardId.GuardianChimera, CardType.Monster)) return false;
                     int enemyCardCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount();
                     if (enemyCardCount == 0) return false;
 
@@ -3593,8 +3569,7 @@ namespace WindBot.Game.AI.Decks
                 {CardId.LubellionTheSearingDragon, () =>
                 {
                     if (activatedCardIdList.Contains(CardId.LubellionTheSearingDragon)
-                        || DefaultCheckWhetherCardIdIsNegated(CardId.LubellionTheSearingDragon)
-                        || CheckWhetherNegated(true, true, CardType.Monster))
+                        || DefaultCheckWhetherCardWillBeNegatedOnField(CardId.LubellionTheSearingDragon, CardType.Monster))
                     {
                         return false;
                     }
@@ -3789,7 +3764,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool BrandedFusionActivateCheck(bool endPhaseCheck = true)
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell) || activatedCardIdList.Contains(CardId.BrandedFusion)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || activatedCardIdList.Contains(CardId.BrandedFusion)) return false;
             if (!Bot.HasInHandOrHasInMonstersZone(CardId.FallenOfAlbaz) && !Bot.HasInDeck(CardId.FallenOfAlbaz)) return false;
             if (endPhaseCheck && Duel.Phase >= DuelPhase.End) return false;
             return true;
@@ -3797,7 +3772,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool GoldSarcophagusActivate()
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (GoldSarcophagusTarget(null, out _) > 0)
             {
                 SelectSTPlace(Card, true);
@@ -3810,8 +3785,8 @@ namespace WindBot.Game.AI.Decks
         {
             Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
             {
-                {CardId.DespianTragedy, () => !activatedCardIdList.Contains(CardId.DespianTragedy) && !DefaultCheckWhetherCardIdIsNegated(CardId.DespianTragedy) },
-                {CardId.TriBrigadeMercourier, () => !activatedCardIdList.Contains(CardId.TriBrigadeMercourier + 1) && !DefaultCheckWhetherCardIdIsNegated(CardId.TriBrigadeMercourier) }
+                {CardId.DespianTragedy, () => !activatedCardIdList.Contains(CardId.DespianTragedy) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.DespianTragedy) },
+                {CardId.TriBrigadeMercourier, () => !activatedCardIdList.Contains(CardId.TriBrigadeMercourier + 1) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.TriBrigadeMercourier) }
             };
             foreach (KeyValuePair<int, Func<bool>> pair in checkDict)
             {
@@ -3840,7 +3815,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool FoolishBurialActivate()
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell) || CheckWhetherWillbeRemoved()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || CheckWhetherWillbeRemoved()) return false;
             if (FoolishBurialTarget(null, out _) > 0)
             {
                 SelectSTPlace(Card, true);
@@ -3852,7 +3827,7 @@ namespace WindBot.Game.AI.Decks
         public int FoolishBurialTarget(IList<ClientCard> cards, out ClientCard target)
         {
             // tragedy
-            if (!activatedCardIdList.Contains(CardId.DespianTragedy) && !DefaultCheckWhetherCardIdIsNegated(CardId.DespianTragedy))
+            if (!activatedCardIdList.Contains(CardId.DespianTragedy) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.DespianTragedy))
             {
                 if (cards != null)
                 {
@@ -3878,8 +3853,8 @@ namespace WindBot.Game.AI.Decks
             {
                 Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
                 {
-                    {CardId.BystialSaronir, () => !activatedCardIdList.Contains(CardId.BystialSaronir + 1) && !DefaultCheckWhetherCardIdIsNegated(CardId.BystialSaronir) },
-                    {CardId.AlbionTheShroudedDragon, () => !activatedCardIdList.Contains(CardId.AlbionTheShroudedDragon) && !DefaultCheckWhetherCardIdIsNegated(CardId.AlbionTheShroudedDragon) }
+                    {CardId.BystialSaronir, () => !activatedCardIdList.Contains(CardId.BystialSaronir + 1) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.BystialSaronir) },
+                    {CardId.AlbionTheShroudedDragon, () => !activatedCardIdList.Contains(CardId.AlbionTheShroudedDragon) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.AlbionTheShroudedDragon) }
                 };
 
                 foreach (KeyValuePair<int, Func<bool>> pair in checkDict)
@@ -3936,7 +3911,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CalledbytheGraveActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (CheckAtAdvantage() && Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC))
             {
                 return false;
@@ -3948,7 +3923,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     int code = Util.GetLastChainCard().GetOriginCode();
                     if (code == 0) return false;
-                    if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
+                    if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                     if (Util.GetLastChainCard().IsCode(_CardId.MaxxC) && CheckAtAdvantage())
                     {
                         return false;
@@ -4020,7 +3995,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, false, CardType.Spell)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id);
                 return true;
             } else
@@ -4040,7 +4015,7 @@ namespace WindBot.Game.AI.Decks
             bool lubellionCheck = Bot.HasInHand(CardId.TheBystialLubellion) && Bot.HasInDeck(CardId.BystialSaronir) && !activatedCardIdList.Contains(CardId.TheBystialLubellion)
                 && Duel.Player == 0 && (Duel.Phase <= DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2) && !CheckWhetherWillbeRemoved();
 
-            if (CheckWhetherNegated(true, true, CardType.Spell) || activatedCardIdList.Contains(CardId.BrandedInHighSpirits) || CheckWhetherWillbeRemoved()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || activatedCardIdList.Contains(CardId.BrandedInHighSpirits) || CheckWhetherWillbeRemoved()) return false;
             Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
             {
                 {CardId.AlbionTheBrandedDragon, () => !sendToGYThisTurn.Any(c => c.IsCode(CardId.AlbionTheBrandedDragon)) && !lubellionCheck
@@ -4077,7 +4052,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool BrandedOpeningActivate()
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Duel.Player == 0)
             {
                 if (Bot.HasInHand(CardId.AlbionTheShroudedDragon) && !CheckWhetherWillbeRemoved() && !activatedCardIdList.Contains(CardId.AlbionTheShroudedDragon)) return false;
@@ -4099,7 +4074,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CrossoutDesignatorActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             // negate 
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard() != null)
             {
@@ -4107,7 +4082,7 @@ namespace WindBot.Game.AI.Decks
                 int alias = Util.GetLastChainCard().Alias;
                 if (alias != 0 && alias - code < 10) code = alias;
                 if (code == 0) return false;
-                if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
+                if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                 if (Bot.HasInDeck(code))
                 {
                     if (!(Card.Location == CardLocation.SpellZone))
@@ -4135,7 +4110,7 @@ namespace WindBot.Game.AI.Decks
 
         public ClientCard BrandedInRedActivateCheck(bool updateMaterialList = false)
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell) || activatedCardIdList.Contains(CardId.BrandedInRed)) return null;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || activatedCardIdList.Contains(CardId.BrandedInRed)) return null;
             if (Duel.CurrentChain.Any(c => c != null && c.Controller == 0 && c.IsCode(CardId.BlazingCartesiaTheVirtuous))) return null;
             if (Duel.CurrentChain.Any(c => c != null && c.Controller == 0 && c.IsCode(CardId.AlbionTheBrandedDragon))
                 && !Util.ChainContainPlayer(1)) return null;
@@ -4216,7 +4191,7 @@ namespace WindBot.Game.AI.Decks
 
             // for fusion searing dragon
             if (!Bot.MonsterZone.Any(c => c != null && c.HasType(CardType.Fusion)) && Duel.LastChainPlayer != 0
-                    && !CheckWhetherNegated(true, true, CardType.Monster) && !activatedCardIdList.Contains(CardId.LubellionTheSearingDragon))
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.LubellionTheSearingDragon, CardType.Monster) && !activatedCardIdList.Contains(CardId.LubellionTheSearingDragon))
             {
                 foreach (ClientCard target in graveTargetList)
                 {
@@ -4422,7 +4397,7 @@ namespace WindBot.Game.AI.Decks
 
             int enemyCardCount = Enemy.MonsterZone.Count(c => c != null);
             enemyCardCount += Enemy.SpellZone.Count(c => c != null && c.Type != (int)CardType.Spell && c.Type != (int)CardType.Trap);
-            if (enemyCardCount == 0 || CheckWhetherNegated(true, true, CardType.Monster))
+            if (enemyCardCount == 0 || DefaultCheckWhetherCardWillBeNegatedOnField(CardId.GuardianChimera, CardType.Monster))
             {
                 return selectedFusionMaterialList;
             }
@@ -4489,7 +4464,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.SpellZone && Card.IsFaceup()) return false;
 
             // activate
-            if (CheckWhetherNegated(true, true, CardType.Spell)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!summoned && Bot.HasInHand(CardId.FallenOfAlbaz) && CheckAlbazFusion() && Bot.Hand.Count < 3) return false;
             SelectSTPlace(Card, true);
             return true;
@@ -4497,7 +4472,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool InfiniteImpermanenceActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             ClientCard LastChainCard = Util.GetLastChainCard();
 
@@ -4553,7 +4528,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, false, CardType.Trap)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id);
                 return true;
             }
@@ -4578,7 +4553,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool BrandedBeastActivate()
         {
-            if (CheckWhetherNegated(true, true, CardType.Trap)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             int desc = -1;
             if (ActivateDescription >= Util.GetStringId(CardId.BrandedBeast, 0))
@@ -4689,7 +4664,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.SpellZone && Duel.LastChainPlayer == 1)
             {
-                if (CheckWhetherNegated(true, true, CardType.Trap)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 bool checkFlag = Bot.Graveyard.Where(c => c != null && c.IsCode(albazFusionMonster)).Count() > 1;
                 checkFlag |= Bot.MonsterZone.Any(c => c != null && c.IsFaceup() && c.IsCode(new[] { CardId.LubellionTheSearingDragon, CardId.SprindTheIrondashDragon, CardId.AlbaLenatusTheAbyssDragon }));
                 if (checkFlag)
@@ -4700,7 +4675,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, false, CardType.Trap)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>{
                     {CardId.BrandedFusion, () => BrandedFusionActivateCheck()},
                     {CardId.BrandedLost, () => {
@@ -4734,7 +4709,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool GuardianChimeraActivate()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return true;
         }
 
@@ -4743,7 +4718,7 @@ namespace WindBot.Game.AI.Decks
             // spsummon from grave
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 List<ClientCard> allTargetList = Enemy.Graveyard.Where(c => c != null && c.IsMonster() && c.IsCanRevive()).ToList();
                 allTargetList.AddRange(Bot.Graveyard.Where(c => c != null && c.IsMonster() && c.IsCanRevive()).ToList());
 
@@ -4881,7 +4856,7 @@ namespace WindBot.Game.AI.Decks
             // spsummon itself
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 List<ClientCard> botCards = new List<ClientCard> { Bot.MonsterZone[2], Bot.MonsterZone[5], Bot.MonsterZone[6] };
                 List<ClientCard> enemyCards = new List<ClientCard> { Enemy.MonsterZone[2], Enemy.MonsterZone[5], Enemy.MonsterZone[6] };
                 if (enemyCards.Any(c => c != null && (c.IsFloodgate() || c.IsMonsterDangerous()))) return true;
@@ -4894,7 +4869,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location != CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 return true;
             }
             if (Card.Location == CardLocation.MonsterZone)
@@ -4908,7 +4883,7 @@ namespace WindBot.Game.AI.Decks
                     checkFlag |= enemyBattlePower > 0 && enemyBattlePower > botBattlePower && Duel.LastChainPlayer != 0 && !currentDestroyCardList.Contains(Enemy.BattlingMonster);
                     checkFlag |= DefaultOnBecomeTarget() && Duel.LastChainPlayer != 0;
                 }
-                if (Duel.CurrentChain.Any(c => c.IsCode(CardId.NibiruThePrimalBeing) && !DefaultCheckWhetherCardIdIsNegated(CardId.NibiruThePrimalBeing)))
+                if (Duel.CurrentChain.Any(c => c.IsCode(CardId.NibiruThePrimalBeing) && !DefaultCheckWhetherCardEffectIsNegated(c)))
                 {
                     checkFlag |= Enemy.GetMonsterCount() > 0;
                     checkFlag |= Bot.HasInMonstersZone(new[] { CardId.TheBystialLubellion, CardId.DespianTragedy, CardId.TriBrigadeMercourier });
@@ -4919,11 +4894,11 @@ namespace WindBot.Game.AI.Decks
                     Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
                     {
                         {CardId.AlbionTheBrandedDragon,
-                            () =>!sendToGYThisTurn.Any(c => c.IsCode(CardId.AlbionTheBrandedDragon)) && !DefaultCheckWhetherCardIdIsNegated(CardId.AlbionTheBrandedDragon)
+                            () =>!sendToGYThisTurn.Any(c => c.IsCode(CardId.AlbionTheBrandedDragon)) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.AlbionTheBrandedDragon)
                             && !(Duel.Player == 0 && Bot.HasInMonstersZone(CardId.AlbionTheBrandedDragon) && Bot.HasInGraveyard(CardId.TheBystialLubellion))},
                         {CardId.RindbrummTheStrikingDragon,
                             () => Duel.Player == 1 && Bot.Graveyard.Any(c => c.IsOriginalCode(CardId.FallenOfAlbaz)) && Bot.Hand.Count > 0
-                                && !activatedCardIdList.Contains(CardId.FallenOfAlbaz) && !DefaultCheckWhetherCardIdIsNegated(CardId.FallenOfAlbaz)},
+                                && !activatedCardIdList.Contains(CardId.FallenOfAlbaz) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.FallenOfAlbaz, CardType.Monster)},
                         {CardId.TitanikladTheAshDragon, () => Bot.HasInDeck(CardId.GuidingQuemTheVirtuous)},
                         {CardId.SprindTheIrondashDragon, () => Bot.HasInDeck(CardId.SpringansKitt)},
                         {CardId.AlbaLenatusTheAbyssDragon, () => Bot.HasInDeck(CardId.FusionDeployment, CardId.BrandedFusion) },
@@ -4946,7 +4921,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool BorreloadFuriousDragonActivate()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             // destroy dangerous card
             List<ClientCard> dangerList = GetProblematicEnemyCardList(true, false, CardType.Monster);
@@ -5013,7 +4988,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool LubellionTheSearingDragonActivate()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.MonsterZone)
             {
                 int fusionTarget = LubellionTheSearingDragonFusionTarget(Bot.ExtraDeck, out _);
@@ -5033,7 +5008,7 @@ namespace WindBot.Game.AI.Decks
             hasAlbaz |= Bot.Graveyard.Any(c => c != null && c.IsFaceup() && c.IsOriginalCode(CardId.FallenOfAlbaz));
             Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
             {
-                {CardId.MirrorjadeTheIcebladeDragon, () => hasAlbaz && !DefaultCheckWhetherCardIdIsNegated(CardId.MirrorjadeTheIcebladeDragon) },
+                {CardId.MirrorjadeTheIcebladeDragon, () => hasAlbaz && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.MirrorjadeTheIcebladeDragon, CardType.Monster) },
                 {CardId.GranguignolTheDuskDragon, () => Bot.HasInBanished(CardId.BlazingCartesiaTheVirtuous) },
                 {CardId.BorreloadFuriousDragon, () =>
                 {
@@ -5075,7 +5050,8 @@ namespace WindBot.Game.AI.Decks
                 } },
                 {CardId.AlbaLenatusTheAbyssDragon, () => hasAlbaz && !Bot.HasInExtra(CardId.AlbionTheBrandedDragon) },
                 {CardId.AlbionTheBrandedDragon, () => {
-                    if (activatedCardIdList.Contains(CardId.AlbionTheBrandedDragon) || DefaultCheckWhetherCardIdIsNegated(CardId.AlbionTheBrandedDragon)) return false;
+                    if (activatedCardIdList.Contains(CardId.AlbionTheBrandedDragon)
+                        || DefaultCheckWhetherCardWillBeNegatedOnField(CardId.AlbionTheBrandedDragon, CardType.Monster)) return false;
                     bool checkFlag = Bot.Banished.Any(c => c != null && c.IsFaceup() && c.HasAttribute(CardAttribute.Light));
                     checkFlag |= Bot.Graveyard.Any(c => c != null && c.IsFaceup() && c.HasAttribute(CardAttribute.Light));
 
@@ -5125,7 +5101,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool AlbaLenatusTheAbyssDragonActivate()
         {
-            if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             activatedCardIdList.Add(Card.Id);
             return true;
         }
@@ -5142,7 +5118,7 @@ namespace WindBot.Game.AI.Decks
             // send to GY
             if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.GranguignolTheDuskDragon, 0))
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster) || CheckWhetherWillbeRemoved()) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || CheckWhetherWillbeRemoved()) return false;
                 int checkId = GranguignolTheDuskDragonSendToGYTarget(null, out _);
                 if (checkId > 0)
                 {
@@ -5153,7 +5129,7 @@ namespace WindBot.Game.AI.Decks
             // spsummon
             if (ActivateDescription == Util.GetStringId(CardId.GranguignolTheDuskDragon, 1))
             {
-                if (CheckWhetherNegated(true, Card.Location == CardLocation.MonsterZone, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id + 1);
                 return true;
             }
@@ -5212,7 +5188,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DespianQuaeritisActivate()
         {
-            if (Card.Location == CardLocation.MonsterZone && Duel.Phase == DuelPhase.Main1 && !CheckWhetherNegated(true, true, CardType.Monster))
+            if (Card.Location == CardLocation.MonsterZone && Duel.Phase == DuelPhase.Main1 && !DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 if ((CurrentTiming & hintTimingMainEnd) != 0 && Duel.Player == 1)
                 {
@@ -5230,7 +5206,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.Location != CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return true;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return true;
                 activatedCardIdList.Add(Card.Id + 1);
                 return true;
             }
@@ -5242,14 +5218,14 @@ namespace WindBot.Game.AI.Decks
             // search
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id + 1);
                 return true;
             }
             // destroy
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 int moveDest = SprindTheIrondashDragonMoveZone(0, Card);
                 if (moveDest > 0)
                 {
@@ -5314,7 +5290,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id);
                 return true;
             }
@@ -5325,7 +5301,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 bool checkFlag = false;
 
                 ClientCard lastChainCard = Util.GetLastChainCard();
@@ -5343,7 +5319,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster) || Duel.CurrentChain.Any(c => c.Controller == 0 && c.IsCode(CardId.GuidingQuemTheVirtuous))) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.CurrentChain.Any(c => c.Controller == 0 && c.IsCode(CardId.GuidingQuemTheVirtuous))) return false;
 
                 ClientCard albaz = Bot.Graveyard.FirstOrDefault(c => c.IsOriginalCode(CardId.FallenOfAlbaz));
                 bool checkFlag = Card.IsCanRevive() && Enemy.MonsterZone.Any(c => c != null && c.IsFaceup() && c.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link));
@@ -5380,7 +5356,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 int fusionTarget = AlbionTheBrandedDragonFusionTarget(Bot.ExtraDeck, out _);
                 if (fusionTarget > 0)
                 {
@@ -5390,7 +5366,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id + 1);
                 return true;
             }
@@ -5403,7 +5379,7 @@ namespace WindBot.Game.AI.Decks
             Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
             {
                 {CardId.MirrorjadeTheIcebladeDragon, () => {
-                    bool checkFlag = !CheckWhetherNegated() && CheckShouldNoMoreSpSummon();
+                    bool checkFlag = !DefaultCheckWhetherCardEffectWillBeNegated(Card) && CheckShouldNoMoreSpSummon();
                     checkFlag |= Bot.Graveyard.Any(c => c != null && !sendToGYThisTurn.Contains(c) && !c.IsCode(cannotBeFusionMaterialIdList)
                         && c.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link));
                     return checkFlag;
@@ -5532,13 +5508,13 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id);
                 return true;
             }
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated(true, false, CardType.Monster)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (Bot.HasInDeck(CardId.GuidingQuemTheVirtuous, CardId.BlazingCartesiaTheVirtuous))
                 {
                     activatedCardIdList.Add(Card.Id + 1);
@@ -5552,7 +5528,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Level <= 4) return false;
             if (Bot.GetMonsterCount() > 0 || !Bot.HasInHandOrInSpellZone(CardId.BrandedInWhite) || !Bot.HasInExtra(CardId.GuardianChimera)) return false;
-            if (DefaultCheckWhetherCardIdIsNegated(CardId.GuardianChimera) || CheckWhetherNegated(true, true, CardType.Monster)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(CardId.GuardianChimera, CardType.Monster)) return false;
             if (Enemy.MonsterZone.All(c => c == null) && Enemy.SpellZone.All(c => c == null)) return false;
 
             for (int handIndex1 = 0; handIndex1 < Bot.Hand.Count - 1; ++ handIndex1)
@@ -5710,7 +5686,7 @@ namespace WindBot.Game.AI.Decks
         public bool FloogateActivate()
         {
             if (Card.Owner != 1 && !Card.IsFloodgate()) return false;
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Executors.Any(e => e != null && e.Type == ExecutorType.Activate && Card.IsOriginalCode(e.CardId))) return false;
             if (Duel.LastChainPlayer == 1)
             {

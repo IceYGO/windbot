@@ -151,6 +151,7 @@ namespace WindBot.Game.AI
             public const int Jinzo = 77585513;
             public const int SpellCanceller = 84636823;
             public const int SwordsmanLV7 = 37267041;
+            public const int HorusTheBlackFlameDragonLV8 = 48229808;
             public const int AntiSpellFragrance = 58921041;
             public const int Number41BagooskatheTerriblyTiredTapir = 90590303;
             public const int SkillDrain = 82732705;
@@ -286,6 +287,8 @@ namespace WindBot.Game.AI
         protected int lightningStormOption = -1;
         Dictionary<int, int> calledbytheGraveIdCountMap = new Dictionary<int, int>();
         List<int> crossoutDesignatorIdList = new List<int>();
+        // Card names selected for an unresolved negation effect are tracked here until the chain finishes.
+        HashSet<int> pendingNegatingIdSet = new HashSet<int>();
         int mistakenArrestAffectedCount = 0;
         /// <summary>
         /// List of effect IDs that have been resolved this turn.
@@ -541,9 +544,9 @@ namespace WindBot.Game.AI
                     _CardId.LazionTheTimelord
                     ))
                 return false;
-            // TODO: DefaultSpell/TrapWillBeNegated will check Infinite Impermanence, which may not be suitable for all decks.
+            // TODO: This check includes Infinite Impermanence columns, which may not be suitable for all decks.
             if ((card.Location == CardLocation.Hand || card.Location == CardLocation.SpellZone && card.IsFacedown()) &&
-                (card.IsSpell() && DefaultSpellWillBeNegated(card) || card.IsTrap() && DefaultTrapWillBeNegated(card)))
+                (card.IsSpell() || card.IsTrap()) && DefaultCheckWhetherCardEffectWillBeNegated(card))
                 return false;
             return true;
         }
@@ -709,6 +712,7 @@ namespace WindBot.Game.AI
         public override void OnChainEnd()
         {
             lightningStormOption = -1;
+            pendingNegatingIdSet.Clear();
             base.OnChainEnd();
         }
 
@@ -735,6 +739,7 @@ namespace WindBot.Game.AI
                 }
             }
             crossoutDesignatorIdList.Clear();
+            pendingNegatingIdSet.Clear();
 
             base.OnNewTurn();
         }
@@ -893,7 +898,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultScapegoat()
         {
-            if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Duel.Player == 0) return false;
             if (Duel.Phase == DuelPhase.End) return true;
             if (DefaultOnBecomeTarget()) return true;
@@ -916,7 +921,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultMaxxC()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return Duel.Player == 1;
         }
         /// <summary>
@@ -924,7 +929,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultAshBlossomAndJoyousSpring()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             int[] ignoreList = {
                 _CardId.MacroCosmos,
                 _CardId.UpstartGoblin,
@@ -942,17 +947,17 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultGhostOgreAndSnowRabbit()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card, false)) return false;
             if (Util.GetLastChainCard() != null && Util.GetLastChainCard().IsDisabled())
                 return false;
-            return DefaultTrap();
+            return (Duel.LastChainPlayer == -1 && Duel.LastSummonPlayer != 0) || Duel.LastChainPlayer == 1;
         }
         /// <summary>
         /// Always disable opponent's effect
         /// </summary>
         protected bool DefaultGhostBelleAndHauntedMansion()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return DefaultTrap();
         }
         /// <summary>
@@ -960,7 +965,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultEffectVeiler()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             ClientCard LastChainCard = Util.GetLastChainCard();
             if (LastChainCard != null && (LastChainCard.IsCode(_CardId.GalaxySoldier) && Enemy.Hand.Count >= 3
                                     || LastChainCard.IsCode(_CardId.EffectVeiler, _CardId.InfiniteImpermanence)))
@@ -1000,7 +1005,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultInfiniteImpermanence()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             // TODO: disable s & t
             ClientCard LastChainCard = Util.GetLastChainCard();
             if (LastChainCard != null && (LastChainCard.IsCode(_CardId.GalaxySoldier) && Enemy.Hand.Count >= 3
@@ -1259,82 +1264,6 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// If spell will be negated
-        /// </summary>
-        protected bool DefaultSpellWillBeNegated(ClientCard currentCard = null)
-        {
-            currentCard = currentCard ?? Card;
-            if (DefaultCheckWhetherCardIsNegated(currentCard)) return true;
-            return DefaultSpellOrTrapWillBeNegated(currentCard);
-        }
-
-        /// <summary>
-        /// If trap will be negated
-        /// </summary>
-        protected bool DefaultTrapWillBeNegated(ClientCard currentCard = null, bool isCounter = false)
-        {
-            currentCard = currentCard ?? Card;
-            if (DefaultCheckWhetherCardIsNegated(currentCard)) return true;
-            return DefaultSpellOrTrapWillBeNegated(currentCard, isCounter);
-        }
-
-        protected bool DefaultSpellOrTrapWillBeNegated(ClientCard card, bool isCounter = false, bool toFieldCheck = false, CardType type = 0)
-        {
-            if (card == null) return true;
-
-            bool isSpell = type == 0 ? card.IsSpell() : (type & CardType.Spell) != 0;
-            bool isTrap = type == 0 ? card.IsTrap() : (type & CardType.Trap) != 0;
-            // TODO: Get isCounter from the card passed in.
-            if (!isSpell && !isTrap) return false;
-            if (!toFieldCheck && card.Location != CardLocation.Hand && card.Location != CardLocation.SpellZone) return false;
-
-            // Assume that the opponent won't activate Naturia Beast or Exterio if their deck is insufficient.
-            // TODO: Macro Cosmos check for Naturia.
-            const int NATURIA_DECK_HOLD = 2;
-
-            bool isCardActivation = toFieldCheck || card.Location == CardLocation.Hand || card.IsFacedown();
-            if (isCardActivation && !isCounter && Enemy.Deck.Count > NATURIA_DECK_HOLD && Enemy.Graveyard.Count > 0
-                && Enemy.HasInMonstersZone(_CardId.NaturalExterio, true, false, true)) return true;
-
-            if (isSpell)
-            {
-                if (isCardActivation && Enemy.Deck.Count > 2 * NATURIA_DECK_HOLD
-                    && Enemy.HasInMonstersZone(_CardId.NaturiaBeast, true, false, true)) return true;
-                if (Bot.HasInMonstersZone(_CardId.SpellCanceller, true, false, true)
-                    || Enemy.HasInMonstersZone(_CardId.SpellCanceller, true, false, true)) return true;
-                if ((Bot.HasInSpellZone(_CardId.ImperialOrder, true, true) || Enemy.HasInSpellZone(_CardId.ImperialOrder, true, true))
-                    && !Util.ChainContainsCard(_CardId.ImperialOrder)) return true;
-                if (Bot.HasInMonstersZone(_CardId.SwordsmanLV7, true, false, true)
-                    || Enemy.HasInMonstersZone(_CardId.SwordsmanLV7, true, false, true)) return true;
-            }
-
-            if (isTrap)
-            {
-                if (Bot.HasInMonstersZone(_CardId.Jinzo, true, false, true)
-                    || Enemy.HasInMonstersZone(_CardId.Jinzo, true, false, true)) return true;
-                if ((Bot.HasInSpellZone(_CardId.RoyalDecreel, true, true) || Enemy.HasInSpellZone(_CardId.RoyalDecreel, true, true))
-                    && !Util.ChainContainsCard(_CardId.RoyalDecreel)) return true;
-            }
-
-            if (isSpell && card.IsSpell() && card.HasType(CardType.Field))
-            {
-                return false;
-            }
-
-            if (card.Location == CardLocation.SpellZone)
-            {
-                return infiniteImpermanenceNegatedColumns.Contains(card.Sequence);
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
-                if (Bot.SpellZone[i] == null && !infiniteImpermanenceNegatedColumns.Contains(i)) return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
         /// If spell must set first to activate
         /// </summary>
         protected bool DefaultSpellMustSetFirst()
@@ -1392,7 +1321,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultTrap()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return (Duel.LastChainPlayer == -1 && Duel.LastSummonPlayer != 0) || Duel.LastChainPlayer == 1;
         }
 
@@ -1849,7 +1778,7 @@ namespace WindBot.Game.AI
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 return Bot.BattlingMonster.IsAttack() &&
                     ((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Attack) || Bot.BattlingMonster.Attack >= Enemy.LifePoints
                     || ((Bot.BattlingMonster.Attack < Enemy.BattlingMonster.Defense) && (Bot.BattlingMonster.Attack + Enemy.BattlingMonster.Attack > Enemy.BattlingMonster.Defense)));
@@ -1863,7 +1792,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultVaylantzWorld_ShinraBansho()
         {
-            if (DefaultSpellWillBeNegated()) {
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) {
                 return false;
             }
 
@@ -1875,7 +1804,7 @@ namespace WindBot.Game.AI
         /// </summary>
         protected bool DefaultVaylantzWorld_KonigWissen()
         {
-            if (DefaultSpellWillBeNegated()) {
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) {
                 return false;
             }
 
@@ -1908,21 +1837,225 @@ namespace WindBot.Game.AI
             return false;
         }
 
-        protected bool DefaultCheckWhetherCardIsNegated(ClientCard card)
+        /// <summary>
+        /// Checks whether an effect activated by this card will definitely be negated.
+        /// Set willRemainOnField to false for effects whose activation cost removes the monster from the field.
+        /// </summary>
+        protected bool DefaultCheckWhetherCardEffectIsNegated(ClientCard card, bool willRemainOnField = true)
         {
             if (card == null) return true;
-            if (card.Data == null) return card.IsDisabled();
-            int originId = card.Data.Alias;
-            if (originId == 0) originId = card.Data.Id;
-            return crossoutDesignatorIdList.Contains(originId)
-                || (calledbytheGraveIdCountMap.ContainsKey(originId) && calledbytheGraveIdCountMap[originId] > 0)
-                || (card.IsDisabled() && ((int)card.Location & (int)CardLocation.Onfield) > 0);
+            if (DefaultCheckWhetherCardNameIsNegated(card.GetOriginCode())) return true;
+
+            bool remainsFaceupOnField = willRemainOnField && card.IsOnField() && card.IsFaceup();
+            if (remainsFaceupOnField && card.IsDisabled()) return true;
+
+            return DefaultCheckWhetherCardEffectIsNegatedByFieldState(
+                DefaultGetCardType(card), card.Location, card.Controller, card.Sequence, remainsFaceupOnField);
         }
-        
-        protected bool DefaultCheckWhetherCardIdIsNegated(int cardId)
+
+        /// <summary>
+        /// Checks whether an effect in the current chain will definitely be negated.
+        /// </summary>
+        protected bool DefaultCheckWhetherCardEffectIsNegated(ChainInfo chainInfo)
         {
-            return crossoutDesignatorIdList.Contains(cardId)
-                || (calledbytheGraveIdCountMap.ContainsKey(cardId) && calledbytheGraveIdCountMap[cardId] > 0);
+            if (chainInfo == null) return true;
+
+            int originId = chainInfo.ActivateAlias > 0 ? chainInfo.ActivateAlias : chainInfo.ActivateId;
+            if (originId > 0 && DefaultCheckWhetherCardNameIsNegated(originId)) return true;
+
+            ClientCard relatedCard = chainInfo.RelatedCard;
+            bool remainsFaceupOnField = relatedCard != null && relatedCard.IsOnField() && relatedCard.IsFaceup();
+            if (remainsFaceupOnField && relatedCard.IsDisabled()) return true;
+
+            return DefaultCheckWhetherCardEffectIsNegatedByFieldState(
+                (CardType)chainInfo.ActivateType, chainInfo.ActivateLocation, chainInfo.ActivateController,
+                chainInfo.ActivateSequence, remainsFaceupOnField);
+        }
+
+        /// <summary>
+        /// Checks whether a known card name's effects will definitely be negated by a card-name effect.
+        /// Use the ClientCard or ChainInfo overload when its activation context is available.
+        /// </summary>
+        protected bool DefaultCheckWhetherCardEffectIsNegated(int cardId)
+        {
+            YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
+            int originId = cardData != null && cardData.Alias != 0 ? cardData.Alias : cardId;
+            return originId > 0 && DefaultCheckWhetherCardNameIsNegated(originId);
+        }
+
+        /// <summary>
+        /// Checks whether the bot's effect will probably be negated, including easy responses from the opponent.
+        /// </summary>
+        protected bool DefaultCheckWhetherCardEffectWillBeNegated(ClientCard card, bool willRemainOnField = true)
+        {
+            if (card == null || DefaultCheckWhetherCardEffectIsNegated(card, willRemainOnField)) return true;
+
+            CardType cardType = DefaultGetCardType(card);
+            bool isCardActivation = (cardType & (CardType.Spell | CardType.Trap)) != 0
+                && (card.Location == CardLocation.Hand || card.IsOnField() && card.IsFacedown());
+            if (!isCardActivation) return false;
+
+            return DefaultCheckWhetherSpellOrTrapActivationWillBeNegated(
+                cardType, card.Location == CardLocation.Hand);
+        }
+
+        /// <summary>
+        /// Checks whether a known card effect will probably be negated before a concrete card instance is available.
+        /// Spell and Trap cards are treated as activations from the hand.
+        /// </summary>
+        protected bool DefaultCheckWhetherCardEffectWillBeNegated(int cardId, CardType cardType = 0)
+        {
+            YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
+            int originId = cardId;
+            if (cardData != null)
+            {
+                if (cardData.Alias != 0) originId = cardData.Alias;
+                if (cardType == 0) cardType = (CardType)cardData.Type;
+            }
+            if (originId > 0 && DefaultCheckWhetherCardNameIsNegated(originId)) return true;
+            if (DefaultCheckWhetherCardEffectIsNegatedByFieldState(
+                cardType, CardLocation.Hand, 0, -1, false)) return true;
+
+            return DefaultCheckWhetherSpellOrTrapActivationWillBeNegated(cardType, true);
+        }
+
+        /// <summary>
+        /// Checks whether this card will be negated after it enters the field.
+        /// </summary>
+        protected bool DefaultCheckWhetherCardWillBeNegatedOnField(ClientCard card)
+        {
+            if (card == null || DefaultCheckWhetherCardNameIsNegated(card.GetOriginCode())) return true;
+
+            CardType cardType = DefaultGetCardType(card);
+            CardLocation location = (cardType & CardType.Monster) != 0
+                ? CardLocation.MonsterZone
+                : CardLocation.SpellZone;
+            int sequence = -1;
+            if (card.IsOnField())
+            {
+                location = card.Location;
+                sequence = card.Sequence;
+                if (card.IsFaceup() && card.IsDisabled()) return true;
+            }
+
+            return DefaultCheckWhetherCardEffectIsNegatedByFieldState(
+                cardType, location, card.Controller, sequence, true);
+        }
+
+        protected bool DefaultCheckWhetherCardWillBeNegatedOnField(int cardId, CardType cardType)
+        {
+            YGOSharp.OCGWrapper.NamedCard cardData = YGOSharp.OCGWrapper.NamedCard.Get(cardId);
+            int originId = cardId;
+            if (cardData != null)
+            {
+                if (cardData.Alias != 0) originId = cardData.Alias;
+                if (cardType == 0) cardType = (CardType)cardData.Type;
+            }
+            if (originId > 0 && DefaultCheckWhetherCardNameIsNegated(originId)) return true;
+
+            CardLocation location = (cardType & CardType.Monster) != 0
+                ? CardLocation.MonsterZone
+                : CardLocation.SpellZone;
+            return DefaultCheckWhetherCardEffectIsNegatedByFieldState(cardType, location, 0, -1, true);
+        }
+
+        private static CardType DefaultGetCardType(ClientCard card)
+        {
+            CardType cardType = (CardType)card.Type;
+            if (cardType == 0 && card.Data != null)
+            {
+                cardType = (CardType)card.Data.Type;
+            }
+            return cardType;
+        }
+
+        private bool DefaultCheckWhetherCardEffectIsNegatedByFieldState(
+            CardType cardType, CardLocation activateLocation, int controller, int sequence, bool remainsFaceupOnField)
+        {
+            if ((cardType & CardType.Monster) != 0
+                && activateLocation == CardLocation.MonsterZone)
+            {
+                if ((cardType & CardType.Link) == 0 && DefaultCheckWhetherNumber41IsActive()) return true;
+
+                // Unlike the Royal Decree family, Skill Drain stops applying once the monster is no longer face-up on the field.
+                if (remainsFaceupOnField && (Bot.HasInSpellZone(_CardId.SkillDrain, true, true)
+                    || Enemy.HasInSpellZone(_CardId.SkillDrain, true, true))) return true;
+            }
+
+            bool isSpellOrTrapActivationLocation = activateLocation == CardLocation.Hand
+                || activateLocation == CardLocation.SpellZone
+                || activateLocation == CardLocation.FieldZone
+                || activateLocation == CardLocation.PendulumZone;
+            if ((cardType & (CardType.Spell | CardType.Trap)) != 0 && isSpellOrTrapActivationLocation)
+            {
+                bool isSpell = (cardType & CardType.Spell) != 0;
+                bool isTrap = (cardType & CardType.Trap) != 0;
+
+                if (isSpell && (Bot.HasInMonstersZone(_CardId.SpellCanceller, true, false, true)
+                    || Enemy.HasInMonstersZone(_CardId.SpellCanceller, true, false, true)
+                    || Bot.HasInMonstersZone(_CardId.SwordsmanLV7, true, false, true)
+                    || Enemy.HasInMonstersZone(_CardId.SwordsmanLV7, true, false, true))) return true;
+                if (isSpell && (Bot.HasInSpellZone(_CardId.ImperialOrder, true, true)
+                    || Enemy.HasInSpellZone(_CardId.ImperialOrder, true, true))
+                    && !Util.ChainContainsCard(_CardId.ImperialOrder)) return true;
+
+                if (isTrap && (Bot.HasInMonstersZone(_CardId.Jinzo, true, false, true)
+                    || Enemy.HasInMonstersZone(_CardId.Jinzo, true, false, true))) return true;
+                if (isTrap && (Bot.HasInSpellZone(_CardId.RoyalDecreel, true, true)
+                    || Enemy.HasInSpellZone(_CardId.RoyalDecreel, true, true))
+                    && !Util.ChainContainsCard(_CardId.RoyalDecreel)) return true;
+
+                bool isInSpellTrapZone = activateLocation == CardLocation.SpellZone;
+                if (isInSpellTrapZone && sequence >= 0 && sequence < 5)
+                {
+                    int botSequence = controller == 1 ? 4 - sequence : sequence;
+                    if (infiniteImpermanenceNegatedColumns.Contains(botSequence)) return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool DefaultCheckWhetherSpellOrTrapActivationWillBeNegated(CardType cardType, bool activatesFromHand)
+        {
+            bool isSpell = (cardType & CardType.Spell) != 0;
+            bool isTrap = (cardType & CardType.Trap) != 0;
+            if (!isSpell && !isTrap) return false;
+
+            // Assume that the opponent won't activate Naturia Beast or Exterio if their deck is insufficient.
+            // TODO: Macro Cosmos check for Naturia.
+            const int NATURIA_DECK_HOLD = 2;
+            if ((cardType & CardType.Counter) == 0
+                && Enemy.Deck.Count > NATURIA_DECK_HOLD && Enemy.Graveyard.Count > 0
+                && Enemy.HasInMonstersZone(_CardId.NaturalExterio, true, false, true)) return true;
+
+            if (isSpell)
+            {
+                if (Enemy.Deck.Count > 2 * NATURIA_DECK_HOLD
+                    && Enemy.HasInMonstersZone(_CardId.NaturiaBeast, true, false, true)) return true;
+                if (Enemy.HasInMonstersZone(_CardId.HorusTheBlackFlameDragonLV8, true, false, true)) return true;
+            }
+
+            if (!activatesFromHand || isSpell && (cardType & CardType.Field) != 0) return false;
+
+            for (int i = 0; i < 5; i++)
+            {
+                if (Bot.SpellZone[i] == null && !infiniteImpermanenceNegatedColumns.Contains(i)) return false;
+            }
+
+            return true;
+        }
+
+        private bool DefaultCheckWhetherCardNameIsNegated(int originCardId)
+        {
+            return pendingNegatingIdSet.Contains(originCardId)
+                || crossoutDesignatorIdList.Contains(originCardId)
+                || (calledbytheGraveIdCountMap.ContainsKey(originCardId) && calledbytheGraveIdCountMap[originCardId] > 0);
+        }
+
+        protected void DefaultAddPendingNegatingCard(int originCardId)
+        {
+            if (originCardId > 0) pendingNegatingIdSet.Add(originCardId);
         }
 
         protected int GetCalledbytheGraveIdCount(int cardId)

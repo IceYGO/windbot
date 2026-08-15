@@ -150,29 +150,6 @@ namespace WindBot.Game.AI.Decks
             AI.SelectPlace(0);
         }
 
-        public bool SpellNegatable(bool isCounter = false, ClientCard target = null)
-        {
-            // target default set
-            if (target == null) target = Card;
-            // won't negate if not on field
-            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
-
-            // negate judge
-            if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !isCounter) return true;
-            if (target.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(CardId.NaturalBeast, true)) return true;
-                if (Enemy.HasInSpellZone(CardId.ImperialOrder, true) || Bot.HasInSpellZone(CardId.ImperialOrder, true)) return true;
-                if (Enemy.HasInMonstersZone(CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(CardId.SwordsmanLV7, true)) return true;
-            }
-            if (target.IsTrap())
-            {
-                if (Enemy.HasInSpellZone(CardId.RoyalDecreel, true) || Bot.HasInSpellZone(CardId.RoyalDecreel, true)) return true;
-            }
-            // how to get here?
-            return false;
-        }
-
         private bool MacroCosmoseff()
         {
 
@@ -204,14 +181,14 @@ namespace WindBot.Game.AI.Decks
 
         private bool PotOfDesireseff()
         {
-            return Bot.Deck.Count > 14 && !DefaultSpellWillBeNegated();
+            return Bot.Deck.Count > 14 && !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         // activate of PotofExtravagance
         public bool PotofExtravaganceActivate()
         {
             // won't activate if it'll be negate
-            if (SpellNegatable()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             SelectSTPlace(Card, true);
             AI.SelectOption(1);
             return true;

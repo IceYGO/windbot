@@ -232,39 +232,13 @@ namespace WindBot.Game.AI.Decks
         }
 
         /// <summary>
-        /// Check whether'll be negated
-        /// </summary>
-        /// <param name="isCounter">check whether card itself is disabled.</param>
-        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0, bool ignore41 = false)
-        {
-            bool isMonster = type == 0 && Card.IsMonster();
-            isMonster |= ((int)type & (int)CardType.Monster) != 0;
-            bool isSpellOrTrap = type == 0 && (Card.IsSpell() || Card.IsTrap());
-            isSpellOrTrap |= (((int)type & (int)CardType.Spell) != 0) || (((int)type & (int)CardType.Trap) != 0);
-            bool isCounter = ((int)type & (int)CardType.Counter) != 0;
-            if (isSpellOrTrap && toFieldCheck && DefaultSpellOrTrapWillBeNegated(Card, isCounter, true, type))
-                return true;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return true;
-            if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
-            {
-                if (!ignore41 && ((toFieldCheck && (((int)type & (int)CardType.Link) == 0)) || Card.IsDefense()))
-                {
-                    if (DefaultCheckWhetherNumber41IsActive()) return true;
-                }
-                if (Enemy.HasInSpellZone(_CardId.SkillDrain, true, true)) return true;
-            }
-            if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
-            return false;
-        }
-
-        /// <summary>
         /// Check whether last chain card should be disabled.
         /// </summary>
         public bool CheckLastChainShouldNegated()
         {
-            ClientCard lastcard = Util.GetLastChainCard();
-            if (lastcard == null || lastcard.Controller != 1) return false;
-            return CheckCardShouldNegate(lastcard);
+            ChainInfo lastChainInfo = Duel.CurrentChainInfo.LastOrDefault();
+            if (lastChainInfo == null || lastChainInfo.ActivatePlayer != 1) return false;
+            return CheckCardShouldNegate(lastChainInfo);
         }
 
         public bool CheckCardShouldNegate(ClientCard card)
@@ -273,13 +247,8 @@ namespace WindBot.Game.AI.Decks
             if (card.IsMonster() && card.HasSetcode(SetcodeTimeLord) && Duel.Phase == DuelPhase.Standby) return false;
             if (NotToNegateIdList.Contains(card.Id)) return false;
             if (card.HasSetcode(_Setcode.Danger) && card.Location == CardLocation.Hand) return false;
-            if (card.IsMonster() && card.Location == CardLocation.MonsterZone && card.HasPosition(CardPosition.Defence))
-            {
-                if (DefaultCheckWhetherNumber41IsActive()) return false;
-            }
-            if (DefaultCheckWhetherCardIsNegated(card)) return false;
+            if (DefaultCheckWhetherCardEffectIsNegated(card)) return false;
             if (Duel.Player == 1 && card.IsCode(_CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos, _CardId.MulcharmyNyalus)) return false;
-            if (card.IsDisabled()) return false;
 
             return true;
         }
@@ -291,15 +260,11 @@ namespace WindBot.Game.AI.Decks
 
             if (card == null) return false;
             if (card.IsMonster() && card.HasSetcode(SetcodeTimeLord) && Duel.Phase == DuelPhase.Standby) return false;
-            if (NotToNegateIdList.Contains(card.Id)) return false;
-            if (card.HasSetcode(_Setcode.Danger) && card.Location == CardLocation.Hand) return false;
-            if (card.IsMonster() && chainInfo.HasLocation(CardLocation.MonsterZone) && chainInfo.HasPosition(CardPosition.Defence))
-            {
-                if (DefaultCheckWhetherNumber41IsActive()) return false;
-            }
-            if (DefaultCheckWhetherCardIsNegated(card)) return false;
-            if (Duel.Player == 1 && card.IsCode(_CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos, _CardId.MulcharmyNyalus)) return false;
-            if (card.IsDisabled()) return false;
+            if (chainInfo.IsActivateCode(NotToNegateIdList)) return false;
+            if (card.HasSetcode(_Setcode.Danger) && chainInfo.HasLocation(CardLocation.Hand)) return false;
+            if (DefaultCheckWhetherCardEffectIsNegated(chainInfo)) return false;
+            if (Duel.Player == 1 && chainInfo.IsActivateCode(
+                _CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos, _CardId.MulcharmyNyalus)) return false;
 
             return true;
         }
@@ -412,18 +377,18 @@ namespace WindBot.Game.AI.Decks
         public bool CheckCanContinueSummon(bool skipDuodriver = false)
         {
             bool checkFlag = summonCount > 0 && !activatedCardIdList.Contains(CardId.IceRyzeal) && Bot.HasInHand(CardId.IceRyzeal)
-                && !DefaultCheckWhetherCardIdIsNegated(CardId.IceRyzeal);
+                && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.IceRyzeal, CardType.Monster);
             if (Bot.HasInHand(CardId.ThodeRyzeal) && !spSummonedCardIdList.Contains(CardId.ThodeRyzeal)
-                && !activatedCardIdList.Contains(CardId.ThodeRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.ThodeRyzeal))
+                && !activatedCardIdList.Contains(CardId.ThodeRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.ThodeRyzeal, CardType.Monster))
             {
                 checkFlag |= Bot.MonsterZone.Any(c => c != null && c.IsFaceup() && c.HasSetcode(SetcodeRyzeal));
                 checkFlag |= Bot.Graveyard.Any(c => c != null && c.IsFaceup() && c.HasSetcode(SetcodeRyzeal));
             }
             checkFlag |= !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !activatedCardIdList.Contains(CardId.ExRyzeal)
-                && Bot.HasInHand(CardId.ExRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal) && !CheckWhetherWillbeRemoved();
+                && Bot.HasInHand(CardId.ExRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.ExRyzeal, CardType.Monster) && !CheckWhetherWillbeRemoved();
 
             checkFlag |= !activatedCardIdList.Contains(CardId.RyzealDuodrive + 1) && Bot.HasInExtra(CardId.RyzealDuodrive)
-                && !DefaultCheckWhetherCardIdIsNegated(CardId.RyzealDuodrive) && !CheckWhetherNegated(true, true, CardType.Monster)
+                && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.RyzealDuodrive, CardType.Monster)
                 && summonCount > 0 && Bot.Hand.Count(c => c.Level == 4) > 0 && GetLevel4CountOnField() == 1 && !lockBirdSolved
                 && !skipDuodriver;
 
@@ -513,7 +478,7 @@ namespace WindBot.Game.AI.Decks
         public List<ClientCard> GetMonsterListForTargetNegate(bool canBeTarget = false, CardType selfType = 0)
         {
             List<ClientCard> resultList = new List<ClientCard>();
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return resultList;
             }
@@ -589,7 +554,7 @@ namespace WindBot.Game.AI.Decks
                     level4Count++;
                 }
             }
-            if (Bot.HasInHand(CardId.RyzealPlugIn) && !CheckWhetherNegated(true, true, CardType.Spell) && checkSupport)
+            if (Bot.HasInHand(CardId.RyzealPlugIn) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.RyzealPlugIn, CardType.Spell) && checkSupport)
             {
                 bool flag = false;
                 List<ClientCard> graveTargetList = Bot.Graveyard.Where(
@@ -604,7 +569,7 @@ namespace WindBot.Game.AI.Decks
 
                 if (flag) level4Count++;
             }
-            hasNode &= !CheckWhetherWillbeRemoved() && !activatedCardIdList.Contains(CardId.NodeRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.NodeRyzeal);
+            hasNode &= !CheckWhetherWillbeRemoved() && !activatedCardIdList.Contains(CardId.NodeRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.NodeRyzeal, CardType.Monster);
             hasNode &= Bot.Graveyard.Any(c => c != null && c.IsMonster() && c.HasSetcode(SetcodeRyzeal) && !c.IsCode(CardId.NodeRyzeal) && c.Level == 4);
             if (hasNode)
             {
@@ -916,13 +881,13 @@ namespace WindBot.Game.AI.Decks
                             {
                                 bool canSummonAndActivateIce = Duel.Player == 0 && summonCount > 0 && Duel.Phase < DuelPhase.End;
                                 bool flag = canSummonAndActivateIce && !Bot.HasInHand(CardId.IceRyzeal)
-                                    && !activatedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.IceRyzeal);
+                                    && !activatedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.IceRyzeal, CardType.Monster);
                                 flag |= ex == null;
                                 flag |= Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled() && c.IsCode(NeedIceToSolveIdList))
                                     && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !CheckWhetherWillbeRemoved();
                                 if (!canSummonAndActivateIce)
                                 {
-                                    flag |= DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal);
+                                    flag |= DefaultCheckWhetherCardWillBeNegatedOnField(CardId.ExRyzeal, CardType.Monster);
                                     flag |= spSummonedCardIdList.Contains(CardId.ExRyzeal) || activatedCardIdList.Contains(CardId.ExRyzeal);
                                 }
                                 if (flag)
@@ -960,7 +925,7 @@ namespace WindBot.Game.AI.Decks
                             {
                                 bool flag = thode == null;
                                 flag |= spSummonedCardIdList.Contains(CardId.ThodeRyzeal) && activatedCardIdList.Contains(CardId.ThodeRyzeal)
-                                    && !DefaultCheckWhetherCardIdIsNegated(CardId.ThodeRyzeal);
+                                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.ThodeRyzeal, CardType.Monster);
                                 flag |= CheckShouldNoMoreSpSummon(CardLocation.Hand) && !CheckShouldNoMoreSpSummon(CardLocation.Grave)
                                     && !spSummonedCardIdList.Contains(CardId.NodeRyzeal);
 
@@ -1008,19 +973,16 @@ namespace WindBot.Game.AI.Decks
                         if (currentSolvingChain.IsActivateCode(CardId.RyzealDuodrive))
                         {
                             // search spells
-                            if (!CheckWhetherNegated(true, true, CardType.Spell))
+                            ClientCard cross = cards.FirstOrDefault(c => c.IsCode(CardId.RyzealCross));
+                            if (cross != null && !DefaultCheckWhetherCardEffectWillBeNegated(cross))
                             {
-                                ClientCard cross = cards.FirstOrDefault(c => c.IsCode(CardId.RyzealCross));
-                                if (cross != null)
-                                {
-                                    return Util.CheckSelectCount(new List<ClientCard> { cross }, cards, min, max);
-                                }
+                                return Util.CheckSelectCount(new List<ClientCard> { cross }, cards, min, max);
+                            }
 
-                                ClientCard plugin = cards.FirstOrDefault(c => c.IsCode(CardId.RyzealPlugIn));
-                                if (plugin != null)
-                                {
-                                    return Util.CheckSelectCount(new List<ClientCard> { plugin }, cards, min, max);
-                                }
+                            ClientCard plugin = cards.FirstOrDefault(c => c.IsCode(CardId.RyzealPlugIn));
+                            if (plugin != null && !DefaultCheckWhetherCardEffectWillBeNegated(plugin))
+                            {
+                                return Util.CheckSelectCount(new List<ClientCard> { plugin }, cards, min, max);
                             }
 
                             // search for spsummon
@@ -1031,11 +993,11 @@ namespace WindBot.Game.AI.Decks
                                     && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !CheckWhetherWillbeRemoved() ),
                                 new KeyValuePair<int, Func<bool>>(CardId.ExRyzeal,
                                 () => !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !activatedCardIdList.Contains(CardId.ExRyzeal)
-                                    && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal) && !CheckWhetherWillbeRemoved() ),
+                                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.ExRyzeal, CardType.Monster) && !CheckWhetherWillbeRemoved() ),
                                 new KeyValuePair<int, Func<bool>>(CardId.IceRyzeal,
-                                () => summonCount > 0 && !activatedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.IceRyzeal) ),
+                                () => summonCount > 0 && !activatedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.IceRyzeal, CardType.Monster) ),
                                 new KeyValuePair<int, Func<bool>>(CardId.ThodeRyzeal,
-                                () => !spSummonedCardIdList.Contains(CardId.ThodeRyzeal) && !activatedCardIdList.Contains(CardId.ThodeRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.ThodeRyzeal) ),
+                                () => !spSummonedCardIdList.Contains(CardId.ThodeRyzeal) && !activatedCardIdList.Contains(CardId.ThodeRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.ThodeRyzeal, CardType.Monster) ),
                                 new KeyValuePair<int, Func<bool>>(CardId.NodeRyzeal,
                                 () => !spSummonedCardIdList.Contains(CardId.NodeRyzeal) )
                             };
@@ -1079,7 +1041,7 @@ namespace WindBot.Game.AI.Decks
                             ClientCard node = cards.FirstOrDefault(c => c.IsCode(CardId.NodeRyzeal));
                             if (thode != null)
                             {
-                                bool flag = !activatedCardIdList.Contains(CardId.ThodeRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.ThodeRyzeal);
+                                bool flag = !activatedCardIdList.Contains(CardId.ThodeRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.ThodeRyzeal, CardType.Monster);
                                 flag |= Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal);
                                 flag |= ex == null && node == null;
                                 if (flag)
@@ -1089,7 +1051,7 @@ namespace WindBot.Game.AI.Decks
                             }
                             if (ex != null)
                             {
-                                bool flag = !activatedCardIdList.Contains(CardId.ExRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal);
+                                bool flag = !activatedCardIdList.Contains(CardId.ExRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.ExRyzeal, CardType.Monster);
                                 flag |= Bot.HasInHand(CardId.ThodeRyzeal) && !spSummonedCardIdList.Contains(CardId.ThodeRyzeal);
                                 flag |= thode == null && node == null;
                                 if (flag)
@@ -1836,7 +1798,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool IceRyzealSummon()
         {
-            if (CheckWhetherNegated(true, true)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card)) return false;
             if (CheckShouldNoMoreSpSummon(CardLocation.Hand | CardLocation.Deck | CardLocation.Extra))
             {
                 bool flag = Bot.GetMonsters().Any(c => c.IsFaceup() && c.HasType(CardType.Xyz));
@@ -1849,7 +1811,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool IceRyzealActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (CheckShouldNoMoreSpSummon(CardLocation.Deck) && GetLevel4CountOnField() >= 2)
             {
                 return false;
@@ -1869,7 +1831,7 @@ namespace WindBot.Game.AI.Decks
                 if (flag) return false;
             }
             bool spsummonFlag = lv4Count == 1;
-            spsummonFlag |= !CheckWhetherNegated(true, true, CardType.Monster) && Bot.HasInDeck(CardId.IceRyzeal, CardId.ExRyzeal)
+            spsummonFlag |= !DefaultCheckWhetherCardWillBeNegatedOnField(Card) && Bot.HasInDeck(CardId.IceRyzeal, CardId.ExRyzeal)
                 && !activatedCardIdList.Contains(CardId.ThodeRyzeal) && !lockBirdSolved;
             if (GetLevel4CountOnField() == 0)
             {
@@ -1898,7 +1860,7 @@ namespace WindBot.Game.AI.Decks
                 skipFlag |= lv4Count >= 2;
                 if (skipFlag) return false;
             }
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card)) return false;
 
             summonCount -= 1;
             return true;
@@ -1906,7 +1868,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ThodeRyzealActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             activatedCardIdList.Add(Card.Id);
             return true;
         }
@@ -1922,7 +1884,7 @@ namespace WindBot.Game.AI.Decks
                 if (flag) return false;
             }
             bool spsummonFlag = lv4Count == 1;
-            spsummonFlag |= !CheckWhetherNegated(true, true, CardType.Monster) && Bot.Graveyard.Any(c => !c.HasType(CardType.Xyz) && c.HasSetcode(SetcodeRyzeal) && c.Level == 4);
+            spsummonFlag |= !DefaultCheckWhetherCardWillBeNegatedOnField(Card) && Bot.Graveyard.Any(c => !c.HasType(CardType.Xyz) && c.HasSetcode(SetcodeRyzeal) && c.Level == 4);
             return spsummonFlag;
         }
 
@@ -1965,7 +1927,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool NodeRyzealActivateInner(bool sendNotNessary)
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (CheckShouldNoMoreSpSummon(CardLocation.Grave | CardLocation.Extra))
             {
                 if (Bot.GetMonsters().Count(c => c.HasType(CardType.Xyz) && c.IsFaceup()) > 0) return false;
@@ -2014,7 +1976,8 @@ namespace WindBot.Game.AI.Decks
             }
             if (Duel.Turn == 1)
             {
-                bool checkFlag = !activatedCardIdList.Contains(CardId.ExRyzeal) && !lockBirdSolved && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal) && !Bot.HasInMonstersZone(_CardId.Number41BagooskatheTerriblyTiredTapir);
+                bool checkFlag = !activatedCardIdList.Contains(CardId.ExRyzeal) && !lockBirdSolved
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(Card) && !Bot.HasInMonstersZone(_CardId.Number41BagooskatheTerriblyTiredTapir);
                 checkFlag |= !Bot.MonsterZone.Any(c => c != null && c.IsFaceup() && c.HasType(CardType.Xyz)) && GetLevel4CountOnField() == 1;
                 if (checkFlag)
                 {
@@ -2112,7 +2075,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExRyzealActivate()
         {
-            if (CheckWhetherNegated(true))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 // use mero to negate No.41?
                 int count41 = Enemy.GetMonsters().Count(c => c.IsCode(_CardId.Number41BagooskatheTerriblyTiredTapir) && c.IsFaceup()
@@ -2134,7 +2097,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool MulcharmyFuwalosActivate()
         {
-            if (CheckWhetherNegated(true) || Duel.Player == 0) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.Player == 0) return false;
             if (lockBirdSolved || Duel.CurrentChain.Any(c => c.IsCode(_CardId.LockBird))) return false;
             if (Duel.Phase > DuelPhase.Main1) return false;
 
@@ -2144,7 +2107,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool MulcharmyPuruliaActivate()
         {
-            if (CheckWhetherNegated(true) || Duel.Player == 0) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.Player == 0) return false;
             if (lockBirdSolved || Duel.CurrentChain.Any(c => c.IsCode(_CardId.LockBird))) return false;
             if (Duel.Phase > DuelPhase.Main1) return false;
             if (botActivateMulcharmy) return false;
@@ -2155,7 +2118,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool MulcharmyNyalusActivate()
         {
-            if (CheckWhetherNegated(true) || Duel.Player == 0) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.Player == 0) return false;
             if (lockBirdSolved || Duel.CurrentChain.Any(c => c.IsCode(_CardId.LockBird))) return false;
             if (Duel.Phase > DuelPhase.Main1) return false;
             if (botActivateMulcharmy) return false;
@@ -2166,7 +2129,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool AshBlossomActivate()
         {
-            if (CheckWhetherNegated(true) || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (DefaultAshBlossomAndJoyousSpring())
             {
                 ClientCard lastChainCard = Util.GetLastChainCard();
@@ -2178,7 +2141,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool GhostOgreAndSnowRabbitActivate()
         {
-            if (CheckWhetherNegated(true) || Duel.LastChainPlayer == 0) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.LastChainPlayer == 0) return false;
             ClientCard lastChainCard = Util.GetLastChainCard();
             if (lastChainCard == null || lastChainCard.IsDisabled()) return false;
             if (lastChainCard.IsMonster() && !lastChainCard.HasType(CardType.Link | CardType.Fusion | CardType.Synchro | CardType.Xyz)) return false;
@@ -2187,13 +2150,13 @@ namespace WindBot.Game.AI.Decks
 
         public bool MaxxCActivate()
         {
-            if (CheckWhetherNegated(true) || Duel.LastChainPlayer == 0 || lockBirdSolved) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.LastChainPlayer == 0 || lockBirdSolved) return false;
             return DefaultMaxxC();
         }
 
         public bool LockBirdActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Duel.Player == 0) return false;
             List<int> mulcharmyCheckIdList = new List<int> { _CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos };
             if (mulcharmyCheckIdList.Intersect(botSolvedCardIdList).Any())
@@ -2210,7 +2173,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool EffectVeilerActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             // negate monster
             List<ClientCard> shouldNegateList = GetMonsterListForTargetNegate(true, CardType.Monster);
             if (shouldNegateList.Count > 0)
@@ -2226,9 +2189,9 @@ namespace WindBot.Game.AI.Decks
 
         public bool SeventhTachyonActivate()
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             bool flag = !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !Bot.HasInHand(CardId.ExRyzeal);
-            flag &= !(!activatedCardIdList.Contains(CardId.IceRyzeal) && summonCount > 0 && Bot.HasInHand(CardId.IceRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.IceRyzeal));
+            flag &= !(!activatedCardIdList.Contains(CardId.IceRyzeal) && summonCount > 0 && Bot.HasInHand(CardId.IceRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.IceRyzeal, CardType.Monster));
             if (flag)
             {
                 SelectSTPlace(Card, true);
@@ -2239,7 +2202,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool TripleTacticsTalentActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (TripleTacticsTalentDecision(null) == -1) return false;
             SelectSTPlace(Card, true);
             return true;
@@ -2279,7 +2242,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool PotOfDesiresActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Bot.Deck.Count >= 15)
             {
                 SelectSTPlace(Card, true);
@@ -2290,7 +2253,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool PotOfDesireActivateForContinue()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Bot.Deck.Count >= 15 && !CheckCanContinueSummon() && Bot.HasInDeck(CardId.IceRyzeal, CardId.ThodeRyzeal, CardId.ExRyzeal))
             {
                 SelectSTPlace(Card, true);
@@ -2301,9 +2264,9 @@ namespace WindBot.Game.AI.Decks
 
         public bool BonfireActivateToSearchNecessary()
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             bool flag = !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !Bot.HasInHand(CardId.ExRyzeal);
-            flag |= !activatedCardIdList.Contains(CardId.IceRyzeal) && summonCount > 0 && !Bot.HasInHand(CardId.IceRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.IceRyzeal);
+            flag |= !activatedCardIdList.Contains(CardId.IceRyzeal) && summonCount > 0 && !Bot.HasInHand(CardId.IceRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.IceRyzeal, CardType.Monster);
             if (flag)
             {
                 SelectSTPlace(Card, true);
@@ -2314,7 +2277,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool BonfireActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             // activate before no60
             if (!activatedCardIdList.Contains(CardId.Number60DugaresTheTimeless))
             {
@@ -2331,7 +2294,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CalledbytheGraveActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             ClientCard lastChainCard = Util.GetLastChainCard();
             if (Duel.LastChainPlayer == 1)
             {
@@ -2340,7 +2303,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     int code = Util.GetLastChainCard().GetOriginCode();
                     if (code == 0) return false;
-                    if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
+                    if (DefaultCheckWhetherCardEffectIsNegated(lastChainCard)) return false;
 
                     // not to negate same card in hand
                     List<int> mulcharmyIdList = new List<int> { _CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos, _CardId.MulcharmyNyalus };
@@ -2412,7 +2375,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool RyzealPlugInActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             // spsummon lv4
             if (Duel.Player == 0 && CurrentTiming == -1)
@@ -2462,7 +2425,7 @@ namespace WindBot.Game.AI.Decks
 
             // spsummon deadnader
             if (!Bot.HasInMonstersZone(CardId.RyzealDeadnader, true, true, true) && !Duel.CurrentChain.Any(c => c.IsCode(CardId.TwinsOfTheEclipse))
-                && !DefaultCheckWhetherCardIdIsNegated(CardId.RyzealDeadnader) && !Util.ChainContainPlayer(0))
+                && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.RyzealDeadnader, CardType.Monster) && !Util.ChainContainPlayer(0))
             {
                 ClientCard deadnader = Bot.Banished.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(CardId.RyzealDeadnader) && c.IsCanRevive());
                 if (deadnader == null)
@@ -2645,8 +2608,8 @@ namespace WindBot.Game.AI.Decks
 
         public bool RyzealPlugInActivateFirst()
         {
-            if (CheckWhetherNegated(true)) return false;
-            if (Duel.Player == 0 && CurrentTiming == -1 && !activatedCardIdList.Contains(CardId.NodeRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.NodeRyzeal))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
+            if (Duel.Player == 0 && CurrentTiming == -1 && !activatedCardIdList.Contains(CardId.NodeRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.NodeRyzeal, CardType.Monster))
             {
                 List<ClientCard> nodeCostList = GetCostFromHandAndField(Card, false);
                 if (nodeCostList.Count() > 0)
@@ -2687,7 +2650,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.SpellZone && Card.IsFaceup()) return false;
             bool flag = RyzealCrossActivateRecycleFirst();
             bool canSetMaterial = Bot.HasInHandOrInSpellZone(CardId.RyzealPlugIn) && Bot.HasInDeck(CardId.IceRyzeal, CardId.ExRyzeal, CardId.NodeRyzeal, CardId.ThodeRyzeal)
@@ -2705,7 +2668,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool RyzealCrossActivateRecycleFirst()
         {
-            if (CheckWhetherNegated(true) || !(Card.Location == CardLocation.SpellZone && Card.IsFaceup())) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !(Card.Location == CardLocation.SpellZone && Card.IsFaceup())) return false;
             if (ActivateDescription == Util.GetStringId(CardId.RyzealCross, 3))
             {
                 return false;
@@ -2734,7 +2697,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool RyzealCrossActivateRecycleLater()
         {
-            if (CheckWhetherNegated(true) || !(Card.Location == CardLocation.SpellZone && Card.IsFaceup())) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !(Card.Location == CardLocation.SpellZone && Card.IsFaceup())) return false;
             if (ActivateDescription == Util.GetStringId(CardId.RyzealCross, 3))
             {
                 return false;
@@ -2773,7 +2736,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CrossoutDesignatorActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             // negate 
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard() != null)
             {
@@ -2781,7 +2744,7 @@ namespace WindBot.Game.AI.Decks
                 int alias = Util.GetLastChainCard().Alias;
                 if (alias != 0 && alias - code < 10) code = alias;
                 if (code == 0) return false;
-                if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
+                if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                 if (Bot.HasInDeck(code))
                 {
                     if (!(Card.Location == CardLocation.SpellZone))
@@ -2798,7 +2761,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool InfiniteImpermanenceActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             ClientCard LastChainCard = Util.GetLastChainCard();
 
@@ -2880,7 +2843,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool TornadoDragonSummonCheck()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card)) return false;
             bool flag = EnemyDeckHasType(SetcodeLabrynth);
             flag |= Enemy.SpellZone.Any(c => c != null && c.IsFaceup() && !c.IsDisabled() && c.IsFloodgate());
             flag |= Enemy.SpellZone.Count(c => c != null && !c.IsShouldNotBeMonsterTarget() && !NotToDestroySpellTrap.Contains(c.Id)) >= 3;
@@ -2892,7 +2855,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool EvilswarmExcitonKnightSpSummon()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster) || Duel.Turn == 1) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card) || Duel.Turn == 1) return false;
 
             return DefaultEvilswarmExcitonKnightSummon();
         }
@@ -2992,9 +2955,8 @@ namespace WindBot.Game.AI.Decks
             bool checkFlag = Duel.MainPhase.SpecialSummonableCards.Any(c => c.IsCode(CardId.RyzealDuodrive));
             checkFlag &= !Bot.HasInMonstersZone(CardId.RyzealDuodrive, true, true, true);
             checkFlag &= Bot.GetCardCountInDeck(new[] { CardId.IceRyzeal, CardId.ThodeRyzeal, CardId.NodeRyzeal, CardId.ExRyzeal, CardId.RyzealPlugIn, CardId.RyzealCross }) >= 2;
-            checkFlag &= !DefaultCheckWhetherCardIdIsNegated(CardId.RyzealDuodrive);
             checkFlag &= !activatedCardIdList.Contains(CardId.RyzealDuodrive + 1);
-            checkFlag &= !CheckWhetherNegated(true, true, CardType.Monster);
+            checkFlag &= !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.RyzealDuodrive, CardType.Monster);
             checkFlag &= !lockBirdSolved;
             checkFlag &= !CheckShouldNoMoreSpSummon(CardLocation.Extra);
 
@@ -3193,7 +3155,7 @@ namespace WindBot.Game.AI.Decks
                     hasNode |= Bot.Graveyard.Any(c => c.IsCode(CardId.NodeRyzeal));
                     hasNode |= Bot.Banished.Any(c => c.IsFaceup() && c.IsCode(CardId.NodeRyzeal));
                 }
-                hasNode &= !activatedCardIdList.Contains(CardId.NodeRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.NodeRyzeal);
+                hasNode &= !activatedCardIdList.Contains(CardId.NodeRyzeal) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.NodeRyzeal, CardType.Monster);
 
                 List<ClientCard> materialList = new List<ClientCard>();
                 ClientCard duoDriver = Bot.MonsterZone.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(CardId.RyzealDuodrive));
@@ -3239,8 +3201,8 @@ namespace WindBot.Game.AI.Decks
                 if (materialList.Count() >= 2)
                 {
                     // check whether enemy have monster with 2more less than 2500
-                    bool checkFlag = Enemy.MonsterZone.Count(c => c != null && c.GetDefensePower() < 2500) >= 2 && !CheckWhetherNegated(true, true, CardType.Monster)
-                        && !DefaultCheckWhetherCardIdIsNegated(CardId.TwinsOfTheEclipse);
+                    bool checkFlag = Enemy.MonsterZone.Count(c => c != null && c.GetDefensePower() < 2500) >= 2
+                        && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.TwinsOfTheEclipse, CardType.Monster);
                     if (checkFlag && materialList.Sum(c => c.Attack) < 5000)
                     {
                         AI.SelectMaterials(materialList);
@@ -3355,12 +3317,13 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            bool haveEnemyTarget = Enemy.MonsterZone.Any(c => c != null && !c.IsShouldNotBeMonsterTarget()) && !CheckWhetherNegated(true, true, CardType.Monster);
+            bool haveEnemyTarget = Enemy.MonsterZone.Any(c => c != null && !c.IsShouldNotBeMonsterTarget())
+                && !DefaultCheckWhetherCardWillBeNegatedOnField(Card);
 
             List<ClientCard> illegalList = Bot.GetMonsters().Where(card => card.IsFaceup() && card.Level != 4 && card.Rank != 4).OrderBy(c => c.GetDefensePower()).ToList();
             bool necessary = Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !activatedCardIdList.Contains(CardId.ExRyzeal)
                 && illegalList.Count() > 0;
-            bool needDestory = !CheckWhetherNegated(true, true, CardType.Monster)
+            bool needDestory = !DefaultCheckWhetherCardWillBeNegatedOnField(Card)
                 && Enemy.MonsterZone.Any(c => c != null && !c.IsShouldNotBeMonsterTarget() && c.IsFloodgate() && !c.IsDisabled());
             necessary |= needDestory;
 
@@ -3445,7 +3408,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool MereologicAggregatorActivateLater()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             ClientCard lastChainCard = Util.GetLastChainCard();
 
@@ -3505,7 +3468,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 return false;
             }
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.RyzealDeadnader, 1))
             {
                 // destroy self
@@ -3517,7 +3480,7 @@ namespace WindBot.Game.AI.Decks
                     shouldDestroySelf = true;
                     willBeNegated = true;
                 }
-                shouldDestroySelf |= Duel.CurrentChain.Any(c => c != null && c.Controller == 1 && !c.IsDisabled() && !DefaultCheckWhetherCardIdIsNegated(c.Id)
+                shouldDestroySelf |= Duel.CurrentChain.Any(c => c != null && c.Controller == 1 && !c.IsDisabled() && !DefaultCheckWhetherCardEffectIsNegated(c)
                     && c.IsCode(_CardId.EvenlyMatched, 35480699));
                 shouldDestroySelf |= Card.Overlays.Count() == 1 && !activatedCardIdList.Contains(CardId.RyzealDeadnader)
                     && GetProblematicEnemyCardList(true, false, CardType.Monster).Count() == 0;
@@ -3525,10 +3488,10 @@ namespace WindBot.Game.AI.Decks
                 if (shouldDestroySelf)
                 {
                     bool canRebornSelf = Bot.SpellZone.Count(c => c != null && c.IsFacedown() && c.IsCode(CardId.RyzealPlugIn) && !Duel.ChainTargets.Contains(c)) > 0;
-                    bool canActivateTwin = !activatedCardIdList.Contains(CardId.TwinsOfTheEclipse + 1) && !DefaultCheckWhetherCardIdIsNegated(CardId.TwinsOfTheEclipse)
+                    bool canActivateTwin = !activatedCardIdList.Contains(CardId.TwinsOfTheEclipse + 1) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.TwinsOfTheEclipse)
                         && !CheckWhetherWillbeRemoved();
                     canRebornSelf |= canActivateTwin && Card.Overlays.Contains(CardId.TwinsOfTheEclipse);
-                    if (Duel.CurrentChain.Any(c => c != null && c.Controller == 1 && !c.IsDisabled() && !DefaultCheckWhetherCardIdIsNegated(c.Id)
+                    if (Duel.CurrentChain.Any(c => c != null && c.Controller == 1 && !c.IsDisabled() && !DefaultCheckWhetherCardEffectIsNegated(c)
                         && c.IsCode(_CardId.EvenlyMatched)))
                     {
                         canRebornSelf |= Bot.MonsterZone.Any(c => c != null && c.HasType(CardType.Xyz) && c.Overlays.Contains(CardId.TwinsOfTheEclipse));
@@ -3560,7 +3523,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool RyzealDuodriveActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             if (ActivateDescription == Util.GetStringId(CardId.RyzealDuodrive, 1))
             {
@@ -3596,14 +3559,14 @@ namespace WindBot.Game.AI.Decks
             {
                 // double attack
                 // dump remove material
-                if (CheckWhetherNegated(true)) return Bot.HasInHandOrInSpellZone(CardId.RyzealPlugIn);
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return Bot.HasInHandOrInSpellZone(CardId.RyzealPlugIn);
                 activatedCardIdList.Add(Card.Id);
                 return true;
 
             } else if (Card.Location == CardLocation.Grave)
             {
                 // spsummon
-                if (CheckWhetherNegated(true)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
                 activatedCardIdList.Add(Card.Id + 1);
                 ClientCard rebornTarget = TwinsOfTheEclipseRebornTarget(null);
@@ -3648,14 +3611,14 @@ namespace WindBot.Game.AI.Decks
             ClientCard no41 = targetList.FirstOrDefault(c => c.IsCode(_CardId.Number41BagooskatheTerriblyTiredTapir));
             ClientCard abyssDweller = targetList.FirstOrDefault(c => c.IsCode(CardId.AbyssDweller));
 
-            if (no41 != null && !DefaultCheckWhetherCardIdIsNegated(_CardId.Number41BagooskatheTerriblyTiredTapir)
+            if (no41 != null && !DefaultCheckWhetherCardWillBeNegatedOnField(_CardId.Number41BagooskatheTerriblyTiredTapir, CardType.Monster)
                 && !(deadnader != null && !activatedCardIdList.Contains(CardId.RyzealDeadnader))
                 && !(Duel.Turn == 1 && duoDriver != null))
             {
                 return no41;
             }
 
-            if (abyssDweller != null && !DefaultCheckWhetherCardIdIsNegated(CardId.AbyssDweller) && !botSolvedCardIdList.Contains(CardId.AbyssDweller)
+            if (abyssDweller != null && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.AbyssDweller, CardType.Monster) && !botSolvedCardIdList.Contains(CardId.AbyssDweller)
                 && AbyssDwellerSummonCheck())
             {
                 return abyssDweller;
@@ -3703,7 +3666,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool TornadoDragonActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             List<ClientCard> spells = Enemy.GetSpells();
             if (spells.Count == 0)
@@ -3763,7 +3726,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool EvilswarmExcitonKnightActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return DefaultEvilswarmExcitonKnightEffect();
         }
 
@@ -3785,7 +3748,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Duel.Player == 1)
             {
-                if (CheckWhetherNegated(true)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (EnemyDeckHasType(SetcodeAtlantean)) return true;
                 return Enemy.GetMonsterCount() + Enemy.GetSpellCount() > 0;
             }
@@ -3795,7 +3758,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Number60DugaresTheTimelessActivate()
         {
-            if (CheckWhetherNegated(true)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Number60DugaresTheTimelessDrawEffect() || Number60DugaresTheTimelessDoubleTarget() != null || Number60DugaresTheTimelessRebornEffect())
             {
                 activatedCardIdList.Add(Card.Id);

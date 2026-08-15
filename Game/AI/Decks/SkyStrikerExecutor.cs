@@ -195,7 +195,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MaxxCEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return Duel.Player == 1;
         }
 
@@ -669,7 +669,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool JetSynchronEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Bot.HasInMonstersZone(CardId.Raye) || Bot.HasInMonstersZone(CardId.CrystronNeedlefiber))
             {
                 AI.SelectCard(GetDiscardHand());

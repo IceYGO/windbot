@@ -566,7 +566,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SpeedroidTaketomborgeff()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Bot.HasInDeck(CardId.SpeedroidRedEyedDice) &&
                 Bot.HasInMonstersZone(CardId.SpeedroidTerrortop))
             {
