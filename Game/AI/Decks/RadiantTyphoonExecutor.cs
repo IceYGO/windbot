@@ -787,22 +787,23 @@ namespace WindBot.Game.AI.Decks
                     return !WasRadiantHandEffectUsedThisTurn(card.Id) ||
                         WasRadiantFieldEffectUsedThisTurn(card.Id);
                 }
-                if (card.IsCode(CardId.RadiantTyphoonMeghala) &&
-                    !_usedMeghalaDeckSummon &&
-                    Duel.Player == 1 && !HasFaceDownRadiantOrMstQuickPlaySpell())
-                {
-                    // On the opponent's turn, Meghala's unused field effect
-                    // has no immediate set payoff left when we no longer
-                    // control a facedown Radiant Quick-Play or Mystical Space
-                    // Typhoon.
-                    return true;
-                }
                 if (card.IsCode(CardId.RadiantTyphoonMeghala))
                 {
-                    // _usedMeghalaDeckSummon records the field trigger that
-                    // special summons from the Deck. The separate hand
-                    // special-summon procedure must not satisfy this check.
-                    return _usedMeghalaDeckSummon;
+                    // On our turn Meghala is treated like Swen, Dachs and
+                    // Krosea: its unused field effect does not by itself
+                    // prevent Shiina from returning the monster.
+                    if (Duel.Player != 1)
+                    {
+                        return true;
+                    }
+
+                    // On the opponent's turn, keep Meghala on the field only
+                    // while its field effect is still available and a set
+                    // Radiant Quick-Play or MST can immediately make that
+                    // effect valuable. Other facedown non-Radiant Quick-Play
+                    // Spells do not affect this exception.
+                    return _usedMeghalaDeckSummon ||
+                        !HasFaceDownRadiantOrMstQuickPlaySpell();
                 }
                 return WasRadiantEffectUsedThisTurn(card.Id);
             }
@@ -1125,7 +1126,9 @@ namespace WindBot.Game.AI.Decks
         private bool ShouldUseMstToTriggerMandateAgainstOpponentMonster()
         {
             if (Card == null || !Card.IsCode(CardId.MysticalSpaceTyphoon) ||
-                Card.Location != CardLocation.Hand || Duel.CurrentChain.Count == 0 ||
+                Duel.Player != 1 || Card.Location != CardLocation.SpellZone ||
+                !Card.IsFacedown() || !HasExactlyOneFaceDownMysticalSpaceTyphoon() ||
+                !HasFaceupMandate() || Duel.CurrentChain.Count == 0 ||
                 Enemy.GetSpellCount() != 0 || _radiantQuickPlayOfferedInCurrentChainSelection ||
                 Duel.CurrentChain.Any(c => c.Controller == 0 && IsRadiantQuickPlay(c)))
             {
@@ -1133,7 +1136,8 @@ namespace WindBot.Game.AI.Decks
             }
 
             ClientCard opponentSource = GetLatestOpponentFieldCardForChain();
-            return opponentSource != null && opponentSource.IsMonster();
+            return opponentSource != null && opponentSource.IsMonster() &&
+                !opponentSource.IsDisabled();
         }
 
         private bool HasOtherSuitableActivationEffect()
@@ -1212,7 +1216,11 @@ namespace WindBot.Game.AI.Decks
                     continue;
                 }
 
-                return GetOpponentFieldCardForChain(chain);
+                ClientCard fieldCard = GetOpponentFieldCardForChain(chain);
+                if (fieldCard != null)
+                {
+                    return fieldCard;
+                }
             }
             return null;
         }
@@ -1867,7 +1875,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool RadiantQuickPlayMstStarterActivate()
         {
-            if (Card.Location == CardLocation.Grave || !NeedMstStarter())
+            if (Card.Location == CardLocation.Grave || !NeedMstStarter() ||
+                ShouldDelayOpponentAscendanceMstStarter())
             {
                 return false;
             }
@@ -1915,6 +1924,15 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Grave)
             {
                 return AcceptRadiantQuickPlayActivation();
+            }
+
+            // On the opponent's turn, Ascendance's MST-starter route is a
+            // response line, not an opening action. A hand/field Ascendance
+            // must wait for an effective opponent field chain.
+            if (Card.IsCode(CardId.RadiantTyphoonAscendance) && NeedMstStarter() &&
+                ShouldDelayOpponentAscendanceMstStarter())
+            {
+                return false;
             }
 
             if (Card.IsCode(CardId.RadiantTyphoonAscendance) &&
@@ -2546,7 +2564,12 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            AI.SelectCard(target);
+            // TY-PHON's return effect is non-targeting. Do not queue a card at
+            // activation time: the server supplies the legal return candidates
+            // only when the effect resolves. SelectResolutionCard will then
+            // restrict that candidate list to opponent monsters.
+            // The server asks for TY-PHON's single overlay material separately.
+            AI.SelectCard(Card.Overlays);
             return true;
         }
 
@@ -2557,17 +2580,129 @@ namespace WindBot.Game.AI.Decks
 
         private bool RadiantSpellSet()
         {
-            bool usesRadiantSetTiming = Card.IsCode(CardId.MysticalSpaceTyphoon,
-                CardId.RadiantTyphoonVision,
-                CardId.RadiantTyphoonAscendance, CardId.RadiantTyphoonChant,
-                CardId.RadiantTyphoonMandate, CardId.ForbiddenDroplet,
-                CardId.SuperPolymerization, CardId.TheFallenTheVirtuous,
-                CardId.InfiniteImpermanence);
-            if (!usesRadiantSetTiming)
+            if (!IsRadiantSetPriorityCard(Card))
             {
-                return DefaultSpellSet();
+                return DefaultSpellSet() && IsPreferredRadiantSpellSetCandidate(Card);
             }
-            return Duel.Turn <= 1 || Duel.Phase == DuelPhase.Main2;
+
+            if (Duel.Turn > 1 && Duel.Phase != DuelPhase.Main2)
+            {
+                return false;
+            }
+
+            return IsPreferredRadiantSpellSetCandidate(Card);
+        }
+
+        private bool IsRadiantSetPriorityCard(ClientCard card)
+        {
+            return card != null && card.IsCode(CardId.MysticalSpaceTyphoon,
+                CardId.RadiantTyphoonVision, CardId.RadiantTyphoonAscendance,
+                CardId.RadiantTyphoonChant, CardId.RadiantTyphoonMandate,
+                CardId.ForbiddenDroplet, CardId.SuperPolymerization,
+                CardId.TheFallenTheVirtuous, CardId.InfiniteImpermanence);
+        }
+
+        private bool IsPreferredRadiantSpellSetCandidate(ClientCard card)
+        {
+            if (card == null || Duel.MainPhase == null ||
+                Duel.MainPhase.SpellSetableCards == null)
+            {
+                return true;
+            }
+
+            int currentPriority = GetRadiantSpellSetPriority(card);
+            foreach (ClientCard candidate in Duel.MainPhase.SpellSetableCards)
+            {
+                if (candidate == null || candidate == card ||
+                    (IsRadiantSetPriorityCard(candidate) && Duel.Turn > 1 &&
+                        Duel.Phase != DuelPhase.Main2))
+                {
+                    continue;
+                }
+
+                if (GetRadiantSpellSetPriority(candidate) < currentPriority)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private int GetRadiantSpellSetPriority(ClientCard card)
+        {
+            if (card == null)
+            {
+                return 1000;
+            }
+
+            int priority;
+            if (ShouldPrioritizeRadiantQuickPlaySet() &&
+                card.IsCode(CardId.RadiantTyphoonAscendance,
+                    CardId.RadiantTyphoonVision, CardId.RadiantTyphoonChant))
+            {
+                priority = card.IsCode(CardId.RadiantTyphoonAscendance) ? 0 :
+                    card.IsCode(CardId.RadiantTyphoonVision) ? 1 : 2;
+            }
+            else if (card.IsCode(CardId.ForbiddenDroplet))
+            {
+                priority = 0;
+            }
+            else if (card.IsCode(CardId.SuperPolymerization))
+            {
+                priority = 1;
+            }
+            else if (card.IsCode(CardId.TheFallenTheVirtuous))
+            {
+                priority = 2;
+            }
+            else if (card.IsCode(CardId.RadiantTyphoonMandate))
+            {
+                priority = 3;
+            }
+            else if (card.IsCode(CardId.MysticalSpaceTyphoon))
+            {
+                priority = 4;
+            }
+            else if (card.IsCode(CardId.RadiantTyphoonAscendance))
+            {
+                priority = 5;
+            }
+            else if (card.IsCode(CardId.RadiantTyphoonVision))
+            {
+                priority = 6;
+            }
+            else if (card.IsCode(CardId.RadiantTyphoonChant))
+            {
+                priority = 7;
+            }
+            else
+            {
+                priority = 8;
+            }
+
+            // MST is deliberately allowed to be set repeatedly. Every other
+            // same-name facedown card is moved behind all non-duplicate
+            // candidates, including the generic "other" category.
+            if (!card.IsCode(CardId.MysticalSpaceTyphoon) &&
+                HasFaceDownSpellWithSameName(card))
+            {
+                priority += 100;
+            }
+            return priority;
+        }
+
+        private bool HasFaceDownSpellWithSameName(ClientCard card)
+        {
+            return card != null && Bot.GetSpells().Any(c => c != null &&
+                c.IsFacedown() && c.IsCode(card.Id));
+        }
+
+        private bool ShouldPrioritizeRadiantQuickPlaySet()
+        {
+            return HasFaceupMandate() && Bot.GetSpellCountWithoutField() == 4 &&
+                !Bot.GetSpells().Any(c => c != null && c.IsFacedown() &&
+                    c.IsCode(CardId.RadiantTyphoonAscendance,
+                        CardId.RadiantTyphoonVision, CardId.RadiantTyphoonChant));
         }
 
         public override int OnSelectOption(IList<int> options)
@@ -3040,6 +3175,44 @@ namespace WindBot.Game.AI.Decks
 
         private IList<ClientCard> SelectResolutionCard(ChainInfo chain, IList<ClientCard> cards, int min, int max, int hint)
         {
+            if (chain.IsActivateCode(CardId.SuperStarslayerTYPHONSkyCrisis))
+            {
+                // TY-PHON returns a monster without targeting. The candidate
+                // list can therefore contain monsters from both fields. Never
+                // let the generic first-card fallback choose one of our own
+                // monsters while an opponent monster is available.
+                List<ClientCard> enemyCandidates = cards.Where(c => c != null &&
+                    c.Controller == 1 && (c.IsMonster() ||
+                        c.Location == CardLocation.MonsterZone)).ToList();
+                if (enemyCandidates.Count == 0)
+                {
+                    // The opponent monster used to justify activation may have
+                    // left the field while the chain was resolving. At that
+                    // point the server may leave only our monsters as legal
+                    // candidates; do not manufacture an invalid selection.
+                    return null;
+                }
+
+                List<ClientCard> priority = new List<ClientCard>();
+                ClientCard preferred = FindMatchingCard(enemyCandidates,
+                    Util.GetProblematicEnemyMonster(0, false));
+                if (preferred == null)
+                {
+                    preferred = FindMatchingCard(enemyCandidates,
+                        Util.GetBestEnemyMonster(false, false));
+                }
+                if (preferred != null)
+                {
+                    priority.Add(preferred);
+                }
+
+                priority.AddRange(enemyCandidates.Where(c => !priority.Contains(c))
+                    .OrderByDescending(c => c.IsFaceup())
+                    .ThenByDescending(c => c.Attack)
+                    .ThenByDescending(c => c.Defense));
+                return SelectCount(priority, cards, min, max, 1);
+            }
+
             if (chain.IsActivateCode(CardId.FavoriteHEROShiningFlareWingman))
             {
                 List<ClientCard> priority = cards.OrderBy(GetShiningFlareRecyclePriority)
@@ -3638,8 +3811,10 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            bool enemyMaxxCActive = _enemyMaxxCResolved || Duel.CurrentChainInfo.Any(chain =>
-                chain != null && chain.ActivatePlayer == 1 && chain.IsActivateCode(CardId.MaxxC));
+            // Maxx "C" starts restricting Special Summons only after its chain
+            // has resolved successfully. While it is still being chained, keep
+            // the hand-triggered Special Summon responses available.
+            bool enemyMaxxCActive = _enemyMaxxCResolved;
             bool enemyFuwalosActive = _enemyFuwalosResolved || Duel.CurrentChainInfo.Any(chain =>
                 chain != null && chain.ActivatePlayer == 1 &&
                 chain.IsActivateCode(CardId.MulcharmyFuwalos));
@@ -3662,9 +3837,59 @@ namespace WindBot.Game.AI.Decks
 
         private bool NeedMstStarter()
         {
-            return !_enemyDrollResolved && Enemy.GetSpellCount() > 0 &&
-                !Bot.HasInHand(CardId.MysticalSpaceTyphoon) &&
-                !Bot.HasInGraveyard(CardId.MysticalSpaceTyphoon);
+            if (_enemyDrollResolved || Enemy.GetSpellCount() == 0)
+            {
+                return false;
+            }
+
+            // During the opponent's turn, a Mystical Space Typhoon in our
+            // hand or Graveyard cannot be activated immediately. Only a
+            // usable Set MST counts as an available response, and the
+            // starter route itself must answer an effective opponent field
+            // chain rather than begin the turn proactively.
+            if (Duel.Player == 1)
+            {
+                return !HasFaceDownMysticalSpaceTyphoon() &&
+                    HasLiveOpponentFieldChain();
+            }
+
+            // During our turn, MST in hand is directly usable and a Graveyard
+            // copy can be recovered by the deck's own effects, so retain the
+            // broader resource check here.
+            return !Bot.HasInHand(CardId.MysticalSpaceTyphoon) &&
+                !Bot.HasInGraveyard(CardId.MysticalSpaceTyphoon) &&
+                !HasFaceDownMysticalSpaceTyphoon();
+        }
+
+        private bool HasFaceDownMysticalSpaceTyphoon()
+        {
+            return Bot.GetSpells().Any(c => c != null &&
+                c.IsCode(CardId.MysticalSpaceTyphoon) && c.IsFacedown() &&
+                !c.IsDisabled());
+        }
+
+        private bool HasExactlyOneFaceDownMysticalSpaceTyphoon()
+        {
+            return Bot.GetSpells().Count(c => c != null &&
+                c.IsCode(CardId.MysticalSpaceTyphoon) && c.IsFacedown() &&
+                !c.IsDisabled()) == 1;
+        }
+
+        private bool HasLiveOpponentFieldChain()
+        {
+            if (!HasLiveOpponentChain())
+            {
+                return false;
+            }
+
+            ClientCard source = GetLatestOpponentFieldCardForChain();
+            return source != null && !source.IsDisabled();
+        }
+
+        private bool ShouldDelayOpponentAscendanceMstStarter()
+        {
+            return Card != null && Card.IsCode(CardId.RadiantTyphoonAscendance) &&
+                Duel.Player == 1 && !HasLiveOpponentFieldChain();
         }
 
         private bool CanSpecialSummonMeghalaFromHandNow()
@@ -3840,7 +4065,15 @@ namespace WindBot.Game.AI.Decks
             }
             if (cardId == CardId.RadiantTyphoonMeghala)
             {
-                return _usedMeghalaDeckSummon || _usedMeghalaHandSummon;
+                if (_usedMeghalaDeckSummon)
+                {
+                    return true;
+                }
+                if (_usedMeghalaHandSummon)
+                {
+                    return true;
+                }
+                return false;
             }
             if (cardId == CardId.RadiantTyphoonFonixTheGreatFlame)
             {
