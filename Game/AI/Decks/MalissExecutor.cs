@@ -447,7 +447,6 @@ namespace WindBot.Game.AI.Decks
                             queenChoices,
                             new[] { (int)Zones.z2, (int)Zones.z1, (int)Zones.z3, (int)Zones.z0, (int)Zones.z4 }
                         );
-                        AI.SelectPlace(pick);
                         return pick;
                     }
                 }
@@ -489,7 +488,6 @@ namespace WindBot.Game.AI.Decks
                             {
                                 pick = FirstBitFromOrder(linkedEmzChoices, new[] { EMZ_L, EMZ_R });
                             }
-                            AI.SelectPlace(pick);
                             return pick;
                         }
                         if (emzAvail != 0)
@@ -516,7 +514,6 @@ namespace WindBot.Game.AI.Decks
                                 pick = FirstBitFromOrder(emzAvail, new[] { EMZ_L, EMZ_R });
                             }
 
-                            AI.SelectPlace(pick);
                             return pick;
                         }
                         if (linkedChoices != 0)
@@ -525,7 +522,6 @@ namespace WindBot.Game.AI.Decks
                                 linkedChoices,
                                 new[] { (int)Zones.z2, (int)Zones.z1, (int)Zones.z3, (int)Zones.z0, (int)Zones.z4 }
                             );
-                            AI.SelectPlace(pick);
                             return pick;
                         }
                     }
@@ -533,7 +529,6 @@ namespace WindBot.Game.AI.Decks
                     if (emzOnly != 0)
                     {
                         int pick = FirstBitFromOrder(emzOnly, new[] { EMZ_L, EMZ_R });
-                        AI.SelectPlace(pick);
                         return pick;
                     }
                     return PreferSafeSummonZones(available);
@@ -565,7 +560,6 @@ namespace WindBot.Game.AI.Decks
                     if (choices != 0)
                     {
                         int pick = FirstBitFromOrder(choices, new[] { (int)Zones.z1, (int)Zones.z3 });
-                        AI.SelectPlace(pick);
                         _rrSelfSSPlacing = false;
                         return pick;
                     }
@@ -578,7 +572,6 @@ namespace WindBot.Game.AI.Decks
                     if (safe != 0)
                     {
                         int pick = FirstBitFromOrder(safe, new[] { (int)Zones.z2, (int)Zones.z1, (int)Zones.z3, (int)Zones.z0, (int)Zones.z4 });
-                        AI.SelectPlace(pick);
                         return pick;
                     }
                 }
@@ -596,7 +589,6 @@ namespace WindBot.Game.AI.Decks
                     if (choices != 0)
                     {
                         int pick = FirstBitFromOrder(choices, new[] { (int)Zones.z1, (int)Zones.z3 });
-                        AI.SelectPlace(pick);
                         return pick;
                     }
                 }
@@ -620,10 +612,8 @@ namespace WindBot.Game.AI.Decks
                 else
                     choose = LowestBit(available & 0x1F);
 
-                AI.SelectPlace(choose);
                 return choose;
             }
-            SelectSTPlace(Card, true);
             return base.OnSelectPlace(cardId, player, location, available);
         }
 

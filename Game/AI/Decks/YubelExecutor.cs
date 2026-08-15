@@ -299,37 +299,19 @@ namespace WindBot.Game.AI.Decks
                 int choose = (prefer != 0) ? LowestBit(prefer)
                                            : LowestBit(available & 0x1F); // fallback
 
-                AI.SelectPlace(choose);
                 return choose;
             }
-            SelectSTPlace(Card, true);
             return base.OnSelectPlace(cardId, player, location, available);
         }
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
-            if (positions == null || positions.Count == 0)
-                return base.OnSelectPosition(cardId, positions);
-
             bool isYubelFamily = YUBEL_SET.Contains(cardId);
 
-            if(!isYubelFamily)
-                return base.OnSelectPosition(cardId, positions);
+            if (isYubelFamily && positions.Contains(CardPosition.FaceUpAttack))
+                return CardPosition.FaceUpAttack;
 
-            CardPosition atkPref =
-                positions.Contains(CardPosition.FaceUpAttack) ? CardPosition.FaceUpAttack :
-                positions.Contains(CardPosition.Attack) ? CardPosition.Attack :
-                (CardPosition)0;
-
-            if (isYubelFamily && atkPref != 0)
-            {
-                AI.SelectPosition(atkPref);
-                return atkPref;
-            }
-
-            var chosen = positions[0];
-            AI.SelectPosition(chosen);
-            return chosen;
+            return base.OnSelectPosition(cardId, positions);
         }
 
         public bool AshBlossomActivate()
