@@ -245,6 +245,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+            base.OnChainSolved(chainIndex);
         }
 
         // new turn reset

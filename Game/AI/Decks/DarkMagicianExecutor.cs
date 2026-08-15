@@ -300,6 +300,7 @@ namespace WindBot.Game.AI.Decks
                 Rod_summon = true;
                 GlassBell_summon = true;
             }
+            base.OnNewPhase();
         }
         public override void OnNewTurn()
         {

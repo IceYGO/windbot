@@ -743,6 +743,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+            base.OnChainSolved(chainIndex);
         }
 
 
@@ -807,6 +808,7 @@ namespace WindBot.Game.AI.Decks
             oncePerTurnEffectActivatedList.Clear();
             activatedMagnificaList.Clear();
             spSummonThisTurn.Clear();
+            base.OnNewTurn();
         }
 
         /// <summary>

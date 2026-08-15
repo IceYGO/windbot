@@ -1805,6 +1805,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+            base.OnSpSummoned();
         }
 
         /// <summary>

@@ -1120,6 +1120,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+            base.OnChainSolved(chainIndex);
         }
 
         public override void OnChainEnd()

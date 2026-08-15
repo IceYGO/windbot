@@ -287,6 +287,7 @@ namespace WindBot.Game.AI.Decks
             //if (GetTotalATK(list) / 2 >= Bot.LifePoints) return false;
             Enemy_atk = GetTotalATK(list);
             //SLogger.DebugWriteLine("++++++++++++++++++" + Enemy_atk + "++++++++++++");
+            base.OnNewPhase();
         }
         public override void OnNewTurn()
         {

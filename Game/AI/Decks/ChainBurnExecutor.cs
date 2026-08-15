@@ -411,7 +411,8 @@ namespace WindBot.Game.AI.Decks
                     OjamaTrioused = true;
                 }
             }
-            }
+            base.OnNewPhase();
+        }
 
 
         private bool must_chain()

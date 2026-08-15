@@ -229,12 +229,14 @@ namespace WindBot.Game.AI.Decks
                     Count.AddCard(card.Id);
             if (player == 1)
                 Count.AddActivateOppo(card.Id);
+            base.OnChaining(player, card);
         }
         public override void OnChainEnd()
         {
             if (DefaultCheckWhetherCardIdIsNegated(CardId.Dimension_Shifter) && !Count.CheckCard(CardId.Dimension_Shifter))
                 Count.Dimension_Shifter = 0;
             Count.Oppo.Clear();
+            base.OnChainEnd();
         }
         public override bool OnSelectYesNo(int desc)
         {

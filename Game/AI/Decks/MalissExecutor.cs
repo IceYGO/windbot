@@ -1260,6 +1260,7 @@ namespace WindBot.Game.AI.Decks
                 if (Duel.IsCurrentSolvingChainNegated())
                     splashNegatedThisTurn = true;
             }
+            base.OnChainSolved(chainIndex);
         }
         public override void OnChainEnd()
         {
