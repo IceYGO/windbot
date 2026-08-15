@@ -1783,6 +1783,8 @@ namespace WindBot.Game
             int reply;
             if (desc == 30)
                 reply = _ai.OnSelectBattleReplay() ? 1 : 0;
+            else if (desc == 31)
+                reply = _ai.OnSelectBattleDirectAttack() ? 1 : 0;
             else
                 reply = _ai.OnSelectYesNo(desc) ? 1 : 0;
             Connection.Send(CtosMessage.Response, reply);

@@ -166,8 +166,6 @@ namespace WindBot.Game.AI.Decks
         {
             if (desc == 210) // Continue selecting? (Link Summoning)
                 return false;
-            if (desc == 31) // Direct Attack?
-                return true;
             return base.OnSelectYesNo(desc);
         }
 

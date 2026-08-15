@@ -1153,6 +1153,15 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when the AI has to decide whether the pending attack should be a direct attack.
+        /// </summary>
+        public bool OnSelectBattleDirectAttack()
+        {
+            bool preselectedAnswer = _pendingAttackTarget == null;
+            return Executor.OnSelectBattleDirectAttack(_pendingAttacker, preselectedAnswer);
+        }
+
+        /// <summary>
         /// Called when the AI has to declare a card.
         /// </summary>
         /// <param name="avail">Available card's ids.</param>
