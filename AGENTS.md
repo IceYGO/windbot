@@ -69,7 +69,8 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 
 ### 上下文、状态与选择
 
-- `Executor.SetCard` 会在查询前设置当前 `Type`、`Card`、`ActivateDescription`、`CurrentTiming`。
+- `Executor.SetCard` 会在查询执行器条件前设置当前 `Type`、`Card`、`ActivateDescription`、`CurrentTiming`。这些字段只表示“当前正在查询的执行器候选”，不是当前决斗动作或当前连锁的全局上下文；仅可在执行器条件及其同步调用的辅助方法中使用。
+- `OnSelectCard`、`OnSelectPlace`、`OnSelectPosition`、`OnSelectOption`、`OnSelectYesNo` 和生命周期回调不得依赖上述字段。应根据回调参数、`Duel.GetCurrentChainCard()`、`Duel.GetCurrentSolvingChainInfo()` 或明确维护的牌组状态识别上下文；在回调中假设评估某张候选卡时，应把候选卡、效果描述和时点显式传给辅助方法。
 - `Bot` 和 `Enemy` 分别是本机视角的 `Duel.Fields[0]` 与 `Duel.Fields[1]`；协议玩家编号应通过现有本地化逻辑转换，不要自行假定座位编号。
 - 优先使用 `ClientField`、`ClientCard`、`AIUtil`、`CardExtension` 的现有查询方法，避免重复遍历和散落的区域位掩码。
 - 未知卡的 `Id` 可能为 `0`，`Data`/`Name` 可能为 `null`。对隐藏区域只能依赖客户端实际知道的数量、位置和已公开历史。

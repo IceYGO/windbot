@@ -92,17 +92,6 @@ namespace WindBot.Game.AI.Decks
         const int SetcodeOrcust = 0x11b;
         const int SetcodeHorus = 0x19d;
 
-        Dictionary<int, List<int>> DeckCountTable = new Dictionary<int, List<int>>{
-            {3, new List<int> { CardId.SPIRIT_OF_YUBEL, CardId.SAMSARA_D_LOTUS,CardId.NIGHTMARE_THRONE, CardId.SPIRIT_GATES,
-                                 _CardId.AshBlossom, CardId.DARK_BECKONING_BEAST,_CardId.InfiniteImpermanence } },
-            {2, new List<int> { _CardId.MaxxC, _CardId.CalledByTheGrave,CardId.GRUESOME_GRAVE_SQUIRMER}},
-            {1, new List<int> { CardId.FIENDSMITH_ENGRAVER, CardId.FIENDSMITHS_PARADISE,
-                                CardId.YUBEL, CardId.YUBEL_TERROR_INCARNATE, CardId.ABOMINABLE_CHAMBER,
-                                _CardId.CrossoutDesignator, CardId.GRUESOME_GRAVE_SQUIRMER, CardId.FABLED_LURRIE,
-                                CardId.NIGHTMARE_PAIN, CardId.TERRAFORMING, CardId.FIENDSMITH_TRACT,CardId.SHARVARA,
-                                CardId.CHAOS_SUMMONING_BEAST, CardId.LACRIMA_CT 
-                                } }
-        };
 
         List<int> notToNegateIdList = new List<int> { 58699500, 20343502, 19403423 };
         List<int> notToDestroySpellTrap = new List<int> { 50005218, 6767771 };
@@ -260,17 +249,6 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnSelectHand() { return true; }
 
-        public int CheckRemainInDeck(int id)
-        {
-            for (int count = 1; count < 4; ++count)
-            {
-                if (DeckCountTable[count].Contains(id))
-                {
-                    return Bot.GetRemainingCount(id, count);
-                }
-            }
-            return 0;
-        }
 
         private bool MonsterRepos()
         {
@@ -321,40 +299,19 @@ namespace WindBot.Game.AI.Decks
                 int choose = (prefer != 0) ? LowestBit(prefer)
                                            : LowestBit(available & 0x1F); // fallback
 
-                AI.SelectPlace(choose);
                 return choose;
             }
-            SelectSTPlace(Card, true);
             return base.OnSelectPlace(cardId, player, location, available);
         }
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
         {
-            if (positions == null || positions.Count == 0)
-                return base.OnSelectPosition(cardId, positions);
+            bool isYubelFamily = YUBEL_SET.Contains(cardId);
 
-            bool isYubelFamily =
-                YUBEL_SET.Contains(cardId) ||
-                (Card != null && YUBEL_SET.Contains(Card.Id)) ||
-                (Card != null && (Card.Name?.Contains("Yubel") ?? false));
+            if (isYubelFamily && positions.Contains(CardPosition.FaceUpAttack))
+                return CardPosition.FaceUpAttack;
 
-            if(!isYubelFamily)
-                return base.OnSelectPosition(cardId, positions);
-
-            CardPosition atkPref =
-                positions.Contains(CardPosition.FaceUpAttack) ? CardPosition.FaceUpAttack :
-                positions.Contains(CardPosition.Attack) ? CardPosition.Attack :
-                (CardPosition)0;
-
-            if (isYubelFamily && atkPref != 0)
-            {
-                AI.SelectPosition(atkPref);
-                return atkPref;
-            }
-
-            var chosen = positions[0];
-            AI.SelectPosition(chosen);
-            return chosen;
+            return base.OnSelectPosition(cardId, positions);
         }
 
         public bool AshBlossomActivate()
@@ -479,7 +436,7 @@ namespace WindBot.Game.AI.Decks
                 if (alias != 0 && alias - code < 10) code = alias;
                 if (code == 0) return false;
                 if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
-                if (CheckRemainInDeck(code) > 0)
+                if (Bot.HasInDeck(code))
                 {
                     if (!(Card.Location == CardLocation.SpellZone))
                     {
@@ -638,19 +595,14 @@ namespace WindBot.Game.AI.Decks
             if (DefaultCheckWhetherCardIsNegated(Card)) return true;
             if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
             {
-                if ((toFieldCheck && (((int)type & (int)CardType.Link) != 0)) || Card.IsDefense())
+                if ((toFieldCheck && (((int)type & (int)CardType.Link) == 0)) || Card.IsDefense())
                 {
-                    if (Enemy.MonsterZone.Any(card => CheckNumber41(card)) || Bot.MonsterZone.Any(card => CheckNumber41(card))) return true;
+                    if (DefaultCheckWhetherNumber41IsActive()) return true;
                 }
                 if (Enemy.HasInSpellZone(CardId.SkillDrain, true)) return true;
             }
             if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
             return false;
-        }
-
-        public bool CheckNumber41(ClientCard card)
-        {
-            return card != null && card.IsFaceup() && card.IsCode(CardId.Number41BagooskatheTerriblyTiredTapir) && card.IsDefense() && !card.IsDisabled();
         }
 
         public void SelectSTPlace(ClientCard card = null, bool avoidImpermanence = false, List<int> avoidList = null)
@@ -950,6 +902,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+            base.OnChainSolved(chainIndex);
         }
         public override void OnChainEnd()
         {
@@ -1138,11 +1091,11 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Hand && Bot.HasInSpellZone(CardId.NIGHTMARE_THRONE)) return false;
 
             int pick = 0;
-            if (!Bot.HasInHand(CardId.SAMSARA_D_LOTUS) && CheckRemainInDeck(CardId.SAMSARA_D_LOTUS) > 0)
+            if (!Bot.HasInHand(CardId.SAMSARA_D_LOTUS) && Bot.HasInDeck(CardId.SAMSARA_D_LOTUS))
                 pick = CardId.SAMSARA_D_LOTUS;
-            else if (Bot.HasInHand(CardId.SAMSARA_D_LOTUS) && !Bot.HasInHand(CardId.DARK_BECKONING_BEAST) && CheckRemainInDeck(CardId.DARK_BECKONING_BEAST) > 0)
+            else if (Bot.HasInHand(CardId.SAMSARA_D_LOTUS) && !Bot.HasInHand(CardId.DARK_BECKONING_BEAST) && Bot.HasInDeck(CardId.DARK_BECKONING_BEAST))
                 pick = CardId.DARK_BECKONING_BEAST;
-            else if (Bot.HasInHand(CardId.SAMSARA_D_LOTUS) && Bot.HasInHand(CardId.DARK_BECKONING_BEAST) && !Bot.HasInHand(CardId.CHAOS_SUMMONING_BEAST) && CheckRemainInDeck(CardId.CHAOS_SUMMONING_BEAST) > 0)
+            else if (Bot.HasInHand(CardId.SAMSARA_D_LOTUS) && Bot.HasInHand(CardId.DARK_BECKONING_BEAST) && !Bot.HasInHand(CardId.CHAOS_SUMMONING_BEAST) && Bot.HasInDeck(CardId.CHAOS_SUMMONING_BEAST))
                 pick = CardId.CHAOS_SUMMONING_BEAST;
 
             thronePending = true;
@@ -1171,9 +1124,9 @@ namespace WindBot.Game.AI.Decks
         private bool ActDarkBeckoningBeast()
         {
             if (Duel.Phase != DuelPhase.Main1) return false;
-            if ((CheckRemainInDeck(CardId.SPIRIT_GATES) > 0) && !Bot.HasInSpellZone(CardId.SPIRIT_GATES))
+            if (Bot.HasInDeck(CardId.SPIRIT_GATES) && !Bot.HasInSpellZone(CardId.SPIRIT_GATES))
             { AI.SelectCard(CardId.SPIRIT_GATES); return true; }
-            else if (CheckRemainInDeck(CardId.CHAOS_SUMMONING_BEAST) > 0)
+            else if (Bot.HasInDeck(CardId.CHAOS_SUMMONING_BEAST))
             { AI.SelectCard(CardId.CHAOS_SUMMONING_BEAST); return true; }
             else { return false; }
         }
@@ -1189,11 +1142,11 @@ namespace WindBot.Game.AI.Decks
             int pick = 0;
             bool dbbOnField = Bot.HasInMonstersZone(CardId.DARK_BECKONING_BEAST, false, false, true);
 
-            if (dbbOnField && CheckRemainInDeck(CardId.CHAOS_SUMMONING_BEAST) > 0)
+            if (dbbOnField && Bot.HasInDeck(CardId.CHAOS_SUMMONING_BEAST))
                 pick = CardId.CHAOS_SUMMONING_BEAST;
-            else if (CheckRemainInDeck(CardId.DARK_BECKONING_BEAST) > 0)
+            else if (Bot.HasInDeck(CardId.DARK_BECKONING_BEAST))
                 pick = CardId.DARK_BECKONING_BEAST;
-            else if (CheckRemainInDeck(CardId.CHAOS_SUMMONING_BEAST) > 0)
+            else if (Bot.HasInDeck(CardId.CHAOS_SUMMONING_BEAST))
                 pick = CardId.CHAOS_SUMMONING_BEAST;
 
             if (pick == 0) return false;
@@ -1324,7 +1277,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.SpellZone)
             {
-                if(CheckRemainInDeck(CardId.GRUESOME_GRAVE_SQUIRMER)==0)return false;
+                if(!Bot.HasInDeck(CardId.GRUESOME_GRAVE_SQUIRMER))return false;
 
                 if (Bot.HasInMonstersZone(CardId.SPIRIT_OF_YUBEL) || Bot.HasInHand(CardId.SPIRIT_OF_YUBEL))
                 {
@@ -1396,12 +1349,12 @@ namespace WindBot.Game.AI.Decks
             return true;
             /*if (Card.Location == CardLocation.Hand)
             {
-                if (CheckRemainInDeck(CardId.FIENDSMITH_ENGRAVER) == 0 &&
-                    CheckRemainInDeck(CardId.LACRIMA_CT) == 0)
+                if (!Bot.HasInDeck(CardId.FIENDSMITH_ENGRAVER) &&
+                    !Bot.HasInDeck(CardId.LACRIMA_CT))
                 {
                     return false;
                 }
-                if(CheckRemainInDeck(CardId.FABLED_LURRIE) == 0){ return false; }
+                if(!Bot.HasInDeck(CardId.FABLED_LURRIE)){ return false; }
                 AI.SelectCard(CardId.FABLED_LURRIE);
                 AI.SelectNextCard(CardId.FABLED_LURRIE);
                 return true;
@@ -1457,13 +1410,13 @@ namespace WindBot.Game.AI.Decks
         private bool ActRequiemMZ()
         {
             if (Card.Location != CardLocation.MonsterZone) { return false; }
-            if (Bot.HasInHand(CardId.LACRIMA_CT) || CheckRemainInDeck(CardId.LACRIMA_CT) > 0)
+            if (Bot.HasInHand(CardId.LACRIMA_CT) || Bot.HasInDeck(CardId.LACRIMA_CT))
             { 
                 AI.SelectCard(CardId.LACRIMA_CT);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
                 return true; 
             }
-            else if (Bot.HasInHand(CardId.FIENDSMITH_ENGRAVER) || CheckRemainInDeck(CardId.FIENDSMITH_ENGRAVER) > 0)
+            else if (Bot.HasInHand(CardId.FIENDSMITH_ENGRAVER) || Bot.HasInDeck(CardId.FIENDSMITH_ENGRAVER))
             {
                 AI.SelectCard(CardId.FIENDSMITH_ENGRAVER);
                 AI.SelectPosition(CardPosition.FaceUpDefence);
@@ -1929,13 +1882,13 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ActYamaMZ()
         {
-            if (CheckRemainInDeck(CardId.SHARVARA) == 0 ) return false;
+            if (!Bot.HasInDeck(CardId.SHARVARA) ) return false;
             AI.SelectCard(CardId.SHARVARA);
             return true;
         }
         private bool SSRequiem()
         {
-            if (CheckRemainInDeck(CardId.LACRIMA_CT) == 0 && !Bot.HasInHand(CardId.LACRIMA_CT)) { return false; }
+            if (!Bot.HasInDeck(CardId.LACRIMA_CT) && !Bot.HasInHand(CardId.LACRIMA_CT)) { return false; }
             requiemSummoned = true;
             return true;
         }
@@ -2427,7 +2380,7 @@ namespace WindBot.Game.AI.Decks
             var solving = Duel.GetCurrentSolvingChainInfo();
             if (solving != null)
             {
-                Logger.DebugWriteLine($"  -> Solving: {CardStr(solving.RelatedCard)}  ActivateDescription={ActivateDescription}");
+                Logger.DebugWriteLine($"  -> Solving: {CardStr(solving.RelatedCard)}  ActivateDescription={solving.ActivateDescription}");
             }
             if (Duel.ChainTargets != null && Duel.ChainTargets.Count > 0)
             {

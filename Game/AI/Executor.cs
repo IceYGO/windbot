@@ -189,7 +189,7 @@ namespace WindBot.Game.AI
             return null;
         }
 
-        public virtual IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int max)
+        public virtual IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int min, int max)
         {
             // For overriding
             return null;
@@ -256,6 +256,16 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Called when the AI has to decide whether the pending attack should be a direct attack.
+        /// </summary>
+        /// <param name="attacker">The monster selected to attack.</param>
+        /// <param name="preselectedAnswer">Whether the preceding battle decision preselected a direct attack.</param>
+        public virtual bool OnSelectBattleDirectAttack(ClientCard attacker, bool preselectedAnswer)
+        {
+            return preselectedAnswer;
+        }
+
+        /// <summary>
         /// Called when the executor type is SummonOrSet
         /// </summary>
         /// <returns>True if select to set the monster.</returns>
@@ -281,6 +291,15 @@ namespace WindBot.Game.AI
         /// Used on monsters that can only special summoned once per turn.
         /// </summary>
         public virtual void OnSpSummoned()
+        {
+            // For overriding
+            return;
+        }
+
+        /// <summary>
+        /// Called when a monster's special summon is attempted.
+        /// </summary>
+        public virtual void OnSpSummoning()
         {
             // For overriding
             return;
@@ -340,7 +359,7 @@ namespace WindBot.Game.AI
 
         private bool DefaultNoExecutor()
         {
-            return Executors.All(exec => exec.Type != Type || exec.CardId != Card.Id);
+            return Executors.All(exec => exec.Type != Type || !Card.IsOriginalCode(exec.CardId));
         }
     }
 }

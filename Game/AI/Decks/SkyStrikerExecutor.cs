@@ -701,27 +701,27 @@ namespace WindBot.Game.AI.Decks
 
         private int GetCardToSearch()
         {
-            if (!Bot.HasInHand(CardId.HornetDrones) && Bot.GetRemainingCount(CardId.HornetDrones, 3) > 0)
+            if (!Bot.HasInHand(CardId.HornetDrones) && Bot.HasInDeck(CardId.HornetDrones))
             {
                 return CardId.HornetDrones;
             }
-            else if (Util.GetProblematicEnemyMonster() != null && Bot.GetRemainingCount(CardId.WidowAnchor, 3) > 0)
+            else if (Util.GetProblematicEnemyMonster() != null && Bot.HasInDeck(CardId.WidowAnchor))
             {
                 return CardId.WidowAnchor;
             }
-            else if (EmptyMainMonsterZone() && Util.GetProblematicEnemyMonster() != null && Bot.GetRemainingCount(CardId.Afterburners, 1) > 0)
+            else if (EmptyMainMonsterZone() && Util.GetProblematicEnemyMonster() != null && Bot.HasInDeck(CardId.Afterburners))
             {
                 return CardId.Afterburners;
             }
-            else if (EmptyMainMonsterZone() && Util.GetProblematicEnemySpell() != null && Bot.GetRemainingCount(CardId.JammingWave, 1) > 0)
+            else if (EmptyMainMonsterZone() && Util.GetProblematicEnemySpell() != null && Bot.HasInDeck(CardId.JammingWave))
             {
                 return CardId.JammingWave;
             }
-            else if (!Bot.HasInHand(CardId.Raye) && !Bot.HasInMonstersZone(CardId.Raye) && Bot.GetRemainingCount(CardId.Raye, 3) > 0)
+            else if (!Bot.HasInHand(CardId.Raye) && !Bot.HasInMonstersZone(CardId.Raye) && Bot.HasInDeck(CardId.Raye))
             {
                 return CardId.Raye;
             }
-            else if (!Bot.HasInHand(CardId.WidowAnchor) && !Bot.HasInSpellZone(CardId.WidowAnchor) && Bot.GetRemainingCount(CardId.WidowAnchor, 3) > 0)
+            else if (!Bot.HasInHand(CardId.WidowAnchor) && !Bot.HasInSpellZone(CardId.WidowAnchor) && Bot.HasInDeck(CardId.WidowAnchor))
             {
                 return CardId.WidowAnchor;
             }
@@ -756,7 +756,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (CardExecutor exec in Executors)
             {
-                if (exec.Type == Type && exec.CardId == Card.Id)
+                if (exec.Type == Type && Card.IsOriginalCode(exec.CardId))
                     return false;
             }
             return true;

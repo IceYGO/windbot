@@ -166,8 +166,6 @@ namespace WindBot.Game.AI.Decks
         {
             if (desc == 210) // Continue selecting? (Link Summoning)
                 return false;
-            if (desc == 31) // Direct Attack?
-                return true;
             return base.OnSelectYesNo(desc);
         }
 
@@ -384,8 +382,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DraconnetSummon()
         {
-            return Bot.GetRemainingCount(CardId.Digitron, 1) > 0
-                || Bot.GetRemainingCount(CardId.Bitron, 1) > 0;
+            return Bot.HasInDeck(CardId.Digitron, CardId.Bitron);
         }
 
         private bool DraconnetEffect()

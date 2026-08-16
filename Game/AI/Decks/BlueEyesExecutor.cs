@@ -294,7 +294,7 @@ namespace WindBot.Game.AI.Decks
                     CardId.WhiteStoneOfLegend,
                     CardId.WhiteDragon,
                     CardId.DragonSpiritOfWhite
-                }) || Bot.GetCountCardInZone(Bot.MonsterZone, CardId.AlternativeWhiteDragon) >= 2))
+                }) || Bot.MonsterZone.GetCardCount(CardId.AlternativeWhiteDragon) >= 2))
             {
                 target = Util.GetBestEnemyMonster(false, true);
                 AI.SelectCard(target);

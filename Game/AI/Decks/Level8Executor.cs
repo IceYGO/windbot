@@ -341,7 +341,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.ScrapRecycler);
                 return true;
             }
-            if (L4NonTunerSummonFirst() && Bot.GetRemainingCount(CardId.PerformageTrickClown, 1) > 0)
+            if (L4NonTunerSummonFirst() && Bot.HasInDeck(CardId.PerformageTrickClown))
             {
                 AI.SelectCard(CardId.PerformageTrickClown);
                 return true;
@@ -357,7 +357,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ScrapRecyclerSummonFirst()
         {
-            return Bot.GetRemainingCount(CardId.ScrapGolem, 2) > 0 && Bot.GetRemainingCount(CardId.MechaPhantomBeastOLion, 2) > 0 && Bot.GetRemainingCount(CardId.JetSynchron, 2) > 0;
+            return Bot.HasInDeck(CardId.ScrapGolem) && Bot.HasInDeck(CardId.MechaPhantomBeastOLion) && Bot.HasInDeck(CardId.JetSynchron);
         }
 
         private bool ScrapRecyclerEffect()
@@ -618,7 +618,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                if (Bot.GetRemainingCount(CardId.WorldCarrotweightChampion, 1) > 0)
+                if (Bot.HasInDeck(CardId.WorldCarrotweightChampion))
                 {
                     AI.SelectCard(CardId.WorldCarrotweightChampion);
                     return true;
@@ -811,7 +811,7 @@ namespace WindBot.Game.AI.Decks
             {
                 int targetLevel = 8;
 
-                if (Bot.MonsterZone.IsExistingMatchingCard(card => card.Level == targetLevel - 5 && card.IsFaceup() && !card.IsTuner()) && Bot.GetRemainingCount(CardId.MechaPhantomBeastOLion, 2) > 0)
+                if (Bot.MonsterZone.IsExistingMatchingCard(card => card.Level == targetLevel - 5 && card.IsFaceup() && !card.IsTuner()) && Bot.HasInDeck(CardId.MechaPhantomBeastOLion))
                 {
                     AI.SelectCard(CardId.MechaPhantomBeastOLion);
                 }

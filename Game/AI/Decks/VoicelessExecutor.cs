@@ -548,8 +548,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.IsMonster() && Card.Location == CardLocation.MonsterZone && Card.IsDefense())
             {
-                if (Enemy.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == _CardId.Number41BagooskatheTerriblyTiredTapir && card.IsDefense() && !card.IsDisabled()) != null
-                    || Bot.MonsterZone.GetFirstMatchingFaceupCard(card => card.Id == _CardId.Number41BagooskatheTerriblyTiredTapir && card.IsDefense() && !card.IsDisabled()) != null)
+                if (DefaultCheckWhetherNumber41IsActive())
                 {
                     return true;
                 }
@@ -762,27 +761,27 @@ namespace WindBot.Game.AI.Decks
 
         private int GetCardToSearch()
         {
-            if (NoLo() && !Bot.HasInHand(CardId.Lo) && !Bot.HasInHand(CardId.Diviner) && Bot.GetRemainingCount(CardId.Lo, 3) > 0)
+            if (NoLo() && !Bot.HasInHand(CardId.Lo) && !Bot.HasInHand(CardId.Diviner) && Bot.HasInDeck(CardId.Lo))
             {
                 return CardId.Lo;
             }
-            else if (!Bot.HasInHand(CardId.Saffira) && Bot.GetRemainingCount(CardId.Saffira, 3) > 0)
+            else if (!Bot.HasInHand(CardId.Saffira) && Bot.HasInDeck(CardId.Saffira))
             {
                 return CardId.Saffira;
             }
-            else if (EmptyMainMonsterZone() && !Bot.HasInHand(CardId.VVSkullGuard) && Bot.GetRemainingCount(CardId.VVSkullGuard, 3) > 0)
+            else if (EmptyMainMonsterZone() && !Bot.HasInHand(CardId.VVSkullGuard) && Bot.HasInDeck(CardId.VVSkullGuard))
             {
                 return CardId.VVSkullGuard;
             }
-            else if (Bot.GetRemainingCount(CardId.VVRadiance, 1) > 0)
+            else if (Bot.HasInDeck(CardId.VVRadiance))
             {
                 return CardId.VVRadiance;
             }
-            else if (Bot.GetRemainingCount(CardId.VVSauravis, 1) > 0) //if there's >= 2 spells in grave
+            else if (Bot.HasInDeck(CardId.VVSauravis)) //if there's >= 2 spells in grave
             {
                 return CardId.VVSauravis;
             }
-            // else if (Util.GetProblematicEnemyMonster() != null && Bot.GetRemainingCount(CardId.WidowAnchor, 3) > 0)
+            // else if (Util.GetProblematicEnemyMonster() != null && Bot.HasInDeck(CardId.WidowAnchor))
             // {
             //     return CardId.WidowAnchor;
             // }
@@ -806,7 +805,7 @@ namespace WindBot.Game.AI.Decks
         {
             foreach (CardExecutor exec in Executors)
             {
-                if (exec.Type == Type && exec.CardId == Card.Id)
+                if (exec.Type == Type && Card.IsOriginalCode(exec.CardId))
                     return false;
             }
             return true;

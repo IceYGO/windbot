@@ -46,7 +46,6 @@ namespace WindBot.Game
         public List<ClientCard> TargetCards { get; set; }
 
         public bool CanDirectAttack { get; set; }
-        public bool ShouldDirectAttack { get; set; }
         public bool Attacked { get; set; }
         public bool IsLastAttacker { get; set; }
         public bool IsSpecialSummoned { get; set; }
@@ -127,12 +126,25 @@ namespace WindBot.Game
             if ((flag & (int)Query.ReasonCard) != 0)
                 packet.ReadInt32(); // Int8 * 4
             if ((flag & (int)Query.EquipCard) != 0)
-                packet.ReadInt32(); // Int8 * 4
+            {
+                int controller = duel.GetLocalPlayer(packet.ReadByte());
+                int location = packet.ReadByte();
+                int sequence = packet.ReadByte();
+                int subSequence = packet.ReadByte();
+                SetEquipTarget(duel.GetCard(controller, location, sequence, subSequence));
+            }
             if ((flag & (int)Query.TargetCard) != 0)
             {
+                ClearOutgoingCardTargets();
                 int count = packet.ReadInt32();
                 for (int i = 0; i < count; ++i)
-                    packet.ReadInt32(); // Int8 * 4
+                {
+                    int controller = duel.GetLocalPlayer(packet.ReadByte());
+                    int location = packet.ReadByte();
+                    int sequence = packet.ReadByte();
+                    int subSequence = packet.ReadByte();
+                    AddCardTarget(duel.GetCard(controller, location, sequence, subSequence));
+                }
             }
             if ((flag & (int)Query.OverlayCard) != 0)
             {
@@ -167,18 +179,88 @@ namespace WindBot.Game
             }
         }
 
+        /// <summary>
+        /// Sets the monster equipped by this card and keeps both sides of the equip relation in sync.
+        /// For example, call this method on an equip spell such as Axe of Despair with the equipped
+        /// monster as <paramref name="target"/>; the spell stores the monster in <see cref="EquipTarget"/>,
+        /// while the monster stores the spell in <see cref="EquipCards"/>.
+        /// </summary>
+        public void SetEquipTarget(ClientCard target)
+        {
+            if (EquipTarget == target)
+            {
+                if (target != null && !target.EquipCards.Contains(this))
+                    target.EquipCards.Add(this);
+                return;
+            }
+
+            if (EquipTarget != null)
+                EquipTarget.EquipCards.RemoveAll(card => card == this);
+            EquipTarget = target;
+            if (target != null && !target.EquipCards.Contains(this))
+                target.EquipCards.Add(this);
+        }
+
+        /// <summary>
+        /// Clears every equip relation involving this card. On an equip spell such as Axe of Despair,
+        /// this detaches it from its equipped monster; on that monster, it detaches every equip card.
+        /// This is therefore broader than calling <see cref="SetEquipTarget"/> with a null target.
+        /// </summary>
+        public void ClearEquipRelations()
+        {
+            SetEquipTarget(null);
+            foreach (ClientCard equipCard in EquipCards.ToList())
+                equipCard.SetEquipTarget(null);
+            EquipCards.Clear();
+        }
+
+        /// <summary>
+        /// Adds an outgoing persistent card-target relation and keeps the target's incoming relation in sync.
+        /// This is separate from an equip relation: after Axe of Despair resolves, its equipped monster is
+        /// represented by <see cref="EquipTarget"/>, not by <see cref="TargetCards"/>.
+        /// </summary>
+        public void AddCardTarget(ClientCard target)
+        {
+            if (target == null) return;
+            if (!TargetCards.Contains(target))
+                TargetCards.Add(target);
+            if (!target.OwnTargets.Contains(this))
+                target.OwnTargets.Add(this);
+        }
+
+        /// <summary>
+        /// Removes one outgoing persistent card-target relation from this card and the matching incoming
+        /// relation from the target. It does not alter <see cref="EquipTarget"/> or <see cref="EquipCards"/>.
+        /// </summary>
+        public void RemoveCardTarget(ClientCard target)
+        {
+            if (target == null) return;
+            TargetCards.RemoveAll(card => card == target);
+            target.OwnTargets.RemoveAll(card => card == this);
+        }
+
+        /// <summary>
+        /// Clears only the persistent targets owned by this card while preserving cards that target this card.
+        /// Equip relations, such as Axe of Despair equipping a monster, are maintained separately.
+        /// </summary>
+        private void ClearOutgoingCardTargets()
+        {
+            foreach (ClientCard card in TargetCards.ToList())
+                RemoveCardTarget(card);
+            TargetCards.Clear();
+        }
+
+        /// <summary>
+        /// Clears both outgoing and incoming persistent card-target relations involving this card.
+        /// It does not clear equip relations: a monster's Axe of Despair remains in <see cref="EquipCards"/>
+        /// until <see cref="ClearEquipRelations"/> is called.
+        /// </summary>
         public void ClearCardTargets()
         {
-            foreach (ClientCard card in TargetCards)
-            {
-                card.OwnTargets.Remove(this);
-            }
-            foreach (ClientCard card in OwnTargets)
-            {
-                card.TargetCards.Remove(this);
-            }
+            ClearOutgoingCardTargets();
+            foreach (ClientCard card in OwnTargets.ToList())
+                card.RemoveCardTarget(this);
             OwnTargets.Clear();
-            TargetCards.Clear();
         }
 
         public bool HasLinkMarker(int dir)
@@ -348,7 +430,7 @@ namespace WindBot.Game
 
         public bool IsOriginalCode(int id)
         {
-            return Id == id || System.Math.Abs(Alias - Id) < 20 && Alias == id;
+            return Id == id || Alias == id && NamedCard.IsAltartAlias(Id, Alias);
         }
 
         public bool IsOnField()
@@ -376,6 +458,9 @@ namespace WindBot.Game
             return IsAttack() ? Attack : Defense;
         }
 
+        /// <summary>
+        /// Returns the database alias when present, including both alternate-artwork aliases and rule-name aliases.
+        /// </summary>
         public int GetOriginCode()
         {
             int code = Id;
@@ -385,6 +470,15 @@ namespace WindBot.Game
                 else code = Data.Id;
             }
             return code;
+        }
+
+        /// <summary>
+        /// Returns the original artwork card's code for alternate artwork card, while preserving the
+        /// card's own code for rule-name aliases.
+        /// </summary>
+        public int GetNonAltartCode()
+        {
+            return NamedCard.IsAltartAlias(Id, Alias) ? Alias : Id;
         }
 
         public bool Equals(ClientCard card)

@@ -106,7 +106,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool PolymerizationEffect()
         {
-            if (Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.ProtoCyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragonDrei) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragonDrei) + Bot.GetCountCardInZone(Bot.Hand, CardId.CyberDragon) >= 3)
+            if (Bot.MonsterZone.GetCardCount(CardId.CyberDragon) + Bot.MonsterZone.GetCardCount(CardId.ProtoCyberDragon) + Bot.MonsterZone.GetCardCount(CardId.CyberDragonDrei) + Bot.Hand.GetCardCount(CardId.CyberDragon) >= 3)
                 AI.SelectCard(CardId.CyberEndDragon);
             else
                 AI.SelectCard(CardId.CyberTwinDragon);
@@ -116,7 +116,7 @@ namespace WindBot.Game.AI.Decks
         private bool PowerBondEffect()
         {
             PowerBondUsed = true;
-            if (Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.ProtoCyberDragon) + Bot.GetCountCardInZone(Bot.Hand, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.Graveyard, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.Hand, CardId.CyberDragonCore) + Bot.GetCountCardInZone(Bot.Graveyard, CardId.CyberDragonCore) + Bot.GetCountCardInZone(Bot.Graveyard, CardId.CyberDragonDrei) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragonDrei) >= 3)
+            if (Bot.MonsterZone.GetCardCount(CardId.CyberDragon) + Bot.MonsterZone.GetCardCount(CardId.ProtoCyberDragon) + Bot.Hand.GetCardCount(CardId.CyberDragon) + Bot.Graveyard.GetCardCount(CardId.CyberDragon) + Bot.Hand.GetCardCount(CardId.CyberDragonCore) + Bot.Graveyard.GetCardCount(CardId.CyberDragonCore) + Bot.Graveyard.GetCardCount(CardId.CyberDragonDrei) + Bot.MonsterZone.GetCardCount(CardId.CyberDragonDrei) >= 3)
                 AI.SelectCard(CardId.CyberEndDragon);
             else
                 AI.SelectCard(CardId.CyberTwinDragon);
@@ -149,7 +149,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ProtoCyberDragonSummon()
         {
-            if (Bot.GetCountCardInZone(Bot.Hand, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragonCore) >= 1 && Bot.HasInHand(CardId.Polymerization) || Bot.GetCountCardInZone(Bot.Hand, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.MonsterZone, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.Graveyard, CardId.CyberDragon) + Bot.GetCountCardInZone(Bot.Graveyard, CardId.CyberDragonCore) >= 1 && Bot.HasInHand(CardId.PowerBond))
+            if (Bot.Hand.GetCardCount(CardId.CyberDragon) + Bot.MonsterZone.GetCardCount(CardId.CyberDragon) + Bot.MonsterZone.GetCardCount(CardId.CyberDragonCore) >= 1 && Bot.HasInHand(CardId.Polymerization) || Bot.Hand.GetCardCount(CardId.CyberDragon) + Bot.MonsterZone.GetCardCount(CardId.CyberDragon) + Bot.Graveyard.GetCardCount(CardId.CyberDragon) + Bot.Graveyard.GetCardCount(CardId.CyberDragonCore) >= 1 && Bot.HasInHand(CardId.PowerBond))
                 return true;
             if (CyberDragonInHand() && (Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() != 0) || (Bot.HasInHand(CardId.CyberDragonDrei) || Bot.HasInHand(CardId.CyberPhoenix)) && !Util.IsOneEnemyBetterThanValue(1800, true))
                 return false;

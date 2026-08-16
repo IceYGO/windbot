@@ -362,7 +362,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CrossoutDesignatorCheck(ClientCard LastChainCard, int id, int count)
         {
-            if (LastChainCard.IsCode(id) && Bot.GetRemainingCount(id, count) > 0)
+            if (LastChainCard.IsCode(id) && Bot.HasInDeck(id))
             {
                 AI.SelectAnnounceID(id);
                 return true;
@@ -482,7 +482,7 @@ namespace WindBot.Game.AI.Decks
             else
             {
                 // search rider or aquamancer
-                if (Bot.GetRemainingCount(CardId.WanderingGryphonRider, 1) == 0 || Bot.GetHandCount() == 0 || !Bot.HasInMonstersZone(CardId.BraveToken))
+                if (!Bot.HasInDeck(CardId.WanderingGryphonRider) || Bot.GetHandCount() == 0 || !Bot.HasInMonstersZone(CardId.BraveToken))
                 {
                     AI.SelectCard(CardId.AquamancerOfTheSanctuary);
                     if (Bot.HasInHandOrInMonstersZoneOrInGraveyard(CardId.AquamancerOfTheSanctuary))
@@ -764,10 +764,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool PhoenixNotAvail()
         {
-            return Bot.LifePoints <= 2000 || Bot.GetRemainingCount(CardId.FusionDestiny, 3) == 0 || Bot.HasInHand(CardId.FusionDestiny)
+            return Bot.LifePoints <= 2000 || !Bot.HasInDeck(CardId.FusionDestiny) || Bot.HasInHand(CardId.FusionDestiny)
                 || !Bot.HasInExtra(CardId.PredaplantVerteAnaconda) || !Bot.HasInExtra(CardId.DestinyHeroDestroyPhoenixEnforcer)
-                || (Bot.GetRemainingCount(CardId.DestinyHeroCelestial, 1) == 0 && !Bot.HasInHand(CardId.DestinyHeroCelestial))
-                || (Bot.GetRemainingCount(CardId.DestinyHeroDasher, 1) == 0 && !Bot.HasInHand(CardId.DestinyHeroDasher));
+                || (!Bot.HasInDeck(CardId.DestinyHeroCelestial) && !Bot.HasInHand(CardId.DestinyHeroCelestial))
+                || (!Bot.HasInDeck(CardId.DestinyHeroDasher) && !Bot.HasInHand(CardId.DestinyHeroDasher));
         }
 
         private bool PredaplantVerteAnacondaSummon()

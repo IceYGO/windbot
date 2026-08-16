@@ -133,7 +133,7 @@ namespace WindBot.Game.AI.Decks
             base.OnNewTurn();
         }
 
-        public override IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int max)
+        public override IList<ClientCard> OnSelectPendulumSummon(IList<ClientCard> cards, int min, int max)
         {
             Logger.DebugWriteLine("OnSelectPendulumSummon");
             // select the last cards
