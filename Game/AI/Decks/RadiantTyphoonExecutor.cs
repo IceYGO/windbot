@@ -867,6 +867,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool WasRadiantHandEffectUsedThisTurn(int cardId)
         {
+            if (cardId == CardId.RadiantTyphoonMeghala)
+            {
+                return _usedMeghalaHandSummon;
+            }
             if (cardId == CardId.RadiantTyphoonFonixTheGreatFlame)
             {
                 return _usedFonixHandSummon;
@@ -880,6 +884,10 @@ namespace WindBot.Game.AI.Decks
 
         private bool WasRadiantFieldEffectUsedThisTurn(int cardId)
         {
+            if (cardId == CardId.RadiantTyphoonMeghala)
+            {
+                return _usedMeghalaDeckSummon;
+            }
             if (cardId == CardId.RadiantTyphoonFonixTheGreatFlame)
             {
                 return _usedFonixFieldEffect;
@@ -1140,7 +1148,7 @@ namespace WindBot.Game.AI.Decks
 
             if (!Bot.GetMonsters().Any(c => c.IsCode(CardId.RadiantTyphoonMeghala) &&
                 c.IsFaceup() && !c.IsDisabled() &&
-                !WasRadiantEffectUsedThisTurn(CardId.RadiantTyphoonMeghala)))
+                !_usedMeghalaDeckSummon))
             {
                 return false;
             }
@@ -2834,7 +2842,7 @@ namespace WindBot.Game.AI.Decks
 
             if (ContainsOption(options, CardId.RadiantTyphoonVision, 2, 3))
             {
-                bool safeToDiscard = Bot.Hand.Any(c => c != Card && (IsRadiantCard(c) || c.HasType(CardType.QuickPlay)));
+                bool safeToDiscard = Bot.Hand.Any(c => IsRadiantCard(c) || c.HasType(CardType.QuickPlay));
                 int preferredOffset = (NeedMstStarter() || ShouldPrioritizeMstAgainstBackrow()) ? 3 :
                     (!_enemyDrollResolved && (safeToDiscard || Bot.Hand.Count >= 3) ? 2 : 3);
                 selected = GetOptionIndex(options, CardId.RadiantTyphoonVision, preferredOffset);
@@ -3458,7 +3466,10 @@ namespace WindBot.Game.AI.Decks
             {
                 return 0;
             }
-            if (IsRadiantCard(card) && WasRadiantEffectUsedThisTurn(card.Id))
+            if (IsRadiantCard(card) &&
+                (card.IsCode(CardId.RadiantTyphoonMeghala)
+                    ? WasRadiantFieldEffectUsedThisTurn(card.Id)
+                    : WasRadiantEffectUsedThisTurn(card.Id)))
             {
                 return 10;
             }
@@ -3612,8 +3623,7 @@ namespace WindBot.Game.AI.Decks
 
             bool hasRadiantMonsterInHand = Bot.Hand.Any(c => c != null &&
                 IsRadiantCard(c) && c.IsMonster());
-            bool hasOtherRadiantQuickPlayInHand = Bot.Hand.Any(c =>
-                IsRadiantQuickPlay(c) && !AreSameVisibleCard(c, Card));
+            bool hasOtherRadiantQuickPlayInHand = Bot.Hand.Any(IsRadiantQuickPlay);
             if (Bot.GetMonsterCount() == 0 && !hasRadiantMonsterInHand)
             {
                 List<int> emptyFieldPriority;
@@ -3648,7 +3658,9 @@ namespace WindBot.Game.AI.Decks
         {
             List<ClientCard> reviveTargets = cards.Where(c => c != null && IsRadiantCard(c) &&
                     c.IsMonster() && c.Level <= 6 &&
-                    (Duel.Player != 0 || (!WasRadiantEffectUsedThisTurn(c.Id) &&
+                    (Duel.Player != 0 || (!(c.IsCode(CardId.RadiantTyphoonMeghala)
+                        ? WasRadiantFieldEffectUsedThisTurn(c.Id)
+                        : WasRadiantEffectUsedThisTurn(c.Id)) &&
                         !Bot.HasInHand(c.Id))))
                 .OrderBy(GetAscendanceRevivePriority)
                 .ThenBy(GetMaterialPriority)
@@ -3714,10 +3726,14 @@ namespace WindBot.Game.AI.Decks
                 return 1000;
             }
 
-            // A card already used this turn is the first discard candidate,
-            // including cards whose once-per-turn flag is tracked separately
-            // from the activation-id set (Swen, Dachs, Krosea and Meghala).
-            if (WasRadiantEffectUsedThisTurn(card.Id))
+            // A card already used this turn is the first discard candidate.
+            // Meghala remains useful while either its hand summon or field
+            // trigger is still available, so spend it only after both are used.
+            bool effectSpent = card.IsCode(CardId.RadiantTyphoonMeghala)
+                ? WasRadiantHandEffectUsedThisTurn(card.Id) &&
+                    WasRadiantFieldEffectUsedThisTurn(card.Id)
+                : WasRadiantEffectUsedThisTurn(card.Id);
+            if (effectSpent)
             {
                 return 0;
             }
@@ -4088,7 +4104,10 @@ namespace WindBot.Game.AI.Decks
                     continue;
                 }
 
-                bool unused = !WasRadiantEffectUsedThisTurn(id);
+                bool unused = id == CardId.RadiantTyphoonMeghala
+                    ? !WasRadiantHandEffectUsedThisTurn(id) ||
+                        !WasRadiantFieldEffectUsedThisTurn(id)
+                    : !WasRadiantEffectUsedThisTurn(id);
                 bool notInHand = !Bot.HasInHand(id);
                 if ((!requireUnused || unused) && (!requireNotInHand || notInHand))
                 {
@@ -4165,15 +4184,10 @@ namespace WindBot.Game.AI.Decks
             }
             if (cardId == CardId.RadiantTyphoonMeghala)
             {
-                if (_usedMeghalaDeckSummon)
-                {
-                    return true;
-                }
-                if (_usedMeghalaHandSummon)
-                {
-                    return true;
-                }
-                return false;
+                // Callers that care about one of Meghala's independent effects
+                // use the hand/field helpers instead of this combined result.
+                return WasRadiantHandEffectUsedThisTurn(cardId) ||
+                    WasRadiantFieldEffectUsedThisTurn(cardId);
             }
             if (cardId == CardId.RadiantTyphoonFonixTheGreatFlame)
             {
@@ -4201,7 +4215,10 @@ namespace WindBot.Game.AI.Decks
             }
 
             return Bot.Graveyard.Any(c => IsRadiantCard(c) && c.IsMonster() && c.Level <= 6 &&
-                !WasRadiantEffectUsedThisTurn(c.Id) && !Bot.HasInHand(c.Id));
+                !(c.IsCode(CardId.RadiantTyphoonMeghala)
+                    ? WasRadiantFieldEffectUsedThisTurn(c.Id)
+                    : WasRadiantEffectUsedThisTurn(c.Id)) &&
+                !Bot.HasInHand(c.Id));
         }
 
         private bool NeedRadiantStarter()
@@ -4429,7 +4446,7 @@ namespace WindBot.Game.AI.Decks
         {
             // Set cards are legal Droplet costs, but this deck deliberately
             // preserves its Set interaction and the face-up Mandate engine.
-            return card != null && card.Controller == 0 && card != Card &&
+            return card != null && card.Controller == 0 &&
                 !card.IsCode(CardId.RadiantTyphoonMeghala, CardId.RadiantTyphoonMandate) &&
                 !card.IsFacedown();
         }
