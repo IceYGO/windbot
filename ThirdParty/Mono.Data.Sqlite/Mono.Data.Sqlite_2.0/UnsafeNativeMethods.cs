@@ -8,6 +8,7 @@
 namespace Mono.Data.Sqlite
 {
   using System;
+  using System.IO;
   using System.Security;
   using System.Runtime.InteropServices;
 
@@ -16,11 +17,26 @@ namespace Mono.Data.Sqlite
 #endif
   internal static class UnsafeNativeMethods
   {
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, EntryPoint = "LoadLibraryW", SetLastError = true)]
+    private static extern IntPtr LoadLibrary(string fileName);
+
     internal static readonly bool use_sqlite3_close_v2 = false;
     internal static readonly bool use_sqlite3_open_v2 = false;
     internal static readonly bool use_sqlite3_create_function_v2 = false;
     static UnsafeNativeMethods()
     {
+      if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+      {
+        // Preload the matching native module so the architecture-neutral sqlite3 imports resolve to it.
+        string architecture = Environment.Is64BitProcess ? "x64" : "x86";
+        string sqlitePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, architecture, "sqlite3.dll");
+        if (!File.Exists(sqlitePath))
+          throw new DllNotFoundException("SQLite native library was not found: " + sqlitePath);
+
+        if (LoadLibrary(sqlitePath) == IntPtr.Zero)
+          throw new DllNotFoundException("SQLite native library could not be loaded: " + sqlitePath + " (Win32 error " + Marshal.GetLastWin32Error() + ")");
+      }
+
       // calculate the version number parts
       // https://www.sqlite.org/c3ref/c_source_id.html
       // (<major> * 1000000) + (<minor> * 1000) + (<release>)

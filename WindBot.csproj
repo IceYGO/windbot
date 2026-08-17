@@ -3,7 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{3E7FAF67-A27D-4A61-B161-93AD4414183E}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -43,19 +43,35 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>$(DefineConstants);SQLITE_STANDARD</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mono.Data.Sqlite">
-      <HintPath>.\Mono.Data.Sqlite.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
@@ -95,6 +111,44 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WindBotInfo.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLite3.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLite3_UTF16.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteBase.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteCommand.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteCommandBuilder.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteConnection.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteConnectionPool.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteConnectionStringBuilder.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteConvert.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteDataAdapter.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteDataReader.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SqliteDataSourceEnumerator.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteEnlistment.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteException.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteFactory.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteFunction.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteFunctionAttribute.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteKeyReader.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteMetaDataCollectionNames.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteParameter.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteParameterCollection.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteStatement.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SQLiteTransaction.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\SR.Designer.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\UnsafeNativeMethods.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\LINQ\SQLiteConnection_Linq.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\Mono.Data.Sqlite_2.0\LINQ\SQLiteFactory_Linq.cs" />
+    <Compile Include="ThirdParty\Mono.Data.Sqlite\MonoPInvokeCallbackAttribute.cs" />
     <Compile Include="YGOSharp.Network\BinaryClient.cs" />
     <Compile Include="YGOSharp.Network\Enums\CtosMessage.cs" />
     <Compile Include="YGOSharp.Network\Enums\GameState.cs" />
@@ -122,9 +176,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="sqlite3.dll">
+    <Content Include="ThirdParty\sqlite\x86\sqlite3.dll">
+      <Link>x86\sqlite3.dll</Link>
+      <TargetPath>x86\sqlite3.dll</TargetPath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="ThirdParty\sqlite\x64\sqlite3.dll">
+      <Link>x64\sqlite3.dll</Link>
+      <TargetPath>x64\sqlite3.dll</TargetPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <EmbeddedResource Include="ThirdParty\Mono.Data.Sqlite\resources\SR.resx">
+      <LogicalName>SR.resources</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="Decks\*.ydk">
@@ -136,6 +200,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="WindBot.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="x64\" />
+    <Folder Include="x86\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
