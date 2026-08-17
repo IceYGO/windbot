@@ -63,4 +63,4 @@ jobs:
       uses: actions/checkout@v6
 
     - name: Build with Mono MSBuild
-      run: msbuild "$Solution_Name" /t:Build /p:Configuration=Release /p:Platform=x86
+      run: msbuild "$Solution_Name" /t:Build /p:Configuration=Release /p:Platform="Any CPU"
