@@ -151,77 +151,13 @@ namespace WindBot.Game.AI.Decks
 
 
         /// <summary>
-        /// Check whether'll be negated
-        /// </summary>
-        /// <param name="isCounter">check whether card itself is disabled.</param>
-        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0, bool ignore41 = false)
-        {
-            bool isMonster = type == 0 && Card.IsMonster();
-            isMonster |= (type & CardType.Monster) != 0;
-            bool isSpellOrTrap = type == 0 && (Card.IsSpell() || Card.IsTrap());
-            isSpellOrTrap |= (type & (CardType.Spell | CardType.Trap)) != 0;
-            bool isCounter = (type & CardType.Counter) != 0;
-            if (isSpellOrTrap && toFieldCheck)
-            {
-                if (CheckSpellWillBeNegate(isCounter)) return true;
-                if (DefaultCheckWhetherSpellActivateWillBeNegated(Card)) return true;
-            }
-            if (DefaultCheckWhetherCardIsNegated(Card)) return true;
-            if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
-            {
-                if (!ignore41 && ((toFieldCheck && (type & CardType.Link) == 0) || Card.IsDefense()))
-                {
-                    if (DefaultCheckWhetherNumber41IsActive()) return true;
-                }
-                if (Enemy.HasInSpellZone(_CardId.SkillDrain, true, true)) return true;
-            }
-            if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
-            return false;
-        }
-
-        /// <summary>
-        /// Whether spell or trap will be negate. If so, return true.
-        /// </summary>
-        /// <param name="isCounter">is counter trap</param>
-        /// <param name="target">check target</param>
-        /// <returns></returns>
-        public bool CheckSpellWillBeNegate(bool isCounter = false, ClientCard target = null)
-        {
-            // target default set
-            if (target == null) target = Card;
-            // won't negate if not on field
-            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
-
-            // negate judge
-            if (Enemy.HasInMonstersZone(_CardId.NaturalExterio, true) && !isCounter) return true;
-            if (target.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(_CardId.NaturiaBeast, true)) return true;
-                if (Enemy.HasInSpellZone(_CardId.ImperialOrder, true) || Bot.HasInSpellZone(_CardId.ImperialOrder, true)) return true;
-                if (Enemy.HasInMonstersZone(_CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(_CardId.SwordsmanLV7, true)) return true;
-            }
-            if (target.IsTrap() && (Enemy.HasInSpellZone(_CardId.RoyalDecreel, true) || Bot.HasInSpellZone(_CardId.RoyalDecreel, true))) return true;
-            if (target.Location == CardLocation.SpellZone && (target.IsSpell() || target.IsTrap()))
-            {
-                int selfSeq = -1;
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card) selfSeq = i;
-                }
-                if (infiniteImpermanenceNegatedColumns.Contains(selfSeq)) return true;
-            }
-            // how to get here?
-            return false;
-        }
-
-        /// <summary>
         /// Check whether last chain card should be disabled.
         /// </summary>
         public bool CheckLastChainShouldNegated()
         {
-            ClientCard lastcard = Util.GetLastChainCard();
-            if (lastcard == null || lastcard.Controller != 1) return false;
-            return CheckCardShouldNegate(lastcard);
+            ChainInfo lastChainInfo = Duel.CurrentChainInfo.LastOrDefault();
+            if (lastChainInfo == null || lastChainInfo.ActivatePlayer != 1) return false;
+            return CheckCardShouldNegate(lastChainInfo);
         }
 
         public bool CheckCardShouldNegate(ClientCard card)
@@ -230,19 +166,8 @@ namespace WindBot.Game.AI.Decks
             if (card.IsMonster() && card.HasSetcode(_Setcode.TimeLord) && Duel.Phase == DuelPhase.Standby) return false;
             if (NotToNegateIdList.Contains(card.Id)) return false;
             if (card.HasSetcode(_Setcode.Danger) && card.Location == CardLocation.Hand) return false;
-            if (card.IsMonster() && card.Location == CardLocation.MonsterZone && card.HasPosition(CardPosition.Defence))
-            {
-                if (DefaultCheckWhetherNumber41IsActive()) return false;
-            }
-            if (DefaultCheckWhetherCardIsNegated(card)) return false;
-            if (card.Location == CardLocation.SpellZone)
-            {
-                int sequence = card.Sequence;
-                if (card.Controller == 1) sequence = 4 - sequence;
-                if (infiniteImpermanenceNegatedColumns.Contains(sequence)) return false;
-            }
+            if (DefaultCheckWhetherCardEffectIsNegated(card)) return false;
             if (card.IsCode(_CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos, _CardId.MulcharmyNyalus, _CardId.MaxxC)) return false;
-            if (card.IsDisabled()) return false;
 
             return true;
         }
@@ -254,15 +179,11 @@ namespace WindBot.Game.AI.Decks
 
             if (card == null) return false;
             if (card.IsMonster() && card.HasSetcode(_Setcode.TimeLord) && Duel.Phase == DuelPhase.Standby) return false;
-            if (NotToNegateIdList.Contains(card.Id)) return false;
-            if (card.HasSetcode(_Setcode.Danger) && card.Location == CardLocation.Hand) return false;
-            if (card.IsMonster() && chainInfo.HasLocation(CardLocation.MonsterZone) && chainInfo.HasPosition(CardPosition.Defence))
-            {
-                if (DefaultCheckWhetherNumber41IsActive()) return false;
-            }
-            if (DefaultCheckWhetherCardIsNegated(card)) return false;
-            if (Duel.Player == 1 && card.IsCode(_CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos, _CardId.MulcharmyNyalus)) return false;
-            if (card.IsDisabled()) return false;
+            if (chainInfo.IsActivateCode(NotToNegateIdList)) return false;
+            if (card.HasSetcode(_Setcode.Danger) && chainInfo.HasLocation(CardLocation.Hand)) return false;
+            if (DefaultCheckWhetherCardEffectIsNegated(chainInfo)) return false;
+            if (Duel.Player == 1 && chainInfo.IsActivateCode(
+                _CardId.MulcharmyPurulia, _CardId.MulcharmyFuwalos, _CardId.MulcharmyNyalus)) return false;
 
             return true;
         }
@@ -483,7 +404,7 @@ namespace WindBot.Game.AI.Decks
         public List<ClientCard> GetMonsterListForTargetNegate(bool canBeTarget = false, CardType selfType = 0)
         {
             List<ClientCard> resultList = new List<ClientCard>();
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return resultList;
             }
@@ -1539,7 +1460,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (CheckWhetherNegated()) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 activatedCardIdList.Add(Card.Id);
                 return true;
             }
@@ -1564,7 +1485,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.MainPhase.ActivableCards.Contains(Card))
             {
                 // whether should activate
-                if (!CheckWhetherNegated() || !CheckWhetherWillbeRemoved())
+                if (!DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckWhetherWillbeRemoved())
                 {
                     return false;
                 }
@@ -1578,7 +1499,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                return !CheckWhetherNegated();
+                return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
             }
             // to grave
             if (ActivateDescription == Util.GetStringId(CardId.PrimiteDragonEtherBeryl, 1))
@@ -1609,17 +1530,17 @@ namespace WindBot.Game.AI.Decks
                 bool recycleFlag = Bot.HasInHand(apophisCardIdList)
                     || Bot.HasInSpellZone(apophisCardIdList)
                     || Bot.GetMonsters().Any(c => c.IsFaceup() && apophisCardIdList.Contains(c.Id));
-                return !CheckWhetherWillbeRemoved() && (!CheckWhetherNegated() || recycleFlag);
+                return !CheckWhetherWillbeRemoved() && (!DefaultCheckWhetherCardEffectWillBeNegated(Card) || recycleFlag);
             } else
             {
                 // search
-                return !CheckWhetherNegated();
+                return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
             }
         }
 
         public bool TheManWithTheMarkActivate()
         {
-            return !CheckWhetherNegated() && DefaultCheckWhetherBotCanSearch();
+            return !DefaultCheckWhetherCardEffectWillBeNegated(Card) && DefaultCheckWhetherBotCanSearch();
         }
 
         public bool Level4MonsterSummon()
@@ -1639,7 +1560,7 @@ namespace WindBot.Game.AI.Decks
             {
                 bool summonFlag = false;
                 // summon to search?
-                if (!CheckWhetherNegated(true, true) && CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth))
+                if (!DefaultCheckWhetherCardWillBeNegatedOnField(Card) && CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth))
                 {
                     summonFlag |= !activatedCardIdList.Contains(CardId.PrimiteLordlyLode) && !Bot.HasInHandOrInSpellZone(CardId.PrimiteLordlyLode) && Bot.HasInDeck(CardId.PrimiteLordlyLode);
                     summonFlag |= Bot.HasInDeck(CardId.PrimiteDrillbeam);
@@ -1693,7 +1614,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool PotOfExtravaganceActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             SelectSTPlace(Card, true);
             AI.SelectOption(1);
             return true;
@@ -1701,7 +1622,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool TerraformingActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             SelectSTPlace(Card, true);
             return true;
         }
@@ -1710,7 +1631,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave)
             {
-                if (CheckWhetherNegated()) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
                 // check whether can active
                 bool canActivate = Bot.HasInHand(CardId.PrimiteLordlyLode) || Bot.HasInHand(CardId.PrimiteDragonEtherBeryl);
@@ -1728,7 +1649,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // negate
-            if (CheckWhetherNegated(true, true, CardType.Spell))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return false;
             }
@@ -1809,7 +1730,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool PrimiteLordlyLodeActivateCheck()
         {
-            if (CheckWhetherNegated(true, true, CardType.Spell)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             bool activateFlag = false;
             if (Bot.HasInHandOrHasInMonstersZone(CardId.PrimiteDragonEtherBeryl) && DefaultCheckWhetherBotCanSearch())
             {
@@ -1821,7 +1742,8 @@ namespace WindBot.Game.AI.Decks
             {
                 // for search ether beryl
                 activateFlag |= Bot.HasInGraveyard(CardId.PrimiteDrillbeam);
-                activateFlag |= CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth) && !CheckWhetherNegated(true, true, CardType.Monster);
+                activateFlag |= CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth)
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.PrimiteDragonEtherBeryl, CardType.Monster);
             }
             if (!Bot.HasInSpellZone(CardId.PrimiteLordlyLode, true, true))
             {
@@ -1863,7 +1785,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.SpellZone && Card.IsFaceup())
             {
                 // add activating flag
-                if (CheckWhetherNegated()) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (!PrimiteLordlyLodeSpSummonCheck()) return false;
                 activatingLodeSpSummonEffect = true;
                 activatedCardIdList.Add(Card.Id + 1);
@@ -1897,7 +1819,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool TreasuresOfTheKingsActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             // search
             if (ActivateDescription == Util.GetStringId(CardId.TreasuresOfTheKings, 0))
@@ -1942,7 +1864,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DominusSparkActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             // activate from field first
             if (Duel.MainPhase.ActivableCards.Any(c => c.IsCode(CardId.DominusSpark) && c.IsOnField() && c != Card
                 && !infiniteImpermanenceNegatedColumns.Contains(c.Sequence)))
@@ -1968,7 +1890,7 @@ namespace WindBot.Game.AI.Decks
                 shouldActivate |= endPhaseTargets.Any(c => c.IsMonster() && c.IsFaceup());
             }
 
-            shouldActivate |= DefaultOnBecomeTarget() && !CheckWhetherNegated();
+            shouldActivate |= DefaultOnBecomeTarget() && !DefaultCheckWhetherCardEffectWillBeNegated(Card);
 
             if (shouldActivate)
             {
@@ -1980,7 +1902,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool InfiniteImpermanenceActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             ClientCard LastChainCard = Util.GetLastChainCard();
 
@@ -2012,7 +1934,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DominusNegateTrapActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             // activate from field first
             if (Duel.MainPhase.ActivableCards.Any(c => c.IsCode(Card.Id) && c.IsOnField() && c != Card
                 && !infiniteImpermanenceNegatedColumns.Contains(c.Sequence)))
@@ -2052,7 +1974,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ApophisTheSwampDeityActivateCheck(int activatePriority = 0)
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (currentSummoningCount + Bot.GetMonsters().Count(c => c.Sequence < 5) >= 5) return false;
 
             int canNegateCount = Bot.GetSpells().Count(c => c != Card &&
@@ -2103,7 +2025,8 @@ namespace WindBot.Game.AI.Decks
             }
 
             // for triggering divine serpent apophis
-            if (CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth) && !CheckWhetherNegated(true, true, CardType.Monster)
+            if (CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth)
+                && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.DivineSerpentApophis, CardType.Monster)
                 && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled() && c.IsCode(CardId.DivineSerpentApophis) && !activatedDivineSerpent2ndList.Contains(c)))
             {
                 bool checkResult = GetProblematicEnemyCardList(true, false, CardType.Monster).Count() > 0
@@ -2123,7 +2046,8 @@ namespace WindBot.Game.AI.Decks
             }
 
             // for triggering silhouette hat rabbit
-            if (CheckWhetherCanActivateMonsterEffect(CardAttribute.Light) && !CheckWhetherNegated(true, true, CardType.Monster, true)
+            if (CheckWhetherCanActivateMonsterEffect(CardAttribute.Light)
+                && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SilhouhatteRabbit, CardType.Monster | CardType.Link)
                 && !activatedCardIdList.Contains(CardId.SilhouhatteRabbit + 1)
                 && Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled() && c.IsCode(CardId.SilhouhatteRabbit)))
             {
@@ -2241,7 +2165,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ApophisTheSerpentActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (currentSummoningCount + Bot.GetMonsters().Count(c => c.Sequence < 5) >= 5) return false;
             if (Bot.GetSpells().Any(c => c.IsFacedown() && c.IsCode(CardId.ApophisTheSwampDeity) && !infiniteImpermanenceNegatedColumns.Contains(c.Sequence)))
             {
@@ -2257,7 +2181,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SpellNegateActivate()
         {
-            if (CheckWhetherNegated() || Duel.LastChainPlayer != 1) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.LastChainPlayer != 1) return false;
             
             ClientCard prevChainCard = Util.GetLastChainCard();
             if (prevChainCard != null && !CheckCardShouldNegate(prevChainCard))
@@ -2286,7 +2210,8 @@ namespace WindBot.Game.AI.Decks
             if (Duel.Player != 0) return false;
             bool checkFlag = false;
             // recycle
-            if (CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth) && !CheckWhetherNegated(true, true, CardType.Monster)
+            if (CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth)
+                && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.DivineSerpentApophis, CardType.Monster)
                 && Bot.GetSpellCountWithoutField() < 5)
             {
                 checkFlag |= Bot.HasInGraveyard(new List<int> { CardId.ApophisTheSerpent, CardId.ApophisTheSwampDeity });
@@ -2311,7 +2236,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DivineSerpentApophisActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.DivineSerpentApophis, 0))
             {
                 // set trap
@@ -2397,7 +2322,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SwordsoulSupremeSovereignChengyingActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             activatedCardIdList.Add(Card.Id);
             return true;
         }
@@ -2408,7 +2333,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             ClientCard lastChainCard = Util.GetLastChainCard();
             if (Duel.LastChainPlayer == 1 && lastChainCard != null)
             {
@@ -2450,7 +2375,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SuperdreadnoughtRailCannonJuggernautLiebeActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return true;
         }
 
@@ -2467,7 +2392,8 @@ namespace WindBot.Game.AI.Decks
             if (botPower < enemyPower)
             {
                 int currentAttack = 4000;
-                if (!CheckWhetherNegated(true, true, CardType.Monster) && CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth) && !lodeSpSummonEffectResolved)
+                if (!DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SuperdreadnoughtRailCannonJuggernautLiebe, CardType.Monster)
+                    && CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth) && !lodeSpSummonEffectResolved)
                 {
                     currentAttack += 2000;
                 }
@@ -2502,7 +2428,7 @@ namespace WindBot.Game.AI.Decks
             if ((hasLiebeInExtra && needSummonLiebe)
                 || (!hasLiebeInExtra && botPower < enemyPower && enemyPower <= 3800)
                 || (CheckWhetherCanActivateMonsterEffect(CardAttribute.Earth)
-                    && !CheckWhetherNegated(true, true, CardType.Monster)
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SuperdreadnoughtRailCannonFlyingLauncher, CardType.Monster)
                     && !lodeSpSummonEffectResolved
                     && GetNormalEnemySpellTargetList(true, false, CardType.Monster).Count() > 0))
             {
@@ -2513,7 +2439,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool EvilswarmExcitonKnightSummon()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster) || !CheckWhetherCanActivateMonsterEffect(CardAttribute.Light)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card) || !CheckWhetherCanActivateMonsterEffect(CardAttribute.Light)) return false;
             int selfCount = Bot.GetMonsterCount() + Bot.GetSpellCount() + Bot.GetHandCount();
             int oppoCount = Enemy.GetMonsterCount() + Enemy.GetSpellCount() + Enemy.GetHandCount();
             return (selfCount - 1 < oppoCount) && DefaultEvilswarmExcitonKnightEffect();
@@ -2579,7 +2505,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SPLittleKnightSummon()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster, true) || !CheckWhetherCanActivateMonsterEffect(CardAttribute.Dark)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card) || !CheckWhetherCanActivateMonsterEffect(CardAttribute.Dark)) return false;
 
             List<ClientCard> effectMonsters = Bot.GetMonsters().Where(c => c.IsFaceup() && c.HasType(CardType.Effect)
                 && (!c.IsCode(CardId.SilhouhatteRabbit) || !summonThisTurn.Contains(c))
@@ -2632,7 +2558,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SPLittleKnightSummonCheck(bool ignoreMaterialCheck = false)
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster, true)
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SPLittleKnight, CardType.Monster | CardType.Link)
                 || !CheckWhetherCanActivateMonsterEffect(CardAttribute.Dark)
                 || lodeSpSummonEffectResolved) return false;
             // banish card
@@ -2660,7 +2586,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SilhouhatteRabbitActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.SilhouhatteRabbit, 0) || ActivateDescription == -1)
             {
                 // set
@@ -2682,7 +2608,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SilhouhatteRabbitSummon()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster, true) || !CheckWhetherCanActivateMonsterEffect(CardAttribute.Light)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card) || !CheckWhetherCanActivateMonsterEffect(CardAttribute.Light)) return false;
             if (!SilhouhatteRabbitSummonCheck()) return false;
             // select material
             ClientCard anubis = Bot.GetMonsters().FirstOrDefault(c => c.IsFaceup() && c.IsCode(CardId.AnubisTheLastJudge));
@@ -2722,7 +2648,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool SilhouhatteRabbitSummonCheck(bool ignoreMaterialCheck = false)
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster, true)
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SilhouhatteRabbit, CardType.Monster | CardType.Link)
                 || !CheckWhetherCanActivateMonsterEffect(CardAttribute.Light)
                 || lodeSpSummonEffectResolved) return false;
 

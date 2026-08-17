@@ -390,7 +390,7 @@ namespace WindBot.Game.AI.Decks
         private bool KingsSarcophagusEffect()
         {
             if (Card.Location != CardLocation.SpellZone
-                || DefaultCheckWhetherCardIsNegated(Card))
+                || DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             if (ActivateDescription == Util.GetStringId(CardId.KingsSarcophagus, 1))
@@ -433,7 +433,7 @@ namespace WindBot.Game.AI.Decks
                         || _aleisterSearchedInvocation);
             }
 
-            if (DefaultCheckWhetherCardIsNegated(Card))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             if (Bot.Hand.Count < 2)
@@ -579,7 +579,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool InvokedMechabaEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Duel.LastChainPlayer != 1) return false;
 
             // 选择消息只会给出与被连锁效果同种类的手牌，按资源价值提供统一优先级即可。
@@ -618,7 +618,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ImsetyEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             if (Card.Location == CardLocation.Hand)
             {
@@ -640,7 +640,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HapiEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             List<ClientCard> ownTargets = Bot.Graveyard.Concat(Bot.Banished)
                 .Where(c => !HasActiveKingsSarcophagus() || !c.IsCode(HorusMonsterIds))
@@ -680,7 +680,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MekkKnightPurpleNightfallEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             bool needsTradeInMaterial =
                 Bot.HasInHand(CardId.TradeIn) &&
@@ -718,7 +718,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MekkKnightIndigoEclipseEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             if (!HasMekkKnightSummonInHand())
                 return false;
@@ -776,7 +776,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool AleisterEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 ClientCard fusion = Bot.BattlingMonster;
@@ -842,7 +842,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MinervaEffect()
         {
-            return !DefaultCheckWhetherCardIsNegated(Card);
+            return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool Number38Summon()
@@ -854,7 +854,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Number38Effect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             if (ActivateDescription == Util.GetStringId(CardId.Number38HopeHarbingerDragonTitanicGalaxy, 0))
                 return Duel.LastChainPlayer == 1;
@@ -884,7 +884,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GarunixEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             if (ActivateDescription == Util.GetStringId(CardId.GarunixEternityHyangOfTheFireKings, 0))
                 return Enemy.GetMonsterCount() > 0;
@@ -911,7 +911,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DingirsuEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription == 96)
                 return true;
 
@@ -947,7 +947,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ZombieVampireEffect()
         {
-            return !DefaultCheckWhetherCardIsNegated(Card);
+            return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool Number39UtopiaSummon()
@@ -994,7 +994,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ZeusEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             if (ActivateDescription == Util.GetStringId(CardId.DivineArsenalAAZEUSSkyThunder, 2))
             {
@@ -1039,7 +1039,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SPLittleKnightEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             if (ActivateDescription == -1
                 || ActivateDescription == Util.GetStringId(CardId.SPLittleKnight, 0))

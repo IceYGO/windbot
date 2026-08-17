@@ -19,7 +19,6 @@ namespace WindBot.Game.AI.Decks
         List<int> CombosInHand;
 
 
-        List<int> Impermanence_list = new List<int>();
         public class CardId
         {
             public const int JackJaguar = 56003780;
@@ -594,7 +593,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (Bot.HasInHand(CardId.Spinny) || FalcoToGY(false))
                 {
                     if (Bot.HasInHand(CardId.Spinny) && !Bot.HasInGraveyard(CardId.Spinny))
@@ -780,12 +779,12 @@ namespace WindBot.Game.AI.Decks
 
         public bool G_activate()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return (Duel.Player == 1);
         }
         public bool Hand_act_eff()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return (Duel.LastChainPlayer == 1);
         }
 
@@ -798,17 +797,6 @@ namespace WindBot.Game.AI.Decks
             {
                 if (m.IsMonsterShouldBeDisabledBeforeItUseEffect() && !m.IsDisabled() && Duel.LastChainPlayer != 0)
                 {
-                    if (Card.Location == CardLocation.SpellZone)
-                    {
-                        for (int i = 0; i < 5; ++i)
-                        {
-                            if (Bot.SpellZone[i] == Card)
-                            {
-                                Impermanence_list.Add(i);
-                                break;
-                            }
-                        }
-                    }
                     if (Card.Location == CardLocation.Hand)
                     {
                         AI.SelectPlace(SelectSTPlace(Card, true));
@@ -845,7 +833,6 @@ namespace WindBot.Game.AI.Decks
                         if (card.IsFaceup() && !card.IsShouldNotBeTarget() && !card.IsShouldNotBeSpellTrapTarget())
                         {
                             AI.SelectCard(card);
-                            Impermanence_list.Add(this_seq);
                             return true;
                         }
                     }
@@ -856,17 +843,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
             // negate monsters
             if (is_should_not_negate() && LastChainCard.Location == CardLocation.MonsterZone) return false;
-            if (Card.Location == CardLocation.SpellZone)
-            {
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card)
-                    {
-                        Impermanence_list.Add(i);
-                        break;
-                    }
-                }
-            }
             if (Card.Location == CardLocation.Hand)
             {
                 AI.SelectPlace(SelectSTPlace(Card, true));
@@ -953,7 +929,7 @@ namespace WindBot.Game.AI.Decks
                 int zone = (int)Math.Pow(2, seq);
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     return zone;
                 };
             }

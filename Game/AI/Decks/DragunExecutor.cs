@@ -233,7 +233,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TourGuideFromTheUnderworldSummon()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card)) return false;
             if (!Bot.HasInDeck(CardId.TourGuideFromTheUnderworld) && !Bot.HasInDeck(CardId.Sangan))
                 return false;
             return true;
@@ -322,7 +322,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MagiciansSoulsEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 if (RedEyesFusionUsed)
@@ -391,7 +391,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool PredaplantVerteAnacondaEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.PredaplantVerteAnaconda, 0))
                 return false;
             AI.SelectCard(CardId.RedEyesFusion);

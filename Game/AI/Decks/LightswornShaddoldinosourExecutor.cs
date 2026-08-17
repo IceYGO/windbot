@@ -316,7 +316,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Luminaeff()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Bot.HasInGraveyard(CardId.Raiden))
             {
                 AI.SelectCard(Useless_List());
@@ -582,7 +582,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GlowUpBulbeff()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             IList<ClientCard> check = Bot.GetMonstersInExtraZone();
             foreach (ClientCard monster in check)
                 if (monster.HasType(CardType.Fusion)) return false;       
@@ -655,7 +655,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MaxxC()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return Duel.Player == 1;
         }
 
@@ -1006,7 +1006,7 @@ namespace WindBot.Game.AI.Decks
         public bool Hand_act_eff()
         {
             //if (Card.IsCode(CardId.Urara) && Bot.HasInHand(CardId.LockBird) && Bot.HasInSpellZone(CardId.Re)) return false;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.IsCode(CardId.GhostOgre) && Card.Location == CardLocation.Hand && Bot.HasInMonstersZone(CardId.GhostOgre)) return false;
             return (Duel.LastChainPlayer == 1);
         }
@@ -1028,7 +1028,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Grave)
                 return true;
             if (Bot.LifePoints <= 1000) return false;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             ClientCard select = Util.GetBestEnemyCard();
             if (select == null) return false;
             if(select!=null)

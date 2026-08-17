@@ -325,7 +325,7 @@ namespace WindBot.Game.AI.Decks
                         if (!cards.Any(i => !i.HasType(CardType.Link) && !i.HasType(CardType.Tuner)))
                         {
                             IList<ClientCard> result = cards.Where(i => Duel.ChainTargets.Contains(i))
-                                .Concat(cards.Where(i => DefaultCheckWhetherCardIsNegated(i)))
+                                .Concat(cards.Where(i => DefaultCheckWhetherCardEffectIsNegated(i)))
                                 .Concat(cards.Where(i => i.LinkCount == 1 && !i.HasSetcode(SetCode.Neko)))
                                 .Concat(cards.Where(i => i.LinkCount == 1 && i.HasSetcode(SetCode.Neko)))
                                 .ToList();
@@ -334,7 +334,7 @@ namespace WindBot.Game.AI.Decks
                         else
                         {
                             IList<ClientCard> result = cards.Where(i => Duel.ChainTargets.Contains(i))
-                                .Concat(cards.Where(i => DefaultCheckWhetherCardIsNegated(i))).ToList();
+                                .Concat(cards.Where(i => DefaultCheckWhetherCardEffectIsNegated(i))).ToList();
                             result = result.OrderBy(i => i.Level).ToList();
                             result = result
                                 .Concat(cards.Where(i => !(i.HasType(CardType.Synchro) || i.HasType(CardType.Link))))
@@ -348,9 +348,9 @@ namespace WindBot.Game.AI.Decks
                 case HintMsg.ReturnToHand:
                     if (!cards.Any(i => i.Controller == 1))
                     {
-                        if (Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardIsNegated(i)))
+                        if (Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardEffectIsNegated(i)))
                         {
-                            IList<ClientCard> result = cards.Where(i => DefaultCheckWhetherCardIsNegated(i) && i.Level == 1).ToList();
+                            IList<ClientCard> result = cards.Where(i => DefaultCheckWhetherCardEffectIsNegated(i) && i.Level == 1).ToList();
                             if (result.Count() == 0)
                                 result = cards.Where(i => i.Level == 1).ToList();
                             if (result.Count() > 0)
@@ -364,7 +364,7 @@ namespace WindBot.Game.AI.Decks
                                 
                         }
                         {
-                            IList<ClientCard> result = cards.Where(i => DefaultCheckWhetherCardIsNegated(i)).ToList();
+                            IList<ClientCard> result = cards.Where(i => DefaultCheckWhetherCardEffectIsNegated(i)).ToList();
                             result = result.OrderBy(i => i.Level).ToList();
                             result = result
                                 .Concat(cards.Where(i => !(i.HasType(CardType.Synchro) || i.HasType(CardType.Link))))
@@ -409,7 +409,7 @@ namespace WindBot.Game.AI.Decks
                                     )
                                 || (Bot.GetMonsters().Count(i => i.Level == 1) >= 2
                                     && Bot.GetMonsters().Any(i => i.Level == 2 && i.HasType(CardType.Tuner)
-                                    && Bot.GetMonsters().Any(j => j != i && j.HasType(CardType.Synchro) && !DefaultCheckWhetherCardIsNegated(j)))
+                                    && Bot.GetMonsters().Any(j => j != i && j.HasType(CardType.Synchro) && !DefaultCheckWhetherCardEffectIsNegated(j)))
                                     )
                                 )
                             )
@@ -493,8 +493,8 @@ namespace WindBot.Game.AI.Decks
                     if (solvingLocation == CardLocation.MonsterZone)
                     {
                         List<ClientCard> result = new List<ClientCard>();
-                        if (Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardIsNegated(i))
-                            || (Duel.Player == 1 && cards.Count(i => i.IsCode(CardId.Neko_Link)) > 1 && Bot.GetMonsters().Any(i => i.HasType(CardType.Synchro) && i.HasSetcode(SetCode.Neko) && !DefaultCheckWhetherCardIsNegated(i)))
+                        if (Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardEffectIsNegated(i))
+                            || (Duel.Player == 1 && cards.Count(i => i.IsCode(CardId.Neko_Link)) > 1 && Bot.GetMonsters().Any(i => i.HasType(CardType.Synchro) && i.HasSetcode(SetCode.Neko) && !DefaultCheckWhetherCardEffectIsNegated(i)))
                         )
                             result = cards.Where(i => i.IsCode(CardId.Neko_Link)).ToList();
                         result = result
@@ -508,7 +508,7 @@ namespace WindBot.Game.AI.Decks
                     else
                     {
                         List<ClientCard> result = cards.Where(i => Count.CheckActivate(i.Id))
-                            .Concat(Duel.Player == 0 || Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardIsNegated(i))
+                            .Concat(Duel.Player == 0 || Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardEffectIsNegated(i))
                                 ? cards.Where(i => i.IsCode(CardId.Neko_Link)) : new List<ClientCard>()
                             )
                             .Concat(cards.Where(i => i.IsCode(CardId.Neko_Cake)))
@@ -523,7 +523,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ActivateNekoLink()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             ClientCard LastChainCard = Util.GetLastChainCard();
             if (Duel.CurrentChain.Any(i => i.Controller == 0 && i.IsCode(new[] {CardId.Linkuriboh, CardId.Neko_Link}))
                 && (LastChainCard == null || LastChainCard.Controller == 0)) return false;
@@ -545,7 +545,7 @@ namespace WindBot.Game.AI.Decks
                             )
                         || (Bot.GetMonsters().Count(i => i.Level == 1) >= 2
                             && Bot.GetMonsters().Any(i => i.Level == 2 && i.HasType(CardType.Tuner)
-                                && Bot.GetMonsters().Any(j => j != i && j.HasType(CardType.Synchro) && !DefaultCheckWhetherCardIsNegated(j))))
+                                && Bot.GetMonsters().Any(j => j != i && j.HasType(CardType.Synchro) && !DefaultCheckWhetherCardEffectIsNegated(j))))
                         ))
                     return true;
                 if (Duel.Player == 1
@@ -581,7 +581,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SpNekoLink()
         {
-            return !Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardIsNegated(i))
+            return !Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardEffectIsNegated(i))
                 && (Count.CheckActivate(CardId.Neko_Link)
                     || Bot.GetMonsters().Count(i => i.HasSetcode(SetCode.Neko) && i.Level == 1) > 2
                         || !Bot.GetMonsters().Any(i => 
@@ -592,7 +592,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ActivateNekoField()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
                 return Count.CheckActivate(Card.Id);
             else if (Card.Location == CardLocation.SpellZone)
@@ -626,7 +626,7 @@ namespace WindBot.Game.AI.Decks
                 )))
                 return true;
             if (Duel.Player == 1
-                && Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardIsNegated(i))
+                && Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && !DefaultCheckWhetherCardEffectIsNegated(i))
                 && Bot.GetMonsters().Any(i => i.Level == 1)
                 && Bot.GetMonsters().Count(i => (i.Level == 1 || i.LinkCount == 1) && i.HasAttribute(CardAttribute.Light) && i.HasRace(CardRace.Beast)) >= 2
                 && Enemy.GetMonsters().Count(i => i.IsFaceup()) + Enemy.GetSpellCount() >= 2
@@ -637,7 +637,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ActivateNekoFieldII()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location == CardLocation.Hand)
                 return !Count.CheckActivate(CardId.Neko_Field) || (
                         !Count.CheckActivate(CardId.Neko_Link)
@@ -652,14 +652,14 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (DefaultCheckWhetherCardIdIsNegated(Card.Id)
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)
                     || Bot.GetMonsterCount() >= 3) return false;
                 Count.AddActivate(CardId.Neko_Marshmallow + 1);
                 return true;
             }
             else
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 Count.AddActivate(CardId.Neko_Marshmallow);
                 return true;
             }
@@ -668,7 +668,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (DefaultCheckWhetherCardIdIsNegated(Card.Id)
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)
                     || Bot.HasInGraveyard(Card.Id)) return false;
                 if (Bot.HasInHand(CardId.Neko_Quick) && Count.CheckActivate(Card.Id)) return false;
                 Count.AddActivate(CardId.Neko_Marshmallow + 1);
@@ -729,11 +729,11 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Activate2()
         {
-            return !DefaultCheckWhetherCardIsNegated(Card);
+            return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
         private bool Activate()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(Card.Id, 1))
             {
                 if (Duel.LastChainTargets.Contains(Card))
@@ -750,7 +750,7 @@ namespace WindBot.Game.AI.Decks
                     || Count.CheckActivate(CardId.Neko_Lollipop)
                     || Count.CheckActivate(CardId.Neko_Marshmallow)
                     || Bot.HasInGraveyard(CardId.Neko_Link)
-                    || Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && (!DefaultCheckWhetherCardIsNegated(i) || Duel.Player == 0)))
+                    || Bot.GetMonsters().Any(i => i.IsCode(CardId.Neko_Link) && (!DefaultCheckWhetherCardEffectIsNegated(i) || Duel.Player == 0)))
                 {
                     Count.AddActivate(Card.Id + 1);
                     return true;
@@ -829,7 +829,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool EffectInfiniteImpermanence()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             ClientCard LastChainCard = Util.GetLastChainCard();
 

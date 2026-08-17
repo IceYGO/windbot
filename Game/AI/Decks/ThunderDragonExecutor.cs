@@ -105,7 +105,6 @@ namespace WindBot.Game.AI.Decks
             CardId.ThunderDragonlord,CardId.TheBystialLubellion,CardId.TheChaosCreator,
             CardId.BlackDragonCollapserpent,CardId.WhiteDragonWyverburster
         };
-        List<int> Impermanence_list = new List<int>();
         List<int> should_not_negate = new List<int>
         {
             81275020, 28985331
@@ -663,17 +662,6 @@ namespace WindBot.Game.AI.Decks
             {
                 if (m.IsMonsterShouldBeDisabledBeforeItUseEffect() && !m.IsDisabled() && Duel.LastChainPlayer != 0)
                 {
-                    if (Card.Location == CardLocation.SpellZone)
-                    {
-                        for (int i = 0; i < 5; ++i)
-                        {
-                            if (Bot.SpellZone[i] == Card)
-                            {
-                                Impermanence_list.Add(i);
-                                break;
-                            }
-                        }
-                    }
                     if (Card.Location == CardLocation.Hand)
                     {
                         AI.SelectPlace(SelectSTPlace(Card, true));
@@ -710,7 +698,6 @@ namespace WindBot.Game.AI.Decks
                         if (card.IsFaceup() && !card.IsShouldNotBeTarget() && !card.IsShouldNotBeSpellTrapTarget())
                         {
                             AI.SelectCard(card);
-                            Impermanence_list.Add(this_seq);
                             return true;
                         }
                     }
@@ -721,17 +708,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
             // negate monsters
             if (is_should_not_negate() && LastChainCard.Location == CardLocation.MonsterZone) return false;
-            if (Card.Location == CardLocation.SpellZone)
-            {
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card)
-                    {
-                        Impermanence_list.Add(i);
-                        break;
-                    }
-                }
-            }
             if (Card.Location == CardLocation.Hand)
             {
                 AI.SelectPlace(SelectSTPlace(Card, true));
@@ -762,7 +738,7 @@ namespace WindBot.Game.AI.Decks
                 int zone = (int)System.Math.Pow(2, seq);
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     return zone;
                 };
             }
@@ -825,7 +801,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool AshBlossomEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return Duel.CurrentChain.Count > 0 && Duel.LastChainPlayer != 0;
         }
         public int CompareCardLink(ClientCard cardA, ClientCard cardB)
@@ -990,7 +966,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool GEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return Duel.Player != 0;
         }
         private bool ThunderDragonColossusSummon_2()
@@ -1039,7 +1015,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription == Util.GetStringId(CardId.PredaplantVerteAnaconda, 1))
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (!Bot.HasInDeck(CardId.ThunderDragonFusion)) return false;
                 if (Bot.GetMonstersInMainZone().Count > 4 && Bot.GetMonstersInMainZone().Count(card => card != null && !card.IsExtraCard() && card.HasSetcode(0x11c) && card.HasType(CardType.Monster) && card.IsFaceup()) <= 0) return false;
                 List<ClientCard> g_card = Bot.Graveyard.ToList();
@@ -1087,7 +1063,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool KnightmareUnicornEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             List<ClientCard> cards = new List<ClientCard>();
             cards.AddRange(Enemy.SpellZone);
             cards.AddRange(Enemy.MonsterZone);
@@ -1536,7 +1512,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 List<ClientCard> banish_cards = new List<ClientCard>();
                 List<ClientCard> grave_cards = new List<ClientCard>();
                 foreach (var card in Bot.Banished)
@@ -1731,7 +1707,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (handActivated) return false;
                 handActivated = true;
                 activate_ThunderDragonroar = true;
@@ -1975,7 +1951,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (Duel.Player == 0)
                 {
                     if (IsShouldChainTunder())
@@ -2184,7 +2160,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (HasInZoneNoActivate(CardId.BystialMagnamhut,CardLocation.Deck) && !Bot.HasInHand(CardId.BystialMagnamhut))
                     AI.SelectCard(CardId.BystialMagnamhut);
                 else if(HasInZoneNoActivate(CardId.BystialDruiswurm, CardLocation.Deck) && !Bot.HasInHand(CardId.BystialDruiswurm))
@@ -2362,7 +2338,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (Duel.Player == 0)
                 {
                     if (IsShouldChainTunder())
@@ -2441,7 +2417,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool NormalThunderDragonEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             handActivated = true;
             ResetFlag();
             selectFlag[(int)Select.NormalThunderDragon] = true;

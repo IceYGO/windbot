@@ -220,8 +220,6 @@ namespace WindBot.Game.AI.Decks
         bool enemyActivateMaxxC = false;
         bool enemyActivateLockBird = false;
         int dimensionShifterCount = 0;
-        bool enemyActivateInfiniteImpermanenceFromHand = false;
-        List<int> infiniteImpermanenceList = new List<int>();
         List<ClientCard> currentNegateCardList = new List<ClientCard>();
         List<ClientCard> currentDestroyCardList = new List<ClientCard>();
         List<ClientCard> sendToGYThisTurn = new List<ClientCard>();
@@ -318,7 +316,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (BlockIfThrone("AshBlossom")) return false;//added
             if (InThroneFlow) return false;//added
-            if (CheckWhetherNegated(true) || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC))
             {
                 if (CheckAtAdvantage())
@@ -333,28 +331,17 @@ namespace WindBot.Game.AI.Decks
         {
             if (BlockIfThrone("MaxxC")) return false;
             if (InThroneFlow) return false;//added
-            if (CheckWhetherNegated(true) || Duel.LastChainPlayer == 0) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.LastChainPlayer == 0) return false;
             return DefaultMaxxC();
         }
 
         public bool InfiniteImpermanenceActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             foreach (ClientCard m in Enemy.GetMonsters())
             {
                 if (m.IsMonsterShouldBeDisabledBeforeItUseEffect() && !m.IsDisabled() && Duel.LastChainPlayer != 0)
                 {
-                    if (Card.Location == CardLocation.SpellZone)
-                    {
-                        for (int i = 0; i < 5; ++i)
-                        {
-                            if (Bot.SpellZone[i] == Card)
-                            {
-                                infiniteImpermanenceList.Add(i);
-                                break;
-                            }
-                        }
-                    }
                     if (Card.Location == CardLocation.Hand)
                     {
                         SelectSTPlace(Card, true);
@@ -385,7 +372,6 @@ namespace WindBot.Game.AI.Decks
                     ClientCard target = GetProblematicEnemyMonster(canBeTarget: true);
                     List<ClientCard> enemyMonsters = Enemy.GetMonsters();
                     AI.SelectCard(target);
-                    infiniteImpermanenceList.Add(this_seq);
                     return true;
                 }
             }
@@ -393,17 +379,6 @@ namespace WindBot.Game.AI.Decks
                 || LastChainCard.IsDisabled() || LastChainCard.IsShouldNotBeTarget() || LastChainCard.IsShouldNotBeSpellTrapTarget()))
                 return false;
 
-            if (Card.Location == CardLocation.SpellZone)
-            {
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card)
-                    {
-                        infiniteImpermanenceList.Add(i);
-                        break;
-                    }
-                }
-            }
             if (Card.Location == CardLocation.Hand)
             {
                 SelectSTPlace(Card, true);
@@ -428,14 +403,14 @@ namespace WindBot.Game.AI.Decks
 
         public bool CrossoutDesignatorActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard() != null)
             {
                 int code = Util.GetLastChainCard().Id;
                 int alias = Util.GetLastChainCard().Alias;
                 if (alias != 0 && alias - code < 10) code = alias;
                 if (code == 0) return false;
-                if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
+                if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                 if (Bot.HasInDeck(code))
                 {
                     if (!(Card.Location == CardLocation.SpellZone))
@@ -452,7 +427,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CalledbytheGraveActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (CheckAtAdvantage() && Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC))
             {
                 return false;
@@ -463,7 +438,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     int code = Util.GetLastChainCard().GetOriginCode();
                     if (code == 0) return false;
-                    if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
+                    if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                     if (Util.GetLastChainCard().IsCode(_CardId.MaxxC) && CheckAtAdvantage())
                     {
                         return false;
@@ -583,28 +558,6 @@ namespace WindBot.Game.AI.Decks
             return result;
         }
 
-        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0)
-        {
-            bool isMonster = type == 0 && Card.IsMonster();
-            isMonster |= ((int)type & (int)CardType.Monster) != 0;
-            bool isSpellOrTrap = type == 0 && (Card.IsSpell() || Card.IsTrap());
-            isSpellOrTrap |= (((int)type & (int)CardType.Spell) != 0) || (((int)type & (int)CardType.Trap) != 0);
-            bool isCounter = ((int)type & (int)CardType.Counter) != 0;
-            if (isSpellOrTrap && toFieldCheck && CheckSpellWillBeNegate(isCounter))
-                return true;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return true;
-            if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
-            {
-                if ((toFieldCheck && (((int)type & (int)CardType.Link) == 0)) || Card.IsDefense())
-                {
-                    if (DefaultCheckWhetherNumber41IsActive()) return true;
-                }
-                if (Enemy.HasInSpellZone(CardId.SkillDrain, true)) return true;
-            }
-            if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
-            return false;
-        }
-
         public void SelectSTPlace(ClientCard card = null, bool avoidImpermanence = false, List<int> avoidList = null)
         {
             if (card == null) card = Card;
@@ -613,7 +566,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoidImpermanence && infiniteImpermanenceList.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoidImpermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     if (avoidList != null && avoidList.Contains(seq)) continue;
                     list.Add(seq);
                 }
@@ -639,38 +592,14 @@ namespace WindBot.Game.AI.Decks
             AI.SelectPlace(0);
         }
 
-        public bool CheckSpellWillBeNegate(bool isCounter = false, ClientCard target = null)
-        {
-            if (target == null) target = Card;
-            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
-
-            if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !isCounter) return true;
-            if (target.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(CardId.NaturalBeast, true)) return true;
-                if (Enemy.HasInSpellZone(CardId.ImperialOrder, true) || Bot.HasInSpellZone(CardId.ImperialOrder, true)) return true;
-                if (Enemy.HasInMonstersZone(CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(CardId.SwordsmanLV7, true)) return true;
-            }
-            if (target.IsTrap() && (Enemy.HasInSpellZone(CardId.RoyalDecree, true) || Bot.HasInSpellZone(CardId.RoyalDecree, true))) return true;
-            if (target.Location == CardLocation.SpellZone && (target.IsSpell() || target.IsTrap()))
-            {
-                int selfSeq = -1;
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card) selfSeq = i;
-                }
-                if (infiniteImpermanenceList.Contains(selfSeq)) return true;
-            }
-            return false;
-        }
-
         public bool CheckLastChainShouldNegated()
         {
-            ClientCard lastcard = Util.GetLastChainCard();
-            if (lastcard == null || lastcard.Controller != 1) return false;
+            ChainInfo lastChainInfo = Duel.CurrentChainInfo.LastOrDefault();
+            ClientCard lastcard = lastChainInfo?.RelatedCard;
+            if (lastcard == null || lastChainInfo.ActivatePlayer != 1) return false;
             if (lastcard.IsMonster() && lastcard.HasSetcode(SetcodeTimeLord) && Duel.Phase == DuelPhase.Standby) return false;
             if (notToNegateIdList.Contains(lastcard.Id)) return false;
-            if (DefaultCheckWhetherCardIsNegated(lastcard)) return false;
+            if (DefaultCheckWhetherCardEffectIsNegated(lastChainInfo)) return false;
             if (Duel.Turn == 1 && lastcard.IsCode(_CardId.MaxxC)) return false;
 
             return true;
@@ -794,7 +723,7 @@ namespace WindBot.Game.AI.Decks
         public List<ClientCard> GetMonsterListForTargetNegate(bool canBeTarget = false, CardType selfType = 0)
         {
             List<ClientCard> resultList = new List<ClientCard>();
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return resultList;
             }
@@ -890,17 +819,6 @@ namespace WindBot.Game.AI.Decks
                 if (currentChain.IsActivateCode(_CardId.MaxxC)) enemyActivateMaxxC = true;
                 if (currentChain.IsActivateCode(CardId.Fuwalos)) enemyActivateMaxxC = true;
                 if (currentChain.IsActivateCode(_CardId.LockBird)) enemyActivateLockBird = true;
-                if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
-                {
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        if (Enemy.SpellZone[i] == currentChain.RelatedCard)
-                        {
-                            infiniteImpermanenceList.Add(4 - i);
-                            break;
-                        }
-                    }
-                }
             }
             base.OnChainSolved(chainIndex);
         }
@@ -909,7 +827,6 @@ namespace WindBot.Game.AI.Decks
             escapeTargetList.Clear();
             currentNegateCardList.Clear();
             currentDestroyCardList.Clear();
-            enemyActivateInfiniteImpermanenceFromHand = false;
             for (int idx = enemyPlaceThisTurn.Count - 1; idx >= 0; idx--)
             {
                 ClientCard checkTarget = enemyPlaceThisTurn[idx];
@@ -938,9 +855,7 @@ namespace WindBot.Game.AI.Decks
 
             enemyActivateMaxxC = false;
             enemyActivateLockBird = false;
-            enemyActivateInfiniteImpermanenceFromHand = false;
             if (dimensionShifterCount > 0) dimensionShifterCount--;
-            infiniteImpermanenceList.Clear();
             currentNegateCardList.Clear();
             currentDestroyCardList.Clear();
             sendToGYThisTurn.Clear();
@@ -1468,7 +1383,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(CardId.LACRIMA_CT);
                 return true;
             }
-            else if (engraverOnField && (!engraverGYActivated || DefaultCheckWhetherCardIdIsNegated(CardId.FIENDSMITH_ENGRAVER)))
+            else if (engraverOnField && (!engraverGYActivated || DefaultCheckWhetherCardEffectWillBeNegated(CardId.FIENDSMITH_ENGRAVER)))
             {
                 necroquipSummoned = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
@@ -1814,7 +1729,7 @@ namespace WindBot.Game.AI.Decks
         }*/
         private bool ActVarudras()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             // รายการเป้า (ศัตรูก่อน ถ้าไม่มีค่อย fallback)
             List<ClientCard> targetList = GetNormalEnemyTargetList(true, true);
@@ -1956,7 +1871,7 @@ namespace WindBot.Game.AI.Decks
         }
         public bool UnchainedAbominationActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             List<ClientCard> targetList = GetNormalEnemyTargetList(true, true, CardType.Monster);
             if (targetList.Count() == 0) return false;
             int logDesc = ActivateDescription;

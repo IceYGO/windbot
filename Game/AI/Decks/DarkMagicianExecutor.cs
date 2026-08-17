@@ -504,7 +504,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ChainEnemy()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Util.GetLastChainCard() != null &&
                 Util.GetLastChainCard().IsCode(CardId.UpstartGoblin))
                 return false;
@@ -523,7 +523,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MaxxCeff()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return Duel.Player == 1;
         }
         /*
@@ -1422,7 +1422,7 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 if (Bot.HasInMonstersZone(CardId.VentriloauistsClaraAndLucika))
                 {
                     AI.SelectCard(CardId.VentriloauistsClaraAndLucika);

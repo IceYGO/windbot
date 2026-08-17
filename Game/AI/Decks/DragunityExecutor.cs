@@ -465,7 +465,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool AssaultBeast()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!Bot.HasInSpellZone(CardId.AssaultModeActivate))
                 return true;
             return false;

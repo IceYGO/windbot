@@ -150,11 +150,8 @@ namespace WindBot.Game.AI.Decks
         const int hintReplaceDestroy = 96;
 
 
-        List<int> currentNegatingIdList = new List<int>();
         bool enemyActivateMaxxC = false;
         bool enemyActivateLockBird = false;
-        bool enemyActivateInfiniteImpermanenceFromHand = false;
-        List<int> infiniteImpermanenceList = new List<int>();
 
         bool summoned = false;
         bool onlyWyrmSpSummon = false;
@@ -366,7 +363,7 @@ namespace WindBot.Game.AI.Decks
         public List<ClientCard> GetMonsterListForTargetNegate(bool canBeMonsterTarget = false, bool canBeTrapTarget = false)
         {
             List<ClientCard> resultList = new List<ClientCard>();
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return resultList;
             }
@@ -411,79 +408,6 @@ namespace WindBot.Game.AI.Decks
         }
 
         /// <summary>
-        /// Check negated turn count of id
-        /// </summary>
-        public int CheckCalledbytheGrave(int id)
-        {
-            if (currentNegatingIdList.Contains(id)) return 1;
-            if (DefaultCheckWhetherCardIdIsNegated(id)) return 1;
-            return 0;
-        }
-
-
-        /// <summary>
-        /// Whether spell or trap will be negate. If so, return true.
-        /// </summary>
-        /// <param name="isCounter">is counter trap</param>
-        /// <param name="target">check target</param>
-        /// <returns></returns>
-        public bool CheckSpellWillBeNegate(bool isCounter = false, ClientCard target = null)
-        {
-            // target default set
-            if (target == null) target = Card;
-            // won't negate if not on field
-            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
-
-            // negate judge
-            if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !isCounter) return true;
-            if (target.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(CardId.NaturalBeast, true)) return true;
-                if (Enemy.HasInSpellZone(CardId.ImperialOrder, true) || Bot.HasInSpellZone(CardId.ImperialOrder, true)) return true;
-                if (Enemy.HasInMonstersZone(CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(CardId.SwordsmanLV7, true)) return true;
-            }
-            if (target.IsTrap())
-            {
-                if (Enemy.HasInSpellZone(CardId.RoyalDecree, true) || Bot.HasInSpellZone(CardId.RoyalDecree, true)) return true;
-            }
-            if (target.Location == CardLocation.SpellZone && (target.IsSpell() || target.IsTrap()))
-            {
-                int selfSeq = -1;
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card) selfSeq = i;
-                }
-                if (infiniteImpermanenceList.Contains(selfSeq)) {
-                    return true;
-                }
-            }
-            // how to get here?
-            return false;
-        }
-
-        /// <summary>
-        /// Check whether'll be negated
-        /// </summary>
-        /// <param name="isCounter">check whether card itself is disabled.</param>
-        public bool CheckWhetherNegated()
-        {
-            if ((Card.IsSpell() || Card.IsTrap()) && CheckSpellWillBeNegate()){
-                return true;
-            }
-            if (DefaultCheckWhetherCardIsNegated(Card)) {
-                return true;
-            }
-            if (Card.IsMonster() && Card.Location == CardLocation.MonsterZone && Card.IsDefense())
-            {
-                if (DefaultCheckWhetherNumber41IsActive())
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
         /// Check whether bot is at advantage.
         /// </summary>
         public bool CheckAtAdvantage()
@@ -501,11 +425,12 @@ namespace WindBot.Game.AI.Decks
         /// </summary>
         public bool CheckLastChainShouldNegated()
         {
-            ClientCard lastcard = Util.GetLastChainCard();
-            if (lastcard == null || lastcard.Controller != 1) return false;
+            ChainInfo lastChainInfo = Duel.CurrentChainInfo.LastOrDefault();
+            ClientCard lastcard = lastChainInfo?.RelatedCard;
+            if (lastcard == null || lastChainInfo.ActivatePlayer != 1) return false;
             if (lastcard.IsMonster() && lastcard.HasSetcode(SetcodeTimeLord) && Duel.Phase == DuelPhase.Standby) return false;
             if (notToNegateIdList.Contains(lastcard.Id)) return false;
-            if (DefaultCheckWhetherCardIsNegated(lastcard)) return false;
+            if (DefaultCheckWhetherCardEffectIsNegated(lastChainInfo)) return false;
             if (Duel.CurrentChain.Count >= 2)
             {
                 ClientCard lastlastChainCard = Duel.CurrentChain[Duel.CurrentChain.Count - 2];
@@ -638,14 +563,11 @@ namespace WindBot.Game.AI.Decks
             enemyActivateMaxxC = false;
             enemyActivateLockBird = false;
 
-            infiniteImpermanenceList.Clear();
 
             summoned = false;
             onlyWyrmSpSummon = false;
-            enemyActivateInfiniteImpermanenceFromHand = false;
             activatedCardIdList.Clear();
             currentNegateMonsterList.Clear();
-            currentNegatingIdList.Clear();
             base.OnNewTurn();
         }
 
@@ -658,17 +580,6 @@ namespace WindBot.Game.AI.Decks
                     enemyActivateMaxxC = true;
                 if (currentChain.IsActivateCode(_CardId.LockBird))
                     enemyActivateLockBird = true;
-                if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence) && !enemyActivateInfiniteImpermanenceFromHand)
-                {
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        if (Enemy.SpellZone[i] == currentChain.RelatedCard)
-                        {
-                            infiniteImpermanenceList.Add(4 - i);
-                            break;
-                        }
-                    }
-                }
             }
             base.OnChainSolved(chainIndex);
         }
@@ -676,7 +587,6 @@ namespace WindBot.Game.AI.Decks
         public override void OnChainEnd()
         {
             currentNegateMonsterList.Clear();
-            currentNegatingIdList.Clear();
             for (int idx = effectUsedBaronneDeFleurList.Count() - 1; idx >= 0; -- idx)
             {
                 ClientCard checkTarget = effectUsedBaronneDeFleurList[idx];
@@ -685,22 +595,7 @@ namespace WindBot.Game.AI.Decks
                     effectUsedBaronneDeFleurList.RemoveAt(idx);
                 }
             }
-            enemyActivateInfiniteImpermanenceFromHand = false;
             base.OnChainEnd();
-        }
-
-        public override void OnMove(ClientCard card, int previousControler, int previousLocation, int currentControler, int currentLocation)
-        {
-            if (previousControler == 1)
-            {
-                if (card != null)
-                {
-                    if (card.IsCode(_CardId.InfiniteImpermanence) && previousLocation == (int)CardLocation.Hand && currentLocation == (int)CardLocation.SpellZone)
-                        enemyActivateInfiniteImpermanenceFromHand = true;
-                }
-            }
-
-            base.OnMove(card, previousControler, previousLocation, currentControler, currentLocation);
         }
 
         /// <summary>
@@ -717,7 +612,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoidImpermanence && infiniteImpermanenceList.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoidImpermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     if (avoidList != null && avoidList.Contains(seq)) continue;
                     list.Add(seq);
                 }
@@ -745,7 +640,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool NibiruThePrimalBeingActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Duel.Player == 0 || Bot.GetMonsters().Any(card => card.IsFaceup() && card.HasType(CardType.Synchro)))
             {
                 return false;
@@ -804,7 +699,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
 
-            } else if (ActivateDescription == Util.GetStringId(CardId.TenyiSpirit_Ashuna, 1) && Card.Location == CardLocation.Grave && CheckCalledbytheGrave(Card.Id) == 0)
+            } else if (ActivateDescription == Util.GetStringId(CardId.TenyiSpirit_Ashuna, 1) && Card.Location == CardLocation.Grave && !DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 // deck summon
 
@@ -854,7 +749,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
 
-            } else if (ActivateDescription == Util.GetStringId(CardId.TenyiSpirit_Vishuda, 1) && Card.Location == CardLocation.Grave && CheckCalledbytheGrave(Card.Id) == 0)
+            } else if (ActivateDescription == Util.GetStringId(CardId.TenyiSpirit_Vishuda, 1) && Card.Location == CardLocation.Grave && !DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 // bounce
                 List<ClientCard> dangerList = GetProblematicEnemyCardList(true, true);
@@ -892,7 +787,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // special summon token
-            if (CheckWhetherNegated() || (CheckAtAdvantage() && enemyActivateMaxxC && Util.IsTurn1OrMain2()))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || (CheckAtAdvantage() && enemyActivateMaxxC && Util.IsTurn1OrMain2()))
             {
                 return false;
             }
@@ -1023,7 +918,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return false;
             }
@@ -1083,7 +978,7 @@ namespace WindBot.Game.AI.Decks
                 summoned = true;
                 return true;
             }
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card))
             {
                 return false;
             }
@@ -1114,7 +1009,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // special summon token
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return false;
             }
@@ -1137,7 +1032,7 @@ namespace WindBot.Game.AI.Decks
                 summoned = true;
                 return true;
             }
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card))
             {
                 return false;
             }
@@ -1189,12 +1084,12 @@ namespace WindBot.Game.AI.Decks
             {
                 return true;
             }
-            if (Duel.Player == 0 && !CheckWhetherNegated())
+            if (Duel.Player == 0 && !DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 bool canActivateMoye = !activatedCardIdList.Contains(CardId.SwordsoulOfMoYe) && Bot.HasInDeck(CardId.SwordsoulOfMoYe)
-                    && CheckCalledbytheGrave(CardId.SwordsoulOfMoYe) == 0 && SwordsoulOfMoYeEffectCheck();
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfMoYe, CardType.Monster) && SwordsoulOfMoYeEffectCheck();
                 bool canActivateTaia = !activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && Bot.HasInDeck(CardId.SwordsoulOfTaia)
-                    && CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0 && SwordsoulOfTaiaEffectCheck();
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster) && SwordsoulOfTaiaEffectCheck();
                 if (canActivateMoye && !summoned && !Bot.HasInHand(CardId.SwordsoulOfMoYe))
                 {
                     AI.SelectCard(CardId.SwordsoulOfMoYe);
@@ -1226,7 +1121,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool IncredibleEcclesiaTheVirtuousSummon()
         {
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card))
             {
                 return false;
             }
@@ -1246,7 +1141,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool IncredibleEcclesiaTheVirtuousSpSummon()
         {
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card))
             {
                 return false;
             }
@@ -1260,7 +1155,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool AshBlossomActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (CheckAtAdvantage() && Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC))
             {
                 return false;
@@ -1275,13 +1170,13 @@ namespace WindBot.Game.AI.Decks
 
         public bool MaxxCActivate()
         {
-            if (CheckWhetherNegated() || Duel.LastChainPlayer == 0) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.LastChainPlayer == 0) return false;
             return DefaultMaxxC();
         }
 
         public bool EffectVeilerActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             List<ClientCard> shouldNegateList = GetMonsterListForTargetNegate(true);
             if (shouldNegateList.Count() > 0)
@@ -1303,7 +1198,7 @@ namespace WindBot.Game.AI.Decks
             }
             // taia check
             if (Bot.HasInExtra(CardId.MonkOfTheTenyi) && Bot.HasInHand(CardId.SwordsoulOfTaia)
-                && !activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0)
+                && !activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster))
             {
                 return false;
             }
@@ -1382,7 +1277,7 @@ namespace WindBot.Game.AI.Decks
                 }
 
             }
-            else if (ActivateDescription == Util.GetStringId(CardId.TenyiSpirit_Adhara, 1) && Card.Location == CardLocation.Grave && CheckCalledbytheGrave(Card.Id) == 0)
+            else if (ActivateDescription == Util.GetStringId(CardId.TenyiSpirit_Adhara, 1) && Card.Location == CardLocation.Grave && !DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 // recycle
                 if (!activatedCardIdList.Contains(CardId.SwordsoulStrategistLongyuan) && SwordsoulOfMoYeEffectCheck()
@@ -1422,7 +1317,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool TenyiSpSummonForTaiaCheck()
         {
-            if (!activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0)
+            if (!activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster))
             {
                 bool hasTaia = (!summoned && Bot.HasInHand(CardId.SwordsoulOfTaia)) || Bot.HasInMonstersZone(CardId.SwordsoulOfTaia);
                 bool noTargetInGrave = !Bot.Graveyard.Any(card => card.HasRace(CardRace.Wyrm) || card.HasSetcode(SetcodeSwordsoul));
@@ -1489,7 +1384,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool PotOfDesiresActivate()
         {
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return false;
             }
@@ -1579,14 +1474,14 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 }
                 if (!activatedCardIdList.Contains(CardId.SwordsoulOfMoYe) && Bot.HasInGraveyard(CardId.SwordsoulOfMoYe)
-                    && CheckCalledbytheGrave(CardId.SwordsoulOfMoYe) == 0 && SwordsoulOfMoYeEffectCheck())
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfMoYe, CardType.Monster) && SwordsoulOfMoYeEffectCheck())
                 {
                     AI.SelectCard(CardId.SwordsoulOfMoYe);
                     activatedCardIdList.Add(Card.Id);
                     SelectSTPlace(null, true);
                     return true;
                 }
-                if (!activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0)
+                if (!activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster))
                 {
                     ClientCard taia = Bot.Graveyard.FirstOrDefault(card => card.IsCode(CardId.SwordsoulOfTaia));
                     if (taia != null && SwordsoulOfTaiaEffectCheck(taia))
@@ -1633,7 +1528,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CalledbytheGraveActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (CheckAtAdvantage() && Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC))
             {
                 return false;
@@ -1645,7 +1540,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     int code = Util.GetLastChainCard().GetOriginCode();
                     if (code == 0) return false;
-                    if (CheckCalledbytheGrave(code) > 0) return false;
+                    if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                     if (Util.GetLastChainCard().IsCode(_CardId.MaxxC) && CheckAtAdvantage())
                     {
                         return false;
@@ -1658,7 +1553,7 @@ namespace WindBot.Game.AI.Decks
                             SelectSTPlace(null, true);
                         }
                         AI.SelectCard(graveTarget);
-                        currentNegatingIdList.Add(code);
+                        DefaultAddPendingNegatingCard(code);
                         CheckDeactiveFlag();
                         return true;
                     }
@@ -1673,9 +1568,9 @@ namespace WindBot.Game.AI.Decks
                         {
                             SelectSTPlace(null, true);
                         }
-                        int code = cards.Id;
+                        int code = cards.GetOriginCode();
                         AI.SelectCard(cards);
-                        currentNegatingIdList.Add(code);
+                        DefaultAddPendingNegatingCard(code);
                         return true;
                     }
                 }
@@ -1688,9 +1583,9 @@ namespace WindBot.Game.AI.Decks
                     {
                         enemyMonsters.Sort(CardContainer.CompareCardAttack);
                         enemyMonsters.Reverse();
-                        int code = enemyMonsters[0].Id;
+                        int code = enemyMonsters[0].GetOriginCode();
                         AI.SelectCard(code);
-                        currentNegatingIdList.Add(code);
+                        DefaultAddPendingNegatingCard(code);
                         return true;
                     }
                 }
@@ -1700,13 +1595,13 @@ namespace WindBot.Game.AI.Decks
             if (Duel.LastChainPlayer == 1) return false;
             List<ClientCard> targets = CheckDangerousCardinEnemyGrave(true);
             if (targets.Count() > 0) {
-                int code = targets[0].Id;
+                int code = targets[0].GetOriginCode();
                 if (!(Card.Location == CardLocation.SpellZone))
                 {
                     SelectSTPlace(null, true);
                 }
                 AI.SelectCard(code);
-                currentNegatingIdList.Add(code);
+                DefaultAddPendingNegatingCard(code);
                 return true;
             }
 
@@ -1715,15 +1610,13 @@ namespace WindBot.Game.AI.Decks
 
         public bool CrossoutDesignatorActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             // negate 
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard() != null)
             {
-                int code = Util.GetLastChainCard().Id;
-                int alias = Util.GetLastChainCard().Alias;
-                if (alias != 0 && alias - code < 10) code = alias;
+                int code = Util.GetLastChainCard().GetOriginCode();
                 if (code == 0) return false;
-                if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
+                if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                 if (Bot.HasInDeck(code))
                 {
                     if (!(Card.Location == CardLocation.SpellZone))
@@ -1731,7 +1624,7 @@ namespace WindBot.Game.AI.Decks
                         SelectSTPlace(null, true);
                     }
                     AI.SelectAnnounceID(code);
-                    currentNegatingIdList.Add(code);
+                    DefaultAddPendingNegatingCard(code);
                     CheckDeactiveFlag();
                     return true;
                 }
@@ -1741,7 +1634,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool InfiniteImpermanenceActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             ClientCard LastChainCard = Util.GetLastChainCard();
 
@@ -1770,7 +1663,6 @@ namespace WindBot.Game.AI.Decks
                     } else {
                         AI.SelectCard(Enemy.GetMonsters());
                     }
-                    infiniteImpermanenceList.Add(this_seq);
                     return true;
                 }
             }
@@ -1782,17 +1674,6 @@ namespace WindBot.Game.AI.Decks
                 ClientCard negateTarget = shouldNegateList[0];
                 currentNegateMonsterList.Add(negateTarget);
 
-                if (Card.Location == CardLocation.SpellZone)
-                {
-                    for (int i = 0; i < 5; ++ i)
-                    {
-                        if (Bot.SpellZone[i] == Card)
-                        {
-                            infiniteImpermanenceList.Add(i);
-                            break;
-                        }
-                    }
-                }
                 if (Card.Location == CardLocation.Hand)
                 {
                     SelectSTPlace(Card, true);
@@ -2188,9 +2069,9 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
             bool shouldSummon = GetProblematicEnemyCardList(true, true).Count() > 0;
-            shouldSummon |= !activatedCardIdList.Contains(CardId.SwordsoulOfMoYe) && CheckCalledbytheGrave(CardId.SwordsoulOfMoYe) == 0
+            shouldSummon |= !activatedCardIdList.Contains(CardId.SwordsoulOfMoYe) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfMoYe, CardType.Monster)
                 && Bot.HasInDeck(CardId.SwordsoulOfMoYe) && SwordsoulOfMoYeEffectCheck();
-            shouldSummon |= !activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0
+            shouldSummon |= !activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster)
                 && Bot.HasInDeck(CardId.SwordsoulOfTaia);
             
             if (shouldSummon)
@@ -2247,9 +2128,9 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
             // check spsummon target
-            bool hasSpSummonTaret = !activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0
+            bool hasSpSummonTaret = !activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster)
                 && Bot.HasInHandOrInGraveyard(CardId.SwordsoulOfTaia);
-            hasSpSummonTaret |= !activatedCardIdList.Contains(CardId.SwordsoulOfMoYe) && CheckCalledbytheGrave(CardId.SwordsoulOfMoYe) == 0
+            hasSpSummonTaret |= !activatedCardIdList.Contains(CardId.SwordsoulOfMoYe) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfMoYe, CardType.Monster)
                 && Bot.HasInGraveyard(CardId.SwordsoulOfMoYe) && SwordsoulOfMoYeEffectCheck();
             hasSpSummonTaret |= Bot.GetGraveyardMonsters().Any(card => card.HasType(CardType.Synchro) && card.IsCanRevive() && card.HasRace(CardRace.Wyrm));
             if (!hasSpSummonTaret)
@@ -2293,7 +2174,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return true;
             }
-            if (Bot.LifePoints <= 1500 || CheckWhetherNegated())
+            if (Bot.LifePoints <= 1500 || DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return false;
             }
@@ -2350,7 +2231,7 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == Util.GetStringId(CardId.BaronneDeFleur, 1))
             {
                 // negate
-                if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
                 if (Duel.LastChainPlayer == 1)
                 {
                     ClientCard lastChainCard = Util.GetLastChainCard();
@@ -2369,7 +2250,7 @@ namespace WindBot.Game.AI.Decks
             } else if (Duel.Phase == DuelPhase.Standby)
             {
                 // special summon after effect used
-                if (effectUsedBaronneDeFleurList.Contains(Card) && !CheckWhetherNegated())
+                if (effectUsedBaronneDeFleurList.Contains(Card) && !DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 {
                     if (Duel.Player == 1)
                     {
@@ -2384,12 +2265,12 @@ namespace WindBot.Game.AI.Decks
                     } else if (CheckAtAdvantage()) {
                         if (Bot.ExtraDeck.Any(card => card.IsFacedown() && card.HasType(CardType.Synchro) && card.Level == 8))
                         {
-                            if (Bot.HasInGraveyard(CardId.SwordsoulOfMoYe) && SwordsoulOfMoYeEffectCheck() && CheckCalledbytheGrave(CardId.SwordsoulOfMoYe) == 0)
+                            if (Bot.HasInGraveyard(CardId.SwordsoulOfMoYe) && SwordsoulOfMoYeEffectCheck() && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfMoYe, CardType.Monster))
                             {
                                 AI.SelectCard(CardId.SwordsoulOfMoYe);
                                 return true;
                             }
-                            if (CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0)
+                            if (!DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster))
                             {
                                 ClientCard taia = Bot.Graveyard.FirstOrDefault(card => card.IsCode(CardId.SwordsoulOfTaia));
                                 if (taia != null && SwordsoulOfTaiaEffectCheck(taia))
@@ -2451,7 +2332,7 @@ namespace WindBot.Game.AI.Decks
             // bounce
             if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.AdamancipatorRisen_Dragite, 0))
             {
-                if (CheckWhetherNegated())
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 {
                     return false;
                 }
@@ -2464,7 +2345,7 @@ namespace WindBot.Game.AI.Decks
             }
             
             // negate
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return false;
             }
@@ -2488,7 +2369,7 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == Util.GetStringId(CardId.SwordsoulGrandmaster_Chixiao, 1))
             {
                 // negate
-                if (CheckWhetherNegated()) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
                 List<ClientCard> negateTargetList = new List<ClientCard>();
 
@@ -2740,9 +2621,9 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 bool canUseMoye = !activatedCardIdList.Contains(CardId.SwordsoulOfMoYe)
-                    && CheckCalledbytheGrave(CardId.SwordsoulOfMoYe) == 0 && SwordsoulOfMoYeEffectCheck();
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfMoYe, CardType.Monster) && SwordsoulOfMoYeEffectCheck();
                 bool canUseTaia = !activatedCardIdList.Contains(CardId.SwordsoulOfTaia)
-                    && CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0 && SwordsoulOfTaiaEffectCheck();
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster) && SwordsoulOfTaiaEffectCheck();
 
                 if (canUseMoye && Bot.HasInGraveyard(CardId.SwordsoulOfMoYe))
                 {
@@ -2792,13 +2673,13 @@ namespace WindBot.Game.AI.Decks
             {
                 // special summon
                 if (!activatedCardIdList.Contains(CardId.SwordsoulOfMoYe) && Bot.HasInDeck(CardId.SwordsoulOfMoYe)
-                    && CheckCalledbytheGrave(CardId.SwordsoulOfMoYe) == 0 && SwordsoulOfMoYeEffectCheck())
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfMoYe, CardType.Monster) && SwordsoulOfMoYeEffectCheck())
                 {
                     AI.SelectCard(CardId.SwordsoulOfMoYe);
                     return true;
                 }
                 if (!activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && Bot.HasInDeck(CardId.SwordsoulOfTaia)
-                    && CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0)
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster))
                 {
                     AI.SelectCard(CardId.SwordsoulOfTaia);
                     return true;
@@ -2830,18 +2711,18 @@ namespace WindBot.Game.AI.Decks
             } else 
             {
                 // destroy
-                if (CheckWhetherNegated())
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 {
                     return false;
                 }
                 bool selfDestroy = false;
                 if (!activatedCardIdList.Contains(CardId.SwordsoulOfMoYe) && Bot.HasInDeck(CardId.SwordsoulOfMoYe)
-                    && CheckCalledbytheGrave(CardId.SwordsoulOfMoYe) == 0 && SwordsoulOfMoYeEffectCheck())
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfMoYe, CardType.Monster) && SwordsoulOfMoYeEffectCheck())
                 {
                     selfDestroy = true;
                 }
                 if (!activatedCardIdList.Contains(CardId.SwordsoulOfTaia) && Bot.HasInDeck(CardId.SwordsoulOfTaia)
-                    && CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0)
+                    && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster))
                 {
                     selfDestroy = true;
                 }
@@ -2876,9 +2757,9 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 }
 
-                bool canUseMoye = Bot.HasInGraveyard(CardId.SwordsoulOfMoYe) && CheckCalledbytheGrave(CardId.SwordsoulOfMoYe) == 0
+                bool canUseMoye = Bot.HasInGraveyard(CardId.SwordsoulOfMoYe) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfMoYe, CardType.Monster)
                     && !activatedCardIdList.Contains(CardId.SwordsoulOfMoYe);
-                bool canUseTaia = Bot.HasInHandOrInGraveyard(CardId.SwordsoulOfTaia) && CheckCalledbytheGrave(CardId.SwordsoulOfTaia) == 0
+                bool canUseTaia = Bot.HasInHandOrInGraveyard(CardId.SwordsoulOfTaia) && !DefaultCheckWhetherCardWillBeNegatedOnField(CardId.SwordsoulOfTaia, CardType.Monster)
                     && !activatedCardIdList.Contains(CardId.SwordsoulOfTaia);
                 bool shouldDiscardTaia = !Bot.HasInGraveyard(CardId.SwordsoulOfTaia) && Bot.HasInHand(CardId.SwordsoulOfTaia);
                 List<ClientCard> sortedReviveTargetList = Bot.GetGraveyardMonsters().Where(card =>

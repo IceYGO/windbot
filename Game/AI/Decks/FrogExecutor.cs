@@ -135,7 +135,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Ronintoadin()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             List<ClientCard> monsters = Bot.GetGraveyardMonsters();
             if (monsters.Count > 2)
             {

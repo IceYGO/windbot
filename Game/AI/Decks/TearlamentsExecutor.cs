@@ -2124,7 +2124,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool EvaEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             List<ClientCard> cards = Bot.GetGraveyardMonsters().Where(card => card != null && card.HasAttribute(CardAttribute.Light) && card.HasRace(CardRace.Fairy) && card != Card).ToList();
             if (cards.Count <= 0) return false;
             activate_Eva = true;
@@ -2160,7 +2160,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool MudoratheSwordOracleEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(
+                Card, Card.Location != CardLocation.MonsterZone)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 if ((Bot.Hand.Count(card => card != null && card.Id == CardId.AgidotheAncientSentinel) <= 0 || activate_AgidotheAncientSentinel_2)

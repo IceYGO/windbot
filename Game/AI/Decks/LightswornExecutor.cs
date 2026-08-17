@@ -222,7 +222,7 @@ namespace WindBot.Game.AI.Decks
             if (!defender.IsMonsterHasPreventActivationEffectInBattle() &&
                 attacker.HasAttribute(CardAttribute.Light) &&
                 Bot.HasInHand(CardId.Honest) &&
-                !DefaultCheckWhetherCardIdIsNegated(CardId.Honest))
+                !DefaultCheckWhetherCardEffectWillBeNegated(CardId.Honest))
             {
                 attacker.RealPower += defender.Attack;
             }
@@ -422,7 +422,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SolarRechargeEffect()
         {
-            if (!ShouldMillCards() || DefaultSpellWillBeNegated())
+            if (!ShouldMillCards() || DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             List<ClientCard> discards = GetDiscardPriority(true);
@@ -432,7 +432,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ChargeOfTheLightBrigadeEffect()
         {
-            if (!ShouldMillCards() || DefaultSpellWillBeNegated())
+            if (!ShouldMillCards() || DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             List<int> priority = new List<int>();
@@ -458,7 +458,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ReinforcementOfTheArmyEffect()
         {
-            if (DefaultSpellWillBeNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             bool hasGoblindberghTarget = Bot.Hand.Any(card =>
@@ -491,7 +491,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             if (ActivateDescription != Util.GetStringId(CardId.JudgmentDragon, 1))
                 return false;
-            if (Bot.LifePoints <= 1000 || DefaultCheckWhetherCardIsNegated(Card))
+            if (Bot.LifePoints <= 1000 || DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             int enemyCards = Enemy.GetFieldCount();
@@ -546,7 +546,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription != Util.GetStringId(CardId.Lumina, 0))
                 return true;
-            if (DefaultCheckWhetherCardIsNegated(Card))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             List<ClientCard> discards = GetDiscardPriority(false);
@@ -579,7 +579,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription != Util.GetStringId(CardId.Lyla, 0))
                 return true;
-            if (DefaultCheckWhetherCardIsNegated(Card))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             ClientCard target = GetEnemyTargetPriority(Enemy.GetSpells()).FirstOrDefault();
@@ -599,7 +599,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (ActivateDescription != Util.GetStringId(CardId.Raiden, 0))
                 return true;
-            return ShouldMillCards() && !DefaultCheckWhetherCardIsNegated(Card);
+            return ShouldMillCards() && !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool MinervaSummon()
@@ -658,7 +658,7 @@ namespace WindBot.Game.AI.Decks
         {
             return Card.Location == CardLocation.Grave &&
                 ActivateDescription == Util.GetStringId(CardId.ThousandBlades, 1) &&
-                !DefaultCheckWhetherCardIsNegated(Card);
+                !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool RykoSet()
@@ -682,7 +682,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location != CardLocation.MonsterZone ||
                 ActivateDescription != Util.GetStringId(CardId.Felis, 1) ||
                 !ShouldMillCards() ||
-                DefaultCheckWhetherCardIsNegated(Card))
+                DefaultCheckWhetherCardEffectWillBeNegated(Card, false))
             {
                 return false;
             }
@@ -703,7 +703,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool PerformageTrickClownEffect()
         {
-            if (_clownUsed || Bot.LifePoints <= 1000 || DefaultCheckWhetherCardIsNegated(Card))
+            if (_clownUsed || Bot.LifePoints <= 1000 || DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             AI.SelectCard(CardId.PerformageTrickClown);
@@ -714,7 +714,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GlowUpBulbEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             List<ClientCard> level4NonTuners = Bot.GetMonsters()
@@ -747,7 +747,7 @@ namespace WindBot.Game.AI.Decks
 
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card))
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                     return false;
 
                 SelectXyzDetachMaterial();
@@ -756,7 +756,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             return Card.Location == CardLocation.Grave &&
-                !DefaultCheckWhetherCardIsNegated(Card);
+                !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool MichaelEffect()
@@ -767,7 +767,7 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 if (ActivateDescription != Util.GetStringId(CardId.Michael, 0) ||
                     Bot.LifePoints <= 1000 ||
-                    DefaultCheckWhetherCardIsNegated(Card))
+                    DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 {
                     return false;
                 }
@@ -781,7 +781,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            if (Card.Location != CardLocation.Grave || DefaultCheckWhetherCardIsNegated(Card))
+            if (Card.Location != CardLocation.Grave || DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             List<ClientCard> targets = Bot.GetGraveyardMonsters()
@@ -801,7 +801,7 @@ namespace WindBot.Game.AI.Decks
         {
             return Duel.LastChainPlayer == 1 &&
                 ShouldMillCards() &&
-                !DefaultCheckWhetherCardIsNegated(Card);
+                !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool PSYFramelordOmegaEffect()
@@ -830,7 +830,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            if (Card.Location != CardLocation.MonsterZone || DefaultCheckWhetherCardIsNegated(Card))
+            if (Card.Location != CardLocation.MonsterZone || DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             if (ActivateDescription == Util.GetStringId(CardId.PSYFramelordOmega, 1) ||
@@ -862,7 +862,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool PSYFramelordZetaEffect()
         {
-            if (Card.Location != CardLocation.MonsterZone || DefaultCheckWhetherCardIsNegated(Card))
+            if (Card.Location != CardLocation.MonsterZone || DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             List<ClientCard> candidates = Enemy.GetMonsters()
@@ -904,12 +904,12 @@ namespace WindBot.Game.AI.Decks
 
         private bool TrishulaEffect()
         {
-            return !DefaultCheckWhetherCardIsNegated(Card);
+            return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool EvilswarmExcitonKnightEffect()
         {
-            if (!DefaultEvilswarmExcitonKnightEffect() || DefaultCheckWhetherCardIsNegated(Card))
+            if (!DefaultEvilswarmExcitonKnightEffect() || DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             SelectXyzDetachMaterial();
@@ -918,7 +918,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Number101SilentHonorARKEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             List<ClientCard> candidates = Enemy.GetMonsters()
@@ -935,7 +935,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CastelEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             ClientCard target;
@@ -965,7 +965,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location != CardLocation.MonsterZone ||
                 !ShouldMillCards() ||
-                DefaultCheckWhetherCardIsNegated(Card))
+                DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return false;
             }

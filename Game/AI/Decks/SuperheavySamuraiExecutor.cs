@@ -333,12 +333,12 @@ namespace WindBot.Game.AI.Decks
         }
         private bool FunctionInHand()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             return Duel.LastChainPlayer == 1;
         }
         private bool LockBirdFunction()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Duel.Player == 0 || activate_LockBird)
             {
                 return false;
@@ -350,7 +350,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Hand)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
                 int targetid = -1;
                 List<ClientCard> cards = GetZoneCards(CardLocation.MonsterZone, Bot).Where(card => card != null && card.IsFaceup()).ToList();
                 if (!(Bot.HasInHand(CardId.Wakaushi) || Bot.HasInMonstersZone(CardId.Wakaushi) || Bot.HasInSpellZone(CardId.Wakaushi)) && !activate_Wakaushi)
@@ -932,7 +932,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SoulpiercerEquipFunction()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
             if (Card.Location != CardLocation.Hand)
                 return false;

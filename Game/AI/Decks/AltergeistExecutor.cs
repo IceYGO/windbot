@@ -63,7 +63,6 @@ namespace WindBot.Game.AI.Decks
             public const int Iblee = 10158145;
         }
 
-        List<int> Impermanence_list = new List<int>();
         bool Multifaker_ssfromhand = false;
         bool Multifaker_ssfromdeck = false;
         bool Marionetter_reborn = false;
@@ -376,7 +375,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     list.Add(seq);
                 }
             }
@@ -413,26 +412,9 @@ namespace WindBot.Game.AI.Decks
             return 0;
         }
 
-        public bool spell_trap_activate(bool isCounter = false, ClientCard target = null)
+        public bool spell_trap_activate()
         {
-            if (target == null) target = Card;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
-            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return true;
-            if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !Bot.HasInHandOrHasInMonstersZone(CardId.GO_SR) && !isCounter && !Bot.HasInSpellZone(CardId.SolemnStrike)) return false;
-            if (target.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(CardId.NaturalBeast, true) && !Bot.HasInHandOrHasInMonstersZone(CardId.GO_SR) && !isCounter && !Bot.HasInSpellZone(CardId.SolemnStrike)) return false;
-                if (Enemy.HasInSpellZone(CardId.ImperialOrder, true) || Bot.HasInSpellZone(CardId.ImperialOrder, true)) return false;
-                if (Enemy.HasInMonstersZone(CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(CardId.SwordsmanLV7, true)) return false;
-                return true;
-            }
-            if (target.IsTrap())
-            {
-                if (Enemy.HasInSpellZone(CardId.RoyalDecreel, true) || Bot.HasInSpellZone(CardId.RoyalDecreel, true)) return false;
-                return true;
-            }
-            // how to get here?
-            return false;
+            return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         public int get_Hexstia_linkzone(int zone)
@@ -677,7 +659,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool G_activate()
         {
-            return (Duel.Player == 1) && !DefaultCheckWhetherCardIsNegated(Card);
+            return (Duel.Player == 1) && !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         public bool NaturalExterio_eff()
@@ -711,17 +693,18 @@ namespace WindBot.Game.AI.Decks
         public bool SolemnStrike_activate()
         {
             if (!Should_counter()) return false;
-            return (DefaultSolemnStrike() && spell_trap_activate(true));
+            return DefaultSolemnStrike() && spell_trap_activate();
         }
 
         public bool SolemnJudgment_activate()
         {
             if (Util.IsChainTargetOnly(Card) && (Bot.HasInHand(CardId.Multifaker) || Multifaker_candeckss())) return false;
             if (!Should_counter()) return false;
-            if ((DefaultSolemnJudgment() && spell_trap_activate(true)))
+            if (DefaultSolemnJudgment() && spell_trap_activate())
             {
                 ClientCard target = Util.GetLastChainCard();
-                if (target != null && !target.IsMonster() && !spell_trap_activate(false, target)) return false;
+                if (target != null && !target.IsMonster()
+                    && DefaultCheckWhetherCardEffectIsNegated(Duel.CurrentChainInfo.LastOrDefault())) return false;
                 return true;
             }
             return false;
@@ -736,17 +719,6 @@ namespace WindBot.Game.AI.Decks
             {
                 if (m.IsMonsterShouldBeDisabledBeforeItUseEffect() && !m.IsDisabled() && Duel.LastChainPlayer != 0)
                 {
-                    if (Card.Location == CardLocation.SpellZone)
-                    {
-                        for (int i = 0; i < 5; ++ i)
-                        {
-                            if (Bot.SpellZone[i] == Card)
-                            {
-                                Impermanence_list.Add(i);
-                                break;
-                            }
-                        }
-                    }
                     if (Card.Location == CardLocation.Hand)
                     {
                         AI.SelectPlace(SelectSTPlace(Card, true));
@@ -787,7 +759,6 @@ namespace WindBot.Game.AI.Decks
                         if (card.IsFaceup() && !card.IsShouldNotBeTarget() && !card.IsShouldNotBeSpellTrapTarget())
                         {
                             AI.SelectCard(card);
-                            Impermanence_list.Add(this_seq);
                             return true;
                         }
                     }
@@ -799,17 +770,6 @@ namespace WindBot.Game.AI.Decks
                 return false;
             // negate monsters
             if (is_should_not_negate() && LastChainCard.Location == CardLocation.MonsterZone) return false;
-            if (Card.Location == CardLocation.SpellZone)
-            {
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card)
-                    {
-                        Impermanence_list.Add(i);
-                        break;
-                    }
-                }
-            }
             if (Card.Location == CardLocation.Hand)
             {
                 AI.SelectPlace(SelectSTPlace(Card, true));
@@ -834,7 +794,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Hand_act_eff()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.IsCode(CardId.AB_JS) && Util.GetLastChainCard().HasSetcode(0x11e) && Util.GetLastChainCard().Location == CardLocation.Hand) // Danger! archtype hand effect
                 return false;
             if (Card.IsCode(CardId.GO_SR) && Card.Location == CardLocation.Hand && Bot.HasInMonstersZone(CardId.GO_SR)) return false;
@@ -915,7 +875,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool GR_WC_activate()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             int warrior_count = 0;
             int pendulum_count = 0;
             int link_count = 0;
@@ -1265,7 +1225,8 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.MonsterZone && Duel.LastChainPlayer != 0 && (Protocol_activing() || !Card.IsDisabled()))
             {
                 ClientCard target =  Util.GetLastChainCard();
-                if (target != null && !spell_trap_activate(false, target)) return false;
+                if (target != null
+                    && DefaultCheckWhetherCardEffectIsNegated(Duel.CurrentChainInfo.LastOrDefault())) return false;
                 if (!Should_counter()) return false;
                 // check
                 int this_seq = GetSequence(Card);
@@ -2681,30 +2642,8 @@ namespace WindBot.Game.AI.Decks
             Silquitous_bounced = false;
             Silquitous_recycled = false;
             ss_other_monster = false;
-            Impermanence_list.Clear();
             attacked_Meluseek.Clear();
             base.OnNewTurn();
-        }
-
-        public override void OnChaining(int player, ClientCard card)
-        {
-            if (card == null) return;
-
-            if (player == 1)
-            {
-                if (card.IsCode(_CardId.InfiniteImpermanence))
-                {
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        if (Enemy.SpellZone[i] == card)
-                        {
-                            Impermanence_list.Add(4-i);
-                            break;
-                        }
-                    }
-                }
-            }
-            base.OnChaining(player, card);
         }
 
         public bool MonsterRepos()

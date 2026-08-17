@@ -498,28 +498,6 @@ namespace WindBot.Game.AI.Decks
             AI.SelectPlace(0);
         }
 
-        public bool SpellNegatable(bool isCounter = false, ClientCard target = null)
-        {
-            // target default set
-            if (target == null) target = Card;
-            // won't negate if not on field
-            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
-
-            // negate judge
-            if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !isCounter) return true;
-            if (target.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(CardId.NaturalBeast, true)) return true;
-                if (Enemy.HasInSpellZone(CardId.ImperialOrder, true) || Bot.HasInSpellZone(CardId.ImperialOrder, true)) return true;
-                if (Enemy.HasInMonstersZone(CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(CardId.SwordsmanLV7, true)) return true;
-            }
-            if (target.IsTrap())
-            {
-                if (Enemy.HasInSpellZone(CardId.RoyalDecreel, true) || Bot.HasInSpellZone(CardId.RoyalDecreel, true)) return true;
-            }
-            // how to get here?
-            return false;
-        }
         private bool SummonToDef()
         {
             AI.SelectPosition(CardPosition.Defence);
@@ -529,7 +507,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (DefaultCheckWhetherCardEffectWillBeNegated(Card, false)) return false;
                 return true;
             }
 
@@ -580,7 +558,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool PerpetuaEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             if (ActivateDescription == Util.GetStringId(XYZs.TimeThiefPerpetua, 0) ||
@@ -603,7 +581,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RedoerEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             if (Duel.Phase == DuelPhase.Standby &&
@@ -640,14 +618,14 @@ namespace WindBot.Game.AI.Decks
             return Duel.LastChainPlayer == 1 &&
                 lastChainCard != null &&
                 (lastChainCard.IsSpell() || lastChainCard.IsTrap()) &&
-                !DefaultTrapWillBeNegated();
+                !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool TimeThiefStartupEffect()
         {
             if (Card.Location == CardLocation.Hand)
             {
-                return !DefaultSpellWillBeNegated();
+                return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
             }
 
             if (Card.Location == CardLocation.Grave)
@@ -668,7 +646,7 @@ namespace WindBot.Game.AI.Decks
                         card.HasType(CardType.Xyz) && card.Overlays.Count > 0);
             }
 
-            return !DefaultSpellWillBeNegated() &&
+            return !DefaultCheckWhetherCardEffectWillBeNegated(Card) &&
                 !Bot.HasInSpellZone(Spells.TimeThiefHack, true);
         }
 
@@ -678,12 +656,12 @@ namespace WindBot.Game.AI.Decks
                 return Enemy.Graveyard.Count > 0;
 
             return Card.Location == CardLocation.SpellZone &&
-                !DefaultTrapWillBeNegated();
+                !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool TimeThiefWinderEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;
 
             if (Card.Location == CardLocation.Hand)
@@ -697,7 +675,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool TimeThiefBezelShipEffect()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card))
+            if (DefaultCheckWhetherCardEffectWillBeNegated(
+                Card, Card.Location != CardLocation.MonsterZone))
                 return false;
 
             if (Card.Location == CardLocation.Grave)
@@ -719,7 +698,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
 
             return Card.Location == CardLocation.MonsterZone &&
-                !DefaultCheckWhetherCardIsNegated(Card) &&
+                !DefaultCheckWhetherCardEffectWillBeNegated(Card, false) &&
                 Bot.UnderAttack;
         }
 
@@ -806,14 +785,14 @@ namespace WindBot.Game.AI.Decks
         }
         private bool PotOfDesireseff()
         {
-            return Bot.Deck.Count > 14 && !DefaultSpellWillBeNegated();
+            return Bot.Deck.Count > 14 && !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         // activate of PotofExtravagance
         public bool PotofExtravaganceActivate()
         {
             // won't activate if it'll be negate
-            if (SpellNegatable()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             SelectSTPlace(Card, true);
             AI.SelectOption(1);
             return true;

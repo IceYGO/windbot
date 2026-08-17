@@ -68,7 +68,6 @@ namespace WindBot.Game.AI.Decks
             return 1;
         }
 
-        List<int> Impermanence_list = new List<int>();
         bool NormalSummoned = false;
         ClientCard stage_locked = null;
         bool pink_ss = false;
@@ -78,8 +77,6 @@ namespace WindBot.Game.AI.Decks
         bool white_eff_used = false;
         bool lockbird_useful = false;
         bool lockbird_used = false;
-        List<int> currentNegatingIdList = new List<int>();
-
         List<int> SkyStrike_list = new List<int> {
             26077387, 8491308, 63288573, 90673288,
             21623008, 25955749, 63166095, 99550630,
@@ -199,7 +196,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && Impermanence_list.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoid_Impermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     list.Add(seq);
                 }
             }
@@ -256,23 +253,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool spell_trap_activate()
         {
-            if (Card.Location != CardLocation.SpellZone && Card.Location != CardLocation.Hand) return true;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
-            if (Enemy.HasInMonstersZone(CardId.Exterio,true) && !Bot.HasInHandOrHasInMonstersZone(CardId.Ghost)) return false;
-            if (Card.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(_CardId.NaturiaBeast, true) && !Bot.HasInHandOrHasInMonstersZone(CardId.Ghost)) return false;
-                if (Enemy.HasInSpellZone(_CardId.ImperialOrder, true) || Bot.HasInSpellZone(_CardId.ImperialOrder, true)) return false;
-                if (Enemy.HasInMonstersZone(37267041, true) || Bot.HasInMonstersZone(37267041, true)) return false;
-                return true;
-            }
-            if (Card.IsTrap())
-            {
-                if (Enemy.HasInSpellZone(_CardId.RoyalDecreel, true) || Bot.HasInSpellZone(_CardId.RoyalDecreel, true)) return false;
-                return true;
-            }
-            // how to get here?
-            return false;
+            return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         public int[] Useless_List()
@@ -600,7 +581,7 @@ namespace WindBot.Game.AI.Decks
                     stage_locked = null;
                     return true;
                 }
-                if (Enemy.GetMonsterCount() > 0 && Util.GetBestEnemyMonster().Attack >= Util.GetBestAttack(Bot) && !Bot.HasInHand(CardId.White) && !DefaultCheckWhetherCardIdIsNegated(CardId.White))
+                if (Enemy.GetMonsterCount() > 0 && Util.GetBestEnemyMonster().Attack >= Util.GetBestAttack(Bot) && !Bot.HasInHand(CardId.White) && !DefaultCheckWhetherCardEffectWillBeNegated(CardId.White))
                 {
                     AI.SelectCard(CardId.White, CardId.Yellow, CardId.Pink, CardId.Red);
                     stage_locked = null;
@@ -633,7 +614,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool Hand_act_eff()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.IsCode(CardId.Urara) && Util.GetLastChainCard().HasSetcode(0x11e) && Util.GetLastChainCard().Location == CardLocation.Hand) // Danger! archtype hand effect
                 return false;
             if (Card.IsCode(CardId.Urara) && Bot.HasInHand(CardId.LockBird) && Bot.HasInSpellZone(CardId.Re)) return false;
@@ -653,7 +634,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool G_act()
         {
-            return Duel.Player == 1 && !DefaultCheckWhetherCardIsNegated(Card);
+            return Duel.Player == 1 && !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         public bool Pink_eff()
@@ -756,7 +737,7 @@ namespace WindBot.Game.AI.Decks
         public bool Red_ss()
         {
             if ((Util.ChainContainsCard(CardId.DarkHole) || Util.ChainContainsCard(_CardId.InterruptedKaijuSlumber) || Util.ChainContainsCard(_CardId.TorrentialTribute)) && Util.ChainContainsCard(CardId.Red)) return false;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Duel.LastChainPlayer == 0 && Util.GetLastChainCard().IsCode(CardId.Red))
             {
                 foreach (ClientCard m in Bot.GetMonsters())
@@ -913,7 +894,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool White_eff()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Duel.Phase >= DuelPhase.Main2) return false;
             if (Duel.Phase > DuelPhase.Main1 && Duel.Phase < DuelPhase.Main2)
             {
@@ -970,7 +951,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool LockBird_act()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Duel.Player == 0 || lockbird_used) return false;
             lockbird_useful = true;
             if (Bot.HasInSpellZone(CardId.Re))
@@ -1009,7 +990,7 @@ namespace WindBot.Game.AI.Decks
                 }
                 return false;
             }
-            if (Bot.HasInHand(CardId.Pink) && DefaultCheckWhetherCardIdIsNegated(CardId.Pink))
+            if (Bot.HasInHand(CardId.Pink) && DefaultCheckWhetherCardEffectWillBeNegated(CardId.Pink))
             {
                 AI.SelectCard(CardId.Pink);
                 return true;
@@ -1610,11 +1591,11 @@ namespace WindBot.Game.AI.Decks
                 if (Util.GetLastChainCard().IsMonster())
                 {
                     int code = Util.GetLastChainCard().GetOriginCode();
-                    if (CheckWhetherNegated(code)) return false;
+                    if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                     ClientCard target = Enemy.Graveyard.GetFirstMatchingCard(c => c.GetOriginCode() == code);
                     if (target != null)
                     {
-                        currentNegatingIdList.Add(code);
+                        DefaultAddPendingNegatingCard(code);
                         AI.SelectCard(target);
                         return true;
                     }
@@ -1710,41 +1691,7 @@ namespace WindBot.Game.AI.Decks
             white_eff_used = false;
             lockbird_useful = false;
             lockbird_used = false;
-            Impermanence_list.Clear();
-            currentNegatingIdList.Clear();
             base.OnNewTurn();
-        }
-
-        public override void OnChaining(int player, ClientCard card)
-        {
-            if (card == null) return;
-
-            if (player == 1)
-            {
-                if (card.IsCode(_CardId.InfiniteImpermanence))
-                {
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        if (Enemy.SpellZone[i] == card)
-                        {
-                            Impermanence_list.Add(4-i);
-                            break;
-                        }
-                    }
-                }
-            }
-            base.OnChaining(player, card);
-        }
-
-        public override void OnChainEnd()
-        {
-            currentNegatingIdList.Clear();
-            base.OnChainEnd();
-        }
-
-        public bool CheckWhetherNegated(int cardId)
-        {
-            return DefaultCheckWhetherCardIdIsNegated(cardId) || currentNegatingIdList.Contains(cardId);
         }
 
         public override BattlePhaseAction OnSelectAttackTarget(ClientCard attacker, IList<ClientCard> defenders)
@@ -1796,7 +1743,9 @@ namespace WindBot.Game.AI.Decks
         {
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
-                if (IsTrickstar(attacker) && Bot.HasInHand(CardId.White) && !white_eff_used && !CheckWhetherNegated(CardId.White))
+                ClientCard white = Bot.Hand.FirstOrDefault(card => card.IsCode(CardId.White));
+                if (IsTrickstar(attacker) && white != null && !white_eff_used
+                    && !DefaultCheckWhetherCardEffectWillBeNegated(white))
                     attacker.RealPower += attacker.Attack;
             }
             return base.OnPreBattleBetween(attacker, defender);

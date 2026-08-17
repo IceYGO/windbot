@@ -279,7 +279,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CardOfDemiseeff()
         {
-            if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             AI.SelectPlace(Zones.z2);
             if(Card.Location==CardLocation.Hand)
             {
@@ -302,7 +302,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FossilDigeff()
         {
-            if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (CardOfDemiseeff_used && summon_used) return false;
             return true;
         }
@@ -356,14 +356,14 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Terraformingeff()
         {
-            if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (CardOfDemiseeff_used && Bot.HasInSpellZone(CardId.PacifisThePhantasmCity)) return false;
             return true;
         }
         
         private bool PacifisThePhantasmCityeff()
         {
-            if (DefaultSpellWillBeNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if(Card.Location==CardLocation.Hand)
             {
                 if (Bot.HasInSpellZone(CardId.PacifisThePhantasmCity))

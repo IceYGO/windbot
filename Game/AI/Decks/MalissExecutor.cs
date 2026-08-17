@@ -298,8 +298,6 @@ namespace WindBot.Game.AI.Decks
         bool enemyActivateMaxxC = false;
         bool enemyActivateLockBird = false;
         int dimensionShifterCount = 0;
-        bool enemyActivateInfiniteImpermanenceFromHand = false;
-        List<int> infiniteImpermanenceList = new List<int>();
         List<ClientCard> currentNegateCardList = new List<ClientCard>();
         List<ClientCard> currentDestroyCardList = new List<ClientCard>();
         List<ClientCard> sendToGYThisTurn = new List<ClientCard>();
@@ -653,7 +651,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool AshBlossomActivate()
         {
-            if (CheckWhetherNegated(true) || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard().IsCode(_CardId.MaxxC))
             {
                 if (CheckAtAdvantage() && Duel.Turn > 1)
@@ -666,28 +664,17 @@ namespace WindBot.Game.AI.Decks
 
         public bool MaxxCActivate()
         {
-            if (CheckWhetherNegated(true) || Duel.LastChainPlayer == 0) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || Duel.LastChainPlayer == 0) return false;
             return DefaultMaxxC();
         }
 
         public bool InfiniteImpermanenceActivate()
         {
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             foreach (ClientCard m in Enemy.GetMonsters())
             {
                 if (m.IsMonsterShouldBeDisabledBeforeItUseEffect() && !m.IsDisabled() && Duel.LastChainPlayer != 0)
                 {
-                    if (Card.Location == CardLocation.SpellZone)
-                    {
-                        for (int i = 0; i < 5; ++i)
-                        {
-                            if (Bot.SpellZone[i] == Card)
-                            {
-                                infiniteImpermanenceList.Add(i);
-                                break;
-                            }
-                        }
-                    }
                     if (Card.Location == CardLocation.Hand)
                     {
                         SelectSTPlace(Card, true);
@@ -718,7 +705,6 @@ namespace WindBot.Game.AI.Decks
                     ClientCard target = GetProblematicEnemyMonster(canBeTarget: true);
                     List<ClientCard> enemyMonsters = Enemy.GetMonsters();
                     AI.SelectCard(target);
-                    infiniteImpermanenceList.Add(this_seq);
                     return true;
                 }
             }
@@ -726,17 +712,6 @@ namespace WindBot.Game.AI.Decks
                 || LastChainCard.IsDisabled() || LastChainCard.IsShouldNotBeTarget() || LastChainCard.IsShouldNotBeSpellTrapTarget()))
                 return false;
 
-            if (Card.Location == CardLocation.SpellZone)
-            {
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card)
-                    {
-                        infiniteImpermanenceList.Add(i);
-                        break;
-                    }
-                }
-            }
             if (Card.Location == CardLocation.Hand)
             {
                 SelectSTPlace(Card, true);
@@ -761,14 +736,14 @@ namespace WindBot.Game.AI.Decks
 
         public bool CrossoutDesignatorActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard() != null)
             {
                 int code = Util.GetLastChainCard().Id;
                 int alias = Util.GetLastChainCard().Alias;
                 if (alias != 0 && alias - code < 10) code = alias;
                 if (code == 0) return false;
-                if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
+                if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                 if (Bot.HasInDeck(code))
                 {
                     if (!(Card.Location == CardLocation.SpellZone))
@@ -785,7 +760,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool CalledbytheGraveActivate()
         {
-            if (CheckWhetherNegated() || !CheckLastChainShouldNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated())
             {
                 return false;
             }
@@ -795,7 +770,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     int code = Util.GetLastChainCard().GetOriginCode();
                     if (code == 0) return false;
-                    if (DefaultCheckWhetherCardIdIsNegated(code)) return false;
+                    if (DefaultCheckWhetherCardEffectIsNegated(Util.GetLastChainCard())) return false;
                     if (Util.GetLastChainCard().IsCode(_CardId.MaxxC) && CheckAtAdvantage() && Duel.Turn > 1)
                     {
                         return false;
@@ -916,28 +891,6 @@ namespace WindBot.Game.AI.Decks
             return result;
         }
 
-        public bool CheckWhetherNegated(bool disablecheck = true, bool toFieldCheck = false, CardType type = 0)
-        {
-            bool isMonster = type == 0 && Card.IsMonster();
-            isMonster |= ((int)type & (int)CardType.Monster) != 0;
-            bool isSpellOrTrap = type == 0 && (Card.IsSpell() || Card.IsTrap());
-            isSpellOrTrap |= (((int)type & (int)CardType.Spell) != 0) || (((int)type & (int)CardType.Trap) != 0);
-            bool isCounter = ((int)type & (int)CardType.Counter) != 0;
-            if (isSpellOrTrap && toFieldCheck && CheckSpellWillBeNegate(isCounter))
-                return true;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return true;
-            if (isMonster && (toFieldCheck || Card.Location == CardLocation.MonsterZone))
-            {
-                if ((toFieldCheck && (((int)type & (int)CardType.Link) == 0)) || Card.IsDefense())
-                {
-                    if (DefaultCheckWhetherNumber41IsActive()) return true;
-                }
-                if (Enemy.HasInSpellZone(CardId.SkillDrain, true)) return true;
-            }
-            if (disablecheck) return (Card.Location == CardLocation.MonsterZone || Card.Location == CardLocation.SpellZone) && Card.IsDisabled() && Card.IsFaceup();
-            return false;
-        }
-
         public void SelectSTPlace(ClientCard card = null, bool avoidImpermanence = false, List<int> avoidList = null)
         {
             if (card == null) card = Card;
@@ -946,7 +899,7 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Bot.SpellZone[seq] == null)
                 {
-                    if (card != null && card.Location == CardLocation.Hand && avoidImpermanence && infiniteImpermanenceList.Contains(seq)) continue;
+                    if (card != null && card.Location == CardLocation.Hand && avoidImpermanence && infiniteImpermanenceNegatedColumns.Contains(seq)) continue;
                     if (avoidList != null && avoidList.Contains(seq)) continue;
                     list.Add(seq);
                 }
@@ -972,38 +925,14 @@ namespace WindBot.Game.AI.Decks
             AI.SelectPlace(0);
         }
 
-        public bool CheckSpellWillBeNegate(bool isCounter = false, ClientCard target = null)
-        {
-            if (target == null) target = Card;
-            if (target.Location != CardLocation.SpellZone && target.Location != CardLocation.Hand) return false;
-
-            if (Enemy.HasInMonstersZone(CardId.NaturalExterio, true) && !isCounter) return true;
-            if (target.IsSpell())
-            {
-                if (Enemy.HasInMonstersZone(CardId.NaturalBeast, true)) return true;
-                if (Enemy.HasInSpellZone(CardId.ImperialOrder, true) || Bot.HasInSpellZone(CardId.ImperialOrder, true)) return true;
-                if (Enemy.HasInMonstersZone(CardId.SwordsmanLV7, true) || Bot.HasInMonstersZone(CardId.SwordsmanLV7, true)) return true;
-            }
-            if (target.IsTrap() && (Enemy.HasInSpellZone(CardId.RoyalDecree, true) || Bot.HasInSpellZone(CardId.RoyalDecree, true))) return true;
-            if (target.Location == CardLocation.SpellZone && (target.IsSpell() || target.IsTrap()))
-            {
-                int selfSeq = -1;
-                for (int i = 0; i < 5; ++i)
-                {
-                    if (Bot.SpellZone[i] == Card) selfSeq = i;
-                }
-                if (infiniteImpermanenceList.Contains(selfSeq)) return true;
-            }
-            return false;
-        }
-
         public bool CheckLastChainShouldNegated()
         {
-            ClientCard lastcard = Util.GetLastChainCard();
-            if (lastcard == null || lastcard.Controller != 1) return false;
+            ChainInfo lastChainInfo = Duel.CurrentChainInfo.LastOrDefault();
+            ClientCard lastcard = lastChainInfo?.RelatedCard;
+            if (lastcard == null || lastChainInfo.ActivatePlayer != 1) return false;
             if (lastcard.IsMonster() && lastcard.HasSetcode(SetcodeTimeLord) && Duel.Phase == DuelPhase.Standby) return false;
             if (notToNegateIdList.Contains(lastcard.Id)) return false;
-            if (DefaultCheckWhetherCardIsNegated(lastcard)) return false;
+            if (DefaultCheckWhetherCardEffectIsNegated(lastChainInfo)) return false;
             if (Duel.Turn == 1 && lastcard.IsCode(_CardId.MaxxC)) return false;
 
             return true;
@@ -1127,7 +1056,7 @@ namespace WindBot.Game.AI.Decks
         public List<ClientCard> GetMonsterListForTargetNegate(bool canBeTarget = false, CardType selfType = 0)
         {
             List<ClientCard> resultList = new List<ClientCard>();
-            if (CheckWhetherNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 return resultList;
             }
@@ -1240,17 +1169,6 @@ namespace WindBot.Game.AI.Decks
                 if (currentChain.IsActivateCode(_CardId.MaxxC)) enemyActivateMaxxC = true;
                 if (currentChain.IsActivateCode(CardId.Fuwalos)) enemyActivateFuwalos = true;
                 if (currentChain.IsActivateCode(_CardId.LockBird)) enemyActivateLockBird = true;
-                if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
-                {
-                    for (int i = 0; i < 5; ++i)
-                    {
-                        if (Enemy.SpellZone[i] == currentChain.RelatedCard)
-                        {
-                            infiniteImpermanenceList.Add(4 - i);
-                            break;
-                        }
-                    }
-                }
                 if (currentChain.IsSpell() && (currentChain.HasType(CardType.Field) || currentChain.HasType(CardType.Continuous) || currentChain.HasType(CardType.Equip)))
                     _oppJustActivatedPersistentSpell = true;
                 _prefWindowTTL = Math.Max(_prefWindowTTL, 2);
@@ -1267,7 +1185,6 @@ namespace WindBot.Game.AI.Decks
             escapeTargetList.Clear();
             currentNegateCardList.Clear();
             currentDestroyCardList.Clear();
-            enemyActivateInfiniteImpermanenceFromHand = false;
             _oppJustActivatedPersistentSpell = false;
             int curMon = Enemy.GetMonsterCount();
             if (curMon > _enemyMonsterCountSnap) _oppJustSummoned = true;
@@ -1295,9 +1212,7 @@ namespace WindBot.Game.AI.Decks
             enemyActivateFuwalos = false; //added
             enemyActivateMaxxC = false;
             enemyActivateLockBird = false;
-            enemyActivateInfiniteImpermanenceFromHand = false;
             if (dimensionShifterCount > 0) dimensionShifterCount--;
-            infiniteImpermanenceList.Clear();
             currentNegateCardList.Clear();
             currentDestroyCardList.Clear();
             sendToGYThisTurn.Clear();
@@ -1585,10 +1500,9 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Dormouse_ForMH()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (!CanContinueStep1()) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             int pick = 0;
             if (goldstart || undergroundstart)
             {
@@ -1611,7 +1525,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Step1_WhiteRabbit_SS_FromBanished()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (enemyActivateLancea) return false;
             if (Card.Id != CardId.MalissP_WhiteRabbit) return false;
             if (Card.Location != CardLocation.Removed) return false;
@@ -1625,10 +1539,9 @@ namespace WindBot.Game.AI.Decks
 
         private bool Step1_WhiteRabbit_SetTrapOnSummon()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Id != CardId.MalissP_WhiteRabbit) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             int trapToSet = PickMalissTrapToSet();
             if (trapToSet == 0) return false;
@@ -1656,7 +1569,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Dormouse_SS_FromBanished()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Id != CardId.MalissP_Dormouse) return false;
             if (Card.Location != CardLocation.Removed) return false;
             if (enemyActivateLancea) return false;
@@ -1669,7 +1582,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ChessyCat_SS_FromBanished()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Id != CardId.MalissP_ChessyCat) return false;
             if (Card.Location != CardLocation.Removed) return false;
             if (enemyActivateLancea) return false;
@@ -1726,7 +1639,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GoldSarc_StartPiece()
         {
-            if (CheckSpellWillBeNegate()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (enemyActivateLancea) { return false; }
             if (Bot.HasInHand(CardId.MalissP_Dormouse) || Bot.HasInHand(CardId.MalissP_WhiteRabbit)) { return false; }
             int pick = 0;
@@ -1779,8 +1692,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool Terra_GrabUnderground()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
-            if (CheckSpellWillBeNegate()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActiveUnderground) return false;
             if (Bot.HasInHand(CardId.MalissInUnderground) || Bot.HasInSpellZone(CardId.MalissInUnderground))
                 return false;
@@ -1838,7 +1750,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool OneBody_Backup_SS()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             bool haveLinkAnchor = Bot.HasInMonstersZone(CardId.Linguriboh) || Bot.HasInMonstersZone(CardId.SplashMage);
             if (!haveLinkAnchor) return false;
             if (Card.Location != CardLocation.Hand) return false;
@@ -1848,7 +1760,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool OneBody_Backup_SearchWizard()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!Card.IsCode(CardId.BackupIgnister)) return false;
 
             if (Bot.Hand.Count == 0) return false;
@@ -1931,7 +1843,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool OneBody_Wizard_SS()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!Bot.HasInMonstersZone(CardId.Linguriboh) && !Bot.HasInMonstersZone(CardId.SALAMANGREAT_ALMIRAJ)) return false;
             if (Card.Location != CardLocation.Hand) return false;
 
@@ -2017,10 +1929,9 @@ namespace WindBot.Game.AI.Decks
         }
         private bool AnyDraw()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Id != CardId.MalissP_ChessyCat) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             ClientCard target = null;
 
@@ -2115,7 +2026,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step2_RedRansom_Search()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             int chooseId = 0;
             bool shouldUG = ShouldSearchUnderground();
             if (shouldUG)
@@ -2152,7 +2063,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step2_SplashMage_ReviveP()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (step2Done) return false;
 
             if (!Bot.HasInMonstersZone(CardId.SplashMage)) return false;
@@ -2166,7 +2077,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step2N_SplashMage_ReviveP()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!Bot.HasInMonstersZone(CardId.SplashMage)) return false;
 
             int pick = PickPFromGYForSplash();
@@ -2210,7 +2121,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step2_Fallback_Wizard_AfterSplashNegated()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!splashNegatedThisTurn) return false;
             if (Card.Location != CardLocation.Hand) return false;
 
@@ -2224,7 +2135,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step2_Fallback_Backup_AfterSplashNegated()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!splashNegatedThisTurn) return false;
             if (Card.Location != CardLocation.Hand) return false;
 
@@ -2331,8 +2242,7 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
 
-            if (CheckSpellWillBeNegate()) return false;
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             var cost = PickMirrorCostCandidate();
             if (cost == null) return false;
             foreach (ClientCard m in Enemy.GetMonsters())
@@ -2395,7 +2305,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Flow3_BackupIgnister_AfterMakeIt3()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!madeIt3) return false;
             if (Card.Location != CardLocation.Hand) return false;
 
@@ -2404,7 +2314,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Flow3_WizardIgnister_AfterMakeIt3()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!madeIt3) return false;
             if (Card.Location != CardLocation.Hand) return false;
 
@@ -2417,7 +2327,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool RR_SS_FromBanished()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Id != CardId.MalissQ_RedRansom) return false;
             if (Card.Location != CardLocation.Removed) return false;
             if (GetMMZCount() >= 5) return false;
@@ -2457,7 +2367,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Wicckid_SearchTuner()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (!Bot.HasInDeck(CardId.BackupIgnister)) return false;
             var cost = PickGYCyberseForWicckidCost_Safe();
             if (cost == null)
@@ -2472,14 +2382,14 @@ namespace WindBot.Game.AI.Decks
         }
         private bool LinkDecoder_ReviveFromGY()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location != CardLocation.Grave) { return false; }
             if (Allied_End) { return false; }
             return true;
         }
         private bool Transcode_ReviveLink3OrLower()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
 
             var prefer = Bot.Graveyard.GetFirstMatchingCard(c => c.IsCode(CardId.CyberseWicckid))
@@ -2497,8 +2407,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Allied_NegateBanish()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
-            if (CheckWhetherNegated(true) || !CheckLastChainShouldNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card) || !CheckLastChainShouldNegated()) return false;
             var allied = Bot.MonsterZone.GetFirstMatchingCard(m => m != null && m.IsCode(CardId.AlliedCodeTalkerIgnister));
             if (allied == null || allied.IsDisabled()) return false;
             bool haveAnyLink = Bot.GetMonsters().Any(m => m != null && m.HasType(CardType.Link) && !m.IsCode(CardId.AlliedCodeTalkerIgnister));
@@ -2539,10 +2448,9 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Dormouse_Banish_Anytime()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Id != CardId.MalissP_Dormouse) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (enemyActivateLancea) return false;
             if (!HasFreeMMZ()) return false;
 
@@ -2605,7 +2513,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Allied_OnSummonTrigger()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             var me = Bot.MonsterZone.GetFirstMatchingCard(m => m != null && m.IsCode(CardId.AlliedCodeTalkerIgnister));
             if (me == null) return false;
 
@@ -2806,7 +2714,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ssFromHandMH()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location != CardLocation.Hand) return false;
             if (GetMMZCount() > 3) return false;
             if (enemyActivateLancea) return false;
@@ -2866,7 +2774,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Step1_MH_FromHand()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location != CardLocation.Hand) return false;
             if (Bot.GetMonsterCount() > 1) return false;
             if (enemyActivateLancea) return false;
@@ -2916,7 +2824,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool returnFromBanish()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location != CardLocation.Removed) return false;
 
             var mh = Bot.Banished.GetFirstMatchingCard(
@@ -2930,7 +2838,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool WB_OnSummon_BanishGY()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
 
             const int MAX_PICKS = 3;
@@ -3094,7 +3002,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool WB_OnBanished_SelfSS()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location != CardLocation.Removed) return false;
             if (GetMMZCount() >= 5) return false;
             if (Bot.LifePoints <= 900)
@@ -3117,7 +3025,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool WB_SetMalissTrap()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription != Util.GetStringId(CardId.MalissQ_WhiteBinder, 1)) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
 
@@ -3280,10 +3188,9 @@ namespace WindBot.Game.AI.Decks
         }
         private bool HC_Quick_ReturnBanished_AndBanishField()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (ActivateDescription != Util.GetStringId(CardId.MalissQ_HeartsCrypter, 0)) return false;
             if (Card.Location != CardLocation.MonsterZone) return false;
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             RefreshNoChainWindows();
 
@@ -3338,7 +3245,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool HC_OnBanished_SpecialSummon()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (Card.Location != CardLocation.Removed) return false;
 
             if (GetMMZCount() >= 5)
@@ -3490,7 +3397,6 @@ namespace WindBot.Game.AI.Decks
         }
         private bool GWC06_MyTurn_Extend()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Duel.Player == 0 &&
                 GetMMZCount() >= 4 &&
                 Bot.HasInMonstersZone(CardId.FirewallDragon) &&
@@ -3499,7 +3405,7 @@ namespace WindBot.Game.AI.Decks
                 Bot.HasInMonstersZoneOrInGraveyard(CardId.MalissQ_HeartsCrypter))) return false;
             if (Duel.Player != 0) return false;
             if (!(Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2)) return false;
-            if (CheckSpellWillBeNegate()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (GetMMZCount() >= 5) return false;
             if (!Bot.HasInMonstersZone(CardId.MalissQ_WhiteBinder) && !(Bot.HasInMonstersZone(CardId.MalissQ_RedRansom) && Bot.GetMonsterCount() == 1)) return false;
             var target = PickGWC06TargetExtend();
@@ -3519,7 +3425,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Player != 1) return false;
             if (!Bot.HasInSpellZone(CardId.MalissC_GWC06)) return false;
-            if (CheckSpellWillBeNegate()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (GetMMZCount() >= 5) return false;
 
             var target = FindGWC06TargetByOrder(
@@ -3609,8 +3515,7 @@ namespace WindBot.Game.AI.Decks
         private bool MTP07_ForMH()
         {
             if (!(Bot.GetMonsterCount() == 1 && Bot.HasInMonstersZone(CardId.MalissP_WhiteRabbit))) return false;
-            if (CheckSpellWillBeNegate()) return false;
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
 
             int searchId = PickMTP07SearchId();
             if (searchId == 0) return false;
@@ -3628,8 +3533,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Player != 1) return false;
             if (!HasMalissLinkFaceup()) return false;
-            if (CheckSpellWillBeNegate()) return false;
-            if (CheckWhetherNegated()) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             var urgent = GetProblematicEnemyCardList(canBeTarget: true, ignoreSpells: false, selfType: CardType.Trap);
             if (urgent.Count == 0 && !IsPreferredRemovalTiming()) return false;
             bool preBattle = Duel.Phase == DuelPhase.Main1 && Enemy.GetMonsterCount() > 0;
@@ -3859,7 +3763,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool FirewallBounce_OnOppSummon()
         {
-            if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription != Util.GetStringId(CardId.FirewallDragon, 0))
                 return false;
 
@@ -4071,7 +3975,7 @@ namespace WindBot.Game.AI.Decks
                 .Where(seq =>
                 {
                     if (Bot.SpellZone[seq] != null) return false;
-                    if (infiniteImpermanenceList.Contains(seq)) return false;
+                    if (infiniteImpermanenceNegatedColumns.Contains(seq)) return false;
                     return true;
                 })
                 .ToList();

@@ -231,7 +231,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool RescueRabbitSummon()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card)) return false;
             return Util.GetBotAvailZonesFromExtraDeck() > 0
                 || !Enemy.MonsterZone.IsExistingMatchingCard(card => card.GetDefensePower() >= 1900)
                 || Enemy.MonsterZone.GetMatchingCardsCount(card => card.GetDefensePower() < 1900) > Bot.MonsterZone.GetMatchingCardsCount(card => card.Attack >= 1900);

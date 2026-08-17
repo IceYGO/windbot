@@ -306,12 +306,12 @@ namespace WindBot.Game.AI.Decks
         }
         private bool UpstartGoblineff()
         {         
-            return !DefaultSpellWillBeNegated();
+            return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool PotOfDualityeff()
         {
-            if (DefaultSpellWillBeNegated())
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card))
                 return false;          
             int count = 0;
             if (Bot.GetMonsterCount() > 0)
@@ -361,12 +361,12 @@ namespace WindBot.Game.AI.Decks
         private bool PotOfDesireseff()
         {
             if (CardOfDemiseeff_used) return false;          
-            return Bot.Deck.Count > 14 && !DefaultSpellWillBeNegated();
+            return Bot.Deck.Count > 14 && !DefaultCheckWhetherCardEffectWillBeNegated(Card);
         }
 
         private bool CardOfDemiseeff()
         {          
-            if (Bot.Hand.Count == 1 && Bot.GetSpellCountWithoutField() <= 3 && !DefaultSpellWillBeNegated())
+            if (Bot.Hand.Count == 1 && Bot.GetSpellCountWithoutField() <= 3 && !DefaultCheckWhetherCardEffectWillBeNegated(Card))
             {
                 CardOfDemiseeff_used = true;
                 return true;
@@ -386,7 +386,7 @@ namespace WindBot.Game.AI.Decks
             if(Card.Location==CardLocation.Hand)
             {
                 if (Bot.GetMonsterCount() == 0) return false;
-                return !DefaultSpellWillBeNegated();
+                return !DefaultCheckWhetherCardEffectWillBeNegated(Card);
             }
             if(Card.Location==CardLocation.Grave)
             {
@@ -572,7 +572,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MetalSnakesp()
         {
-            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            if (DefaultCheckWhetherCardEffectWillBeNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.MetalSnake, 0) && !Bot.HasInMonstersZone(CardId.MetalSnake))
             {
                 if(Duel.Player == 1 && Duel.Phase >= DuelPhase.BattleStart )

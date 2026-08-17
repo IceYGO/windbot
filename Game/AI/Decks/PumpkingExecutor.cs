@@ -1009,7 +1009,7 @@ namespace WindBot.Game.AI.Decks
                 && c.IsFaceup()
                 && c.IsCode(CardId.OfficiatorOfDoomSamuel));
             if (samuel == null || samuel.IsDisabled()
-                || IsCardEffectNegated(samuel)
+                || WillCardEffectBeNegated(samuel)
                 || samuel.Overlays == null || samuel.Overlays.Count <= 0)
             {
                 return null;
@@ -1750,9 +1750,9 @@ namespace WindBot.Game.AI.Decks
             return !dominusImpulseHandLock;
         }
 
-        private bool IsCardEffectNegated(ClientCard card = null)
+        private bool WillCardEffectBeNegated(ClientCard card = null)
         {
-            return DefaultCheckWhetherCardIsNegated(card ?? Card);
+            return DefaultCheckWhetherCardEffectWillBeNegated(card ?? Card);
         }
 
         private bool IsOpponentChainWorthNegating(ClientCard card)
@@ -5123,7 +5123,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GhostBelleActivate()
         {
-            if (!CanUseEarthMonsterEffects() || IsCardEffectNegated())
+            if (!CanUseEarthMonsterEffects() || WillCardEffectBeNegated())
                 return false;
             return DefaultGhostBelleAndHauntedMansion();
         }
@@ -5153,7 +5153,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DominusImpulseActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
 
@@ -5175,7 +5175,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool VortexOfTimeActivate()
         {
-            if (IsCardEffectNegated() || Duel.LastChainPlayer != 1)
+            if (WillCardEffectBeNegated() || Duel.LastChainPlayer != 1)
                 return false;
             if (!HasFaceupCall() || !Bot.GetMonsters().Any(IsZombie))
                 return false;
@@ -5195,7 +5195,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DoomkingBalerdrochActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
 
@@ -5225,7 +5225,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool VarudrasActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
             if (IsFriendlyChainInProgress())
             {
@@ -5308,7 +5308,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool EvolzarLarsActivate()
         {
-            if (IsCardEffectNegated() || Duel.LastChainPlayer != 1)
+            if (WillCardEffectBeNegated() || Duel.LastChainPlayer != 1)
                 return false;
             return Enemy.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled() && !c.IsShouldNotBeTarget())
                 || Enemy.GetSpells().Any(c => c.IsFaceup() && !c.IsDisabled() && !c.IsShouldNotBeTarget());
@@ -5317,7 +5317,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TerraformingActivate()
         {
-            if (IsCardEffectNegated() || !DefaultCheckWhetherBotCanSearch())
+            if (WillCardEffectBeNegated() || !DefaultCheckWhetherBotCanSearch())
                 return false;
             if (Bot.HasInHand(CardId.DeltaOfInvitation)
                 || Bot.HasInSpellZone(CardId.DeltaOfInvitation, faceUp: true))
@@ -5330,7 +5330,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DeltaOfInvitationActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
             if (Card.Location == CardLocation.SpellZone && Card.IsFaceup())
@@ -5364,7 +5364,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool EctoplasmicFortificationActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
             if (Bot.GetMonsterCount() == 0 && DefaultCheckWhetherBotCanSearch())
@@ -5390,7 +5390,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool StareOfTheSnakeHairHandActivate()
         {
-            if (Card.Location != CardLocation.Hand || IsCardEffectNegated())
+            if (Card.Location != CardLocation.Hand || WillCardEffectBeNegated())
                 return false;
 
 
@@ -5414,7 +5414,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool StareOfTheSnakeHairFieldActivate()
         {
-            if (Card.Location != CardLocation.MonsterZone || IsCardEffectNegated())
+            if (Card.Location != CardLocation.MonsterZone || WillCardEffectBeNegated())
                 return false;
 
             if (pendingSnakehairDisableTarget != null)
@@ -5436,7 +5436,7 @@ namespace WindBot.Game.AI.Decks
         private bool PumpkingHandActivate()
         {
             if (Card.Location != CardLocation.Hand
-                || IsCardEffectNegated()
+                || WillCardEffectBeNegated()
                 || HasConfirmedOpenStateBattleLethal())
             {
                 return false;
@@ -5477,7 +5477,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool PumpkingSummonActivate()
         {
-            if (Card.Location != CardLocation.MonsterZone || IsCardEffectNegated())
+            if (Card.Location != CardLocation.MonsterZone || WillCardEffectBeNegated())
                 return false;
             if (!HasOpenMainMonsterZone() || pumpkingSummonEffectAttempted)
                 return false;
@@ -5655,7 +5655,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FoolishBurialActivate()
         {
-            if (IsCardEffectNegated() || HasImmediatePumpkingActionPending()
+            if (WillCardEffectBeNegated() || HasImmediatePumpkingActionPending()
                 || eldlichRouteRank10CommitPending)
                 return false;
 
@@ -5692,7 +5692,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool HublotSummon()
         {
-            if (IsCardEffectNegated() || !HasOpenMainMonsterZone() || summonCount <= 0)
+            if (DefaultCheckWhetherCardWillBeNegatedOnField(Card) || !HasOpenMainMonsterZone() || summonCount <= 0)
                 return false;
             if (ShouldDelayHublotForPumpkingSearch())
                 return false;
@@ -5731,7 +5731,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HublotActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
             int xyzDescription = Util.GetStringId(Card.Id, 2);
@@ -5893,7 +5893,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool OfficiatingReverieActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
             if (Card.Location == CardLocation.Hand)
@@ -5956,7 +5956,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ArmyOfTheHauntedActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
             if (eldlichRouteRank10CommitPending)
             {
@@ -6013,7 +6013,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool CallOfTheHauntedActivate()
         {
-            if (IsCardEffectNegated() || !HasOpenMainMonsterZone())
+            if (WillCardEffectBeNegated() || !HasOpenMainMonsterZone())
                 return false;
             if (Duel.Player == 1 && IsFriendlyChainInProgress())
             {
@@ -6177,7 +6177,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MezukiActivate()
         {
-            if (!CanUseEarthMonsterEffects() || IsCardEffectNegated()
+            if (!CanUseEarthMonsterEffects() || WillCardEffectBeNegated()
                 || eldlichRouteRank10CommitPending)
                 return false;
             if (Card.Location != CardLocation.Grave || !HasOpenMainMonsterZone())
@@ -6219,7 +6219,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
 
-            if (IsCardEffectNegated()
+            if (WillCardEffectBeNegated()
                 || Card.Location != CardLocation.Grave
                 || vampireGraceReviveCommittedThisTurn
                 || Duel.Player != 0
@@ -6245,7 +6245,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool ChangshiTheSpiridaoActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
             if (Card.Location == CardLocation.MonsterZone)
@@ -6270,7 +6270,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool EldlichTheGoldenLordActivate()
         {
-            if (!CanUseLightMonsterEffects() || IsCardEffectNegated())
+            if (!CanUseLightMonsterEffects() || WillCardEffectBeNegated())
                 return false;
 
             bool hasHandSpellTrapCost = Bot.Hand.Any(c => c != Card
@@ -6326,7 +6326,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool GreatMammothActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
             if (pendingMammothDestroyTarget != null)
@@ -6968,7 +6968,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool PumpkingGreatGhostKingActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
             int searchDescription = Util.GetStringId(CardId.PumpkingTheGreatGhostKing, 1);
@@ -7009,7 +7009,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool DhampirVampireSheridanActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
             if (Card.Location == CardLocation.MonsterZone
@@ -7030,7 +7030,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool OfficiatorOfDoomSamuelActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
             if (Card.Location == CardLocation.Grave)
@@ -7130,7 +7130,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool WollowActivate()
         {
-            if (IsCardEffectNegated() || Enemy.Graveyard.Count == 0
+            if (WillCardEffectBeNegated() || Enemy.Graveyard.Count == 0
                 || IsFriendlyChainInProgress())
             {
                 return false;
@@ -7185,7 +7185,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool TheUndyingLegionActivate()
         {
-            if (IsCardEffectNegated() || Duel.Player != 1)
+            if (WillCardEffectBeNegated() || Duel.Player != 1)
                 return false;
             if (IsFriendlyChainInProgress())
             {
@@ -7211,7 +7211,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FallenAngelActivate()
         {
-            bool activate = Card.Location == CardLocation.Grave && !IsCardEffectNegated();
+            bool activate = Card.Location == CardLocation.Grave && !WillCardEffectBeNegated();
             if (activate && eldlichRouteRank10CommitPending)
                 DebugRoute("ACCEPT Fallen Angel GY trigger: summon Mad Golden for Rank 10 line");
             return activate;
@@ -7251,7 +7251,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool EldlichTheMadGoldenLordActivate()
         {
-            if (IsCardEffectNegated() || eldlichRouteRank10CommitPending)
+            if (WillCardEffectBeNegated() || eldlichRouteRank10CommitPending)
                 return false;
             return Bot.GetMonsters().Any(c => c != Card && IsZombie(c))
                 && GetMadGoldenSafeControlTarget() != null;
@@ -7259,7 +7259,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool FlyingMaryActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
             if (Card.Location == CardLocation.MonsterZone)
@@ -7304,7 +7304,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool VampireSuckerActivate()
         {
-            if (IsCardEffectNegated())
+            if (WillCardEffectBeNegated())
                 return false;
 
 
