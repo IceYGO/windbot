@@ -63,6 +63,8 @@ namespace WindBot.Game.AI.Decks
         private readonly HashSet<int> _horusSpecialSummonedThisTurn = new HashSet<int>();
         private bool _purpleNightfallSummoned = false;
         private bool _indigoEclipseSummoned = false;
+        private bool _kingsSarcophagusBattleEffectUsed = false;
+        private bool _zombieVampireEffectUsed = false;
 
         public Rank8Executor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -148,13 +150,13 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.GarunixEternityHyangOfTheFireKings, GarunixSummon);
             AddExecutor(ExecutorType.Activate, CardId.GarunixEternityHyangOfTheFireKings, GarunixEffect);
 
-            // 宵星之机神 丁吉尔苏：不取对象送墓1张牌
-            AddExecutor(ExecutorType.SpSummon, CardId.DingirsuTheOrcustOfTheEveningStar, DingirsuSummon);
-            AddExecutor(ExecutorType.Activate, CardId.DingirsuTheOrcustOfTheEveningStar, DingirsuEffect);
-
             // 真血公 吸血鬼：双方各挖4张，SS怪兽
             AddExecutor(ExecutorType.SpSummon, CardId.TheZombieVampire, ZombieVampireSummon);
             AddExecutor(ExecutorType.Activate, CardId.TheZombieVampire, ZombieVampireEffect);
+
+            // 宵星之机神 丁吉尔苏：不取对象送墓1张牌
+            AddExecutor(ExecutorType.SpSummon, CardId.DingirsuTheOrcustOfTheEveningStar, DingirsuSummon);
+            AddExecutor(ExecutorType.Activate, CardId.DingirsuTheOrcustOfTheEveningStar, DingirsuEffect);
 
             // 希望皇霍普（为电光皇做铺垫）
             AddExecutor(ExecutorType.SpSummon, CardId.Number39Utopia, Number39UtopiaSummon);
@@ -184,6 +186,8 @@ namespace WindBot.Game.AI.Decks
             _horusSpecialSummonedThisTurn.Clear();
             _purpleNightfallSummoned = false;
             _indigoEclipseSummoned = false;
+            _kingsSarcophagusBattleEffectUsed = false; // 实际上不是卡名一回合一次，不过Bot一般不会同时场上多张
+            _zombieVampireEffectUsed = false;
             base.OnNewTurn();
         }
 
@@ -393,8 +397,16 @@ namespace WindBot.Game.AI.Decks
                 || DefaultCheckWhetherCardIsNegated(Card))
                 return false;
 
-            if (ActivateDescription == Util.GetStringId(CardId.KingsSarcophagus, 1))
-                return true;
+            if (!(Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2))
+            {
+                if (Bot.BattlingMonster == null || Enemy.BattlingMonster == null)
+                    return false;
+                bool shouldActivate = Enemy.BattlingMonster.IsFacedown() || Enemy.BattlingMonster.IsMonsterInvincible()
+                    || Bot.BattlingMonster.GetDefensePower() <= Enemy.BattlingMonster.GetDefensePower();
+                if (shouldActivate)
+                    _kingsSarcophagusBattleEffectUsed = true;
+                return shouldActivate;
+            }
 
             if (Bot.GetMonsterCount() >= 5)
                 return false;
@@ -904,8 +916,7 @@ namespace WindBot.Game.AI.Decks
         private bool DingirsuSummon()
         {
             if (!HasTwoLevel8ForXyz()) return false;
-            if (Util.GetProblematicEnemyCard() == null)
-                return false;
+            if (Util.GetProblematicEnemyCard() == null && !Util.IsTurn1OrMain2()) return false;
             return SelectRank8Materials();
         }
 
@@ -940,14 +951,18 @@ namespace WindBot.Game.AI.Decks
         private bool ZombieVampireSummon()
         {
             if (!HasTwoLevel8ForXyz()) return false;
-            if (!Util.IsTurn1OrMain2() && !Util.IsOneEnemyBetter())
+            if (_zombieVampireEffectUsed || Bot.HasInMonstersZone(CardId.TheZombieVampire))
+                return false;
+            if (!Util.IsTurn1OrMain2() || Util.GetProblematicEnemyCard() != null)
                 return false;
             return SelectRank8Materials();
         }
 
         private bool ZombieVampireEffect()
         {
-            return !DefaultCheckWhetherCardIsNegated(Card);
+            if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+            _zombieVampireEffectUsed = true;
+            return true;
         }
 
         private bool Number39UtopiaSummon()
@@ -1014,17 +1029,23 @@ namespace WindBot.Game.AI.Decks
 
         private bool SPLittleKnightSummon()
         {
-            if (Util.GetProblematicEnemyCard(3000, true) == null)
+            if (Util.GetProblematicEnemyCard(3001, true) == null)
                 return false;
 
             List<ClientCard> materials = Bot.GetMonsters()
                 .Where(c => c.IsFaceup() && c.HasType(CardType.Effect))
                 .ToList();
 
-            ClientCard extraDeckMaterial = materials
+            List<ClientCard> extraDeckMaterials = materials
                 .Where(c => c.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link))
-                .OrderBy(c => c.HasType(CardType.Xyz) && !c.HasXyzMaterial() ? 0 : c.Attack)
-                .FirstOrDefault();
+                .OrderBy(c => c.Attack)
+                .ToList();
+            ClientCard extraDeckMaterial = extraDeckMaterials
+                .FirstOrDefault(c => c.IsDisabled()
+                    || c.IsCode(CardId.ArtemisTheMagistusMoonMaiden)
+                    || (c.HasType(CardType.Xyz) && !c.HasXyzMaterial()));
+            if (extraDeckMaterial == null)
+                extraDeckMaterial = extraDeckMaterials.FirstOrDefault();
             if (extraDeckMaterial == null)
                 return false;
 
@@ -1032,6 +1053,8 @@ namespace WindBot.Game.AI.Decks
                 .Where(c => c != extraDeckMaterial)
                 .OrderBy(c => c.Attack)
                 .FirstOrDefault();
+            if (otherMaterial == null)
+                return false;
 
             AI.SelectMaterials(new List<ClientCard> { extraDeckMaterial, otherMaterial });
             return true;
@@ -1095,11 +1118,21 @@ namespace WindBot.Game.AI.Decks
         }
 
         // ============================================================
-        // 战斗力预估：手牌阿莱斯特可以让梅尔卡巴上升 1000
+        // 战斗力预估：王之棺可以处理战斗对象，手牌阿莱斯特可以让梅尔卡巴上升 1000
         // ============================================================
 
         public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
         {
+            if (!_kingsSarcophagusBattleEffectUsed
+                && attacker.IsCode(HorusMonsterIds)
+                && Bot.HasInSpellZone(CardId.KingsSarcophagus, true, true)
+                && !defender.IsMonsterHasPreventActivationEffectInBattle())
+            {
+                attacker.RealPower = 9999;
+                if (defender.IsMonsterInvincible())
+                    return true;
+            }
+
             if (!defender.IsMonsterHasPreventActivationEffectInBattle())
             {
                 if (attacker.IsCode(CardId.InvokedMechaba)
