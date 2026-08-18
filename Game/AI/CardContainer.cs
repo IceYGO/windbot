@@ -94,16 +94,6 @@ namespace WindBot.Game.AI
                 .FirstOrDefault();
         }
 
-        public static bool ContainsMonsterWithLevel(this IEnumerable<ClientCard> cards, int level)
-        {
-            return cards.Where(card => card?.Data != null).Any(card => !card.HasType(CardType.Xyz) && card.Level == level);
-        }
-
-        public static bool ContainsMonsterWithRank(this IEnumerable<ClientCard> cards, int rank)
-        {
-            return cards.Where(card => card?.Data != null).Any(card => card.HasType(CardType.Xyz) && card.Rank == rank);
-        }
-
         public static bool ContainsCardWithId(this IEnumerable<ClientCard> cards, int id)
         {
             return cards.Where(card => card?.Data != null).Any(card => card.IsCode(id));
