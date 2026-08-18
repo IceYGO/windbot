@@ -151,7 +151,6 @@ namespace WindBot.Game.AI.Decks
 
 
         List<int> currentNegatingIdList = new List<int>();
-        bool enemyActivateMaxxC = false;
         bool enemyActivateLockBird = false;
         bool enemyActivateInfiniteImpermanenceFromHand = false;
         List<int> infiniteImpermanenceList = new List<int>();
@@ -496,6 +495,27 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
+        public bool CheckShouldNoMoreSpSummon()
+        {
+            if (CheckAtAdvantage() && enemyResolvedEffectIdList.Contains(_CardId.MaxxC) && DefaultCheckWhetherEnemyCanDraw()
+                && Util.IsTurn1OrMain2())
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public bool CheckShouldNoMoreSpSummon(CardLocation loc)
+        {
+            if (CheckShouldNoMoreSpSummon()) return true;
+            if (!CheckAtAdvantage() || !DefaultCheckWhetherEnemyCanDraw() || !Util.IsTurn1OrMain2()) return false;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyPurulia) && (loc & CardLocation.Hand) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyFuwalos) && (loc & (CardLocation.Deck | CardLocation.Extra)) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyNyalus) && (loc & (CardLocation.Grave | CardLocation.Removed)) != 0) return true;
+
+            return false;
+        }
+
         /// <summary>
         /// Check whether last chain card should be disabled.
         /// </summary>
@@ -635,7 +655,6 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnNewTurn()
         {
-            enemyActivateMaxxC = false;
             enemyActivateLockBird = false;
 
             infiniteImpermanenceList.Clear();
@@ -654,8 +673,6 @@ namespace WindBot.Game.AI.Decks
             ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
             if (currentChain != null && !Duel.IsCurrentSolvingChainNegated() && currentChain.ActivatePlayer == 1)
             {
-                if (currentChain.IsActivateCode(_CardId.MaxxC))
-                    enemyActivateMaxxC = true;
                 if (currentChain.IsActivateCode(_CardId.LockBird))
                     enemyActivateLockBird = true;
                 if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence) && !enemyActivateInfiniteImpermanenceFromHand)
@@ -892,7 +909,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // special summon token
-            if (CheckWhetherNegated() || (CheckAtAdvantage() && enemyActivateMaxxC && Util.IsTurn1OrMain2()))
+            if (CheckWhetherNegated() || CheckShouldNoMoreSpSummon(CardLocation.Hand | CardLocation.Extra))
             {
                 return false;
             }
@@ -1250,7 +1267,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (CheckAtAdvantage() && enemyActivateMaxxC && Util.IsTurn1OrMain2())
+            if (CheckShouldNoMoreSpSummon(CardLocation.Hand | CardLocation.Extra))
             {
                 return false;
             }
@@ -1444,7 +1461,7 @@ namespace WindBot.Game.AI.Decks
                 Util.GetStringId(CardId.TenyiSpirit_Ashuna, 0)
             };
             if (!checkEffectDesc.Contains(ActivateDescription) || summoned || !Bot.HasInExtra(CardId.ShamanOfTheTenyi)
-            || (CheckAtAdvantage() && enemyActivateMaxxC))
+            || CheckShouldNoMoreSpSummon(CardLocation.Extra | CardLocation.Grave))
             {
                 return false;
             }
@@ -1476,7 +1493,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (CheckAtAdvantage() && enemyActivateMaxxC)
+            if (CheckShouldNoMoreSpSummon(CardLocation.Hand))
             {
                 return false;
             }
@@ -1574,7 +1591,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (CheckAtAdvantage())
             {
-                if (enemyActivateMaxxC && Util.IsTurn1OrMain2())
+                if (CheckShouldNoMoreSpSummon(CardLocation.Grave | CardLocation.Extra))
                 {
                     return false;
                 }
@@ -2071,7 +2088,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DracoBerserkerOfTheTenyiSpSummon()
         {
-            if (CheckAtAdvantage() && enemyActivateMaxxC && Util.IsTurn1OrMain2())
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra))
             {
                 return false;
             }
@@ -2082,6 +2099,10 @@ namespace WindBot.Game.AI.Decks
 
         public bool SwordsoulGrandmaster_ChixiaoSpSummon()
         {
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra))
+            {
+                return false;
+            }
             if (CheckAtAdvantage() && enemyActivateLockBird)
             {
                 return false;
@@ -2234,7 +2255,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ShamanOfTheTenyiSpSummon()
         {
-            if (CheckAtAdvantage() && enemyActivateMaxxC && Util.IsTurn1OrMain2())
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra))
             {
                 Logger.DebugWriteLine("[Shaman] advantage & maxxc, skip");
                 return false;
@@ -2612,7 +2633,10 @@ namespace WindBot.Game.AI.Decks
 
             } else {
                 // search
-                if (CheckAtAdvantage() && enemyActivateMaxxC && Util.IsTurn1OrMain2())
+                if (CheckAtAdvantage() && DefaultCheckWhetherEnemyCanDraw()
+                    && enemyResolvedEffectIdList.Any(id => id == _CardId.MaxxC || id == _CardId.MulcharmyPurulia
+                        || id == _CardId.MulcharmyFuwalos || id == _CardId.MulcharmyNyalus)
+                    && Util.IsTurn1OrMain2())
                 {
                     if (Bot.HasInDeck(CardId.SwordsoulBlackout))
                     {
@@ -2871,7 +2895,7 @@ namespace WindBot.Game.AI.Decks
             } else 
             {
                 // special summon
-                if (CheckAtAdvantage() && enemyActivateMaxxC && Util.IsTurn1OrMain2())
+                if (CheckShouldNoMoreSpSummon(CardLocation.Grave))
                 {
                     return false;
                 }
