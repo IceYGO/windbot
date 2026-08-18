@@ -1148,6 +1148,7 @@ namespace WindBot.Game.AI.Decks
         private bool PredaplantVerteAnacondaSummon()
         {
             if (!Bot.HasInDeck(CardId.ThunderDragonFusion)) return false;
+            if (Bot.LifePoints <= 2000) return false;
             List<ClientCard> g_card = Bot.Graveyard.ToList();
             List<ClientCard> b_card = Bot.Banished.ToList();
             g_card.AddRange(b_card);
@@ -1458,9 +1459,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool UnionCarrierEffect_2()
         { 
-                IList<int> cardsId = new List<int>();
-                cardsId.Add(CardId.ThunderDragonColossus);
-                cardsId.Add(CardId.TheChaosCreator);
+                IList<int> cardsId = new List<int>() { CardId.ThunderDragonColossus, CardId.TheChaosCreator };
                 List<ClientCard> cards_1 = Bot.GetMonsters().Where(card => card != null && card.IsFaceup() && (card.HasAttribute(CardAttribute.Dark) || card.HasRace(CardRace.Dragon))).ToList();
                 if (cards_1.Count <= 0)
                 {
@@ -1930,7 +1929,7 @@ namespace WindBot.Game.AI.Decks
                     mcards.AddRange(grave);
                     mcards.AddRange(banish);
                     int mcount =  mcards.Count(card => card != null && card.HasType(CardType.Monster) && card.HasSetcode(0x11c) && !card.IsCode(CardId.ThunderDragonColossus) && !card.IsCode(CardId.ThunderDragonTitan));
-                    isShoudlSummon_1 =  mcount > 0 ? true : false;
+                    isShoudlSummon_1 = mcount > 0;
                 } 
                 else if(Bot.HasInHand(CardId.TheChaosCreator) && light_count > 0 && dark_count > 0) isShoudlSummon_1 = true;
                 else if (Bot.HasInHand(CardId.ThunderDragonlord) && Bot.Hand.Count(card=>card != null && card.HasType(CardType.Monster) && card.HasSetcode(0x11c))>1) isShoudlSummon_1 = true;
@@ -2064,9 +2063,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectCard(CardId.ThunderDragondark);
             else 
             {
-                List<int> cardsid = new List<int>();
-                cardsid.Add(CardId.BlackDragonCollapserpent);
-                cardsid.Add(CardId.TheChaosCreator);
+                List<int> cardsid = new List<int>() { CardId.BlackDragonCollapserpent, CardId.TheChaosCreator };
                 foreach (var card in Bot.Graveyard)
                 {
                     if (card != null && !card.HasSetcode(0x11c) && card.HasAttribute(CardAttribute.Dark))
