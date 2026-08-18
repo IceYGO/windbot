@@ -810,6 +810,7 @@ namespace WindBot.Game.AI.Decks
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.PredaplantVerteAnaconda, 0))
                 return false;
+            if (Bot.LifePoints <= 2000) return false;
             FusionDestinyUsed = true;
             AI.SelectCard(CardId.FusionDestiny);
             AI.SelectMaterials(CardLocation.Deck);

@@ -1040,6 +1040,7 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == Util.GetStringId(CardId.PredaplantVerteAnaconda, 1))
             {
                 if (DefaultCheckWhetherCardIsNegated(Card)) return false;
+                if (Bot.LifePoints <= 2000) return false;
                 if (!Bot.HasInDeck(CardId.ThunderDragonFusion)) return false;
                 if (Bot.GetMonstersInMainZone().Count > 4 && Bot.GetMonstersInMainZone().Count(card => card != null && !card.IsExtraCard() && card.HasSetcode(0x11c) && card.HasType(CardType.Monster) && card.IsFaceup()) <= 0) return false;
                 List<ClientCard> g_card = Bot.Graveyard.ToList();

@@ -352,6 +352,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Bot.HasInMonstersZone(CardId.PredaplantVerteAnaconda, true))
                 return false;
+            if (Bot.LifePoints <= 2000) return false;
 
             int[] materials = new[] {
                 CardId.ImdukTheWorldChaliceDragon,
@@ -394,6 +395,7 @@ namespace WindBot.Game.AI.Decks
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
             if (ActivateDescription == Util.GetStringId(CardId.PredaplantVerteAnaconda, 0))
                 return false;
+            if (Bot.LifePoints <= 2000) return false;
             AI.SelectCard(CardId.RedEyesFusion);
             AI.SelectMaterials(CardLocation.Deck);
             return true;
