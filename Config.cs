@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 
 namespace WindBot
@@ -30,6 +31,13 @@ namespace WindBot
                     if (!_fields.ContainsKey(pair.Key))
                         _fields.Add(pair.Key, pair.Value);
                 }
+            }
+
+            foreach (string key in ConfigurationManager.AppSettings)
+            {
+                string normalizedKey = key.ToUpper();
+                if (!_fields.ContainsKey(normalizedKey))
+                    _fields.Add(normalizedKey, ConfigurationManager.AppSettings[key]);
             }
         }
 

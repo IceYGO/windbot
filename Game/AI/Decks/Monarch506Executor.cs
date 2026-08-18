@@ -54,7 +54,13 @@ namespace WindBot.Game.AI.Decks
         private int _diskCommanderSentToGraveTurn = -1;
         private int _soulExchangeTurn = -1;
 
-        protected bool UseNerfedCardEffects { get; set; }
+        /*
+        命运英雄 圆盘人：原版可当回合复活、可重复触发且属于必发效果；削弱版限制当回合复活并记录一决斗一次。
+        三眼怪：削弱模式避免优先检索需要当回合发动效果的卡。
+        死之卡组破坏病毒：原版不受伤害归零副作用影响，并考虑三回合持续收益；削弱版保留更谨慎的发动条件。
+        洗脑：原版允许选择任意合法表侧怪兽；削弱版只考虑可通常召唤/盖放的怪兽。
+        */
+        private bool UseNerfedCardEffects { get; set; }
 
         private bool DiskCommanderEffectAvailable
         {
@@ -64,6 +70,8 @@ namespace WindBot.Game.AI.Decks
         public Monarch506Executor(GameAI ai, Duel duel)
             : base(ai, duel)
         {
+            UseNerfedCardEffects = !Config.GetBool("UsePreErrataEffects", false);
+
             // 光暗龙的无效效果是强制效果，必须先于所有可选响应处理。
             AddExecutor(ExecutorType.Activate, CardId.LightAndDarknessDragon);
             AddExecutor(ExecutorType.Activate, CardId.GorzTheEmissaryOfDarkness);
