@@ -501,6 +501,26 @@ namespace WindBot.Game.AI.Decks
 
         private bool BookOfMoonActivate()
         {
+            ClientCard lastChainCard = Util.GetLastChainCard();
+            ClientCard snatchStealTarget = lastChainCard != null &&
+                lastChainCard.Controller == 1 &&
+                lastChainCard.IsCode(CardId.SnatchSteal)
+                ? Duel.LastChainTargets.FirstOrDefault(c =>
+                    c.Controller == 0 &&
+                    c.Location == CardLocation.MonsterZone &&
+                    c.IsFaceup() &&
+                    c.Defense >= 1000 &&
+                    !c.HasType(CardType.Link) &&
+                    !c.IsShouldNotBeTarget() &&
+                    !c.IsShouldNotBeSpellTrapTarget() &&
+                    !IsCardAlreadyHandledInCurrentChain(c))
+                : null;
+            if (snatchStealTarget != null)
+            {
+                AI.SelectCard(snatchStealTarget);
+                return true;
+            }
+
             ClientCard attacker = Enemy.BattlingMonster;
             if (ShouldStopAttack(attacker) && attacker.IsFaceup() &&
                 !attacker.HasType(CardType.Link) &&
