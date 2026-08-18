@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using WindBot;
 using WindBot.Game;
 using WindBot.Game.AI;
@@ -59,6 +60,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.CyberDragonInfinity, CyberDragonInfinityEffect);
 
             // Level 5 monsters without side effects
+            AddExecutor(ExecutorType.SpSummon, CardId.SolarWindJammer, SolarWindJammerSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.CyberDragon);
             AddExecutor(ExecutorType.SpSummon, CardId.ZWEagleClaw);
             AddExecutor(ExecutorType.Summon, CardId.ChronomalyGoldenJet, NormalSummon);
@@ -79,7 +81,6 @@ namespace WindBot.Game.AI.Decks
 
 
             // Level 5 monsters with side effects
-            AddExecutor(ExecutorType.SpSummon, CardId.SolarWindJammer, SolarWindJammerSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.QuickdrawSynchron, QuickdrawSynchronSummon);
             AddExecutor(ExecutorType.Summon, CardId.MistArchfiend, MistArchfiendSummon);
             AddExecutor(ExecutorType.Activate, CardId.InstantFusion, InstantFusionEffect);
@@ -158,7 +159,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SolarWindJammerSummon()
         {
-            if (!NeedLV5())
+            if (!NeedLV5(Card))
                 return false;
             AI.SelectPosition(CardPosition.FaceUpDefence);
             return true;
@@ -166,7 +167,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool QuickdrawSynchronSummon()
         {
-            if (!NeedLV5())
+            if (!NeedLV5(Card))
                 return false;
             AI.SelectCard(
                 CardId.QuickdrawSynchron,
@@ -183,7 +184,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MistArchfiendSummon()
         {
-            if (!NeedLV5())
+            if (!NeedLV5(Card))
                 return false;
             AI.SelectOption(1);
             NormalSummoned = true;
@@ -192,15 +193,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool InstantFusionEffect()
         {
-            if (!NeedLV5())
+            if (!NeedLV5(null))
                 return false;
             InstantFusionUsed = true;
             return true;
         }
 
-        private bool NeedLV5()
+        private bool NeedLV5(ClientCard currentCard)
         {
-            if (HaveOtherLV5OnField())
+            if (HaveOtherLV5OnField(currentCard))
                 return true;
             if (Util.GetBotAvailZonesFromExtraDeck() == 0)
                 return false;
@@ -209,11 +210,13 @@ namespace WindBot.Game.AI.Decks
             {
                 if (card.IsCode(CardId.SolarWindJammer) && Bot.GetMonsterCount() == 0)
                     ++lv5Count;
+                if (card.IsCode(CardId.ZWEagleClaw) && Enemy.LifePoints - Bot.LifePoints >= 2000 && !Bot.HasInMonstersZone(CardId.ZWEagleClaw))
+                    ++lv5Count;
                 if (card.IsCode(CardId.InstantFusion) && !InstantFusionUsed)
                     ++lv5Count;
-                if (card.IsCode(CardId.QuickdrawSynchron) && Bot.Hand.ContainsMonsterWithLevel(4))
+                if (card.IsCode(CardId.QuickdrawSynchron) && Bot.Hand.Count(c => c != currentCard && c.Level == 4) >= 2)
                     ++lv5Count;
-                if (card.IsCode(CardId.MistArchfiend) && !NormalSummoned)
+                if (card.IsCode(CardId.MistArchfiend, CardId.WindUpSoldier, CardId.StarDrawing, CardId.ChronomalyGoldenJet) && !NormalSummoned)
                     ++lv5Count;
                 if (card.IsCode(CardId.DoubleSummon) && DoubleSummonEffect())
                     ++lv5Count;
@@ -225,7 +228,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool WindUpSoldierEffect()
         {
-            return HaveOtherLV5OnField();
+            return HaveOtherLV5OnField(Card);
         }
 
         private bool ChronomalyGoldenJetEffect()
@@ -389,7 +392,7 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool HaveOtherLV5OnField()
+        private bool HaveOtherLV5OnField(ClientCard card)
         {
             foreach (ClientCard monster in Bot.GetMonsters())
             {
@@ -398,7 +401,7 @@ namespace WindBot.Game.AI.Decks
                     Util.GetBotAvailZonesFromExtraDeck(monster) > 0 &&
                     (monster.Level == 5
                     || monster.IsCode(CardId.StarDrawing)
-                    || monster.IsCode(CardId.WindUpSoldier) && !monster.Equals(Card)))
+                    || monster.IsCode(CardId.WindUpSoldier) && !monster.Equals(card)))
                     return true;
             }
             return false;
