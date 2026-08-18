@@ -39,6 +39,7 @@ namespace WindBot.Game.AI.Decks
             public const int BrainControl = 87910978; // 洗脑
             public const int MysticalSpaceTyphoon = 5318639; // 旋风
             public const int BookOfMoon = 14087893; // 月之书
+            public const int SnatchSteal = 45986603; // 强夺
             public const int PrematureBurial = 70828912; // 过早的埋葬
             public const int MirrorForce = 44095762; // 神圣防护罩 -反射镜力-
             public const int TorrentialTribute = 53582587; // 激流葬
@@ -781,7 +782,71 @@ namespace WindBot.Game.AI.Decks
             if (equipTargetsSpiritReaper)
                 return false;
 
-            return DefaultMysticalSpaceTyphoon();
+            ClientCard equipTarget = GetHighPriorityEnemyEquipSpellTarget(false);
+            if (equipTarget != null)
+            {
+                AI.SelectCard(equipTarget);
+                return true;
+            }
+
+            ClientCard attacker = Duel.Phase == DuelPhase.BattleStep &&
+                Bot.UnderAttack
+                ? Enemy.BattlingMonster
+                : null;
+            equipTarget = attacker == null
+                ? null
+                : attacker.EquipCards.FirstOrDefault(card =>
+                    card.Controller == 1 &&
+                    !card.IsShouldNotBeTarget() &&
+                    !card.IsShouldNotBeSpellTrapTarget());
+            if (equipTarget != null)
+            {
+                AI.SelectCard(equipTarget);
+                return true;
+            }
+
+            List<ClientCard> spells = Enemy.GetSpells();
+            ClientCard target = Enemy.SpellZone.GetFloodgate();
+            if (target == null && Duel.Player == 0)
+                target = spells.FirstOrDefault(card => card.IsFacedown());
+            if (target == null && Duel.Player == 1)
+                target = spells.FirstOrDefault(card =>
+                    card.HasType(CardType.Continuous) ||
+                    card.HasType(CardType.Field));
+            if (target == null)
+                return false;
+
+            AI.SelectCard(target);
+            return true;
+        }
+
+        private ClientCard GetHighPriorityEnemyEquipSpellTarget(bool monsterEffect)
+        {
+            var highPriorityIds = new[]
+            {
+                CardId.SnatchSteal,
+                CardId.PrematureBurial
+            };
+            ClientCard lastChainCard = Util.GetLastChainCard();
+            if (lastChainCard != null &&
+                lastChainCard.Controller == 1 &&
+                lastChainCard.Location == CardLocation.SpellZone &&
+                lastChainCard.IsCode(highPriorityIds) &&
+                !lastChainCard.IsShouldNotBeTarget() &&
+                (monsterEffect
+                    ? !lastChainCard.IsShouldNotBeMonsterTarget()
+                    : !lastChainCard.IsShouldNotBeSpellTrapTarget()))
+            {
+                return lastChainCard;
+            }
+
+            return Enemy.GetSpells().FirstOrDefault(card =>
+                card.IsFaceup() &&
+                card.IsCode(highPriorityIds) &&
+                !card.IsShouldNotBeTarget() &&
+                (monsterEffect
+                    ? !card.IsShouldNotBeMonsterTarget()
+                    : !card.IsShouldNotBeSpellTrapTarget()));
         }
 
         private bool BookOfMoonActivate()
@@ -1345,7 +1410,8 @@ namespace WindBot.Game.AI.Decks
             if (OwnLightAndDarknessDragonCanNegate())
                 return false;
 
-            ClientCard target = Util.GetBestEnemySpell(true);
+            ClientCard target = GetHighPriorityEnemyEquipSpellTarget(true) ??
+                Util.GetBestEnemySpell(true);
             if (target != null &&
                 (target.IsShouldNotBeTarget() ||
                 target.IsShouldNotBeMonsterTarget()))

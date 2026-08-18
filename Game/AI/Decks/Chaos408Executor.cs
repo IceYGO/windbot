@@ -483,12 +483,46 @@ namespace WindBot.Game.AI.Decks
             if (equipTargetsSpiritReaper)
                 return false;
 
-            if (DefaultMysticalSpaceTyphoon())
+            ClientCard equipTarget = GetHighPriorityEnemyEquipSpellTarget(false);
+            if (equipTarget != null)
+            {
+                AI.SelectCard(equipTarget);
                 return true;
+            }
+
+            ClientCard attacker = Duel.Phase == DuelPhase.BattleStep &&
+                Bot.UnderAttack
+                ? Enemy.BattlingMonster
+                : null;
+            equipTarget = attacker == null
+                ? null
+                : attacker.EquipCards.FirstOrDefault(c =>
+                    c.Controller == 1 &&
+                    !c.IsShouldNotBeTarget() &&
+                    !c.IsShouldNotBeSpellTrapTarget());
+            if (equipTarget != null)
+            {
+                AI.SelectCard(equipTarget);
+                return true;
+            }
+
+            List<ClientCard> spells = Enemy.GetSpells();
+            ClientCard target = Enemy.SpellZone.GetFloodgate();
+            if (target == null && Duel.Player == 0)
+                target = spells.FirstOrDefault(c => c.IsFacedown());
+            if (target == null && Duel.Player == 1)
+                target = spells.FirstOrDefault(c =>
+                    c.HasType(CardType.Continuous) ||
+                    c.HasType(CardType.Field));
+            if (target != null)
+            {
+                AI.SelectCard(target);
+                return true;
+            }
 
             if (ShouldUseSetQuickPlayForMagicianOfFaith())
             {
-                ClientCard target = Enemy.GetSpells()
+                target = Enemy.GetSpells()
                     .FirstOrDefault(c => c.IsFacedown());
                 if (target != null)
                 {
@@ -497,6 +531,35 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             return false;
+        }
+
+        private ClientCard GetHighPriorityEnemyEquipSpellTarget(bool monsterEffect)
+        {
+            var highPriorityIds = new[]
+            {
+                CardId.SnatchSteal,
+                CardId.PrematureBurial
+            };
+            ClientCard lastChainCard = Util.GetLastChainCard();
+            if (lastChainCard != null &&
+                lastChainCard.Controller == 1 &&
+                lastChainCard.Location == CardLocation.SpellZone &&
+                lastChainCard.IsCode(highPriorityIds) &&
+                !lastChainCard.IsShouldNotBeTarget() &&
+                (monsterEffect
+                    ? !lastChainCard.IsShouldNotBeMonsterTarget()
+                    : !lastChainCard.IsShouldNotBeSpellTrapTarget()))
+            {
+                return lastChainCard;
+            }
+
+            return Enemy.GetSpells().FirstOrDefault(c =>
+                c.IsFaceup() &&
+                c.IsCode(highPriorityIds) &&
+                !c.IsShouldNotBeTarget() &&
+                (monsterEffect
+                    ? !c.IsShouldNotBeMonsterTarget()
+                    : !c.IsShouldNotBeSpellTrapTarget()));
         }
 
         private bool BookOfMoonActivate()
@@ -1124,7 +1187,8 @@ namespace WindBot.Game.AI.Decks
             if (Duel.LastSummonedCards.Contains(Card) && Card.Attack <= 1600)
                 return true;
 
-            ClientCard target = Util.GetBestEnemySpell(true);
+            ClientCard target = GetHighPriorityEnemyEquipSpellTarget(true) ??
+                Util.GetBestEnemySpell(true);
             if (target != null && (target.IsShouldNotBeTarget() ||
                 target.IsShouldNotBeMonsterTarget()))
                 target = null;
