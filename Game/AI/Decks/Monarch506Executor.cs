@@ -1246,13 +1246,30 @@ namespace WindBot.Game.AI.Decks
             List<int> searchPriority = new List<int>();
             bool maliciousInGrave =
                 Bot.HasInGraveyard(CardId.DestinyHEROMalicious);
+            int maliciousInDeck =
+                Bot.GetCardCountInDeck(CardId.DestinyHEROMalicious);
+            bool preserveLastMalicious =
+                maliciousInDeck == 1 &&
+                !Bot.HasInBanished(CardId.DestinyHEROMalicious);
             bool hasDestinyDraw =
                 Bot.HasInHandOrInSpellZone(CardId.DestinyDraw);
             bool hasPhoenixWingWindBlast =
                 Bot.HasInHandOrInSpellZone(CardId.PhoenixWingWindBlast);
+
+            if (preserveLastMalicious)
+            {
+                if (Bot.HasInDeck(CardId.DestinyHERODiskCommander))
+                    searchPriority.Add(CardId.DestinyHERODiskCommander);
+                if (Bot.HasInDeck(CardId.DestinyHEROFearMonger))
+                    searchPriority.Add(CardId.DestinyHEROFearMonger);
+                if (searchPriority.Count == 0 && !hasDestinyDraw)
+                    return false;
+            }
+
             if (hasDestinyDraw &&
                 !maliciousInGrave &&
-                Bot.HasInDeck(CardId.DestinyHEROMalicious))
+                maliciousInDeck > 0 &&
+                (!preserveLastMalicious || searchPriority.Count == 0))
                 searchPriority.Add(CardId.DestinyHEROMalicious);
             if (DiskCommanderEffectAvailable &&
                 Bot.HasInGraveyard(CardId.DestinyHERODiskCommander) &&
@@ -1269,7 +1286,8 @@ namespace WindBot.Game.AI.Decks
                 searchPriority.Add(CardId.DestinyHERODiskCommander);
             }
             if (!maliciousInGrave &&
-                Bot.HasInDeck(CardId.DestinyHEROMalicious))
+                maliciousInDeck > 0 &&
+                !preserveLastMalicious)
                 searchPriority.Add(CardId.DestinyHEROMalicious);
             if (Bot.HasInDeck(CardId.DestinyHEROFearMonger))
                 searchPriority.Add(CardId.DestinyHEROFearMonger);
