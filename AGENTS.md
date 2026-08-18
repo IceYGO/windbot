@@ -3,8 +3,8 @@
 ## 项目定位
 
 - WindBot 是面向 YGOPro/YGOSharp/SRVPro 协议的 C# 决斗机器人，本质上是一个自动操作的 YGOPro 客户端。
-- 主程序基于 .NET Framework 4.8，解决方案平台为 x86；项目是旧式非 SDK `.csproj`，不要默认使用仅适用于现代 .NET/SDK 项目的工具和 API。
-- 机器人只能使用服务器发给当前客户端的信息。对方手牌、卡组、盖卡等未公开信息通常只有数量或 `Id == 0` 的占位对象，不能读取、推断或硬编码其真实内容。
+- 主程序基于 .NET Framework 4.8，解决方案支持 Any CPU 和 x86，当前默认平台与 CI 主验证平台为 Any CPU；项目是旧式非 SDK `.csproj`，不要默认使用仅适用于现代 .NET/SDK 项目的工具和 API。
+- 机器人只能使用服务器发给当前客户端的信息。对方手牌、牌组、盖卡等未公开信息通常只有数量或 `Id == 0` 的占位对象，不能读取、推断或硬编码其真实内容。
 - 服务器在要求客户端响应时已经给出了合法操作候选。牌组 AI 的职责主要是判断“现在是否值得这样做”以及“选哪个目标”，而不是复述发动条件。
 
 ## 解决方案与运行链路
@@ -12,14 +12,14 @@
 解决方案包含两个项目：
 
 - `WindBot.csproj`：控制台主程序，包含网络协议、客户端状态和全部决斗 AI；输出 `WindBot.exe`。
-- `BotWrapper/BotWrapper.csproj`：供 YGOPro 人机模式调用的轻量启动器，读取 `bot.conf` 并启动 `WindBot.exe`；输出 `Bot.exe`。
+- `BotWrapper/BotWrapper.csproj`：供 YGOPro 人机模式调用的轻量启动器，整理启动参数并启动 `WindBot.exe`；输出 `Bot.exe`。
 
 主程序的调用链如下：
 
 1. `Program.cs` 读取命令行或配置文件，初始化牌组注册表和 `cards.cdb`，然后以单实例模式或 HTTP server 模式启动机器人。
 2. `Game/GameClient.cs` 建立连接、进入房间并把收到的数据包交给 `GameBehavior`。
 3. `Game/GameBehavior.cs` 按 `StocMessage`/`GameMessage` 解包，更新 `Duel`、`ClientField`、`ClientCard` 等客户端可见状态，并在需要响应时调用 `GameAI`。
-4. `Game/GameAI.cs` 整理服务端给出的合法候选，按优先级查询当前牌组的 `Executor`，把最终选择编码后发回服务器。
+4. `Game/GameAI.cs` 整理服务端给出的合法候选，按优先级查询当前牌组的 `Executor` 并返回决策；`GameBehavior` 负责验证、编码并把响应发回服务器。
 5. `Game/AI/DecksManager.cs` 通过反射发现带 `[Deck]` 的执行器，并为每局实例化对应牌组 AI。
 6. `Game/AI/Executor.cs` 定义公共回调和有序的 `CardExecutor` 列表；各牌组通常继承 `DefaultExecutor`。
 
@@ -70,14 +70,15 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 ### 上下文、状态与选择
 
 - `Executor.SetCard` 会在查询执行器条件前设置当前 `Type`、`Card`、`ActivateDescription`、`CurrentTiming`。这些字段只表示“当前正在查询的执行器候选”，不是当前决斗动作或当前连锁的全局上下文；仅可在执行器条件及其同步调用的辅助方法中使用。
-- `OnSelectCard`、`OnSelectPlace`、`OnSelectPosition`、`OnSelectOption`、`OnSelectYesNo` 和生命周期回调不得依赖上述字段。应根据回调参数、`Duel.GetCurrentChainCard()`、`Duel.GetCurrentSolvingChainInfo()` 或明确维护的牌组状态识别上下文；在回调中假设评估某张候选卡时，应把候选卡、效果描述和时点显式传给辅助方法。
+- `OnSelectCard`、`OnSelectPlace`、`OnSelectPosition` 等函数和生命周期回调不得依赖上述字段。应根据回调参数、`Duel.GetCurrentChainCard()`、`Duel.GetCurrentSolvingChainInfo()` 或明确维护的牌组状态识别上下文；在回调中假设评估某张候选卡时，应把候选卡、效果描述和时点显式传给辅助方法。
 - `Bot` 和 `Enemy` 分别是本机视角的 `Duel.Fields[0]` 与 `Duel.Fields[1]`；协议玩家编号应通过现有本地化逻辑转换，不要自行假定座位编号。
 - 优先使用 `ClientField`、`ClientCard`、`AIUtil`、`CardExtension` 的现有查询方法，避免重复遍历和散落的区域位掩码。
-- 未知卡的 `Id` 可能为 `0`，`Data`/`Name` 可能为 `null`。对隐藏区域只能依赖客户端实际知道的数量、位置和已公开历史。
+- 未知卡的 `Id` 可能为 `0`，`Data`/`Name` 可能为 `null`。对隐藏区域只能依赖客户端实际知道的数量、位置和已公开历史；己方牌组的卡号计数应通过专用 API 查询。
 - 脚本的 `aux.Stringid(code, index)` 与 WindBot 的 `Util.GetStringId(id, option)` 使用相同编码：`cardId * 16 + offset`。其中 `offset` 是从 `0` 开始的字符串偏移量，不是 Lua 表下标；它对应 YGOPro 的 `cards.cdb` 的 `texts.str{offset + 1}`，例如偏移量 `0` 对应 `str1`，偏移量 `3` 对应 `str4`。
 - `StringId` 的偏移量不一定等同于卡片效果编号。判断某个描述值的实际语义时，应同时核对卡片脚本中该值传给了哪个 API。难以确定时可以查询 `cards.cdb` 中对应的 `texts.str*` 内容。
-- `Bot.Deck` 只表示客户端可见的牌堆槽位，不是可按卡号查询的剩余卡组：决斗开始时其中的卡通常为 `Id == 0`，洗牌后也会被重置为 `Id == 0`。因此禁止用 `Bot.Deck.Any(card => card.IsCode(...))` 或等价写法判断某卡是否仍在卡组。检索、送墓等效果应排入卡号优先级，再由服务器提供的实际候选集过滤并决定选择。
-- 牌组执行器的回合、阶段、连锁和使用次数标志应在 `OnNewTurn`、`OnNewPhase`、`OnChainEnd`、`OnMove` 等正确生命周期回调中维护和重置。
+- `Bot.Deck` 只表示客户端可见的牌堆槽位，不可直接按其中对象的卡号查询剩余牌组：决斗开始时其中的卡通常为 `Id == 0`，洗牌后也会被重置为 `Id == 0`。因此禁止用 `Bot.Deck.Any(card => card.IsCode(...))` 或等价写法判断某卡是否仍在牌组。
+- 需要判断己方牌组中是否还有某卡时，使用 `Bot.HasInDeck(...)` 或 `Bot.GetCardCountInDeck(...)`；这些方法从本地 `.ydk` 初始化计数并随服务器消息维护。Tag Duel 中己方非活动队友的牌组不能查询。
+- 牌组执行器的回合、阶段、连锁、召唤尝试和使用次数标志应在 `OnNewTurn`、`OnNewPhase`、`OnChainEnd`、`OnSpSummoning`、`OnMove` 等正确生命周期回调中维护和重置。
 - `Duel.CurrentChain`、`CurrentChainInfo`、`ChainTargets`、`LastSummonedCards` 等状态由消息流维护；使用前注意它表示当前客户端已收到的时点，而不是完整规则模拟。
 
 动作和后续选卡通常分两步发生：
@@ -86,15 +87,15 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 - `SelectCard` 是第一个选择；必须先调用它，再调用 `SelectNextCard`/`SelectThirdCard`。
 - 选择器会在后续服务端选择消息到达时消费，并可能跨越多个连续选择。不要排入与实际效果流程不一致的额外选择。
 - 复杂的、依赖 `hint`/`min`/`max`/候选集合的选择应覆盖 `OnSelectCard` 或素材选择回调；无法处理时返回 `base`/`null`，让通用逻辑继续。
-- 返回的卡片数量必须满足 `min`/`max`，并且对象必须来自服务器传入的候选集合。
+- 返回的卡片数量必须满足 `min`/`max`，并且对象必须来自服务器传入的候选集合；唯一的数量例外是 `cancelable == true` 时可以返回空列表以取消选择。
 
 必发效果的发动和选卡需要特别处理：
 
-- 必发效果可能由服务器直接强制发动，尤其是只有一个强制候选时，牌组注册的 `Activate` 执行器及其条件函数不会被调用。因此不要依赖发动条件函数为必发效果排入 `AI.Select*`、设置状态或完成其他副作用；通常只需让服务器发动，并在实际选择回调中处理选卡。
+- 必发效果可能由服务器标记为强制候选，尤其是只有一个强制候选时，`GameBehavior` 会直接选择该候选，牌组注册的 `Activate` 执行器、条件函数和 `Executor.OnSelectChain` 都不会被调用。因此不要依赖发动条件函数为必发效果排入 `AI.Select*`、设置状态或完成其他副作用；通常只需让服务器发动，并在实际选择回调中处理选卡。
 - 也就是说，`AddExecutor(ExecutorType.Activate, CardId.Sangan, SanganActivate);` 中在 `SanganActivate` 调用 `AI.SelectCard` 等方法基本是无意义的；必发效果的 `ExecutorType.Activate` 的意义应仅限于多个同时发动候选的优先级。
 - 卡片发动时选择支付代价或选择指定目标，发生在连锁建立阶段。此时该卡已经加入 `Duel.CurrentChain`，但尚未进入连锁处理，应在 `OnSelectCard` 中用 `Duel.GetCurrentChainCard()` 识别最新连锁卡；同时检查控制者、卡号和 `hint`，再从服务器给出的候选中返回对象。
-- 效果处理时才进行的选卡，例如从卡组检索、特殊召唤或效果处理中的丢弃，发生在连锁处理阶段，应在 `OnSelectCard` 中用 `Duel.GetCurrentSolvingChainInfo()` 识别正在处理的连锁。优先用发动快照字段判断：`ActivatePlayer`（发动者）、`IsActivateCode` / `ActivateId`（发动卡号）、`ActivateSequence` / `ActivateLocation` 等。该方法在发动、支付代价和指定目标时会返回 `null`。仅当需要活卡引用比较（如 `Enemy.SpellZone[i] == info.RelatedCard`）或调试日志时再使用 `RelatedCard`；一般不要用 `GetCurrentSolvingChainCard()` 做卡号/控制者判断。
-- 注意，**以上问题仅限于必发效果**，即满足条件必定强制发动的 `EFFECT_TYPE_TRIGGER_F` 的效果。效果文本中写“〇〇的场合才能发动”通常不是必发效果，写“〇〇的场合发动”通常是必发效果。普通可选发动的效果一般应使用 `AI.SelectCard` 等方法预先选择，仅在选择目标难以预测时改用 `OnSelectCard` 处理。
+- 效果处理时才进行的选卡，例如从牌组检索、特殊召唤或效果处理中的丢弃，发生在连锁处理阶段，应在 `OnSelectCard` 中用 `Duel.GetCurrentSolvingChainInfo()` 识别正在处理的连锁。优先用发动快照字段判断：`ActivatePlayer`（发动者）、`IsActivateCode` / `ActivateId`（发动卡号）、`ActivateSequence` / `ActivateLocation` 等。该方法在发动、支付代价和指定目标时会返回 `null`。仅当需要活卡引用比较（如 `Enemy.SpellZone[i] == info.RelatedCard`）或调试日志时再使用 `RelatedCard`；一般不要用 `GetCurrentSolvingChainCard()` 做卡号/控制者判断。
+- 注意，**发动条件函数可能被完全绕过的问题仅限于强制候选**，典型情况是满足条件必定发动的 `EFFECT_TYPE_TRIGGER_F` 效果。效果文本中写“〇〇的场合才能发动”通常不是必发效果，写“〇〇的场合发动”通常是必发效果。普通可选发动的效果一般应使用 `AI.SelectCard` 等方法预先选择，仅在选择目标难以预测时改用 `OnSelectCard` 处理；一旦改用 `OnSelectCard`，上述连锁建立阶段与处理阶段的上下文区分同样适用，并不限于必发效果。
 - `GetCurrentChainCard()` 只表示尚未开始处理时的最新连锁卡，连锁开始处理后返回 `null`；`GetCurrentSolvingChainInfo()` / `GetCurrentSolvingChainCard()` 只表示当前正在处理的连锁（Info 为发动快照，Card 为活卡引用）。识别处理中的连锁源时优先用 Info。不要用 `CurrentChain.LastOrDefault()` 或 `AIUtil.GetLastChainCard()` 代替这一区分，否则多段连锁倒序处理时可能把选卡归给错误的连锁卡。
 - 如果同一张卡同时具有发动时目标、处理时选卡或多个不同效果，必须结合 `hint`、候选区域和必要的效果描述进一步区分。不要让 `OnSelectCard` 返回选择的同时还保留同一流程的预选队列，否则残留选择可能污染下一次选卡。
 
@@ -104,8 +105,8 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 
 1. 在 `Game/AI/Decks/` 添加继承 `DefaultExecutor` 的执行器。
 2. 添加唯一的 `[Deck("外部名称", "AI_牌组文件名", "级别")]`。外部名称用于 `Deck=...`；文件名对应 `Decks/<文件名>.ydk`，不带扩展名。
-3. 在 `Decks/` 添加匹配的 `.ydk`。`DeckFile` 配置可以覆盖特性声明的默认文件。
-4. 从高到低注册 `AddExecutor`，并实现必要的目标、素材、选项、位置以及生命周期回调。
+3. 在 `Decks/` 添加匹配的 `.ydk`。
+4. 从高到低注册 `AddExecutor`，并实现必要的目标、素材、选项、位置等回调。
 5. `BotWrapper/bot.conf`、`Dialogs/` 等素材一般人工编写，新增牌组时不要自行编写，而是提醒用户修改。
 
 注意：
@@ -128,23 +129,23 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 
 ## 构建与验证
 
-- CI 在 Windows 上使用 MSBuild 构建 `WindBot.sln` 的 Release 配置；本地对应命令为：
+- CI 在 Windows 上使用 MSBuild 构建 `WindBot.sln` 的 Release 配置，未显式指定平台时使用项目默认的 Any CPU；Mono CI 也显式构建 Release Any CPU。本地对应命令为：
 
   ```powershell
-  msbuild WindBot.sln /t:Build /p:Configuration=Release /p:Platform=x86
+  msbuild WindBot.sln /t:Build /p:Configuration=Release
   ```
 
 - 这是旧式 .NET Framework 解决方案，优先使用 Visual Studio/MSBuild；不要把 `dotnet build` 当作默认验证方式。
 - 仓库目前没有自动化测试项目。不要声称“测试通过”来代替实际构建或对局验证。
 - 文档、对话或单纯 `.ydk` 修改通常无需编译。修改 C# 时按影响范围决定是否构建。
-- 协议、状态同步、选择队列和公共 AI 修改应至少做 Release x86 构建。
+- 协议、状态同步、选择队列和公共 AI 修改应至少做 Debug Any CPU 构建。
 - 运行 `WindBot.exe` 需要可访问的 `cards.cdb`；项目输出还依赖随仓库提供的 SQLite 组件以及复制到输出目录的 `Decks`/`Dialogs` 资源。
 - 调试行为问题时可使用 `Debug=True` 查看移动日志，并记录触发消息、当前阶段、连锁、候选列表及最终命中的执行器。
 
 ## 代码与协作约定
 
 - 保持与现有代码一致的 C# 风格：4 空格缩进、Allman 大括号、清晰的显式控制流；不要为无关文件做批量格式化。
-- 所有代码文件使用 UTF-8 和 CRLF。新文件建议无 BOM；已有 BOM 不做无关调整。
+- 代码文件的目标格式是 UTF-8 和 CRLF，但仓库中的历史文件尚未完全统一。新文件使用 UTF-8、CRLF，建议无 BOM；已有 BOM 不做无关调整。
 - 避免引入 .NET Framework 4.8 或当前编译方式不支持的 API/语法。
 - 为兼容项目支持的旧版 Mono 构建链，使用 C# 7 及以上语法时遵循以下限制：
   - 已确认可用：对已经声明的变量或其他可赋值位置进行简单解构赋值，包括用 `(left, right) = (right, left);` 交换两个值。此用法不得把元组作为值保存、传递或返回。
