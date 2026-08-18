@@ -109,7 +109,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Summon, CardId.Garoth);
             AddExecutor(ExecutorType.Summon, CardId.PerformageTrickClown, Level4ExtenderSummon);
             AddExecutor(ExecutorType.Summon, CardId.ThousandBlades, Level4ExtenderSummon);
-            AddExecutor(ExecutorType.MonsterSet, CardId.Ryko, RykoSet);
 
             AddExecutor(ExecutorType.SpSummon, CardId.EvilswarmExcitonKnight, EvilswarmExcitonKnightSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.TrishulaDragonOfTheIceBarrier, TrishulaSummon);
@@ -124,6 +123,11 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.PSYFramelordZeta, PSYFramelordZetaSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.PSYFramelordOmega, PSYFramelordOmegaSummon);
             AddExecutor(ExecutorType.SpSummon, CardId.DanteTravelerOfTheBurningAbyss, DanteSummon);
+
+            AddExecutor(ExecutorType.MonsterSet, CardId.Ryko, RykoSet);
+            AddExecutor(ExecutorType.MonsterSet, CardId.PerformageTrickClown);
+            AddExecutor(ExecutorType.MonsterSet, CardId.ThousandBlades);
+            AddExecutor(ExecutorType.MonsterSet, CardId.Raiden);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
         }
@@ -918,6 +922,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool Number101SilentHonorARKEffect()
         {
+            if (ActivateDescription == 96) return true;
+
             if (DefaultCheckWhetherCardIsNegated(Card))
                 return false;
 
