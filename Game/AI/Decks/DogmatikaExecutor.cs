@@ -143,7 +143,6 @@ namespace WindBot.Game.AI.Decks
         };
 
         List<int> currentNegatingIdList = new List<int>();
-        bool enemyActivateMaxxC = false;
         bool enemyActivateLockBird = false;
         List<int> infiniteImpermanenceList = new List<int>();
         bool summoned = false;
@@ -569,7 +568,6 @@ namespace WindBot.Game.AI.Decks
             ClientCard lastChainCard = Util.GetLastChainCard();
             if (lastChainCard != null && Duel.LastChainPlayer == 1)
             {
-                if (lastChainCard.IsCode(_CardId.MaxxC)) enemyActivateMaxxC = false;
                 if (lastChainCard.IsCode(_CardId.LockBird)) enemyActivateLockBird = false;
                 if (lastChainCard.IsCode(CardId.DimensionShifter)) dimensionShifterCount = 0;
                 if (lastChainCard.Controller == 1 && lastChainCard.Location == CardLocation.MonsterZone)
@@ -697,16 +695,34 @@ namespace WindBot.Game.AI.Decks
 
         public bool CheckShouldNoMoreSpSummon()
         {
-            if (CheckAtAdvantage() && enemyActivateMaxxC && Util.IsTurn1OrMain2())
+            if (CheckAtAdvantage() && enemyResolvedEffectIdList.Contains(_CardId.MaxxC) && DefaultCheckWhetherEnemyCanDraw()
+                && Util.IsTurn1OrMain2())
             {
-                bool successFlag = false;
-                successFlag |= Bot.HasInHandOrInSpellZone(CardId.DogmatikaPunishment);
-                successFlag |= Bot.GetMonsters().Any(card => card.IsFaceup() && card.Level >= 7 && card.HasRace(CardRace.SpellCaster));
-                successFlag |= Bot.HasInHand(CardId.DogmatikaFleurdelis)
-                    && Bot.GetMonsters().Any(card => card.IsFaceup() && card.HasSetcode(SetcodeDogmatika));
-                return successFlag;
+                return CheckDogmatikaCanStopCombo();
             }
             return false;
+        }
+
+        public bool CheckShouldNoMoreSpSummon(CardLocation loc)
+        {
+            if (CheckShouldNoMoreSpSummon()) return true;
+            if (!DefaultCheckWhetherEnemyCanDraw() || !Util.IsTurn1OrMain2()) return false;
+            if (!CheckDogmatikaCanStopCombo()) return false;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyPurulia) && (loc & CardLocation.Hand) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyFuwalos) && (loc & (CardLocation.Deck | CardLocation.Extra)) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyNyalus) && (loc & (CardLocation.Grave | CardLocation.Removed)) != 0) return true;
+
+            return false;
+        }
+
+        public bool CheckDogmatikaCanStopCombo()
+        {
+            bool successFlag = false;
+            successFlag |= Bot.HasInHandOrInSpellZone(CardId.DogmatikaPunishment);
+            successFlag |= Bot.GetMonsters().Any(card => card.IsFaceup() && card.Level >= 7 && card.HasRace(CardRace.SpellCaster));
+            successFlag |= Bot.HasInHand(CardId.DogmatikaFleurdelis)
+                && Bot.GetMonsters().Any(card => card.IsFaceup() && card.HasSetcode(SetcodeDogmatika));
+            return successFlag;
         }
 
         /// <summary>
@@ -983,7 +999,6 @@ namespace WindBot.Game.AI.Decks
                 enemySpSummonFromExLastTurn = 0;
                 enemySpSummonFromExThisTurn = 0;
             }
-            enemyActivateMaxxC = false;
             enemyActivateLockBird = false;
             omegaActivateCount = 0;
             enemySpSummonFromExLastTurn = enemySpSummonFromExThisTurn;
@@ -1102,8 +1117,6 @@ namespace WindBot.Game.AI.Decks
             ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
             if (currentChain != null && !Duel.IsCurrentSolvingChainNegated() && currentChain.ActivatePlayer == 1)
             {
-                if (currentChain.IsActivateCode(_CardId.MaxxC))
-                    enemyActivateMaxxC = true;
                 if (currentChain.IsActivateCode(_CardId.LockBird))
                     enemyActivateLockBird = true;
                 if (currentChain.IsActivateCode(CardId.DimensionShifter))
@@ -1189,7 +1202,7 @@ namespace WindBot.Game.AI.Decks
             if (CheckWhetherNegated()) return false;
             if (Card.Location == CardLocation.Hand)
             {
-                if (CheckShouldNoMoreSpSummon())
+                if (CheckShouldNoMoreSpSummon(CardLocation.Hand))
                 {
                     return false;
                 }
@@ -1329,7 +1342,7 @@ namespace WindBot.Game.AI.Decks
             if (CheckWhetherNegated()) return false;
             if (Card.Location == CardLocation.Hand)
             {
-                if (CheckShouldNoMoreSpSummon()) return false;
+                if (CheckShouldNoMoreSpSummon(CardLocation.Hand)) return false;
                 // banish dump extra
                 List<int> dumpIdCheck = new List<int>{ CardId.ElderEntityNtss, CardId.GaruraWingsOfResonantLife, CardId.DespianLuluwalilith };
                 foreach (int dumpId in dumpIdCheck)
@@ -1566,7 +1579,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Hand)
             {
                 if (activatedCardIdList.Contains(Card.Id)) return false;
-                if (CheckShouldNoMoreSpSummon())
+                if (CheckShouldNoMoreSpSummon(CardLocation.Hand))
                 {
                     if (!Bot.HasInHand(CardId.DogmatikaFleurdelis) || Bot.GetMonsters().Any(card => card.IsFaceup() && card.HasSetcode(SetcodeDogmatika)))
                     {
@@ -1597,8 +1610,10 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                // for maxxc
-                if (CheckAtAdvantage() && enemyActivateMaxxC)
+                // for maxxc / mulcharmy
+                if (CheckAtAdvantage() && DefaultCheckWhetherEnemyCanDraw()
+                    && enemyResolvedEffectIdList.Any(id => id == _CardId.MaxxC || id == _CardId.MulcharmyPurulia
+                        || id == _CardId.MulcharmyFuwalos))
                 {
                     List<int> checkIdListFirstPart = new List<int>{ CardId.DogmatikaPunishment, CardId.DogmatikaFleurdelis };
                     if (DogmatikaMatrixCanActivate())

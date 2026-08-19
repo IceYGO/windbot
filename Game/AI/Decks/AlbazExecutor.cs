@@ -196,7 +196,6 @@ namespace WindBot.Game.AI.Decks
         };
 
         bool summoned = false;
-        bool enemyActivateMaxxC = false;
         bool enemyActivateLockBird = false;
         int dimensionShifterCount = 0;
         bool enemyActivateInfiniteImpermanenceFromHand = false;
@@ -322,10 +321,22 @@ namespace WindBot.Game.AI.Decks
 
         public bool CheckShouldNoMoreSpSummon()
         {
-            if (CheckAtAdvantage() && enemyActivateMaxxC && !enemyActivateLockBird && (Duel.Turn == 1 || Duel.Phase >= DuelPhase.Main2))
+            if (CheckAtAdvantage() && enemyResolvedEffectIdList.Contains(_CardId.MaxxC) && DefaultCheckWhetherEnemyCanDraw()
+                && (Duel.Turn == 1 || Duel.Phase >= DuelPhase.Main2))
             {
                 return true;
             }
+            return false;
+        }
+
+        public bool CheckShouldNoMoreSpSummon(CardLocation loc)
+        {
+            if (CheckShouldNoMoreSpSummon()) return true;
+            if (!DefaultCheckWhetherEnemyCanDraw() || (Duel.Turn > 1 && Duel.Phase < DuelPhase.Main2)) return false;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyPurulia) && (loc & CardLocation.Hand) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyFuwalos) && (loc & (CardLocation.Deck | CardLocation.Extra)) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyNyalus) && (loc & (CardLocation.Grave | CardLocation.Removed)) != 0) return true;
+
             return false;
         }
 
@@ -668,7 +679,7 @@ namespace WindBot.Game.AI.Decks
                                 {CardId.SpringansKitt, () => CheckWhetherCanSummon() && !activatedCardIdList.Contains(CardId.SpringansKitt + 1) },
                                 {CardId.FallenOfAlbaz, () => (CheckWhetherCanSummon() && CheckAlbazFusion()) || Bot.HasInMonstersZone(CardId.BlazingCartesiaTheVirtuous) },
                                 {CardId.GuidingQuemTheVirtuous, () => CheckWhetherCanSummon() },
-                                {CardId.BlazingCartesiaTheVirtuous, () => CheckWhetherCanSummon() || (!CheckShouldNoMoreSpSummon() && Bot.HasInMonstersZoneOrInGraveyard(CardId.FallenOfAlbaz))},
+                                {CardId.BlazingCartesiaTheVirtuous, () => CheckWhetherCanSummon() || (!CheckShouldNoMoreSpSummon(CardLocation.Hand) && Bot.HasInMonstersZoneOrInGraveyard(CardId.FallenOfAlbaz))},
                                 {CardId.AlbionTheShroudedDragon, () => !CheckWhetherWillbeRemoved() && !activatedCardIdList.Contains(CardId.AlbionTheShroudedDragon) },
                             };
                             break;
@@ -1097,7 +1108,7 @@ namespace WindBot.Game.AI.Decks
                             {
                                 {CardId.TitanikladTheAshDragon, () => Enemy.HasInMonstersZone(CardId.KashtiraAriseHeart) },
                                 {CardId.RindbrummTheStrikingDragon,  () => CheckWhetherWillbeRemoved() && Bot.HasInDeck(CardId.TriBrigadeMercourier)},
-                                {CardId.AlbionTheSanctifireDragon, () => CheckShouldNoMoreSpSummon()},
+                                {CardId.AlbionTheSanctifireDragon, () => CheckShouldNoMoreSpSummon(CardLocation.Extra)},
                                 {CardId.AlbionTheBrandedDragon, () => {
                                     bool checkFlag = Bot.Graveyard.Any(c => c != null && c.IsMonster() && c.HasAttribute(CardAttribute.Dark) && !c.IsCode(cannotBeFusionMaterialIdList));
                                     checkFlag |= Bot.HasInHandOrHasInMonstersZone(CardId.TriBrigadeMercourier);
@@ -1409,7 +1420,6 @@ namespace WindBot.Game.AI.Decks
 
                             return Util.CheckSelectCount(targetList, cards, min, max);
                         }
-                        break;
 
                     // for sanctifire
                     case CardId.AlbionTheSanctifireDragon:
@@ -2139,7 +2149,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (currentSolvingChain.IsActivateCode(CardId.BrandedOpening))
                     {
-                        return (CheckShouldNoMoreSpSummon() && !summoned && Duel.Player == 0) ? options.IndexOf(1190) : options.IndexOf(1152);
+                        return (CheckShouldNoMoreSpSummon(CardLocation.Deck) && !summoned && Duel.Player == 0) ? options.IndexOf(1190) : options.IndexOf(1152);
                     }
 
                     if (fusionTarget != null && (
@@ -2154,13 +2164,13 @@ namespace WindBot.Game.AI.Decks
                         }
                         if (fusionTarget.IsCode(CardId.GuidingQuemTheVirtuous, CardId.SpringansKitt))
                         {
-                            return CheckShouldNoMoreSpSummon() ? options.IndexOf(1190) : options.IndexOf(1152);
+                            return CheckShouldNoMoreSpSummon(CardLocation.Grave) ? options.IndexOf(1190) : options.IndexOf(1152);
                         }
                         if (fusionTarget.IsCode(CardId.AluberTheJesterOfDespia))
                         {
                             return activatedCardIdList.Contains(CardId.AluberTheJesterOfDespia) ? options.IndexOf(1190) : options.IndexOf(1152);
                         }
-                        return (CheckShouldNoMoreSpSummon() && !summoned) ? options.IndexOf(1190) : options.IndexOf(1152);
+                        return (CheckShouldNoMoreSpSummon(CardLocation.Grave) && !summoned) ? options.IndexOf(1190) : options.IndexOf(1152);
                     }
                 }
 
@@ -2334,7 +2344,6 @@ namespace WindBot.Game.AI.Decks
             }
 
             summoned = false;
-            enemyActivateMaxxC = false;
             enemyActivateLockBird = false;
             enemyActivateInfiniteImpermanenceFromHand = false;
             nadirActivated = false;
@@ -2402,8 +2411,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (currentChain.ActivatePlayer == 1)
                     {
-                        if (currentChain.IsActivateCode(_CardId.MaxxC))
-                            enemyActivateMaxxC = true;
                         if (currentChain.IsActivateCode(_CardId.LockBird))
                             enemyActivateLockBird = true;
                         if (currentChain.IsActivateCode(CardId.DimensionShifter))
@@ -2637,7 +2644,7 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 // banish cards with effect
-                if (!CheckShouldNoMoreSpSummon())
+                if (!CheckShouldNoMoreSpSummon(CardLocation.Hand))
                 {
                     ClientCard mercourier = Bot.Graveyard.FirstOrDefault(c => c != null && c.IsCode(CardId.TriBrigadeMercourier));
                     if (mercourier != null && !activatedCardIdList.Contains(CardId.TriBrigadeMercourier + 1))
@@ -2951,7 +2958,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location == CardLocation.Hand)
             {
                 if (CheckWhetherNegated(true, true, CardType.Monster)) return false;
-                if (CheckShouldNoMoreSpSummon())
+                if (CheckShouldNoMoreSpSummon(CardLocation.Hand))
                 {
                     bool skipFlag = !summoned;
                     skipFlag |= activatedCardIdList.Contains(CardId.BrandedFusion);
@@ -3095,7 +3102,7 @@ namespace WindBot.Game.AI.Decks
             // sp summon
             if (Card.Location == CardLocation.Hand)
             {
-                if (CheckShouldNoMoreSpSummon() || CheckWhetherNegated(true, true, CardType.Monster)) return false;
+                if (CheckShouldNoMoreSpSummon(CardLocation.Hand) || CheckWhetherNegated(true, true, CardType.Monster)) return false;
                 activatedCardIdList.Add(Card.Id);
                 return true;
             }
@@ -3159,7 +3166,7 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
 
-                bool shouldActivateFlag = Duel.Player == 0 && !CheckShouldNoMoreSpSummon() || Duel.Player == 1;
+                bool shouldActivateFlag = Duel.Player == 0 && !CheckShouldNoMoreSpSummon(CardLocation.Extra) || Duel.Player == 1;
 
                 // summon mirrorjade
                 bool checkMirrorJadeFlag = !(Bot.HasInMonstersZone(CardId.MirrorjadeTheIcebladeDragon, faceUp: true) || Bot.HasInSpellZone(CardId.MirrorjadeTheIcebladeDragon, faceUp: true))
@@ -3605,7 +3612,7 @@ namespace WindBot.Game.AI.Decks
         public bool _BrandedInWhiteActivateCheck(bool activate = false)
         {
             if (CheckWhetherNegated(true, true, CardType.Spell) || activatedCardIdList.Contains(CardId.BrandedInWhite) || nadirActivated) return false;
-            if (CheckShouldNoMoreSpSummon() && Bot.MonsterZone.Any(c => c != null && c.GetDefensePower() >= 2000)) return false;
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra) && Bot.MonsterZone.Any(c => c != null && c.GetDefensePower() >= 2000)) return false;
             if (BrandedInWhiteFusionTarget(Bot.ExtraDeck, out ClientCard _fusionTarget) > 0)
             {
                 if (activate) Logger.DebugWriteLine("White prepare fusion: " + _fusionTarget?.Name);
@@ -4152,7 +4159,7 @@ namespace WindBot.Game.AI.Decks
                 if (Bot.HasInHand(CardId.AlbionTheShroudedDragon) && !CheckWhetherWillbeRemoved() && !activatedCardIdList.Contains(CardId.AlbionTheShroudedDragon)) return false;
                 bool canCallCartesia = Bot.HasInHand(CardId.BlazingCartesiaTheVirtuous) && !summoned;
                 canCallCartesia |= !activatedCardIdList.Contains(CardId.FusionDeployment) && Bot.HasInHandOrInSpellZone(CardId.FusionDeployment)
-                    && !CheckShouldNoMoreSpSummon() && Bot.HasInExtra(CardId.GranguignolTheDuskDragon) && Bot.HasInDeck(CardId.BlazingCartesiaTheVirtuous);
+                    && !CheckShouldNoMoreSpSummon(CardLocation.Deck) && Bot.HasInExtra(CardId.GranguignolTheDuskDragon) && Bot.HasInDeck(CardId.BlazingCartesiaTheVirtuous);
                 if (canCallCartesia) return false;
             }
             bool goal = Bot.HasInDeck(CardId.AluberTheJesterOfDespia) && !activatedCardIdList.Contains(CardId.AluberTheJesterOfDespia) && !enemyActivateLockBird;
@@ -5484,7 +5491,7 @@ namespace WindBot.Game.AI.Decks
             Dictionary<int, Func<bool>> checkDict = new Dictionary<int, Func<bool>>
             {
                 {CardId.MirrorjadeTheIcebladeDragon, () => {
-                    bool checkFlag = !CheckWhetherNegated() && CheckShouldNoMoreSpSummon();
+                    bool checkFlag = !CheckWhetherNegated() && CheckShouldNoMoreSpSummon(CardLocation.Extra);
                     checkFlag |= Bot.Graveyard.Any(c => c != null && !sendToGYThisTurn.Contains(c) && !c.IsCode(cannotBeFusionMaterialIdList)
                         && c.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link));
                     return checkFlag;

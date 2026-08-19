@@ -174,10 +174,6 @@ namespace WindBot.Game.AI.Decks
 
         int maxSummonCount = 1;
         int summonCount = 1;
-        bool enemyActivateMaxxC = false;
-        bool enemyActivatePurulia = false;
-        bool enemyActivateFuwalos = false;
-        bool enemyActivateNyalus = false;
         bool lockBirdSolved = false;
         int dimensionShifterCount = 0;
         bool botActivateMulcharmy = false;
@@ -352,7 +348,8 @@ namespace WindBot.Game.AI.Decks
 
         public bool CheckShouldNoMoreSpSummon()
         {
-            if (CheckAtAdvantage() && enemyActivateMaxxC && !lockBirdSolved && (Duel.Turn == 1 || Duel.Phase >= DuelPhase.Main2))
+            if (CheckAtAdvantage() && enemyResolvedEffectIdList.Contains(_CardId.MaxxC) && DefaultCheckWhetherEnemyCanDraw()
+                && (Duel.Turn == 1 || Duel.Phase >= DuelPhase.Main2))
             {
                 return true;
             }
@@ -362,10 +359,10 @@ namespace WindBot.Game.AI.Decks
         public bool CheckShouldNoMoreSpSummon(CardLocation loc)
         {
             if (CheckShouldNoMoreSpSummon()) return true;
-            if (lockBirdSolved || (Duel.Turn > 1 && Duel.Phase < DuelPhase.Main2)) return false;
-            if (enemyActivatePurulia && (loc & CardLocation.Hand) != 0) return true;
-            if (enemyActivateFuwalos && (loc & (CardLocation.Deck | CardLocation.Extra)) != 0) return true;
-            if (enemyActivateNyalus && (loc & (CardLocation.Grave | CardLocation.Removed)) != 0) return true;
+            if (!DefaultCheckWhetherEnemyCanDraw() || (Duel.Turn > 1 && Duel.Phase < DuelPhase.Main2)) return false;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyPurulia) && (loc & CardLocation.Hand) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyFuwalos) && (loc & (CardLocation.Deck | CardLocation.Extra)) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyNyalus) && (loc & (CardLocation.Grave | CardLocation.Removed)) != 0) return true;
 
             return false;
         }
@@ -1574,10 +1571,6 @@ namespace WindBot.Game.AI.Decks
             }
 
             summonCount = maxSummonCount;
-            enemyActivateMaxxC = false;
-            enemyActivatePurulia = false;
-            enemyActivateFuwalos = false;
-            enemyActivateNyalus = false;
             lockBirdSolved = false;
             if (dimensionShifterCount > 0) dimensionShifterCount--;
             enemyActivateInfiniteImpermanenceFromHand = false;
@@ -1650,17 +1643,6 @@ namespace WindBot.Game.AI.Decks
                         lockBirdSolved = true;
                     if (currentChain.IsActivateCode(_CardId.DimensionShifter))
                         dimensionShifterCount = 2;
-                    if (currentChain.ActivatePlayer == 1)
-                    {
-                        if (currentChain.IsActivateCode(_CardId.MaxxC))
-                            enemyActivateMaxxC = true;
-                        if (currentChain.IsActivateCode(_CardId.MulcharmyPurulia))
-                            enemyActivatePurulia = true;
-                        if (currentChain.IsActivateCode(_CardId.MulcharmyFuwalos))
-                            enemyActivateFuwalos = true;
-                        if (currentChain.IsActivateCode(_CardId.MulcharmyNyalus))
-                            enemyActivateNyalus = true;
-                    }
                     if (currentChain.ActivatePlayer == 0)
                     {
                         foreach (int checkId in CheckBotSolvedList)
