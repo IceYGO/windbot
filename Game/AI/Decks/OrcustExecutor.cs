@@ -320,10 +320,13 @@ namespace WindBot.Game.AI.Decks
                 if (attacker.IsCode(CardId.TrickstarCandina) && Bot.HasInHand(CardId.TrickstarCarobein))
                     attacker.RealPower = attacker.RealPower + 1800;
 
-                if (attacker.IsCode(CardId.BorrelswordDragon) && !attacker.IsDisabled() && !BorrelswordDragonUsed)
+                if (attacker.IsCode(CardId.BorrelswordDragon) && !attacker.IsDisabled() &&
+                    !BorrelswordDragonUsed && defender.IsFaceup())
                 {
-                    attacker.RealPower = attacker.RealPower + defender.GetDefensePower() / 2;
-                    defender.RealPower = defender.RealPower - defender.GetDefensePower() / 2;
+                    int halfAttack = (defender.Attack + 1) / 2;
+                    attacker.RealPower += halfAttack;
+                    if (defender.IsAttack())
+                        defender.RealPower = halfAttack;
                 }
             }
             return base.OnPreBattleBetween(attacker, defender);

@@ -848,8 +848,8 @@ namespace WindBot.Game.AI.Decks
                     return false;
                 AI.SelectCard(new[] {
                     CardId.BlackRoseMoonlightDragon,
+                    CardId.PSYFramelordOmega,
                     CardId.ScrapDragon,
-                    CardId.PSYFramelordOmega
                 });
                 return true;
             }
