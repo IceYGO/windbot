@@ -103,10 +103,11 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Summon, CardId.Goblindbergh, GoblindberghSummon);
             AddExecutor(ExecutorType.Summon, CardId.Lumina, LuminaSummon);
-            AddExecutor(ExecutorType.Summon, CardId.Lyla, LylaSummon);
+            AddExecutor(ExecutorType.Summon, CardId.Lyla, LylaSummonFirst);
             AddExecutor(ExecutorType.Summon, CardId.Raiden, RaidenSummon);
             AddExecutor(ExecutorType.Summon, CardId.Minerva, MinervaSummon);
             AddExecutor(ExecutorType.Summon, CardId.Garoth);
+            AddExecutor(ExecutorType.Summon, CardId.Lyla);
             AddExecutor(ExecutorType.Summon, CardId.PerformageTrickClown, Level4ExtenderSummon);
             AddExecutor(ExecutorType.Summon, CardId.ThousandBlades, Level4ExtenderSummon);
 
@@ -127,6 +128,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.MonsterSet, CardId.Ryko, RykoSet);
             AddExecutor(ExecutorType.MonsterSet, CardId.PerformageTrickClown);
             AddExecutor(ExecutorType.MonsterSet, CardId.ThousandBlades);
+            AddExecutor(ExecutorType.MonsterSet, CardId.GlowUpBulb);
             AddExecutor(ExecutorType.MonsterSet, CardId.Raiden);
 
             AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
@@ -573,10 +575,9 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
-        private bool LylaSummon()
+        private bool LylaSummonFirst()
         {
-            return Enemy.GetSpellCount() > 0 ||
-                Bot.GetMonsters().Any(card => card.IsFaceup() && card.Level == 4);
+            return Enemy.GetSpellCount() > 0;
         }
 
         private bool LylaEffect()
