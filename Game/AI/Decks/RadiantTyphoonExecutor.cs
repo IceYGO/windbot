@@ -98,9 +98,8 @@ namespace WindBot.Game.AI.Decks
         private ClientCard _mandateNegationTarget;
         private int _dropletCostCount;
         private int _favoriteHEROFusionTargetId;
-        private int _chantResolutionEffectOffset;
-        private int _visionResolutionEffectOffset;
-        private int _ascendanceResolutionEffectOffset;
+        private readonly Dictionary<int, int> _radiantResolutionEffectOffsets =
+            new Dictionary<int, int>();
         private readonly HashSet<int> _activatedRadiantCardsThisTurn = new HashSet<int>();
         private readonly HashSet<ClientCard> _botFacedownSpellsSetFromGrave =
             new HashSet<ClientCard>();
@@ -223,6 +222,7 @@ namespace WindBot.Game.AI.Decks
         public override bool OnPreActivate(ClientCard card)
         {
             if (card != null && Duel.Player == 0 &&
+                Duel.CurrentChain.Count == 0 &&
                 ShouldPrioritizeMonsterSummonAgainstExtraDeck() &&
                 (Duel.Phase == DuelPhase.Draw || Duel.Phase == DuelPhase.Standby) &&
                 card.IsSpell())
@@ -300,9 +300,7 @@ namespace WindBot.Game.AI.Decks
             _mysticalSpaceTyphoonTarget = null;
             _mandateNegationTarget = null;
             _dropletCostCount = 0;
-            _chantResolutionEffectOffset = 0;
-            _visionResolutionEffectOffset = 0;
-            _ascendanceResolutionEffectOffset = 0;
+            _radiantResolutionEffectOffsets.Clear();
             _activatedRadiantCardsThisTurn.Clear();
             base.OnNewTurn();
         }
@@ -446,9 +444,7 @@ namespace WindBot.Game.AI.Decks
             _mandateNegationTarget = null;
             _mstOfferedInCurrentChainSelection = false;
             _radiantQuickPlayOfferedInCurrentChainSelection = false;
-            _chantResolutionEffectOffset = 0;
-            _visionResolutionEffectOffset = 0;
-            _ascendanceResolutionEffectOffset = 0;
+            _radiantResolutionEffectOffsets.Clear();
             _dropletCostCount = 0;
             _favoriteHEROFusionTargetId = 0;
             base.OnChainEnd();
@@ -2318,6 +2314,11 @@ namespace WindBot.Game.AI.Decks
             {
                 return canSearchMst ? 3 : -1;
             }
+            if (!HasSafeVisionDiscard())
+            {
+                return canSearchMst ? 3 : -1;
+            }
+
             if (!canSearchMst)
             {
                 return 2;
@@ -2331,6 +2332,13 @@ namespace WindBot.Game.AI.Decks
             // effect is the engine action. Its MST search is a later resource
             // action, after the current expansion has finished.
             return 2;
+        }
+
+        private bool HasSafeVisionDiscard()
+        {
+            return Bot.Hand.Any(c => c != null && c != Card &&
+                (IsRadiantCard(c) || c.IsCode(CardId.MysticalSpaceTyphoon) ||
+                 c.HasType(CardType.QuickPlay)));
         }
 
         private int GetPreferredChantEffectOffset()
@@ -2373,9 +2381,14 @@ namespace WindBot.Game.AI.Decks
 
         private void RegisterRadiantQuickPlayEffectSelection(int cardId, int offset)
         {
+            int chainIndex = GetCurrentRadiantChainIndex();
+            if (chainIndex > 0)
+            {
+                _radiantResolutionEffectOffsets[chainIndex] = offset;
+            }
+
             if (cardId == CardId.RadiantTyphoonChant)
             {
-                _chantResolutionEffectOffset = offset;
                 if (offset == 2)
                 {
                     _usedChantMonsterSearch = true;
@@ -2387,7 +2400,6 @@ namespace WindBot.Game.AI.Decks
             }
             else if (cardId == CardId.RadiantTyphoonVision)
             {
-                _visionResolutionEffectOffset = offset;
                 if (offset == 2)
                 {
                     _usedVisionDraw = true;
@@ -2399,7 +2411,6 @@ namespace WindBot.Game.AI.Decks
             }
             else if (cardId == CardId.RadiantTyphoonAscendance)
             {
-                _ascendanceResolutionEffectOffset = offset;
                 if (offset == 2)
                 {
                     _usedAscendanceRevive = true;
@@ -2409,6 +2420,38 @@ namespace WindBot.Game.AI.Decks
                     _usedAscendanceMstSearch = true;
                 }
             }
+        }
+
+        private int GetCurrentRadiantChainIndex()
+        {
+            if (Duel.SolvingChainIndex > 0)
+            {
+                return Duel.SolvingChainIndex;
+            }
+
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (currentChainCard != null)
+            {
+                for (int i = 0; i < Duel.CurrentChain.Count; ++i)
+                {
+                    if (Duel.CurrentChain[i] == currentChainCard)
+                    {
+                        return i + 1;
+                    }
+                }
+            }
+
+            return Duel.CurrentChainInfo.Count;
+        }
+
+        private bool IsRadiantResolutionEffect(int cardId, int offset)
+        {
+            int selectedOffset;
+            return Duel.SolvingChainIndex > 0 &&
+                _radiantResolutionEffectOffsets.TryGetValue(Duel.SolvingChainIndex,
+                    out selectedOffset) && selectedOffset == offset &&
+                Duel.GetCurrentSolvingChainInfo() != null &&
+                Duel.GetCurrentSolvingChainInfo().IsActivateCode(cardId);
         }
 
         private bool CanActivateAscendanceNow()
@@ -3752,7 +3795,7 @@ namespace WindBot.Game.AI.Decks
                 return SelectAscendance(cards, min, max);
             }
             if (chain.IsActivateCode(CardId.RadiantTyphoonVision) &&
-                _visionResolutionEffectOffset == 3)
+                IsRadiantResolutionEffect(CardId.RadiantTyphoonVision, 3))
             {
                 return SelectMstForHand(cards, min, max);
             }
@@ -3988,11 +4031,11 @@ namespace WindBot.Game.AI.Decks
 
         private IList<ClientCard> SelectChantSearch(IList<ClientCard> cards, int min, int max)
         {
-            if (_chantResolutionEffectOffset == 3)
+            if (IsRadiantResolutionEffect(CardId.RadiantTyphoonChant, 3))
             {
                 return SelectMstForHand(cards, min, max);
             }
-            if (_chantResolutionEffectOffset != 2 &&
+            if (!IsRadiantResolutionEffect(CardId.RadiantTyphoonChant, 2) &&
                 (ShouldUseChantMstSearch() || cards.All(c => c.IsCode(CardId.MysticalSpaceTyphoon))) &&
                 cards.Any(c => c.IsCode(CardId.MysticalSpaceTyphoon)))
             {
@@ -4034,7 +4077,7 @@ namespace WindBot.Game.AI.Decks
 
         private IList<ClientCard> SelectAscendance(IList<ClientCard> cards, int min, int max)
         {
-            if (_ascendanceResolutionEffectOffset == 3)
+            if (IsRadiantResolutionEffect(CardId.RadiantTyphoonAscendance, 3))
             {
                 return SelectMstForHand(cards, min, max);
             }
