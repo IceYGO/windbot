@@ -82,6 +82,7 @@ namespace WindBot.Game.AI.Decks
         private bool _enemyMaxxCResolved;
         private bool _enemyFuwalosResolved;
         private bool _botSummonedFromHandAfterPurulia;
+        private bool _mustStartMain1WithMonsterSummon;
         private bool _mstOfferedInCurrentChainSelection;
         private bool _radiantQuickPlayOfferedInCurrentChainSelection;
         private bool _selectingGallantThiefTributes;
@@ -201,7 +202,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.FavoriteHEROFlameWingman, FavoriteHEROFlameWingmanActivate);
             AddExecutor(ExecutorType.Activate, CardId.FavoriteHEROShiningFlareWingman, FavoriteHEROShiningFlareWingmanActivate);
 
-            AddExecutor(ExecutorType.Repos, DefaultMonsterRepos);
+            AddExecutor(ExecutorType.Repos, RadiantMonsterRepos);
             AddExecutor(ExecutorType.SpellSet, RadiantSpellSet);
         }
 
@@ -212,12 +213,33 @@ namespace WindBot.Game.AI.Decks
 
         public override bool OnPreActivate(ClientCard card)
         {
+            if (card != null && Duel.Player == 0 &&
+                ShouldPrioritizeMonsterSummonAgainstExtraDeck() &&
+                (Duel.Phase == DuelPhase.Draw || Duel.Phase == DuelPhase.Standby) &&
+                card.IsSpell())
+            {
+                return false;
+            }
+
+            if (ShouldRequireMain1MonsterSummon())
+            {
+                return false;
+            }
+
             if (Duel.Player == 0 && ShouldPrioritizeGallantThiefSummon() &&
                 (Duel.Phase == DuelPhase.Draw || Duel.Phase == DuelPhase.Standby))
             {
                 return false;
             }
             return base.OnPreActivate(card);
+        }
+
+        public override void OnNewPhase()
+        {
+            _mustStartMain1WithMonsterSummon = Duel.Player == 0 &&
+                Duel.Phase == DuelPhase.Main1 &&
+                ShouldPrioritizeMonsterSummonAgainstExtraDeck();
+            base.OnNewPhase();
         }
 
         public override void OnSelectChain(IList<ClientCard> cards)
@@ -254,6 +276,7 @@ namespace WindBot.Game.AI.Decks
             _enemyMaxxCResolved = false;
             _enemyFuwalosResolved = false;
             _botSummonedFromHandAfterPurulia = false;
+            _mustStartMain1WithMonsterSummon = false;
             _mstOfferedInCurrentChainSelection = false;
             _radiantQuickPlayOfferedInCurrentChainSelection = false;
             _selectingGallantThiefTributes = false;
@@ -413,6 +436,7 @@ namespace WindBot.Game.AI.Decks
         public override void OnSummoning()
         {
             _selectingGallantThiefTributes = false;
+            _mustStartMain1WithMonsterSummon = false;
             if (_enemyPuruliaResolved && Duel.LastSummonPlayer == 0 &&
                 Duel.SummoningCards.Any(c => c != null && c.Controller == 0 &&
                     (c.LastLocation & CardLocation.Hand) != 0))
@@ -420,6 +444,12 @@ namespace WindBot.Game.AI.Decks
                 _botSummonedFromHandAfterPurulia = true;
             }
             base.OnSummoning();
+        }
+
+        public override void OnSpSummoning()
+        {
+            _mustStartMain1WithMonsterSummon = false;
+            base.OnSpSummoning();
         }
 
         public override void OnSpSummoned()
@@ -2460,12 +2490,18 @@ namespace WindBot.Game.AI.Decks
 
             List<ClientCard> materials = Bot.GetMonsters().Where(c => c.IsFaceup() &&
                     c.HasType(CardType.Effect) && CanUseAsLinkMaterial(c))
-                .OrderBy(GetMaterialPriority).Take(2).ToList();
-            if (materials.Count < 2)
+                .OrderBy(GetMaterialPriority).ToList();
+            ClientCard linkMaterial = materials.FirstOrDefault(c => c.IsCode(
+                CardId.WynnTheWindCharmerVerdant,
+                CardId.RadiantTyphoonVaruroonTheMarineEidolon));
+            ClientCard nonExtraMaterial = materials.FirstOrDefault(c =>
+                c != linkMaterial && !c.IsExtraCard());
+            if (linkMaterial == null || nonExtraMaterial == null)
             {
                 return false;
             }
-            AI.SelectMaterials(materials);
+
+            AI.SelectMaterials(new List<ClientCard> { linkMaterial, nonExtraMaterial });
             return true;
         }
 
@@ -2693,6 +2729,11 @@ namespace WindBot.Game.AI.Decks
 
         private bool RadiantSpellSet()
         {
+            if (ShouldRequireMain1MonsterSummon())
+            {
+                return false;
+            }
+
             if (!IsRadiantSetPriorityCard(Card))
             {
                 return DefaultSpellSet() && IsPreferredRadiantSpellSetCandidate(Card);
@@ -2704,6 +2745,11 @@ namespace WindBot.Game.AI.Decks
             }
 
             return IsPreferredRadiantSpellSetCandidate(Card);
+        }
+
+        private bool RadiantMonsterRepos()
+        {
+            return !ShouldRequireMain1MonsterSummon() && DefaultMonsterRepos();
         }
 
         private bool IsRadiantSetPriorityCard(ClientCard card)
@@ -4013,6 +4059,26 @@ namespace WindBot.Game.AI.Decks
         {
             return Bot.GetMonsterCount() == 0 && CanUseEnemyTributesForGallantThief() &&
                 Bot.HasInHand(CardId.TheWorldsGreatestGallantThief);
+        }
+
+        private bool ShouldPrioritizeMonsterSummonAgainstExtraDeck()
+        {
+            return Duel.Player == 0 && Bot.HasInHand(CardId.ForbiddenDroplet) &&
+                Enemy.GetMonsters().Count(c => c != null && c.IsExtraCard()) >= 2;
+        }
+
+        private bool HasMainPhaseMonsterSummonCandidate()
+        {
+            return Duel.MainPhase != null &&
+                (Duel.MainPhase.SummonableCards.Any(c => c != null) ||
+                 Duel.MainPhase.SpecialSummonableCards.Any(c => c != null));
+        }
+
+        private bool ShouldRequireMain1MonsterSummon()
+        {
+            return _mustStartMain1WithMonsterSummon && Duel.Player == 0 &&
+                Duel.Phase == DuelPhase.Main1 && Duel.CurrentChain.Count == 0 &&
+                HasMainPhaseMonsterSummonCandidate();
         }
 
         private bool NeedMstStarter()
