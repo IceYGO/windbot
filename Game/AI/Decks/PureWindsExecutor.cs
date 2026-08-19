@@ -520,6 +520,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool EmergencyTeleporteff()
         {
+            if (Duel.Player == 0 && Duel.Phase < DuelPhase.Main1)
+                return false;
             if ((Bot.HasInMonstersZone(CardId.CrystalWingSynchroDragon) ||
                 Bot.HasInMonstersZone(CardId.MistWurm)) &&
                 (Util.GetBotAvailZonesFromExtraDeck() == 0))
@@ -916,8 +918,20 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+        private bool ShouldKeepMonsterZoneEmptyAfterLosingLastMonster()
+        {
+            if (Duel.Player != 1 || Bot.GetMonsterCount() != 0 ||
+                !(Bot.HasInHand(CardId.SpeedroidTerrortop) || Bot.HasInHand(CardId.WindwitchIceBell)))
+                return false;
+            int enemyMonsters = Enemy.GetMonsters().Count(card => card.IsAttack());
+            ClientCard bestEnemyMonster = Enemy.MonsterZone.GetHighestAttackMonster();
+            return enemyMonsters <= 1 || bestEnemyMonster == null ||
+                (enemyMonsters == 2 && Bot.LifePoints > bestEnemyMonster.Attack);
+        }
         private bool GustoGulldoeff()
         {
+            if (ShouldKeepMonsterZoneEmptyAfterLosingLastMonster())
+                return false;
             if (Bot.HasInMonstersZone(CardId.DaigustoSphreez))
             {
                 AI.SelectCard(CardId.GustoEgul, CardId.WindaPriestessOfGusto);
@@ -930,6 +944,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool GustoEguleff()
         {
+            if (ShouldKeepMonsterZoneEmptyAfterLosingLastMonster())
+                return false;
             if (Bot.HasInMonstersZone(CardId.DaigustoSphreez))
             {
                 AI.SelectCard(CardId.WindaPriestessOfGusto, CardId.PilicaDescendantOfGusto);
@@ -942,6 +958,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool WindaPriestessOfGustoeff()
         {
+            if (ShouldKeepMonsterZoneEmptyAfterLosingLastMonster())
+                return false;
             if (Bot.HasInMonstersZone(CardId.DaigustoSphreez))
             {
                 AI.SelectCard(CardId.GustoGulldo, CardId.GustoEgul);
