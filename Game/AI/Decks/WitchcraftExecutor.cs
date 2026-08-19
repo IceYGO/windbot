@@ -2345,7 +2345,8 @@ namespace WindBot.Game.AI.Decks
         public bool BorreloadSavageDragonActivate()
         {
             // equip
-            if (ActivateDescription == Util.GetStringId(CardId.BorreloadSavageDragon, 0))
+            if (ActivateDescription == -1
+                || ActivateDescription == Util.GetStringId(CardId.BorreloadSavageDragon, 0))
             {
                 List<ClientCard> links = Bot.Graveyard.GetMatchingCards(card => card.HasType(CardType.Link)).ToList();
                 links.Sort(BorreloadSavageDragonEquipCompare);

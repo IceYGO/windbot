@@ -193,6 +193,18 @@ namespace WindBot.Game.AI.Decks
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (hint == HintMsg.Faceup
+                && min == 1
+                && max == 1
+                && currentChainCard != null
+                && currentChainCard.Controller == 0
+                && currentChainCard.IsCode(CardId.Number38HopeHarbingerDragonTitanicGalaxy)
+                && cards.Contains(currentChainCard))
+            {
+                return new List<ClientCard> { currentChainCard };
+            }
+
             ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
             if (hint == HintMsg.SpSummon
                 && min == 1
@@ -871,16 +883,7 @@ namespace WindBot.Game.AI.Decks
             if (ActivateDescription == Util.GetStringId(CardId.Number38HopeHarbingerDragonTitanicGalaxy, 0))
                 return Duel.LastChainPlayer == 1;
 
-            if (ActivateDescription == Util.GetStringId(CardId.Number38HopeHarbingerDragonTitanicGalaxy, 1))
-                return true;
-
-            if (ActivateDescription == Util.GetStringId(CardId.Number38HopeHarbingerDragonTitanicGalaxy, 2))
-            {
-                AI.SelectCard(Card);
-                return true;
-            }
-
-            return false;
+            return true;
         }
 
         private bool GarunixSummon()
@@ -898,8 +901,13 @@ namespace WindBot.Game.AI.Decks
         {
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
 
-            if (ActivateDescription == Util.GetStringId(CardId.GarunixEternityHyangOfTheFireKings, 0))
+            if (ActivateDescription == Util.GetStringId(CardId.GarunixEternityHyangOfTheFireKings, 0)
+                || (ActivateDescription == -1 && Card.Location == CardLocation.MonsterZone))
                 return Enemy.GetMonsterCount() > 0;
+
+            if (ActivateDescription == Util.GetStringId(CardId.GarunixEternityHyangOfTheFireKings, 2)
+                || (ActivateDescription == -1 && Card.Location != CardLocation.MonsterZone))
+                return true;
 
             if (ActivateDescription != Util.GetStringId(CardId.GarunixEternityHyangOfTheFireKings, 1)
                 || !Card.HasXyzMaterial())
@@ -1011,7 +1019,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
 
-            if (ActivateDescription == Util.GetStringId(CardId.DivineArsenalAAZEUSSkyThunder, 2))
+            if (ActivateDescription == -1
+                || ActivateDescription == Util.GetStringId(CardId.DivineArsenalAAZEUSSkyThunder, 2))
             {
                 AI.SelectCard(
                     CardId.ArtemisTheMagistusMoonMaiden,

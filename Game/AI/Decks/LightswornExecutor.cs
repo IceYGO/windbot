@@ -649,7 +649,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool MinervaEffect()
         {
-            if (ActivateDescription == Util.GetStringId(CardId.Minerva, 0))
+            if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.Minerva, 0))
                 AI.SelectCard(CardId.JudgmentDragon);
             return true;
         }
@@ -662,7 +662,6 @@ namespace WindBot.Game.AI.Decks
         private bool ThousandBladesEffect()
         {
             return Card.Location == CardLocation.Grave &&
-                ActivateDescription == Util.GetStringId(CardId.ThousandBlades, 1) &&
                 !DefaultCheckWhetherCardIsNegated(Card);
         }
 

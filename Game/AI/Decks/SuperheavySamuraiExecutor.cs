@@ -116,7 +116,6 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Summon, CardId.Wagon,NormalSummonFunction);
             AddExecutor(ExecutorType.Activate, CardId.Wagon,WagonFunction);
-            AddExecutor(ExecutorType.Activate, CardId.Wagon,WagonFunction);
 
             AddExecutor(ExecutorType.Summon, CardId.Booster,BoosterNormalSummonFunction);
             AddExecutor(ExecutorType.Summon, CardId.Scales,ScalesNormalSummonFunction);
@@ -415,7 +414,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool WagonFunction()
         {
-            if (ActivateDescription == Util.GetStringId(CardId.Wagon, 0))
+            if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.Wagon, 0))
                 return Card.IsAttack();
             if (ActivateDescription == Util.GetStringId(CardId.Wagon, 1))
             {
@@ -436,10 +435,7 @@ namespace WindBot.Game.AI.Decks
                 activate_Wagon = true;
                 return true;
             }
-            else
-            {
-                return true;
-            }
+            return false;
         }
         private bool SoulpiercerFunction()
         {
@@ -667,7 +663,8 @@ namespace WindBot.Game.AI.Decks
             {
                 return true;
             }
-            else if (ActivateDescription == Util.GetStringId(CardId.ASStardustDragon, 0))
+            else if (ActivateDescription == -1
+                || ActivateDescription == Util.GetStringId(CardId.ASStardustDragon, 0))
             {
 
                 int targetid = -1;
@@ -1032,7 +1029,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool GeniusFunction()
         {
-            if (ActivateDescription == Util.GetStringId(CardId.Genius,1))
+            if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.Genius,1))
             {
                 AI.SelectCard(CardId.Regulus);
                 activate_Genius = true;

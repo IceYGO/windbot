@@ -727,10 +727,13 @@ namespace WindBot.Game.AI.Decks
 
         private bool Rage_activate()
         {
-            if (ActivateDescription == Util.GetStringId(CardId.SalamangreatRage, 1))
+            bool canUseSingleTargetEffect = Bot.Hand.Any(card => card.IsMonster() && card.HasSetcode(0x119))
+                || Bot.GetMonsters().Any(card => card.IsFaceup() && card.HasSetcode(0x119));
+            if (wasWolfSummonedUsingItself && Bot.HasInMonstersZone(CardId.SunlightWolf)
+                && Enemy.GetFieldCount() > 1)
             {
-                AI.SelectCard(salamangreat_links);
-                AI.SelectOption(1);
+                AI.SelectCard(CardId.SunlightWolf);
+                AI.SelectOption(canUseSingleTargetEffect ? 1 : 0);
                 IList<ClientCard> targets = new List<ClientCard>();
 
                 ClientCard target1 = Util.GetBestEnemyMonster(canBeTarget: true);
@@ -759,21 +762,22 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(targets);
                 return true;
             }
-            else
-            {
-                if (Util.GetProblematicEnemyCard(canBeTarget: true) != null)
-                {
-                    if (Util.GetBestBotMonster(true) != null)
-                    {
-                        AI.SelectCard(Util.GetProblematicEnemyCard(Util.GetBestBotMonster(true).Attack, canBeTarget: true));
-                    }
-                    else
-                    {
-                        AI.SelectCard(Util.GetProblematicEnemyCard(canBeTarget: true));
-                    }
 
-                    return true;
+            ClientCard problemTarget = Util.GetProblematicEnemyCard(canBeTarget: true);
+            if (canUseSingleTargetEffect && problemTarget != null)
+            {
+                ClientCard bestBotMonster = Util.GetBestBotMonster(true);
+                if (bestBotMonster != null)
+                {
+                    ClientCard strongerTarget = Util.GetProblematicEnemyCard(bestBotMonster.Attack, canBeTarget: true);
+                    if (strongerTarget != null)
+                        problemTarget = strongerTarget;
                 }
+
+                AI.SelectOption(0);
+                AI.SelectCard(CardId.Falco, CardId.Spinny, CardId.JackJaguar, CardId.Foxy, CardId.Fowl, CardId.Gazelle);
+                AI.SelectNextCard(problemTarget);
+                return true;
             }
             return false;
         }

@@ -2745,7 +2745,8 @@ namespace WindBot.Game.AI.Decks
         {
             Logger.DebugWriteLine("Baxia desc: " + ActivateDescription.ToString());
 
-            if (ActivateDescription == Util.GetStringId(CardId.BaxiaBrightnessOfTheYangZing, 0))
+            if (ActivateDescription == -1
+                || ActivateDescription == Util.GetStringId(CardId.BaxiaBrightnessOfTheYangZing, 0))
             {
                 List<ClientCard> enemyTargetList = GetNormalEnemyTargetList(true);
                 if (enemyTargetList.Count() > 0)

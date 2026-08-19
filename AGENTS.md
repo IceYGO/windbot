@@ -76,6 +76,7 @@ server 模式会为每个 HTTP 请求创建独立线程和独立的 `GameClient`
 - 未知卡的 `Id` 可能为 `0`，`Data`/`Name` 可能为 `null`。对隐藏区域只能依赖客户端实际知道的数量、位置和已公开历史；己方牌组的卡号计数应通过专用 API 查询。
 - 脚本的 `aux.Stringid(code, index)` 与 WindBot 的 `Util.GetStringId(id, option)` 使用相同编码：`cardId * 16 + offset`。其中 `offset` 是从 `0` 开始的字符串偏移量，不是 Lua 表下标；它对应 YGOPro 的 `cards.cdb` 的 `texts.str{offset + 1}`，例如偏移量 `0` 对应 `str1`，偏移量 `3` 对应 `str4`。
 - `StringId` 的偏移量不一定等同于卡片效果编号。判断某个描述值的实际语义时，应同时核对卡片脚本中该值传给了哪个 API。难以确定时可以查询 `cards.cdb` 中对应的 `texts.str*` 内容。
+- 避免无意义或错误地检查 `ActivateDescription`。只有同一候选上下文确实可能对应多个效果、且协议会提供真实效果描述时才用它区分；单独出现的可选诱发效果可能以通用提示到达并被转换为 `-1`，此时 `-1` 只表示描述未知，不能默认映射到某个效果。优先用卡片位置、阶段、事件状态等可靠上下文区分；脚本在单个效果内部通过 `Duel.SelectOption` 等 API 提供的选项也不能用 `ActivateDescription` 判断。
 - `Bot.Deck` 只表示客户端可见的牌堆槽位，不可直接按其中对象的卡号查询剩余牌组：决斗开始时其中的卡通常为 `Id == 0`，洗牌后也会被重置为 `Id == 0`。因此禁止用 `Bot.Deck.Any(card => card.IsCode(...))` 或等价写法判断某卡是否仍在牌组。
 - 需要判断己方牌组中是否还有某卡时，使用 `Bot.HasInDeck(...)` 或 `Bot.GetCardCountInDeck(...)`；这些方法从本地 `.ydk` 初始化计数并随服务器消息维护。Tag Duel 中己方非活动队友的牌组不能查询。
 - 牌组执行器的回合、阶段、连锁、召唤尝试和使用次数标志应在 `OnNewTurn`、`OnNewPhase`、`OnChainEnd`、`OnSpSummoning`、`OnMove` 等正确生命周期回调中维护和重置。

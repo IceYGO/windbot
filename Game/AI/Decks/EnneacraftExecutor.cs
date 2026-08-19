@@ -685,8 +685,7 @@ namespace WindBot.Game.AI.Decks
         private bool ReverthGraveEffect()
         {
             if (Card == null || !Card.IsCode(CardId.Reverth)
-                || Card.Location != CardLocation.Grave
-                || ActivateDescription != Util.GetStringId(CardId.Reverth, 1))
+                || Card.Location != CardLocation.Grave)
                 return false;
             bool canSet = OpenMonsterZones() > 0 && Bot.Hand.Any(IsEnneacraftMonster);
             bool canFlip = GetFacedownEnneacraftMonsters().Any();
@@ -702,7 +701,8 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card == null || !Card.IsCode(CardId.Enneapolis)
                 || !IsCurrentFieldSpell(Card)
-                || ActivateDescription != Util.GetStringId(CardId.Enneapolis, 1))
+                || (ActivateDescription != -1
+                    && ActivateDescription != Util.GetStringId(CardId.Enneapolis, 1)))
                 return false;
 
 

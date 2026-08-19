@@ -137,6 +137,18 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             Logger.DebugWriteLine("OnSelectCard " + cards.Count + " " + min + " " + max);
+            ClientCard currentChainCard = Duel.GetCurrentChainCard();
+            if (hint == HintMsg.Faceup
+                && min == 1
+                && max == 1
+                && currentChainCard != null
+                && currentChainCard.Controller == 0
+                && currentChainCard.IsCode(CardId.HopeHarbingerDragonTitanicGalaxy)
+                && cards.Contains(currentChainCard))
+            {
+                return new List<ClientCard> { currentChainCard };
+            }
+
             if (max == 2 && cards[0].Location == CardLocation.Deck)
             {
                 Logger.DebugWriteLine("OnSelectCard MelodyOfAwakeningDragon");
@@ -465,7 +477,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool HopeHarbingerDragonTitanicGalaxyEffect()
         {
-            if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.HopeHarbingerDragonTitanicGalaxy, 0))
+            if (ActivateDescription == Util.GetStringId(CardId.HopeHarbingerDragonTitanicGalaxy, 0))
             {
                 return Duel.LastChainPlayer == 1;
             }

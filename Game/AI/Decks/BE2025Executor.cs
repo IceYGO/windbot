@@ -1454,11 +1454,11 @@ namespace WindBot.Game.AI.Decks
         }
         private bool MagiaEff()
         {
-            if (ActivateDescription == Util.GetStringId(CardId.DragonMasterMagia, 0))
+            if (ActivateDescription == Util.GetStringId(CardId.DragonMasterMagia, 1))
             {
                 return true;
             }
-            if (ActivateDescription == Util.GetStringId(CardId.DragonMasterMagia, 1))
+            if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.DragonMasterMagia, 2))
             {
                 ClientCard target = GetUltimateDragonMagiaFloatTarget();
                 if (target == null)
@@ -1512,7 +1512,7 @@ namespace WindBot.Game.AI.Decks
                 if (Duel.LastChainPlayer != 1) return false;
                 return true;
             }
-            else if (ActivateDescription == Util.GetStringId(CardId.BlueEyesUltimateSpiritDragon, 2))
+            else if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.BlueEyesUltimateSpiritDragon, 2))
             {
                 return true;
             }
@@ -1520,7 +1520,8 @@ namespace WindBot.Game.AI.Decks
         }
         private bool JetEff()
         {
-            if (ActivateDescription == Util.GetStringId(CardId.BlueEyesJetDragon, 1))
+            if (ActivateDescription == Util.GetStringId(CardId.BlueEyesJetDragon, 1)
+                || (ActivateDescription == -1 && Card.Location == CardLocation.MonsterZone))
             {
                 ClientCard target = GetBestEnemyCard(false, true, false);
                 if (target == null) return false;

@@ -607,7 +607,8 @@ namespace WindBot.Game.AI.Decks
                 return false;
 
             if (Duel.Phase == DuelPhase.Standby &&
-                Util.GetStringId(XYZs.TimeThiefRedoer, 0) == ActivateDescription)
+                (ActivateDescription == -1 ||
+                 ActivateDescription == Util.GetStringId(XYZs.TimeThiefRedoer, 0)))
             {
                 return true;
             }

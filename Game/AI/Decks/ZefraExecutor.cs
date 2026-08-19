@@ -1341,7 +1341,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool SaryujaSkullDreadEffect()
         {
-            if (ActivateDescription == Util.GetStringId(CardId.SaryujaSkullDread, 2))
+            if (ActivateDescription == -1 || ActivateDescription == Util.GetStringId(CardId.SaryujaSkullDread, 2))
             {
                 AI.SelectCard(GetSendToDeckIds());
                 return BeforeResult(ExecutorType.Activate);
