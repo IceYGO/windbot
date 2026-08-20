@@ -1961,7 +1961,7 @@ namespace WindBot.Game.AI
             if (Bot.HasInMonstersZone(_CardId.ThunderKingRaiOh, notDisabled: true, faceUp: true)
                 || Enemy.HasInMonstersZone(_CardId.ThunderKingRaiOh, notDisabled: true, faceUp: true))
                 return false;
-            if (Enemy.HasInMonstersZone(_CardId.ThunderDragonColossus))
+            if (Enemy.HasInMonstersZone(_CardId.ThunderDragonColossus, notDisabled: true, faceUp: true))
                 return false;
             if (Bot.HasInSpellZone(_CardId.DeckLockdown, notDisabled: true, faceUp: true)
                 || Enemy.HasInSpellZone(_CardId.DeckLockdown, notDisabled: true, faceUp: true)
