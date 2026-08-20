@@ -2303,11 +2303,6 @@ namespace WindBot.Game.AI.Decks
             {
                 return canSearchMst ? 3 : -1;
             }
-            if (!HasSafeVisionDiscard())
-            {
-                return canSearchMst ? 3 : -1;
-            }
-
             if (!canSearchMst)
             {
                 return 2;
@@ -2321,13 +2316,6 @@ namespace WindBot.Game.AI.Decks
             // effect is the engine action. Its MST search is a later resource
             // action, after the current expansion has finished.
             return 2;
-        }
-
-        private bool HasSafeVisionDiscard()
-        {
-            return Bot.Hand.Any(c => c != null && c != Card &&
-                (IsRadiantCard(c) || c.IsCode(CardId.MysticalSpaceTyphoon) ||
-                 c.HasType(CardType.QuickPlay)));
         }
 
         private int GetPreferredChantEffectOffset()
@@ -4322,8 +4310,60 @@ namespace WindBot.Game.AI.Decks
         private bool HasMainPhaseMonsterSummonCandidate()
         {
             return Duel.MainPhase != null &&
-                (Duel.MainPhase.SummonableCards.Any(c => c != null) ||
-                 Duel.MainPhase.SpecialSummonableCards.Any(c => c != null));
+                (Duel.MainPhase.SummonableCards.Any(c =>
+                    IsMainPhaseMonsterSummonCandidate(c, false)) ||
+                 Duel.MainPhase.SpecialSummonableCards.Any(c =>
+                    IsMainPhaseMonsterSummonCandidate(c, true)));
+        }
+
+        private bool IsMainPhaseMonsterSummonCandidate(ClientCard card, bool specialSummon)
+        {
+            if (card == null)
+            {
+                return false;
+            }
+
+            if (!CanSummonFromHandAfterPurulia())
+            {
+                return false;
+            }
+
+            if (specialSummon)
+            {
+                if (Bot.GetMonsterCount() >= 5 || IsMaxxCStoppingRadiantSpecialSummon())
+                {
+                    return false;
+                }
+
+                if (card.IsCode(CardId.RadiantTyphoonSwen) &&
+                    Bot.Hand.Any(c => c.IsCode(CardId.RadiantTyphoonMeghala)) &&
+                    IsCurrentSpecialSummonCandidate(CardId.RadiantTyphoonMeghala))
+                {
+                    return false;
+                }
+
+                if (card.IsCode(CardId.RadiantTyphoonDachs) &&
+                    Bot.Hand.Any(c => c.IsCode(CardId.RadiantTyphoonSwen)) &&
+                    IsCurrentSpecialSummonCandidate(CardId.RadiantTyphoonSwen))
+                {
+                    return false;
+                }
+            }
+
+            if (card.IsCode(CardId.RadiantTyphoonSwen, CardId.RadiantTyphoonDachs,
+                CardId.RadiantTyphoonMeghala))
+            {
+                return !specialSummon || IsMainPhase();
+            }
+
+            return !specialSummon && card.IsCode(CardId.TheWorldsGreatestGallantThief) &&
+                Enemy.GetMonsterCount() >= 2;
+        }
+
+        private bool IsMaxxCStoppingRadiantSpecialSummon()
+        {
+            return _enemyMaxxCResolved && Util.GetProblematicEnemyMonster() == null &&
+                (Duel.Player == 0 || Bot.GetMonsterCount() > 0);
         }
 
         private bool ShouldRequireMain1MonsterSummon()
