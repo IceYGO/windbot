@@ -202,7 +202,6 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.HraesvelgrTheDesperateDoomEagle, HraesvelgrActivate);
             AddExecutor(ExecutorType.SpSummon, CardId.WynnTheWindCharmerVerdant, WynnSummon);
             AddExecutor(ExecutorType.Activate, CardId.WynnTheWindCharmerVerdant, WynnActivate);
-            AddExecutor(ExecutorType.SpSummon, CardId.Greatfly, GreatflySummon);
             AddExecutor(ExecutorType.Activate, CardId.Greatfly, GreatflyActivate);
             AddExecutor(ExecutorType.SpSummon, CardId.SuperStarslayerTYPHONSkyCrisis, TyphonSummon);
             AddExecutor(ExecutorType.Activate, CardId.SuperStarslayerTYPHONSkyCrisis, TyphonActivate);
@@ -2876,40 +2875,6 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
-        private bool GreatflySummon()
-        {
-            if (Duel.IsFirst || ShouldStopRadiantSpecialSummon(CardLocation.Extra) ||
-                !IsMainPhase() || Duel.Phase != DuelPhase.Main1 ||
-                Enemy.GetMonsterCount() > 0)
-            {
-                return false;
-            }
-
-            List<ClientCard> materials = GetGenericLinkTwoMaterials(true,
-                CardId.RadiantTyphoonFonixTheGreatFlame);
-            if (materials.Count < 2)
-            {
-                return false;
-            }
-
-            List<ClientCard> remainingAttackers = Bot.GetMonsters().Where(c => c.IsAttack() &&
-                !materials.Contains(c)).ToList();
-            int postSummonAttack = remainingAttackers.Sum(c => Math.Max(0, c.Attack));
-            postSummonAttack += remainingAttackers.Count(c =>
-                c.Attribute == (int)CardAttribute.Wind) * 500;
-
-            ClientCard greatfly = Bot.ExtraDeck.FirstOrDefault(c => c.IsCode(CardId.Greatfly));
-            int greatflyBaseAttack = greatfly == null || greatfly.Attack <= 0 ? 1400 : greatfly.Attack;
-            postSummonAttack += greatflyBaseAttack + 500;
-            if (postSummonAttack < Enemy.LifePoints)
-            {
-                return false;
-            }
-
-            AI.SelectMaterials(materials);
-            return true;
-        }
-
         private bool GreatflyPrioritySummon()
         {
             if (Duel.Turn <= 1 || ShouldStopRadiantSpecialSummon(CardLocation.Extra) ||
@@ -4102,23 +4067,37 @@ namespace WindBot.Game.AI.Decks
             {
                 return 100;
             }
+
+            int priority;
             if (card.IsCode(CardId.RadiantTyphoonSwen))
             {
-                return 0;
+                priority = 2;
             }
-            if (card.IsCode(CardId.RadiantTyphoonDachs))
+            else if (card.IsCode(CardId.RadiantTyphoonDachs))
             {
-                return 1;
+                priority = 1;
             }
-            if (card.IsCode(CardId.RadiantTyphoonKrosea))
+            else if (card.IsCode(CardId.RadiantTyphoonKrosea))
             {
-                return 2;
+                priority = 0;
             }
-            if (card.IsCode(CardId.RadiantTyphoonMeghala))
+            else if (card.IsCode(CardId.RadiantTyphoonMeghala))
             {
-                return 3;
+                priority = 3;
             }
-            return 4;
+            else
+            {
+                priority = 4;
+            }
+
+            // A card that already activated an effect this turn, or whose
+            // same-name copy is already in hand, is still legal to revive but
+            // should be kept behind a fresh target whenever possible.
+            if (WasRadiantEffectUsedThisTurn(card.Id) || Bot.HasInHand(card.Id))
+            {
+                priority += 100;
+            }
+            return priority;
         }
 
         private IList<ClientCard> SelectVisionDiscard(IList<ClientCard> cards, int min, int max)
@@ -4761,7 +4740,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanSummonSeaSpiritNow()
         {
-            if (_seaSpiritSummoned || !Bot.HasInExtra(CardId.RadiantTyphoonVaruroonTheMarineEidolon))
+            if (_seaSpiritSummoned || HasEstablishedMandate() ||
+                !Bot.HasInExtra(CardId.RadiantTyphoonVaruroonTheMarineEidolon))
             {
                 return false;
             }
@@ -4791,7 +4771,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool CanUseAsLinkMaterial(ClientCard card)
         {
-            if (!CanUseAsExtraDeckMaterial(card) || card.IsCode(CardId.HraesvelgrTheDesperateDoomEagle))
+            if (!CanUseAsExtraDeckMaterial(card) ||
+                card.IsCode(CardId.HraesvelgrTheDesperateDoomEagle, CardId.Greatfly))
             {
                 return false;
             }
@@ -5065,7 +5046,8 @@ namespace WindBot.Game.AI.Decks
                 return !card.IsShouldNotBeMonsterTarget() &&
                     (card.IsExtraCard() || card.IsFloodgate() || card.IsMonsterDangerous() ||
                         card.IsMonsterShouldBeDisabledBeforeItUseEffect() ||
-                        card.Attack >= 1800 || card.Defense >= 1800);
+                        (card.Attack + card.Defense >= 2700 &&
+                            (card.Attack >= 1800 || card.Defense >= 2100)));
             }
 
             // Destroying a normal/Quick-Play Spell or a normal Trap after it
