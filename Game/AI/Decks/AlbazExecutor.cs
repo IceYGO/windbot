@@ -196,7 +196,6 @@ namespace WindBot.Game.AI.Decks
         };
 
         bool summoned = false;
-        bool enemyActivateLockBird = false;
         int dimensionShifterCount = 0;
         bool enemyActivateInfiniteImpermanenceFromHand = false;
         bool theBystialLubellionSelecting = false;
@@ -624,25 +623,7 @@ namespace WindBot.Game.AI.Decks
                         case CardId.AluberTheJesterOfDespia:
                         case CardId.AluberTheJesterOfDespia + 1:
                         case CardId.SpringansKitt:
-                            checkDict = new Dictionary<int, Func<bool>> {
-                                {CardId.BrandedFusion, () => BrandedFusionActivateCheck()},
-                                {CardId.BrandedLost, () => {
-                                    if (Duel.Player == 0 && Duel.Phase >= DuelPhase.End) return false;
-                                    if (Bot.HasInHandOrInSpellZone(CardId.BrandedFusion) && BrandedFusionActivateCheck()) return true;
-                                    if (Bot.HasInHandOrInSpellZone(CardId.BrandedInWhite) && BrandedInWhiteActivateCheck()) return true;
-                                    if (Bot.HasInHandOrInSpellZone(CardId.BrandedInRed) && BrandedInRedActivateCheck() != null) return true;
-                                    if (!summoned && Bot.HasInHand(CardId.FallenOfAlbaz) && CheckAlbazFusion()) return true;
-                                    if ((Bot.HasInMonstersZone(CardId.BlazingCartesiaTheVirtuous) || (!summoned && Bot.HasInHand(CardId.BlazingCartesiaTheVirtuous)))) return true;
-                                    return false;
-                                }
-                                },
-                                {CardId.BrandedInHighSpirits, BrandedInHighSpiritsActivateCheck},
-                                {CardId.BrandedInRed, () => (Duel.Phase == DuelPhase.End && nadirActivated) || BrandedInRedActivateCheck() != null },
-                                {CardId.BrandedInWhite, BrandedInWhiteActivateCheck },
-                                {CardId.BrandedRetribution, () => cards.Any(c => c.IsCode(CardId.BrandedRetribution) && c.Location == CardLocation.Removed) },
-                                {CardId.BrightestBlazingBrandedKing, () => Bot.GetMonsters().Any(c => c.IsFaceup() && c.IsCode(albazFusionMonster)) },
-                                {CardId.BrandedOpening, () => Bot.Hand.Count > 2 }
-                            };
+                            checkDict = GetAluberKittSearchCheckDict(cards);
                             break;
                         case CardId.NadirServant:
                             if (!summoned)
@@ -2344,7 +2325,6 @@ namespace WindBot.Game.AI.Decks
             }
 
             summoned = false;
-            enemyActivateLockBird = false;
             enemyActivateInfiniteImpermanenceFromHand = false;
             nadirActivated = false;
             fusionToGYFlag = false;
@@ -2411,8 +2391,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (currentChain.ActivatePlayer == 1)
                     {
-                        if (currentChain.IsActivateCode(_CardId.LockBird))
-                            enemyActivateLockBird = true;
                         if (currentChain.IsActivateCode(CardId.DimensionShifter))
                             dimensionShifterCount = 2;
                     }
@@ -2739,7 +2717,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool AluberTheJesterOfDespiaSummon()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster) || enemyActivateLockBird || activatedCardIdList.Contains(Card.Id)) return false;
+            if (CheckWhetherNegated(true, true, CardType.Monster) || !DefaultCheckWhetherBotCanSearch() || activatedCardIdList.Contains(Card.Id)) return false;
             summoned = true;
             return true;
         }
@@ -2945,9 +2923,64 @@ namespace WindBot.Game.AI.Decks
             return false;
         }
 
+        /// <summary>
+        /// Search priority shared by Aluber and Springans Kitt.
+        /// </summary>
+        public Dictionary<int, Func<bool>> GetAluberKittSearchCheckDict(IList<ClientCard> cards)
+        {
+            return new Dictionary<int, Func<bool>> {
+                {CardId.BrandedFusion, () => BrandedFusionActivateCheck()},
+                {CardId.BrandedLost, () => {
+                    if (Duel.Player == 0 && Duel.Phase >= DuelPhase.End) return false;
+                    if (Bot.HasInHandOrInSpellZone(CardId.BrandedFusion) && BrandedFusionActivateCheck()) return true;
+                    if (Bot.HasInHandOrInSpellZone(CardId.BrandedInWhite) && BrandedInWhiteActivateCheck()) return true;
+                    if (Bot.HasInHandOrInSpellZone(CardId.BrandedInRed) && BrandedInRedActivateCheck() != null) return true;
+                    if (!summoned && Bot.HasInHand(CardId.FallenOfAlbaz) && CheckAlbazFusion()) return true;
+                    if ((Bot.HasInMonstersZone(CardId.BlazingCartesiaTheVirtuous) || (!summoned && Bot.HasInHand(CardId.BlazingCartesiaTheVirtuous)))) return true;
+                    return false;
+                }
+                },
+                {CardId.BrandedInHighSpirits, BrandedInHighSpiritsActivateCheck},
+                {CardId.BrandedInRed, () => (Duel.Phase == DuelPhase.End && nadirActivated) || BrandedInRedActivateCheck() != null },
+                {CardId.BrandedInWhite, BrandedInWhiteActivateCheck },
+                {CardId.BrandedRetribution, () => {
+                    if (cards != null)
+                        return cards.Any(c => c.IsCode(CardId.BrandedRetribution) && c.Location == CardLocation.Removed && c.IsFaceup());
+                    return Bot.Banished.Any(c => c != null && c.IsFaceup() && c.IsCode(CardId.BrandedRetribution));
+                } },
+                {CardId.BrightestBlazingBrandedKing, () => Bot.GetMonsters().Any(c => c.IsFaceup() && c.IsCode(albazFusionMonster)) },
+                {CardId.BrandedOpening, () => Bot.Hand.Count > 2 }
+            };
+        }
+
+        /// <summary>
+        /// Kitt can add from grave or face-up banished. Face-down banished cards cannot be added.
+        /// </summary>
+        public bool CheckSpringansKittCanAddFromGraveOrBanished(int cardId)
+        {
+            if (Bot.HasInGraveyard(cardId)) return true;
+            return Bot.Banished.Any(c => c != null && c.IsFaceup() && c.IsCode(cardId));
+        }
+
+        /// <summary>
+        /// Get the first Kitt add target that does not need searching the deck.
+        /// Aluber can only add from deck, so this check is Kitt-only.
+        /// </summary>
+        public int GetSpringansKittPreferredAddIdWithoutSearch()
+        {
+            foreach (KeyValuePair<int, Func<bool>> pair in GetAluberKittSearchCheckDict(null))
+            {
+                if (!pair.Value()) continue;
+                if (CheckSpringansKittCanAddFromGraveOrBanished(pair.Key))
+                    return pair.Key;
+            }
+            return 0;
+        }
+
         public bool SpringansKittSummon()
         {
-            if (CheckWhetherNegated(true, true, CardType.Monster) || enemyActivateLockBird || activatedCardIdList.Contains(Card.Id + 1)) return false;
+            if (CheckWhetherNegated(true, true, CardType.Monster) || activatedCardIdList.Contains(Card.Id + 1)) return false;
+            if (!DefaultCheckWhetherBotCanSearch() && GetSpringansKittPreferredAddIdWithoutSearch() == 0) return false;
             summoned = true;
             return true;
         }
@@ -4162,7 +4195,7 @@ namespace WindBot.Game.AI.Decks
                     && !CheckShouldNoMoreSpSummon(CardLocation.Deck) && Bot.HasInExtra(CardId.GranguignolTheDuskDragon) && Bot.HasInDeck(CardId.BlazingCartesiaTheVirtuous);
                 if (canCallCartesia) return false;
             }
-            bool goal = Bot.HasInDeck(CardId.AluberTheJesterOfDespia) && !activatedCardIdList.Contains(CardId.AluberTheJesterOfDespia) && !enemyActivateLockBird;
+            bool goal = Bot.HasInDeck(CardId.AluberTheJesterOfDespia) && !activatedCardIdList.Contains(CardId.AluberTheJesterOfDespia) && DefaultCheckWhetherBotCanSearch();
             goal |= Bot.HasInDeck(CardId.GuidingQuemTheVirtuous);
             if (goal)
             {
@@ -4309,7 +4342,7 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> problemCardList = GetProblematicEnemyCardList(false, false, CardType.Monster);
             if (problemCardList.Count > 0 || (Duel.Phase == DuelPhase.End && Duel.Player == 1))
             {
-                if (!enemyActivateLockBird)
+                if (DefaultCheckWhetherBotCanDraw())
                 {
                     foreach (ClientCard target in graveTargetList)
                     {

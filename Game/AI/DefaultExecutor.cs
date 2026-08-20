@@ -1974,6 +1974,17 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Check whether bot can draw cards.
+        /// </summary>
+        /// <returns></returns>
+        protected bool DefaultCheckWhetherBotCanDraw()
+        {
+            if (resolvedEffectIdList.Contains(_CardId.LockBird))
+                return false;
+            return true;
+        }
+
+        /// <summary>
         /// Check whether enemy can draw cards.
         /// </summary>
         /// <returns></returns>

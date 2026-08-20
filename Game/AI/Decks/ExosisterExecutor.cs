@@ -158,7 +158,6 @@ namespace WindBot.Game.AI.Decks
         List<int> ExosisterSpellTrapList = new List<int>{CardId.ExosisterPax, CardId.ExosisterArment, CardId.ExosisterVadis, CardId.ExosisterReturnia};
 
         List<int> currentNegatingIdList = new List<int>();
-        bool enemyActivateLockBird = false;
         bool enemyMoveGrave = false;
         bool paxCallToField = false;
         List<int> infiniteImpermanenceList = new List<int>();
@@ -682,10 +681,6 @@ namespace WindBot.Game.AI.Decks
 
             if (player == 1)
             {
-                if (card.IsCode(_CardId.LockBird) && CheckCalledbytheGrave(_CardId.LockBird) == 0)
-                {
-                    enemyActivateLockBird = true;
-                }
                 if (card.IsCode(_CardId.InfiniteImpermanence))
                 {
                     for (int i = 0; i < 5; ++i)
@@ -729,8 +724,6 @@ namespace WindBot.Game.AI.Decks
             ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
             if (currentChain != null && !Duel.IsCurrentSolvingChainNegated() && currentChain.ActivatePlayer == 1)
             {
-                if (currentChain.IsActivateCode(_CardId.LockBird))
-                    enemyActivateLockBird = true;
                 if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
                 {
                     for (int i = 0; i < 5; ++i)
@@ -784,7 +777,6 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnNewTurn()
         {
-            enemyActivateLockBird = false;
             infiniteImpermanenceList.Clear();
             currentNegatingIdList.Clear();
 
@@ -2455,7 +2447,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (enemyActivateLockBird && CheckAtAdvantage())
+            if (!DefaultCheckWhetherBotCanSearch() && CheckAtAdvantage())
             {
                 return false;
             }
@@ -2493,7 +2485,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (enemyActivateLockBird && CheckAtAdvantage())
+            if (!DefaultCheckWhetherBotCanSearch() && CheckAtAdvantage())
             {
                 return false;
             }
@@ -2519,7 +2511,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (enemyActivateLockBird && CheckAtAdvantage())
+            if (!DefaultCheckWhetherBotCanDraw() && CheckAtAdvantage())
             {
                 return false;
             }
@@ -2549,7 +2541,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (enemyActivateLockBird && CheckAtAdvantage())
+            if (!DefaultCheckWhetherBotCanSearch() && CheckAtAdvantage())
             {
                 return false;
             }
@@ -2569,7 +2561,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (enemyActivateLockBird && CheckAtAdvantage())
+            if (!DefaultCheckWhetherBotCanSearch() && CheckAtAdvantage())
             {
                 return false;
             }
@@ -2591,7 +2583,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (enemyActivateLockBird && CheckAtAdvantage())
+            if (!DefaultCheckWhetherBotCanSearch() && CheckAtAdvantage())
             {
                 return false;
             }
@@ -2692,7 +2684,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterMikailisAdvancedSpSummonCheck()
         {
-            if (!CheckLessOperation() || enemyActivateLockBird)
+            if (!CheckLessOperation() || !DefaultCheckWhetherBotCanSearch())
             {
                 return false;
             }
@@ -2708,7 +2700,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // check searched spell/trap
-            if (!enemyActivateLockBird)
+            if (DefaultCheckWhetherBotCanSearch())
             {
                 foreach (int cardId in ExosisterSpellTrapList)
                 {
@@ -2745,7 +2737,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ExosisterKaspitellAdvancedSpSummonCheck()
         {
-            if (!CheckLessOperation() || enemyActivateLockBird)
+            if (!CheckLessOperation() || !DefaultCheckWhetherBotCanSearch())
             {
                 return false;
             }
@@ -2781,7 +2773,7 @@ namespace WindBot.Game.AI.Decks
             {
                 forMagnifica = true;
             }
-            if (enemyActivateLockBird)
+            if (!DefaultCheckWhetherBotCanSearch())
             {
                 searchMartha = false;
                 searchStella = false;
