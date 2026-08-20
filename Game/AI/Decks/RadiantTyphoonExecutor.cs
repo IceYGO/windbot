@@ -4362,7 +4362,8 @@ namespace WindBot.Game.AI.Decks
         private bool ShouldPrioritizeGallantThiefSummon()
         {
             return Bot.GetMonsterCount() == 0 && CanUseEnemyTributesForGallantThief() &&
-                Bot.HasInHand(CardId.TheWorldsGreatestGallantThief);
+                Bot.HasInHand(CardId.TheWorldsGreatestGallantThief) &&
+                !_skipGallantThiefSummonThisTurn;
         }
 
         private bool ShouldPrioritizeMonsterSummonAgainstExtraDeck()
@@ -4421,7 +4422,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             return !specialSummon && card.IsCode(CardId.TheWorldsGreatestGallantThief) &&
-                Enemy.GetMonsterCount() >= 2;
+                ShouldPrioritizeGallantThiefSummon();
         }
 
         private bool IsMaxxCStoppingRadiantSpecialSummon()
