@@ -119,5 +119,10 @@ namespace WindBot.Game.AI
         {
             return Enum.IsDefined(typeof(NotBeXyzMaterialMonster), card.Id);
         }
+
+        public static bool IsMonsterNotBeSummonTribute(this ClientCard card)
+        {
+            return Enum.IsDefined(typeof(NotBeSummonTributeMonster), card.Id);
+        }
     }
 }

@@ -408,7 +408,7 @@ namespace WindBot.Game
                     if (hint == HintMsg.FusionMaterial)
                         result = Executor.OnSelectFusionMaterial(cards, min, max);
                     if (hint == HintMsg.SynchroMaterial)
-                        result = Executor.OnSelectSynchroMaterial(cards, 0, min, max);
+                        result = Executor.OnSelectSynchroMaterial(cards, new List<ClientCard>(), 0, min, max);
                     if (hint == HintMsg.XyzMaterial)
                         result = Executor.OnSelectXyzMaterial(cards, min, max);
                     if (hint == HintMsg.LinkMaterial)
@@ -866,14 +866,14 @@ namespace WindBot.Game
         /// <param name="sum">Result of the operation.</param>
         /// <param name="min">Minimum cards.</param>
         /// <param name="max">Maximum cards.</param>
-        /// <param name="mode">True for exact equal.</param>
+        /// <param name="exactEqual">True for exact equality; false for the greater-than mode.</param>
         /// <returns></returns>
         public IList<ClientCard> OnSelectSum(IList<ClientCard> cards, IList<ClientCard> mandatoryCards,
-            int sum, int min, int max, int hint, bool mode)
+            int sum, int min, int max, int hint, bool exactEqual)
         {
-            int optionalSum = sum - mandatoryCards.Sum(card => card.OpParam1);
-            IList<ClientCard> selected = Executor.OnSelectSum(cards, optionalSum, min, max, hint, mode);
-            if (IsValidSumSelection(selected, cards, mandatoryCards, sum, min, max, mode))
+            IList<ClientCard> selected = Executor.OnSelectSum(cards, mandatoryCards, sum, min, max,
+                hint, exactEqual);
+            if (IsValidSumSelection(selected, cards, mandatoryCards, sum, min, max, exactEqual))
                 return selected;
 
             if (hint == HintMsg.Release || hint == HintMsg.SynchroMaterial)
@@ -888,14 +888,16 @@ namespace WindBot.Game
                     switch (hint)
                     {
                         case HintMsg.SynchroMaterial:
-                            selected = Executor.OnSelectSynchroMaterial(cards, optionalSum, min, max);
+                            selected = Executor.OnSelectSynchroMaterial(cards, mandatoryCards,
+                                sum, min, max);
                             break;
                         case HintMsg.Release:
-                            selected = Executor.OnSelectRitualTribute(cards, optionalSum, min, max);
+                            selected = Executor.OnSelectRitualTribute(cards, mandatoryCards,
+                                sum, min, max, exactEqual);
                             break;
                     }
                 }
-                if (IsValidSumSelection(selected, cards, mandatoryCards, sum, min, max, mode))
+                if (IsValidSumSelection(selected, cards, mandatoryCards, sum, min, max, exactEqual))
                     return selected;
             }
 
@@ -914,7 +916,7 @@ namespace WindBot.Game
                     orderedCards.Add(card);
             }
 
-            selected = FindSumSelection(orderedCards, mandatoryCards, sum, min, max, mode);
+            selected = FindSumSelection(orderedCards, mandatoryCards, sum, min, max, exactEqual);
             if (selected != null)
                 return selected;
 
@@ -937,17 +939,17 @@ namespace WindBot.Game
         }
 
         private bool IsValidSumSelection(IList<ClientCard> selected, IList<ClientCard> cards,
-            IList<ClientCard> mandatoryCards, int sum, int min, int max, bool mode)
+            IList<ClientCard> mandatoryCards, int sum, int min, int max, bool exactEqual)
         {
             if (selected == null || selected.Distinct().Count() != selected.Count
                 || selected.Any(card => card == null || !cards.Contains(card)))
                 return false;
 
-            if (mode && (selected.Count < min || selected.Count > max))
+            if (exactEqual && (selected.Count < min || selected.Count > max))
                 return false;
 
             IList<ClientCard> allSelected = mandatoryCards.Concat(selected).ToList();
-            if (mode)
+            if (exactEqual)
                 return CanReachSum(allSelected, 0, 0, sum, sum);
 
             // OCGCore's greater-than mode accepts only a minimal set: its maximum
@@ -970,10 +972,10 @@ namespace WindBot.Game
             return IsValidGreaterSum(minimumSum, maximumSum, smallestMinimum, sum);
         }
 
-        private IList<ClientCard> FindSumSelection(IList<ClientCard> cards, IList<ClientCard> mandatoryCards,
-            int sum, int min, int max, bool mode)
+        public IList<ClientCard> FindSumSelection(IList<ClientCard> cards, IList<ClientCard> mandatoryCards,
+            int sum, int min, int max, bool exactEqual)
         {
-            if (!mode)
+            if (!exactEqual)
             {
                 long minimumSum = 0;
                 long maximumSum = 0;
@@ -1095,13 +1097,22 @@ namespace WindBot.Game
         /// <returns>A new list containing the tributed cards.</returns>
         public IList<ClientCard> OnSelectTribute(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
+            IList<ClientCard> selected = Executor.OnSelectTribute(cards, min, max, hint, cancelable);
+            bool validCancellation = selected != null && cancelable && selected.Count == 0;
+            bool validSelection = selected != null
+                && selected.Distinct().Count() == selected.Count
+                && selected.All(card => cards.Contains(card))
+                && IsValidTributeSelection(selected, min, max);
+            if (validCancellation || validSelection)
+                return selected;
+
             List<ClientCard> sorted = new List<ClientCard>();
             sorted.AddRange(cards);
             sorted.Sort(CardContainer.CompareCardAttack);
 
-            IList<ClientCard> selected = FindTributeSelection(sorted, min, max);
-            if (selected != null)
-                return selected;
+            IList<ClientCard> result = FindTributeSelection(sorted, min, max);
+            if (result != null)
+                return result;
 
             Logger.WriteErrorLine("Fail to select tribute.");
             return new List<ClientCard>();
@@ -1109,18 +1120,20 @@ namespace WindBot.Game
 
         public bool IsValidTributeSelection(IList<ClientCard> selected, int min, int max)
         {
-            return selected != null && CanReachSum(selected, 0, 0, min, max);
+            return selected != null && selected.All(card => card != null)
+                && CanReachSum(selected, 0, 0, min, max);
         }
 
-        public IList<ClientCard> FindTributeSelection(IList<ClientCard> cards, int min, int max)
+        public IList<ClientCard> FindTributeSelection(IList<ClientCard> cards, int min, int max, bool preferMaximumCount = false)
         {
             ISet<long> targetSums = new HashSet<long>();
             for (int value = min; value <= max; ++value)
                 targetSums.Add(value);
 
             int maximumCount = System.Math.Min(max, cards.Count);
-            for (int count = 0; count <= maximumCount; ++count)
+            for (int offset = 0; offset <= maximumCount; ++offset)
             {
+                int count = preferMaximumCount ? maximumCount - offset : offset;
                 IList<ClientCard> selected = new List<ClientCard>();
                 ISet<System.Tuple<int, int, long>> failed = new HashSet<System.Tuple<int, int, long>>();
                 if (TrySelectCardsBySum(cards, targetSums, max, 0, count, 0, selected, failed))

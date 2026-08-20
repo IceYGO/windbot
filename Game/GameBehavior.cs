@@ -1682,7 +1682,7 @@ namespace WindBot.Game
 
         private void OnSelectSum(BinaryReader packet)
         {
-            bool mode = packet.ReadByte() == 0;
+            bool exactEqual = packet.ReadByte() == 0;
             packet.ReadByte(); // player
             int sumval = packet.ReadInt32();
             int min = packet.ReadByte();
@@ -1748,7 +1748,8 @@ namespace WindBot.Game
                 }
             }
 
-            IList<ClientCard> selected = _ai.OnSelectSum(cards, mandatoryCards, sumval, min, max, _select_hint, mode);
+            IList<ClientCard> selected = _ai.OnSelectSum(cards, mandatoryCards, sumval, min, max,
+                _select_hint, exactEqual);
             _select_hint = 0;
 
             byte[] result = new byte[mandatoryCards.Count + selected.Count + 1];

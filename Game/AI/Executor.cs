@@ -153,7 +153,14 @@ namespace WindBot.Game.AI
             return null;
         }
 
-        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, int sum, int min, int max, int hint, bool mode)
+        public virtual IList<ClientCard> OnSelectTribute(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
+        {
+            // For overriding
+            return null;
+        }
+
+        public virtual IList<ClientCard> OnSelectSum(IList<ClientCard> cards, IList<ClientCard> mandatoryCards,
+            int sum, int min, int max, int hint, bool exactEqual)
         {
             // For overriding
             return null;
@@ -165,7 +172,8 @@ namespace WindBot.Game.AI
             return null;
         }
 
-        public virtual IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)
+        public virtual IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards,
+            IList<ClientCard> mandatoryCards, int sum, int min, int max)
         {
             // For overriding
             return null;
@@ -183,7 +191,8 @@ namespace WindBot.Game.AI
             return null;
         }
 
-        public virtual IList<ClientCard> OnSelectRitualTribute(IList<ClientCard> cards, int sum, int min, int max)
+        public virtual IList<ClientCard> OnSelectRitualTribute(IList<ClientCard> cards,
+            IList<ClientCard> mandatoryCards, int sum, int min, int max, bool exactEqual)
         {
             // For overriding
             return null;
