@@ -84,6 +84,8 @@ namespace WindBot.Game.AI.Decks
         private bool _botSummonedFromHandAfterPurulia;
         private bool _mstOfferedInCurrentChainSelection;
         private bool _radiantQuickPlayOfferedInCurrentChainSelection;
+        private bool _selectingGallantThiefTributes;
+        private bool _skipGallantThiefSummonThisTurn;
         private ClientCard _fallenDodgeTarget;
         private ClientCard _mysticalSpaceTyphoonTarget;
         private ClientCard _mandateNegationTarget;
@@ -254,6 +256,8 @@ namespace WindBot.Game.AI.Decks
             _botSummonedFromHandAfterPurulia = false;
             _mstOfferedInCurrentChainSelection = false;
             _radiantQuickPlayOfferedInCurrentChainSelection = false;
+            _selectingGallantThiefTributes = false;
+            _skipGallantThiefSummonThisTurn = false;
             _fallenDodgeTarget = null;
             _mysticalSpaceTyphoonTarget = null;
             _mandateNegationTarget = null;
@@ -408,6 +412,7 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnSummoning()
         {
+            _selectingGallantThiefTributes = false;
             if (_enemyPuruliaResolved && Duel.LastSummonPlayer == 0 &&
                 Duel.SummoningCards.Any(c => c != null && c.Controller == 0 &&
                     (c.LastLocation & CardLocation.Hand) != 0))
@@ -1930,24 +1935,30 @@ namespace WindBot.Game.AI.Decks
 
         private bool GallantThiefSummon()
         {
-            if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() || Bot.GetMonsterCount() != 0 || Enemy.GetMonsterCount() == 0)
+            if (!CanSummonFromHandAfterPurulia() || !IsMainPhase() ||
+                Bot.GetMonsterCount() != 0 || _skipGallantThiefSummonThisTurn ||
+                !CanUseEnemyTributesForGallantThief())
             {
                 return false;
             }
 
-            // MSG_SELECT_TRIBUTE is handled by GameAI.OnSelectTribute rather than
-            // the deck's OnSelectCard callback. Predict the same generic selector
-            // and reject the summon if it would consume a monster from our hand.
-            List<ClientCard> tributeCandidates = Enemy.GetMonsters().Concat(Bot.Hand.Where(c =>
-                    c != Card && c.IsMonster())).ToList();
-            tributeCandidates.Sort(CardContainer.CompareCardAttack);
-            IList<ClientCard> projectedTributes = AI.FindTributeSelection(tributeCandidates, 2, 2);
-            if (projectedTributes == null || projectedTributes.Any(c => c.Controller == 0 &&
-                c.Location == CardLocation.Hand))
-            {
-                return false;
-            }
+            _selectingGallantThiefTributes = true;
             return true;
+        }
+
+        private bool CanUseEnemyTributesForGallantThief()
+        {
+            List<ClientCard> usableMonsters = Enemy.GetMonsters()
+                .Where(monster => !monster.IsMonsterNotBeSummonTribute()).ToList();
+            return usableMonsters.Count >= 2 || usableMonsters.Any(IsSuitableGallantThiefTribute);
+        }
+
+        private bool IsSuitableGallantThiefTribute(ClientCard monster)
+        {
+            return monster != null && monster.IsFaceup() &&
+                ((!monster.IsDisabled() && monster.IsFloodgate()) ||
+                    monster.IsMonsterDangerous() || monster.IsMonsterInvincible() ||
+                    monster.Attack >= 3000);
         }
 
         private bool RadiantQuickPlayMstStarterActivate()
@@ -2973,9 +2984,15 @@ namespace WindBot.Game.AI.Decks
             return SelectExtraDeckMaterialsWithoutMeghala(cards, min, max);
         }
 
-        public override IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)
+        public override IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards,
+            IList<ClientCard> mandatoryCards, int sum, int min, int max)
         {
-            return SelectExtraDeckMaterialsWithoutMeghala(cards, min, max);
+            if (sum == 0)
+                return SelectExtraDeckMaterialsWithoutMeghala(cards, min, max);
+
+            List<ClientCard> materials = cards.Where(CanUseAsExtraDeckMaterial)
+                .OrderBy(GetMaterialPriority).ToList();
+            return AI.FindSumSelection(materials, mandatoryCards, sum, min, max, true); // null on failure, use default at that case
         }
 
         public override IList<ClientCard> OnSelectXyzMaterial(IList<ClientCard> cards, int min, int max)
@@ -2986,6 +3003,53 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectLinkMaterial(IList<ClientCard> cards, int min, int max)
         {
             return SelectLinkMaterials(cards, min, max);
+        }
+
+        public override IList<ClientCard> OnSelectTribute(IList<ClientCard> cards, int min, int max,
+            int hint, bool cancelable)
+        {
+            if (!_selectingGallantThiefTributes)
+            {
+                return null;
+            }
+
+            _selectingGallantThiefTributes = false;
+            List<ClientCard> enemyTributes = cards.Where(c => c.Controller == 1)
+                .OrderByDescending(IsSuitableGallantThiefTribute)
+                .ThenByDescending(c => c.IsFacedown() ? 2500 : c.Attack).ToList();
+            if (enemyTributes.Count < 2 && enemyTributes.Count(IsSuitableGallantThiefTribute) == 0 && cancelable)
+            {
+                Logger.DebugWriteLine("No suitable Gallant Thief tribute candidates; skipping summon this turn.");
+                _skipGallantThiefSummonThisTurn = true;
+                return new List<ClientCard>();
+            }
+
+            if (enemyTributes.Count >= max)
+            {
+                return enemyTributes.Take(max).ToList();
+            }
+
+            List<ClientCard> ownTributes = cards.Where(c => c.Controller == 0)
+                .OrderByDescending(c => c.IsCode(CardId.TheWorldsGreatestGallantThief))
+                .ThenBy(c => c.Attack).ToList();
+            enemyTributes.AddRange(ownTributes);
+
+            IList<ClientCard> selected = AI.FindTributeSelection(enemyTributes, min, max, false);
+            if (selected != null)
+            {
+                if (selected.All(c => c.Controller == 0))
+                    Logger.WriteErrorLine("Failed to select enemy monsters for Gallant Thief tribute, and can't cancel summon, please check.");
+                return selected;
+            }
+
+            // something went wrong
+            Logger.WriteErrorLine("Failed to select ANY monster for Gallant Thief tribute, please check.");
+            if (cancelable)
+            {
+                _skipGallantThiefSummonThisTurn = true;
+                return new List<ClientCard>();
+            }
+            return null;
         }
 
         public override IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
@@ -3947,7 +4011,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool ShouldPrioritizeGallantThiefSummon()
         {
-            return Bot.GetMonsterCount() == 0 && Enemy.GetMonsterCount() > 0 &&
+            return Bot.GetMonsterCount() == 0 && CanUseEnemyTributesForGallantThief() &&
                 Bot.HasInHand(CardId.TheWorldsGreatestGallantThief);
         }
 

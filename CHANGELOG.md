@@ -2,6 +2,9 @@
 
 ## Current (latest)
 
+ - Add deck-specific tribute selection and pass mandatory cards to sum/material selection callbacks
+ - Improve RadiantTyphoon's Gallant Thief tribute and Synchro material selection
+ - Fix BlueEyes Synchro material selection when mandatory materials are present
  - Refresh the bot level assignments
  - Rebalance TimeThief for Level 2
  - Fix `ActivateDescription` propagation

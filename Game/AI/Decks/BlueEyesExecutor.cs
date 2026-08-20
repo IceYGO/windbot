@@ -172,19 +172,21 @@ namespace WindBot.Game.AI.Decks
             return Util.CheckSelectCount(result, cards, min, max);
         }
 
-        public override IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards, int sum, int min, int max)
+        public override IList<ClientCard> OnSelectSynchroMaterial(IList<ClientCard> cards,
+            IList<ClientCard> mandatoryCards, int sum, int min, int max)
         {
-            Logger.DebugWriteLine("OnSelectSynchroMaterial " + cards.Count + " " + sum + " " + min + " " + max);
-            if (sum != 8)
-                return null;
+            Logger.DebugWriteLine("OnSelectSynchroMaterial " + cards.Count + " " + mandatoryCards.Count + " " + sum + " " + min + " " + max);
 
-            foreach (ClientCard AlternativeWhiteDragon in UsedAlternativeWhiteDragon)
+            int mandatorySum = mandatoryCards.Sum(card => card.OpParam1);
+            if ((sum == 0 || sum - mandatorySum == 8) && min == 1)
             {
-                if (cards.IndexOf(AlternativeWhiteDragon) >= 0)
+                List<ClientCard> results = UsedAlternativeWhiteDragon.Where(cards.Contains).ToList();
+                if (results.Count > 0)
                 {
-                    UsedAlternativeWhiteDragon.Remove(AlternativeWhiteDragon);
-                    Logger.DebugWriteLine("select UsedAlternativeWhiteDragon");
-                    return Util.CheckSelectCount(new[] { AlternativeWhiteDragon }, cards, min, max);
+                    List<ClientCard> result = results.Take(1).ToList();
+                    UsedAlternativeWhiteDragon.Remove(result[0]);
+                    Logger.DebugWriteLine("OnSelectSynchroMaterial selected UsedAlternativeWhiteDragon");
+                    return result;
                 }
             }
 
