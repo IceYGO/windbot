@@ -761,7 +761,8 @@ namespace WindBot.Game.AI.Decks
                     ClientCard arianna = GetWelcomeOrBigWelcomeTarget(cards, CardId.AriannaTheLabrynthServant);
                     if (arianna != null && !summonInChainList.Any(card => card.IsCode(CardId.AriannaTheLabrynthServant)))
                     {
-                        bool canActivateCheck = !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !CheckWhetherNegated(true, true, CardType.Monster);
+                        bool canActivateCheck = !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !CheckWhetherNegated(true, true, CardType.Monster)
+                            && DefaultCheckWhetherBotCanSearch();
                         if (canActivateCheck)
                         {
                             bool checkFlag = !(!activatedCardIdList.Contains(CardId.BigWelcomeLabrynth) &&
@@ -874,7 +875,8 @@ namespace WindBot.Game.AI.Decks
                     if (Duel.Player == 0 && Duel.Phase <= DuelPhase.Main2)
                     {
                         if (!summoned && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !CheckWhetherNegated(true, true, CardType.Monster)
-                            && CheckCalledbytheGrave(CardId.AriannaTheLabrynthServant) == 0 && arianna != null && !Bot.HasInHand(CardId.AriannaTheLabrynthServant))
+                            && CheckCalledbytheGrave(CardId.AriannaTheLabrynthServant) == 0 && arianna != null && !Bot.HasInHand(CardId.AriannaTheLabrynthServant)
+                            && DefaultCheckWhetherBotCanSearch())
                         {
                             return Util.CheckSelectCount(new List<ClientCard> { arianna }, cards, min, max);
                         }
@@ -1025,7 +1027,8 @@ namespace WindBot.Game.AI.Decks
                     }
 
                     if (!activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !CheckWhetherNegated(true, true, CardType.Monster)
-                        && CheckCalledbytheGrave(CardId.AriannaTheLabrynthServant) == 0 && arianna != null && !Bot.HasInHand(CardId.AriannaTheLabrynthServant))
+                        && CheckCalledbytheGrave(CardId.AriannaTheLabrynthServant) == 0 && arianna != null && !Bot.HasInHand(CardId.AriannaTheLabrynthServant)
+                        && DefaultCheckWhetherBotCanSearch())
                     {
                         return Util.CheckSelectCount(new List<ClientCard> { arianna }, cards, min, max);
                     }
@@ -1102,7 +1105,8 @@ namespace WindBot.Game.AI.Decks
                         return Util.CheckSelectCount(new List<ClientCard> { GetWelcomeOrBigWelcomeTarget(cards, CardId.LovelyLabrynthOfTheSilverCastle) }, cards, min, max);
                     }
                     if (cards.Any(c => c.IsCode(CardId.AriannaTheLabrynthServant))
-                        && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !Bot.HasInMonstersZone(CardId.AriannaTheLabrynthServant))
+                        && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !Bot.HasInMonstersZone(CardId.AriannaTheLabrynthServant)
+                        && DefaultCheckWhetherBotCanSearch())
                     {
                         return Util.CheckSelectCount(new List<ClientCard> { GetWelcomeOrBigWelcomeTarget(cards, CardId.AriannaTheLabrynthServant) }, cards, min, max);
                     }
@@ -1112,7 +1116,8 @@ namespace WindBot.Game.AI.Decks
                         return Util.CheckSelectCount(new List<ClientCard> { GetWelcomeOrBigWelcomeTarget(cards, CardId.LovelyLabrynthOfTheSilverCastle) }, cards, min, max);
                     }
                     if (cards.Any(c => c.IsCode(CardId.AriannaTheLabrynthServant))
-                        && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
+                        && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant)
+                        && DefaultCheckWhetherBotCanSearch())
                     {
                         return Util.CheckSelectCount(new List<ClientCard> { GetWelcomeOrBigWelcomeTarget(cards, CardId.AriannaTheLabrynthServant) }, cards, min, max);
                     }
@@ -1460,7 +1465,8 @@ namespace WindBot.Game.AI.Decks
                 {
                     bool checkFlag = false;
                     if (!activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && Bot.HasInHand(CardId.AriannaTheLabrynthServant)
-                        && !CheckWhetherNegated(true, true, CardType.Monster) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
+                        && !CheckWhetherNegated(true, true, CardType.Monster) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant)
+                        && DefaultCheckWhetherBotCanSearch())
                     {
                         checkFlag = true;
                         AI.SelectCard(CardId.AriannaTheLabrynthServant);
@@ -2034,7 +2040,8 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
                 if (Bot.HasInHand(CardId.AriannaTheLabrynthServant) && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)
-                    && !CheckWhetherNegated(true, true) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
+                    && !CheckWhetherNegated(true, true) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant)
+                    && DefaultCheckWhetherBotCanSearch())
                 {
                     bool searchFlag = false;
                     if (Duel.Player == 1)
@@ -2100,7 +2107,8 @@ namespace WindBot.Game.AI.Decks
                 if (CheckShouldNoMoreSpSummon(CardLocation.Deck) && !(haveRollback && Bot.Graveyard.Any(card => card.IsCode(CardId.WelcomeLabrynth, CardId.BigWelcomeLabrynth)))) return false;
                 int specialSummonId = 0;
                 // arianna
-                if (!activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && Bot.HasInDeck(CardId.AriannaTheLabrynthServant))
+                if (!activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && Bot.HasInDeck(CardId.AriannaTheLabrynthServant)
+                    && DefaultCheckWhetherBotCanSearch())
                 {
                     specialSummonId = CardId.AriannaTheLabrynthServant;
                 }
@@ -2197,7 +2205,7 @@ namespace WindBot.Game.AI.Decks
         public bool AriannaTheLabrynthServantSummon()
         {
             // summon for search
-            if (!CheckWhetherNegated(true, true) && !activatedCardIdList.Contains(Card.Id))
+            if (!CheckWhetherNegated(true, true) && !activatedCardIdList.Contains(Card.Id) && DefaultCheckWhetherBotCanSearch())
             {
                 summoned = true;
                 return true;
@@ -2371,7 +2379,7 @@ namespace WindBot.Game.AI.Decks
             shouldTriggerBigWelcomeFlag |= Duel.Player == 1 && GetProblematicEnemyCardList(false).Count() == 0 && GetProblematicEnemyMonster(selfType: CardType.Monster) == null
                 && Enemy.Hand.Count() == 1;
             if (checkArianna) shouldTriggerBigWelcomeFlag |= Duel.Player == 0 && !summoned && Bot.HasInHandOrHasInMonstersZone(CardId.AriannaTheLabrynthServant)
-                && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant);
+                && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && DefaultCheckWhetherBotCanSearch();
             shouldTriggerBigWelcomeFlag |= Duel.Player == 0 && Duel.Phase <= DuelPhase.Main2;
             return shouldTriggerBigWelcomeFlag;
         }
@@ -2605,7 +2613,8 @@ namespace WindBot.Game.AI.Decks
                 if (ariannaCheck)
                 {
                     if (Bot.HasInDeck(CardId.AriannaTheLabrynthServant) && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)
-                        && !CheckWhetherNegated(true, true, CardType.Monster) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
+                        && !CheckWhetherNegated(true, true, CardType.Monster) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant)
+                        && DefaultCheckWhetherBotCanSearch())
                     {
                         if (!noSelect)
                         {
@@ -2642,7 +2651,8 @@ namespace WindBot.Game.AI.Decks
                             chainSummoningIdList.Add(CardId.LovelyLabrynthOfTheSilverCastle);
                         }
                         else if (!activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && Bot.HasInDeck(CardId.AriannaTheLabrynthServant)
-                            && !CheckWhetherNegated(true, true, CardType.Monster) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
+                            && !CheckWhetherNegated(true, true, CardType.Monster) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant)
+                            && DefaultCheckWhetherBotCanSearch())
                         {
                             chainSummoningIdList.Add(CardId.AriannaTheLabrynthServant);
                         }
@@ -3181,6 +3191,7 @@ namespace WindBot.Game.AI.Decks
                 bool activateFlag = DefaultOnBecomeTarget();
                 activateFlag |= Duel.Player == 1 && !activatedCardIdList.Contains(CardId.BigWelcomeLabrynth) && activateTimingFlag;
                 activateFlag |= Duel.Player == 0 && !summoned && !Bot.HasInHand(CardId.AriannaTheLabrynthServant) && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)
+                    && DefaultCheckWhetherBotCanSearch()
                     && !(Duel.Phase < DuelPhase.Main1 && Bot.HasInHand(CardId.PotOfExtravagance) && Bot.ExtraDeck.Count() >= 3)
                     && !(Duel.CurrentChain.Any(card => card.IsCode(CardId.PotOfExtravagance) && card.Controller == 0));
                 if (activateFlag && !noSelect)
@@ -3275,7 +3286,8 @@ namespace WindBot.Game.AI.Decks
 
                 // bounce arianna
                 if (Duel.Player == 0 && Duel.Phase <= DuelPhase.Main2 && !summoned && !Bot.HasInHand(CardId.AriannaTheLabrynthServant)
-                    && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant))
+                    && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant) && !chainSummoningIdList.Contains(CardId.AriannaTheLabrynthServant)
+                    && DefaultCheckWhetherBotCanSearch())
                 {
                     ClientCard target = targetList.FirstOrDefault(card => card.IsCode(CardId.AriannaTheLabrynthServant));
                     if (target != null)
@@ -3774,10 +3786,12 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (select == null && rage != null && (Duel.Player == 0 || (!activatedCardIdList.Contains(CardId.UnchainedSoulOfRage) && (Duel.Phase == DuelPhase.Main1 || Duel.Phase == DuelPhase.Main2)))
                     && Bot.HasInExtra(new List<int> { CardId.UnchainedSoulOfAnguish, CardId.SPLittleKnight })) select = rage;
-                if (select == null && arianna != null && Duel.Player == 0 && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)) select = arianna;
+                if (select == null && arianna != null && Duel.Player == 0 && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)
+                    && DefaultCheckWhetherBotCanSearch()) select = arianna;
                 if (select == null && lovely != null && Duel.Player == 1 && Util.GetBestAttack(Enemy) < 2900) select = lovely;
                 if (select == null && lady != null && Duel.Player == 1 && Util.GetBestAttack(Enemy) < 3000) select = lady;
-                if (select == null && arianna != null && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)) select = arianna;
+                if (select == null && arianna != null && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)
+                    && DefaultCheckWhetherBotCanSearch()) select = arianna;
                 if (select == null && bestAttack != null) select = bestAttack;
 
                 if (select != null)
@@ -4088,7 +4102,8 @@ namespace WindBot.Game.AI.Decks
                     (!activatedCardIdList.Contains(CardId.LovelyLabrynthOfTheSilverCastle) || Bot.HasInSpellZoneOrInGraveyard(CardId.BigWelcomeLabrynth))) rebornTarget = lovely;
                 if (rebornTarget == null && bestAttack != null && CheckCanDirectAttack()
                         && GetBotCurrentTotalAttack() < Enemy.LifePoints && GetBotCurrentTotalAttack() + bestAttack.Attack >= Enemy.LifePoints) rebornTarget = bestAttack;
-                if (rebornTarget == null && arianna != null && Duel.Player == 0 && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)) rebornTarget = arianna;
+                if (rebornTarget == null && arianna != null && Duel.Player == 0 && !activatedCardIdList.Contains(CardId.AriannaTheLabrynthServant)
+                    && DefaultCheckWhetherBotCanSearch()) rebornTarget = arianna;
                 if (rebornTarget == null && bestAttack != null) rebornTarget = bestAttack;
                 if (rebornTarget != null)
                 {

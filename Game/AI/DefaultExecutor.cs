@@ -1961,7 +1961,7 @@ namespace WindBot.Game.AI
             if (Bot.HasInMonstersZone(_CardId.ThunderKingRaiOh, notDisabled: true, faceUp: true)
                 || Enemy.HasInMonstersZone(_CardId.ThunderKingRaiOh, notDisabled: true, faceUp: true))
                 return false;
-            if (Enemy.HasInMonstersZone(_CardId.ThunderDragonColossus))
+            if (Enemy.HasInMonstersZone(_CardId.ThunderDragonColossus, notDisabled: true, faceUp: true))
                 return false;
             if (Bot.HasInSpellZone(_CardId.DeckLockdown, notDisabled: true, faceUp: true)
                 || Enemy.HasInSpellZone(_CardId.DeckLockdown, notDisabled: true, faceUp: true)
@@ -1969,6 +1969,17 @@ namespace WindBot.Game.AI
                 || Enemy.HasInSpellZone(_CardId.Mistake, notDisabled: true, faceUp: true))
                 return false;
             if (Enemy.HasInSpellZone(_CardId.DoomZDestruction, notDisabled: true, faceUp: true))
+                return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Check whether bot can draw cards.
+        /// </summary>
+        /// <returns></returns>
+        protected bool DefaultCheckWhetherBotCanDraw()
+        {
+            if (resolvedEffectIdList.Contains(_CardId.LockBird))
                 return false;
             return true;
         }

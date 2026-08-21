@@ -151,7 +151,6 @@ namespace WindBot.Game.AI.Decks
 
 
         List<int> currentNegatingIdList = new List<int>();
-        bool enemyActivateLockBird = false;
         bool enemyActivateInfiniteImpermanenceFromHand = false;
         List<int> infiniteImpermanenceList = new List<int>();
 
@@ -655,8 +654,6 @@ namespace WindBot.Game.AI.Decks
 
         public override void OnNewTurn()
         {
-            enemyActivateLockBird = false;
-
             infiniteImpermanenceList.Clear();
 
             summoned = false;
@@ -673,8 +670,6 @@ namespace WindBot.Game.AI.Decks
             ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
             if (currentChain != null && !Duel.IsCurrentSolvingChainNegated() && currentChain.ActivatePlayer == 1)
             {
-                if (currentChain.IsActivateCode(_CardId.LockBird))
-                    enemyActivateLockBird = true;
                 if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence) && !enemyActivateInfiniteImpermanenceFromHand)
                 {
                     for (int i = 0; i < 5; ++i)
@@ -2103,7 +2098,7 @@ namespace WindBot.Game.AI.Decks
             {
                 return false;
             }
-            if (CheckAtAdvantage() && enemyActivateLockBird)
+            if (CheckAtAdvantage() && !DefaultCheckWhetherBotCanSearch())
             {
                 return false;
             }
