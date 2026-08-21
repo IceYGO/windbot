@@ -2,6 +2,8 @@
 
 ## Current (latest)
 
+ - Reuse shared search and draw restriction checks across deck AIs, including Droll & Lock Bird handling
+ - Improve RadiantTyphoon's combo sequencing, Quick-Play effect selection, and material choices
  - Add deck-specific tribute selection and pass mandatory cards to sum/material selection callbacks
  - Improve RadiantTyphoon's Gallant Thief tribute and Synchro material selection
  - Fix BlueEyes Synchro material selection when mandatory materials are present
