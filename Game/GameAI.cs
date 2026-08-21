@@ -206,7 +206,7 @@ namespace WindBot.Game
             CheckSurrender();
         }
 
-        private void ClearSelections()
+        internal void ClearSelections()
         {
             m_selector.Clear();
             m_position.Clear();
@@ -656,8 +656,15 @@ namespace WindBot.Game
             if (main.CanBattlePhase && (Duel.Fields[0].HasAttackingMonster() || !main.CanEndPhase))
                 return new MainPhaseAction(MainPhaseAction.MainAction.ToBattlePhase);
 
-            _dialogs.SendEndTurn();
-            return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase); 
+            if (main.CanEndPhase)
+            {
+                _dialogs.SendEndTurn();
+                return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase);
+            }
+
+            // The protocol normally always permits BP or EP here. Returning EP when neither is
+            // available would be rejected, so let the packet-level validator choose a legal command.
+            return new MainPhaseAction(MainPhaseAction.MainAction.ToEndPhase);
         }
 
         /// <summary>
