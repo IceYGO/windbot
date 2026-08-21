@@ -72,3 +72,7 @@ netsh http add urlacl url=http://+:2399/ user=Everyone
 ### Template generator
 
 The [WindBot template generator](https://mercury233.me/windbot/gen.html) creates a deck AI template from a YGOPro `.ydk` file.
+
+### WindBot Arena
+
+[WindBot Arena](https://github.com/mercury233/windbot-arena) is a self-hosted automated duel experimentation console for running regression tests, deck challenges, smoke tests, and win-rate rankings with WindBot.
