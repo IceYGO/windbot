@@ -181,7 +181,6 @@ namespace WindBot.Game.AI.Decks
         List<int> currentNegatingIdList = new List<int>();
         bool MadameVerreGainedATK = false;
         bool summoned = false;
-        bool enemy_activate_MaxxC = false;
         bool enemy_activate_DimensionShifter = false;
         bool MagiciansLeftHand_used = false;
         bool MagicianRightHand_used = false;
@@ -228,8 +227,6 @@ namespace WindBot.Game.AI.Decks
                 }
                 if (!Duel.IsCurrentSolvingChainNegated())
                 {
-                    if (currentChain.IsActivateCode(_CardId.MaxxC))
-                        enemy_activate_MaxxC = true;
                     if (currentChain.IsActivateCode(CardId.DimensionShifter))
                         enemy_activate_DimensionShifter = true;
                     if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
@@ -253,7 +250,6 @@ namespace WindBot.Game.AI.Decks
         {
             MadameVerreGainedATK = false;
             summoned = false;
-            enemy_activate_MaxxC = false;
             enemy_activate_DimensionShifter = false;
             MagiciansLeftHand_used = false;
             MagicianRightHand_used = false;
@@ -263,6 +259,34 @@ namespace WindBot.Game.AI.Decks
             ActivatedCards.Clear();
             currentNegatingIdList.Clear();
             base.OnNewTurn();
+        }
+
+        /// <summary>
+        /// Check whether bot is at advantage.
+        /// </summary>
+        public bool CheckAtAdvantage()
+        {
+            if (Util.GetProblematicEnemyMonster() == null
+                && Bot.MonsterZone.GetFirstMatchingCard(card => card.IsFaceup() && card.HasSetcode(Witchcraft_setcode)) != null)
+                return true;
+            return false;
+        }
+
+        public bool CheckShouldNoMoreSpSummon()
+        {
+            if (CheckAtAdvantage() && enemyResolvedEffectIdList.Contains(_CardId.MaxxC) && DefaultCheckWhetherEnemyCanDraw())
+                return true;
+            return false;
+        }
+
+        public bool CheckShouldNoMoreSpSummon(CardLocation loc)
+        {
+            if (CheckShouldNoMoreSpSummon()) return true;
+            if (!CheckAtAdvantage() || !DefaultCheckWhetherEnemyCanDraw()) return false;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyPurulia) && (loc & CardLocation.Hand) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyFuwalos) && (loc & (CardLocation.Deck | CardLocation.Extra)) != 0) return true;
+            if (enemyResolvedEffectIdList.Contains(_CardId.MulcharmyNyalus) && (loc & (CardLocation.Grave | CardLocation.Removed)) != 0) return true;
+            return false;
         }
 
         // power fix
@@ -321,7 +345,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             // MaxxC solution
-            if (hint == HintMsg.SpSummon && enemy_activate_MaxxC)
+            if (hint == HintMsg.SpSummon && CheckShouldNoMoreSpSummon(CardLocation.Deck))
             {
                 // check whether SS from deck while using effect
                 bool flag = true;
@@ -1008,6 +1032,7 @@ namespace WindBot.Game.AI.Decks
             if (SpellNegatable()) return false;
             if (CheckDiscardableSpellCount() <= 1) return false;
             if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && CheckWhetherWillbeRemoved()) return false;
+            if (Card.Id == CardId.Reasoning && CheckShouldNoMoreSpSummon(CardLocation.Deck)) return false;
             if (Card.Id == CardId.MagiciansLeftHand || Card.Id == CardId.MagicianRightHand)
             {
                 if (Bot.MonsterZone.GetFirstMatchingCard(card => card.HasRace(CardRace.SpellCaster)) == null
@@ -1027,6 +1052,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (SpellNegatable()) return false;
             if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && CheckWhetherWillbeRemoved()) return false;
+            if (Card.Id == CardId.Reasoning && CheckShouldNoMoreSpSummon(CardLocation.Deck)) return false;
             if (Card.Id == CardId.MagiciansLeftHand || Card.Id == CardId.MagicianRightHand)
             {
                 if (Bot.MonsterZone.GetFirstMatchingCard(card => card.HasRace(CardRace.SpellCaster)) == null
@@ -1046,6 +1072,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (SpellNegatable()) return false;
             if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && CheckWhetherWillbeRemoved()) return false;
+            if (Card.Id == CardId.Reasoning && CheckShouldNoMoreSpSummon(CardLocation.Deck)) return false;
             int[] counter_cards = { CardId.PSYGamma, _CardId.CalledByTheGrave, _CardId.CrossoutDesignator };
             int count = Bot.Hand.GetMatchingCardsCount(card => counter_cards.Contains(card.Id));
             count += Bot.SpellZone.GetMatchingCardsCount(card => counter_cards.Contains(card.Id));
@@ -1062,6 +1089,7 @@ namespace WindBot.Game.AI.Decks
         /// </summary>
         public bool WitchcraftSummon()
         {
+            if (CheckShouldNoMoreSpSummon(CardLocation.Hand)) return false;
             if (UseSSEffect.Contains(Card.Id)) return false;
             int count_spell = Bot.Hand.GetMatchingCardsCount(card => (card.IsSpell()));
             int count_target = Bot.GetCardCountInDeck(new[] { CardId.MadameVerre, CardId.Haine, CardId.GolemAruru });
@@ -1175,7 +1203,7 @@ namespace WindBot.Game.AI.Decks
             }
             
             // SS lower 4
-            if (!enemy_activate_MaxxC && !lesssummon && discardable_hands >= 2 && Duel.Player == 0)
+            if (!CheckShouldNoMoreSpSummon(CardLocation.Deck) && !lesssummon && discardable_hands >= 2 && Duel.Player == 0)
             {
                 int[] SS_priority = { CardId.Schmietta, CardId.Pittore, CardId.Genni, CardId.Potterie };
                 foreach (int cardid in SS_priority)
@@ -1189,6 +1217,9 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
             }
+
+            // Fuwalos feeds deck SS; skip high-level as well. Maxx C still SS one boss.
+            if (!CheckShouldNoMoreSpSummon() && CheckShouldNoMoreSpSummon(CardLocation.Deck)) return false;
 
             // check whether continue to ss
             bool should_attack = Util.GetOneEnemyBetterThanValue(Card.Attack) == null;
@@ -1559,6 +1590,7 @@ namespace WindBot.Game.AI.Decks
         public bool MaxxCActivate()
         {
             if (NegatedCheck(true)) return false;
+            if (!DefaultCheckWhetherBotCanDraw()) return false;
             return DefaultMaxxC();
         }
 
@@ -1600,7 +1632,7 @@ namespace WindBot.Game.AI.Decks
             // Holiday check
             int HolidayCount = Bot.Graveyard.GetMatchingCardsCount(card => card.Id == CardId.Holiday);
             int SS_id = HolidayCheck(Card);
-            if (HolidayCount > 0 && SS_id > 0){
+            if (HolidayCount > 0 && SS_id > 0 && !CheckShouldNoMoreSpSummon(CardLocation.Grave)){
                 AI.SelectCard(CardId.Holiday);
                 AI.SelectNextCard(SS_id);
                 ActivatedCards.Add(CardId.Genni);
@@ -1803,6 +1835,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave) return false;
             if (NegatedCheck(true)) return false;
+            if (CheckShouldNoMoreSpSummon(CardLocation.Grave)) return false;
             int target = HolidayCheck();
             if (target != 0)
             {
@@ -1945,6 +1978,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Grave) return false;
             if (NegatedCheck(true)) return false;
+            if (CheckShouldNoMoreSpSummon(CardLocation.Hand)) return false;
 
             // LightningStorm check
             if (Bot.HasInHandOrInSpellZone(_CardId.LightningStorm))
@@ -2017,6 +2051,7 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             if (target == 0) return false;
+            if (CheckShouldNoMoreSpSummon(CardLocation.Grave)) return false;
             if (Card.Location == CardLocation.Hand)
             {
                 SelectSTPlace(null, true);
@@ -2198,7 +2233,7 @@ namespace WindBot.Game.AI.Decks
                 }
 
                 // SS lower 4
-                if (discardable_hands >= 1 && Duel.Player == 0)
+                if (!CheckShouldNoMoreSpSummon(CardLocation.Deck) && discardable_hands >= 1 && Duel.Player == 0)
                 {
                     int[] SS_priority = { CardId.Schmietta, CardId.Pittore, CardId.Genni, CardId.Potterie };
                     foreach (int cardid in SS_priority)
@@ -2213,6 +2248,9 @@ namespace WindBot.Game.AI.Decks
                         }
                     }
                 }
+
+                // Fuwalos feeds deck SS; skip high-level as well. Maxx C still SS one boss.
+                if (!CheckShouldNoMoreSpSummon() && CheckShouldNoMoreSpSummon(CardLocation.Deck)) return false;
 
                 // SS higer level
                 List<int> ss_priority = new List<int>();
@@ -2308,6 +2346,7 @@ namespace WindBot.Game.AI.Decks
         // summmon process of Level 8 Synchro Monster
         public bool Lv8Summon()
         {
+            if (!Card.IsCode(CardId.PSYOmega) && CheckShouldNoMoreSpSummon(CardLocation.Extra)) return false;
             if (Bot.HasInMonstersZone(CardId.PSYGamma) && Bot.HasInMonstersZone(CardId.PSYDriver))
             {
                 List<int> targets = new List<int> { CardId.PSYDriver, CardId.PSYGamma };
@@ -2448,6 +2487,7 @@ namespace WindBot.Game.AI.Decks
         // summon process of BorrelswordDragon
         public bool BorrelswordDragonSummon()
         {
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra)) return false;
             List<ClientCard> materials = BorrelswordDragonSummonCheck();
             if (materials.Count < 3) return false;
             AI.SelectMaterials(materials);
@@ -2515,6 +2555,7 @@ namespace WindBot.Game.AI.Decks
         // summon process of KnightmareUnicorn
         public bool KnightmareUnicornSummon()
         {
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra)) return false;
             List<ClientCard> materials = KnightmareUnicornSummonCheck();
             if (materials.Count < 2) return false;
             AI.SelectMaterials(materials);
@@ -2581,6 +2622,7 @@ namespace WindBot.Game.AI.Decks
         // summon process of KnightmarePhoenix
         public bool KnightmarePhoenixSummon()
         {
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra)) return false;
             List<ClientCard> materials = KnightmarePhoenixSummonCheck();
             if (materials.Count < 2) return false;
             AI.SelectMaterials(materials);
@@ -2627,6 +2669,7 @@ namespace WindBot.Game.AI.Decks
         // summon process of CrystronHalqifibrax
         public bool CrystronHalqifibraxSummon()
         {
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra)) return false;
             List<ClientCard> materials = CrystronHalqifibraxSummonCheck();
             if (materials.Count < 2) return false;
             AI.SelectMaterials(materials);
@@ -2638,6 +2681,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Player == 0)
             {
+                if (CheckShouldNoMoreSpSummon(CardLocation.Deck)) return false;
                 return true;
             }
             else if (Util.IsChainTarget(Card) || Util.GetProblematicEnemySpell() != null) return true;
@@ -2672,6 +2716,7 @@ namespace WindBot.Game.AI.Decks
         // summmon process of SalamangreatAlmiraj
         public bool SalamangreatAlmirajSummon()
         {
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra)) return false;
             if (!SalamangreatAlmirajSummonCheck()) return false;
             List<int> material = new List<int> { CardId.Pittore, CardId.Genni };
             AI.SelectMaterials(material);
@@ -2693,6 +2738,7 @@ namespace WindBot.Game.AI.Decks
         // summmon process of PSYLambda
         public bool PSYLambdaSummon()
         {
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra)) return false;
             if (Bot.HasInMonstersZone(CardId.PSYGamma) && Bot.HasInMonstersZone(CardId.PSYDriver))
             {
                 if (Bot.HasInHand(CardId.PSYGamma) || Bot.HasInMonstersZone(CardId.PSYOmega)) {
@@ -2763,6 +2809,7 @@ namespace WindBot.Game.AI.Decks
         // summmon process of RelinquishedAnima
         public bool RelinquishedAnimaSummon()
         {
+            if (CheckShouldNoMoreSpSummon(CardLocation.Extra)) return false;
             int place = RelinquishedAnimaSummonCheck();
             Logger.DebugWriteLine("RelinquishedAnima summon check: " + place.ToString());
             if (place != -1)
