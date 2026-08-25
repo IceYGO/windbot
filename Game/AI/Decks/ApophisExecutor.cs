@@ -117,7 +117,6 @@ namespace WindBot.Game.AI.Decks
         int maxSummonCount = 1;
         int summonCount = 1;
         bool enemyActivateMonsterEffectFromHandGrave = false;
-        int dimensionShifterCount = 0;
         int songsOfTheDominatorsResolvedCount = 0;
         bool activatingLodeSpSummonEffect = false;
         bool lodeSpSummonEffectResolved = false;
@@ -299,28 +298,6 @@ namespace WindBot.Game.AI.Decks
         public bool CheckWhetherCanSummon()
         {
             return Duel.Player == 0 && Duel.Phase < DuelPhase.End && summonCount > 0;
-        }
-
-        /// <summary>
-        /// Check whether cards will be removed. If so, do not send cards to grave.
-        /// </summary>
-        public bool CheckWhetherWillbeRemoved()
-        {
-            if (dimensionShifterCount > 0) return true;
-            List<int> checkIdList = new List<int> { _CardId.BanisheroftheRadiance, _CardId.BanisheroftheLight, _CardId.MacroCosmos, _CardId.DimensionalFissure,
-                _CardId.KashtiraAriseHeart, _CardId.MaskedHERODarkLaw };
-            foreach (int cardid in checkIdList)
-            {
-                List<ClientField> fields = new List<ClientField> { Bot, Enemy };
-                foreach (ClientField cf in fields)
-                {
-                    if (cf.HasInMonstersZone(cardid, true, false, true) || cf.HasInSpellZone(cardid, true, true))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
 
         public bool CheckWhetherCanActivateMonsterEffect(CardAttribute attribute)
@@ -1338,7 +1315,6 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Turn <= 1)
             {
-                dimensionShifterCount = 0;
                 songsOfTheDominatorsResolvedCount = 0;
                 // for doom bot
                 maxSummonCount = 1;
@@ -1351,7 +1327,6 @@ namespace WindBot.Game.AI.Decks
             activatingLodeSpSummonEffect = false;
             lodeSpSummonEffectResolved = false;
             songsOfTheDominatorsActivatedFromHand = false;
-            if (dimensionShifterCount > 0) dimensionShifterCount--;
             if (songsOfTheDominatorsResolvedCount > 0) songsOfTheDominatorsResolvedCount--;
             currentNegateCardList.Clear();
             activatedCardIdList.Clear();
@@ -1424,8 +1399,6 @@ namespace WindBot.Game.AI.Decks
                                 break;
                         }
                     }
-                    if (currentChain.IsActivateCode(_CardId.DimensionShifter))
-                        dimensionShifterCount = 2;
                 }
             }
 
@@ -1564,7 +1537,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.MainPhase.ActivableCards.Contains(Card))
             {
                 // whether should activate
-                if (!CheckWhetherNegated() || !CheckWhetherWillbeRemoved())
+                if (!CheckWhetherNegated() || !DefaultCheckWhetherBotWillBeRemoved())
                 {
                     return false;
                 }
@@ -1609,7 +1582,7 @@ namespace WindBot.Game.AI.Decks
                 bool recycleFlag = Bot.HasInHand(apophisCardIdList)
                     || Bot.HasInSpellZone(apophisCardIdList)
                     || Bot.GetMonsters().Any(c => c.IsFaceup() && apophisCardIdList.Contains(c.Id));
-                return !CheckWhetherWillbeRemoved() && (!CheckWhetherNegated() || recycleFlag);
+                return !DefaultCheckWhetherBotWillBeRemoved() && (!CheckWhetherNegated() || recycleFlag);
             } else
             {
                 // search
@@ -2290,7 +2263,7 @@ namespace WindBot.Game.AI.Decks
                 && Bot.GetSpellCountWithoutField() < 5)
             {
                 checkFlag |= Bot.HasInGraveyard(new List<int> { CardId.ApophisTheSerpent, CardId.ApophisTheSwampDeity });
-                checkFlag |= !CheckWhetherWillbeRemoved();
+                checkFlag |= !DefaultCheckWhetherBotWillBeRemoved();
             }
 
             // for attack

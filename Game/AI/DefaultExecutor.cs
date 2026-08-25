@@ -286,6 +286,10 @@ namespace WindBot.Game.AI
         List<int> crossoutDesignatorIdList = new List<int>();
         int mistakenArrestAffectedCount = 0;
         /// <summary>
+        /// Remaining turns of Dimension Shifter. Set to 2 on resolve and decremented at each new turn, matching "until the end of the next turn".
+        /// </summary>
+        int dimensionShifterCount = 0;
+        /// <summary>
         /// List of effect IDs that have been resolved this turn.
         /// </summary>
         protected List<int> resolvedEffectIdList = new List<int>();
@@ -678,6 +682,9 @@ namespace WindBot.Game.AI
                 {
                     resolvedEffectIdList.Add(_CardId.LockBird);
                 }
+                // Dimension Shifter replaces GY with banish for both players until the end of the next turn.
+                if (currentChain.IsActivateCode(_CardId.DimensionShifter))
+                    dimensionShifterCount = 2;
                 if (currentChain.ActivatePlayer == 1)
                 {
                     if (currentChain.IsActivateCode(_CardId.MaxxC))
@@ -721,8 +728,11 @@ namespace WindBot.Game.AI
             {
                 calledbytheGraveIdCountMap.Clear();
                 mistakenArrestAffectedCount = 0;
+                dimensionShifterCount = 0;
             }
             mistakenArrestAffectedCount = Math.Max(mistakenArrestAffectedCount - 1, 0);
+            if (dimensionShifterCount > 0)
+                dimensionShifterCount--;
             List<int> keyList = calledbytheGraveIdCountMap.Keys.ToList();
             foreach (int dic in keyList)
             {
@@ -1852,6 +1862,69 @@ namespace WindBot.Game.AI
                 AI.SelectCard(targetList);
                 return true;
             }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Check whether Bot's cards sent to the GY will be banished instead.
+        /// Treat the dump as generic, including monsters (Dimensional Fissure still counts).
+        /// </summary>
+        /// <returns>True if a Bot card sent to the GY would be banished instead.</returns>
+        protected bool DefaultCheckWhetherBotWillBeRemoved()
+        {
+            return DefaultCheckWhetherBotWillBeRemoved(null);
+        }
+
+        /// <summary>
+        /// Check whether the given Bot card will be banished if it is sent to the GY.
+        /// </summary>
+        /// <param name="card">Bot card that would be sent to the GY. Null means a generic dump, including monsters.</param>
+        /// <returns>True if the card would be banished instead of going to the GY.</returns>
+        protected bool DefaultCheckWhetherBotWillBeRemoved(ClientCard card)
+        {
+            if (dimensionShifterCount > 0)
+                return true;
+
+            List<ClientField> fields = new List<ClientField> { Bot, Enemy };
+
+            // Banisher of the Radiance/Light and Macro Cosmos replace any card sent to the GY.
+            List<int> allCardBanishIds = new List<int>
+            {
+                _CardId.BanisheroftheRadiance,
+                _CardId.BanisheroftheLight,
+                _CardId.MacroCosmos
+            };
+            foreach (int cardId in allCardBanishIds)
+            {
+                foreach (ClientField field in fields)
+                {
+                    if (field.HasInMonstersZone(cardId, true, false, true) || field.HasInSpellZone(cardId, true, true))
+                        return true;
+                }
+            }
+
+            // Arise-Heart only replaces GY while it has Xyz material (text requires a Kashtira material).
+            foreach (ClientField field in fields)
+            {
+                if (field.HasInMonstersZone(_CardId.KashtiraAriseHeart, true, true, true))
+                    return true;
+            }
+
+            // Dimensional Fissure only banishes monsters; unknown or generic dumps still count.
+            bool checkMonsterBanish = card == null || card.Data == null || card.IsMonster();
+            if (checkMonsterBanish)
+            {
+                foreach (ClientField field in fields)
+                {
+                    if (field.HasInSpellZone(_CardId.DimensionalFissure, true, true))
+                        return true;
+                }
+            }
+
+            // Dark Law only banishes cards sent to the opponent's GY, so Bot cards are hit by the enemy's Dark Law.
+            if (Enemy.HasInMonstersZone(_CardId.MaskedHERODarkLaw, true, false, true))
+                return true;
 
             return false;
         }

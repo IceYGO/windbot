@@ -174,7 +174,6 @@ namespace WindBot.Game.AI.Decks
 
         int maxSummonCount = 1;
         int summonCount = 1;
-        int dimensionShifterCount = 0;
         bool botActivateMulcharmy = false;
         bool botSolvingCross = false;
         // Do not scan Branded setcode directly: cards such as Fallen & Ecclesia also belong to other strategies.
@@ -371,28 +370,6 @@ namespace WindBot.Game.AI.Decks
             return Duel.Player == 0 && Duel.Phase < DuelPhase.End && summonCount > 0;
         }
 
-        /// <summary>
-        /// Check whether cards will be removed. If so, do not send cards to grave.
-        /// </summary>
-        public bool CheckWhetherWillbeRemoved()
-        {
-            if (dimensionShifterCount > 0) return true;
-            List<int> checkIdList = new List<int> { _CardId.BanisheroftheRadiance, _CardId.BanisheroftheLight, _CardId.MacroCosmos, _CardId.DimensionalFissure,
-                _CardId.KashtiraAriseHeart, _CardId.MaskedHERODarkLaw };
-            foreach (int cardid in checkIdList)
-            {
-                List<ClientField> fields = new List<ClientField> { Bot, Enemy };
-                foreach (ClientField cf in fields)
-                {
-                    if (cf.HasInMonstersZone(cardid, true, false, true) || cf.HasInSpellZone(cardid, true, true))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
         public ClientCard GetProblematicEnemyMonster(int attack = 0, bool canBeTarget = false, bool ignoreCurrentDestroy = false, CardType selfType = 0)
         {
             ClientCard floodagateCard = Enemy.GetMonsters().Where(c => c?.Data != null && (ignoreCurrentDestroy || !currentDestroyCardList.Contains(c))
@@ -453,7 +430,7 @@ namespace WindBot.Game.AI.Decks
                 checkFlag |= Bot.Graveyard.Any(c => c != null && c.IsFaceup() && c.HasSetcode(SetcodeRyzeal));
             }
             checkFlag |= !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !activatedCardIdList.Contains(CardId.ExRyzeal)
-                && Bot.HasInHand(CardId.ExRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal) && !CheckWhetherWillbeRemoved();
+                && Bot.HasInHand(CardId.ExRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal) && !DefaultCheckWhetherBotWillBeRemoved();
 
             checkFlag |= !activatedCardIdList.Contains(CardId.RyzealDuodrive + 1) && Bot.HasInExtra(CardId.RyzealDuodrive)
                 && !DefaultCheckWhetherCardIdIsNegated(CardId.RyzealDuodrive) && !CheckWhetherNegated(true, true, CardType.Monster)
@@ -591,7 +568,7 @@ namespace WindBot.Game.AI.Decks
             // check whether have 4 monsters for material.
             // if not, skip the second xyz monster.
             int level4Count = GetLevel4CountOnField();
-            if (Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !CheckWhetherWillbeRemoved())
+            if (Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !DefaultCheckWhetherBotWillBeRemoved())
             {
                 if (checkSupport ||
                     (!activatedCardIdList.Contains(CardId.ExRyzeal) && Bot.MonsterZone.All(c => c != null && (c.IsFacedown() || !c.HasType(CardType.Link) && c.Level == 4))))
@@ -637,7 +614,7 @@ namespace WindBot.Game.AI.Decks
 
                 if (flag) level4Count++;
             }
-            hasNode &= !CheckWhetherWillbeRemoved() && !activatedCardIdList.Contains(CardId.NodeRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.NodeRyzeal);
+            hasNode &= !DefaultCheckWhetherBotWillBeRemoved() && !activatedCardIdList.Contains(CardId.NodeRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.NodeRyzeal);
             hasNode &= Bot.Graveyard.Any(c => c != null && c.IsMonster() && c.HasSetcode(SetcodeRyzeal) && !c.IsCode(CardId.NodeRyzeal) && c.Level == 4);
             if (hasNode)
             {
@@ -655,7 +632,7 @@ namespace WindBot.Game.AI.Decks
                     level4Count++;
                     checkHandCount++;
                 }
-                if (Bot.Hand.Count() >= checkHandCount && Bot.HasInHand(CardId.IceRyzeal) && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !CheckWhetherWillbeRemoved())
+                if (Bot.Hand.Count() >= checkHandCount && Bot.HasInHand(CardId.IceRyzeal) && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherBotWillBeRemoved())
                 {
                     level4Count++;
                 }
@@ -952,7 +929,7 @@ namespace WindBot.Game.AI.Decks
                                     && !activatedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.IceRyzeal);
                                 flag |= ex == null;
                                 flag |= Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled() && c.IsCode(NeedIceToSolveIdList))
-                                    && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !CheckWhetherWillbeRemoved();
+                                    && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherBotWillBeRemoved();
                                 if (!canSummonAndActivateIce)
                                 {
                                     flag |= DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal);
@@ -1006,7 +983,7 @@ namespace WindBot.Game.AI.Decks
 
                         if (currentSolvingChain.IsActivateCode(CardId.Bonfire) || currentSolvingChain.IsActivateCode(CardId.SeventhTachyon))
                         {
-                            if (!Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !CheckWhetherWillbeRemoved())
+                            if (!Bot.HasInHand(CardId.ExRyzeal) && !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !DefaultCheckWhetherBotWillBeRemoved())
                             {
                                 ClientCard target = cards.FirstOrDefault(c => c.IsCode(CardId.ExRyzeal));
                                 if (target != null)
@@ -1061,10 +1038,10 @@ namespace WindBot.Game.AI.Decks
                             {
                                 new KeyValuePair<int, Func<bool>>(CardId.IceRyzeal,
                                 () => Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled() && c.IsCode(NeedIceToSolveIdList))
-                                    && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !CheckWhetherWillbeRemoved() ),
+                                    && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherBotWillBeRemoved() ),
                                 new KeyValuePair<int, Func<bool>>(CardId.ExRyzeal,
                                 () => !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !activatedCardIdList.Contains(CardId.ExRyzeal)
-                                    && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal) && !CheckWhetherWillbeRemoved() ),
+                                    && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal) && !DefaultCheckWhetherBotWillBeRemoved() ),
                                 new KeyValuePair<int, Func<bool>>(CardId.IceRyzeal,
                                 () => summonCount > 0 && !activatedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.IceRyzeal) ),
                                 new KeyValuePair<int, Func<bool>>(CardId.ThodeRyzeal,
@@ -1562,7 +1539,6 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Turn <= 1)
             {
-                dimensionShifterCount = 0;
                 // for doom bot
                 maxSummonCount = 1;
                 hardToDestroyCardList.Clear();
@@ -1570,7 +1546,6 @@ namespace WindBot.Game.AI.Decks
             }
 
             summonCount = maxSummonCount;
-            if (dimensionShifterCount > 0) dimensionShifterCount--;
             enemyActivateInfiniteImpermanenceFromHand = false;
             botActivateMulcharmy = false;
             deadnaderDestroySelf = null;
@@ -1637,8 +1612,6 @@ namespace WindBot.Game.AI.Decks
             {
                 if (!Duel.IsCurrentSolvingChainNegated())
                 {
-                    if (currentChain.IsActivateCode(_CardId.DimensionShifter))
-                        dimensionShifterCount = 2;
                     if (currentChain.ActivatePlayer == 0)
                     {
                         foreach (int checkId in CheckBotSolvedList)
@@ -3253,19 +3226,19 @@ namespace WindBot.Game.AI.Decks
                 if (activatedCardIdList.Contains(CardId.RyzealDuodrive + 1) && duoDriver != null)
                 {
                     materialList.Add(duoDriver);
-                    hasNode |= !CheckWhetherWillbeRemoved() && duoDriver.Overlays.Any(id => id == CardId.NodeRyzeal);
+                    hasNode |= !DefaultCheckWhetherBotWillBeRemoved() && duoDriver.Overlays.Any(id => id == CardId.NodeRyzeal);
                 }
                 ClientCard no60 = Bot.MonsterZone.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(CardId.Number60DugaresTheTimeless));
                 if (no60 != null && (activatedCardIdList.Contains(CardId.Number60DugaresTheTimeless) || no60.IsDisabled()))
                 {
                     materialList.Add(no60);
-                    hasNode |= !CheckWhetherWillbeRemoved() && no60.Overlays.Any(id => id == CardId.NodeRyzeal);
+                    hasNode |= !DefaultCheckWhetherBotWillBeRemoved() && no60.Overlays.Any(id => id == CardId.NodeRyzeal);
                 }
                 ClientCard no41 = Bot.MonsterZone.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(_CardId.Number41BagooskatheTerriblyTiredTapir));
                 if (no41 != null)
                 {
                     materialList.Add(no41);
-                    hasNode |= !CheckWhetherWillbeRemoved() && no41.Overlays.Any(id => id == CardId.NodeRyzeal);
+                    hasNode |= !DefaultCheckWhetherBotWillBeRemoved() && no41.Overlays.Any(id => id == CardId.NodeRyzeal);
                 }
 
                 if (materialList.Count() >= 2 && hasNode)
@@ -3579,7 +3552,7 @@ namespace WindBot.Game.AI.Decks
                 {
                     bool canRebornSelf = Bot.SpellZone.Count(c => c != null && c.IsFacedown() && c.IsCode(CardId.RyzealPlugIn) && !Duel.ChainTargets.Contains(c)) > 0;
                     bool canActivateTwin = !activatedCardIdList.Contains(CardId.TwinsOfTheEclipse + 1) && !DefaultCheckWhetherCardIdIsNegated(CardId.TwinsOfTheEclipse)
-                        && !CheckWhetherWillbeRemoved();
+                        && !DefaultCheckWhetherBotWillBeRemoved();
                     canRebornSelf |= canActivateTwin && Card.Overlays.Contains(CardId.TwinsOfTheEclipse);
                     if (Duel.CurrentChain.Any(c => c != null && c.Controller == 1 && !c.IsDisabled() && !DefaultCheckWhetherCardIdIsNegated(c.Id)
                         && c.IsCode(_CardId.EvenlyMatched)))

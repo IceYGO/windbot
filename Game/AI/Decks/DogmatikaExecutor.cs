@@ -55,11 +55,6 @@ namespace WindBot.Game.AI.Decks
             public const int InspectorBoarder = 15397015;
             public const int SkillDrain = 82732705;
 
-            public const int DimensionShifter = 91800273;
-            public const int MacroCosmos = 30241314;
-            public const int DimensionalFissure = 81674782;
-            public const int BanisheroftheRadiance = 94853057;
-            public const int BanisheroftheLight = 61528025;
             public const int GhostMournerMoonlitChill = 52038441;
         }
 
@@ -157,7 +152,6 @@ namespace WindBot.Game.AI.Decks
         bool avoid2Monster = true;
         bool confirmLink2 = false;
         int omegaActivateCount = 0;
-        int dimensionShifterCount = 0;
 
         int enemySpSummonFromExLastTurn = 0;
         int enemySpSummonFromExThisTurn = 0;
@@ -567,7 +561,6 @@ namespace WindBot.Game.AI.Decks
             ClientCard lastChainCard = Util.GetLastChainCard();
             if (lastChainCard != null && Duel.LastChainPlayer == 1)
             {
-                if (lastChainCard.IsCode(CardId.DimensionShifter)) dimensionShifterCount = 0;
                 if (lastChainCard.Controller == 1 && lastChainCard.Location == CardLocation.MonsterZone)
                 {
                     currentNegateMonsterList.Add(lastChainCard);
@@ -652,27 +645,6 @@ namespace WindBot.Game.AI.Decks
                 if (Enemy.HasInSpellZone(CardId.SkillDrain, true, true))
                 {
                     return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Check whether cards will be removed. If so, do not send cards to grave.
-        /// </summary>
-        public bool CheckWhetherWillbeRemoved()
-        {
-            if (dimensionShifterCount > 0) return true;
-            List<int> checkIdList = new List<int> { CardId.BanisheroftheRadiance, CardId.BanisheroftheLight, CardId.MacroCosmos, CardId.DimensionalFissure };
-            foreach (int cardid in checkIdList)
-            {
-                List<ClientField> fields = new List<ClientField> { Bot, Enemy };
-                foreach (ClientField cf in fields)
-                {
-                    if (cf.HasInMonstersZone(cardid, true) || cf.HasInSpellZone(cardid, true))
-                    {
-                        return true;
-                    }
                 }
             }
             return false;
@@ -992,7 +964,6 @@ namespace WindBot.Game.AI.Decks
                 banSpSummonFromExTurn = 0;
                 checkedEnemyExtra = false;
                 avoid2Monster = true;
-                dimensionShifterCount = 0;
 
                 enemySpSummonFromExLastTurn = 0;
                 enemySpSummonFromExThisTurn = 0;
@@ -1002,7 +973,6 @@ namespace WindBot.Game.AI.Decks
             enemySpSummonFromExThisTurn = 0;
             currentNegatingIdList.Clear();
 
-            if (dimensionShifterCount > 0) dimensionShifterCount--;
             infiniteImpermanenceList.Clear();
 
             summoned = false;
@@ -1114,8 +1084,6 @@ namespace WindBot.Game.AI.Decks
             ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
             if (currentChain != null && !Duel.IsCurrentSolvingChainNegated() && currentChain.ActivatePlayer == 1)
             {
-                if (currentChain.IsActivateCode(CardId.DimensionShifter))
-                    dimensionShifterCount = 2;
                 if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
                 {
                     for (int i = 0; i < 5; ++i)
@@ -1376,7 +1344,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (CheckWhetherWillbeRemoved()) return false;
+                if (DefaultCheckWhetherBotWillBeRemoved()) return false;
                 List<int> decidedToDiscard = new List<int>();
                 List<int> checkDiscardIdList = new List<int>{ CardId.ElderEntityNtss, CardId.HeraldOfTheArcLight, CardId.GaruraWingsOfResonantLife,
                     CardId.TitanikladTheAshDragon, CardId.GranguignolTheDuskDragon, CardId.PSYFramelordOmega, CardId.DespianLuluwalilith };
@@ -1725,7 +1693,7 @@ namespace WindBot.Game.AI.Decks
         public bool KnightmareCorruptorIbleeSummon()
         {
             if (banSpSummonFromExTurn > 0) return false;
-            if (CheckWhetherWillbeRemoved()) return false;
+            if (DefaultCheckWhetherBotWillBeRemoved()) return false;
             if (activatedCardIdList.Contains(CardId.KnightmareCorruptorIblee)) return false;
             if (Bot.HasInExtra(CardId.SalamangreatAlmiraj) || Bot.HasInExtra(CardId.Linguriboh))
             {
@@ -1760,7 +1728,7 @@ namespace WindBot.Game.AI.Decks
     
         public bool NadirServantActivate()
         {
-            if (CheckWhetherNegated() ||  CheckWhetherWillbeRemoved()) return false;
+            if (CheckWhetherNegated() ||  DefaultCheckWhetherBotWillBeRemoved()) return false;
             ClientCard discardExtra = null;
             int searchId = 0;
 
@@ -2193,7 +2161,7 @@ namespace WindBot.Game.AI.Decks
             else 
             {
                 int option = 0;
-                if (CheckWhetherWillbeRemoved()) option = 1;
+                if (DefaultCheckWhetherBotWillBeRemoved()) option = 1;
                 if (!checkedEnemyExtra && Enemy.ExtraDeck.Count() > 0) option = 1;
                 if (Enemy.HasInMonstersZone(CardId.KnightmareCorruptorIblee) && avoid2Monster) option = 1;
                 if (!Bot.HasInExtra(CardId.ElderEntityNtss) || GetNormalEnemyTargetList(true, false, false).Count() <= 0)
@@ -2333,7 +2301,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaPunishmentActivate()
         {
-            if (CheckWhetherNegated() || CheckWhetherWillbeRemoved()) return false;
+            if (CheckWhetherNegated() || DefaultCheckWhetherBotWillBeRemoved()) return false;
 
             ClientCard targetCard = null;
             ClientCard extraToDiscard = null;

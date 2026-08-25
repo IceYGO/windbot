@@ -58,12 +58,6 @@ namespace WindBot.Game.AI.Decks
             public const int Anti_Spell = 58921041;
             public const int Numbe41BagooskatheTerriblyTiredTapir = 90590303;
             public const int PerformapalFive_RainbowMagician = 19619755;
-
-            public const int DimensionShifter = 91800273;
-            public const int MacroCosmos = 30241314;
-            public const int DimensionalFissure = 81674782;
-            public const int BanisheroftheRadiance = 94853057;
-            public const int BanisheroftheLight = 61528025;
         }
 
         public WitchcraftExecutor(GameAI ai, Duel duel)
@@ -182,7 +176,6 @@ namespace WindBot.Game.AI.Decks
         bool MadameVerreGainedATK = false;
         bool summoned = false;
         bool enemy_activate_MaxxC = false;
-        bool enemy_activate_DimensionShifter = false;
         bool MagiciansLeftHand_used = false;
         bool MagicianRightHand_used = false;
 
@@ -230,8 +223,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     if (currentChain.IsActivateCode(_CardId.MaxxC))
                         enemy_activate_MaxxC = true;
-                    if (currentChain.IsActivateCode(CardId.DimensionShifter))
-                        enemy_activate_DimensionShifter = true;
                     if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
                     {
                         for (int i = 0; i < 5; ++i)
@@ -254,7 +245,6 @@ namespace WindBot.Game.AI.Decks
             MadameVerreGainedATK = false;
             summoned = false;
             enemy_activate_MaxxC = false;
-            enemy_activate_DimensionShifter = false;
             MagiciansLeftHand_used = false;
             MagicianRightHand_used = false;
             Impermanence_list.Clear();
@@ -664,27 +654,6 @@ namespace WindBot.Game.AI.Decks
 
 
         /// <summary>
-        /// Check whether cards will be removed. If so, do not send cards to grave.
-        /// </summary>
-        public bool CheckWhetherWillbeRemoved()
-        {
-            if (enemy_activate_DimensionShifter) return true;
-            List<int> check_card = new List<int> { CardId.BanisheroftheRadiance, CardId.BanisheroftheLight, CardId.MacroCosmos, CardId.DimensionalFissure };
-            foreach(int cardid in check_card)
-            {
-                List<ClientField> fields = new List<ClientField> { Bot, Enemy };
-                foreach (ClientField cf in fields)
-                {
-                    if (cf.HasInMonstersZone(cardid, true) || cf.HasInSpellZone(cardid, true))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
         /// Whether spell or trap will be negate. If so, return true.
         /// </summary>
         /// <param name="isCounter">is counter trap</param>
@@ -1007,7 +976,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (SpellNegatable()) return false;
             if (CheckDiscardableSpellCount() <= 1) return false;
-            if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && CheckWhetherWillbeRemoved()) return false;
+            if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && DefaultCheckWhetherBotWillBeRemoved()) return false;
             if (Card.Id == CardId.MagiciansLeftHand || Card.Id == CardId.MagicianRightHand)
             {
                 if (Bot.MonsterZone.GetFirstMatchingCard(card => card.HasRace(CardRace.SpellCaster)) == null
@@ -1026,7 +995,7 @@ namespace WindBot.Game.AI.Decks
         public bool SpellsActivateNoCost()
         {
             if (SpellNegatable()) return false;
-            if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && CheckWhetherWillbeRemoved()) return false;
+            if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && DefaultCheckWhetherBotWillBeRemoved()) return false;
             if (Card.Id == CardId.MagiciansLeftHand || Card.Id == CardId.MagicianRightHand)
             {
                 if (Bot.MonsterZone.GetFirstMatchingCard(card => card.HasRace(CardRace.SpellCaster)) == null
@@ -1045,7 +1014,7 @@ namespace WindBot.Game.AI.Decks
         public bool SpellsActivatewithCounter()
         {
             if (SpellNegatable()) return false;
-            if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && CheckWhetherWillbeRemoved()) return false;
+            if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning) && DefaultCheckWhetherBotWillBeRemoved()) return false;
             int[] counter_cards = { CardId.PSYGamma, _CardId.CalledByTheGrave, _CardId.CrossoutDesignator };
             int count = Bot.Hand.GetMatchingCardsCount(card => counter_cards.Contains(card.Id));
             count += Bot.SpellZone.GetMatchingCardsCount(card => counter_cards.Contains(card.Id));
@@ -1411,7 +1380,7 @@ namespace WindBot.Game.AI.Decks
         public bool SchmiettaActivate()
         {
             if (Card.Location != CardLocation.Grave) return false;
-            if (NegatedCheck(false) || CheckWhetherWillbeRemoved()) return false;
+            if (NegatedCheck(false) || DefaultCheckWhetherBotWillBeRemoved()) return false;
             // spell check
             bool can_recycle = Bot.MonsterZone.GetFirstMatchingCard(
                 card => card.IsFaceup() && card.HasSetcode(Witchcraft_setcode) && card.Id != CardId.GolemAruru
@@ -1502,7 +1471,7 @@ namespace WindBot.Game.AI.Decks
         public bool PittoreActivate()
         {
             if (Card.Location != CardLocation.Grave) return false;
-            if (NegatedCheck(false) || CheckWhetherWillbeRemoved()) return false;
+            if (NegatedCheck(false) || DefaultCheckWhetherBotWillBeRemoved()) return false;
             if (Bot.Hand.GetFirstMatchingCard(card => card.HasSetcode(Witchcraft_setcode)) == null) return false;
 
             // discard advance
