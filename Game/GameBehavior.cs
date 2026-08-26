@@ -960,6 +960,7 @@ namespace WindBot.Game
                 }
                 if (_debug)
                     Logger.WriteLine("(" + (card.Name ?? "UnKnowCard") + " change position to " + (CardPosition)cp + ")");
+                _ai.OnPosChange(card, pp, cp);
             }
         }
 

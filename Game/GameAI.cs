@@ -143,6 +143,14 @@ namespace WindBot.Game
         }
 
         /// <summary>
+        /// Called when a card's battle position changes without leaving its zone.
+        /// </summary>
+        public void OnPosChange(ClientCard card, int previousPosition, int currentPosition)
+        {
+            Executor.OnPosChange(card, previousPosition, currentPosition);
+        }
+
+        /// <summary>
         /// Called when an attack has been declared and its battling monsters have been recorded.
         /// </summary>
         public void OnAttack()

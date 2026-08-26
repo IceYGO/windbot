@@ -147,6 +147,17 @@ namespace WindBot.Game.AI
             // Some AI need do something on card's moving
         }
 
+        /// <summary>
+        /// Called when a card's battle position changes without leaving its zone (MSG_POS_CHANGE).
+        /// </summary>
+        /// <param name="card">The card whose position changed.</param>
+        /// <param name="previousPosition">Position flags before the change.</param>
+        /// <param name="currentPosition">Position flags after the change.</param>
+        public virtual void OnPosChange(ClientCard card, int previousPosition, int currentPosition)
+        {
+            // For overriding
+        }
+
         public virtual IList<ClientCard> OnSelectCard(IList<ClientCard> cards, int min, int max, int hint, bool cancelable)
         {
             // For overriding
