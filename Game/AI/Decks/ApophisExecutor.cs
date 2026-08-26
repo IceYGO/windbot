@@ -1537,7 +1537,7 @@ namespace WindBot.Game.AI.Decks
             if (Duel.MainPhase.ActivableCards.Contains(Card))
             {
                 // whether should activate
-                if (!CheckWhetherNegated() || !DefaultCheckWhetherBotWillBeRemoved())
+                if (!CheckWhetherNegated() || !DefaultCheckWhetherBotWillBeRemoved(Card))
                 {
                     return false;
                 }
@@ -1582,7 +1582,7 @@ namespace WindBot.Game.AI.Decks
                 bool recycleFlag = Bot.HasInHand(apophisCardIdList)
                     || Bot.HasInSpellZone(apophisCardIdList)
                     || Bot.GetMonsters().Any(c => c.IsFaceup() && apophisCardIdList.Contains(c.Id));
-                return !DefaultCheckWhetherBotWillBeRemoved() && (!CheckWhetherNegated() || recycleFlag);
+                return !DefaultCheckWhetherBotWillBeRemoved(Card) && (!CheckWhetherNegated() || recycleFlag);
             } else
             {
                 // search
@@ -2263,7 +2263,7 @@ namespace WindBot.Game.AI.Decks
                 && Bot.GetSpellCountWithoutField() < 5)
             {
                 checkFlag |= Bot.HasInGraveyard(new List<int> { CardId.ApophisTheSerpent, CardId.ApophisTheSwampDeity });
-                checkFlag |= !DefaultCheckWhetherBotWillBeRemoved();
+                checkFlag |= !DefaultCheckWhetherBotWillBeRemoved(CardType.Trap, CardLocation.MonsterZone);
             }
 
             // for attack

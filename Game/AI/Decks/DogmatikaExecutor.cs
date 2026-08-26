@@ -1344,7 +1344,7 @@ namespace WindBot.Game.AI.Decks
             }
             if (Card.Location == CardLocation.MonsterZone)
             {
-                if (DefaultCheckWhetherBotWillBeRemoved()) return false;
+                if (DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Extra)) return false;
                 List<int> decidedToDiscard = new List<int>();
                 List<int> checkDiscardIdList = new List<int>{ CardId.ElderEntityNtss, CardId.HeraldOfTheArcLight, CardId.GaruraWingsOfResonantLife,
                     CardId.TitanikladTheAshDragon, CardId.GranguignolTheDuskDragon, CardId.PSYFramelordOmega, CardId.DespianLuluwalilith };
@@ -1693,7 +1693,7 @@ namespace WindBot.Game.AI.Decks
         public bool KnightmareCorruptorIbleeSummon()
         {
             if (banSpSummonFromExTurn > 0) return false;
-            if (DefaultCheckWhetherBotWillBeRemoved()) return false;
+            if (DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.MonsterZone)) return false;
             if (activatedCardIdList.Contains(CardId.KnightmareCorruptorIblee)) return false;
             if (Bot.HasInExtra(CardId.SalamangreatAlmiraj) || Bot.HasInExtra(CardId.Linguriboh))
             {
@@ -1728,7 +1728,7 @@ namespace WindBot.Game.AI.Decks
     
         public bool NadirServantActivate()
         {
-            if (CheckWhetherNegated() ||  DefaultCheckWhetherBotWillBeRemoved()) return false;
+            if (CheckWhetherNegated() ||  DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Extra)) return false;
             ClientCard discardExtra = null;
             int searchId = 0;
 
@@ -2161,7 +2161,7 @@ namespace WindBot.Game.AI.Decks
             else 
             {
                 int option = 0;
-                if (DefaultCheckWhetherBotWillBeRemoved()) option = 1;
+                if (DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Extra)) option = 1;
                 if (!checkedEnemyExtra && Enemy.ExtraDeck.Count() > 0) option = 1;
                 if (Enemy.HasInMonstersZone(CardId.KnightmareCorruptorIblee) && avoid2Monster) option = 1;
                 if (!Bot.HasInExtra(CardId.ElderEntityNtss) || GetNormalEnemyTargetList(true, false, false).Count() <= 0)
@@ -2301,7 +2301,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool DogmatikaPunishmentActivate()
         {
-            if (CheckWhetherNegated() || DefaultCheckWhetherBotWillBeRemoved()) return false;
+            if (CheckWhetherNegated() || DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Extra)) return false;
 
             ClientCard targetCard = null;
             ClientCard extraToDiscard = null;

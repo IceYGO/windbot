@@ -1326,13 +1326,17 @@ namespace WindBot.Game.AI.Decks
         public override int OnSelectOption(IList<int> options)
         {
             // override for cooclock
-            if (options.Count() == 2 && options.Contains(1190) && options.Contains(1152))
+            // 1190/1152 are generic hint messages used by many cards, so confirm the resolving chain
+            ChainInfo currentSolvingChain = Duel.GetCurrentSolvingChainInfo();
+            if (currentSolvingChain != null && currentSolvingChain.ActivatePlayer == 0
+                && currentSolvingChain.IsActivateCode(CardId.LabrynthCooclock)
+                && options.Count() == 2 && options.Contains(1190) && options.Contains(1152))
             {
                 // 1190=Add to Hand, 1152=Special Summon
                 // return to hand to activate trap set this turn
                 bool canLink = Duel.Player == 0 && Duel.Phase <= DuelPhase.Main2;
                 if (!canLink && !Bot.HasInHand(CardId.LabrynthCooclock) && Bot.GetMonsters().Any(card => card.IsFaceup() && card.HasSetcode(SetcodeLabrynth))
-                    && !activatedCardIdList.Contains(CardId.LabrynthCooclock) && !DefaultCheckWhetherBotWillBeRemoved()
+                    && !activatedCardIdList.Contains(CardId.LabrynthCooclock) && !DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Hand)
                     && (activatedCardIdList.Contains(CardId.BigWelcomeLabrynth) || Bot.GetSpells().All(card => setTrapThisTurn.Contains(card) || !card.IsCode(CardId.BigWelcomeLabrynth)))
                     && setTrapThisTurn.Any(card => card.IsFacedown() && card.IsCode(CardId.BigWelcomeLabrynth, _CardId.DimensionalBarrier, _CardId.InfiniteImpermanence, CardId.DestructiveDarumaKarmaCannon)))
                 {
@@ -1899,7 +1903,7 @@ namespace WindBot.Game.AI.Decks
 
             // sp summon
             if (Bot.HasInSpellZone(CardId.TransactionRollback) && GetEmptyMainMonsterZoneCount() > chainSummoningIdList.Count()
-                    && !DefaultCheckWhetherBotWillBeRemoved() && !CheckShouldNoMoreSpSummon(CardLocation.Hand, false))
+                    && !DefaultCheckWhetherBotWillBeRemoved(CardType.Trap, CardLocation.SpellZone) && !CheckShouldNoMoreSpSummon(CardLocation.Hand, false))
             {
                 AI.SelectCard(CardId.TransactionRollback);
                 activatedCardIdList.Add(Card.Id);
@@ -2037,9 +2041,10 @@ namespace WindBot.Game.AI.Decks
                 return true;
             }
             // for activate effect
-            if (!activatedCardIdList.Contains(Card.Id) && !CheckWhetherNegated(true, true) && !DefaultCheckWhetherBotWillBeRemoved())
+            if (!activatedCardIdList.Contains(Card.Id) && !CheckWhetherNegated(true, true))
             {
-                bool haveCost = Bot.Hand.Any(card => card.Type == (int)CardType.Trap) || Bot.GetSpells().Any(card => card.IsFacedown() && card.Type == (int)CardType.Trap);
+                bool haveCost = Bot.Hand.Any(card => card.Type == (int)CardType.Trap && !DefaultCheckWhetherBotWillBeRemoved(card))
+                    || Bot.GetSpells().Any(card => card.IsFacedown() && card.Type == (int)CardType.Trap && !DefaultCheckWhetherBotWillBeRemoved(card));
                 if (haveCost && !CheckShouldNoMoreSpSummon(CardLocation.Hand | CardLocation.Deck))
                 {
                     summoned = true;
@@ -2052,7 +2057,9 @@ namespace WindBot.Game.AI.Decks
         public bool ArianeTheLabrynthServantForRollbackSummon()
         {
             if (activatedCardIdList.Contains(Card.Id)) return false;
-            if (Bot.HasInHandOrInSpellZone(CardId.TransactionRollback) && !DefaultCheckWhetherBotWillBeRemoved())
+            bool haveCost = Bot.Hand.Any(card => card.IsCode(CardId.TransactionRollback) && !DefaultCheckWhetherBotWillBeRemoved(card))
+                || Bot.GetSpells().Any(card => card.IsFacedown() && card.IsCode(CardId.TransactionRollback) && !DefaultCheckWhetherBotWillBeRemoved(card));
+            if (haveCost)
             {
                 summoned = true;
                 return true;
