@@ -929,7 +929,7 @@ namespace WindBot.Game.AI.Decks
                                     && !activatedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.IceRyzeal);
                                 flag |= ex == null;
                                 flag |= Bot.GetMonsters().Any(c => c.IsFaceup() && !c.IsDisabled() && c.IsCode(NeedIceToSolveIdList))
-                                    && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherBotWillBeRemoved(c);
+                                    && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherBotWillBeRemoved();
                                 if (!canSummonAndActivateIce)
                                 {
                                     flag |= DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal);
@@ -1041,7 +1041,7 @@ namespace WindBot.Game.AI.Decks
                                     && !spSummonedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherBotWillBeRemoved() ),
                                 new KeyValuePair<int, Func<bool>>(CardId.ExRyzeal,
                                 () => !spSummonedCardIdList.Contains(CardId.ExRyzeal) && !activatedCardIdList.Contains(CardId.ExRyzeal)
-                                    && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal) && !DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardType.Extra) ),
+                                    && !DefaultCheckWhetherCardIdIsNegated(CardId.ExRyzeal) && !DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Extra) ),
                                 new KeyValuePair<int, Func<bool>>(CardId.IceRyzeal,
                                 () => summonCount > 0 && !activatedCardIdList.Contains(CardId.IceRyzeal) && !DefaultCheckWhetherCardIdIsNegated(CardId.IceRyzeal) ),
                                 new KeyValuePair<int, Func<bool>>(CardId.ThodeRyzeal,

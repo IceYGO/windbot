@@ -2508,7 +2508,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool AlbionTheShroudedDragonActivate()
         {
-            if (CheckWhetherNegated(true, false, CardType.Monster) || DefaultCheckWhetherBotWillBeRemoved(CardIdType.Spell | CardType.Trap, CardLocation.Hand | CardLocation.Deck)) return false;
+            if (CheckWhetherNegated(true, false, CardType.Monster) || DefaultCheckWhetherBotWillBeRemoved(CardType.Spell | CardType.Trap, CardLocation.Hand | CardLocation.Deck)) return false;
             bool checkFlag = Bot.HasInDeck(CardId.BrandedRetribution, CardId.BrandedOpening, CardId.BrightestBlazingBrandedKing, CardId.BrandedInHighSpirits);
             if (Bot.HasInGraveyard(CardId.BrandedRetribution))
             {

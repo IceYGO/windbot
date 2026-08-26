@@ -1509,7 +1509,7 @@ namespace WindBot.Game.AI.Decks
                 if ((Bot.HasInHand(CardId.Schmietta) && !ActivatedCards.Contains(CardId.Schmietta))
                     ||Bot.Hand.GetMatchingCardsCount(card => card.HasSetcode(Witchcraft_setcode) && card.Level <= 4) >= 2){
                     int[] monster_checklist = { CardId.Schmietta, CardId.Pittore, CardId.Genni, CardId.Potterie};
-                    foreach (int cardid in spell_checklist)
+                    foreach (int cardid in monster_checklist)
                     {
                         if (Bot.HasInHand(cardid)){
                             AI.SelectCard(cardid);
