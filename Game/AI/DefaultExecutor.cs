@@ -147,6 +147,7 @@ namespace WindBot.Game.AI
             public const int RedDragonArchfiend = 70902743;
 
             public const int ImperialOrder = 61740673;
+            public const int ImperialIronWall = 30459350;
             public const int RoyalDecreel = 51452091;
             public const int NaturalExterio = 99916754;
             public const int NaturiaBeast = 33198837;
@@ -701,6 +702,11 @@ namespace WindBot.Game.AI
                 // Different Dimension Ground only lasts until the end of the turn it resolves.
                 if (currentChain.IsActivateCode(_CardId.DifferentDimensionGround))
                     resolvedEffectIdList.Add(_CardId.DifferentDimensionGround);
+                // Artifact Lancea QUICK_O (str2) registers EFFECT_CANNOT_REMOVE until end of turn.
+                // Do not use the GY TRIGGER_F (str1) that Special Summons it after a set copy is destroyed.
+                if (currentChain.IsActivateCode(_CardId.ArtifactLancea)
+                    && currentChain.ActivateDescription == Util.GetStringId(_CardId.ArtifactLancea, 1))
+                    resolvedEffectIdList.Add(_CardId.ArtifactLancea);
                 // Dimension Shifter replaces GY with banish for both players until the end of the next turn.
                 if (currentChain.IsActivateCode(_CardId.DimensionShifter))
                     dimensionShifterCount = 2;
@@ -1943,6 +1949,13 @@ namespace WindBot.Game.AI
         /// <returns>True if the card would be banished instead of going to the GY.</returns>
         protected bool DefaultCheckWhetherBotWillBeRemoved(CardType type, CardLocation location = 0)
         {
+            // EFFECT_CANNOT_REMOVE stops GY redirects: Artifact Lancea until end of the turn it resolves,
+            // Imperial Iron Wall while face-up and not disabled in either Spell/Trap Zone.
+            if (resolvedEffectIdList.Contains(_CardId.ArtifactLancea)
+                || Bot.HasInSpellZone(_CardId.ImperialIronWall, true, true)
+                || Enemy.HasInSpellZone(_CardId.ImperialIronWall, true, true))
+                return false;
+
             if (dimensionShifterCount > 0)
                 return true;
 
