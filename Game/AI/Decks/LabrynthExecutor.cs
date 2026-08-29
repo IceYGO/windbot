@@ -1336,7 +1336,7 @@ namespace WindBot.Game.AI.Decks
                 // return to hand to activate trap set this turn
                 bool canLink = Duel.Player == 0 && Duel.Phase <= DuelPhase.Main2;
                 if (!canLink && !Bot.HasInHand(CardId.LabrynthCooclock) && Bot.GetMonsters().Any(card => card.IsFaceup() && card.HasSetcode(SetcodeLabrynth))
-                    && !activatedCardIdList.Contains(CardId.LabrynthCooclock) && !DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Hand)
+                    && !activatedCardIdList.Contains(CardId.LabrynthCooclock) && !DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Hand)
                     && (activatedCardIdList.Contains(CardId.BigWelcomeLabrynth) || Bot.GetSpells().All(card => setTrapThisTurn.Contains(card) || !card.IsCode(CardId.BigWelcomeLabrynth)))
                     && setTrapThisTurn.Any(card => card.IsFacedown() && card.IsCode(CardId.BigWelcomeLabrynth, _CardId.DimensionalBarrier, _CardId.InfiniteImpermanence, CardId.DestructiveDarumaKarmaCannon)))
                 {
@@ -1903,7 +1903,7 @@ namespace WindBot.Game.AI.Decks
 
             // sp summon
             if (Bot.HasInSpellZone(CardId.TransactionRollback) && GetEmptyMainMonsterZoneCount() > chainSummoningIdList.Count()
-                    && !DefaultCheckWhetherBotWillBeRemoved(CardType.Trap, CardLocation.SpellZone) && !CheckShouldNoMoreSpSummon(CardLocation.Hand, false))
+                    && !DefaultCheckWhetherBotWillBeBanished(CardType.Trap, CardLocation.SpellZone) && !CheckShouldNoMoreSpSummon(CardLocation.Hand, false))
             {
                 AI.SelectCard(CardId.TransactionRollback);
                 activatedCardIdList.Add(Card.Id);
@@ -2043,8 +2043,8 @@ namespace WindBot.Game.AI.Decks
             // for activate effect
             if (!activatedCardIdList.Contains(Card.Id) && !CheckWhetherNegated(true, true))
             {
-                bool haveCost = Bot.Hand.Any(card => card.Type == (int)CardType.Trap && !DefaultCheckWhetherBotWillBeRemoved(card))
-                    || Bot.GetSpells().Any(card => card.IsFacedown() && card.Type == (int)CardType.Trap && !DefaultCheckWhetherBotWillBeRemoved(card));
+                bool haveCost = Bot.Hand.Any(card => card.Type == (int)CardType.Trap && !DefaultCheckWhetherBotWillBeBanished(card))
+                    || Bot.GetSpells().Any(card => card.IsFacedown() && card.Type == (int)CardType.Trap && !DefaultCheckWhetherBotWillBeBanished(card));
                 if (haveCost && !CheckShouldNoMoreSpSummon(CardLocation.Hand | CardLocation.Deck))
                 {
                     summoned = true;
@@ -2057,8 +2057,8 @@ namespace WindBot.Game.AI.Decks
         public bool ArianeTheLabrynthServantForRollbackSummon()
         {
             if (activatedCardIdList.Contains(Card.Id)) return false;
-            bool haveCost = Bot.Hand.Any(card => card.IsCode(CardId.TransactionRollback) && !DefaultCheckWhetherBotWillBeRemoved(card))
-                || Bot.GetSpells().Any(card => card.IsFacedown() && card.IsCode(CardId.TransactionRollback) && !DefaultCheckWhetherBotWillBeRemoved(card));
+            bool haveCost = Bot.Hand.Any(card => card.IsCode(CardId.TransactionRollback) && !DefaultCheckWhetherBotWillBeBanished(card))
+                || Bot.GetSpells().Any(card => card.IsFacedown() && card.IsCode(CardId.TransactionRollback) && !DefaultCheckWhetherBotWillBeBanished(card));
             if (haveCost)
             {
                 summoned = true;
@@ -2343,7 +2343,7 @@ namespace WindBot.Game.AI.Decks
 
         public bool ShouldSetBigWelcome(bool checkArianna = true)
         {
-            if (DefaultCheckWhetherBotWillBeRemoved()) return false;
+            if (DefaultCheckWhetherBotWillBeBanished()) return false;
             bool shouldTriggerBigWelcomeFlag = GetProblematicEnemyCardList(false).Count() > 0;
             shouldTriggerBigWelcomeFlag |= Duel.Player == 1 && Duel.Phase > DuelPhase.Main2;
             shouldTriggerBigWelcomeFlag |= Duel.Player == 1 && GetProblematicEnemyCardList(false).Count() == 0 && GetProblematicEnemyMonster(selfType: CardType.Monster) == null

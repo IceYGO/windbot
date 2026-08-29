@@ -1924,11 +1924,11 @@ namespace WindBot.Game.AI
         /// </summary>
         /// <param name="card">Bot card that would be sent to the GY. Null uses unknown type/location.</param>
         /// <returns>True if the card would be banished instead of going to the GY.</returns>
-        protected bool DefaultCheckWhetherBotWillBeRemoved(ClientCard card = null)
+        protected bool DefaultCheckWhetherBotWillBeBanished(ClientCard card = null)
         {
             if (card == null)
-                return DefaultCheckWhetherBotWillBeRemoved((CardType)0, (CardLocation)0);
-            return DefaultCheckWhetherBotWillBeRemoved((CardType)card.Type, card.Location);
+                return DefaultCheckWhetherBotWillBeBanished((CardType)0, (CardLocation)0);
+            return DefaultCheckWhetherBotWillBeBanished((CardType)card.Type, card.Location);
         }
 
         /// <summary>
@@ -1938,7 +1938,7 @@ namespace WindBot.Game.AI
         /// <param name="type">Type flags of the card that would be sent to the GY. 0 means unknown.</param>
         /// <param name="location">Current location of the card that would be sent to the GY. 0 means unknown.</param>
         /// <returns>True if the card would be banished instead of going to the GY.</returns>
-        protected bool DefaultCheckWhetherBotWillBeRemoved(CardType type, CardLocation location = 0)
+        protected bool DefaultCheckWhetherBotWillBeBanished(CardType type, CardLocation location = 0)
         {
             // EFFECT_CANNOT_REMOVE stops GY redirects: Artifact Lancea until end of the turn it resolves,
             // Imperial Iron Wall while face-up and not disabled in either Spell/Trap Zone.

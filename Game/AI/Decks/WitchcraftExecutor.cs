@@ -1002,7 +1002,7 @@ namespace WindBot.Game.AI.Decks
             if (SpellNegatable()) return false;
             if (CheckDiscardableSpellCount() <= 1) return false;
             if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning)
-                && (DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Deck) || DefaultCheckWhetherBotWillBeRemoved(CardType.Spell | CardType.Trap, CardLocation.Deck))) return false;
+                && (DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Deck) || DefaultCheckWhetherBotWillBeBanished(CardType.Spell | CardType.Trap, CardLocation.Deck))) return false;
             if (Card.Id == CardId.Reasoning && CheckShouldNoMoreSpSummon(CardLocation.Deck)) return false;
             if (Card.Id == CardId.MagiciansLeftHand || Card.Id == CardId.MagicianRightHand)
             {
@@ -1023,7 +1023,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (SpellNegatable()) return false;
             if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning)
-                && (DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Deck) || DefaultCheckWhetherBotWillBeRemoved(CardType.Spell | CardType.Trap, CardLocation.Deck))) return false;
+                && (DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Deck) || DefaultCheckWhetherBotWillBeBanished(CardType.Spell | CardType.Trap, CardLocation.Deck))) return false;
             if (Card.Id == CardId.Reasoning && CheckShouldNoMoreSpSummon(CardLocation.Deck)) return false;
             if (Card.Id == CardId.MagiciansLeftHand || Card.Id == CardId.MagicianRightHand)
             {
@@ -1044,7 +1044,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (SpellNegatable()) return false;
             if ((Card.Id == CardId.ThatGrassLooksGreener || Card.Id == CardId.Reasoning)
-                && (DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Deck) || DefaultCheckWhetherBotWillBeRemoved(CardType.Spell | CardType.Trap, CardLocation.Deck))) return false;
+                && (DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Deck) || DefaultCheckWhetherBotWillBeBanished(CardType.Spell | CardType.Trap, CardLocation.Deck))) return false;
             if (Card.Id == CardId.Reasoning && CheckShouldNoMoreSpSummon(CardLocation.Deck)) return false;
             int[] counter_cards = { CardId.PSYGamma, _CardId.CalledByTheGrave, _CardId.CrossoutDesignator };
             int count = Bot.Hand.GetMatchingCardsCount(card => counter_cards.Contains(card.Id));
@@ -1430,7 +1430,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Location != CardLocation.Grave) return false;
             if (NegatedCheck(false)) return false;
             // spell check
-            bool can_recycle = !DefaultCheckWhetherBotWillBeRemoved(CardType.Spell, CardLocation.Deck) && Bot.MonsterZone.GetFirstMatchingCard(
+            bool can_recycle = !DefaultCheckWhetherBotWillBeBanished(CardType.Spell, CardLocation.Deck) && Bot.MonsterZone.GetFirstMatchingCard(
                 card => card.IsFaceup() && card.HasSetcode(Witchcraft_setcode) && card.Id != CardId.GolemAruru
                 ) != null;
             if (can_recycle)
@@ -1447,11 +1447,11 @@ namespace WindBot.Game.AI.Decks
                 }
             }
 
-            if (!DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Deck))
+            if (!DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Deck))
             {
                 bool can_find_Holiday = Bot.HasInHandOrInSpellZone(CardId.Holiday) || (can_recycle && Bot.HasInGraveyard(CardId.Holiday) && !ActivatedCards.Contains(CardId.Holiday));
                 // monster check
-                if (Bot.HasInHand(important_witchcraft)  && !Bot.HasInGraveyard(CardId.Pittore) && !DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Hand)
+                if (Bot.HasInHand(important_witchcraft)  && !Bot.HasInGraveyard(CardId.Pittore) && !DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Hand)
                     && !ActivatedCards.Contains(CardId.Pittore) && Bot.HasInDeck(CardId.Pittore) && can_find_Holiday){
                     AI.SelectCard(CardId.Pittore);
                     ActivatedCards.Add(CardId.Schmietta);
@@ -1476,19 +1476,19 @@ namespace WindBot.Game.AI.Decks
                 // lack one of them
                 if (has_Genni + has_Holiday + has_important == 2)
                 {
-                    if (has_Genni == 0 && Bot.HasInDeck(CardId.Genni) && !DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Deck))
+                    if (has_Genni == 0 && Bot.HasInDeck(CardId.Genni) && !DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Deck))
                     {
                         AI.SelectCard(CardId.Genni);
                         ActivatedCards.Add(CardId.Schmietta);
                         return true;
                     }
-                    if (has_Holiday == 0 && Bot.HasInDeck(CardId.Holiday) && !DefaultCheckWhetherBotWillBeRemoved(CardType.Spell, CardLocation.Deck))
+                    if (has_Holiday == 0 && Bot.HasInDeck(CardId.Holiday) && !DefaultCheckWhetherBotWillBeBanished(CardType.Spell, CardLocation.Deck))
                     {
                         AI.SelectCard(CardId.Holiday);
                         ActivatedCards.Add(CardId.Schmietta);
                         return true;
                     }
-                    if (has_important == 0 && Bot.HasInDeck(important_witchcraft) && !DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Deck))
+                    if (has_important == 0 && Bot.HasInDeck(important_witchcraft) && !DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Deck))
                     {
                         AI.SelectCard(important_witchcraft);
                         ActivatedCards.Add(CardId.Schmietta);
@@ -1526,7 +1526,7 @@ namespace WindBot.Game.AI.Decks
             if (Bot.Hand.GetFirstMatchingCard(card => card.HasSetcode(Witchcraft_setcode)) == null) return false;
 
             // discard advance
-            if (Bot.Hand.GetFirstMatchingCard(card => !DefaultCheckWhetherBotWillBeRemoved(card) && (card.Id == CardId.MadameVerre || card.Id == CardId.Haine)) != null)
+            if (Bot.Hand.GetFirstMatchingCard(card => !DefaultCheckWhetherBotWillBeBanished(card) && (card.Id == CardId.MadameVerre || card.Id == CardId.Haine)) != null)
             {
                 AI.SelectCard(CardId.MadameVerre, CardId.Haine);
                 ActivatedCards.Add(CardId.Pittore);
@@ -1534,7 +1534,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // spell check
-            if (!DefaultCheckWhetherBotWillBeRemoved(CardType.Spell, CardLocation.Hand))
+            if (!DefaultCheckWhetherBotWillBeBanished(CardType.Spell, CardLocation.Hand))
             {
                 int[] spell_checklist = { CardId.Scroll, CardId.Unveiling, CardId.Collaboration, CardId.Draping, CardId.WitchcrafterBystreet, CardId.Holiday, CardId.Creation };
                 foreach (int cardid in spell_checklist)
@@ -1548,7 +1548,7 @@ namespace WindBot.Game.AI.Decks
             }
 
             // monster check
-            if (!DefaultCheckWhetherBotWillBeRemoved(CardType.Monster, CardLocation.Hand))
+            if (!DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Hand))
             {
                 if ((Bot.HasInHand(CardId.Schmietta) && !ActivatedCards.Contains(CardId.Schmietta))
                     ||Bot.Hand.GetMatchingCardsCount(card => card.HasSetcode(Witchcraft_setcode) && card.Level <= 4) >= 2){
