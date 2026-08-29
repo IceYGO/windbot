@@ -88,7 +88,7 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.Activate, CardId.Maliss_Dormouse, Effect_Maliss_Dormouse);
 
-            AddExecutor(ExecutorType.SpSummon, CardId.Maliss_Red_Ransom, SP_Maliss_Link);
+            AddExecutor(ExecutorType.SpSummon, CardId.Maliss_Red_Ransom, SP_Maliss_Red_Ransom);
             AddExecutor(ExecutorType.SpellSet, SpellSet_Maliss);
             AddExecutor(ExecutorType.Activate, CardId.Maliss_Chessy_Cat, Effect_Maliss_Chessy_Cat);
 
@@ -1267,7 +1267,7 @@ namespace WindBot.Game.AI.Decks
             }
             return chk;
         }
-        private bool SP_Maliss_Link()
+        private bool SP_Maliss_Red_Ransom()
         {
             bool hasLink2AndMaliss = Bot.GetMonsters().Any(card => card.IsFaceup()
                 && card.HasType(CardType.Link) && card.LinkCount == 2)
@@ -1449,7 +1449,7 @@ namespace WindBot.Game.AI.Decks
             materials.AddRange(faceupMonsters.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link)));
             materials.AddRange(faceupMonsters.Where(i => i.Sequence < 5 && i.HasType(CardType.Link) && i.LinkCount <= 3));
             materials.AddRange(faceupMonsters.Where(i => !i.HasType(CardType.Link)));
-            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(materials, 5, 3, 3,
+            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(materials, 5, 3, 5,
                 card => card.HasRace(CardRace.Cyberse))
                 .FirstOrDefault();
             if (selectedMaterials == null) return false;
@@ -1468,7 +1468,7 @@ namespace WindBot.Game.AI.Decks
             materials.AddRange(faceupMonsters.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link)));
             materials.AddRange(faceupMonsters.Where(i => i.Sequence < 5 && i.HasType(CardType.Link) && i.LinkCount <= 3));
             materials.AddRange(faceupMonsters.Where(i => !i.HasType(CardType.Link)));
-            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(materials, 5, 3, 3,
+            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(materials, 5, 3, 5,
                 card => card.HasType(CardType.Effect))
                 .FirstOrDefault();
             if (selectedMaterials == null) return false;
