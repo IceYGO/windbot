@@ -293,7 +293,6 @@ namespace WindBot.Game.AI
             AddExecutor(ExecutorType.SpellSet, DefaultSetForDiabellze);
         }
 
-        protected int lightningStormOption = -1;
         Dictionary<int, int> calledbytheGraveIdCountMap = new Dictionary<int, int>();
         List<int> crossoutDesignatorIdList = new List<int>();
         int mistakenArrestAffectedCount = 0;
@@ -680,16 +679,6 @@ namespace WindBot.Game.AI
             }
         }
 
-        public override void OnReceivingAnnouce(int player, int data)
-        {
-            if (player == 1 && (data == Util.GetStringId(_CardId.LightningStorm, 0) || data == Util.GetStringId(_CardId.LightningStorm, 1)))
-            {
-                lightningStormOption = data - Util.GetStringId(_CardId.LightningStorm, 0);
-            }
-
-            base.OnReceivingAnnouce(player, data);
-        }
-
         public override void OnChainSolved(int chainIndex)
         {
             ChainInfo currentChain = Duel.GetCurrentSolvingChainInfo();
@@ -733,12 +722,6 @@ namespace WindBot.Game.AI
                 }
             }
             base.OnChainSolved(chainIndex);
-        }
-
-        public override void OnChainEnd()
-        {
-            lightningStormOption = -1;
-            base.OnChainEnd();
         }
 
         /// <summary>
@@ -1401,8 +1384,16 @@ namespace WindBot.Game.AI
             if (Enemy.HasInSpellZone(destroyAllOpponentSpellList, true) && card.Location == CardLocation.SpellZone) return true;
             if (Util.ChainContainsCard(destroyAllMonsterList) && card.Location == CardLocation.MonsterZone) return true;
             if (Duel.CurrentChain.Any(c => c.Controller == 1 && c.IsCode(destroyAllOpponentMonsterList)) && card.Location == CardLocation.MonsterZone) return true;
-            if (lightningStormOption == 0 && card.Location == CardLocation.MonsterZone && card.IsAttack()) return true;
-            if (lightningStormOption == 1 && card.Location == CardLocation.SpellZone) return true;
+            if (Duel.CurrentChainInfo.Any(chain =>
+                    chain.ActivatePlayer == 1 &&
+                    chain.IsActivateCode(_CardId.LightningStorm) &&
+                    chain.HasAnnounce(Util.GetStringId(_CardId.LightningStorm, 0))) &&
+                card.Location == CardLocation.MonsterZone && card.IsAttack()) return true;
+            if (Duel.CurrentChainInfo.Any(chain =>
+                    chain.ActivatePlayer == 1 &&
+                    chain.IsActivateCode(_CardId.LightningStorm) &&
+                    chain.HasAnnounce(Util.GetStringId(_CardId.LightningStorm, 1))) &&
+                card.Location == CardLocation.SpellZone) return true;
             // TODO: ChainContainsCard(id, player)
             return false;
         }

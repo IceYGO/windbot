@@ -408,6 +408,9 @@ namespace WindBot.Game
             }
             if (type == 4) // HINT_OPSELECTED
             {
+                // Record SelectOption announces on the current chain after activation and before resolution.
+                if (_duel.SolvingChainIndex == 0 && _duel.CurrentChainInfo.Count > 0)
+                    _duel.CurrentChainInfo[_duel.CurrentChainInfo.Count - 1].Announces.Add(data);
                 _ai.OnReceivingAnnouce(player, data);
             }
             if (type == 11) // HINT_ZONE
