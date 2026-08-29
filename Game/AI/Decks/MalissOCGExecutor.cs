@@ -1282,11 +1282,23 @@ namespace WindBot.Game.AI.Decks
                         && card.HasType(CardType.Monster) && Count.CheckCardRemoved(card.Id)));
             if (!hasLink2AndMaliss && !shouldUseFallbackRoute) return false;
 
-            List<ClientCard> materials = Bot.GetMonsters().Where(card => card != null && card.IsFaceup() && card.LinkCount == 2).ToList();
-            materials.AddRange(Bot.GetMonsters().Where(card => card != null && card.IsFaceup()
-                && card.LinkCount < 2 && card.HasSetcode(SetCode.Maliss) && !materials.Contains(card)));
-            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(materials, 3, 2, 3)
+            List<ClientCard> preferredMaterials = Bot.GetFaceupMonsters()
+                .Where(card => card.HasType(CardType.Link) && card.LinkCount == 2)
+                .ToList();
+            preferredMaterials.AddRange(Bot.GetFaceupMonsters().Where(card => card.LinkCount < 2
+                && card.HasSetcode(SetCode.Maliss) && !preferredMaterials.Contains(card)));
+            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(preferredMaterials, 3, 2, 3)
                 .FirstOrDefault(list => list.Any(card => card.HasSetcode(SetCode.Maliss)));
+            if (selectedMaterials == null)
+            {
+                // Keep the old LINK-2-plus-Maliss preference, then allow other one-value
+                // monsters when the legal fallback route needs three physical materials.
+                List<ClientCard> fallbackMaterials = new List<ClientCard>(preferredMaterials);
+                fallbackMaterials.AddRange(Bot.GetFaceupMonsters()
+                    .Where(card => card.HasType(CardType.Monster) && !fallbackMaterials.Contains(card)));
+                selectedMaterials = Util.GetLinkMaterials(fallbackMaterials, 3, 2, 3)
+                    .FirstOrDefault(list => list.Any(card => card.HasSetcode(SetCode.Maliss)));
+            }
             if (selectedMaterials == null) return false;
             AI.SelectMaterials(selectedMaterials);
             return true;
@@ -1381,15 +1393,20 @@ namespace WindBot.Game.AI.Decks
             int link1OrNonLinkCount = faceupMonsters.Count(card => !card.HasType(CardType.Link) || card.LinkCount < 2);
             int link2OrLowerCount = faceupMonsters.Count(card => !card.HasType(CardType.Link) || card.LinkCount <= 2);
             bool hasLink2 = faceupMonsters.Any(card => card.HasType(CardType.Link) && card.LinkCount == 2);
+            bool isUnderDimensionShifter = !Count.CheckCard(CardId.Dimension_Shifter)
+                && Count.CheckCard(CardId.Artifact_Lancea);
+            bool shouldUseLinkDecoder = !isUnderDimensionShifter
+                && Bot.HasInMonstersZone(CardId.Link_Decoder) && link2OrLowerCount > 2;
             List<ClientCard> candidates = faceupMonsters
                 .Where(card => !card.HasType(CardType.Link) || card.LinkCount <= 2)
                 .OrderBy(card => card.HasType(CardType.Link) ? (card.LinkCount >= 2 ? 2 : 1) : 0)
                 .ThenBy(card => card.Attack)
                 .ToList();
             List<ClientCard> selectedMaterials = Util.GetLinkMaterials(candidates, 3, 3, 3)
-                .FirstOrDefault(list => list.Any(card => card.HasSetcode(SetCode.Maliss)));
+                .FirstOrDefault(list => list.Any(card => card.HasSetcode(SetCode.Maliss))
+                    && (!shouldUseLinkDecoder || list.Any(card => card.IsCode(CardId.Link_Decoder))));
             if (selectedMaterials == null) return false;
-            if (!Count.CheckCard(CardId.Dimension_Shifter) && Count.CheckCard(CardId.Artifact_Lancea))
+            if (isUnderDimensionShifter)
             {
                 if (Bot.HasInExtra(CardId.Maliss_Red_Ransom)
                     || link1OrNonLinkCount < (hasLink2 ? 1 : 3))
@@ -1397,9 +1414,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectMaterials(selectedMaterials);
                 return true;
             }
-            if ((Bot.HasInMonstersZone(CardId.Link_Decoder) && link2OrLowerCount > 2)
-                || link2OrLowerCount > 4
-            )
+            if (shouldUseLinkDecoder || link2OrLowerCount > 4)
             {
                 AI.SelectMaterials(selectedMaterials);
                 return true;
@@ -1412,11 +1427,10 @@ namespace WindBot.Game.AI.Decks
             {
                 List<ClientCard> candidates = Bot.GetFaceupMonsters()
                     .Where(i => (Count.CheckCardRemoved(i.Id) && i.HasSetcode(SetCode.Maliss)) || i.LinkCount < 3)
-                    .OrderByDescending(i => Count.CheckCardRemoved(i.Id) && i.HasSetcode(SetCode.Maliss))
-                    .ThenBy(i => i.Attack)
                     .ToList();
                 List<ClientCard> selectedMaterials = Util.GetLinkMaterials(candidates, 3, 2, 3)
-                    .FirstOrDefault(list => list.Any(i => i.HasSetcode(SetCode.Maliss)));
+                    .FirstOrDefault(list => list.Any(i => i.HasSetcode(SetCode.Maliss)
+                        && i.LinkCount == 3 && Count.CheckCardRemoved(i.Id)));
                 if (selectedMaterials == null) return false;
                 AI.SelectMaterials(selectedMaterials);
                 return true;
@@ -1449,9 +1463,9 @@ namespace WindBot.Game.AI.Decks
             materials.AddRange(faceupMonsters.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link)));
             materials.AddRange(faceupMonsters.Where(i => i.Sequence < 5 && i.HasType(CardType.Link) && i.LinkCount <= 3));
             materials.AddRange(faceupMonsters.Where(i => !i.HasType(CardType.Link)));
-            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(materials, 5, 3, 5,
-                card => card.HasRace(CardRace.Cyberse))
-                .FirstOrDefault();
+            List<List<ClientCard>> materialGroups = Util.GetLinkMaterials(materials, 5, 3, 5,
+                card => card.HasRace(CardRace.Cyberse));
+            List<ClientCard> selectedMaterials = materialGroups.OrderBy(group => group.Count).FirstOrDefault();
             if (selectedMaterials == null) return false;
             AI.SelectMaterials(selectedMaterials);
             return true;
@@ -1468,9 +1482,9 @@ namespace WindBot.Game.AI.Decks
             materials.AddRange(faceupMonsters.Where(i => i.HasSetcode(SetCode.Maliss) && i.HasType(CardType.Link)));
             materials.AddRange(faceupMonsters.Where(i => i.Sequence < 5 && i.HasType(CardType.Link) && i.LinkCount <= 3));
             materials.AddRange(faceupMonsters.Where(i => !i.HasType(CardType.Link)));
-            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(materials, 5, 3, 5,
-                card => card.HasType(CardType.Effect))
-                .FirstOrDefault();
+            List<List<ClientCard>> materialGroups = Util.GetLinkMaterials(materials, 5, 3, 5,
+                card => card.HasType(CardType.Effect));
+            List<ClientCard> selectedMaterials = materialGroups.OrderBy(group => group.Count).FirstOrDefault();
             if (selectedMaterials == null) return false;
             AI.SelectMaterials(selectedMaterials);
             return true;
@@ -1524,25 +1538,27 @@ namespace WindBot.Game.AI.Decks
                 return false;
             if (!Bot.GetFaceupMonsters().Any(i => !i.HasType(CardType.Link) || i.LinkCount < 2))
                 return false;
-            if (!Bot.GetFaceupMonsters().Any(i => i.HasType(CardType.Link) && i.LinkCount == 2))
-                return false;
-            ClientCard preferredLink2 = Bot.GetFaceupMonsters()
-                .FirstOrDefault(card => card.HasType(CardType.Link) && card.LinkCount == 2);
-            int linkedSequence = preferredLink2 == null
-                ? -1
-                : (preferredLink2.Sequence > 4
-                    ? (preferredLink2.Sequence == 5 ? 1 : 3)
-                    : preferredLink2.Sequence + 1);
-            List<ClientCard> materials = Bot.GetMonsters()
-                .Where(card => card != null && card.IsFaceup() && card.HasType(CardType.Effect)
+            List<ClientCard> faceupEffectMonsters = Bot.GetFaceupMonsters()
+                .Where(card => card.HasType(CardType.Effect)
                     && (!card.HasType(CardType.Link) || card.LinkCount <= 2))
-                .OrderByDescending(card => card == preferredLink2)
-                .ThenByDescending(card => card.IsCode(CardId.Link_Decoder))
-                .ThenByDescending(card => (!card.HasType(CardType.Link) || card.LinkCount < 2)
-                    && card.Sequence == linkedSequence)
-                .ThenBy(card => card.HasType(CardType.Link) ? 1 : 0)
-                .ThenBy(card => card.Attack)
                 .ToList();
+            List<ClientCard> link2Materials = faceupEffectMonsters
+                .Where(card => card.HasType(CardType.Link) && card.LinkCount == 2)
+                .ToList();
+            if (link2Materials.Count == 0)
+                return false;
+            ClientCard preferredLink2 = link2Materials[0];
+            int linkedSequence = preferredLink2.Sequence > 4
+                ? (preferredLink2.Sequence == 5 ? 1 : 3)
+                : preferredLink2.Sequence + 1;
+            List<ClientCard> materials = new List<ClientCard> { preferredLink2 };
+            materials.AddRange(faceupEffectMonsters.Where(card => card.IsCode(CardId.Link_Decoder)
+                && !materials.Contains(card)));
+            materials.AddRange(faceupEffectMonsters.Where(card => (!card.HasType(CardType.Link) || card.LinkCount < 2)
+                && card.Sequence == linkedSequence && !materials.Contains(card)));
+            materials.AddRange(faceupEffectMonsters.Where(card => (!card.HasType(CardType.Link) || card.LinkCount < 2)
+                && !materials.Contains(card)));
+            materials.AddRange(link2Materials.Where(card => !materials.Contains(card)));
             List<ClientCard> selectedMaterials = Util.GetLinkMaterials(materials, 3, 2, 3,
                 card => card.HasType(CardType.Effect)).FirstOrDefault(list =>
                     list.Any(card => card.HasType(CardType.Link) && card.LinkCount == 2));
