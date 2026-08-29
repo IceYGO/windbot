@@ -3226,19 +3226,19 @@ namespace WindBot.Game.AI.Decks
                 if (activatedCardIdList.Contains(CardId.RyzealDuodrive + 1) && duoDriver != null)
                 {
                     materialList.Add(duoDriver);
-                    hasNode |= !DefaultCheckWhetherBotWillBeBanished(CardType.Monster) && duoDriver.Overlays.Any(id => id == CardId.NodeRyzeal);
+                    hasNode |= !DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Overlay) && duoDriver.Overlays.Any(id => id == CardId.NodeRyzeal);
                 }
                 ClientCard no60 = Bot.MonsterZone.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(CardId.Number60DugaresTheTimeless));
                 if (no60 != null && (activatedCardIdList.Contains(CardId.Number60DugaresTheTimeless) || no60.IsDisabled()))
                 {
                     materialList.Add(no60);
-                    hasNode |= !DefaultCheckWhetherBotWillBeBanished(CardType.Monster) && no60.Overlays.Any(id => id == CardId.NodeRyzeal);
+                    hasNode |= !DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Overlay) && no60.Overlays.Any(id => id == CardId.NodeRyzeal);
                 }
                 ClientCard no41 = Bot.MonsterZone.FirstOrDefault(c => c != null && c.IsFaceup() && c.IsCode(_CardId.Number41BagooskatheTerriblyTiredTapir));
                 if (no41 != null)
                 {
                     materialList.Add(no41);
-                    hasNode |= !DefaultCheckWhetherBotWillBeBanished(CardType.Monster) && no41.Overlays.Any(id => id == CardId.NodeRyzeal);
+                    hasNode |= !DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Overlay) && no41.Overlays.Any(id => id == CardId.NodeRyzeal);
                 }
 
                 if (materialList.Count() >= 2 && hasNode)
