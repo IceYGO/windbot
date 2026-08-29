@@ -252,6 +252,11 @@ namespace WindBot.Game
             return GetCards(MonsterZone);
         }
 
+        public List<ClientCard> GetFaceupMonsters()
+        {
+            return MonsterZone.Where(card => card != null && card.IsFaceup()).ToList();
+        }
+
         public List<ClientCard> GetGraveyardMonsters()
         {
             return GetCards(Graveyard, CardType.Monster);

@@ -3531,36 +3531,23 @@ namespace WindBot.Game.AI.Decks
         {
             if (CheckShouldNoMoreSpSummon(CardLocation.Extra, false)) return false;
             if (Enemy.GetMonsterCount() > 0 && Bot.HasInMonstersZone(CardId.UnchainedSoulOfAnguish) && !activatedCardIdList.Contains(CardId.UnchainedSoulOfAnguish)) return false;
-            List<List<ClientCard>> usableMaterialMultiList = new List<List<ClientCard>>();
-            // anguish + 1
             ClientCard anguish = Bot.GetMonsters().FirstOrDefault(card => card.IsCode(CardId.UnchainedSoulOfAnguish));
-            if (anguish != null)
-            {
-                List<ClientCard> materials = GetCanBeUsedForLinkMaterial(true, card => card == anguish);
-                if (materials.Count() > 0)
-                {
-                    usableMaterialMultiList.Add(new List<ClientCard> { anguish, materials[0] });
-                }
-            }
-            // link2 + 1 + 1 or link2 + link2
-            List<ClientCard> link2List = Bot.GetMonsters().Where(card => card.HasType(CardType.Link) && card.LinkCount == 2
-                && !(card.IsCode(CardId.MuckrakerFromTheUnderworld) && summonThisTurn.Contains(card))).OrderBy(card => card.Attack).ToList();
-            if (link2List.Count() > 0)
-            {
-                ClientCard link2Material = null;
-                ClientCard littleKnight = link2List.FirstOrDefault(card => card.Sequence >= 5 && card.IsCode(CardId.SPLittleKnight));
-                if (littleKnight != null) link2Material = littleKnight;
-                else link2Material = link2List[0];
-                if (link2List.Count() >= 2)
-                {
-                    usableMaterialMultiList.Add(new List<ClientCard> { link2Material, link2List.FirstOrDefault(card => card != link2Material) });
-                }
-                List<ClientCard> remainList = GetCanBeUsedForLinkMaterial(false, card => card != link2Material && !(card.HasType(CardType.Link) && card.LinkMarker > 2));
-                if (remainList.Count() >= 2)
-                {
-                    usableMaterialMultiList.Add(new List<ClientCard> { link2Material, remainList[0], remainList[1] });
-                }
-            }
+            List<ClientCard> expendableMaterials = GetCanBeUsedForLinkMaterial(false);
+            List<ClientCard> candidates = GetCanBeUsedForLinkMaterial(true)
+                .Where(card => card == anguish || !card.HasType(CardType.Link) || card.LinkCount <= 2)
+                .OrderByDescending(card => card == anguish)
+                .ThenByDescending(card => card.Sequence >= 5 && card.IsCode(CardId.SPLittleKnight))
+                .ThenBy(card => card.HasType(CardType.Link) ? 0 : 1)
+                .ThenBy(card => card.Attack)
+                .ToList();
+            List<List<ClientCard>> usableMaterialMultiList = Util.GetLinkMaterials(candidates, 4, 2, 4)
+                .Where(materials => (materials.Contains(anguish)
+                        || materials.Count(card => card.HasType(CardType.Link) && card.LinkCount == 2) >= 2
+                        || (materials.Count(card => card.HasType(CardType.Link) && card.LinkCount == 2) == 1
+                            && materials.Where(card => !card.HasType(CardType.Link) || card.LinkCount != 2)
+                                .All(card => expendableMaterials.Contains(card))))
+                    && Util.GetBotAvailZonesFromExtraDeck(materials) > 0)
+                .ToList();
 
             // check material list
             foreach (List<ClientCard> currMaterials in usableMaterialMultiList)
@@ -3919,54 +3906,12 @@ namespace WindBot.Game.AI.Decks
         }
         public List<ClientCard> SPLittleKnightSelectMaterial(bool needToUseEffect = false)
         {
-            List<ClientCard> usedMaterialList = new List<ClientCard>();
-            if (Bot.GetMonstersExtraZoneCount() > 0)
-            {
-                ClientCard botMonsterExtraZome = Bot.GetMonstersInExtraZone()[0];
-                if (botMonsterExtraZome.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Pendulum) || botMonsterExtraZome.IsCode(CardId.RelinquishedAnima))
-                {
-                    usedMaterialList.Add(botMonsterExtraZome);
-                    if (botMonsterExtraZome.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link)) needToUseEffect = false;
-                }
-                List<ClientCard> materialList = GetCanBeUsedForLinkMaterial(true, card => card == botMonsterExtraZome);
-                if (materialList.Count() > 0)
-                {
-                    foreach (ClientCard card in materialList)
-                    {
-                        if (!needToUseEffect || card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz) || (card.HasType(CardType.Link) && card.LinkCount <= 2))
-                        {
-                            usedMaterialList.Add(card);
-                            if (card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link)) needToUseEffect = false;
-                        }
-                        if (usedMaterialList.Count() >= 2) break;
-                    }
-                }
-                if (usedMaterialList.Count() < 2) usedMaterialList.Clear();
-            } else {
-                List<ClientCard> materialList = GetCanBeUsedForLinkMaterial(true, card => !needToUseEffect
-                    || card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz) || (card.HasType(CardType.Link) && card.LinkCount <= 2));
-                if (materialList.Count() >= 2)
-                {
-                    for (int idx1 = 0; idx1 < materialList.Count() - 1; ++ idx1)
-                    {
-                        ClientCard material1 = materialList[idx1];
-                        if (material1.HasType(CardType.Link) && material1.LinkCount >= 3) continue;
-                        bool flag1 = !needToUseEffect || material1.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link);
-                        for (int idx2 = 0; idx2 < materialList.Count(); ++ idx2)
-                        {
-                            ClientCard material2 = materialList[idx2];
-                            if (material2.HasType(CardType.Link) && material2.LinkCount >= 3) continue;
-                            bool flag2 = !needToUseEffect || material2.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link);
-                            if (flag1 || flag2)
-                            {
-                                return new List<ClientCard>{material1, material2};
-                            }
-                        }
-                    }
-                }
-            }
-
-            return usedMaterialList;
+            List<ClientCard> candidates = GetCanBeUsedForLinkMaterial(true)
+                .Where(card => card.HasType(CardType.Effect)
+                    && (!card.HasType(CardType.Link) || card.LinkCount <= 2)).ToList();
+            return Util.GetLinkMaterials(candidates, 2, 2, 2).FirstOrDefault(materials =>
+                (!needToUseEffect || materials.Any(card => card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link)))
+                && Util.GetBotAvailZonesFromExtraDeck(materials) > 0) ?? new List<ClientCard>();
         }
 
         public bool SPLittleKnightActivate()

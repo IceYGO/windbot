@@ -1114,7 +1114,7 @@ namespace WindBot.Game.AI.Decks
                 if (hand.IsCode(Card.Id)) count += 1;
             }
             if (count < 2) return false;
-            foreach(ClientCard m in Bot.GetMonsters())
+            foreach(ClientCard m in Bot.GetFaceupMonsters())
             {
                 if (!m.IsCode(CardId.Eater) && getLinkMarker(m.Id) <= 2) return true;
             }
@@ -1254,13 +1254,10 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Enemy.GetMonsterCount() == 0 && Duel.Phase < DuelPhase.Battle)
                 {
-                    IList<ClientCard> list = new List<ClientCard>();
-                    foreach(ClientCard monster in Bot.GetMonsters())
-                    {
-                        if (getLinkMarker(monster.Id) <= 2) list.Add(monster);
-                        if (list.Count == 2) break;
-                    }
-                    if (list.Count == 2 && GetTotalATK(list) <= 1100)
+                    List<ClientCard> candidates = Bot.GetFaceupMonsters()
+                        .Where(card => getLinkMarker(card.Id) <= 2).ToList();
+                    List<ClientCard> list = Util.GetLinkMaterials(candidates, 2, 2, 2).FirstOrDefault();
+                    if (list != null && GetTotalATK(list) <= 1100)
                     {
                         AI.SelectMaterials(list);
                         return true;
@@ -1297,17 +1294,14 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Enemy.GetMonsterCount() == 0 && Enemy.LifePoints <= 1900 && Duel.Phase == DuelPhase.Main1) 
                 {
-                    IList<ClientCard> m_list = new List<ClientCard>();
-                    List<ClientCard> list = new List<ClientCard>(Bot.GetMonsters());
+                    List<ClientCard> list = Bot.GetFaceupMonsters()
+                        .Where(card => getLinkMarker(card.Id) == 1).ToList();
                     list.Sort(CardContainer.CompareCardAttack);
-                    foreach(ClientCard monster in list)
+                    List<ClientCard> materials = Util.GetLinkMaterials(list, 2, 2, 2)
+                        .FirstOrDefault(selected => selected.Select(card => card.Id).Distinct().Count() == selected.Count);
+                    if (materials != null && GetTotalATK(materials) <= 1900)
                     {
-                        if (getLinkMarker(monster.Id) == 1 && monster.IsFaceup()) m_list.Add(monster);
-                        if (m_list.Count == 2) break;
-                    }
-                    if (m_list.Count == 2 && GetTotalATK(m_list) <= 1900)
-                    {
-                        AI.SelectMaterials(m_list);
+                        AI.SelectMaterials(materials);
                         return true;
                     }
                 }
@@ -1363,53 +1357,32 @@ namespace WindBot.Game.AI.Decks
 
         public bool Unicorn_ss() {
             ClientCard m = Util.GetProblematicEnemyCard();
-            int link_count = 0;
             if (m == null)
             {
                 if (Enemy.GetMonsterCount() == 0 && Enemy.LifePoints <= 2200 && Duel.Phase == DuelPhase.Main1)
                 {
-                    IList<ClientCard> m_list = new List<ClientCard>();
-                    List<ClientCard> _sort_list = new List<ClientCard>(Bot.GetMonsters());
+                    List<ClientCard> _sort_list = Bot.GetFaceupMonsters()
+                        .Where(card => getLinkMarker(card.Id) <= 2).ToList();
                     _sort_list.Sort(CardContainer.CompareCardAttack);
-                    foreach(ClientCard monster in _sort_list)
+                    List<ClientCard> materials = Util.GetLinkMaterials(_sort_list, 3, 2, 3)
+                        .FirstOrDefault(list => list.Select(card => card.Id).Distinct().Count() == list.Count);
+                    if (materials != null && GetTotalATK(materials) <= 2200)
                     {
-                        if (getLinkMarker(monster.Id) == 2)
-                        {
-                            link_count += 2;
-                            m_list.Add(monster);
-                        } else if (getLinkMarker(monster.Id) == 1 && monster.IsFaceup())
-                        {
-                            link_count += 1;
-                            m_list.Add(monster);
-                        }
-                        if (link_count >= 3) break;
-                    }
-                    if (link_count >= 3 && GetTotalATK(m_list) <= 2200)
-                    {
-                        AI.SelectMaterials(m_list);
+                        AI.SelectMaterials(materials);
                         return true;
                     }
                 }
                 return false;
             }
             if (Bot.Hand.Count == 0) return false;
-            IList<ClientCard> targets = new List<ClientCard>();
-            List<ClientCard> sort_list = Bot.GetMonsters();
+            List<ClientCard> sort_list = Bot.GetFaceupMonsters()
+                .Where(card => getLinkMarker(card.Id) <= 2).ToList();
             sort_list.Sort(CardContainer.CompareCardAttack);
-            foreach (ClientCard s_m in sort_list)
-            {
-                if ((!s_m.IsCode(CardId.Eater) || (s_m.IsCode(CardId.Eater) && m.IsMonsterHasPreventActivationEffectInBattle())) && getLinkMarker(s_m.Id) <= 2 && s_m.IsFaceup())
-                {
-                    if (!targets.ContainsCardWithId(s_m.Id))
-                    {
-                        targets.Add(s_m);
-                        link_count += getLinkMarker(s_m.Id);
-                    }
-                    if (link_count >= 3) break;
-                }
-            }
-            if (link_count < 3) return false;
-            AI.SelectMaterials(targets);
+            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(sort_list, 3, 2, 3,
+                card => !card.IsCode(CardId.Eater) || m.IsMonsterHasPreventActivationEffectInBattle())
+                .FirstOrDefault(list => list.Select(card => card.Id).Distinct().Count() == list.Count);
+            if (selectedMaterials == null) return false;
+            AI.SelectMaterials(selectedMaterials);
             return true;
         }
 
@@ -1507,13 +1480,10 @@ namespace WindBot.Game.AI.Decks
 
         public bool Missus_ss()
         {
-            IList<ClientCard> material_list = new List<ClientCard>();
-            foreach(ClientCard monster in Bot.GetMonsters())
-            {
-                if (monster.HasAttribute(CardAttribute.Earth) && getLinkMarker(monster.Id) == 1) material_list.Add(monster);
-                if (material_list.Count == 2) break;
-            }
-            if (material_list.Count < 2) return false;
+            List<ClientCard> candidates = Bot.GetFaceupMonsters();
+            List<ClientCard> material_list = Util.GetLinkMaterials(candidates, 2, 2, 2,
+                monster => monster.HasAttribute(CardAttribute.Earth) && getLinkMarker(monster.Id) == 1).FirstOrDefault();
+            if (material_list == null) return false;
             if (Enemy.GetMonsterCount() == 0 || Util.GetProblematicEnemyMonster(2000) == null)
             {
                 AI.SelectMaterials(material_list);
@@ -1534,45 +1504,33 @@ namespace WindBot.Game.AI.Decks
 
         public bool Borrel_ss()
         {
-            bool already_link2 = false;
-            IList<ClientCard> material_list = new List<ClientCard>();
             if (Util.GetProblematicEnemyMonster(2000) == null) Logger.DebugWriteLine("***borrel:null");
             else Logger.DebugWriteLine("***borrel:" + (Util.GetProblematicEnemyMonster(2000).Name ?? "unknown"));
             if (Util.GetProblematicEnemyMonster(2000) != null || (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Enemy.LifePoints <= 3000))
             {
+                List<ClientCard> candidates = new List<ClientCard>();
                 foreach(ClientCard e_m in Bot.GetMonstersInExtraZone())
                 {
-                    if (getLinkMarker(e_m.Id) < 3)
-                    {
-                        if (getLinkMarker(e_m.Id) == 2) already_link2 = true;
-                        material_list.Add(e_m);
-                    }
+                    if (e_m.IsFaceup() && getLinkMarker(e_m.Id) < 3)
+                        candidates.Add(e_m);
                 }
                 List<ClientCard> sort_list = new List<ClientCard>(Bot.GetMonstersInMainZone());
                 sort_list.Sort(CardContainer.CompareCardAttack);
 
                 foreach(ClientCard m in sort_list)
                 {
-                    if (getLinkMarker(m.Id) < 3)
-                    {
-                        if (getLinkMarker(m.Id) == 2 && !already_link2)
-                        {
-                            already_link2 = true;
-                            material_list.Add(m);
-                        } else if (!m.IsCode(CardId.Sheep + 1, CardId.Eater))
-                        {
-                            material_list.Add(m);
-                        }
-                        if ((already_link2 && material_list.Count == 3) || (!already_link2 && material_list.Count == 4)) break;
-                    }
+                    if (m.IsFaceup() && getLinkMarker(m.Id) < 3 && !m.IsCode(CardId.Sheep + 1, CardId.Eater))
+                        candidates.Add(m);
                 }
-                if ((already_link2 && material_list.Count == 3) || (!already_link2 && material_list.Count == 4))
+                List<ClientCard> materials = Util.GetLinkMaterials(candidates, 4, 3, 4,
+                    card => card.HasType(CardType.Effect)).FirstOrDefault();
+                if (materials != null)
                 {
                     if (Enemy.GetMonsterCount() == 0 && Duel.Phase == DuelPhase.Main1 && Enemy.LifePoints <= 3000)
                     {
-                        if (GetTotalATK(material_list) >= 3000) return false;
+                        if (GetTotalATK(materials) >= 3000) return false;
                     }
-                    AI.SelectMaterials(material_list);
+                    AI.SelectMaterials(materials);
                     return true;
                 }
             }

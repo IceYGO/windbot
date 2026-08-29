@@ -2789,11 +2789,10 @@ namespace WindBot.Game.AI.Decks
             {
                 for (int j = i + 1; j < candidates.Count; ++j)
                 {
-                    int firstLink = Math.Max(1, candidates[i].LinkCount);
-                    int secondLink = Math.Max(1, candidates[j].LinkCount);
-                    if (firstLink + secondLink == 3)
+                    List<ClientCard> materials = new List<ClientCard> { candidates[i], candidates[j] };
+                    if (Util.CanMakeLinkRating(materials, 3))
                     {
-                        AI.SelectMaterials(new List<ClientCard> { candidates[i], candidates[j] });
+                        AI.SelectMaterials(materials);
                         return true;
                     }
                 }

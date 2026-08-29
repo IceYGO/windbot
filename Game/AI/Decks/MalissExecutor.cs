@@ -3154,8 +3154,6 @@ namespace WindBot.Game.AI.Decks
             var poolPreferred = all.Where(m => !avoid.Contains(m.Id)).ToList();
             var poolFallback = all.ToList();
 
-            int firstMaxAllowed = targetLink - Math.Max(0, minCount - 1);
-
             Func<List<ClientCard>, List<ClientCard>> TryPick = (pool) =>
             {
                 var chosen = new List<ClientCard>();
@@ -3185,7 +3183,7 @@ namespace WindBot.Game.AI.Decks
                         int lv = LinkValOf(m);
 
                         int[] values = (chosen.Count == 0)
-                            ? (lv > 1 ? new[] { Math.Min(lv, firstMaxAllowed), 1 } : new[] { 1 })
+                            ? (lv > 1 ? new[] { lv, 1 } : new[] { 1 })
                             : (lv > 1 ? new[] { 1, lv } : new[] { 1 });
 
                         foreach (var v in values.Distinct())

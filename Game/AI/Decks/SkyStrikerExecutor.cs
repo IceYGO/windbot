@@ -744,7 +744,7 @@ namespace WindBot.Game.AI.Decks
                         selected.Add(effectMonsters[i]);
                 }
                 if (selected.Count >= 3 && selected.Count <= 4 &&
-                    selected.Contains(target) && CanMakeLinkRating(selected, 4))
+                    selected.Contains(target) && Util.CanMakeLinkRating(selected, 4))
                     return true;
             }
             return false;
@@ -1464,7 +1464,7 @@ namespace WindBot.Game.AI.Decks
                     .OrderBy(GetLinkMaterialValue)
                     .ToList();
                 if (materials.Count != 2 || materials.Select(card => card.Id).Distinct().Count() != 2 ||
-                    !CanMakeLinkRating(materials, 2))
+                    !Util.CanMakeLinkRating(materials, 2))
                     return false;
             }
             else
@@ -1808,7 +1808,7 @@ namespace WindBot.Game.AI.Decks
                     continue;
                 if (uniqueNames && selected.Select(card => card.Id).Distinct().Count() != selected.Count)
                     continue;
-                if (!CanMakeLinkRating(selected, linkRating) ||
+                if (!Util.CanMakeLinkRating(selected, linkRating) ||
                     Util.GetBotAvailZonesFromExtraDeck(selected) == 0)
                     continue;
 
@@ -1820,26 +1820,6 @@ namespace WindBot.Game.AI.Decks
                 }
             }
             return best;
-        }
-
-        private bool CanMakeLinkRating(IList<ClientCard> materials, int rating)
-        {
-            int modeCount = 1 << materials.Count;
-            for (int mask = 0; mask < modeCount; mask++)
-            {
-                int total = 0;
-                for (int i = 0; i < materials.Count; i++)
-                {
-                    ClientCard card = materials[i];
-                    if ((mask & (1 << i)) != 0 && card.HasType(CardType.Link))
-                        total += card.LinkCount;
-                    else
-                        total++;
-                }
-                if (total == rating)
-                    return true;
-            }
-            return false;
         }
 
         private int GetLinkMaterialValue(ClientCard card)

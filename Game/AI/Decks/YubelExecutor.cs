@@ -1896,7 +1896,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!HasInExtra(CardId.UNCHAINDEDABOMINATION)) return false;
 
-            var mons = Bot.GetMonsters();
+            var mons = Bot.GetFaceupMonsters();
             var yama = mons.FirstOrDefault(m => m != null && m.Id == CardId.UNCHAINED_LORD_OF_YAMA);
             var rage = mons.FirstOrDefault(m => m != null && m.Id == CardId.UNCHAINED_SOUL_OF_RAGE);
             var yubel = mons.FirstOrDefault(m => m != null && m.Id == CardId.YUBEL);
@@ -1928,17 +1928,10 @@ namespace WindBot.Game.AI.Decks
                     .OrderBy(ScoreOwnCardForCost) // เสียน้อยสุดมาก่อน
                     .ToList();
 
-                var pick = new List<ClientCard> { firstLink };
-                int need = 4 - LinkValue(firstLink);
-
-                foreach (var m in pool)
-                {
-                    pick.Add(m);
-                    need -= LinkValue(m);
-                    if (need <= 0) break;
-                }
-
-                if (need <= 0)
+                pool.Insert(0, firstLink);
+                List<ClientCard> pick = Util.GetLinkMaterials(pool, 4, 2, 4)
+                    .FirstOrDefault(materials => materials.Contains(firstLink));
+                if (pick != null)
                 {
                     AI.SelectMaterials(pick.ToArray());
                     return true;
@@ -1947,7 +1940,6 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
-        private int LinkValue(ClientCard c) => (c != null && c.HasType(CardType.Link)) ? Math.Max(1, c.LinkCount) : 1;
 
         private bool IsInEMZ(ClientCard c)
         {

@@ -517,71 +517,38 @@ namespace WindBot.Game.AI.Decks
         }
 
         /// <summary>
-        /// Check whether match link condition.
-        /// </summary>
-        /// <param name="LinkCount">Min Link count</param>
-        /// <param name="MaterialCount">Min material count</param>
-        /// <param name="list">materails list</param>
-        /// <param name="need_tune">whether need tuner</param>
-        /// <returns></returns>
-        public bool CheckLinkMaterialsMatch(int LinkCount, int MaterialCount, List<ClientCard> list, bool need_tune = false)
-        {
-            // material count check
-            if (list.Count < MaterialCount) return false;
-            
-            // link marker check
-            int linkcount = 0;
-            foreach(ClientCard card in list)
-            {
-                linkcount += (card.HasType(CardType.Link) ? card.LinkCount : 1);
-            }
-            if (linkcount != LinkCount)
-            {
-                foreach (ClientCard card in list)
-                {
-                    linkcount += 1;
-                }
-                if (linkcount != LinkCount) return false;
-            }
-
-            // tuner check
-            if (need_tune && list.GetFirstMatchingCard(card => card.IsTuner()) == null) return false;
-            return true;
-        }
-
-        /// <summary>
-        /// Check link summon materials. If not enough, return an empty list.
+        /// Get all link summon material combinations.
         /// </summary>
         /// <param name="LinkCount">Link monster's link count.</param>
         /// <param name="MaterialCount">Link monster's least material count.</param>
-        /// <param name="need_tuner">Whether materials need tuner(use for CrystronHalqifibrax)</param>
+        /// <param name="cards">Cards that can be considered as materials.</param>
         /// <param name="extra">Extra monster use for material check.</param>
-        public List<ClientCard> CheckLinkMaterials(int LinkCount, int MaterialCount, bool need_tuner = false, List<ClientCard> extra = null)
+        public List<List<ClientCard>> GetLinkMaterials(int LinkCount, int MaterialCount, List<ClientCard> cards, List<ClientCard> extra = null)
         {
-            List<int> psy_cardids = new List<int> { CardId.PSYGamma, CardId.PSYDriver };
-            List<ClientCard> result = Bot.MonsterZone.GetMatchingCards(card => card.IsFaceup() && psy_cardids.Contains(card.Id)).ToList();
-            if (CheckLinkMaterialsMatch(LinkCount, MaterialCount, result, need_tuner)) return result;
+            List<ClientCard> candidates = cards == null
+                ? new List<ClientCard>()
+                : cards.Where(card => card != null).Distinct().ToList();
+            if (extra != null)
+                candidates = candidates.Union(extra.Where(card => card != null)).ToList();
 
-            List<ClientCard> bot_monsters = Enemy.MonsterZone.GetMatchingCards(c => c.IsFaceup()).ToList();
-            if (extra != null) bot_monsters = bot_monsters.Union(extra).ToList();
-            bot_monsters.Sort(CardContainer.CompareCardAttack);
+            return Util.GetLinkMaterials(candidates, LinkCount, MaterialCount, LinkCount)
+                .Where(materials => extra == null || extra.All(card => card == null || materials.Contains(card)))
+                .ToList();
+        }
 
+        private List<ClientCard> GetLinkMaterialCandidates()
+        {
+            List<ClientCard> monsters = Bot.GetFaceupMonsters().ToList();
+            List<ClientCard> preferred = monsters.Where(card => card.IsCode(CardId.PSYGamma, CardId.PSYDriver)).ToList();
             int remaindiscard = CheckDiscardableSpellCount();
             int enemybest = Util.GetBestAttack(Enemy);
-            foreach (ClientCard card in bot_monsters)
-            {
-                if ((card.HasSetcode(Witchcraft_setcode) && (card.Level >= 5 || remaindiscard >= 2))
-                    || (card.Attack >= enemybest)
-                    || (card.HasType(CardType.Link) && card.LinkMarker > 2))
-                {
-                    continue;
-                }
-                result.Add(card);
-                if (CheckLinkMaterialsMatch(LinkCount, MaterialCount, result, need_tuner)) return result;
-            }
-            if (!CheckLinkMaterialsMatch(LinkCount, MaterialCount, result, need_tuner)) result.Clear();
-
-            return result;
+            List<ClientCard> other = monsters.Where(card => !preferred.Contains(card)
+                && !(card.HasSetcode(Witchcraft_setcode) && (card.Level >= 5 || remaindiscard >= 2))
+                && card.Attack < enemybest
+                && (!card.HasType(CardType.Link) || card.LinkCount <= 2))
+                .OrderBy(card => card.Attack)
+                .ToList();
+            return preferred.Concat(other).ToList();
         }
 
         /// <summary>
@@ -1127,7 +1094,7 @@ namespace WindBot.Game.AI.Decks
             if (Card.Level >= 5) return false;
             summoned = true;
 
-            if (BorrelswordDragonSummonCheck(Card).Count >= 3)
+            if (Card.HasType(CardType.Effect) && BorrelswordDragonSummonCheck(Card).Count >= 3)
             {
                 Logger.DebugWriteLine("Summon for BorrelswordDragon.");
                 List<ClientCard> list = BorrelswordDragonSummonCheck(Card);
@@ -2475,26 +2442,20 @@ namespace WindBot.Game.AI.Decks
         {
             List<ClientCard> empty_list = new List<ClientCard>();
             List<ClientCard> extra_list = new List<ClientCard>();
-            if (included != null) extra_list.Add(included);
-            List<ClientCard> materials = CheckLinkMaterials(4, 3, false, extra_list);
-            if (materials.Count < 3) return empty_list;
+            if (included != null && included.HasType(CardType.Effect)) extra_list.Add(included);
+            List<ClientCard> cards = GetLinkMaterialCandidates().Where(card => card.HasType(CardType.Effect)).ToList();
+            List<List<ClientCard>> materialLists = GetLinkMaterials(4, 3, cards, extra_list).ToList();
+            if (materialLists.Count == 0) return empty_list;
 
             // need BorrelswordDragon?
             // for problem monster
             ClientCard flag = Util.GetOneEnemyBetterThanMyBest();
             if (flag != null)
             {
-                return materials;
+                return materialLists[0];
             }
             // for higher attack
-            int total_attack = 0;
-            foreach (ClientCard card in materials)
-            {
-                total_attack += card.Attack;
-            }
-            if (total_attack >= 3000) return empty_list;
-
-            return materials;
+            return materialLists.FirstOrDefault(list => list.Sum(card => card.Attack) < 3000) ?? empty_list;
         }
 
         // summon process of BorrelswordDragon
@@ -2537,8 +2498,11 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> empty_list = new List<ClientCard>();
             List<ClientCard> extra_list = new List<ClientCard>();
             if (included != null) extra_list.Add(included);
-            List<ClientCard> materials = CheckLinkMaterials(3, 2, false, extra_list);
-            if (materials.Count < 2) return empty_list;
+            List<ClientCard> cards = GetLinkMaterialCandidates();
+            List<List<ClientCard>> materialLists = GetLinkMaterials(3, 2, cards, extra_list)
+                .Where(list => list.Select(card => card.Id).Distinct().Count() == list.Count)
+                .ToList();
+            if (materialLists.Count == 0) return empty_list;
 
             // need KnightmareUnicorn?
             // for clear spells
@@ -2551,18 +2515,11 @@ namespace WindBot.Game.AI.Decks
                 }
                 else
                 {
-                    return materials;
+                    return materialLists[0];
                 }
             }
             // for higher attack
-            int total_attack = 0;
-            foreach(ClientCard card in materials)
-            {
-                total_attack += card.Attack;
-            }
-            if (total_attack >= 2200) return empty_list;
-
-            return materials;
+            return materialLists.FirstOrDefault(list => list.Sum(card => card.Attack) < 2200) ?? empty_list;
         }
 
         // summon process of KnightmareUnicorn
@@ -2610,8 +2567,11 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> empty_list = new List<ClientCard>();
             List<ClientCard> extra_list = new List<ClientCard>();
             if (included != null) extra_list.Add(included);
-            List<ClientCard> materials = CheckLinkMaterials(2, 2, true, extra_list);
-            if (materials.Count < 2) return empty_list;
+            List<ClientCard> cards = GetLinkMaterialCandidates();
+            List<List<ClientCard>> materialLists = GetLinkMaterials(2, 2, cards, extra_list)
+                .Where(list => list.Select(card => card.Id).Distinct().Count() == list.Count)
+                .ToList();
+            if (materialLists.Count == 0) return empty_list;
 
             // need KnightmarePhoenix?
             // for clear spells
@@ -2623,13 +2583,11 @@ namespace WindBot.Game.AI.Decks
                     return empty_list;
                 } else
                 {
-                    return materials;
+                    return materialLists[0];
                 }
             }
             // for higher attack
-            if (materials[0].Attack + materials[1].Attack >= 1900) return empty_list;
-
-            return materials;
+            return materialLists.FirstOrDefault(list => list.Sum(card => card.Attack) < 1900) ?? empty_list;
         }
 
         // summon process of KnightmarePhoenix
@@ -2669,14 +2627,16 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> empty_list = new List<ClientCard>();
             List<ClientCard> extra_list = new List<ClientCard>();
             if (included != null) extra_list.Add(included);
-            List<ClientCard> materials = CheckLinkMaterials(2, 2, true, extra_list);
-            if (materials.Count < 2) return empty_list;
+            List<ClientCard> cards = GetLinkMaterialCandidates();
+            List<ClientCard> materials = GetLinkMaterials(2, 2, cards, extra_list)
+                .FirstOrDefault(list => list.Any(card => card.IsTuner()));
+            if (materials == null) return empty_list;
 
             // need CrystronHalqifibrax?
             if (!Bot.HasInDeck(CardId.PSYGamma, _CardId.AshBlossom)) return empty_list;
 
 
-            return empty_list;
+            return materials;
         }
 
         // summon process of CrystronHalqifibrax

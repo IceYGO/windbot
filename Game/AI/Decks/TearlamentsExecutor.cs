@@ -1665,7 +1665,6 @@ namespace WindBot.Game.AI.Decks
             {
                 List<ClientCard> e_materials = new List<ClientCard>();
                 List<ClientCard> m_materials = new List<ClientCard>();
-                List<ClientCard> resMaterials = new List<ClientCard>();
                 foreach (var card in Enemy.GetMonsters())
                 {
                     if (card != null && card.HasType(CardType.Effect) && card.IsFaceup())
@@ -1685,38 +1684,17 @@ namespace WindBot.Game.AI.Decks
                     }
                 }
                 if (m_materials.Count() < 3) return false;
-                int link_count = 0;
-                int e_link_count = 0;
                 e_materials.Sort(CardContainer.CompareCardAttack);
                 e_materials.Reverse();
-                foreach (var card in e_materials)
-                {
-                    if (!resMaterials.Contains(card))
-                        resMaterials.Add(card);
-                    e_link_count += (card.HasType(CardType.Link)) ? (card.LinkCount == 2 ? 2 : 1) : 1;
-                    if (e_link_count >= 1) break;
-                }
-                if (e_link_count <= 0) return false;
-                link_count += e_link_count;
-                foreach (var card in m_materials)
-                {
-                    if (e_link_count <= 1)
-                    {
-                        if (!resMaterials.Contains(card) && card.LinkCount < 3)
-                        {
-                            resMaterials.Add(card);
-                            link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
-                            if (link_count >= 5) break;
-                        }
-                    }
-                    else
-                    {
-                        resMaterials.Add(card);
-                        link_count += 1;
-                        if (link_count >= 5) break;
-                    }
-                }
-                if (link_count >= 5) { AI.SelectMaterials(resMaterials); SetSpSummon(); return true; }
+                ClientCard enemyMaterial = e_materials[0];
+                List<ClientCard> candidates = new List<ClientCard> { enemyMaterial };
+                candidates.AddRange(m_materials);
+                List<ClientCard> selectedMaterials = Util.GetLinkMaterials(candidates, 5, 4, 5)
+                    .FirstOrDefault(list => list.Contains(enemyMaterial));
+                if (selectedMaterials == null) return false;
+                AI.SelectMaterials(selectedMaterials);
+                SetSpSummon();
+                return true;
             }
             return false;
         }
@@ -1830,11 +1808,11 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.LastChainPlayer == 0) return false;
             if (!Bot.HasInExtra(CardId.KnightmareUnicorn) && !Bot.HasInExtra(CardId.MekkKnightCrusadiaAvramax) && !Bot.HasInExtra(CardId.UnderworldGoddessoftheClosedWorld)) return false;
-            List<ClientCard> m = new List<ClientCard>();
             List<ClientCard> pre_m = new List<ClientCard>();
             if (Bot.HasInExtra(CardId.UnderworldGoddessoftheClosedWorld))
             {
-                List<ClientCard> e_cards = Enemy.GetMonsters().Where(card => card != null && card.IsFaceup() && card.IsAttack()).ToList();
+                List<ClientCard> e_cards = Enemy.GetMonsters().Where(card => card != null && card.IsFaceup()
+                    && card.IsAttack() && card.HasType(CardType.Effect)).ToList();
                 List<ClientCard> b_cards = Bot.GetMonsters().Where(card => card != null && card.IsFaceup() && card.IsAttack()).ToList();
                 if (e_cards.Count > 0 && b_cards.Count > 0)
                 {
@@ -1844,49 +1822,47 @@ namespace WindBot.Game.AI.Decks
                     b_cards.Reverse();
                     if ((e_cards[0].Attack > b_cards[0].Attack && (e_cards[0].IsShouldNotBeTarget() || e_cards[0].Attack >= 2500)) || Enemy.MonsterZone.GetDangerousMonster() != null)
                     {
-                        pre_m = Bot.GetMonsters().Where(card => card != null && card != Card && card.IsFaceup() && ((card.HasType(CardType.Link) && card.LinkCount < 3) || (card.HasType(CardType.Fusion | CardType.Xyz | CardType.Synchro))) && (!no_link_ids.Contains(card.Id) || card.IsDisabled())).ToList();
+                        pre_m = Bot.GetMonsters().Where(card => card != null && card != Card && card.IsFaceup()
+                            && ((card.HasType(CardType.Link) && card.LinkCount < 3)
+                                || card.HasType(CardType.Fusion | CardType.Xyz | CardType.Synchro))
+                            && (!no_link_ids.Contains(card.Id) || card.IsDisabled())).ToList();
                         List<ClientCard> pre_m2 = new List<ClientCard>();
                         pre_m2.Add(Enemy.MonsterZone.GetDangerousMonster() == null ? e_cards[0] : Enemy.MonsterZone.GetDangerousMonster());
                         pre_m2.AddRange(e_cards);
-                        int link_count = 0;
-                        foreach (var card in pre_m)
+                        ClientCard enemyMaterial = pre_m2.FirstOrDefault();
+                        if (enemyMaterial != null)
                         {
-                            if (card == null || (card.Id == CardId.SprightElf && summon_SprightElf)) continue;
-                            link_count += 1;
-                            m.Add(card);
-                            if (link_count >= 2) break;
-                        }
-                        if (link_count >= 2)
-                        {
-                            AI.SelectCard(CardId.UnderworldGoddessoftheClosedWorld);
-                            m.Insert(0, Card);
-                            m.Add(pre_m2.FirstOrDefault());
-                            AI.SelectMaterials(m);
-                            return true;
+                            List<ClientCard> candidates = new List<ClientCard> { Card, enemyMaterial };
+                            candidates.AddRange(pre_m.Where(card => card.Id != CardId.SprightElf || !summon_SprightElf));
+                            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(candidates, 5, 4, 5)
+                                .FirstOrDefault(list => list.Contains(Card) && list.Contains(enemyMaterial));
+                            if (selectedMaterials != null)
+                            {
+                                AI.SelectCard(CardId.UnderworldGoddessoftheClosedWorld);
+                                AI.SelectMaterials(selectedMaterials);
+                                return true;
+                            }
                         }
                     }
                 }
             }
             if (Bot.HasInExtra(CardId.MekkKnightCrusadiaAvramax))
             {
-                m.Clear();
-                pre_m = Bot.GetMonsters().Where(card => card != null && card != Card && card.IsFaceup() && ((card.HasType(CardType.Link) && card.LinkCount < 3) || (card.HasType(CardType.Fusion|CardType.Xyz|CardType.Synchro))) && (!no_link_ids.Contains(card.Id) || card.IsDisabled())).ToList();
+                pre_m = Bot.GetMonsters().Where(card => card != null && card != Card && card.IsFaceup()
+                    && ((card.HasType(CardType.Link) && card.LinkCount < 3)
+                        || card.HasType(CardType.Fusion | CardType.Xyz | CardType.Synchro))
+                    && (!no_link_ids.Contains(card.Id) || card.IsDisabled())).ToList();
                 if (pre_m.Count > 0)
                 {
                     pre_m.Sort(CardContainer.CompareCardAttack);
-                    int link_count = 0;
-                    foreach (var card in pre_m)
-                    {
-                        if (card == null || (card.Id == CardId.SprightElf && summon_SprightElf)) continue;
-                        link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
-                        m.Add(card);
-                        if (link_count >= 2) break;
-                    }
-                    if (link_count >= 2)
+                    pre_m = pre_m.Where(card => card.Id != CardId.SprightElf || !summon_SprightElf).ToList();
+                    pre_m.Insert(0, Card);
+                    List<ClientCard> selectedMaterials = Util.GetLinkMaterials(pre_m, 4, 2, 4)
+                        .FirstOrDefault(list => list.Contains(Card));
+                    if (selectedMaterials != null)
                     {
                         AI.SelectCard(CardId.MekkKnightCrusadiaAvramax);
-                        m.Insert(0, Card);
-                        AI.SelectMaterials(m);
+                        AI.SelectMaterials(selectedMaterials);
                         return true;
                     }
                 }
@@ -1896,24 +1872,19 @@ namespace WindBot.Game.AI.Decks
                 List<ClientCard> pre_cards = GetZoneCards(CardLocation.Onfield,Enemy);
                 if (Bot.Hand.Count > 0 && pre_cards.Count(card => card != null && !card.IsShouldNotBeTarget()) > 0)
                 {
-                    m.Clear();
                     pre_m = Bot.GetMonsters().Where(card => card != null && card != Card &&  card.IsFaceup() && !no_link_ids.Contains(card.Id) && card.Id != Card.Id).ToList();
                     if (pre_m.Count > 0)
                     {
                         pre_m.Sort(CardContainer.CompareCardAttack);
-                        int link_count = 0;
-                        foreach (var card in pre_m)
-                        {
-                            if (card == null || (card.Id == CardId.SprightElf && summon_SprightElf)) continue;
-                            link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
-                            m.Add(card);
-                            if (link_count >= 1) break;
-                        }
-                        if (link_count >= 1)
+                        pre_m = pre_m.Where(card => card.Id != CardId.SprightElf || !summon_SprightElf).ToList();
+                        pre_m.Insert(0, Card);
+                        List<ClientCard> selectedMaterials = Util.GetLinkMaterials(pre_m, 3, 2, 3)
+                            .FirstOrDefault(list => list.Contains(Card)
+                                && list.Select(card => card.Id).Distinct().Count() == list.Count);
+                        if (selectedMaterials != null)
                         {
                             AI.SelectCard(CardId.KnightmareUnicorn);
-                            m.Insert(0, Card);
-                            AI.SelectMaterials(m);
+                            AI.SelectMaterials(selectedMaterials);
                             return true;
                         }
                     }
@@ -1974,15 +1945,18 @@ namespace WindBot.Game.AI.Decks
             }
             else
             {
-                List<ClientCard> cards = Bot.GetMonsters().Where(card => card != null && card.LinkCount != 2 &&card.IsFaceup() && (!no_link_ids.Contains(card.Id) || card.IsDisabled())
+                List<ClientCard> cards = Bot.GetMonsters().Where(card => card != null && card.LinkCount != 2
+                                                                && card.IsFaceup() && (!no_link_ids.Contains(card.Id) || card.IsDisabled())
                                                                 && card.IsExtraCard() && card.Id != CardId.KnightmareUnicorn).ToList();
                 List<ClientCard> cards2 = Bot.GetMonsters().Where(card => card != null && card.IsFaceup() && card.Id == CardId.KnightmareUnicorn).ToList();
                 if (cards.Count <= 0 || cards2.Count <= 0) return false;
                 cards.Sort(CardContainer.CompareCardAttack);
-                List<ClientCard> res = new List<ClientCard>();
-                res.Add(cards.FirstOrDefault());
-                res.Add(cards.FirstOrDefault());
-                AI.SelectMaterials(res);
+                cards2.AddRange(cards);
+                ClientCard unicorn = cards2.FirstOrDefault(card => card.Id == CardId.KnightmareUnicorn);
+                List<ClientCard> materials = Util.GetLinkMaterials(cards2, 4, 2, 4)
+                    .FirstOrDefault(list => list.Contains(unicorn));
+                if (materials == null) return false;
+                AI.SelectMaterials(materials);
                 SetSpSummon();
                 return true;
             }
@@ -1999,15 +1973,13 @@ namespace WindBot.Game.AI.Decks
             List<ClientCard> ecards = GetZoneCards(CardLocation.Onfield, Enemy);
             if (ecards.Count(card => card != null && !card.IsShouldNotBeTarget()) <= 0) return false;
             List<ClientCard> tmepMaterials = new List<ClientCard>();
-            List<ClientCard> resMaterials = new List<ClientCard>();
             foreach (var card in Bot.GetMonsters())
             {
                 if (card == null || card.IsFacedown() || (card.Id == CardId.SprightElf && summon_SprightElf)
                     || (no_link_ids.Contains(card.Id)) || card.Id == CardId.TearlamentsKitkallos) continue;
-                if (tmepMaterials.Count(_card => _card != null && _card.Id == card.Id) <= 0)
+                if (card.LinkCount < 3 && tmepMaterials.Count(_card => _card != null && _card.Id == card.Id) <= 0)
                     tmepMaterials.Add(card);
             }
-            int link_count = 0;
             tmepMaterials.Sort(CardContainer.CompareCardAttack);
             List<ClientCard> materials = new List<ClientCard>();
             List<ClientCard> link_materials = tmepMaterials.Where(card => card != null && card.LinkCount == 2).ToList();
@@ -2022,19 +1994,13 @@ namespace WindBot.Game.AI.Decks
                 materials.AddRange(normal_materials);
                 materials.AddRange(link_materials);
             }
-            if (materials.Count(card => card != null && card.LinkCount >= 2) > 1
-                && materials.Count(card => card != null && card.LinkCount < 2) < 1) return false;
-            foreach (var card in materials)
-            {
-                if (!resMaterials.Contains(card) && card.LinkCount < 3)
-                {
-                    resMaterials.Add(card);
-                    link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
-                    if (link_count >= 3) break;
-                }
-            }
-            if (link_count >= 3) { AI.SelectMaterials(resMaterials);SetSpSummon(); return true; }
-            return false;
+            List<ClientCard> selectedMaterials = Util.GetLinkMaterials(materials, 3, 2, 3)
+                .FirstOrDefault(list => list.Count(card => card.LinkCount >= 2) <= 1
+                    || list.Any(card => card.LinkCount < 2));
+            if (selectedMaterials == null) return false;
+            AI.SelectMaterials(selectedMaterials);
+            SetSpSummon();
+            return true;
         }
         private bool BaronnedeFleurEffect()
         {

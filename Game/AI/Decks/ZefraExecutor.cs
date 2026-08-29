@@ -1322,21 +1322,13 @@ namespace WindBot.Game.AI.Decks
                card => { return !card.IsCode(CardId.F_A_DawnDragster) && !card.IsCode(CardId.TheMightyMasterofMagic); });
                 if ((synchro_materials_lists.Count > 0 && xyz_materials_lists.Count > 0) || xyz_materials_lists_2.Count > 0) return false;
             }
-            List<ClientCard> m = new List<ClientCard>();
-            int link_count = 0;
-            List<ClientCard> cards = Bot.GetMonsters();
+            List<ClientCard> cards = Bot.GetFaceupMonsters();
             cards.Sort(CardContainer.CompareCardLink);
             cards.Reverse();
-            foreach (var card in Bot.GetMonsters())
-            {
-                if (card == null) continue;
-                if (card.IsFacedown() || !card.HasRace(CardRace.Machine) || IsNoLinkCards(card)) continue;
-                m.Add(card);
-                link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
-                if (link_count >= 3) break;
-            }
-            if (link_count < 3) return false;
-            AI.SelectMaterials(m);
+            List<ClientCard> materials = Util.GetLinkMaterials(cards, 3, 2, 3,
+                card => card.HasRace(CardRace.Machine) && !IsNoLinkCards(card)).FirstOrDefault();
+            if (materials == null) return false;
+            AI.SelectMaterials(materials);
             return true;
         }
         private bool SaryujaSkullDreadEffect()
@@ -1351,11 +1343,7 @@ namespace WindBot.Game.AI.Decks
         private bool SaryujaSkullDreadSummon()
         {
             if (Bot.GetMonstersInMainZone().Count < 4 || (!Bot.HasInExtra(CardId.CrystronHalqifibrax) && !xyz_mode)) return false;
-            List<ClientCard> materials = new List<ClientCard>();
-            int link_count = 0;
-            int materials_count = 0;
-            int tuner_count = func.CardsCheckCount(Bot.MonsterZone, func.HasType, CardType.Tuner);
-            List<ClientCard> temp_materials = Bot.GetMonsters();
+            List<ClientCard> temp_materials = Bot.GetFaceupMonsters();
             temp_materials.Sort((cardA, cardB) =>
             {
                 if ((cardA.HasType(CardType.Tuner) && cardB.HasType(CardType.Tuner))
@@ -1366,27 +1354,26 @@ namespace WindBot.Game.AI.Decks
                 else if (cardA.HasType(CardType.Tuner) && !cardB.HasType(CardType.Tuner)) return 1;
                 return -1;
             });
-            foreach (var material in temp_materials)
+            List<List<ClientCard>> materialLists = Util.GetLinkMaterials(temp_materials, 4, 3, 4,
+                material => !IsNoLinkCards(material))
+                .Where(list => list.Select(material => material.Id).Distinct().Count() == list.Count)
+                .ToList();
+            bool preferFourMaterials = Bot.Deck.Count > 4 &&
+                ((func.CardsCheckCount(Bot.Hand, func.HasType, CardType.Tuner) > 0
+                || (Bot.HasInMonstersZone(CardId.DDLamia, false, false, true) && !activate_DDLamia && func.CardsCheckCount(
+                    Func.GetZoneCards(Bot, CardLocation.Onfield | CardLocation.Hand, true),
+                    card => { return Func.HasSetCode(card, 0xaf, 0xae) && card.Id != CardId.DDLamia; }) > 0)
+                || (Bot.HasInMonstersZone(CardId.JetSynchron, false, false, true) && !activate_JetSynchron)) || xyz_mode);
+            List<ClientCard> materials = preferFourMaterials
+                ? materialLists.FirstOrDefault(list => list.Count == 4)
+                : materialLists.FirstOrDefault();
+            if (materials == null) return false;
+            ClientCard extraZoneMaterial = materials.FirstOrDefault(IsExtraZoneCard);
+            if (extraZoneMaterial != null)
             {
-                ++materials_count;
-                if (IsExtraZoneCard(material)) materials.Insert(0, material);
-                else if (IsNoLinkCards(material)) { --materials_count; continue; }
-                else materials.Add(material);
-                link_count += material.HasType(CardType.Link) ? material.LinkCount : 1;
-                if (link_count >= 4)
-                {
-                    if (materials_count == 3 && Bot.Deck.Count > 4 && ((func.CardsCheckCount(Bot.Hand, func.HasType, CardType.Tuner) > 0
-                        || (Bot.HasInMonstersZone(CardId.DDLamia, false, false, true) && !activate_DDLamia && func.CardsCheckCount(Func.GetZoneCards
-                        (Bot, CardLocation.Onfield | CardLocation.Hand, true), card => { return Func.HasSetCode(card, 0xaf, 0xae) && card.Id != CardId.DDLamia; })
-                        > 0) || (Bot.HasInMonstersZone(CardId.JetSynchron, false, false, true) && !activate_JetSynchron)) || xyz_mode))
-                    {
-                        --link_count;
-                        continue;
-                    }
-                    break;
-                }
+                materials.Remove(extraZoneMaterial);
+                materials.Insert(0, extraZoneMaterial);
             }
-            if (materials.Count < 3) return false;
             AI.SelectMaterials(materials);
             return BeforeResult(ExecutorType.Summon);
         }

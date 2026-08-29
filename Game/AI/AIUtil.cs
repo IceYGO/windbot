@@ -572,6 +572,85 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
+        /// Check whether the materials group can make the exact Link Rating.
+        /// A Link Monster can count as either 1 or its own Link Rating.
+        /// </summary>
+        /// <param name="materials">The complete material combination to validate.</param>
+        /// <param name="linkRating">The Link Rating of the Link monster to summon.</param>
+        /// <returns>Whether the materials can produce the exact target Link Rating.</returns>
+        public bool CanMakeLinkRating(IList<ClientCard> materials, int linkRating)
+        {
+            if (materials == null || materials.Count == 0 || linkRating <= 0 || materials.Any(card => card == null))
+                return false;
+
+            // Keep every total reachable after each material.
+            HashSet<int> totals = new HashSet<int> { 0 };
+            foreach (ClientCard material in materials)
+            {
+                HashSet<int> nextTotals = new HashSet<int>();
+                foreach (int total in totals)
+                {
+                    if (total + 1 <= linkRating)
+                        nextTotals.Add(total + 1);
+
+                    // A Link Monster branches into counting as 1 and counting as its own Link Rating.
+                    if (material.HasType(CardType.Link) && material.LinkCount > 1 && total + material.LinkCount <= linkRating)
+                        nextTotals.Add(total + material.LinkCount);
+                }
+                totals = nextTotals;
+                if (totals.Count == 0)
+                    return false;
+            }
+            return totals.Contains(linkRating);
+        }
+
+        /// <summary>
+        /// Get all material subsets that can make the exact Link Rating.
+        /// </summary>
+        /// <param name="candidateMaterials">The candidate cards from which material combinations are selected.</param>
+        /// <param name="linkRating">The Link Rating of the Link monster to summon.</param>
+        /// <param name="minCount">The minimum number of materials required by the Link monster.</param>
+        /// <param name="maxCount">The maximum number of materials that may be selected. 0 for using linkRating as the maximum.</param>
+        /// <param name="materialFilter">An optional additional eligibility filter for individual materials.</param>
+        /// <returns>All eligible combinations whose Link values can produce the exact target Link Rating.</returns>
+        public List<List<ClientCard>> GetLinkMaterials(IList<ClientCard> candidateMaterials, int linkRating,
+            int minCount, int maxCount = 0, Func<ClientCard, bool> materialFilter = null)
+        {
+            if (candidateMaterials == null || linkRating <= 0 || minCount <= 0)
+                return new List<List<ClientCard>>();
+
+            if (maxCount <= 0)
+                maxCount = linkRating;
+
+            materialFilter = materialFilter ?? (card => true);
+            // Normalize the input before subset enumeration so every bit represents one
+            // distinct candidate accepted by the caller while retaining its priority order.
+            List<ClientCard> eligibleMaterials = candidateMaterials
+                .Where(card => card != null && materialFilter(card))
+                .Distinct()
+                .ToList();
+            if (eligibleMaterials.Count < minCount)
+                return new List<List<ClientCard>>();
+
+            // Exhaustively enumerate all 2^n - 1 subsets with a bit mask.
+            // Link candidates normally come from the field, so n stays small.
+            List<List<ClientCard>> result = new List<List<ClientCard>>();
+            int subsetCount = 1 << eligibleMaterials.Count;
+            for (int mask = 1; mask < subsetCount; mask++)
+            {
+                List<ClientCard> materials = new List<ClientCard>();
+                for (int i = 0; i < eligibleMaterials.Count; i++)
+                {
+                    if ((mask & (1 << i)) != 0)
+                        materials.Add(eligibleMaterials[i]);
+                }
+                if (materials.Count >= minCount && materials.Count <= maxCount && CanMakeLinkRating(materials, linkRating))
+                    result.Add(materials);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Shuffle a list using Fisher–Yates shuffle
         /// </summary>
         /// <param name="list">The original list</param>

@@ -2451,39 +2451,21 @@ namespace WindBot.Game.AI.Decks
             {
                 if (!card.HasType(CardType.Link)) return false;
             }
-            int link_count = 0;
             if (Enemy.HasInMonstersZone(CardId.Shizuku) && Enemy.GetGraveyardSpells().Count >= 9) return false;
-            List<ClientCard> list = new List<ClientCard>();
-            if (Bot.HasInMonstersZone(CardId.Needlefiber))
-            {
-                foreach(ClientCard card in Bot.GetMonsters())
-                {
-                    if (card.IsCode(CardId.Needlefiber))
-                    {
-                        list.Add(card);
-                        link_count += 2;
-                    }
-                }
-            }
-            List<ClientCard> monsters = Bot.GetMonsters();
+            List<ClientCard> monsters = Bot.GetFaceupMonsters();
             monsters.Sort(CardContainer.CompareCardAttack);
-            //monsters.Reverse();
-            foreach(ClientCard card in monsters)
+            ClientCard needlefiber = monsters.FirstOrDefault(card => card.IsCode(CardId.Needlefiber));
+            if (needlefiber != null)
             {
-                if (!list.Contains(card) && card.LinkCount < 3)
-                {
-                    list.Add(card);
-                    link_count += (card.HasType(CardType.Link) ? card.LinkCount : 1);
-                    if (link_count >= 3) break;
-                }
+                monsters.Remove(needlefiber);
+                monsters.Insert(0, needlefiber);
             }
-            if (link_count >= 3)
-            {
-                AI.SelectMaterials(list);
-                ss_other_monster = true;
-                return true;
-            }
-            return false;
+            List<ClientCard> materials = Util.GetLinkMaterials(monsters, 3, 2, 3,
+                card => !card.HasType(CardType.Token) && (!card.HasType(CardType.Link) || card.LinkCount < 3)).FirstOrDefault();
+            if (materials == null) return false;
+            AI.SelectMaterials(materials);
+            ss_other_monster = true;
+            return true;
 
         }
 
@@ -2502,27 +2484,13 @@ namespace WindBot.Game.AI.Decks
             {
                 if (!card.HasType(CardType.Link)) return false;
             }
-            List<ClientCard> material_list = new List<ClientCard>();
-            List<ClientCard> monsters = Bot.GetMonsters();
+            List<ClientCard> monsters = Bot.GetFaceupMonsters();
             monsters.Sort(CardContainer.CompareCardAttack);
-            //monsters.Reverse();
-            foreach(ClientCard t in monsters)
-            {
-                if (t.IsTuner())
-                {
-                    material_list.Add(t);
-                    break;
-                }
-            }
-            foreach(ClientCard m in monsters)
-            {
-                if (!material_list.Contains(m) && m.LinkCount <= 2)
-                {
-                    material_list.Add(m);
-                    if (material_list.Count >= 2) break;
-                }
-            }
-            AI.SelectMaterials(material_list);
+            List<ClientCard> materials = Util.GetLinkMaterials(monsters, 2, 2, 2,
+                card => !card.HasType(CardType.Link) || card.LinkCount <= 2)
+                .FirstOrDefault(list => list.Any(card => card.IsTuner()));
+            if (materials == null) return false;
+            AI.SelectMaterials(materials);
             ss_other_monster = true;
             return true;
         }
@@ -2552,28 +2520,14 @@ namespace WindBot.Game.AI.Decks
                 if (!card.HasType(CardType.Link)) return false;
             }
 
-            List<ClientCard> material_list = new List<ClientCard>();
-            List<ClientCard> bot_monster = Bot.GetMonsters();
+            List<ClientCard> bot_monster = Bot.GetFaceupMonsters();
             bot_monster.Sort(CardContainer.CompareCardAttack);
-            //bot_monster.Reverse();
-            int link_count = 0;
-            foreach(ClientCard card in bot_monster)
-            {
-                if (card.IsFacedown()) continue;
-                if (!material_list.Contains(card) && card.LinkCount < 3)
-                {
-                    material_list.Add(card);
-                    link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
-                    if (link_count >= 4) break;
-                }
-            }
-            if (link_count >= 4)
-            {
-                AI.SelectMaterials(material_list);
-                ss_other_monster = true;
-                return true;
-            }
-            return false;
+            List<ClientCard> materials = Util.GetLinkMaterials(bot_monster, 4, 3, 4,
+                card => card.HasType(CardType.Effect) && (!card.HasType(CardType.Link) || card.LinkCount < 3)).FirstOrDefault();
+            if (materials == null) return false;
+            AI.SelectMaterials(materials);
+            ss_other_monster = true;
+            return true;
         }
 
         public bool Borrelsword_eff()

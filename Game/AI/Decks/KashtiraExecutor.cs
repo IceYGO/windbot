@@ -715,20 +715,14 @@ namespace WindBot.Game.AI.Decks
         {
             if (!Bot.HasInExtra(CardId.MekkKnightCrusadiaAvramax) && !(Bot.HasInMonstersZone(CardId.QliphortGenius,false,false,true) ||
                 Bot.HasInMonstersZone(CardId.MechaPhantomBeastAuroradon, false, false, true))) return false;
-            AI.SelectCard(CardId.MekkKnightCrusadiaAvramax);
             IList<int> cardsId = new List<int> {CardId.MechaPhantomBeastAuroradon,CardId.IP,CardId.QliphortGenius};
-            List<ClientCard> m = new List<ClientCard>();
-            IList<ClientCard> pre_m = CardsIdToClientCards(cardsId,Bot.GetMonsters());
+            IList<ClientCard> pre_m = CardsIdToClientCards(cardsId, Bot.GetFaceupMonsters());
             if (pre_m?.Count <= 0) return false;
-            int link_count = 0;
-            foreach (var card in pre_m)
-            {
-                m.Add(card);
-                link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
-                if (link_count >= 4) break;
-            }
-            if (link_count < 4) return false;
-            AI.SelectMaterials(m);
+            List<ClientCard> materials = Util.GetLinkMaterials(pre_m, 4, 2, 4)
+                .FirstOrDefault(list => list.Contains(Card));
+            if (materials == null) return false;
+            AI.SelectCard(CardId.MekkKnightCrusadiaAvramax);
+            AI.SelectMaterials(materials);
             return true;
 
         }
@@ -770,38 +764,24 @@ namespace WindBot.Game.AI.Decks
         private bool MekkKnightCrusadiaAvramaxSummon()
         {
             IList<int> cardsId = new List<int>() {CardId.MechaPhantomBeastAuroradon,CardId.IP,CardId.QliphortGenius};
-            List<ClientCard> cards = CardsIdToClientCards(cardsId,Bot.GetMonsters()).ToList();
+            List<ClientCard> cards = CardsIdToClientCards(cardsId, Bot.GetFaceupMonsters()).ToList();
             if (cards.Count <= 0) return false;
-            List<ClientCard> m = new List<ClientCard>();
-            int link_count = 0;
-            foreach (var card in cards)
-            {
-                m.Add(card);
-                link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
-                if (link_count >= 4) break;
-            }
-            if (link_count < 4 || m.Count<2) return false;
-            AI.SelectMaterials(m);
+            List<ClientCard> materials = Util.GetLinkMaterials(cards, 4, 2, 4).FirstOrDefault();
+            if (materials == null) return false;
+            AI.SelectMaterials(materials);
             return true;
         }
         private bool MechaPhantomBeastAuroradonSummon()
         {
             if (!Bot.HasInMonstersZone(CardId.QliphortGenius,false,false,true) && !Bot.HasInMonstersZone(CardId.Token, false, false, true)) return false;
             List<ClientCard> m = new List<ClientCard>();
-            List<ClientCard> m1 = Bot.GetMonsters().Where(card => card != null && card.Id == CardId.QliphortGenius).ToList();
-            List<ClientCard> m2 = Bot.GetMonsters().Where(card => card != null && card.Id == CardId.Token).ToList();
+            List<ClientCard> m1 = Bot.GetFaceupMonsters().Where(card => card.Id == CardId.QliphortGenius).ToList();
+            List<ClientCard> m2 = Bot.GetFaceupMonsters().Where(card => card.Id == CardId.Token).ToList();
             if (m1.Count > 0) m.AddRange(m1);
             if (m2.Count > 0) m.AddRange(m2);
-            m1.Clear();
-            int link_count = 0;
-            foreach (var card in m)
-            {
-                m1.Add(card);
-                link_count += (card.HasType(CardType.Link)) ? card.LinkCount : 1;
-                if (link_count >= 3) break;
-            }
-            if (link_count < 3) return false;
-            AI.SelectMaterials(m1);
+            List<ClientCard> materials = Util.GetLinkMaterials(m, 3, 2, 3).FirstOrDefault();
+            if (materials == null) return false;
+            AI.SelectMaterials(materials);
             return true;
         }
         private bool KashtiraFenrirSummon()

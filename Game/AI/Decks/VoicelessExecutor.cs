@@ -315,54 +315,12 @@ namespace WindBot.Game.AI.Decks
         }
         public List<ClientCard> SPLittleKnightSelectMaterial(bool needToUseEffect = false)
         {
-            List<ClientCard> usedMaterialList = new List<ClientCard>();
-            if (Bot.GetMonstersExtraZoneCount() > 0)
-            {
-                ClientCard botMonsterExtraZome = Bot.GetMonstersInExtraZone()[0];
-                if (botMonsterExtraZome.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Pendulum))
-                {
-                    usedMaterialList.Add(botMonsterExtraZome);
-                    if (botMonsterExtraZome.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link)) needToUseEffect = false;
-                }
-                List<ClientCard> materialList = GetCanBeUsedForLinkMaterial(true, card => card == botMonsterExtraZome);
-                if (materialList.Count() > 0)
-                {
-                    foreach (ClientCard card in materialList)
-                    {
-                        if (!needToUseEffect || card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz) || (card.HasType(CardType.Link) && card.LinkCount <= 2))
-                        {
-                            usedMaterialList.Add(card);
-                            if (card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link)) needToUseEffect = false;
-                        }
-                        if (usedMaterialList.Count() >= 2) break;
-                    }
-                }
-                if (usedMaterialList.Count() < 2) usedMaterialList.Clear();
-            } else {
-                List<ClientCard> materialList = GetCanBeUsedForLinkMaterial(true, card => !needToUseEffect
-                    || card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz) || (card.HasType(CardType.Link) && card.LinkCount <= 2));
-                if (materialList.Count() >= 2)
-                {
-                    for (int idx1 = 0; idx1 < materialList.Count() - 1; ++ idx1)
-                    {
-                        ClientCard material1 = materialList[idx1];
-                        if (material1.HasType(CardType.Link) && material1.LinkCount >= 3) continue;
-                        bool flag1 = !needToUseEffect || material1.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link);
-                        for (int idx2 = 0; idx2 < materialList.Count(); ++ idx2)
-                        {
-                            ClientCard material2 = materialList[idx2];
-                            if (material2.HasType(CardType.Link) && material2.LinkCount >= 3) continue;
-                            bool flag2 = !needToUseEffect || material2.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link);
-                            if (flag1 || flag2)
-                            {
-                                return new List<ClientCard>{material1, material2};
-                            }
-                        }
-                    }
-                }
-            }
-
-            return usedMaterialList;
+            List<ClientCard> candidates = GetCanBeUsedForLinkMaterial(true)
+                .Where(card => card.HasType(CardType.Effect)
+                    && (!card.HasType(CardType.Link) || card.LinkCount <= 2)).ToList();
+            return Util.GetLinkMaterials(candidates, 2, 2, 2).FirstOrDefault(materials =>
+                (!needToUseEffect || materials.Any(card => card.HasType(CardType.Fusion | CardType.Synchro | CardType.Xyz | CardType.Link)))
+                && Util.GetBotAvailZonesFromExtraDeck(materials) > 0) ?? new List<ClientCard>();
         }
         public List<ClientCard> GetDangerousCardinEnemyGrave(bool onlyMonster = false)
         {

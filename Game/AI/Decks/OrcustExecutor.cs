@@ -987,24 +987,9 @@ namespace WindBot.Game.AI.Decks
             mats.Sort(CardContainer.CompareCardAttack);
             mats.Reverse();
 
-            int link = 0;
-            bool doubleused = false;
-            IList<ClientCard> selected = new List<ClientCard>();
-            foreach (ClientCard card in mats)
-            {
-                selected.Add(card);
-                if (!doubleused && card.LinkCount == 2)
-                {
-                    doubleused = true;
-                    link += 2;
-                }
-                else
-                    link++;
-                if (link >= 4)
-                    break;
-            }
-
-            if (link >= 4 && Util.GetBotAvailZonesFromExtraDeck(selected) > 0)
+            List<ClientCard> selected = Util.GetLinkMaterials(mats, 4, 3, 4)
+                .FirstOrDefault(materials => Util.GetBotAvailZonesFromExtraDeck(materials) > 0);
+            if (selected != null)
             {
                 AI.SelectMaterials(selected);
                 return true;
