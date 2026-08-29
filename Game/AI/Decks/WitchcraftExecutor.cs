@@ -1498,7 +1498,8 @@ namespace WindBot.Game.AI.Decks
             }
 
             // Pittore check
-            if (!ActivatedCards.Contains(CardId.Pittore) && !Bot.HasInGraveyard(CardId.Pittore))
+            if (!ActivatedCards.Contains(CardId.Pittore) && !Bot.HasInGraveyard(CardId.Pittore)
+                && Bot.HasInDeck(CardId.Pittore) && !DefaultCheckWhetherBotWillBeBanished(CardType.Monster, CardLocation.Deck))
             {
                 if (PittoreActivate())
                 {
@@ -1509,7 +1510,8 @@ namespace WindBot.Game.AI.Decks
             }
 
             // trap check
-            if (Bot.GetCardCountInDeck(CardId.Masterpiece) >= 2){
+            if (Bot.GetCardCountInDeck(CardId.Masterpiece) >= 2 && !Bot.HasInGraveyard(CardId.Masterpiece)
+                && !DefaultCheckWhetherBotWillBeBanished(CardType.Trap, CardLocation.Deck)){
                 AI.SelectCard(CardId.Masterpiece);
                 ActivatedCards.Add(CardId.Schmietta);
                 return true;
