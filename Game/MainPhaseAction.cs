@@ -11,7 +11,8 @@
             SetSpell = 4,
             Activate = 5,
             ToBattlePhase = 6,
-            ToEndPhase = 7
+            ToEndPhase = 7,
+            Shuffle = 8
         }
 
         public MainAction Action { get; private set; }
