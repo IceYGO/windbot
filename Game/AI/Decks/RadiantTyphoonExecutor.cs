@@ -1898,7 +1898,9 @@ namespace WindBot.Game.AI.Decks
 
             // Swen has only one activated effect; do not reject its summon trigger when
             // the protocol omits the effect description and reports -1.
-            if (Card.Location != CardLocation.MonsterZone || _usedSwenSearch || _enemyDrollResolved)
+            if (Card.Location != CardLocation.MonsterZone || _usedSwenSearch || _enemyDrollResolved ||
+                !Bot.HasInDeck(CardId.RadiantTyphoonChant, CardId.RadiantTyphoonVision,
+                    CardId.RadiantTyphoonAscendance))
             {
                 return false;
             }
@@ -2187,7 +2189,7 @@ namespace WindBot.Game.AI.Decks
                 return false;
             }
 
-            return CanActivateAscendanceInCurrentTurn() && CanActivateAscendanceNow() &&
+            return CanActivateAscendanceForMandateChain() &&
                 AcceptRadiantQuickPlayActivation();
         }
 
@@ -2466,6 +2468,33 @@ namespace WindBot.Game.AI.Decks
             }
 
             return true;
+        }
+
+        private bool CanActivateAscendanceForMandateChain()
+        {
+            if (!Card.IsCode(CardId.RadiantTyphoonAscendance))
+            {
+                return true;
+            }
+
+            if (!CanActivateAscendanceInCurrentTurn())
+            {
+                return false;
+            }
+
+            // On the opponent's turn this is an immediate interaction line:
+            // Ascendance enters the chain so MST can destroy it and enable
+            // Mandate's negation. Do not apply Ascendance's normal late-engine
+            // ordering against other Radiant Quick-Plays or direct hand Special
+            // Summons here. The server has already offered the activation, and
+            // CanActivateAscendanceInCurrentTurn still enforces the opponent-turn
+            // revive-only resource, zone, usage and same-chain restrictions.
+            if (Duel.Player == 1)
+            {
+                return true;
+            }
+
+            return CanActivateAscendanceNow();
         }
 
         private bool CanActivateAscendanceInCurrentTurn()
@@ -3905,17 +3934,10 @@ namespace WindBot.Game.AI.Decks
 
         private IList<ClientCard> SelectSwenSearch(IList<ClientCard> cards, int min, int max)
         {
-            if (NeedMstStarter() && cards.Any(c => c.IsCode(CardId.MysticalSpaceTyphoon)))
-            {
-                return SelectMstForHand(cards, min, max);
-            }
-
             List<int> priority = BuildSearchPriorityWithoutFieldMeghala(
                 CardId.RadiantTyphoonChant,
                 CardId.RadiantTyphoonVision,
-                CardId.RadiantTyphoonAscendance,
-                CardId.MysticalSpaceTyphoon,
-                CardId.RadiantTyphoonMandate);
+                CardId.RadiantTyphoonAscendance);
             return SelectByIds(cards, min, max, 1, priority.ToArray());
         }
 
@@ -4118,7 +4140,14 @@ namespace WindBot.Game.AI.Decks
                 return 1000;
             }
 
-            // A card already used this turn is the first discard candidate.
+            // Mandate is always the first discard candidate, even before a
+            // card whose effect has already been used this turn.
+            if (card.IsCode(CardId.RadiantTyphoonMandate))
+            {
+                return 0;
+            }
+
+            // A card already used this turn is the next discard candidate.
             // Meghala remains useful while either its hand summon or field
             // trigger is still available, so spend it only after both are used.
             bool effectSpent = card.IsCode(CardId.RadiantTyphoonMeghala)
@@ -4127,13 +4156,9 @@ namespace WindBot.Game.AI.Decks
                 : WasRadiantEffectUsedThisTurn(card.Id);
             if (effectSpent)
             {
-                return 0;
-            }
-            if (card.IsCode(CardId.MysticalSpaceTyphoon))
-            {
                 return 10;
             }
-            if (card.IsCode(CardId.RadiantTyphoonMandate))
+            if (card.IsCode(CardId.MysticalSpaceTyphoon))
             {
                 return 20;
             }
