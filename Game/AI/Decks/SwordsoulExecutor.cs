@@ -2542,7 +2542,7 @@ namespace WindBot.Game.AI.Decks
                     {
                         bool triggerFlag = true;
                         List<ClientCard> enemyTargetList = Enemy.GetMonsters().Where(card =>
-                            card.IsFaceup() && card.HasType(CardType.Effect) && !card.IsShouldNotBeMonsterTarget() && card.IsShouldNotBeTarget()).ToList();
+                            card.IsFaceup() && card.HasType(CardType.Effect) && !card.IsShouldNotBeMonsterTarget() && !card.IsShouldNotBeTarget()).ToList();
                         if (enemyTargetList.Count() == 0)
                         {
                             List<ClientCard> botTargetList = Bot.GetMonsters().Where(card => card.IsFaceup() && card.HasType(CardType.Effect)
