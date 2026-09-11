@@ -49,7 +49,7 @@ namespace WindBot.Game.AI.Decks
         {
             // 先清后场和干扰手牌；这两项不会改变电子龙的特召条件。
             AddExecutor(ExecutorType.Activate, CardId.HeavyStorm, HeavyStormActivate);
-            AddExecutor(ExecutorType.Activate, CardId.Confiscation);
+            AddExecutor(ExecutorType.Activate, CardId.Confiscation, ConfiscationActivate);
 
             // 先开天使的施舍过牌。
             AddExecutor(ExecutorType.Activate, CardId.GracefulCharity);
@@ -458,6 +458,11 @@ namespace WindBot.Game.AI.Decks
             int myCount = Bot.GetSpellCount() -
                 (Card.Location == CardLocation.SpellZone ? 1 : 0);
             return enemyCount >= myCount + 2 || Enemy.SpellZone.GetFloodgate() != null;
+        }
+
+        private bool ConfiscationActivate()
+        {
+            return Bot.LifePoints > 1000;
         }
 
         // 抹杀之使徒：目标为对方背面防守怪兽
