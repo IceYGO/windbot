@@ -310,7 +310,7 @@ namespace WindBot.Game.AI.Decks
                     && !useAdvancedMonster && (card.IsAttack() || !summonThisTurn.Contains(card))) return false;
                 return true;
             }).ToList();
-            materialList.Sort();
+            materialList.Sort(CompareUsableAttack);
             return materialList;
         }
         public List<ClientCard> SPLittleKnightSelectMaterial(bool needToUseEffect = false)
