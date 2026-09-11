@@ -299,6 +299,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool InstantFusionEffect()
         {
+            if (Bot.LifePoints <= 1000) return false;
             if (!NeedMonster())
                 return false;
 

@@ -326,6 +326,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (Card.Location == CardLocation.Removed)
                 return true;
+            if (Bot.LifePoints <= 1000) return false;
             bool hastarget = Bot.HasInHand(new[] {
                     CardId.Draconnet,
                     CardId.Kleinant,

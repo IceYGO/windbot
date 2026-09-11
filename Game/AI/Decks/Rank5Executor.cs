@@ -193,6 +193,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool InstantFusionEffect()
         {
+            if (Bot.LifePoints <= 1000) return false;
             if (!NeedLV5(null))
                 return false;
             InstantFusionUsed = true;

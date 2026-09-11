@@ -257,6 +257,7 @@ namespace WindBot.Game.AI.Decks
 
         private bool SkillDraineff()
         {
+            if (Bot.LifePoints <= 1000) return false;
             if (Duel.LastChainPlayer == 1 && Util.GetLastChainCard().Location == CardLocation.MonsterZone)
                 return UniqueFaceupSpell();
             return false;

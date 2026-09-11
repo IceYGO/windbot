@@ -2916,6 +2916,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool returnFromBanish()
         {
+            if (Bot.LifePoints <= 300) return false;
             if (DefaultCheckWhetherCardIdIsNegated(Card.Id)) return false;
             if (Card.Location != CardLocation.Removed) return false;
 
