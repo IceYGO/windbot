@@ -59,7 +59,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public static bool IsShouldNotBeTarget(this ClientCard card)
         {
-            return !card.IsDisabled() && !card.HasType(CardType.Normal)
+            return card.IsFaceup() && !card.IsDisabled() && !card.HasType(CardType.Normal)
                 && (Enum.IsDefined(typeof(ShouldNotBeTarget), card.Id) || card.Overlays.Any(code => code == 91025875));
         }
 
@@ -68,7 +68,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public static bool IsShouldNotBeMonsterTarget(this ClientCard card)
         {
-            return !card.IsDisabled() && Enum.IsDefined(typeof(ShouldNotBeMonsterTarget), card.Id)
+            return card.IsFaceup() && !card.IsDisabled() && Enum.IsDefined(typeof(ShouldNotBeMonsterTarget), card.Id)
                 || card.EquipCards.Any(c => c.IsCode(89812483) && !c.IsDisabled());
         }
 
@@ -77,7 +77,7 @@ namespace WindBot.Game.AI
         /// </summary>
         public static bool IsShouldNotBeSpellTrapTarget(this ClientCard card)
         {
-            return !card.IsDisabled() && Enum.IsDefined(typeof(ShouldNotBeSpellTrapTarget), card.Id)
+            return card.IsFaceup() && !card.IsDisabled() && Enum.IsDefined(typeof(ShouldNotBeSpellTrapTarget), card.Id)
                 || card.EquipCards.Any(c => c.IsCode(89812483) && !c.IsDisabled());
         }
 
