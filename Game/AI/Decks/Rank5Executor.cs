@@ -219,7 +219,7 @@ namespace WindBot.Game.AI.Decks
                     ++lv5Count;
                 if (card.IsCode(CardId.MistArchfiend, CardId.WindUpSoldier, CardId.StarDrawing, CardId.ChronomalyGoldenJet) && !NormalSummoned)
                     ++lv5Count;
-                if (card.IsCode(CardId.DoubleSummon) && DoubleSummonEffect())
+                if (card.IsCode(CardId.DoubleSummon) && UseDoubleSummon())
                     ++lv5Count;
             }
             if (lv5Count >= 2)
@@ -237,23 +237,24 @@ namespace WindBot.Game.AI.Decks
             return Card.Level == 4;
         }
 
+        private bool UseDoubleSummon()
+        {
+            return NormalSummoned && !DoubleSummonUsed && Bot.HasInHand(new[]
+            {
+                CardId.WindUpSoldier,
+                CardId.StarDrawing,
+                CardId.ChronomalyGoldenJet,
+                CardId.MistArchfiend
+            });
+        }
+
         private bool DoubleSummonEffect()
         {
-            if (!NormalSummoned || DoubleSummonUsed)
+            if (!UseDoubleSummon())
                 return false;
-            if (Bot.HasInHand(new[]
-                {
-                    CardId.WindUpSoldier,
-                    CardId.StarDrawing,
-                    CardId.ChronomalyGoldenJet,
-                    CardId.MistArchfiend
-                }))
-            {
-                NormalSummoned = false;
-                DoubleSummonUsed = true;
-                return true;
-            }
-            return false;
+            NormalSummoned = false;
+            DoubleSummonUsed = true;
+            return true;
         }
 
         private bool CyberDragonNovaSummon()
