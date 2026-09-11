@@ -286,14 +286,14 @@ namespace WindBot.Game.AI.Decks
                 return card;
 
             card = Enemy.MonsterZone.Where(c => c?.Data != null && c.HasType(CardType.Monster) && c.IsFaceup()
-                && CheckCanBeTargeted(c, canBeTarget, selfType) && (!ignoreCurrentDestroy || currentDestroyCardList.Contains(c)))
+                && CheckCanBeTargeted(c, canBeTarget, selfType) && (!ignoreCurrentDestroy || !currentDestroyCardList.Contains(c)))
                 .OrderByDescending(c => c.Attack).FirstOrDefault();
             if (card != null)
                 return card;
 
-            List<ClientCard> monsters = Enemy.GetMonsters().Where(c => !ignoreCurrentDestroy || currentDestroyCardList.Contains(c)).ToList();
+            List<ClientCard> monsters = Enemy.GetMonsters().Where(c => CheckCanBeTargeted(c, canBeTarget, selfType)
+                && (!ignoreCurrentDestroy || !currentDestroyCardList.Contains(c))).ToList();
 
-            // after GetHighestAttackMonster, the left monsters must be face-down.
             if (monsters.Count() > 0 && !onlyFaceup)
                 return Util.ShuffleList(monsters)[0];
 

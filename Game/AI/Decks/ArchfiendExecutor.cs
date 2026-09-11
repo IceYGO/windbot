@@ -651,7 +651,7 @@ namespace WindBot.Game.AI.Decks
             if (card != null) return card;
             card = Enemy.MonsterZone.GetHighestAttackMonster(canBeTarget);
             if (card != null) return card;
-            List<ClientCard> monsters = Enemy.GetMonsters();
+            List<ClientCard> monsters = Enemy.GetMonsters().Where(c => !canBeTarget || !c.IsShouldNotBeTarget()).ToList();
             if (monsters.Count > 0 && !onlyFaceup) return Util.ShuffleList(monsters)[0];
             return null;
         }
