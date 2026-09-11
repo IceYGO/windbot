@@ -1901,7 +1901,7 @@ namespace WindBot.Game.AI
                 .Where(card => card?.Data != null && card.IsMonsterDangerous() && card.IsFaceup() && !card.IsShouldNotBeTarget())
                 .OrderByDescending(card => card.Attack).ToList();
             List<ClientCard> attackOrderedCards = monsters
-                .Where(card => card?.Data != null && card.HasType(CardType.Monster) && card.IsFaceup() && card.IsShouldNotBeTarget())
+                .Where(card => card?.Data != null && card.HasType(CardType.Monster) && card.IsFaceup() && !card.IsShouldNotBeTarget())
                 .OrderByDescending(card => card.Attack).ToList();
 
             targetList.AddRange(floodgateCards);
