@@ -483,7 +483,7 @@ namespace WindBot.Game.AI
 
             foreach (ClientCard protecter in Enemy.GetMonsters())
             {
-                if (!protecter.IsDisabled() && protecter != defender)
+                if (protecter.IsFaceup() && !protecter.IsDisabled() && protecter != defender)
                 {
                     Func<ClientCard, bool> defenderRule = card => false;
                     if (DefenderProtectRule.TryGetValue(protecter.Id, out defenderRule))
