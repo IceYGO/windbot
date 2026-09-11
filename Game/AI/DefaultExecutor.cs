@@ -1577,7 +1577,8 @@ namespace WindBot.Game.AI
             if (Duel.Player != 0)
             {
                 List<ClientCard> monsters = Enemy.GetMonsters();
-                int[] levels = new int[13];
+                HashSet<int> levels = new HashSet<int>();
+                bool sameLevel = false;
                 bool tuner = false;
                 bool nontuner = false;
                 foreach (ClientCard monster in monsters)
@@ -1586,7 +1587,8 @@ namespace WindBot.Game.AI
                     {
                         if (monster.HasType(CardType.Tuner)) tuner = true;
                         else nontuner = true;
-                        if (!monster.HasType(CardType.Token)) levels[monster.Level] = levels[monster.Level] + 1;
+                        if (!monster.HasType(CardType.Token) && monster.Level > 0 && !levels.Add(monster.Level))
+                            sameLevel = true;
                     }
 
                     if (monster.IsOneForXyz())
@@ -1600,13 +1602,10 @@ namespace WindBot.Game.AI
                     AI.SelectOption(SYNCHRO);
                     return true;
                 }
-                for (int i=1; i<=12; i++)
+                if (sameLevel)
                 {
-                    if (levels[i]>1)
-                    {
-                        AI.SelectOption(XYZ);
-                        return true;
-                    }
+                    AI.SelectOption(XYZ);
+                    return true;
                 }
                 ClientCard l = Enemy.SpellZone[6];
                 ClientCard r = Enemy.SpellZone[7];
