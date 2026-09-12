@@ -775,7 +775,7 @@ namespace WindBot.Game.AI.Decks
         private bool Raidraptor_ArsenalFalconSummon()
         {
             if (!XyzModeCheck(true)) return false;
-            var materials_lists = Util.GetXyzMaterials(Bot.MonsterZone, 7, 2, false,
+            var materials_lists = Util.GetXyzMaterials(Bot.GetFaceupMonsters(), 7, 2, false,
                  card => { return !card.IsCode(CardId.F_A_DawnDragster) && !card.IsCode(CardId.TheMightyMasterofMagic); });
             if (materials_lists.Count <= 0) return false;
             AI.SelectMaterials(materials_lists[0]);
@@ -786,7 +786,7 @@ namespace WindBot.Game.AI.Decks
         {
             if (!XyzModeCheck()) return false;
             var materials_lists = Util.GetXyzMaterials(Func.MergeList(new List<ClientCard>() { Card },
-                Func.GetZoneCards(Bot, CardLocation.MonsterZone | CardLocation.PendulumZone)), 7, 2, false,
+                Func.GetZoneCards(Bot, CardLocation.MonsterZone | CardLocation.PendulumZone, true)), 7, 2, false,
                 card => { return !card.IsCode(CardId.F_A_DawnDragster) && !card.IsCode(CardId.TheMightyMasterofMagic); });
             if (materials_lists.Count <= 0) return false;
             List<ClientCard> pre_materials = func.CardsCheckWhere(Func.GetZoneCards(Bot, CardLocation.MonsterZone, true), SecretoftheYangZingCheck);
@@ -1013,7 +1013,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool BorreloadSavageDragonSummon()
         {
-            var materials_lists = Util.GetSynchroMaterials(Bot.MonsterZone, Card.Level, 1, 1, false, true, null,
+            var materials_lists = Util.GetSynchroMaterials(Bot.GetFaceupMonsters(), Card.Level, 1, 1, false, true, null,
                  card => { return !card.IsCode(CardId.F_A_DawnDragster) && !card.IsCode(CardId.TheMightyMasterofMagic) && !card.IsCode(CardId.HeraldoftheArcLight); });
             if (materials_lists.Count <= 0) return false;
             foreach (var materials in materials_lists)
@@ -1311,11 +1311,11 @@ namespace WindBot.Game.AI.Decks
                 pre_materials.AddRange(key_materials);
                 pre_materials.AddRange(key_materials_2);
                 if (!summoned) pre_materials.AddRange(func.CardsCheckWhere(Bot.Hand, card => { return !card.IsCode(CardId.DestrudotheLostDragon_Frisson) && card.Level < 5; }));
-                pre_materials.AddRange(Bot.MonsterZone);
+                pre_materials.AddRange(Bot.GetFaceupMonsters());
                 var synchro_materials_lists = Util.GetSynchroMaterials(pre_materials, 7, 1, 1, false, true, null, card => { return !card.IsCode(CardId.MythicalBeastJackalKing); });
-                var xyz_materials_lists = Util.GetXyzMaterials(Func.GetZoneCards(Bot, CardLocation.MonsterZone | CardLocation.PendulumZone), 7, 1, false,
+                var xyz_materials_lists = Util.GetXyzMaterials(Func.GetZoneCards(Bot, CardLocation.MonsterZone | CardLocation.PendulumZone, true), 7, 1, false,
                 card => { return !card.IsCode(CardId.F_A_DawnDragster) && !card.IsCode(CardId.TheMightyMasterofMagic); });
-                var xyz_materials_lists_2 = Util.GetXyzMaterials(Func.GetZoneCards(Bot, CardLocation.MonsterZone), 7, 2, false,
+                var xyz_materials_lists_2 = Util.GetXyzMaterials(Bot.GetFaceupMonsters(), 7, 2, false,
                card => { return !card.IsCode(CardId.F_A_DawnDragster) && !card.IsCode(CardId.TheMightyMasterofMagic); });
                 if ((synchro_materials_lists.Count > 0 && xyz_materials_lists.Count > 0) || xyz_materials_lists_2.Count > 0) return false;
             }
@@ -1421,7 +1421,7 @@ namespace WindBot.Game.AI.Decks
         }
         private bool Denglong_FirstoftheYangZingSummon()
         {
-            var materials_lists = Util.GetSynchroMaterials(Bot.MonsterZone, 5, 1, 1, false, true, null,
+            var materials_lists = Util.GetSynchroMaterials(Bot.GetFaceupMonsters(), 5, 1, 1, false, true, null,
                 card => { return !card.IsCode(CardId.HeraldoftheArcLight); });
             if (materials_lists.Count <= 0) return false;
             AI.SelectMaterials(materials_lists[0]);

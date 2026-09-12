@@ -366,7 +366,7 @@ namespace WindBot.Game.AI.Decks
         private bool SelectXyzMaterials(int level)
         {
             List<List<ClientCard>> materialLists = Util.GetXyzMaterials(
-                Bot.GetMonsters(), level, 2);
+                Bot.GetFaceupMonsters(), level, 2);
             List<ClientCard> materials = materialLists
                 .OrderBy(list => list.Sum(GetMaterialPriority))
                 .ThenBy(list => list.Sum(card => card.Attack))
@@ -385,7 +385,7 @@ namespace WindBot.Game.AI.Decks
             Func<ClientCard, bool> nonTunerFilter = null)
         {
             List<List<ClientCard>> materialLists = Util.GetSynchroMaterials(
-                Bot.GetMonsters(),
+                Bot.GetFaceupMonsters(),
                 level,
                 1,
                 nonTunerCount,
@@ -1030,7 +1030,7 @@ namespace WindBot.Game.AI.Decks
                 return SelectXyzMaterials(4);
 
             List<ClientCard> defenceMaterials = Util.GetXyzMaterials(
-                    Bot.GetMonsters(), 4, 2)
+                    Bot.GetFaceupMonsters(), 4, 2)
                 .Where(materials =>
                     materials.All(card => card.IsDefense()))
                 .OrderBy(materials =>

@@ -460,111 +460,136 @@ namespace WindBot.Game.AI
         }
 
         /// <summary>
-        /// Get all xyz materials lists that xyz monster required level in the 'pre_materials' list
+        /// Enumerates Synchro material combinations whose levels sum to the target level and satisfy the counts and filters.
         /// </summary>
-        /// <param name="param_pre_materials">Original materials</param>
-        /// <param name="level">Xyz monster required level</param>
-        /// <param name="material_count">SpSummon rule:number of xyz materials</param>
-        /// <param name="material_count_above">More xyz materials</param>
-        /// <param name="material_func">Filter xyz materials func</param>
-        /// <returns></returns>
-        public List<List<ClientCard>> GetXyzMaterials(IList<ClientCard> param_pre_materials, int level, int material_count, bool material_count_above = false, Func<ClientCard, bool> material_func = null)
+        /// <param name="candidateMaterials">Candidate materials whose locations and positions have been checked by the caller.</param>
+        /// <param name="synchroLevel">Target Synchro monster's level.</param>
+        /// <param name="tunerCount">Required Tuner count.</param>
+        /// <param name="nonTunerCount">Required non-Tuner count.</param>
+        /// <param name="allowMoreTuners">True requires at least tunerCount Tuners; false requires exactly that many.</param>
+        /// <param name="allowMoreNonTuners">True requires at least nonTunerCount non-Tuners; false requires exactly that many.</param>
+        /// <param name="tunerFilter">Optional additional filter for Tuners. Null applies no additional restriction.</param>
+        /// <param name="nonTunerFilter">Optional additional filter for non-Tuners. Null applies no additional restriction.</param>
+        /// <returns>
+        /// Distinct combinations in depth-first search order over candidates sorted by increasing level,
+        /// preserving input order for equal levels. This order does not prioritize fewer materials.
+        /// Returns an empty list for null input, invalid numeric arguments or no matching combination.
+        /// </returns>
+        public List<List<ClientCard>> GetSynchroMaterials(IList<ClientCard> candidateMaterials, int synchroLevel, int tunerCount, int nonTunerCount, bool allowMoreTuners = false, bool allowMoreNonTuners = true, Func<ClientCard, bool> tunerFilter = null, Func<ClientCard, bool> nonTunerFilter = null)
         {
             List<List<ClientCard>> result = new List<List<ClientCard>>();
-            List<ClientCard> pre_materials = param_pre_materials?.Where(card => card != null && !(card.IsFacedown() & card.Location == CardLocation.MonsterZone) && card.Level == level && !card.IsMonsterNotBeXyzMaterial()).ToList();
-            if (pre_materials?.Count() < material_count) return result;
-            Func<ClientCard, bool> default_func = card => true;
-            material_func = material_func ?? default_func;
-            for (int i = 1; i < Math.Pow(2, pre_materials.Count); i++)
+            if (candidateMaterials == null || synchroLevel <= 0 || tunerCount < 0 || nonTunerCount < 0)
+                return result;
+
+            List<ClientCard> eligibleMaterials = candidateMaterials
+                .Where(card => card != null
+                    && card.Level > 0 && card.Level <= synchroLevel && !card.IsMonsterNotBeSynchroMaterial())
+                .Distinct()
+                .Where(card => card.HasType(CardType.Tuner)
+                    ? tunerFilter == null || tunerFilter(card)
+                    : nonTunerFilter == null || nonTunerFilter(card))
+                .OrderBy(card => card.Level)
+                .ToList();
+            int availableTuners = eligibleMaterials.Count(card => card.HasType(CardType.Tuner));
+            if (availableTuners < tunerCount || eligibleMaterials.Count - availableTuners < nonTunerCount)
+                return result;
+
+            Stack<int> selectedIndexes = new Stack<int>();
+            List<ClientCard> materials = new List<ClientCard>();
+            int nextIndex = 0;
+            int sum = 0;
+            int tuners = 0;
+            int nonTuners = 0;
+            while (true)
             {
-                List<ClientCard> temp_materials = new List<ClientCard>();
-                string binaryString = Convert.ToString(i, 2).PadLeft(pre_materials.Count, '0');
-                char[] reversedBinaryChars = binaryString.Reverse().ToArray();
-                for (int j = 0; j < pre_materials.Count; j++)
+                if (sum == synchroLevel)
                 {
-                    if (reversedBinaryChars[j] == '1' && material_func(pre_materials[j]))
+                    if (tuners >= tunerCount && nonTuners >= nonTunerCount)
+                        result.Add(new List<ClientCard>(materials));
+                }
+                else if (nextIndex < eligibleMaterials.Count)
+                {
+                    int index = nextIndex++;
+                    ClientCard material = eligibleMaterials[index];
+                    bool isTuner = material.HasType(CardType.Tuner);
+                    if (sum + material.Level <= synchroLevel)
                     {
-                        temp_materials.Add(pre_materials[j]);
+                        if ((!isTuner || allowMoreTuners || tuners < tunerCount)
+                            && (isTuner || allowMoreNonTuners || nonTuners < nonTunerCount))
+                        {
+                            selectedIndexes.Push(index);
+                            materials.Add(material);
+                            sum += material.Level;
+                            if (isTuner) tuners++;
+                            else nonTuners++;
+                        }
+                        continue;
                     }
+                    // Later candidates cannot fit either because levels are sorted ascending.
                 }
-                if (material_count_above ? temp_materials.Count >= material_count : temp_materials.Count == material_count)
-                {
-                    result.Add(temp_materials);
-                }
+
+                if (selectedIndexes.Count == 0)
+                    break;
+                int previousIndex = selectedIndexes.Pop();
+                ClientCard previousMaterial = eligibleMaterials[previousIndex];
+                materials.RemoveAt(materials.Count - 1);
+                sum -= previousMaterial.Level;
+                if (previousMaterial.HasType(CardType.Tuner)) tuners--;
+                else nonTuners--;
+                nextIndex = previousIndex + 1;
             }
             return result;
         }
 
         /// <summary>
-        /// Get all synchro materials lists that synchro monster level == param 'level' in the 'pre_materials' list
+        /// Enumerates Xyz material combinations matching the required material level, count and filter.
         /// </summary>
-        /// <param name="pre_materials">Original materials</param>
-        /// <param name="level">Synchro monster level</param>
-        /// <param name="tuner_count">SpSummon rule:number of tuner monsters </param>
-        /// <param name="n_tuner_count">SpSummon rule:number of non-tuner monsters count</param>
-        /// <param name="tuner_count_above">More tuner monsters</param>
-        /// <param name="n_tuner_count_above">More non-tuner monsters</param>
-        /// <param name="tuner_func">Filter tuner monsters func</param>
-        /// <param name="n_tuner_func">Filter non-tuner monsters func</param>
-        /// <returns></returns>
-        public List<List<ClientCard>> GetSynchroMaterials(IList<ClientCard> param_pre_materials, int level, int tuner_count, int n_tuner_count, bool tuner_count_above = false, bool n_tuner_count_above = true, Func<ClientCard, bool> tuner_func = null, Func<ClientCard, bool> n_tuner_func = null)
+        /// <param name="candidateMaterials">Candidate materials whose locations and positions have been checked by the caller.</param>
+        /// <param name="materialLevel">Required level of each material.</param>
+        /// <param name="materialCount">Required material count.</param>
+        /// <param name="allowMoreMaterials">True requires at least materialCount materials; false requires exactly that many.</param>
+        /// <param name="materialFilter">Optional additional filter for each material. Null applies no additional restriction.</param>
+        /// <returns>
+        /// Distinct combinations ordered by increasing material count, then lexicographically by candidate input indexes.
+        /// Cards within each combination retain their input order.
+        /// Returns an empty list for null input, invalid numeric arguments or no matching combination.
+        /// </returns>
+        public List<List<ClientCard>> GetXyzMaterials(IList<ClientCard> candidateMaterials, int materialLevel, int materialCount, bool allowMoreMaterials = false, Func<ClientCard, bool> materialFilter = null)
         {
-            List<List<ClientCard>> t_result = new List<List<ClientCard>>();
-            List<ClientCard> pre_materials = param_pre_materials?.Where(card => card != null && !(card.IsFacedown() & card.Location == CardLocation.MonsterZone) && card.Level > 0 && !card.IsMonsterNotBeSynchroMaterial()).ToList();
-            if (pre_materials?.Count() < tuner_count + n_tuner_count) return t_result;
-            Func<ClientCard, bool> default_func = card => true;
-            tuner_func = tuner_func ?? default_func;
-            n_tuner_func = n_tuner_func ?? default_func;
-            pre_materials.Sort(CardContainer.CompareCardLevel);
-            Stack<object[]> materials_stack = new Stack<object[]>();
-            for (var i = 0; i < pre_materials.Count; i++)
-            {
-                if (pre_materials[i].Level > level) break;
-                materials_stack.Push(new object[] { pre_materials[i].Level, i, pre_materials[i].Level, new List<ClientCard> { pre_materials[i] } });
-            }
-            while (materials_stack.Count > 0)
-            {
-                object[] data = materials_stack.Pop();
-                int num = (int)data[0];
-                int index = (int)data[1];
-                int sum = (int)data[2];
-                List<ClientCard> temp_materials = (List<ClientCard>)data[3];
-                if (sum == level)
-                {
-                    t_result.Add(temp_materials);
-                }
-                else if (sum < level)
-                {
-                    for (var i = index + 1; i < pre_materials.Count; i++)
-                    {
-                        if (pre_materials[i].Level > level - sum) break;
-                        if (i > index + 1 && pre_materials[i].Level == pre_materials[i - 1].Level) continue;
-                        var new_temp_materials = new List<ClientCard>(temp_materials);
-                        new_temp_materials.Add(pre_materials[i]);
-                        materials_stack.Push(new object[] { pre_materials[i].Level, i, sum + pre_materials[i].Level, new_temp_materials });
-                    }
-                }
-            }
             List<List<ClientCard>> result = new List<List<ClientCard>>();
-            for (int i = 0; i < t_result.Count; i++)
+            if (candidateMaterials == null || materialLevel <= 0 || materialCount <= 0)
+                return result;
+
+            List<ClientCard> eligibleMaterials = candidateMaterials
+                .Where(card => card != null
+                    && card.Level == materialLevel && !card.HasType(CardType.Token) && !card.IsMonsterNotBeXyzMaterial())
+                .Distinct()
+                .Where(card => materialFilter == null || materialFilter(card))
+                .ToList();
+            if (eligibleMaterials.Count < materialCount)
+                return result;
+
+            int maxCount = allowMoreMaterials ? eligibleMaterials.Count : materialCount;
+            for (int count = materialCount; count <= maxCount; count++)
             {
-                List<ClientCard> materials = t_result[i];
-                List<ClientCard> tuner_materials = new List<ClientCard>();
-                List<ClientCard> n_tuner_materials = new List<ClientCard>();
-                foreach (ClientCard material in materials)
+                int[] indexes = Enumerable.Range(0, count).ToArray();
+                while (true)
                 {
-                    if (material.HasType(CardType.Tuner) && tuner_func(material))
-                    {
-                        tuner_materials.Add(material);
-                    }
-                    else if (material.Level > 0 && n_tuner_func(material))
-                    {
-                        n_tuner_materials.Add(material);
-                    }
-                }
-                if ((tuner_count_above ? tuner_materials.Count >= tuner_count : tuner_materials.Count == tuner_count)
-                    && (n_tuner_count_above ? n_tuner_materials.Count >= n_tuner_count : n_tuner_materials.Count == n_tuner_count))
+                    List<ClientCard> materials = new List<ClientCard>(count);
+                    foreach (int index in indexes)
+                        materials.Add(eligibleMaterials[index]);
                     result.Add(materials);
+
+                    // Advance the rightmost index that leaves room for all following materials.
+                    int position = count - 1;
+                    while (position >= 0 && indexes[position] == eligibleMaterials.Count - count + position)
+                        position--;
+                    if (position < 0)
+                        break;
+                    indexes[position]++;
+                    for (int i = position + 1; i < count; i++)
+                        indexes[i] = indexes[i - 1] + 1;
+                }
             }
             return result;
         }
