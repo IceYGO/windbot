@@ -217,10 +217,7 @@ namespace WindBot.Game.AI.Decks
         }
         //======================Default code
         #region Default Code Start Here
-        bool enemyActivateMaxxC = false;
-        bool enemyActivateLockBird = false;
         int dimensionShifterCount = 0;
-        bool enemyActivateInfiniteImpermanenceFromHand = false;
         List<int> infiniteImpermanenceList = new List<int>();
         List<ClientCard> currentNegateCardList = new List<ClientCard>();
         List<ClientCard> currentDestroyCardList = new List<ClientCard>();
@@ -237,8 +234,6 @@ namespace WindBot.Game.AI.Decks
         int _gateReviveTargetId = 0;      // จะชุบตัวไหน
         int _gateDiscardPreferredId = 0;  // จะทิ้งใบไหนเป็น cost
         bool _gateWantsRecycle = false;   // กำลังจะกดโหมดเก็บ Continuous
-        bool _spQuickMode = false;
-        bool engraverFieldActivated = false;
         bool engraverGYActivated = false;
         bool moonSummoned = false;
         bool requiemSummoned = false;
@@ -887,9 +882,6 @@ namespace WindBot.Game.AI.Decks
             Logger.DebugWriteLine($"[CHAIN] Solved idx={chainIndex} negated={neg} solving={CardStr(currentChain?.RelatedCard)}");
             if (currentChain != null && !Duel.IsCurrentSolvingChainNegated() && currentChain.ActivatePlayer == 1)
             {
-                if (currentChain.IsActivateCode(_CardId.MaxxC)) enemyActivateMaxxC = true;
-                if (currentChain.IsActivateCode(CardId.Fuwalos)) enemyActivateMaxxC = true;
-                if (currentChain.IsActivateCode(_CardId.LockBird)) enemyActivateLockBird = true;
                 if (currentChain.IsActivateCode(_CardId.InfiniteImpermanence))
                 {
                     for (int i = 0; i < 5; ++i)
@@ -909,7 +901,6 @@ namespace WindBot.Game.AI.Decks
             escapeTargetList.Clear();
             currentNegateCardList.Clear();
             currentDestroyCardList.Clear();
-            enemyActivateInfiniteImpermanenceFromHand = false;
             for (int idx = enemyPlaceThisTurn.Count - 1; idx >= 0; idx--)
             {
                 ClientCard checkTarget = enemyPlaceThisTurn[idx];
@@ -936,9 +927,6 @@ namespace WindBot.Game.AI.Decks
         {
             if (Duel.Turn <= 1) { dimensionShifterCount = 0; }
 
-            enemyActivateMaxxC = false;
-            enemyActivateLockBird = false;
-            enemyActivateInfiniteImpermanenceFromHand = false;
             if (dimensionShifterCount > 0) dimensionShifterCount--;
             infiniteImpermanenceList.Clear();
             currentNegateCardList.Clear();
@@ -955,10 +943,8 @@ namespace WindBot.Game.AI.Decks
             _gateReviveTargetId = 0;
             _gateDiscardPreferredId = 0;
             _gateWantsRecycle = false;
-            _spQuickMode = false;
 
             // reset Fiendsmith effects
-            engraverFieldActivated = false;
             engraverGYActivated = false;
             
             base.OnNewTurn();
@@ -1547,7 +1533,6 @@ namespace WindBot.Game.AI.Decks
             ClientCard target = GetBestEnemyMonster(onlyFaceup: false, canBeTarget: true);
             if (target != null)
             {
-                engraverFieldActivated = true;
                 AI.SelectCard(CardId.FIENDSMITHS_REQUIEM);
                 AI.SelectNextCard(target);
                 return true;

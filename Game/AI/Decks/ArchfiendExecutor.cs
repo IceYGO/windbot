@@ -82,7 +82,6 @@ namespace WindBot.Game.AI.Decks
         int summonCount = 1;
         const int hintTimingMainEnd = 0x4;
         const int hintToHand = 0x200000;
-        bool activatingLodeSpSummonEffect = false;
 
 
         List<int> infiniteImpermanenceList = new List<int>();
@@ -135,7 +134,6 @@ namespace WindBot.Game.AI.Decks
             }
             // reset
             summonCount = 1;
-            activatingLodeSpSummonEffect = false;
             infiniteImpermanenceList.Clear();
             currentNegateCardList.Clear();
             currentDestroyCardList.Clear();
@@ -1188,7 +1186,6 @@ namespace WindBot.Game.AI.Decks
                 // add activating flag
                 if (CheckWhetherNegated()) return false;
                 if (!PrimiteLordlyLodeSpSummonCheck()) return false;
-                activatingLodeSpSummonEffect = true;
                 activatedCardIdList.Add(Card.Id + 1);
                 return true;
             }

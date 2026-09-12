@@ -211,8 +211,6 @@ namespace WindBot.Game.AI.Decks
             }
             */
         }
-        int attackerzone = -1;
-        int defenderzone = -1;
         bool Secret_used = false;
         bool plan_A = false;
         bool plan_C = false;

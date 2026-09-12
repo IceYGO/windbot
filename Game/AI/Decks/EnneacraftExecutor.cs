@@ -166,7 +166,6 @@ namespace WindBot.Game.AI.Decks
         private bool recoveryHadFacedownAtTurnStart;
         private bool recoveryReturnPending;
         private bool recoveryReturnResolved;
-        private bool finalScalePhaseStarted;
         private bool openingReturnPending;
         private int scaleRouteInterruptions;
         private bool scaleRouteAborted;
@@ -250,7 +249,6 @@ namespace WindBot.Game.AI.Decks
                 recoveryReturnResolved = false;
                 recoveryReturnExpected.Clear();
                 recoveryReturnMovedCount = 0;
-                finalScalePhaseStarted = false;
                 openingReturnPending = false;
                 scaleRouteInterruptions = 0;
                 scaleRouteAborted = false;
@@ -392,7 +390,6 @@ namespace WindBot.Game.AI.Decks
                 {
                     openingPairReturned = false;
                     enneapolisReturnAttempted = false;
-                    finalScalePhaseStarted = false;
                     scaleRouteAborted = true;
                 }
 
@@ -950,7 +947,6 @@ namespace WindBot.Game.AI.Decks
             if (candidates.Count == 0 || !Object.ReferenceEquals(candidates[0], Card))
                 return false;
 
-            finalScalePhaseStarted = true;
             unresolvedRouteScalePlacements.Add(Card);
             return true;
         }

@@ -110,8 +110,6 @@ namespace WindBot.Game.AI.Decks
             };
         private List<int> notToDestroySpellTrap = new List<int> { 50005218, 6767771 };
 
-        private bool DivinerCheck = false; // In case of Trias in Hand, add either spell/ritual or board break
-        private bool summoned = false; //Some unused variables since code was borrowed from Louse's lab
         private List<int> activatedCardIdList = new List<int>();
         private List<ClientCard> currentNegateMonsterList = new List<ClientCard>();
         private List<ClientCard> currentDestroyCardList = new List<ClientCard>();
@@ -120,12 +118,7 @@ namespace WindBot.Game.AI.Decks
         private List<ClientCard> enemySetThisTurn = new List<ClientCard>();
         private List<ClientCard> escapeTargetList = new List<ClientCard>();
         private List<ClientCard> summonInChainList = new List<ClientCard>();
-        private int banSpSummonExceptFiendCount = 0;
-        private int enemySpSummonFromExLastTurn = 0;
-        private int enemySpSummonFromExThisTurn = 0;
         private List<int> chainSummoningIdList = new List<int>(3);
-        private bool enemy_activate_MaxxC = false;
-        private bool enemy_activate_DimensionShifter = false;
         private Dictionary<int, int> CalledbytheGraveCount = new Dictionary<int, int>();
         private List<int> infiniteImpermanenceList = new List<int>();
         private int CrossoutDesignatorTarget = 0;
@@ -481,19 +474,6 @@ namespace WindBot.Game.AI.Decks
             AI.SelectPlace(0);
         }
 
-        // check whether negate maxxc and InfiniteImpermanence
-        public void CheckDeactiveFlag()
-        {
-            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().Id == CardId.MaxxC && Duel.LastChainPlayer == 1)
-            {
-                enemy_activate_MaxxC = true;
-            }
-            if (Util.GetLastChainCard() != null && Util.GetLastChainCard().Id == CardId.DimensionShifter && Duel.LastChainPlayer == 1)
-            {
-                enemy_activate_DimensionShifter = true;
-            }
-        }
-
         public bool NegatedCheck(bool disablecheck = true)
         {
             if (Card.IsSpell() || Card.IsTrap())
@@ -546,7 +526,6 @@ namespace WindBot.Game.AI.Decks
                         }
                         AI.SelectCard(code);
                         CalledbytheGraveCount[code] = 2;
-                        CheckDeactiveFlag();
                         return true;
                     }
                 }

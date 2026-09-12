@@ -82,7 +82,6 @@ namespace WindBot.Game.AI.Decks
         private const int P_ACTIVATE_DESC = 1160;
         //private const int P_SPSUMMON_DESC = 1163;
         private int p_count = 0;
-        private int spell_activate_count = 0;
         private bool summoned = false;
         private bool link_summoned = false;
         private bool p_summoned = false;
@@ -92,7 +91,6 @@ namespace WindBot.Game.AI.Decks
         private bool activate_ZefraProvidence = false;
         private bool activate_SupremeKingDragonDarkwurm_2 = false;
         private bool activate_JetSynchron = false;
-        private bool activate_Blackwing_ZephyrostheElite = false;
         private bool activate_DragonShrine = false;
         private bool activate_SpellPowerMastery = false;
         private bool activate_DestrudotheLostDragon_Frisson = false;
@@ -567,7 +565,6 @@ namespace WindBot.Game.AI.Decks
             xyz_mode = false;
             Blackwing_ZephyrostheElite_activate = false;
             HeavymetalfoesElectrumite_activate = false;
-            spell_activate_count = 0;
             p_count = 0;
             activate_count = 0;
             summon_count = 0;

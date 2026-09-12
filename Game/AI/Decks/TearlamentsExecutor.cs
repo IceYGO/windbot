@@ -70,15 +70,15 @@ namespace WindBot.Game.AI.Decks
         bool activate_TearlamentsScream_1 = false;
         bool activate_TearlamentsScream_2 = false;
 
-        bool activate_TearlamentsSulliek_1 = false;
+        //bool activate_TearlamentsSulliek_1 = false;
         bool activate_TearlamentsSulliek_2 = false;
 
         bool activate_AgidotheAncientSentinel_2 = false;
         bool activate_KelbektheAncientVanguard_2 = false;
-        bool activate_TearlamentsRulkallos_1 = false;
+        //bool activate_TearlamentsRulkallos_1 = false;
         bool activate_TearlamentsRulkallos_2 = false;
-        bool activate_MudoratheSwordOracle_2 = false;
-        bool activate_KeldotheSacredProtector_2 = false;
+        //bool activate_MudoratheSwordOracle_2 = false;
+        //bool activate_KeldotheSacredProtector_2 = false;
         bool activate_PrimevalPlanetPerlereino_1 = false;
         bool activate_PrimevalPlanetPerlereino_2 = false;
         bool activate_TearlamentsKaleidoHeart_1 = false;
@@ -262,9 +262,9 @@ namespace WindBot.Game.AI.Decks
             activate_TearlamentsKitkallos_3 = false;
             activate_TearlamentsScream_1 = false;
             activate_TearlamentsScream_2 = false;
-            activate_TearlamentsSulliek_1 = false;
+            //activate_TearlamentsSulliek_1 = false;
             activate_TearlamentsSulliek_2 = false;
-            activate_TearlamentsRulkallos_1 = false;
+            //activate_TearlamentsRulkallos_1 = false;
             activate_TearlamentsKaleidoHeart_1 = false;
             activate_TearlamentsKaleidoHeart_2 = false;
             activate_AgidotheAncientSentinel_2 = false;
@@ -2137,8 +2137,8 @@ namespace WindBot.Game.AI.Decks
                 if (!activate_KelbektheAncientVanguard_2) cardsid.Add(CardId.KelbektheAncientVanguard);
                 cardsid.Add(CardId.KeldotheSacredProtector);
                 cardsid.Add(CardId.MudoratheSwordOracle);
-                if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
-                else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
+                //if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
+                //else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
                 AI.SelectCard(cardsid);
                 SetSpSummon();
                 return true;
@@ -2152,8 +2152,8 @@ namespace WindBot.Game.AI.Decks
                 if (Duel.CurrentChain.Any(card => card != null && card.Controller == 0 && (card.Id == CardId.MudoratheSwordOracle || card.Id == CardId.KeldotheSacredProtector) || card.Id == CardId.NaelshaddollAriel)) return false;
                 if (Duel.CurrentChain.Any(card => card != null && card.Controller == 0 && card.Id == CardId.ShaddollBeast) && Bot.Deck.Count <= 0)
                 {
-                    if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
-                    else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
+                    //if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
+                    //else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
                     return true;
                 }
                 foreach (var card in Duel.ChainTargets)
@@ -2162,8 +2162,8 @@ namespace WindBot.Game.AI.Decks
                     if ((card == Card && (Bot.Deck.Count < 5 || Enemy.Graveyard.Count(ccard => ccard != null && !key_no_send_to_deck_ids.Contains(ccard.Id)) > 0))
                         || (card.Controller == 1 && card.Location == CardLocation.Grave))
                     {
-                        if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
-                        else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
+                        //if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
+                        //else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
                         return true;
                     }
                 }
@@ -2172,15 +2172,15 @@ namespace WindBot.Game.AI.Decks
                     if (card == null || card.Controller == 0 || card.Location != CardLocation.Grave) continue;
                     if (key_send_to_deck_ids.Contains(card.Id))
                     {
-                        if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
-                        else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
+                        //if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
+                        //else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
                         return true;
                     }
                 }
                 if (Duel.Phase == DuelPhase.End && Bot.Deck.Count < 3 && Bot.Graveyard.Count > 0)
                 {
-                    if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
-                    else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
+                    //if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
+                    //else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
                     return true;
                 }
                 return false;
@@ -2189,8 +2189,8 @@ namespace WindBot.Game.AI.Decks
             {
                 if (Duel.Phase == DuelPhase.End && Bot.Deck.Count < 3 && Bot.Graveyard.Count > 0)
                 {
-                    if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
-                    else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
+                    //if (Card.Id == CardId.MudoratheSwordOracle) activate_MudoratheSwordOracle_2 = true;
+                    //else if (Card.Id == CardId.KeldotheSacredProtector) activate_KeldotheSacredProtector_2 = true;
                     return true;
                 }
                 return false;
@@ -2325,7 +2325,7 @@ namespace WindBot.Game.AI.Decks
             else
             {
                 if (Card.IsDisabled()) return false;
-                activate_TearlamentsRulkallos_1 = true;
+                //activate_TearlamentsRulkallos_1 = true;
                 return true;
             }
         }
