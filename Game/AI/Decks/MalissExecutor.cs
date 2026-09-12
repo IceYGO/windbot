@@ -3568,12 +3568,7 @@ namespace WindBot.Game.AI.Decks
             if (emzMask != 0)
                 return FirstBit(emzMask);
 
-            int enemyPointed = 0;
-            try
-            {
-                enemyPointed = Enemy.GetLinkedZones();
-            }
-            catch { }
+            int enemyPointed = Enemy.GetLinkedZones();
 
             int safeMain = (available & MAIN_MASK) & ~enemyPointed;
 
@@ -3733,25 +3728,12 @@ namespace WindBot.Game.AI.Decks
             var under = PickUnderlingForTranscode(wic, Bot.GetMonsters());
             if (under == null) return false;
 
-            SelectLinkMaterialsPair(wic, under);
+            AI.SelectMaterials(new List<ClientCard> { wic, under });
 
             int emz = EmzBitFor(wic);
             if (emz != 0) AI.SelectPlace(emz);
 
             return true;
-        }
-        private void SelectLinkMaterialsPair(ClientCard a, ClientCard b)
-        {
-            try
-            {
-                var mats = new System.Collections.Generic.List<ClientCard> { a, b };
-                AI.SelectMaterials(mats);
-                return;
-            }
-            catch { }
-
-            AI.SelectCard(a);
-            AI.SelectNextCard(b);
         }
         private int EmzBitFor(ClientCard link)
         {

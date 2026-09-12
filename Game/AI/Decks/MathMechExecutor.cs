@@ -142,15 +142,8 @@ namespace WindBot.Game.AI.Decks
 
         private bool whom_subtra()
         {
-            try
-            {
-                AI.SelectCard(Util.GetBestEnemyMonster(onlyFaceup: true, canBeTarget: true));
-                return true;
-            }
-            catch (Exception e)
-            {
-                return true;
-            }
+            AI.SelectCard(Util.GetBestEnemyMonster(onlyFaceup: true, canBeTarget: true));
+            return true;
         }
 
         private bool active_balancer()
@@ -236,8 +229,7 @@ namespace WindBot.Game.AI.Decks
             if ((Bot.HasInMonstersZone(CardId.Mathmechdouble) && (( Bot.HasInMonstersZone(CardId.MathmechSigma)) || Bot.HasInMonstersZone(CardId.MathmechNebla))))
             {
                 AI.SelectPosition(CardPosition.Attack);
-                try { AI.SelectPlace(Zones.ExtraMonsterZones);  }
-                catch { }
+                AI.SelectPlace(Zones.ExtraMonsterZones);
                 
                 return true;
             }

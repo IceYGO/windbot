@@ -269,58 +269,53 @@ namespace WindBot.Game.AI.Decks
         private bool SelectNekrozWhoInvoke()
         {
             List<int> NekrozCard = new List<int>();
-            try
-            {
-                foreach (ClientCard card in Bot.Hand)
-                    if (card != null && card.IsCode(NekrozRituelCard))
-                        NekrozCard.Add(card.Id);
+            foreach (ClientCard card in Bot.Hand)
+                if (card != null && card.IsCode(NekrozRituelCard))
+                    NekrozCard.Add(card.Id);
 
-                foreach (int Id in NekrozCard)
+            foreach (int Id in NekrozCard)
+            {
+                if (Id == CardId.Trishula && Util.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand(CardId.DecisiveArmor))
                 {
-                    if (Id == CardId.Trishula && Util.IsAllEnemyBetterThanValue(2700, true) && Bot.HasInHand(CardId.DecisiveArmor))
+                    AI.SelectCard(CardId.Trishula);
+                    return true;
+                }
+                else if (Id == CardId.DecisiveArmor)
+                {
+                    AI.SelectCard(CardId.DecisiveArmor);
+                    return true;
+                }
+                else if (Id == CardId.Unicore && Bot.HasInHand(CardId.Kaleidoscope) && !Bot.HasInGraveyard(CardId.Shurit))
+                {
+                    AI.SelectCard(CardId.Unicore);
+                    return true;
+                }
+                else if (Id == CardId.Valkyrus)
+                {
+                    if (IsTheLastPossibility())
                     {
-                        AI.SelectCard(CardId.Trishula);
+                        AI.SelectCard(CardId.Valkyrus);
                         return true;
-                    }
-                    else if (Id == CardId.DecisiveArmor)
-                    {
-                        AI.SelectCard(CardId.DecisiveArmor);
-                        return true;
-                    }
-                    else if (Id == CardId.Unicore && Bot.HasInHand(CardId.Kaleidoscope) && !Bot.HasInGraveyard(CardId.Shurit))
-                    {
-                        AI.SelectCard(CardId.Unicore);
-                        return true;
-                    }
-                    else if (Id == CardId.Valkyrus)
-                    {
-                        if (IsTheLastPossibility())
-                        {
-                            AI.SelectCard(CardId.Valkyrus);
-                            return true;
-                        }
-                    }
-                    else if (Id == CardId.Gungnir)
-                    {
-                        if (IsTheLastPossibility())
-                        {
-                            AI.SelectCard(CardId.Gungnir);
-                            return true;
-                        }
-                    }
-                    else if (Id == CardId.Clausolas)
-                    {
-                        if (IsTheLastPossibility())
-                        {
-                            AI.SelectCard(CardId.Clausolas);
-                            return true;
-                        }
                     }
                 }
-                return false;
+                else if (Id == CardId.Gungnir)
+                {
+                    if (IsTheLastPossibility())
+                    {
+                        AI.SelectCard(CardId.Gungnir);
+                        return true;
+                    }
+                }
+                else if (Id == CardId.Clausolas)
+                {
+                    if (IsTheLastPossibility())
+                    {
+                        AI.SelectCard(CardId.Clausolas);
+                        return true;
+                    }
+                }
             }
-            catch
-            { return false; }
+            return false;
         }
     }
 }
