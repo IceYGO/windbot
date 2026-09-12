@@ -346,12 +346,15 @@ namespace WindBot.Game.AI.Decks
 
         private bool FoolishBurialEffect()
         {
-            AI.SelectCard(new[] {
+            int[] targets = new[] {
                 CardId.DestrudoTheLostDragonsFrisson,
                 CardId.JetSynchron,
                 CardId.OrcustHarpHorror,
                 CardId.OrcustCymbalSkeleton
-            });
+            };
+            AI.SelectCard(targets.OrderBy(id =>
+                id == CardId.OrcustHarpHorror && HarpHorrorUsed
+                || id == CardId.OrcustCymbalSkeleton && CymbalSkeletonUsed).ToArray());
             return true;
         }
 
@@ -713,7 +716,7 @@ namespace WindBot.Game.AI.Decks
         private bool OrcustKnightmareEffect()
         {
             if (DefaultCheckWhetherCardIsNegated(Card)) return false;
-            if (!Bot.HasInGraveyard(CardId.OrcustHarpHorror))
+            if (!HarpHorrorUsed && !Bot.HasInGraveyard(CardId.OrcustHarpHorror) && Bot.HasInDeck(CardId.OrcustHarpHorror))
             {
                 AI.SelectCard(Util.GetBestBotMonster());
                 AI.SelectNextCard(CardId.OrcustHarpHorror);
@@ -725,7 +728,7 @@ namespace WindBot.Game.AI.Decks
                 AI.SelectNextCard(CardId.WorldLegacyWorldWand);
                 return true;
             }
-            else if (!Bot.HasInGraveyard(CardId.OrcustCymbalSkeleton) && Bot.HasInDeck(CardId.OrcustCymbalSkeleton) && Bot.HasInGraveyard(CardId.SheorcustDingirsu) && !SheorcustDingirsuSummoned)
+            else if (!CymbalSkeletonUsed && !Bot.HasInGraveyard(CardId.OrcustCymbalSkeleton) && Bot.HasInDeck(CardId.OrcustCymbalSkeleton) && Bot.HasInGraveyard(CardId.SheorcustDingirsu) && !SheorcustDingirsuSummoned)
             {
                 AI.SelectCard(CardId.GalateaTheOrcustAutomaton);
                 AI.SelectNextCard(CardId.OrcustCymbalSkeleton);
