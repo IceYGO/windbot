@@ -580,7 +580,7 @@ namespace WindBot.Game.AI.Decks
             bool chk = true;
             if (Bot.HasInMonstersZone(CardId.ASStardustDragon) || Bot.HasInMonstersZone(CardId.Benkei))
                 chk = false;
-            var materials_lists = Util.GetSynchroMaterials(Bot.MonsterZone,12,1,1,false,chk,null,
+            var materials_lists = Util.GetSynchroMaterials(Bot.GetFaceupMonsters(),12,1,1,false,chk,null,
                 card => { return !FinalCards(card.Id); });
             if (materials_lists.Count <= 0) return false;
             AI.SelectMaterials(materials_lists[0]);
@@ -592,7 +592,7 @@ namespace WindBot.Game.AI.Decks
             bool chk = true;
             if (Bot.HasInMonstersZone(CardId.Motorbike) && (Bot.HasInMonstersZone(CardId.ASStardustDragon) || Bot.HasInMonstersZone(CardId.Benkei)))
                 chk = false;
-            var materials_lists = Util.GetSynchroMaterials(Bot.MonsterZone,10,1,1,false,chk,null,
+            var materials_lists = Util.GetSynchroMaterials(Bot.GetFaceupMonsters(),10,1,1,false,chk,null,
                 card => { return !FinalCards(card.Id); });
             if (materials_lists.Count <= 0) return false;
             AI.SelectMaterials(materials_lists[0]);
