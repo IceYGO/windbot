@@ -688,10 +688,12 @@ namespace Mono.Data.Sqlite
     /// </summary>
     public CollationEncodingEnum Encoding;
 
+#pragma warning disable 0649
     /// <summary>
     /// Context of the function that requested the collating sequence
     /// </summary>
     internal SqliteFunction _func;
+#pragma warning restore 0649
 
     /// <summary>
     /// Calls the base collating sequence to compare two strings
