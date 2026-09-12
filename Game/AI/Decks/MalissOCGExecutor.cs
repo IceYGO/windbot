@@ -256,7 +256,7 @@ namespace WindBot.Game.AI.Decks
                 if (cardId == CardId.Cyberse_Wicckid)
                 {
                     if ((Zones.z6 & available) > 0 && (Bot.MonsterZone[3] == null || Bot.MonsterZone[4] == null)) return Zones.z6;
-                    if ((Zones.z5 & available) > 0 && (Bot.MonsterZone[0] == null || Bot.MonsterZone[1] == null)) return Zones.z5;
+                    if ((Zones.z5 & available) > 0 && (Bot.MonsterZone[1] == null || Bot.MonsterZone[2] == null)) return Zones.z5;
                     if ((Zones.ExtraMonsterZones & available) > 0) return Zones.ExtraMonsterZones & available;
                 }
                 if (cardId == CardId.Allied_Code_Talker_Ignister)
