@@ -64,3 +64,10 @@ jobs:
 
     - name: Build with Mono MSBuild
       run: msbuild "$Solution_Name" /t:Build /p:Configuration=Release /p:Platform="Any CPU"
+
+    - name: Upload Mono build artifacts
+      uses: actions/upload-artifact@v6
+      with:
+        name: WindBot-mono
+        path: bin/Release/
+        if-no-files-found: error
