@@ -174,10 +174,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <Content Include="ThirdParty\sqlite\x86\sqlite3.dll">
+      <Link>x86\sqlite3.dll</Link>
       <TargetPath>x86\sqlite3.dll</TargetPath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ThirdParty\sqlite\x64\sqlite3.dll">
+      <Link>x64\sqlite3.dll</Link>
       <TargetPath>x64\sqlite3.dll</TargetPath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
