@@ -67,6 +67,7 @@ namespace WindBot.Game.AI
                     infos = _list[_rand.Next(_list.Count)];
                 }
                 while (infos.Level != "Normal");
+                Logger.DebugWriteLine("Deck \"" + deck + "\" doesn't exist so using random deck: " + infos.Deck.Substring(3));
             }
 
             Executor executor = (Executor)Activator.CreateInstance(infos.Type, ai, duel);
