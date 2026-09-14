@@ -53,7 +53,7 @@ jobs:
   mono-build:
     runs-on: ubuntu-latest
     container:
-      image: mono:6.12.0.182
+      image: mono:6.8.0.123
 
     env:
       Solution_Name: WindBot.sln
@@ -64,6 +64,20 @@ jobs:
 
     - name: Build with Mono MSBuild
       run: msbuild "$Solution_Name" /t:Build /p:Configuration=Release /p:Platform="Any CPU"
+
+    - name: Fix sqlite dll location
+      # Old MSBuild don't process the TargetPath correctly. https://github.com/dotnet/msbuild/pull/6237
+      # This is fixed in 16.10 that ships with latest mono.
+      run: |
+        for arch in x86 x64; do
+          source_path="bin/Release/ThirdParty/sqlite/$arch/sqlite3.dll"
+          target_dir="bin/Release/$arch"
+          if [ -f "$source_path" ]; then
+            mkdir -p "$target_dir"
+            mv -f "$source_path" "$target_dir/sqlite3.dll"
+            echo "Moved $source_path to $target_dir/sqlite3.dll"
+          fi
+        done
 
     - name: Upload Mono build artifacts
       uses: actions/upload-artifact@v6
