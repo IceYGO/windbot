@@ -215,6 +215,7 @@ namespace WindBot.Game.AI
             public const int GhostrickAlucard = 75367227;
             public const int DinowrestlerKingTWrextle = 77967790;
             public const int NumberF0UtopicFutureZexal = 41522092;
+            public const int RaiseMoonHopeSqueezeJackpot = 9484285;
 
             public const int PerformapalMissDirector = 92932860;
             public const int AncientWarriorsMasterfulSunMou = 40140448;
@@ -358,7 +359,8 @@ namespace WindBot.Game.AI
             {_CardId.GhostrickAlucard, defender => defender.HasSetcode(_Setcode.Ghostrick) || defender.IsFacedown()},
             {_CardId.MekkKnightCrusadiaAstram, defender => true},
             {_CardId.DinowrestlerKingTWrextle, defender => true},
-            {_CardId.NumberF0UtopicFutureZexal, defender => true}
+            {_CardId.NumberF0UtopicFutureZexal, defender => true},
+            {_CardId.RaiseMoonHopeSqueezeJackpot, defender => true}
         };
 
         /// <summary>

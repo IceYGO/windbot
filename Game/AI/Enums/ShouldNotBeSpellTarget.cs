@@ -11,6 +11,7 @@
         TheLegendaryFishermanIII = 44968687,
         ChaosAncientGearGiant = 51788412,
         DrytronMeteonisQuadrantids = 95209656,
-        ElShaddollMeshachrer = 32467459
+        ElShaddollMeshachrer = 32467459,
+        RedEyesBlackDragonExceed = 17242022
     }
 }
