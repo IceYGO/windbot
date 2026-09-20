@@ -5045,7 +5045,7 @@ namespace WindBot.Game.AI.Decks
 
         public override BattlePhaseAction OnBattle(IList<ClientCard> attackers, IList<ClientCard> defenders)
         {
-            if (ShouldSkipBattleForBomber())
+            if (ShouldSkipBattleForBomber() && Duel.BattlePhase.CanMainPhaseTwo)
                 return new BattlePhaseAction(BattlePhaseAction.BattleAction.ToMainPhaseTwo);
             if (JailGateGyBanishReady())
             {
