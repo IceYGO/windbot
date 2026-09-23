@@ -2,6 +2,19 @@
 
 ## Current (latest)
 
+ - New deck: Elfnote
+ - Expand the known card enums and battle-target protection rules
+ - Fix project configuration and SQLite library placement in Mono CI artifacts; publish Mono build artifacts
+ - Fix Maliss and MalissOCG Link Summon place selection
+ - Refactor `Util.GetXyzMaterials` and `Util.GetSynchroMaterials` to enumerate distinct material combinations and enforce material counts and filters
+ - Cleanup unused variables warnings
+ - Improve effect-use tracking and material priorities in LightswornShaddoldinosour and Orcust
+ - Fix Rank5 Double Summon checks changing summon state before activation
+ - Fix enemy-monster target selection across deck AIs, including Swordsoul Chixiao and Vaylantz World - Konig Wissen
+ - Add life-point safety checks for Confiscation and other effects with fixed life-point costs
+ - Fix target-protection and battle-protection checks for face-down cards
+ - Fix Dimensional Barrier level matching
+ - Improve RadiantTyphoon search, discard priorities, and Mandate chain responses
  - Add `Util.GetLinkMaterials`, `Util.CanMakeLinkRating`, and `ClientField.GetFaceupMonsters`, and reuse them across deck AIs
  - Add `Executor.OnPosChange`, `ClientField.HasInPendulumZone`, and `DefaultCheckWhetherBotWillBeBanished`; expand graveyard-to-banish redirect checks across deck AIs
  - Reduce unnecessary Witchcraft combos under Maxx "C" and Mulcharmy effects, and fix its deck Special Summon selection
