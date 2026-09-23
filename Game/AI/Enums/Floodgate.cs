@@ -297,6 +297,16 @@
         SForceMystify = 4611341,
         ArchfiendsOrigin = 79621896,
         ComicCat = 72921536,
-        MindScan = 34298391
+        MindScan = 34298391,
+        AkasunaTheBattleAshtra = 38331244,
+        TheGreatGallantBandit = 24203749,
+        CXyzHopeChaosBarianDragon = 79791695,
+        SeventhBarians = 39513225,
+        AtlantisCityOfTheSeaDragon = 38391684,
+        ReversalBox = 2606417,
+        CandelatoTheBeastOfLight = 8315896,
+        DarkArmedDragonPunisher = 39030883,
+        EkhajarDescendantDragonOfTheIceBarrier = 65424481,
+        CieloTheNightSkyOfRaiseMoonNoMoreBets = 73090586
     }
 }

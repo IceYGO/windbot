@@ -56,6 +56,7 @@
         SaintAzamina = 85065943,
         LunalightLigerDancer = 54701958,
         DarklordEveningstar = 10136446,
-        RedHypernovaDragon = 30698243
+        RedHypernovaDragon = 30698243,
+        CieloTheNightSkyOfRaiseMoonNoMoreBets = 73090586
     }
 }

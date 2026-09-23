@@ -75,6 +75,7 @@
         SuperQuantalFairyZetan = 66646087,
         LightWaterDragon = 82616239,
         RescueACEQuickAttacker = 47425162,
-        MysticalCelticSage = 50073633
+        MysticalCelticSage = 50073633,
+        ElementalSagaDoriado = 50208444
     }
 }
