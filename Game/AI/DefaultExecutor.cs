@@ -1604,6 +1604,11 @@ namespace WindBot.Game.AI
                         AI.SelectOption(XYZ);
                         return true;
                     }
+                    if (monster.IsOneForSynchro())
+                    {
+                        AI.SelectOption(SYNCHRO);
+                        return true;
+                    }
                 }
                 if (tuner && nontuner)
                 {
@@ -1623,34 +1628,44 @@ namespace WindBot.Game.AI
                     return true;
                 }
             }
-            ClientCard lastchaincard = Util.GetLastChainCard();
-            if (Duel.LastChainPlayer == 1 && lastchaincard != null && !lastchaincard.IsDisabled()
-                && (lastchaincard.HasType(CardType.Spell | CardType.Trap) || lastchaincard.Location == CardLocation.MonsterZone))
+            ChainInfo lastChain = Duel.CurrentChainInfo.LastOrDefault();
+            if (Duel.LastChainPlayer == 1 && lastChain != null
+                && (lastChain.RelatedCard == null || !lastChain.RelatedCard.IsDisabled()))
             {
-                if (lastchaincard.HasType(CardType.Ritual))
-                {
-                    AI.SelectOption(RITUAL);
-                    return true;
-                }
-                if (lastchaincard.HasType(CardType.Fusion))
-                {
-                    AI.SelectOption(FUSION);
-                    return true;
-                }
-                if (lastchaincard.HasType(CardType.Synchro))
+                if (lastChain.IsOneForSynchroEffect())
                 {
                     AI.SelectOption(SYNCHRO);
                     return true;
                 }
-                if (lastchaincard.HasType(CardType.Xyz))
+                ClientCard lastchaincard = lastChain.RelatedCard;
+                if (lastchaincard != null
+                    && (lastchaincard.HasType(CardType.Spell | CardType.Trap) || lastchaincard.Location == CardLocation.MonsterZone))
                 {
-                    AI.SelectOption(XYZ);
-                    return true;
-                }
-                if (lastchaincard.IsFusionSpell())
-                {
-                    AI.SelectOption(FUSION);
-                    return true;
+                    if (lastchaincard.HasType(CardType.Ritual))
+                    {
+                        AI.SelectOption(RITUAL);
+                        return true;
+                    }
+                    if (lastchaincard.HasType(CardType.Fusion))
+                    {
+                        AI.SelectOption(FUSION);
+                        return true;
+                    }
+                    if (lastchaincard.HasType(CardType.Synchro))
+                    {
+                        AI.SelectOption(SYNCHRO);
+                        return true;
+                    }
+                    if (lastchaincard.HasType(CardType.Xyz))
+                    {
+                        AI.SelectOption(XYZ);
+                        return true;
+                    }
+                    if (lastchaincard.IsFusionSpell())
+                    {
+                        AI.SelectOption(FUSION);
+                        return true;
+                    }
                 }
             }
             if (Util.IsChainTarget(Card))
