@@ -1,0 +1,71 @@
+{
+  "welcome": [
+    "Alors, tu veux relever un défi ? Très bien, j'accepte."
+  ],
+  "deckerror": [
+    "Hum... la liste des cartes interdites a encore frappé {0} dans mon Deck."
+  ],
+  "duelstart": [
+    "Es-tu prêt ?",
+    "J'espère que tu es prêt."
+  ],
+  "newturn": [
+    "C'est mon tour ! Je pioche !",
+    "À mon tour. Je pioche !",
+    "Je pioche !"
+  ],
+  "endturn": [
+    "Je termine mon tour.",
+    "Mon tour est terminé.",
+    "C'est ton tour."
+  ],
+  "directattack": [
+    "{0}, attaque directe !",
+    "{0}, attaque-le directement !",
+    "Tu es vulnérable. Attaque, {0} !",
+    "{0}, attaque-le de toutes tes forces !",
+    "{0}, attaque directement ses Life Points !",
+    "{0}, libère ta puissance !",
+    "Ressens la fureur de mon {0} !",
+    "Contemple la puissance de mon {0} !",
+    "Je ne vais pas m'arrêter là ! {0}, attaque !"
+  ],
+  "attack": [
+    "{0}, attaque son {1} !",
+    "{0}, détruis son {1} !",
+    "Mon {0} va anéantir ton {1} !",
+    "Ton {1} ne fait pas le poids face à mon {0} !",
+    "{0}, libère ta puissance sur son {1} !"
+  ],
+  "ondirectattack": [
+    "Hmm...",
+    "{0}, hein...",
+    "Il t'en faudra davantage.",
+    "Ce n'est qu'une égratignure !"
+  ],
+  "facedownmonstername": "monstre",
+  "activate": [
+    "J'active {0} !",
+    "Je vais utiliser l'effet de {0}."
+  ],
+  "summon": [
+    "J'invoque {0} !",
+    "Viens, {0} !",
+    "Contemplez {0} !",
+    "Lève-toi, {0} !"
+  ],
+  "setmonster": [
+    "Je pose un monstre face verso."
+  ],
+  "chaining": [
+    "Pas si vite ! J'active {0} !",
+    "Attends un instant, j'enchaîne avec {0} !",
+    "Beau mouvement, mais je vais utiliser {0} !"
+  ],
+  "surrender": [
+    "J'abandonne.",
+    "Très bien, tu as gagné.",
+    "Eh bien, même moi, je peux perdre parfois.",
+    "Ça suffit. Je ne veux plus continuer à jouer."
+  ]
+}

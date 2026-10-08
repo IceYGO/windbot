@@ -1,0 +1,71 @@
+{
+  "welcome": [
+    "Então você quer um desafio, muito bem, eu aceito."
+  ],
+  "deckerror": [
+    "Hum... a banlist afetou {0} no meu deck novamente."
+  ],
+  "duelstart": [
+    "Você está preparado?",
+    "Espero que esteja preparado."
+  ],
+  "newturn": [
+    "É o meu turno! Eu compro!",
+    "Meu turno. Compro!",
+    "Eu compro!"
+  ],
+  "endturn": [
+    "Eu encerro meu turno.",
+    "Meu turno acabou.",
+    "É o seu turno."
+  ],
+  "directattack": [
+    "{0}, ataque direto!",
+    "{0}, ataque diretamente!",
+    "Você está vulnerável. Ataque, {0}!",
+    "{0}, ataque com toda sua força!",
+    "{0}, ataque seus pontos de vida diretamente!",
+    "{0}, libere seu poder!",
+    "Sinta a fúria do {0}!",
+    "Contemple o poder do {0}!",
+    "Ainda não é o fim! {0}, ataque!"
+  ],
+  "attack": [
+    "{0}, ataque {1}!",
+    "{0}, destrua {1}!",
+    "Meu {0} aniquilará seu {1}!",
+    "Seu {1} não é páreo para o meu {0}!",
+    "{0}, libere seu poder contra {1}!"
+  ],
+  "ondirectattack": [
+    "Hmmm...",
+    "{0}, huh...",
+    "Você precisará de mais do que isso.",
+    "Isso é apenas um arranhão!"
+  ],
+  "facedownmonstername": "monster",
+  "activate": [
+    "Eu ativo {0}!",
+    "Eu usarei o efeito de {0}."
+  ],
+  "summon": [
+    "Eu Invoco {0}!",
+    "Venha, {0}!",
+    "Contemple, {0}!",
+    "Erga-se, {0}!"
+  ],
+  "setmonster": [
+    "Eu Baixo um monstro com a face para baixo."
+  ],
+  "chaining": [
+    "Não tão rápido! Eu ativo {0}!",
+    "Espera aí, eu respondo com {0}!",
+    "Bela tentativa, mas eu usarei {0}!"
+  ],
+  "surrender": [
+    "Eu concedo.",
+    "Justo, você venceu.",
+    "Bem, eu posso perder as vezes.",
+    "Já chega, eu não quero mais jogar isso."
+  ]
+}

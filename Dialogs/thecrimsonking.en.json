@@ -1,0 +1,71 @@
+{
+  "welcome": [
+    "So you want a challenge, very well, I accept."
+  ],
+  "deckerror": [
+    "Hum... the banlist hit {0} in my deck again."
+  ],
+  "duelstart": [
+    "Are you ready?",
+    "I hope you are ready."
+  ],
+  "newturn": [
+    "It's my turn! Draw!",
+    "My turn. Draw!",
+    "I draw!"
+  ],
+  "endturn": [
+    "I end my turn.",
+    "My turn is over.",
+    "It's your turn."
+  ],
+  "directattack": [
+    "{0}, direct attack!",
+    "{0}, attack them directly!",
+    "You're vulnerable. Attack, {0}!",
+    "{0}, attack them with all your might!",
+    "{0}, attack their life points directly!",
+    "{0}, unleash your power!",
+    "Feel the fury of my {0}!",
+    "Behold the power of my {0}!",
+    "I'm not stopping there! {0}, attack!"
+  ],
+  "attack": [
+    "{0}, attack their {1}!",
+    "{0}, destroy their {1}!",
+    "My {0} will annihilate your {1}!",
+    "Your {1} is no match for my {0}!",
+    "{0}, unleash your power on their {1}!"
+  ],
+  "ondirectattack": [
+    "Hmmm...",
+    "{0}, huh...",
+    "You will need more than that.",
+    "It's just a scratch!"
+  ],
+  "facedownmonstername": "monster",
+  "activate": [
+    "I activate {0}!",
+    "I'll use the effect of {0}."
+  ],
+  "summon": [
+    "I summon {0}!",
+    "Come forth, {0}!",
+    "Behold, {0}!",
+    "Arise, {0}!"
+  ],
+  "setmonster": [
+    "I set a monster face-down."
+  ],
+  "chaining": [
+    "Not so fast! I activate {0}!",
+    "Wait a moment, I'll chain {0}!",
+    "Nice move, but I'll use {0}!"
+  ],
+  "surrender": [
+    "I concede.",
+    "That's fair, you won.",
+    "Well, I can lose sometimes.",
+    "That's enough, I don't want to play this anymore."
+  ]
+}

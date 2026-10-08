@@ -1,0 +1,71 @@
+{
+  "welcome": [
+    "Así que quieres un desafío, muy bien, acepto."
+  ],
+  "deckerror": [
+    "Hum... la lista de prohibiciones ha vuelto a afectar a {0} de mi Deck."
+  ],
+  "duelstart": [
+    "¿Estás listo?",
+    "Espero que estés listo."
+  ],
+  "newturn": [
+    "¡Es mi turno! ¡Robo!",
+    "Mi turno. ¡Robo!",
+    "¡Robo!"
+  ],
+  "endturn": [
+    "Termino mi turno.",
+    "Mi turno ha terminado.",
+    "Es tu turno."
+  ],
+  "directattack": [
+    "¡{0}, ataque directo!",
+    "¡{0}, atácale directamente!",
+    "Eres vulnerable. ¡Ataca, {0}!",
+    "¡{0}, atácale con todas tus fuerzas!",
+    "¡{0}, ataca directamente a sus Puntos de Vida!",
+    "¡{0}, desata tu poder!",
+    "¡Siente la furia de mi {0}!",
+    "¡Contempla el poder de mi {0}!",
+    "¡No pienso detenerme aquí! ¡{0}, ataca!"
+  ],
+  "attack": [
+    "¡{0}, ataca a su {1}!",
+    "¡{0}, destruye su {1}!",
+    "¡Mi {0} aniquilará a tu {1}!",
+    "¡Tu {1} no es rival para mi {0}!",
+    "¡{0}, desata tu poder sobre su {1}!"
+  ],
+  "ondirectattack": [
+    "Mmm...",
+    "{0}, ¿eh...?",
+    "Necesitarás algo más que eso.",
+    "¡Eso solo fue un rasguño!"
+  ],
+  "facedownmonstername": "monstruo",
+  "activate": [
+    "¡Activo {0}!",
+    "Usaré el efecto de {0}."
+  ],
+  "summon": [
+    "¡Invoco a {0}!",
+    "¡Ven, {0}!",
+    "¡Contemplad a {0}!",
+    "¡Levántate, {0}!"
+  ],
+  "setmonster": [
+    "Coloco un monstruo en posición de defensa boca abajo."
+  ],
+  "chaining": [
+    "¡No tan rápido! ¡Activo {0}!",
+    "Espera un momento, ¡encadeno {0}!",
+    "Buen movimiento, pero ¡usaré {0}!"
+  ],
+  "surrender": [
+    "Me rindo.",
+    "Está bien, has ganado.",
+    "Bueno, a veces también puedo perder.",
+    "Es suficiente. Ya no quiero seguir jugando."
+  ]
+}
