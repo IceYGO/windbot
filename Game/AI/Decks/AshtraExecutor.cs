@@ -18,6 +18,7 @@ namespace WindBot.Game.AI.Decks
             public const int KuzuhaTheHexAshtra = 65325949;
             public const int YoaThePlagueAshtra = 1710647;
             public const int MikumariTheBanisherAshtra = 38114652;
+            public const int LilithLadyOfLament = 23898021;
             public const int MaxxC = 23434538;
             public const int DrollLockBird = 94145021;
             public const int TheFallenTheVirtuous = 30271097;
@@ -84,6 +85,8 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.Activate, CardId.YoaThePlagueAshtra, YoaActivate);
             AddExecutor(ExecutorType.Activate, CardId.AkasunaTheBattleAshtra, AkasunaActivate);
             AddExecutor(ExecutorType.Activate, CardId.KuzuhaTheHexAshtra, KuzuhaActivate);
+            AddExecutor(ExecutorType.Summon, CardId.LilithLadyOfLament, LilithSummon);
+            AddExecutor(ExecutorType.Activate, CardId.LilithLadyOfLament, LilithActivate);
             AddExecutor(ExecutorType.Activate, CardId.EkhajarDescendantDragonOfTheIceBarrier, EkhajarActivate);
             AddExecutor(ExecutorType.Activate, CardId.SwordsoulSupremeSovereignChengying, ChengyingActivate);
             AddExecutor(ExecutorType.Activate, CardId.PsychicEndPunisher, PunisherActivate);
@@ -113,6 +116,12 @@ namespace WindBot.Game.AI.Decks
         }
 
         private readonly HashSet<int> _usedEffects = new HashSet<int>();
+        // Normal Traps that Lilith can reveal in this deck; Counter Traps and
+        // spells (including Solemn Accusation and Graverobber) are not eligible.
+        private readonly int[] _lilithTrapIds = new int[] {
+            CardId.InfiniteImpermanence, CardId.AshtrasDomain, CardId.DominusImpulse,
+            CardId.DominusSpiral, CardId.SongsOfTheDominators, CardId.AshtrasWeb,
+            CardId.MindMirrorForce, CardId.AshtrasHowl };
         private readonly HashSet<int> _resolvedChainIndices = new HashSet<int>();
         private readonly Dictionary<int, List<ClientCard>> _reservedRemoval =
             new Dictionary<int, List<ClientCard>>();
@@ -701,6 +710,49 @@ namespace WindBot.Game.AI.Decks
             return true;
         }
 
+        private bool CanUseLilithSearch(ClientCard spentSpell = null)
+        {
+            // A resolving Graverobber normally vacates its own Spell/Trap slot
+            // before the revived Lilith can start a new chain.
+            bool expectedVacancy = spentSpell != null && spentSpell.Controller == 0 &&
+                spentSpell.Location == CardLocation.SpellZone && spentSpell.Sequence < 5 &&
+                spentSpell.IsCode(CardId.FoolishGraverobber) && Bot.GetSpells().Contains(spentSpell);
+            return !_usedEffects.Contains(Util.GetStringId(CardId.LilithLadyOfLament, 0)) &&
+                !DefaultCheckWhetherCardIdIsNegated(CardId.LilithLadyOfLament) &&
+                Bot.GetSpellCountWithoutField() - (expectedVacancy ? 1 : 0) < 5 &&
+                _lilithTrapIds.Sum(id => Bot.GetCardCountInDeck(id)) >= 3;
+        }
+
+        private bool LilithSummon()
+        {
+            // Gallant Thief and the Ashtra hand starters keep their earlier
+            // entries. Do not spend the Normal Summon on a 1000-ATK body alone.
+            return Card.Location == CardLocation.Hand && CanUseLilithSearch();
+        }
+
+        private bool LilithActivate()
+        {
+            if (Card.Location != CardLocation.MonsterZone ||
+                DefaultCheckWhetherCardIsNegated(Card) || !CanUseLilithSearch() ||
+                !Bot.GetMonsters().Any(c => LilithTributePriority(c) < 100))
+                return false;
+            // The script has one field activation and no effect description.
+            // Use a deck-local usage key rather than guessing a string offset.
+            return AcceptEffect(0);
+        }
+
+        private int LilithTributePriority(ClientCard monster)
+        {
+            if (monster.Controller != 0 || monster.Location != CardLocation.MonsterZone ||
+                !monster.IsMonster() || !monster.HasAttribute(CardAttribute.Dark))
+                return 100;
+            if (monster.IsCode(CardId.LilithLadyOfLament))
+                return 0;
+            if (!monster.IsExtraCard() && monster.IsDisabled())
+                return 1;
+            return 100;
+        }
+
         private bool MikumariActivate()
         {
             if (Card.Location == CardLocation.Grave)
@@ -977,9 +1029,9 @@ namespace WindBot.Game.AI.Decks
             if (Duel.CurrentChainInfo.Any(i => i.ActivatePlayer == 0 &&
                 i.IsActivateCode(CardId.AshtrasDomain, CardId.AshtrasWeb, CardId.AshtrasHowl)))
                 return false;
-            if (Card.IsCode(CardId.AshtrasWeb) && !StopExtraSummons() &&
-                Bot.Graveyard.Any(c => IsAshtraMonster(c) && c.IsCanRevive()) &&
-                (Bot.GetMonsterCount() == 0 || CanRespondToOpponent()))
+            if (Card.IsCode(CardId.AshtrasWeb) && CanUseWebRevival() &&
+                (Bot.GetMonsterCount() == 0 || CanRespondToOpponent() ||
+                    Duel.Phase == DuelPhase.End || !CanUseTrapTuner(Card)))
             {
                 _plannedTrapOptions[Duel.CurrentChain.Count + 1] = 2;
                 return true;
@@ -996,6 +1048,13 @@ namespace WindBot.Game.AI.Decks
                 _plannedTrapOptions[_pendingHowlChainIndex] = 1;
             }
             return true;
+        }
+
+        private bool CanUseWebRevival()
+        {
+            return (Duel.Player == 0 || Duel.Phase == DuelPhase.End) &&
+                !StopExtraSummons() && Bot.GetMonstersInMainZone().Count < 5 &&
+                Bot.Graveyard.Any(c => IsAshtraMonster(c) && c.IsCanRevive());
         }
 
         private bool IsWorthHowlDestroying(ClientCard monster)
@@ -1140,19 +1199,30 @@ namespace WindBot.Game.AI.Decks
                 return false;
             return !StopExtraSummons() && Bot.GetMonstersInMainZone().Count < 5 &&
                 !DefaultCheckWhetherBotWillBeBanished(CardType.Spell, CardLocation.Deck) &&
-                Bot.Graveyard.Concat(Enemy.Graveyard).Any(c => GraverobberRevivePriority(c) < 100);
+                Bot.Graveyard.Concat(Enemy.Graveyard).Any(c => GraverobberRevivePriority(c, false, Card) < 100);
         }
 
-        private int GraverobberRevivePriority(ClientCard monster, bool serverCandidate = false)
+        private int GraverobberRevivePriority(ClientCard monster, bool serverCandidate = false,
+            ClientCard spentSpell = null)
         {
             if (monster == null || monster.Location != CardLocation.Grave || !monster.IsMonster() ||
                 !serverCandidate && !monster.IsCanRevive())
                 return 100;
+            // Prefer Lilith in either turn only while her search still has a
+            // payoff; a spent search or a full backrow is not a useful revival.
+            if (monster.Controller == 0 && monster.IsCode(CardId.LilithLadyOfLament))
+            {
+                ChainInfo solving = Duel.GetCurrentSolvingChainInfo();
+                if (spentSpell == null && solving != null && solving.ActivatePlayer == 0 &&
+                    solving.IsActivateCode(CardId.FoolishGraverobber))
+                    spentSpell = solving.RelatedCard;
+                return CanUseLilithSearch(spentSpell) && !DefaultCheckWhetherCardIsNegated(monster) ? 0 : 100;
+            }
             if (monster.Controller == 0 && monster.HasType(CardType.Synchro))
-                return 0;
+                return 1;
             if (monster.Controller == 1 && monster.Level >= 8 &&
                 monster.HasType(CardType.Synchro | CardType.Fusion))
-                return 1;
+                return 2;
             if (monster.Controller != 0)
                 return 100;
             foreach (ClientCard synchro in Bot.ExtraDeck.Where(c => c.HasType(CardType.Synchro)))
@@ -1161,7 +1231,7 @@ namespace WindBot.Game.AI.Decks
                     synchro.IsCode(CardId.AdamancipatorRisenDragite) &&
                     !Bot.Graveyard.Any(c => c.Attribute == (int)CardAttribute.Water), monster);
                 if (materials != null && SynchroPriority(synchro, materials) < 100)
-                    return 2;
+                    return 3;
             }
             // With no useful synchro revival/material, save the card on the
             // opponent's turn. On our turn an unused resource starter is useful.
@@ -1172,9 +1242,9 @@ namespace WindBot.Game.AI.Decks
             {
                 if (monster.IsCode(CardId.YoaThePlagueAshtra))
                     return Bot.GetSpellCountWithoutField() < 5 && Bot.HasInDeck(new int[] {
-                        CardId.AshtrasDomain, CardId.AshtrasWeb, CardId.AshtrasHowl }) ? 3 : 100;
+                        CardId.AshtrasDomain, CardId.AshtrasWeb, CardId.AshtrasHowl }) ? 4 : 100;
                 return Bot.HasInDeck(new int[] { CardId.MikumariTheBanisherAshtra,
-                    CardId.YoaThePlagueAshtra }) ? 3 : 100;
+                    CardId.YoaThePlagueAshtra }) ? 4 : 100;
             }
             return 100;
         }
@@ -1587,6 +1657,8 @@ namespace WindBot.Game.AI.Decks
         private int AshtraSetLimit()
         {
             return Bot.HasInGraveyard(CardId.AlbionTheBrandedDragon) ||
+                CanUseLilithSearch() && (Bot.HasInHand(CardId.LilithLadyOfLament) ||
+                    Bot.HasInMonstersZone(CardId.LilithLadyOfLament)) ||
                 Bot.GetMonsters().Any(c => c.IsCode(CardId.YoaThePlagueAshtra,
                     CardId.AkasunaTheBattleAshtra)) ? 4 : 5;
         }
@@ -1603,10 +1675,10 @@ namespace WindBot.Game.AI.Decks
 
         private int TrapPriority(ClientCard card)
         {
-            int priority = card.IsCode(CardId.AshtrasDomain) ? 0 :
-                card.IsCode(CardId.AshtrasWeb) ? 1 : card.IsCode(CardId.AshtrasHowl) ? 2 :
-                card.IsCode(CardId.MindMirrorForce) ? 3 :
-                card.IsCode(CardId.SolemnAccusation) ? 4 :
+            int priority = card.IsCode(CardId.MindMirrorForce) ? 0 :
+                card.IsCode(CardId.SolemnAccusation) ? 1 :
+                card.IsCode(CardId.AshtrasDomain) ? 2 :
+                card.IsCode(CardId.AshtrasWeb) ? 3 : card.IsCode(CardId.AshtrasHowl) ? 4 :
                 card.IsCode(CardId.DominusImpulse) ? 5 :
                 card.IsCode(CardId.InfiniteImpermanence) ? 6 : 7;
             if (Bot.GetSpells().Any(c => c.IsCode(card.Id)))
@@ -1729,6 +1801,11 @@ namespace WindBot.Game.AI.Decks
         public override IList<ClientCard> OnSelectTribute(IList<ClientCard> cards,
             int min, int max, int hint, bool cancelable)
         {
+            ClientCard activating = Duel.GetCurrentChainCard();
+            if (activating != null && activating.Controller == 0 &&
+                activating.IsCode(CardId.LilithLadyOfLament))
+                return TakeSelection(cards.OrderBy(LilithTributePriority)
+                    .ThenBy(MaterialPriority), min, max, min);
             if (_pendingSummonId != CardId.TheGreatGallantBandit)
                 return base.OnSelectTribute(cards, min, max, hint, cancelable);
             // The actual tribute prompt, not AI.SelectMaterials, controls the
@@ -1774,6 +1851,19 @@ namespace WindBot.Game.AI.Decks
             int player = solving != null ? solving.ActivatePlayer : activating.Controller;
             if (player != 0)
                 return base.OnSelectCard(cards, min, max, hint, cancelable);
+
+            if (id == CardId.LilithLadyOfLament)
+            {
+                if (solving == null && hint == HintMsg.Release)
+                    return TakeSelection(cards.OrderBy(LilithTributePriority)
+                        .ThenBy(MaterialPriority), min, max, min);
+                if (solving != null && hint == HintMsg.Set && cards.All(c =>
+                    c.Controller == 0 && c.Location == CardLocation.Deck &&
+                    c.Type == (int)CardType.Trap))
+                    // These are the three REVEALED traps, not a chosen Set card.
+                    // Multiple copies of the best-ranked trap are valid choices.
+                    return TakeSelection(cards.OrderBy(TrapPriority), min, max, 3);
+            }
 
             if (hint == HintMsg.SynchroMaterial)
                 return null;
@@ -2121,9 +2211,11 @@ namespace WindBot.Game.AI.Decks
             else if (id == CardId.AshtrasWeb)
             {
                 int chainIndex = solving != null ? Duel.SolvingChainIndex : Duel.CurrentChain.Count;
-                if (!_plannedTrapOptions.TryGetValue(chainIndex, out preferred))
-                    preferred = Bot.Graveyard.Any(c => IsAshtraMonster(c) && c.IsCanRevive()) &&
-                        (StopExtraSummons() || Bot.GetMonsterCount() == 0 ||
+                if (!CanUseWebRevival())
+                    preferred = 1;
+                else if (!_plannedTrapOptions.TryGetValue(chainIndex, out preferred))
+                    preferred = (Bot.GetMonsterCount() == 0 || CanRespondToOpponent() ||
+                        Duel.Phase == DuelPhase.End ||
                         !CanUseTrapTuner(activating ?? (solving != null ? solving.RelatedCard : null))) ? 2 : 1;
             }
 
