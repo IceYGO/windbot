@@ -1,6 +1,7 @@
 # Changelog
 
 ## Current (latest)
+ - Add RaiseMoon deck (v2): 41-card build, side deck removed, stale card logic removed
 
  - New deck: Elfnote
  - Expand the known card enums and battle-target protection rules
