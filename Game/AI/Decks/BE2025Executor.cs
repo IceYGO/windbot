@@ -46,6 +46,7 @@ namespace WindBot.Game.AI.Decks
             public const int SpiritWithEyesOfBlue = 42097666;
             public const int LightstromDragon = 10515412;
             public const int CosmicBlazar = 21123811;
+            public const int BlueEyesTyrantDragon = 11443677;
 
             //Black list
             public const int Lancea = 34267821;
@@ -165,6 +166,9 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpSummon, CardId.BlueEyesSpiritDragon, BlueEyesSpiritDragonSummon);
             AddExecutor(ExecutorType.Activate, CardId.BlueEyesJetDragon, JetEff);
+
+            AddExecutor(ExecutorType.SpSummon, CardId.BlueEyesTyrantDragon, TyrantSummon);
+            AddExecutor(ExecutorType.Activate, CardId.BlueEyesTyrantDragon, TyrantEffect);
 
             // if we don't have other things to do...
             AddExecutor(ExecutorType.Repos, Repos);
@@ -1550,6 +1554,53 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+
+        private bool TyrantSummon()
+        {
+            if (!Bot.HasInMonstersZone(CardId.BlueEyesWhiteDragon)) return false;
+            // TODO(foohyfooh): Rank the choices in the potential case where multiple exist
+            ClientCard card = Bot.MonsterZone
+                  .Where(c => c != null && c.IsCode(CardId.BlueEyesWhiteDragon))
+                  .FirstOrDefault(c => c.EquipCards.Any(e => e.IsCode(CardId.BlueEyesUltimateDragon, CardId.NeoBlueEyesUltimateDragon)));
+            return card != null;
+        }
+
+        private bool TyrantEffect()
+        {
+            // TODO(foohyfooh): Consider if this is in a chain with True Light setting a card
+            bool hasFreeZone = Bot.GetSpellCountWithoutField() < 5;
+            Logger.DebugWriteLine("Has Spell/Trap Zone To Place: " + hasFreeZone);
+            if (hasFreeZone) {
+                ClientCard card = Bot.Graveyard
+                    .Where(c => c != null && c.IsTrap())
+                    .OrderBy(ScoreTyrantReturn)
+                    .FirstOrDefault();
+                if (card != null)
+                {
+                    AI.SelectCard(card);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private int ScoreTyrantReturn(ClientCard card)
+        {
+            if (card.IsCode(CardId.TrueLight)) return 0;
+            if (card.IsCode(CardId.MajestyOfTheWhiteDragons))
+            {
+                // TODO (foohyfooh): Rank based on number of Blue-Eyes vs Imperm based on field conditions (desturction protection, floodgate effect, etc)
+                bool hasBEWD = Bot.Hand.Any(c => c.IsCode(CardId.BlueEyesWhiteDragon)) ||
+                               Bot.MonsterZone.Any(c => c != null && c.IsCode(CardId.BlueEyesWhiteDragon)) ||
+                               Bot.Graveyard.Any(c => c != null && c.IsCode(CardId.BlueEyesWhiteDragon));
+                return hasBEWD ? 1 : 5;
+            }
+            if (card.IsCode(_CardId.InfiniteImpermanence)) return 2;
+            // TODO(foohyfooh): Handle Duplicates
+            // Assuming we reach here then bot is in a tag duel or something and just take any random trap
+            return int.MaxValue;
+        }
+
         private int ScoreMurakumoDiscard(ClientCard card)
         {
             if (card == null)
