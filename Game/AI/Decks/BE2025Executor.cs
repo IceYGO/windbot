@@ -46,6 +46,7 @@ namespace WindBot.Game.AI.Decks
             public const int SpiritWithEyesOfBlue = 42097666;
             public const int LightstromDragon = 10515412;
             public const int CosmicBlazar = 21123811;
+            public const int BlueEyesTyrantDragon = 11443677;
 
             //Black list
             public const int Lancea = 34267821;
@@ -149,7 +150,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.SpiritWithEyesOfBlue, SpSpiritWithEyesOfBlue);
             AddExecutor(ExecutorType.Summon, CardId.KaibamanTheLegend, KaibamanTheLegendSummon);
             AddExecutor(ExecutorType.Activate, CardId.KaibamanTheLegend, KaibamanTheLegend);
-            AddExecutor(ExecutorType.Activate, CardId.SpiritWithEyesOfBlue, SpiritWithEyesOfBluEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SpiritWithEyesOfBlue, SpiritWithEyesOfBlueEffect);
             AddExecutor(ExecutorType.Activate, CardId.TrueLight, TrueLightEff);
             AddExecutor(ExecutorType.Activate, CardId.UltimateFusion, UltimateFusionEff);
 
@@ -165,6 +166,9 @@ namespace WindBot.Game.AI.Decks
 
             AddExecutor(ExecutorType.SpSummon, CardId.BlueEyesSpiritDragon, BlueEyesSpiritDragonSummon);
             AddExecutor(ExecutorType.Activate, CardId.BlueEyesJetDragon, JetEff);
+
+            AddExecutor(ExecutorType.SpSummon, CardId.BlueEyesTyrantDragon, TyrantSummon);
+            AddExecutor(ExecutorType.Activate, CardId.BlueEyesTyrantDragon, TyrantEffect);
 
             // if we don't have other things to do...
             AddExecutor(ExecutorType.Repos, Repos);
@@ -1155,14 +1159,17 @@ namespace WindBot.Game.AI.Decks
         }
         private bool MausoleumOfWhiteEff()
         {
+            bool canNormal = Bot.HasInHandOrInSpellZone(CardId.MausoleumOfWhite) ? normalSummon < 2 : normalSummon < 1;
             if (Bot.HasInMonstersZone(CardId.MaidenOfWhite) && Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon))
             {
                 AI.SelectCard(CardId.MaidenOfWhite);
                 return true;
             }
-            else if (Bot.HasInMonstersZone(CardId.SpiritWithEyesOfBlue) && Bot.HasInGraveyard(CardId.MaidenOfWhite) &&
-                !Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon) && !Bot.HasInHand(CardId.KaibamanTheLegend))
+            else if (Bot.HasInMonstersZone(CardId.SpiritWithEyesOfBlue) && Bot.HasInGraveyard(CardId.MaidenOfWhite))
             {
+                if (Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon) || (canNormal && Bot.HasInHand(CardId.KaibamanTheLegend))) { 
+                    return false;
+                }
                 AI.SelectCard(CardId.SpiritWithEyesOfBlue);
                 return true;
             }
@@ -1285,7 +1292,7 @@ namespace WindBot.Game.AI.Decks
             }
             return true;
         }
-        private bool SpiritWithEyesOfBluEffect()
+        private bool SpiritWithEyesOfBlueEffect()
         {
             if (ActivateDescription == -1)
             {
@@ -1297,21 +1304,23 @@ namespace WindBot.Game.AI.Decks
             }
             if (ActivateDescription == Util.GetStringId(CardId.SpiritWithEyesOfBlue, 2))
             {
-                ActivateSpiritWithEyesOfBlue = true;
-                Logger.DebugWriteLine("Link1 Active");
-                if (Bot.GetMonsterCount() >= 5) return false;
+                Logger.DebugWriteLine("Check Link1 Active");
+                if (Bot.GetMonsterCountWithoutExtraMonster() >= 5) return false;
+                bool canNormal = Bot.HasInHandOrInSpellZone(CardId.MausoleumOfWhite) ? normalSummon < 2 : normalSummon < 1;
                 ClientCard pick = null;
                 if (Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon))
                 {
                     var c = Bot.Graveyard.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
                     if (c != null) pick = c;
                 }
-                else if (Bot.HasInHand(CardId.BlueEyesWhiteDragon) && Bot.HasInGraveyard(CardId.KaibamanTheLegend))
+                else if (Bot.HasInHand(CardId.BlueEyesWhiteDragon) && !(canNormal && Bot.HasInGraveyard(CardId.KaibamanTheLegend)))
                 {
                     var c = Bot.Hand.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
                     if (c != null) pick = c;
                 }
                 if (pick == null) return false;
+                ActivateSpiritWithEyesOfBlue = true;
+                Logger.DebugWriteLine("Link1 Active");
                 AI.SelectCard(pick);
                 return true;
             }
@@ -1543,6 +1552,53 @@ namespace WindBot.Game.AI.Decks
             }
             return false;
         }
+
+        private bool TyrantSummon()
+        {
+            if (!Bot.HasInMonstersZone(CardId.BlueEyesWhiteDragon)) return false;
+            // TODO(foohyfooh): Rank the choices in the potential case where multiple exist
+            ClientCard card = Bot.MonsterZone
+                  .Where(c => c != null && c.IsCode(CardId.BlueEyesWhiteDragon))
+                  .FirstOrDefault(c => c.EquipCards.Any(e => e.IsCode(CardId.BlueEyesUltimateDragon, CardId.NeoBlueEyesUltimateDragon)));
+            return card != null;
+        }
+
+        private bool TyrantEffect()
+        {
+            // TODO(foohyfooh): Consider if this is in a chain with True Light setting a card
+            bool hasFreeZone = Bot.GetSpellCountWithoutField() < 5;
+            Logger.DebugWriteLine("Has Spell/Trap Zone To Place: " + hasFreeZone);
+            if (hasFreeZone) {
+                ClientCard card = Bot.Graveyard
+                    .Where(c => c != null && c.IsTrap())
+                    .OrderBy(ScoreTyrantReturn)
+                    .FirstOrDefault();
+                if (card != null)
+                {
+                    AI.SelectCard(card);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private int ScoreTyrantReturn(ClientCard card)
+        {
+            if (card.IsCode(CardId.TrueLight)) return 0;
+            if (card.IsCode(CardId.MajestyOfTheWhiteDragons))
+            {
+                // TODO (foohyfooh): Rank based on number of Blue-Eyes vs Imperm based on field conditions (desturction protection, floodgate effect, etc)
+                bool hasBEWD = Bot.Hand.Any(c => c.IsCode(CardId.BlueEyesWhiteDragon)) ||
+                               Bot.MonsterZone.Any(c => c != null && c.IsCode(CardId.BlueEyesWhiteDragon)) ||
+                               Bot.Graveyard.Any(c => c != null && c.IsCode(CardId.BlueEyesWhiteDragon));
+                return hasBEWD ? 1 : 5;
+            }
+            if (card.IsCode(_CardId.InfiniteImpermanence)) return 2;
+            // TODO(foohyfooh): Handle Duplicates
+            // Assuming we reach here then bot is in a tag duel or something and just take any random trap
+            return int.MaxValue;
+        }
+
         private int ScoreMurakumoDiscard(ClientCard card)
         {
             if (card == null)
