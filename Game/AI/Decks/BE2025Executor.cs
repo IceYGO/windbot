@@ -149,7 +149,7 @@ namespace WindBot.Game.AI.Decks
             AddExecutor(ExecutorType.SpSummon, CardId.SpiritWithEyesOfBlue, SpSpiritWithEyesOfBlue);
             AddExecutor(ExecutorType.Summon, CardId.KaibamanTheLegend, KaibamanTheLegendSummon);
             AddExecutor(ExecutorType.Activate, CardId.KaibamanTheLegend, KaibamanTheLegend);
-            AddExecutor(ExecutorType.Activate, CardId.SpiritWithEyesOfBlue, SpiritWithEyesOfBluEffect);
+            AddExecutor(ExecutorType.Activate, CardId.SpiritWithEyesOfBlue, SpiritWithEyesOfBlueEffect);
             AddExecutor(ExecutorType.Activate, CardId.TrueLight, TrueLightEff);
             AddExecutor(ExecutorType.Activate, CardId.UltimateFusion, UltimateFusionEff);
 
@@ -1155,14 +1155,17 @@ namespace WindBot.Game.AI.Decks
         }
         private bool MausoleumOfWhiteEff()
         {
+            bool canNormal = Bot.HasInHandOrInSpellZone(CardId.MausoleumOfWhite) ? normalSummon < 2 : normalSummon < 1;
             if (Bot.HasInMonstersZone(CardId.MaidenOfWhite) && Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon))
             {
                 AI.SelectCard(CardId.MaidenOfWhite);
                 return true;
             }
-            else if (Bot.HasInMonstersZone(CardId.SpiritWithEyesOfBlue) && Bot.HasInGraveyard(CardId.MaidenOfWhite) &&
-                !Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon) && !Bot.HasInHand(CardId.KaibamanTheLegend))
+            else if (Bot.HasInMonstersZone(CardId.SpiritWithEyesOfBlue) && Bot.HasInGraveyard(CardId.MaidenOfWhite))
             {
+                if (Bot.HasInHandOrInGraveyard(CardId.BlueEyesWhiteDragon) || (canNormal && Bot.HasInHand(CardId.KaibamanTheLegend))) { 
+                    return false;
+                }
                 AI.SelectCard(CardId.SpiritWithEyesOfBlue);
                 return true;
             }
@@ -1285,7 +1288,7 @@ namespace WindBot.Game.AI.Decks
             }
             return true;
         }
-        private bool SpiritWithEyesOfBluEffect()
+        private bool SpiritWithEyesOfBlueEffect()
         {
             if (ActivateDescription == -1)
             {
@@ -1297,21 +1300,25 @@ namespace WindBot.Game.AI.Decks
             }
             if (ActivateDescription == Util.GetStringId(CardId.SpiritWithEyesOfBlue, 2))
             {
-                ActivateSpiritWithEyesOfBlue = true;
-                Logger.DebugWriteLine("Link1 Active");
-                if (Bot.GetMonsterCount() >= 5) return false;
+                Logger.DebugWriteLine("Check Link1 Active");
+                if (Bot.GetMonsterCountWithoutExtraMonster() >= 5) return false;
+
+                bool canNormal = Bot.HasInHandOrInSpellZone(CardId.MausoleumOfWhite) ? normalSummon < 2 : normalSummon < 1;
+
                 ClientCard pick = null;
                 if (Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon))
                 {
                     var c = Bot.Graveyard.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
                     if (c != null) pick = c;
                 }
-                else if (Bot.HasInHand(CardId.BlueEyesWhiteDragon) && Bot.HasInGraveyard(CardId.KaibamanTheLegend))
+                else if (Bot.HasInHand(CardId.BlueEyesWhiteDragon) && !(canNormal && Bot.HasInGraveyard(CardId.KaibamanTheLegend)))
                 {
                     var c = Bot.Hand.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
                     if (c != null) pick = c;
                 }
                 if (pick == null) return false;
+                ActivateSpiritWithEyesOfBlue = true;
+                Logger.DebugWriteLine("Link1 Active");
                 AI.SelectCard(pick);
                 return true;
             }
