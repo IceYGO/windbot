@@ -1306,9 +1306,7 @@ namespace WindBot.Game.AI.Decks
             {
                 Logger.DebugWriteLine("Check Link1 Active");
                 if (Bot.GetMonsterCountWithoutExtraMonster() >= 5) return false;
-
                 bool canNormal = Bot.HasInHandOrInSpellZone(CardId.MausoleumOfWhite) ? normalSummon < 2 : normalSummon < 1;
-
                 ClientCard pick = null;
                 if (Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon))
                 {
