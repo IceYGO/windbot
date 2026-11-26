@@ -9,88 +9,57 @@ using WindBot.Game.AI;
 namespace WindBot.Game.AI.Decks
 {
     /// <summary>
-    /// 「阿图姆」——黑魔术师 / 混沌黑魔术骑士（DIY）卡组。
+    /// 黑魔术师卡组（永远之魂 + 黑魔导阵 + 龙骑士 的控制型构筑）。
     ///
     /// 主展开线（幕帘线）：
-    ///   杖 → 检索「黑魔导的幕帘」→ 幕帘特召黑魔术师 + 追加检索
+    ///   魔术师之杖 → 检索「黑魔导的幕帘」→ 幕帘特召黑魔术师 + 追加检索
     ///   → 本回合已发动魔法卡，除外黑魔术师特召「毁灭之黑魔术师」
     ///   → 毁灭②检索（永远之魂 / 黑魔导阵 / 蒂迈欧之眼光）
     ///   → 蒂迈欧之眼光把毁灭变成「龙骑士 黑魔术师」
     ///   终场：黑魔导阵 + 龙骑士 黑魔术师 + 永远之魂
     ///
     /// 备用线（幕帘组件不全时）：
-    ///   超魔导师-黑魔术师徒（融合）+ 师徒的牵绊 → 少女 + 盖「黑·爆·裂·破·魔·导」
+    ///   超魔导师-黑魔术师徒（融合）站场抽卡，被破坏时②拉回黑魔术师 + 黑魔术少女
     ///
-    /// 注意：本卡组含 2 张 DIY 卡，启动时必须同时加载 DIY 卡库：
-    ///   DbPath=cards.cdb;DIY_Sirokami.cdb
+    /// 卡组只使用官方卡。
     /// </summary>
     [Deck("SirokamiDarkMagician", "AI_SirokamiDarkMagician", "Normal")]
     public class SirokamiDarkMagicianExecutor : DarkMagicianExecutor
     {
-        public class CardId
+        public new class CardId
         {
             // 怪兽
             public const int DarkMagician = 46986414;                 // 黑魔术师
-            public const int ChaosBlackMagicKnight = 98920831;        // 混沌黑魔术骑士（DIY）
-            public const int Timaeus = 3078380;                       // 合体龙 蒂迈欧
-            public const int Radian = 28674152;                       // 多次元坏兽 拉迪安
-            public const int PalladiumOracleMahad = 71703785;         // 守护神官 马哈德
             public const int ServantOfTheKing = 88570004;             // 王之仆人-黑魔术师
-            public const int PalladiumOracleMana = 42006475;          // 守护神官 玛娜
-            public const int DarkMagicianGirl = 38033129;             // 黑魔术少女
+            public const int DarkMagicianGirl = 38033121;             // 黑魔术少女（38033129 是其异画，alias 指向这里）
             public const int MagiciansRod = 7084129;                  // 魔术师之杖
             public const int GhostMourner = 52038441;                 // 朔夜时雨
-            public const int Magikuriboh = 31699677;                  // 魔术栗子球
-            public const int MagiciansSouls = 97631303;               // 魔术师双魂
             public const int IllusionOfChaos = 12266229;              // 混沌之幻想魔术师
 
             // 魔法
-            public const int DarkMagicCoffin = 64500034;              // 黑魔术之转生棺（DIY）
             public const int DarkMagicAttack = 2314238;               // 黑·魔·导
-            public const int ThousandKnives = 63391643;               // 千把刀
-            public const int DarkBurningMagic = 75190122;             // 黑·爆·裂·破·魔·导
             public const int SoulServant = 23020408;                  // 魂之仆人
             public const int DarkMagicalCircle = 47222536;            // 黑魔导阵
-            public const int KnightsTitle = 87210505;                 // 骑士的称号
             public const int DarkMagicCurtain = 41350418;             // 黑魔导的幕帘
-            public const int BondBetweenTeacherAndStudent = 60709218; // 师徒的牵绊
             public const int MagiciansSalvation = 95477924;           // 魔术师的救出
-            public const int MonsterReborn = 28958464;                // 魔法卡「死者苏生」
-            public const int SecretsOfDarkMagic = 59514117;           // 黑魔术的秘仪
             public const int EyeOfTimaeus = 22283204;                 // 蒂迈欧之眼光
 
             // 陷阱
             public const int EternalSoul = 48680970;                  // 永远之魂
             public const int DestinedRivals = 22634473;               // 对峙的宿命
-            public const int MindPowerShield = 66247040;              // 神圣心灵防护罩 -心灵之力-
-            public const int MagiciansCombination = 86509711;         // 魔术师的配合
-            public const int MagicianNavigation = 7922915;            // 魔术师的导门阵
 
             // 额外
             public const int TimaeusFusion = 85899505;                // 合体魔龙 蒂迈欧
             public const int MasterOfChaos = 85059922;                // 超魔导战士-混沌制驭者
             public const int DarkMagicianTheDragonKnight = 41721210;  // 龙骑士 黑魔术师
-            public const int DarkPaladin = 98502115;                  // 超魔导剑士-黑魔导剑士
-            public const int AmuletDragon = 75380687;                 // 咒符龙
+            public const int DarkPaladin = 98502113;                  // 超魔导剑士-黑魔导剑士（98502115 是同卡异画）
             public const int DarkMagicianOfDestruction = 59400890;    // 毁灭之黑魔术师
             public const int TheDarkMagicians = 50237654;             // 超魔导师-黑魔术师徒
-            public const int Number11BigEye = 80117527;               // No.11 巨眼
-            public const int EbonIllusionMagician = 96471335;         // 幻想之黑魔导师
-            public const int EbonHighMagician = 85551711;             // 虚空之黑魔导师
-            public const int NoritoTheMoralLeader = 14152862;         // 风纪宫司 祝词
-            public const int MagiMagiMagicianGal = 10000030;          // 眼盯盯☆魔术辣妹
-            public const int AccesscodeTalker = 86066372;             // 访问码语者
+            public const int AccesscodeTalker = 86066373;             // 访问码语者
             public const int Selene = 45819647;                       // 神圣魔皇后 塞勒涅
-            public const int RelinquishedAnima = 94259633;            // 纳祭之魔·阿尼玛
 
             // 2026-10 卡表新增
-            public const int SwordsOfConcealingLight = 12923641;      // 暗之护封剑
             public const int PrimiteRoar = 92501449;                  // 原石的鸣狞
-            public const int Necromancer = 69176851;                  // 瘴烟之死灵术师（Link-2）
-            public const int Sebek = 39767432;                        // 塞贝克的魔导士（Link-2）
-            public const int Dharc = 8264361;                         // 暗影之暗灵使 达克（Link-2）
-            public const int Daybreaker = 91336701;                   // 魔导耀士 破晓者（Link-2）
-            public const int ApprenticeWitchling = 71384012;          // 见习魔娘（Link-2）
 
             // 魔导书轴（2026-10 翻新卡组）
             public const int Crowley = 50756327;                      // 魔导原典 克劳利（Link-2）
@@ -106,7 +75,6 @@ namespace WindBot.Game.AI.Decks
         {
             CardId.DarkMagicianTheDragonKnight,
             CardId.TheDarkMagicians,
-            CardId.AmuletDragon,
             CardId.DarkPaladin,
             CardId.DarkMagicianOfDestruction,
             CardId.TimaeusFusion,
@@ -118,7 +86,6 @@ namespace WindBot.Game.AI.Decks
         {
             CardId.TheDarkMagicians,
             CardId.DarkMagicianTheDragonKnight,
-            CardId.AmuletDragon,
             CardId.DarkPaladin,
             CardId.DarkMagicianOfDestruction,
             CardId.TimaeusFusion,
@@ -131,17 +98,15 @@ namespace WindBot.Game.AI.Decks
             CardId.MasterOfChaos,
             CardId.DarkMagicianTheDragonKnight,
             CardId.TheDarkMagicians,
-            CardId.AmuletDragon,
             CardId.DarkPaladin,
             CardId.DarkMagicianOfDestruction,
             CardId.TimaeusFusion
         };
 
-        private bool _chaosKnightByKnightsTitle;
         private bool _spellActivatedThisTurn;
 
-        /// <summary>本回合是否发过「魂之仆人」：阵要等它先放顶，别抢在前面把①用掉。</summary>
-        private bool _soulServantUsedThisTurn;
+        /// <summary>本回合是否发过「成金哥布林」：一回合只发一张，别白送对面 2000 血。</summary>
+        private bool _upstartUsedThisTurn;
 
         /// <summary>本回合是否发动过「蒂迈欧之眼光」（它拉出来的怪兽下个回合结束时会被除外）。</summary>
         private bool _eyeActivatedThisTurn;
@@ -174,7 +139,6 @@ namespace WindBot.Game.AI.Decks
             // 先把起手怪拍下去：杖/巴特尔
             // 坏兽最优先：能解就解（不取对象、不破坏，解大怪最稳）
             AddExecutor(ExecutorType.SpSummon, 36956512, KaijuSummonGadarla);
-            AddExecutor(ExecutorType.SpSummon, CardId.Radian, KaijuSummon);
 
                         AddExecutor(ExecutorType.SpSummon, CardId.Selene, SeleneSummon);
             AddExecutor(ExecutorType.Activate, CardId.Selene, SeleneEffect);
@@ -195,16 +159,9 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             AddExecutor(ExecutorType.Activate, 12580477, () => Enemy.GetMonsterCount() >= 1);                 // 雷击
             AddExecutor(ExecutorType.Activate, 18144507, () => Enemy.SpellZone.Any(card => card != null));     // 羽毛扫
 
-            AddExecutor(ExecutorType.SpellSet, CardId.MindPowerShield, SetTrap);
 
-            AddExecutor(ExecutorType.Activate, CardId.MindPowerShield, MindPowerShieldEffect);
-            AddExecutor(ExecutorType.Activate, CardId.MagiciansCombination, CombinationEffect);
             AddExecutor(ExecutorType.Activate, CardId.DestinedRivals, DestinedRivalsEffect);
             AddExecutor(ExecutorType.Activate, CardId.GhostMourner, GhostMournerEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Magikuriboh, MagikuribohEffect);
-            AddExecutor(ExecutorType.Activate, CardId.ChaosBlackMagicKnight, ChaosKnightEffect);
-            AddExecutor(ExecutorType.Activate, CardId.PalladiumOracleMana, PalladiumOracleManaEffect);
-            AddExecutor(ExecutorType.Activate, CardId.PalladiumOracleMahad, MahadEffect);
 
             AddExecutor(ExecutorType.Activate, CardId.DarkMagicalCircle, DarkMagicalCircleEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.Selene, SeleneSummon);
@@ -212,14 +169,11 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             AddExecutor(ExecutorType.Activate, CardId.MagiciansSalvation, SalvationEffect);
             AddExecutor(ExecutorType.Activate, CardId.SoulServant, SoulServantEffect);
             AddExecutor(ExecutorType.Activate, CardId.IllusionOfChaos, IllusionOfChaosEffect);
-            AddExecutor(ExecutorType.Activate, CardId.MagiciansSouls, MagiciansSoulsEffect);
             AddExecutor(ExecutorType.Activate, CardId.ServantOfTheKing, ServantOfTheKingEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Timaeus, TimaeusEffect);
             AddExecutor(ExecutorType.Activate, CardId.MagiciansRod, RodEffect);
 
             AddExecutor(ExecutorType.Summon, CardId.MagiciansRod);
             AddExecutor(ExecutorType.Summon, CardId.DarkMagician, DarkMagicianSummon);
-            AddExecutor(ExecutorType.Summon, CardId.DarkMagicianGirl, DarkMagicianGirlSummon);
 
             // 坏兽：解对面大怪/不取对象不破坏的怪（如青眼混沌极龙）
             // 访问码语者：凑够连接值 4 且能拿来斩杀/清场时出场
@@ -249,60 +203,27 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             AddExecutor(ExecutorType.Activate, CardId.SpellbookOfKnowledge, SpellbookOfKnowledgeEffect);
             AddExecutor(ExecutorType.SpSummon, CardId.Crowley, CrowleySummon);
             AddExecutor(ExecutorType.Activate, CardId.Crowley, CrowleyEffect);
-            AddExecutor(ExecutorType.SpSummon, CardId.RelinquishedAnima, AnimaSummon);
-            AddExecutor(ExecutorType.Activate, CardId.RelinquishedAnima, AnimaEffect);
 
             // 2026-10 新卡（链接怪兽放在毁灭之后，避免抢先烧掉关键怪）
-            AddExecutor(ExecutorType.Activate, CardId.SwordsOfConcealingLight, SwordsOfConcealingLightEffect);
             AddExecutor(ExecutorType.Activate, CardId.PrimiteRoar, PrimiteRoarEffect);
-            AddExecutor(ExecutorType.SpSummon, CardId.Necromancer, NecromancerSummon);
             // 注意：死灵术师①会把卡加手并封锁同名卡效果，这条线不用它，所以不注册 Activate
-            AddExecutor(ExecutorType.SpSummon, CardId.ApprenticeWitchling, WitchlingSummon);
-            AddExecutor(ExecutorType.Activate, CardId.ApprenticeWitchling, WitchlingEffect);
-            AddExecutor(ExecutorType.SpSummon, CardId.Dharc, DharcSummon);
-            AddExecutor(ExecutorType.Activate, CardId.Dharc, DharcEffect);
-            AddExecutor(ExecutorType.SpSummon, CardId.Daybreaker, DaybreakerSummon);
-            AddExecutor(ExecutorType.Activate, CardId.Daybreaker, DaybreakerEffect);
-            AddExecutor(ExecutorType.SpSummon, CardId.Sebek, SebekSummon);
-            AddExecutor(ExecutorType.Activate, CardId.DarkMagicCoffin, CoffinEffect);
-            AddExecutor(ExecutorType.Activate, CardId.KnightsTitle, KnightsTitleEffect);
             AddExecutor(ExecutorType.Activate, CardId.EternalSoul, EternalSoulEffect);
-            AddExecutor(ExecutorType.Activate, CardId.MagicianNavigation, NavigationEffect);
-            AddExecutor(ExecutorType.Activate, CardId.BondBetweenTeacherAndStudent, BondEffect);
             AddExecutor(ExecutorType.Activate, CardId.DarkMagicCurtain, CurtainEffect);
 
-            AddExecutor(ExecutorType.Activate, CardId.SecretsOfDarkMagic, SecretsOfDarkMagicEffect);
             AddExecutor(ExecutorType.Activate, CardId.EyeOfTimaeus, EyeOfTimaeusEffect);
-            AddExecutor(ExecutorType.Activate, CardId.MonsterReborn, MonsterRebornEffect);
-            AddExecutor(ExecutorType.Activate, CardId.DarkBurningMagic, DarkBurningMagicEffect);
             AddExecutor(ExecutorType.Activate, CardId.DarkMagicAttack, DarkMagicAttackEffect);
-            AddExecutor(ExecutorType.Activate, CardId.ThousandKnives, ThousandKnivesEffect);
-
-            AddExecutor(ExecutorType.SpSummon, CardId.EbonIllusionMagician, Rank7Summon);
-            AddExecutor(ExecutorType.SpSummon, CardId.EbonHighMagician, EbonHighSummon);
-            AddExecutor(ExecutorType.SpSummon, CardId.Number11BigEye, BigEyeSummon);
-            AddExecutor(ExecutorType.SpSummon, CardId.NoritoTheMoralLeader, Rank6Summon);
-            AddExecutor(ExecutorType.SpSummon, CardId.MagiMagiMagicianGal, Rank6Summon);
+            AddExecutor(ExecutorType.Activate, CardId.DarkPaladin, DarkPaladinEffect);
 
             AddExecutor(ExecutorType.SpSummon, CardId.AccesscodeTalker, AccesscodeSummon);
 
             AddExecutor(ExecutorType.Activate, CardId.TheDarkMagicians, TheDarkMagiciansEffect);
-            AddExecutor(ExecutorType.Activate, CardId.DarkPaladin, DarkPaladinEffect);
-            AddExecutor(ExecutorType.Activate, CardId.AmuletDragon, AmuletDragonEffect);
             AddExecutor(ExecutorType.Activate, CardId.DarkMagicianOfDestruction, DarkMagicianOfDestructionEffect);
             AddExecutor(ExecutorType.Activate, CardId.MasterOfChaos, MasterOfChaosEffect);
             AddExecutor(ExecutorType.Activate, CardId.TimaeusFusion, TimaeusFusionEffect);
-            AddExecutor(ExecutorType.Activate, CardId.EbonIllusionMagician, EbonIllusionEffect);
-            AddExecutor(ExecutorType.Activate, CardId.EbonHighMagician, EbonHighEffect);
-            AddExecutor(ExecutorType.Activate, CardId.Number11BigEye, BigEyeEffect);
-            AddExecutor(ExecutorType.Activate, CardId.NoritoTheMoralLeader, NoritoEffect);
-            AddExecutor(ExecutorType.Activate, CardId.MagiMagiMagicianGal, MagiMagiEffect);
             AddExecutor(ExecutorType.Activate, CardId.Selene, SeleneEffect);
             AddExecutor(ExecutorType.Activate, CardId.AccesscodeTalker, AccesscodeEffect);
 
-            AddExecutor(ExecutorType.SpellSet, CardId.MagiciansCombination, () => NotOnField(CardId.MagiciansCombination));
             AddExecutor(ExecutorType.SpellSet, CardId.DestinedRivals, () => NotOnField(CardId.DestinedRivals));
-            AddExecutor(ExecutorType.SpellSet, CardId.MagicianNavigation, () => NotOnField(CardId.MagicianNavigation));
             // 永魂只需一张：魔陷区已经有（不管表侧还是盖着）就不再盖第二张
             AddExecutor(ExecutorType.SpellSet, CardId.DarkMagicalCircle, () => NotOnField(CardId.DarkMagicalCircle));
             // 眼光只在「本回合没法攻击」时才盖：否则盖下去当回合不能发动，
@@ -365,20 +286,11 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         {
             return Bot.Hand
                 .Where(card => card != null && card.IsSpell())
-                .OrderBy(card => card.IsCode(CardId.DarkMagicAttack, CardId.ThousandKnives, CardId.DarkBurningMagic) ? 1 : 0)
+                .OrderBy(card => card.IsCode(CardId.DarkMagicAttack) ? 1 : 0)
                 .FirstOrDefault();
         }
 
         /// <summary>按询问顺序排队卡号：最后一张用 SelectCard，其余逆序 SelectNextCard。</summary>
-        private void QueueIds(params int[] ids)
-        {
-            if (ids == null || ids.Length == 0)
-                return;
-            AI.SelectCard(ids[ids.Length - 1]);
-            for (int i = ids.Length - 2; i >= 0; i--)
-                AI.SelectNextCard(ids[i]);
-        }
-
         private void QueueCardThenIds(ClientCard card, IList<int> ids)
         {
             AI.SelectCard(ids);
@@ -399,22 +311,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             return Enemy.GetMonsters().FirstOrDefault();
         }
 
-        private int CountEnemyFaceup()
-        {
-            return Enemy.GetMonsters().Count(card => card.IsFaceup())
-                + Enemy.GetSpells().Count(card => card.IsFaceup());
-        }
-
-        private int CountBotLevel7()
-        {
-            return Bot.GetMonsters().Count(card => card.Level == 7);
-        }
-
-        private int CountBotLevel6Spellcaster()
-        {
-            return Bot.GetMonsters().Count(card => card.Level == 6 && IsMagicCaster(card));
-        }
-
         private int CountSoulServantKinds()
         {
             HashSet<int> kinds = new HashSet<int>();
@@ -424,24 +320,13 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 {
                     if (card == null)
                         continue;
-                    if (card.IsCode(CardId.PalladiumOracleMahad))
-                        kinds.Add(1);
-                    else if (card.IsCode(CardId.PalladiumOracleMana))
-                        kinds.Add(2);
-                    else if (card.IsCode(CardId.DarkMagician))
+                    if (card.IsCode(CardId.DarkMagician))
                         kinds.Add(3);
                     else if (card.IsCode(CardId.DarkMagicianGirl))
                         kinds.Add(4);
                 }
             }
             return kinds.Count;
-        }
-
-        private bool CanAccessDarkMagician()
-        {
-            return HasDarkMagician()
-                || Bot.HasInHand(CardId.DarkMagician)
-                || Bot.HasInGraveyard(CardId.DarkMagician);
         }
 
         /// <summary>
@@ -476,8 +361,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         private enum Plan
         {
             Setup,
-            ChaosKnight,
-            DarkBurning,
             DarkMagicians,
             Lethal
         }
@@ -486,10 +369,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         {
             if (CanLethal())
                 return Plan.Lethal;
-            if (Bot.HasInHand(CardId.KnightsTitle) && ChaosKnightStillAvailable())
-                return Plan.ChaosKnight;
-            if (Bot.HasInHand(CardId.DarkBurningMagic))
-                return Plan.DarkBurning;
             if (!HasCurtainLinePieces())
                 return Plan.DarkMagicians;
             return Plan.Setup;
@@ -504,20 +383,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 return true;
             return Bot.HasInHand(CardId.MagiciansRod)
                 || Bot.HasInMonstersZone(CardId.MagiciansRod);
-        }
-
-        private bool ChaosKnightStillAvailable()
-        {
-            return !Bot.HasInMonstersZone(CardId.ChaosBlackMagicKnight)
-                && !Bot.HasInBanished(CardId.ChaosBlackMagicKnight);
-        }
-
-        /// <summary>「骑士的称号」现在就能用：手里有、场上也有黑魔术师。</summary>
-        private bool TitleIsLive()
-        {
-            return Bot.HasInHand(CardId.KnightsTitle)
-                && HasDarkMagician()
-                && ChaosKnightStillAvailable();
         }
 
         private bool CanLethal()
@@ -550,13 +415,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             if (!Bot.HasInHand(CardId.DarkMagicalCircle) && !Bot.HasInSpellZone(CardId.DarkMagicalCircle))
                 return CardId.DarkMagicalCircle;
 
-            // 杖 + 双魂：检索合体龙，吃掉场上的魔陷/怪兽跳出来，再融合龙骑士保护后场
-            if (Bot.HasInHand(CardId.MagiciansSouls)
-                && !Bot.HasInHand(CardId.Timaeus)
-                && !Bot.HasInMonstersZone(CardId.DarkMagicianTheDragonKnight)
-                && Bot.GetSpells().Any())
-                return CardId.Timaeus;
-
             Plan plan = CurrentPlan();
 
             bool hasCircle = Bot.HasInSpellZone(CardId.DarkMagicalCircle)
@@ -566,28 +424,14 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 || Bot.HasInSpellZone(CardId.MagiciansSalvation)
                 || Bot.HasInHand(CardId.MagiciansSalvation);
 
-            if (plan == Plan.ChaosKnight && !HasDarkMagician()
-                && !Bot.HasInHand(CardId.DarkMagician) && !Bot.HasInGraveyard(CardId.DarkMagician))
-                return CardId.MagiciansSalvation;
-
             if (plan == Plan.DarkMagicians)
             {
                 if (!hasCircle)
                     return CardId.DarkMagicalCircle;
                 if (!hasEternal)
                     return CardId.MagiciansSalvation;
-                // 师徒是站场抽卡引擎，先做出来；爆破的两块料由它被破坏时的②负责
-                if (!Bot.HasInHand(CardId.SecretsOfDarkMagic))
-                    return CardId.SecretsOfDarkMagic;
-                if (!Bot.GetMonsters().Any(card => card.IsCode(CardId.DarkMagicianGirl))
-                    && !Bot.HasInHand(CardId.BondBetweenTeacherAndStudent))
-                    return CardId.BondBetweenTeacherAndStudent;
                 return CardId.SoulServant;
             }
-
-            if (plan == Plan.DarkBurning && HasDarkMagician()
-                && !Bot.GetMonsters().Any(card => card.IsCode(CardId.DarkMagicianGirl)))
-                return CardId.BondBetweenTeacherAndStudent;
 
             if (!hasCircle)
                 return CardId.DarkMagicalCircle;
@@ -595,14 +439,10 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 return CardId.MagiciansSalvation;
             if (!Bot.HasInHand(CardId.SoulServant))
                 return CardId.SoulServant;
-            if (ChaosKnightStillAvailable() && !Bot.HasInHand(CardId.KnightsTitle))
-                return CardId.KnightsTitle;
             if (Enemy.GetSpells().Any(card => card.IsFaceup()))
                 return CardId.DarkMagicAttack;
-            if (Enemy.GetMonsters().Any())
-                return CardId.ThousandKnives;
 
-            return CardId.DarkMagicCoffin;
+            return CardId.MagiciansSalvation;
         }
 
         private List<int> SearchPriorityForSpellTrap()
@@ -614,14 +454,7 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 CardId.MagiciansSalvation,
                 CardId.EternalSoul,
                 CardId.SoulServant,
-                CardId.DarkMagicCoffin,
-                CardId.KnightsTitle,
-                CardId.MagicianNavigation,
-                CardId.BondBetweenTeacherAndStudent,
-                CardId.DarkBurningMagic,
                 CardId.DarkMagicAttack,
-                CardId.ThousandKnives,
-                CardId.SecretsOfDarkMagic,
                 CardId.EyeOfTimaeus,
                 CardId.DarkMagicCurtain
             });
@@ -676,8 +509,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 return CardId.MagiciansSalvation;
             if (!hasCircle)
                 return CardId.DarkMagicalCircle;
-            if (!Bot.HasInHand(CardId.BondBetweenTeacherAndStudent))
-                return CardId.BondBetweenTeacherAndStudent;
             return CardId.DarkMagicalCircle;
         }
 
@@ -737,133 +568,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             return true;
         }
 
-        private bool MagikuribohEffect()
-        {
-            if (Card.Location == CardLocation.Grave)
-                return true;
-            if (Card.Location != CardLocation.Hand)
-                return false;
-            if (Duel.Phase != DuelPhase.Main1 && Duel.Phase != DuelPhase.Main2
-                && Duel.Phase != DuelPhase.BattleStart && Duel.Phase != DuelPhase.Battle)
-                return false;
-            if (HasDarkMagician() || Bot.HasInMonstersZone(CardId.DarkMagicianGirl))
-                return false;
-
-            if (Bot.HasInGraveyard(CardId.DarkMagician))
-                AI.SelectCard(CardId.DarkMagician);
-            else
-                AI.SelectCard(new List<int> { CardId.DarkMagician, CardId.DarkMagicianGirl });
-            return true;
-        }
-
-        private bool MahadEffect()
-        {
-            if (Card.Location == CardLocation.Hand)
-                return true;
-            if (Card.Location == CardLocation.MonsterZone)
-            {
-                AI.SelectCard(CardId.DarkMagician);
-                return true;
-            }
-            return false;
-        }
-
-        private bool PalladiumOracleManaEffect()
-        {
-            if (Card.Location == CardLocation.Hand || Card.Location == CardLocation.Grave)
-                return true;
-            if (Card.Location == CardLocation.MonsterZone)
-            {
-                AI.SelectCard(new List<int> { CardId.DarkMagicianGirl, CardId.DarkMagician });
-                return true;
-            }
-            return false;
-        }
-
-        private bool ChaosKnightEffect()
-        {
-            if (Card.Location == CardLocation.MonsterZone)
-            {
-                ClientCard target = PickEnemyCard();
-                if (target == null)
-                    return false;
-
-                List<int> deckTargets = new List<int>
-                {
-                    CardId.DarkMagician,
-                    CardId.IllusionOfChaos,
-                    CardId.SoulServant,
-                    CardId.MagiciansSalvation
-                };
-
-                if (_chaosKnightByKnightsTitle)
-                {
-                    _chaosKnightByKnightsTitle = false;
-                    QueueCardThenIds(target, deckTargets);
-                    return true;
-                }
-
-                AI.SelectCard(target);
-                return true;
-            }
-
-            if (Card.Location == CardLocation.Hand || Card.Location == CardLocation.Grave)
-            {
-                if (Bot.HasInMonstersZone(CardId.ChaosBlackMagicKnight))
-                    return false;
-
-                ClientCard tribute = GetChaosKnightTribute();
-                if (tribute == null)
-                    return false;
-
-                AI.SelectCard(tribute);
-                return true;
-            }
-
-            return false;
-        }
-
-        private ClientCard GetChaosKnightTribute()
-        {
-            ClientCard spare = Bot.GetMonsters()
-                .Where(card => card.HasSetcode(SetcodeDarkMagician) && !IsDarkMagician(card))
-                .OrderBy(card => card.Attack)
-                .FirstOrDefault();
-            if (spare != null)
-                return spare;
-
-            if (Bot.HasInSpellZone(CardId.DarkMagicalCircle) || Bot.HasInSpellZone(CardId.EternalSoul))
-                return null;
-
-            return Bot.GetMonsters().FirstOrDefault(IsDarkMagician);
-        }
-
-        private bool CombinationEffect()
-        {
-            if (Card.Location == CardLocation.Grave)
-            {
-                ClientCard target = PickEnemyCard();
-                if (target == null)
-                    return false;
-                AI.SelectCard(target);
-                return true;
-            }
-
-            if (Card.Location != CardLocation.SpellZone)
-                return false;
-            if (Duel.LastChainPlayer != 1)
-                return false;
-
-            ClientCard tribute = Bot.GetMonsters()
-                .FirstOrDefault(card => IsDarkMagician(card) || card.IsCode(CardId.DarkMagicianGirl));
-            if (tribute == null)
-                return false;
-
-            int substitute = IsDarkMagician(tribute) ? CardId.DarkMagicianGirl : CardId.DarkMagician;
-            QueueCardThenIds(tribute, new List<int> { substitute, CardId.DarkMagician, CardId.DarkMagicianGirl });
-            return true;
-        }
-
         private bool DestinedRivalsEffect()
         {
             if (!HasDarkMagician())
@@ -881,17 +585,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             return Enemy.GetMonsters().Any(card => card.IsFaceup() && card.HasType(CardType.Effect));
         }
 
-        private bool MindPowerShieldEffect()
-        {
-            if (Card.Location != CardLocation.SpellZone)
-                return false;
-            if (CountEnemyFaceup() < 5)
-                return false;
-            return Bot.UnderAttack
-                || Duel.LastChainPlayer == 1
-                || (Duel.Player == 0 && Duel.LastSummonPlayer == 1);
-        }
-
         // =====================================================================
         //  检索 / 铺场
         // =====================================================================
@@ -906,6 +599,19 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 card != null && card.Controller == 0 && IsDarkMagician(card));
             if (dmJustSummoned && Card.Location == CardLocation.SpellZone && Card.IsFaceup())
             {
+                // 对面表侧「永远之魂」= 一颗炸弹：它离场时③会把自己场上怪兽全破坏。
+                // 炸掉它比自己除外一只怪赚得多（尤其对面铺了两只以上，或者那只是受永魂保护的 DM）。
+                ClientCard theirSoul = Enemy.SpellZone.FirstOrDefault(card => card != null
+                    && card.IsFaceup() && card.IsCode(CardId.EternalSoul));
+                if (theirSoul != null
+                    && (Enemy.GetMonsterCount() >= 2
+                        || Enemy.GetMonsters().Any(card => card != null && card.IsFaceup() && IsDarkMagician(card))))
+                {
+                    Trace("Circle: banish enemy eternal soul -> their board wipes");
+                    AI.SelectCard(theirSoul);
+                    return true;
+                }
+
                 // 优先除外对方的额外怪兽 / 大怪；没有的话再挑最麻烦的那张，别白白浪费这一次②
                 ClientCard target = PickCircleTarget()
                     ?? Util.GetProblematicEnemyCard(0, true)
@@ -937,11 +643,9 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             // ② 自己把黑魔术师 / 黑魔术少女召唤·特殊召唤时，从墓地特召另一只
             if (justSummoned && Card.Location == CardLocation.SpellZone && Card.IsFaceup())
             {
-                bool needGirl = CurrentPlan() == Plan.DarkBurning
-                    && !Bot.GetMonsters().Any(card => card.IsCode(CardId.DarkMagicianGirl));
                 ClientCard target = Bot.GetGraveyardMonsters()
                     .Where(card => IsDarkMagician(card) || card.IsCode(CardId.DarkMagicianGirl))
-                    .OrderByDescending(card => needGirl && card.IsCode(CardId.DarkMagicianGirl))
+                    .OrderByDescending(card => card.Attack)
                     .FirstOrDefault();
                 if (target != null)
                 {
@@ -976,7 +680,7 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 return UniqueFaceupSpell();
             }
 
-            if (Bot.HasInHand(CardId.SecretsOfDarkMagic) || Bot.HasInHand(CardId.EyeOfTimaeus))
+            if (Bot.HasInHand(CardId.EyeOfTimaeus))
             {
                 Trace("Salvation held: waiting for the dark magicians");
                 return false;
@@ -1006,6 +710,22 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             return true;
         }
 
+        /// <summary>对面场上有没有「龙骑士 黑魔术师」（会给自家魔陷破坏抗性）。</summary>
+        private bool EnemyHasDragonKnight()
+        {
+            return Enemy.GetMonsters().Any(card => card != null && card.IsFaceup()
+                && card.IsCode(CardId.DarkMagicianTheDragonKnight));
+        }
+
+        /// <summary>
+        /// 对面魔陷区这个位置是不是永魂（盖着也算，选目标时用）。
+        /// 龙骑士在场时它不怕效果破坏，只能靠「离场即③」的风险逼对面自己权衡。
+        /// </summary>
+        private bool IsEnemyEternalSoul(ClientCard card)
+        {
+            return card != null && card.IsCode(CardId.EternalSoul);
+        }
+
         /// <summary>是不是「永续 / 场地 / 装备」这类持续卡。</summary>
         private static bool IsOngoingSpellTrap(ClientCard card)
         {
@@ -1028,6 +748,25 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             // （它们结算完就进墓地，炸了也不占便宜，还白丢一张）
             if (top != null && top.Controller == 1 && top.IsFaceup() && !IsOngoingSpellTrap(top))
                 return false;
+
+            // 对面表侧「永远之魂」= 一颗炸弹：它离场时③会把自己场上怪兽全破坏。
+            // 但**龙骑士在场时它不会被效果破坏**（龙骑士给自家魔陷破坏抗性），
+            // 这种时候旋风/王仆都炸不动，只能留着等他们把永魂开起来那一瞬间再连锁。
+            ClientCard enemySoul = Enemy.SpellZone.FirstOrDefault(card => card != null
+                && card.IsFaceup() && card.IsCode(CardId.EternalSoul));
+            if (enemySoul != null && EnemyHasDragonKnight())
+            {
+                Trace("MST held: enemy soul protected by dragon knight");
+                return false;
+            }
+
+            // 优先炸对面表侧的「永远之魂」——它离场会 ③ 把自己全场怪兽破坏
+            if (enemySoul != null)
+            {
+                Trace("MST: destroy enemy eternal soul (their board wipes)");
+                AI.SelectCard(enemySoul);
+                return true;
+            }
 
             // 优先持续卡（永续/场地/装备），其次盖着的，最后随便一张
             ClientCard target = Enemy.SpellZone.FirstOrDefault(card => card != null && IsOngoingSpellTrap(card))
@@ -1059,9 +798,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         {
             if (Card.Location == CardLocation.Hand)
             {
-                bool soulsHeld = Bot.HasInHand(CardId.MagiciansSouls)
-                    || Bot.HasInMonstersZone(CardId.MagiciansSouls);
-
                 int rodsKnown = Bot.Hand.Count(card => card != null && card.IsCode(CardId.MagiciansRod))
                     + Bot.GetMonsters().Count(card => card.IsCode(CardId.MagiciansRod))
                     + Bot.Graveyard.Count(card => card != null && card.IsCode(CardId.MagiciansRod))
@@ -1076,12 +812,8 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                     searchId = CardId.MagiciansRod;          // 没杖 → 拿杖
                 else if (!servantHeld)
                     searchId = CardId.ServantOfTheKing;      // 有杖 → 拿王仆人
-                else if (!soulsHeld)
-                    searchId = CardId.MagiciansSouls;
-                else if (!HasDarkMagician() && !Bot.HasInHand(CardId.DarkMagician))
-                    searchId = CardId.DarkMagician;
                 else
-                    searchId = CardId.DarkMagician;
+                    searchId = CardId.DarkMagician;          // 剩下的情况拿黑魔术师
 
                 _illusionStage = 1;
                 _illusionSearchId = searchId;
@@ -1092,19 +824,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         }
 
         /// <summary>魔术师双魂：把手上的黑魔术少女/魂之仆人送墓，检索黑魔术师。</summary>
-        private bool MagiciansSoulsEffect()
-        {
-            ClientCard dump = Bot.Hand.FirstOrDefault(card => card != null && card.IsCode(CardId.DarkMagicianGirl))
-                ?? Bot.Hand.FirstOrDefault(card => card != null && card.IsCode(CardId.SoulServant));
-
-            if (dump == null)
-                return false;
-
-            AI.SelectCard(dump.Id);
-            AI.SelectNextCard(CardId.DarkMagician);
-            return true;
-        }
-
         /// <summary>
         /// 魂之仆人①放顶优先级：融合点 → 展开起点 → 铺场点 → 检索 → 盖永魂 → 黑魔术师。
         /// 阵要用它来判断「值不值得为魂仆让路」。
@@ -1195,78 +914,11 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         /// 如果展开链自己就能调度到少女（牵绊 / 幻想 / 救出 / 师徒），就改堆玛娜。
         /// 目的是把「魂之仆人②」的卡名种类（黑魔术师 / 黑魔术少女 / 守护神官）尽量凑满。
         /// </summary>
-        private int SoulsSendTarget()
-        {
-            bool dmgInGrave = Bot.HasInGraveyard(CardId.DarkMagicianGirl);
-            bool manaInGrave = Bot.HasInGraveyard(CardId.PalladiumOracleMana);
-            bool dmgCanBeFetched = CanFetchDarkMagicianGirl();
-
-            if (!dmgInGrave && !dmgCanBeFetched)
-                return CardId.DarkMagicianGirl;
-            if (!manaInGrave)
-                return CardId.PalladiumOracleMana;
-            if (!dmgInGrave)
-                return CardId.DarkMagicianGirl;
-            return CardId.DarkMagician;
-        }
-
-        private bool CanFetchDarkMagicianGirl()
-        {
-            if (Bot.HasInHand(CardId.IllusionOfChaos))
-                return true;
-            if (Bot.HasInHand(CardId.BondBetweenTeacherAndStudent) && HasDarkMagician())
-                return true;
-            if (Bot.HasInSpellZone(CardId.MagiciansSalvation))
-                return true;
-            if (Bot.HasInMonstersZone(CardId.TheDarkMagicians))
-                return true;
-            return false;
-        }
-
         /// <summary>
         /// 阿尼玛（Link-1，箭头朝上）能吃怪时选哪个额外怪兽区：
         /// 左边 z5 指向对方 z3，右边 z6 指向对方 z1。
         /// </summary>
-        private int AnimaPlaceZone()
-        {
-            if (Bot.MonsterZone[5] == null
-                && Enemy.MonsterZone[3] != null && Enemy.MonsterZone[3].IsFaceup())
-                return Zones.z5;
-            if (Bot.MonsterZone[6] == null
-                && Enemy.MonsterZone[1] != null && Enemy.MonsterZone[1].IsFaceup())
-                return Zones.z6;
-            return 0;
-        }
-
-        private bool CanMakeAnimaEat()
-        {
-            return AnimaPlaceZone() != 0;
-        }
-
-        private bool AnimaSummon()
-        {
-            int zone = AnimaPlaceZone();
-            if (zone == 0)
-                return false;
-
-            AI.SelectPlace(zone);
-            return true;
-        }
-
         /// <summary>阿尼玛①：把连接区的对方怪兽装备过来。</summary>
-        private bool AnimaEffect()
-        {
-            ClientCard target = Enemy.GetMonsters()
-                .Where(card => card.IsFaceup())
-                .OrderByDescending(card => card.Attack)
-                .FirstOrDefault();
-            if (target == null)
-                return false;
-
-            AI.SelectCard(target);
-            return true;
-        }
-
         private bool ServantOfTheKingEffect()
         {
             if (Card.Location == CardLocation.Hand)
@@ -1322,36 +974,20 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             if (!chainToContinuous && !wideBackrow && !(enemySpellTraps >= 2 && Duel.Player == 0))
                 return false;
 
+            // 对面永魂被龙骑士护着时，③炸不掉它 —— 留着等他们把永魂开起来那一下再连锁
+            if (Enemy.SpellZone.Any(card => IsEnemyEternalSoul(card) && card.IsFaceup())
+                && EnemyHasDragonKnight())
+            {
+                Trace("Servant held: enemy soul protected by dragon knight");
+                return false;
+            }
+
             ClientCard discard = GetCheapestSpellInHand();
             if (discard == null)
                 return false;
 
             AI.SelectCard(discard);
             return true;
-        }
-
-        private bool TimaeusEffect()
-        {
-            if (Card.Location == CardLocation.Hand)
-            {
-                ClientCard fodder = GetCheapestSpellcaster();
-                if (fodder == null)
-                    return false;
-                AI.SelectCard(fodder);
-                return true;
-            }
-
-            if (Card.Location == CardLocation.MonsterZone)
-            {
-                if (!CanAccessDarkMagician())
-                    return false;
-                if (TitleIsLive())
-                    return false;
-                AI.SelectCard(FusionPreference);
-                return true;
-            }
-
-            return false;
         }
 
         private bool RodEffect()
@@ -1394,75 +1030,15 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             if (HasDarkMagician())
                 return false;
 
-            Plan plan = CurrentPlan();
-            if (plan == Plan.ChaosKnight || plan == Plan.DarkBurning)
-                return true;
-
             return Bot.HasInSpellZone(CardId.DarkMagicalCircle)
                 || Bot.HasInSpellZone(CardId.EternalSoul)
                 || Bot.GetMonsterCount() == 0
                 || Util.IsOneEnemyBetter(true);
         }
 
-        private bool DarkMagicianGirlSummon()
-        {
-            if (!HasDarkMagician())
-                return false;
-            return Bot.HasInHand(CardId.DarkBurningMagic);
-        }
-
         // =====================================================================
         //  解放 / 特殊召唤
         // =====================================================================
-
-        private bool KaijuSummon()
-        {
-            if (Enemy.GetMonsterCount() == 0)
-                return false;
-            if (Bot.HasInMonstersZone(CardId.Radian))
-                return false;
-
-            ClientCard target = Util.GetProblematicEnemyMonster(0, false) ?? Util.GetBestEnemyMonster();
-            if (target == null)
-                return false;
-            if (target.Attack < 2800 && target.GetDefensePower() < 2800 && !target.HasType(CardType.Effect))
-                return false;
-
-            AI.SelectCard(target);
-            return true;
-        }
-
-        private bool CoffinEffect()
-        {
-            if (Card.Location != CardLocation.SpellZone && Card.Location != CardLocation.Hand)
-                return false;
-
-            ClientCard tribute = GetCheapestSpellcaster();
-            if (tribute == null)
-                return false;
-            if (HasDarkMagician() && !Bot.HasInGraveyard(CardId.DarkMagician))
-                return false;
-            if (Bot.GetMonsterCount() == 1 && IsDarkMagician(tribute))
-                return false;
-
-            QueueCardThenIds(tribute, new List<int> { CardId.DarkMagician });
-            return true;
-        }
-
-        private bool KnightsTitleEffect()
-        {
-            ClientCard darkMagician = Bot.GetMonsters().FirstOrDefault(IsDarkMagician);
-            if (darkMagician == null)
-                return false;
-            if (Bot.HasInMonstersZone(CardId.ChaosBlackMagicKnight))
-                return false;
-            if (Bot.HasInBanished(CardId.ChaosBlackMagicKnight))
-                return false;
-
-            _chaosKnightByKnightsTitle = true;
-            AI.SelectCard(darkMagician);
-            return true;
-        }
 
         /// <summary>
         /// 永远之魂：
@@ -1475,7 +1051,10 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             if (Card.Location != CardLocation.SpellZone)
                 return false;
 
-            // 还在盖着：先翻开，不急着用①
+            // 还在盖着：先翻开
+            // 注：一度加过「场面大/对方回合就不翻」的闸门，实测是错的 ——
+            // R#5485 里我们翻永魂时场上其实只剩克劳利，③ 根本没炸掉什么，
+            // 卡着不翻只是把自己的引擎关掉。永魂该翻就翻。
             if (Card.IsFacedown())
             {
                 Trace("EternalSoul: flip up");
@@ -1513,14 +1092,11 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
 
             // 拉不出黑魔术师、又缺攻击魔法 → 检索
             if (!canSummon
-                && !Bot.HasInHand(CardId.DarkMagicAttack)
-                && !Bot.HasInHand(CardId.ThousandKnives))
+                && !Bot.HasInHand(CardId.DarkMagicAttack))
             {
                 AI.SelectOption(1);
                 if (Enemy.GetSpells().Any(card => card.IsFaceup()))
                     AI.SelectCard(CardId.DarkMagicAttack);
-                else
-                    AI.SelectCard(new List<int> { CardId.ThousandKnives, CardId.DarkMagicAttack });
                 return true;
             }
 
@@ -1560,48 +1136,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 .OrderByDescending(card => card.IsExtraCard() ? 1 : 0)
                 .ThenByDescending(card => card.Attack)
                 .FirstOrDefault();
-        }
-
-        private bool NavigationEffect()
-        {
-            if (Card.Location == CardLocation.Grave)
-            {
-                if (!HasDarkMagician())
-                    return false;
-                ClientCard target = Enemy.GetSpells().FirstOrDefault(card => card.IsFaceup());
-                if (target == null)
-                    return false;
-                AI.SelectCard(target);
-                return true;
-            }
-
-            if (Card.Location != CardLocation.SpellZone)
-                return false;
-            if (!Bot.HasInHand(CardId.DarkMagician))
-                return false;
-
-            ClientCard darkMagician = Bot.Hand.FirstOrDefault(card => card != null && card.IsCode(CardId.DarkMagician));
-            if (darkMagician == null)
-                return false;
-
-            QueueCardThenIds(darkMagician, new List<int>
-            {
-                CardId.MagiciansRod,
-                CardId.PalladiumOracleMahad,
-                CardId.MagiciansSouls,
-                CardId.PalladiumOracleMana,
-                CardId.DarkMagicianGirl
-            });
-            return true;
-        }
-
-        private bool BondEffect()
-        {
-            if (!HasDarkMagician())
-                return false;
-
-            QueueIds(CardId.DarkMagicianGirl, CardId.DarkBurningMagic);
-            return true;
         }
 
         private bool CurtainEffect()
@@ -1652,9 +1186,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 return false;
             if (Bot.HasInMonstersZone(CardId.DarkMagicianOfDestruction))
                 return false;
-            if (TitleIsLive())
-                return false;
-
             ClientCard fodder = Bot.GetMonsters()
                 .Where(card => card.Level >= 6
                     && IsMagicCaster(card)
@@ -1674,20 +1205,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         // =====================================================================
         //  融合 / 攻击魔法
         // =====================================================================
-
-        private bool SecretsOfDarkMagicEffect()
-        {
-            if (!CanAccessDarkMagician())
-                return false;
-            if (TitleIsLive())
-                return false;
-
-            AI.SelectOption(0);
-            PlaceMainZone();
-            _pickingFusion = true;
-            AI.SelectCard(CurrentPlan() == Plan.DarkMagicians ? FusionPreferenceDarkMagicians : FusionPreference);
-            return true;
-        }
 
         /// <summary>
         /// 眼光的目标：优先点墓地的黑魔术师/少女。
@@ -1721,9 +1238,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         /// </summary>
         private bool EyeOfTimaeusEffect()
         {
-            if (TitleIsLive())
-                return false;
-
             // 自己回合：必须等主轴走到「眼光」这一步（王仆人/毁灭已经进墓地），否则先捏着
             // （战斗阶段例外：点已经攻击过的怪，出混沌再打两拳）
 
@@ -1768,9 +1282,14 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 + " canLink=" + canLink
                 + " counters=" + SpellCounterCount());
 
-            // 自己回合做龙骑士很亏：结束阶段就被除外，等于白丢一张眼光
-            // 只有能立刻 link 掉（当素材）或能斩杀才发
-            if (Duel.Player == 0 && !canLink && CurrentPlan() != Plan.Lethal)
+            // 自己回合的取舍：
+            //   · 目标是**场上**的怪 → 融合会吃掉一个场值，只有能马上做 Link-3 或斩杀才发
+            //   · 目标是**墓地**的怪 → 不亏场值，等于白捡一只 3000 的龙骑士，
+            //     而且它要「下个回合的结束阶段」才被除外，正好挡对面一个回合
+            //     （R#5485 就是这里错了：克劳利站场、毁灭在墓地、眼光在手里，
+            //      却因为「不能立刻做塞勒涅」把眼光盖下去，结果 T1 终场只有一只 1000 的克劳利）
+            bool fromGrave = target.Location == CardLocation.Grave;
+            if (Duel.Player == 0 && !canLink && CurrentPlan() != Plan.Lethal && !fromGrave)
                 return false;
 
             _eyeActivatedThisTurn = true;
@@ -1908,32 +1427,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             return remaining + 1 >= 3 && hasSpellcaster;
         }
 
-        private bool MonsterRebornEffect()
-        {
-            ClientCard target = Bot.GetGraveyardMonsters()
-                .Where(card => (IsDarkMagician(card) || card.IsCode(CardId.DarkMagicianGirl))
-                    || card.Attack >= 2500)
-                .OrderByDescending(card => card.Attack)
-                .FirstOrDefault();
-            if (target == null)
-                return false;
-
-            AI.SelectCard(target);
-            return true;
-        }
-
-        private bool DarkBurningMagicEffect()
-        {
-            if (!HasDarkMagician())
-                return false;
-            if (!Bot.GetMonsters().Any(card => card.IsCode(CardId.DarkMagicianGirl)))
-                return false;
-
-            if (CurrentPlan() == Plan.Lethal)
-                return Enemy.GetFieldCount() >= 1;
-            return Enemy.GetFieldCount() >= 2;
-        }
-
         private bool DarkMagicAttackEffect()
         {
             if (!HasDarkMagician())
@@ -1948,53 +1441,9 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                     && card.HasType(CardType.Continuous | CardType.Field));
         }
 
-        private bool ThousandKnivesEffect()
-        {
-            if (!HasDarkMagician())
-                return false;
-
-            ClientCard target = Util.GetProblematicEnemyMonster(0, true);
-            if (target == null && CurrentPlan() == Plan.Lethal)
-                target = Util.GetBestEnemyMonster(true, true);
-            if (target == null)
-                return false;
-
-            if (target.Attack < 2500 && target.GetDefensePower() < 2500
-                && !target.HasType(CardType.Effect)
-                && CurrentPlan() != Plan.Lethal)
-                return false;
-
-            AI.SelectCard(target);
-            return true;
-        }
-
         // =====================================================================
         //  额外卡组展开
         // =====================================================================
-
-        private bool Rank7Summon()
-        {
-            return CountBotLevel7() >= 2 && !TitleIsLive();
-        }
-
-        private bool EbonHighSummon()
-        {
-            return CountBotLevel7() >= 2
-                && !TitleIsLive()
-                && Bot.HasInMonstersZone(CardId.EbonIllusionMagician);
-        }
-
-        private bool BigEyeSummon()
-        {
-            if (CountBotLevel7() < 2 || TitleIsLive())
-                return false;
-            return Enemy.GetMonsters().Any(card => card.IsFaceup() && card.Attack >= 3000);
-        }
-
-        private bool Rank6Summon()
-        {
-            return CountBotLevel6Spellcaster() >= 2;
-        }
 
         /// <summary>
         /// 按「连接值最小化」挑 Link 素材：Link-2 + 1 只 = 3，不要拿 3 只去凑。
@@ -2003,7 +1452,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         private bool AssignSeleneMaterials(int required = 3)
         {
             List<ClientCard> pool = Bot.GetMonsters()
-                .Where(card => card != null)
                 .OrderByDescending(card => card.HasType(CardType.Link) ? card.LinkCount : 0)
                 .ToList();
             if (pool.Count == 0)
@@ -2147,47 +1595,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             return true;
         }
 
-        private bool DarkPaladinEffect()
-        {
-            if (Duel.LastChainPlayer != 1)
-                return false;
-            ClientCard chainCard = Util.GetLastChainCard();
-            if (chainCard == null || !chainCard.IsSpell())
-                return false;
-
-            ClientCard discard = Bot.Hand
-                .Where(card => card != null && !card.IsCode(CardId.DarkMagician))
-                .OrderBy(card => card.Attack)
-                .FirstOrDefault();
-            if (discard == null)
-                return false;
-
-            AI.SelectCard(discard);
-            return true;
-        }
-
-        private bool AmuletDragonEffect()
-        {
-            if (Card.Location == CardLocation.MonsterZone)
-            {
-                List<ClientCard> spells = Bot.Graveyard.Where(card => card != null && card.IsSpell()).ToList();
-                spells.AddRange(Enemy.Graveyard.Where(card => card != null && card.IsSpell()));
-                if (spells.Count == 0)
-                    return false;
-                AI.SelectCard(spells.Take(6).ToList());
-                return true;
-            }
-
-            ClientCard target = Bot.GetGraveyardMonsters()
-                .Where(IsMagicCaster)
-                .OrderByDescending(card => card.Attack)
-                .FirstOrDefault();
-            if (target == null)
-                return false;
-            AI.SelectCard(target);
-            return true;
-        }
-
         private bool DarkMagicianOfDestructionEffect()
         {
             int target = DestructionSearchTarget();
@@ -2209,7 +1616,7 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             {
                 ClientCard spell = Bot.Graveyard
                     .Where(card => card != null && card.IsSpell())
-                    .OrderByDescending(card => card.IsCode(CardId.SecretsOfDarkMagic, CardId.EyeOfTimaeus) ? 1 : 0)
+                    .OrderByDescending(card => card.IsCode(CardId.EyeOfTimaeus) ? 1 : 0)
                     .FirstOrDefault();
                 if (spell == null)
                     return false;
@@ -2256,6 +1663,25 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             return true;
         }
 
+        /// <summary>超魔导剑士-黑魔导剑士：对方发动魔法时，丢一张手卡（优先丢攻击力最低的）无效并破坏。</summary>
+        private bool DarkPaladinEffect()
+        {
+            if (Duel.LastChainPlayer != 1)
+                return false;
+            ClientCard chainCard = Util.GetLastChainCard();
+            if (chainCard == null || !chainCard.IsSpell())
+                return false;
+
+            ClientCard discard = Bot.Hand
+                .Where(card => card != null && !card.IsCode(CardId.DarkMagician))
+                .OrderBy(card => card.Attack)
+                .FirstOrDefault();
+            if (discard == null)
+                return false;
+
+            AI.SelectCard(discard);
+            return true;
+        }
         private bool TimaeusFusionEffect()
         {
             if (Duel.Player == 0)
@@ -2266,92 +1692,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             if (target == null)
                 return false;
             AI.SelectCard(target);
-            return true;
-        }
-
-        private bool EbonIllusionEffect()
-        {
-            if (Duel.Phase == DuelPhase.BattleStart || Duel.Phase == DuelPhase.Battle)
-            {
-                ClientCard target = PickEnemyCard();
-                if (target == null)
-                    return false;
-                AI.SelectCard(target);
-                return true;
-            }
-
-            if (!Card.HasXyzMaterial())
-                return false;
-            if (Bot.HasInMonstersZone(CardId.DarkMagician))
-                return false;
-
-            AI.SelectCard(CardId.DarkMagician);
-            return true;
-        }
-
-        private bool EbonHighEffect()
-        {
-            if (Card.Location != CardLocation.Grave)
-                return false;
-
-            ClientCard target = PickEnemyCard();
-            if (target == null)
-            {
-                AI.SelectCard(new List<int> { CardId.DarkMagician, CardId.MagiciansRod });
-                return true;
-            }
-
-            AI.SelectCard(target);
-            AI.SelectNextCard(new List<int> { CardId.DarkMagician, CardId.MagiciansRod });
-            return true;
-        }
-
-        private bool BigEyeEffect()
-        {
-            ClientCard target = Enemy.GetMonsters()
-                .Where(card => card.IsFaceup())
-                .OrderByDescending(card => card.Attack)
-                .FirstOrDefault();
-            if (target == null)
-                return false;
-            AI.SelectCard(target);
-            return true;
-        }
-
-        private bool NoritoEffect()
-        {
-            if (Duel.LastChainPlayer != 1)
-                return false;
-            ClientCard chainCard = Util.GetLastChainCard();
-            return chainCard != null && (chainCard.IsSpell() || chainCard.IsTrap());
-        }
-
-        private bool MagiMagiEffect()
-        {
-            ClientCard target = Util.GetBestEnemyMonster(true);
-            int option = 0;
-            if (target == null)
-            {
-                target = Enemy.GetGraveyardMonsters().OrderByDescending(card => card.Attack).FirstOrDefault();
-                option = 1;
-            }
-            if (target == null)
-                return false;
-
-            AI.SelectOption(option);
-
-            ClientCard cost = Bot.Hand.Where(card => card != null)
-                .OrderBy(card => card.IsSpell() ? 1 : 0)
-                .FirstOrDefault();
-            if (cost != null)
-            {
-                AI.SelectCard(target);
-                AI.SelectNextCard(cost);
-            }
-            else
-            {
-                AI.SelectCard(target);
-            }
             return true;
         }
 
@@ -2413,13 +1753,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         // =====================================================================
 
         /// <summary>暗之护封剑：对方表侧怪兽全部盖下，并锁住表示形式变更。</summary>
-        private bool SwordsOfConcealingLightEffect()
-        {
-            if (Duel.Phase != DuelPhase.Main1 && Duel.Phase != DuelPhase.Main2)
-                return false;
-            return Enemy.GetMonsters().Count(card => card.IsFaceup()) >= 1;
-        }
-
         /// <summary>原石的鸣狞：宣言「黑魔术师」。空场优先（直接从卡组拉），非空场也给黑魔术师战斗抗性。</summary>
         private bool PrimiteRoarEffect()
         {
@@ -2435,121 +1768,12 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         /// 瘴烟之死灵术师（Link-2，2 只含暗属性魔法师族）：
         /// 只当 Link-3 的中转，②效果不发动（会把卡加手并封锁同名卡效果）。
         /// </summary>
-        private bool NecromancerSummon()
-        {
-            if (!LineAllows(Act.Link, CardId.Necromancer))
-                return false;
-            // 只用杂鱼做，不能烧掉黑魔术师/师徒
-            if (DisposableMonsters() < 2)
-                return false;
-            bool hasDarkCaster = Bot.GetMonsters()
-                .Any(card => !IsKeyMonster(card) && IsMagicCaster(card) && card.HasAttribute(CardAttribute.Dark));
-            if (!hasDarkCaster)
-                return false;
-            // 有 3 个杂鱼就直接塞勒涅，只有 2 个才用死灵术师中转
-            return DisposableMonsters() < 3;
-        }
-
-        private bool WitchlingSummon()
-        {
-            if (DisposableMonsters() < 2)
-                return false;
-            if (Bot.GetMonsters().Count(card => !IsKeyMonster(card) && card.HasAttribute(CardAttribute.Dark)) < 2)
-                return false;
-            return Enemy.GetMonsters().Any(card => card.IsFaceup() && card.HasAttribute(CardAttribute.Light))
-                || CurrentPlan() == Plan.Lethal;
-        }
-
-        private bool WitchlingEffect()
-        {
-            ClientCard target = Bot.GetGraveyardMonsters()
-                .Where(card => card.HasAttribute(CardAttribute.Dark))
-                .OrderByDescending(card => card.Attack)
-                .FirstOrDefault();
-            if (target == null)
-                return false;
-            AI.SelectCard(target);
-            return true;
-        }
-
-        private bool DharcSummon()
-        {
-            if (DisposableMonsters() < 2)
-                return false;
-            if (!Bot.GetMonsters().Any(card => !IsKeyMonster(card) && card.HasAttribute(CardAttribute.Dark)))
-                return false;
-            return Enemy.GetGraveyardMonsters().Any(card => card.HasAttribute(CardAttribute.Dark));
-        }
-
-        private bool DharcEffect()
-        {
-            ClientCard target = Enemy.GetGraveyardMonsters()
-                .Where(card => card.HasAttribute(CardAttribute.Dark))
-                .OrderByDescending(card => card.Attack)
-                .FirstOrDefault();
-            if (target == null)
-                return false;
-            AI.SelectCard(target);
-            return true;
-        }
-
-        private bool DaybreakerSummon()
-        {
-            return DisposableMonsters() >= 2
-                && Bot.GetMonsters().Count(card => !IsKeyMonster(card) && IsMagicCaster(card)) >= 2;
-        }
-
-        private bool DaybreakerEffect()
-        {
-            ClientCard target = PickEnemyCard();
-            if (target == null)
-                return false;
-            AI.SelectCard(target);
-            return true;
-        }
-
         /// <summary>
         /// 塞贝克的魔导士（Link-2，效果怪兽 2 只）：
         /// ① 打伤害回血 → ② 双方各扣 1000。
         /// - 平时：拿攻击力合计不到 2000 的两只废件去换；
         /// - 对方血量 &lt; 1000 且这回合能打到人：也拿低攻怪做，靠 1000 烧血收头。
         /// </summary>
-        private bool SebekSummon()
-        {
-            List<ClientCard> weakest = Bot.GetMonsters()
-                .Where(card => !IsKeyMonster(card))
-                .OrderBy(card => card.Attack)
-                .Take(2)
-                .ToList();
-            if (weakest.Count < 2)
-                return false;
-            if (!weakest.All(card => card.HasType(CardType.Effect)))
-                return false;
-
-            // 情况一：两个废件合计不到 2000，换一个 2000 打点
-            if (weakest.Sum(card => card.Attack) < 2000)
-            {
-                AI.SelectCard(weakest);
-                Trace("Sebek: trade weak bodies (" + weakest[0].Id + "," + weakest[1].Id + ")");
-                return true;
-            }
-
-            // 情况二：对方血量不足 1000，做出来打一下触发②烧 1000
-            if (Enemy.LifePoints < 1000 && Bot.LifePoints > 1000)
-            {
-                bool canDealDamage = Enemy.GetMonsterCount() == 0
-                    || Enemy.GetMonsters().Any(card => card.IsFaceup() && card.GetDefensePower() < 2000);
-                if (canDealDamage)
-                {
-                    AI.SelectCard(weakest);
-                    Trace("Sebek: burn finish, enemy lp=" + Enemy.LifePoints);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         // =====================================================================
         //  线路表（数据驱动）
         // =====================================================================
@@ -2633,21 +1857,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         }
 
         /// <summary>这一步还做不做得了（卡完全看不见就当放弃，避免卡死）。</summary>
-        private bool StepPossible(Step step)
-        {
-            if (step.Card == 0)
-                return true;
-
-            // 检索目标在卡组里、变身是额外卡组的事，都看不见，不要因此判定「做不了」
-            if (step.Act == Act.Search || step.Act == Act.Transform)
-                return true;
-
-            // 发动类步骤只看手卡/怪兽区/魔陷区；已经进墓地的卡不能算「还能发动」
-            return Bot.HasInHand(step.Card)
-                || Bot.HasInMonstersZone(step.Card)
-                || Bot.HasInSpellZone(step.Card);
-        }
-
         /// <summary>把已经完成的「召唤」步骤自动跳过（例如杖已经在场上）。</summary>
         private void AdvanceLine()
         {
@@ -2672,26 +1881,13 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             }
         }
 
-        /// <summary>线路闸门：false = 这一步不该做（把动作让给别的线路/默认逻辑）。</summary>
+        /// <summary>
+        /// 线路闸门：目前**全部放行** —— 线路只用来驱动「该检索什么」（LineSearchTarget），
+        /// 不再阻断动作（早期用硬闸门时，线路一旦卡住整局就不出牌）。
+        /// </summary>
         private bool LineAllows(Act act, int cardId)
         {
-            return true;   // 实验：阻断全开
-            AdvanceLine();
-            Step step = CurrentStep();
-            if (step == null)
-                return true;
-
-            // 循环跳过所有做不了的步骤，直到找到真正能做的那一步
-            while (step != null && !StepPossible(step))
-            {
-                _lineStep++;
-                step = CurrentStep();
-            }
-
-            if (step == null)
-                return true;
-
-            return step.Act == act && (step.Card == 0 || step.Card == cardId);
+            return true;
         }
 
         private void LineDone(Act act, int cardId)
@@ -2730,11 +1926,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         private bool NotOnField(int cardId)
         {
             return !Bot.SpellZone.Any(card => card != null && card.IsCode(cardId));
-        }
-
-        private bool SetTrap()
-        {
-            return true;
         }
 
         private bool ReposMonster()
@@ -2785,10 +1976,7 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             }
 
             if (cardId == CardId.MagiciansRod
-                || cardId == CardId.MagiciansSouls
-                || cardId == CardId.PalladiumOracleMana
-                || cardId == CardId.GhostMourner
-                || cardId == CardId.Magikuriboh)
+                || cardId == CardId.GhostMourner)
             {
                 if (positions.Contains(CardPosition.FaceUpDefence))
                     return CardPosition.FaceUpDefence;
@@ -2805,14 +1993,25 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         {
             List<ClientCard> ordered = new List<ClientCard>();
 
-            ClientCard darkMagician = cards.FirstOrDefault(card => IsDarkMagician(card));
-            if (darkMagician != null)
+            // 融合素材优先用「卡名当作黑魔术师」的替身（毁灭 / 王仆人 / 龙骑士），
+            // 真·黑魔术师留到最后 —— 它是 2500 的打手，不是耗材。
+            foreach (int id in new[] { CardId.DarkMagicianOfDestruction, CardId.ServantOfTheKing,
+                                       CardId.DarkMagicianTheDragonKnight })
+            {
+                ClientCard standin = cards.FirstOrDefault(card => card != null && card.IsCode(id));
+                if (standin != null && !ordered.Contains(standin))
+                    ordered.Add(standin);
+            }
+
+            ClientCard darkMagician = cards.FirstOrDefault(card => card.IsCode(CardId.DarkMagician));
+            if (darkMagician != null && !ordered.Contains(darkMagician))
                 ordered.Add(darkMagician);
 
             ClientCard darkMagicianGirl = cards.FirstOrDefault(card => card.IsCode(CardId.DarkMagicianGirl));
             if (darkMagicianGirl != null && !ordered.Contains(darkMagicianGirl))
                 ordered.Add(darkMagicianGirl);
 
+            // 其余按攻击力从低往高（先吃杂鱼）
             foreach (ClientCard card in cards.OrderBy(card => card.Attack))
             {
                 if (!ordered.Contains(card))
@@ -2895,11 +2094,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         }
 
         /// <summary>可以随便拿去当 Link 素材的杂鱼数量（不含黑魔术师系 / 师徒 / 龙骑士）。</summary>
-        private int DisposableMonsters()
-        {
-            return Bot.GetMonsters().Count(card => !IsKeyMonster(card));
-        }
-
         /// <summary>不能拿去当 Link 素材的关键怪兽（毁灭可以被眼光回收，算消耗品）。</summary>
         private static bool IsKeyMonster(ClientCard card)
         {
@@ -2908,8 +2102,7 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             return card.IsCode(CardId.DarkMagician)
                 || card.IsCode(CardId.ServantOfTheKing)
                 || card.IsCode(CardId.DarkMagicianTheDragonKnight)
-                || card.IsCode(CardId.TheDarkMagicians)
-                || card.IsCode(CardId.ChaosBlackMagicKnight);
+                || card.IsCode(CardId.TheDarkMagicians);
         }
 
         /// <summary>记录眼光到底拉出了哪只融合怪兽。</summary>
@@ -3027,7 +2220,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                         .Where(card => card != null
                             && !IsKeyMonster(card)
                             && !card.IsCode(CardId.MagiciansRod)
-                            && !card.IsCode(CardId.MagiciansSouls)
                             && !card.IsCode(CardId.EyeOfTimaeus)
                             && !card.IsCode(CardId.SpellbookOfSecrets)
                             && !card.IsCode(CardId.SpellbookOfKnowledge))
@@ -3093,6 +2285,11 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 return false;
             if (Bot.Hand.Count >= 6)
                 return false;
+            // 一回合只发一张：第二张也是「对面回 1000 我们抽 1」，
+            // 等于白送 2000 血（R#5397 开局连发两张成金，对面 10000 血开局）
+            if (_upstartUsedThisTurn)
+                return false;
+            _upstartUsedThisTurn = true;
             return true;
         }
 
@@ -3117,12 +2314,13 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         private bool SpellbookOfKnowledgeEffect()
         {
             Trace("SB: knowledge tried");
-            // 解放对象只能是这四类，且**绝不能选连接怪兽**（否则场值不够做塞勒涅）
-            //   巴特尔 > 黑魔术师 > 杖 > 王仆人
+            // 解放对象只能是这三类，且**绝不能选连接怪兽**（否则场值不够做塞勒涅）
+            //   巴特尔 > 杖 > 王仆人
+            // 黑魔术师不在这里：它是 2500 的打手，不是抽卡素材
+            // （R#5397 复盘：拿场上的黑魔术师去喂冰火，等于自己把大怪拆了）
             int[] order =
             {
                 CardId.SpellbookMagician,
-                CardId.DarkMagician,
                 CardId.MagiciansRod,
                 CardId.ServantOfTheKing
             };
@@ -3175,9 +2373,8 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         public override void OnNewTurn()
         {
             base.OnNewTurn();
-            _chaosKnightByKnightsTitle = false;
             _spellActivatedThisTurn = false;
-            _soulServantUsedThisTurn = false;
+            _upstartUsedThisTurn = false;
             _eyeActivatedThisTurn = false;
             _eyeFusionId = 0;
             _curtainStage = 0;
@@ -3185,12 +2382,17 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             PickLine();
 
             // 每回合开头记一次场面快照，复盘时能直接对上
-            Trace("==== TURN " + Duel.Turn + " player=" + Duel.Player
+            // 同时把同样的内容打到 stdout：多桌并行时共用一个 trace 文件会串行，
+            // 但每个 bot 进程的 stdout 是独立的，可以按局归档做「先手/后手 × 胜负」统计。
+            string snapshot = "TURN " + Duel.Turn + " player=" + Duel.Player
                 + " LP=" + Bot.LifePoints + "/" + Enemy.LifePoints
                 + " hand=[" + Ids(Bot.Hand) + "]"
                 + " myfield=[" + Ids(Bot.GetMonsters()) + "]"
                 + " oppfield=[" + Ids(Enemy.GetMonsters()) + "]"
-                + " mygy=[" + Ids(Bot.Graveyard) + "]");
+                + " oppspell=[" + Ids(Enemy.SpellZone) + "]"
+                + " mygy=[" + Ids(Bot.Graveyard) + "]";
+            WindBot.Logger.WriteLine("SNAP " + snapshot);
+            Trace("==== " + snapshot);
         }
 
         /// <summary>记录本回合自己是否发动过魔法卡（毁灭的出场条件）。</summary>
@@ -3199,8 +2401,6 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             base.OnChaining(player, card);
             if (player == 0 && card != null && card.IsSpell())
                 _spellActivatedThisTurn = true;
-            if (player == 0 && card != null && card.IsCode(CardId.SoulServant))
-                _soulServantUsedThisTurn = true;
         }
     }
 
