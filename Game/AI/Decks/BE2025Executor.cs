@@ -1313,7 +1313,7 @@ namespace WindBot.Game.AI.Decks
                     var c = Bot.Graveyard.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
                     if (c != null) pick = c;
                 }
-                else if (Bot.HasInHand(CardId.BlueEyesWhiteDragon) && !(canNormal && Bot.HasInGraveyard(CardId.KaibamanTheLegend)))
+                else if (Bot.HasInHand(CardId.BlueEyesWhiteDragon) && (canNormal || Bot.HasInGraveyard(CardId.KaibamanTheLegend)))
                 {
                     var c = Bot.Hand.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
                     if (c != null) pick = c;
