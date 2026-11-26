@@ -340,8 +340,12 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
         }
 
         /// <summary>把关键决策写进 Atem-trace.log，方便复盘（出错时把这个文件发我）。</summary>
-        private static void Trace(string message)
+        private void Trace(string message)
         {
+#if !DEBUG
+            if (!AI.Game.Debug)
+                return;
+#endif
             try
             {
                 System.IO.File.AppendAllText(
@@ -2380,6 +2384,11 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
             _curtainStage = 0;
             _pickingFusion = false;
             PickLine();
+
+#if !DEBUG
+            if (!AI.Game.Debug)
+                return;
+#endif
 
             // 每回合开头记一次场面快照，复盘时能直接对上
             // 同时把同样的内容打到 stdout：多桌并行时共用一个 trace 文件会串行，
