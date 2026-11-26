@@ -79,8 +79,8 @@ namespace WindBot.Game.AI.Decks
             CardId.NibiruThePrimalBeing,
             CardId.BlueEyesChaosMAXDragon,
             CardId.BlueEyesJetDragon,
-            CardId.Gogo,
             CardId.BlueEyesWhiteDragon,
+            CardId.Gogo,
             CardId.MaidenOfWhite,
             CardId.DeepEyes,
             _CardId.InfiniteImpermanence,
@@ -200,8 +200,6 @@ namespace WindBot.Game.AI.Decks
             currentNegateCardList.Clear();
             currentDestroyCardList.Clear();
             enemyPlaceThisTurn.Clear();
-
-
 
             base.OnNewTurn();
         }
@@ -1306,20 +1304,15 @@ namespace WindBot.Game.AI.Decks
             {
                 Logger.DebugWriteLine("Check Link1 Active");
                 if (Bot.GetMonsterCountWithoutExtraMonster() >= 5) return false;
-                bool canNormal = Bot.HasInHandOrInSpellZone(CardId.MausoleumOfWhite) ? normalSummon < 2 : normalSummon < 1;
-                bool canUseMaiden = !SSMaiden && Bot.HasInGraveyard(CardId.MaidenOfWhite);
-                ClientCard pick = null;
-                if (Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon))
-                {
-                    var c = Bot.Graveyard.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
-                    if (c != null) pick = c;
-                }
-                else if (Bot.HasInHand(CardId.BlueEyesWhiteDragon) && (canNormal || Bot.HasInGraveyard(CardId.KaibamanTheLegend) || canUseMaiden))
-                {
-                    var c = Bot.Hand.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
-                    if (c != null) pick = c;
-                }
-                if (pick == null) return false;
+                ClientCard pick = Bot.Graveyard.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
+
+				if (pick == null)
+				{
+					pick = Bot.Hand.FirstOrDefault(
+						x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
+				}
+
+				if (pick == null) return false;
                 ActivateSpiritWithEyesOfBlue = true;
                 Logger.DebugWriteLine("Link1 Active");
                 AI.SelectCard(pick);
