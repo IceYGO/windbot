@@ -1307,13 +1307,14 @@ namespace WindBot.Game.AI.Decks
                 Logger.DebugWriteLine("Check Link1 Active");
                 if (Bot.GetMonsterCountWithoutExtraMonster() >= 5) return false;
                 bool canNormal = Bot.HasInHandOrInSpellZone(CardId.MausoleumOfWhite) ? normalSummon < 2 : normalSummon < 1;
+                bool canUseMaiden = !SSMaiden && Bot.HasInGraveyard(CardId.MaidenOfWhite);
                 ClientCard pick = null;
                 if (Bot.HasInGraveyard(CardId.BlueEyesWhiteDragon))
                 {
                     var c = Bot.Graveyard.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
                     if (c != null) pick = c;
                 }
-                else if (Bot.HasInHand(CardId.BlueEyesWhiteDragon) && (canNormal || Bot.HasInGraveyard(CardId.KaibamanTheLegend)))
+                else if (Bot.HasInHand(CardId.BlueEyesWhiteDragon) && (canNormal || Bot.HasInGraveyard(CardId.KaibamanTheLegend) || canUseMaiden))
                 {
                     var c = Bot.Hand.FirstOrDefault(x => x != null && x.IsCode(CardId.BlueEyesWhiteDragon));
                     if (c != null) pick = c;
