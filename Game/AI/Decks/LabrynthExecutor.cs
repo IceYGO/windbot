@@ -3008,12 +3008,24 @@ namespace WindBot.Game.AI.Decks
                     return true;
                 }
             }
+            foreach (ChainInfo chain in Duel.CurrentChainInfo)
+            {
+                if (chain == null || chain.ActivatePlayer != 1 || !chain.IsOneForSynchroEffect())
+                    continue;
+                ClientCard related = chain.RelatedCard;
+                if (related != null && (related.IsDisabled() || currentNegateMonsterList.Contains(related)))
+                    continue;
+                if (dimensionBarrierAnnouncing && related != null)
+                    currentNegateMonsterList.Add(related);
+                return true;
+            }
             if (Duel.Player == 1 && !Util.ChainContainsCard(CardId.DestructiveDarumaKarmaCannon) && Enemy.ExtraDeck.Count() > 0)
             {
                 bool tunerCheck = false;
                 bool nontunerCheck = false;
                 foreach (ClientCard monster in Enemy.GetMonsters())
                 {
+                    if (monster.IsOneForSynchro()) return true;
                     if (monster.IsFacedown() || monster.HasType(CardType.Xyz | CardType.Link)) continue;
                     if (monster.HasType(CardType.Tuner)) tunerCheck = true;
                     else nontunerCheck = true;
