@@ -187,15 +187,25 @@ namespace WindBot.Game
             return GetCount(Hand);
         }
 
-        public int GetSpellCountWithoutField()
+        private int GetCountWithoutExtra(ClientCard[] zones)
         {
             int count = 0;
             for (int i = 0; i < 5; ++i)
             {
-                if (SpellZone[i] != null)
+                if (zones[i] != null)
                     ++count;
             }
             return count;
+        }
+
+        public int GetSpellCountWithoutField()
+        {
+            return GetCountWithoutExtra(SpellZone);
+        }
+
+        public int GetMonsterCountWithoutExtraMonster()
+        {
+          return GetCountWithoutExtra(MonsterZone);
         }
 
         /// <summary>
