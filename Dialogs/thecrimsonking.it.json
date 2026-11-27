@@ -1,0 +1,71 @@
+{
+  "welcome": [
+    "Quindi vuoi una sfida? Molto bene, accetto."
+  ],
+  "deckerror": [
+    "Mmm... la lista delle carte proibite ha colpito di nuovo {0} nel mio Deck."
+  ],
+  "duelstart": [
+    "Sei pronto?",
+    "Spero che tu sia pronto."
+  ],
+  "newturn": [
+    "È il mio turno! Pesco!",
+    "Tocca a me. Pesco!",
+    "Pesco!"
+  ],
+  "endturn": [
+    "Termino il mio turno.",
+    "Il mio turno è finito.",
+    "Tocca a te."
+  ],
+  "directattack": [
+    "{0}, attacco diretto!",
+    "{0}, attaccalo direttamente!",
+    "Sei vulnerabile. Attacca, {0}!",
+    "{0}, attaccalo con tutte le tue forze!",
+    "{0}, attacca direttamente i suoi Life Points!",
+    "{0}, scatena la tua potenza!",
+    "Senti la furia del mio {0}!",
+    "Ammira la potenza del mio {0}!",
+    "Non mi fermerò qui! {0}, attacca!"
+  ],
+  "attack": [
+    "{0}, attacca il suo {1}!",
+    "{0}, distruggi il suo {1}!",
+    "Il mio {0} annienterà il tuo {1}!",
+    "Il tuo {1} non è all'altezza del mio {0}!",
+    "{0}, scatena la tua potenza sul suo {1}!"
+  ],
+  "ondirectattack": [
+    "Hmm...",
+    "{0}, eh...",
+    "Ti servirà ben altro.",
+    "È solo un graffio!"
+  ],
+  "facedownmonstername": "mostro",
+  "activate": [
+    "Attivo {0}!",
+    "Userò l'effetto di {0}."
+  ],
+  "summon": [
+    "Evoco {0}!",
+    "Vieni fuori, {0}!",
+    "Ecco a voi {0}!",
+    "Alzati, {0}!"
+  ],
+  "setmonster": [
+    "Posiziono un mostro coperto."
+  ],
+  "chaining": [
+    "Non così in fretta! Attivo {0}!",
+    "Aspetta un momento, concateno {0}!",
+    "Bella mossa, ma userò {0}!"
+  ],
+  "surrender": [
+    "Mi arrendo.",
+    "Va bene, hai vinto.",
+    "Beh, anche io posso perdere qualche volta.",
+    "Basta così. Non voglio più continuare a giocare."
+  ]
+}

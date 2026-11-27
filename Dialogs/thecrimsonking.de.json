@@ -1,0 +1,71 @@
+{
+  "welcome": [
+    "Du willst also eine Herausforderung? Nun gut, ich nehme sie an."
+  ],
+  "deckerror": [
+    "Hm ... die Bannliste hat schon wieder {0} aus meinem Deck erwischt."
+  ],
+  "duelstart": [
+    "Bist du bereit?",
+    "Ich hoffe, du bist bereit."
+  ],
+  "newturn": [
+    "Ich bin dran! Ziehen!",
+    "Mein Zug. Ich ziehe!",
+    "Ich ziehe!"
+  ],
+  "endturn": [
+    "Ich beende meinen Zug.",
+    "Mein Zug ist vorbei.",
+    "Du bist dran."
+  ],
+  "directattack": [
+    "{0}, direkter Angriff!",
+    "{0}, greif ihn direkt an!",
+    "Du bist verwundbar. Angriff, {0}!",
+    "{0}, greif ihn mit aller Macht an!",
+    "{0}, greif seine Lebenspunkte direkt an!",
+    "{0}, entfessle deine Macht!",
+    "Spüre die Wut meines {0}!",
+    "Erblicke die Macht meines {0}!",
+    "Ich höre hier nicht auf! {0}, greif an!"
+  ],
+  "attack": [
+    "{0}, greif seinen {1} an!",
+    "{0}, zerstöre seinen {1}!",
+    "Mein {0} wird deinen {1} vernichten!",
+    "Dein {1} ist meinem {0} nicht gewachsen!",
+    "{0}, entfessle deine Macht gegen seinen {1}!"
+  ],
+  "ondirectattack": [
+    "Hmm ...",
+    "{0}, hm ...",
+    "Du wirst mehr brauchen als das.",
+    "Das war nur ein Kratzer!"
+  ],
+  "facedownmonstername": "Monster",
+  "activate": [
+    "Ich aktiviere {0}!",
+    "Ich werde den Effekt von {0} einsetzen."
+  ],
+  "summon": [
+    "Ich beschwöre {0}!",
+    "Komm hervor, {0}!",
+    "Erblicke {0}!",
+    "Erhebe dich, {0}!"
+  ],
+  "setmonster": [
+    "Ich setze ein Monster verdeckt."
+  ],
+  "chaining": [
+    "Nicht so schnell! Ich aktiviere {0}!",
+    "Warte einen Moment, ich kette {0} an!",
+    "Guter Zug, aber ich werde {0} einsetzen!"
+  ],
+  "surrender": [
+    "Ich gebe auf.",
+    "In Ordnung, du hast gewonnen.",
+    "Nun, manchmal kann auch ich verlieren.",
+    "Das reicht. Ich möchte nicht mehr weiterspielen."
+  ]
+}
