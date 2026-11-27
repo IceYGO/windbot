@@ -2400,7 +2400,7 @@ AddExecutor(ExecutorType.Summon, CardId.MagiciansRod, () => true);
                 + " oppfield=[" + Ids(Enemy.GetMonsters()) + "]"
                 + " oppspell=[" + Ids(Enemy.SpellZone) + "]"
                 + " mygy=[" + Ids(Bot.Graveyard) + "]";
-            WindBot.Logger.WriteLine("SNAP " + snapshot);
+            Logger.WriteLine("SNAP " + snapshot);
             Trace("==== " + snapshot);
         }
 
