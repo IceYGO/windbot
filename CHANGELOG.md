@@ -2,6 +2,8 @@
 
 ## Current (latest)
 
+ - New deck: Ashtra, SirokamiDarkMagician
+ - Improve BE2025 combos
  - New deck: Elfnote
  - Expand the known card enums and battle-target protection rules
  - Fix project configuration and SQLite library placement in Mono CI artifacts; publish Mono build artifacts
