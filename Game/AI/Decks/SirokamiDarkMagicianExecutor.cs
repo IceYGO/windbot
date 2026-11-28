@@ -115,6 +115,8 @@ namespace WindBot.Game.AI.Decks
         private int _eyeFusionId;
 
         private int _illusionSearchId;
+        private int _accesscodeUsedAttributes;
+        private readonly Dictionary<int, int> _accesscodeCostAttributes = new Dictionary<int, int>();
 
         public SirokamiDarkMagicianExecutor(GameAI ai, Duel duel)
             : base(ai, duel)
@@ -1665,7 +1667,8 @@ namespace WindBot.Game.AI.Decks
             // 破坏效果先支付除外代价，再在处理时选择要破坏的卡；保留场上的访问本体。
             ClientCard link = Bot.GetGraveyardMonsters()
                 .Where(card => card != null && card.HasType(CardType.Link)
-                    && !card.IsCode(CardId.AccesscodeTalker))
+                    && !card.IsCode(CardId.AccesscodeTalker)
+                    && (card.Attribute & _accesscodeUsedAttributes) == 0)
                 .OrderByDescending(card => card.LinkCount)
                 .FirstOrDefault();
             if (link == null)
@@ -1872,15 +1875,6 @@ namespace WindBot.Game.AI.Decks
         public override bool OnSelectHand()
         {
             return true;
-        }
-
-        public override bool OnPreBattleBetween(ClientCard attacker, ClientCard defender)
-        {
-            if (attacker.IsCode(CardId.DarkMagician, CardId.DarkMagicianTheDragonKnight)
-                && Bot.HasInSpellZone(CardId.EternalSoul))
-                return true;
-
-            return base.OnPreBattleBetween(attacker, defender);
         }
 
         public override CardPosition OnSelectPosition(int cardId, IList<CardPosition> positions)
@@ -2261,10 +2255,33 @@ namespace WindBot.Game.AI.Decks
                 .Select(card => card.Id.ToString()).ToArray());
         }
 
+        public override void OnMove(ClientCard card, int previousControler, int previousLocation, int currentControler, int currentLocation)
+        {
+            base.OnMove(card, previousControler, previousLocation, currentControler, currentLocation);
+            ClientCard chainCard = Duel.GetCurrentChainCard();
+            if (chainCard != null && chainCard.Controller == 0 && chainCard.IsCode(CardId.AccesscodeTalker)
+                && previousControler == 0 && currentControler == 0
+                && (previousLocation == (int)CardLocation.Grave || previousLocation == (int)CardLocation.MonsterZone)
+                && currentLocation == (int)CardLocation.Removed && card.HasType(CardType.Link))
+                _accesscodeCostAttributes[Duel.CurrentChain.Count] = card.Attribute;
+        }
+
+        public override void OnChainSolved(int chainIndex)
+        {
+            base.OnChainSolved(chainIndex);
+            int attribute;
+            // 同属性限制由破坏效果处理时施加；只支付代价但被无效时不应禁用该属性。
+            if (_accesscodeCostAttributes.TryGetValue(chainIndex, out attribute)
+                && !Duel.NegatedChainIndexList.Contains(chainIndex))
+                _accesscodeUsedAttributes |= attribute;
+            _accesscodeCostAttributes.Remove(chainIndex);
+        }
+
         public override void OnChainEnd()
         {
             base.OnChainEnd();
             _illusionSearchId = 0;
+            _accesscodeCostAttributes.Clear();
         }
 
         public override void OnNewTurn()
@@ -2272,6 +2289,8 @@ namespace WindBot.Game.AI.Decks
             base.OnNewTurn();
             _spellActivatedThisTurn = false;
             _upstartUsedThisTurn = false;
+            _accesscodeUsedAttributes = 0;
+            _accesscodeCostAttributes.Clear();
             _eyeActivatedThisTurn = false;
             _eyeFusionId = 0;
             _illusionSearchId = 0;

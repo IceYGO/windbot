@@ -1753,10 +1753,6 @@ namespace WindBot.Game.AI.Decks
             {
                 attacker.RealPower += 2000;
             }
-            if (attacker.IsCode(CardId.DarkMagician, CardId.DarkMagicianTheDragonKnight) && Bot.HasInSpellZone(CardId.EternalSoul))
-            {
-                return true;
-            }
             if (attacker.IsCode(CardId.CrystalWingSynchroDragon))
             {
                 if (defender.Level >= 5)
@@ -1772,8 +1768,6 @@ namespace WindBot.Game.AI.Decks
             }
             if (attacker.IsCode(CardId.ApprenticeLllusionMagician))
                 Logger.DebugWriteLine("@@@@@@@@@@@@@@@@@@@ApprenticeLllusionMagician= " + attacker.RealPower);
-            if (Bot.HasInSpellZone(CardId.EternalSoul) && attacker.IsCode(CardId.DarkMagician, CardId.DarkMagicianTheDragonKnight, CardId.MagicianOfLllusion))
-                return true;
             return base.OnPreBattleBetween(attacker, defender);
         }
         /*
